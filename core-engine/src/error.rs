@@ -15,7 +15,10 @@ pub enum CoreEngineError {
     DocumentError(String),
 
     #[error("IO error: {0}")]
-    IoError(#[from] std::io::Error),
+    Io(String),
+
+    #[error("Feature not implemented: {0}")]
+    NotImplemented(String),
 
     #[error("Serialization error: {0}")]
     SerializationError(#[from] serde_json::Error),
@@ -60,5 +63,13 @@ impl CoreEngineError {
 
     pub fn migration(msg: impl Into<String>) -> Self {
         Self::MigrationError(msg.into())
+    }
+
+    pub fn not_implemented(msg: impl Into<String>) -> Self {
+        Self::NotImplemented(msg.into())
+    }
+
+    pub fn io(msg: impl Into<String>) -> Self {
+        Self::Io(msg.into())
     }
 }

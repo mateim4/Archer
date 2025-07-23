@@ -1,0 +1,25 @@
+<SystemConfiguration Model="PowerEdge R740" ServiceTag="G1FWHQ2" TimeStamp="2023-10-27T10:00:00">
+  <Component FQDD="BIOS.Setup.1-1">
+    <Attribute Name="ProcCores">All</Attribute>
+    <Attribute Name="ProcVirtualization">Enabled</Attribute>
+    <Attribute Name="MemTest">Disabled</Attribute>
+  </Component>
+  <Component FQDD="iDRAC.Embedded.1">
+    <Attribute Name="DNSRacName">idrac-g1fwhq2</Attribute>
+    <Attribute Name="DNSDomainName">corp.example.com</Attribute>
+    <Attribute Name="SEKM.1#SEKMStatus">Enabled</Attribute>
+    <Attribute Name="KMS.1#PrimaryServerAddress">100.64.25.206</Attribute>
+  </Component>
+  <Component FQDD="NIC.Slot.4-1-1">
+    <Attribute Name="VLanMode">Disabled</Attribute>
+    <Attribute Name="LegacyBootProto">PXE</Attribute>
+  </Component>
+  <Component FQDD="RAID.Integrated.1-1">
+      <Attribute Name="RAIDresetConfig">False</Attribute>
+      <Component FQDD="Disk.Virtual.0:RAID.Integrated.1-1">
+          <Attribute Name="RAIDaction">Create</Attribute>
+          <Attribute Name="RAIDlevel">1</Attribute>
+          <Attribute Name="Name">OS_Disk</Attribute>
+      </Component>
+  </Component>
+</SystemConfiguration>

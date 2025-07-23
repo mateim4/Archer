@@ -177,7 +177,7 @@ pub struct VirtualDisk {
 }
 
 /// Disk provisioning types
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum ProvisioningType {
     Thick,
     ThickEagerZeroed,
@@ -570,6 +570,123 @@ pub struct SavingsAnalysis {
     pub three_year_savings: f64,
     pub five_year_savings: f64,
     pub savings_percentage: f32,
+}
+
+// --- Universal Server Configuration Models ---
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct UniversalServer {
+    pub vendor: String,
+    pub model_name: Option<String>,
+    pub base_chassis_part_number: Option<String>,
+    pub serial_number: Option<String>,
+    pub cpus: Vec<CPU>,
+    pub memory: Vec<MemoryDIMM>,
+    pub storage_controllers: Vec<StorageController>,
+    pub physical_disks: Vec<PhysicalDisk>,
+    pub virtual_disks: Vec<VirtualDiskConfig>,
+    pub network_adapters: Vec<NetworkAdapter>,
+    pub power_supplies: Vec<PowerSupply>,
+    pub management: Option<ManagementController>,
+    pub services: Vec<ServiceContract>,
+    pub pricing: Option<PricingInfo>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct CPU {
+    pub vendor_part_number: Option<String>,
+    pub model_string: Option<String>,
+    pub core_count: Option<u32>,
+    pub thread_count: Option<u32>,
+    pub speed_ghz: Option<f32>,
+    pub vendor_specific_attributes: HashMap<String, String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct MemoryDIMM {
+    pub vendor_part_number: Option<String>,
+    pub capacity_gb: Option<u32>,
+    pub speed_mhz: Option<u32>,
+    pub memory_type: Option<String>,
+    pub vendor_specific_attributes: HashMap<String, String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct StorageController {
+    pub fqdd: Option<String>,
+    pub vendor_part_number: Option<String>,
+    pub model: Option<String>,
+    pub vendor_specific_attributes: HashMap<String, String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct PhysicalDisk {
+    pub fqdd: Option<String>,
+    pub vendor_part_number: Option<String>,
+    pub model: Option<String>,
+    pub capacity_gb: Option<u32>,
+    pub disk_type: Option<String>, // e.g., "SSD", "HDD"
+    pub interface_type: Option<String>, // e.g., "SAS", "SATA", "NVMe"
+    pub vendor_specific_attributes: HashMap<String, String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct VirtualDiskConfig {
+    pub fqdd: Option<String>,
+    pub name: Option<String>,
+    pub raid_level: Option<String>,
+    pub member_disks: Vec<String>, // List of PhysicalDisk FQDDs
+    pub vendor_specific_attributes: HashMap<String, String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct NetworkAdapter {
+    pub fqdd: Option<String>,
+    pub vendor_part_number: Option<String>,
+    pub model: Option<String>,
+    pub ports: Vec<NetworkPort>,
+    pub vendor_specific_attributes: HashMap<String, String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct NetworkPort {
+    pub fqdd: Option<String>,
+    pub port_number: u32,
+    pub link_speed_gbps: Option<u32>,
+    pub vendor_specific_attributes: HashMap<String, String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct PowerSupply {
+    pub fqdd: Option<String>,
+    pub vendor_part_number: Option<String>,
+    pub model: Option<String>,
+    pub output_watts: Option<u32>,
+    pub vendor_specific_attributes: HashMap<String, String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct ManagementController {
+    pub fqdd: Option<String>,
+    pub model: Option<String>,
+    pub firmware_version: Option<String>,
+    pub ip_address: Option<String>,
+    pub dns_name: Option<String>,
+    pub vendor_specific_attributes: HashMap<String, String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct ServiceContract {
+    pub part_number: String,
+    pub description: String,
+    pub quantity: u32,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct PricingInfo {
+    pub list_price: Option<f64>,
+    pub discounted_price: Option<f64>,
+    pub currency: String,
 }
 
 impl Default for SizingParameters {

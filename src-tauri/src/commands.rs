@@ -1,5 +1,5 @@
 use crate::state::*;
-use core_engine::{parser, analysis, sizing, forecasting, translation, document_generation};
+use core_engine::{parser, analysis, sizing, forecasting, translation, document_generation, hardware_parser};
 use core_engine::models::*;
 use core_engine::error::CoreEngineError;
 use serde_json::Value as JsonValue;
@@ -494,6 +494,18 @@ pub struct EnvironmentSummary {
     pub total_storage_gb: f64,
     pub power_on_vms: u32,
     pub power_off_vms: u32,
+}
+
+/// Parse a hardware configuration file (e.g., Dell SCP, Lenovo DCSC)
+#[tauri::command]
+pub async fn parse_hardware_file(
+    file_path: String,
+) -> Result<UniversalServer, String> {
+    let parser = hardware_parser::UniversalParser;
+    match parser.parse_file(&file_path) {
+        Ok(server) => Ok(server),
+        Err(e) => Err(format!("Failed to parse hardware file: {}", e)),
+    }
 }
 
 /// TCO calculation result

@@ -48,7 +48,7 @@ impl DocumentGenerator {
 
         // Generate document bytes
         let mut buf = std::io::Cursor::new(Vec::new());
-        doc.build().pack(&mut buf).map_err(|e| CoreEngineError::IoError(std::io::Error::new(std::io::ErrorKind::Other, format!("Failed to pack document: {}", e))))?;
+        doc.build().pack(&mut buf).map_err(|e| CoreEngineError::Io(format!("Failed to pack document: {}", e)))?;
         Ok(buf.into_inner())
     }
 
@@ -87,7 +87,7 @@ impl DocumentGenerator {
 
         // Generate document bytes
         let mut buf = std::io::Cursor::new(Vec::new());
-        doc.build().pack(&mut buf).map_err(|e| CoreEngineError::IoError(std::io::Error::new(std::io::ErrorKind::Other, format!("Failed to pack document: {}", e))))?;
+        doc.build().pack(&mut buf).map_err(|e| CoreEngineError::Io(format!("Failed to pack document: {}", e)))?;
         Ok(buf.into_inner())
     }
 
