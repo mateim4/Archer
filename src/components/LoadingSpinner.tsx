@@ -21,7 +21,7 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   const spinner = (
     <div className="flex flex-col items-center justify-center">
       <RefreshCw 
-        className={`${sizeClasses[size]} animate-spin text-blue-600 mb-3`}
+        className={`${sizeClasses[size]} animate-spin text-orange-600 mb-3`}
       />
       {message && (
         <div 

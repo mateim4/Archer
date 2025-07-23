@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import CustomSlider from '../components/CustomSlider';
 
 const MigrationPlannerView: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedClusters, setSelectedClusters] = useState<string[]>([]);
-  const [migrationDuration, setMigrationDuration] = useState(6); // months instead of years
-  const [migrationWave, setMigrationWave] = useState(1); // migration wave number
+  const [migrationDuration, setMigrationDuration] = useState(12); // months
+  const [migrationWave, setMigrationWave] = useState(25); // migration wave percentage
   const [migrationApproach, setMigrationApproach] = useState('Phased'); // Phased, Parallel, Big Bang
   const [targetPlatform, setTargetPlatform] = useState<string | null>(null);
   const [targetStorage, setTargetStorage] = useState<string | null>(null);
@@ -968,32 +969,30 @@ const MigrationPlannerView: React.FC = () => {
                 Migration Assessment
               </h3>
             </div>
-            <div className="grid grid-cols-2 gap-8 max-w-2xl">
+            <div className="grid grid-cols-2 gap-8 max-w-4xl">
               <div>
                 <label className="block mb-3 font-medium" style={{ fontSize: '14px', color: 'var(--color-neutral-foreground)' }}>
-                  Migration Timeline (years)
+                  Migration Timeline (months)
                 </label>
-                <input
-                  type="range"
+                <CustomSlider
                   min={1}
-                  max={7}
+                  max={60}
                   value={migrationDuration}
-                  onChange={e => setMigrationDuration(Number(e.target.value))}
-                  className="w-full"
+                  onChange={setMigrationDuration}
+                  style={{ width: '100%', minWidth: '300px' }}
                 />
-                <div className="mt-2 text-sm text-gray-500">{migrationDuration} year{migrationDuration > 1 ? 's' : ''}</div>
+                <div className="mt-2 text-sm text-gray-500">{migrationDuration} month{migrationDuration > 1 ? 's' : ''}</div>
               </div>
               <div>
                 <label className="block mb-3 font-medium" style={{ fontSize: '14px', color: 'var(--color-neutral-foreground)' }}>
                   Migration Wave Size (%)
                 </label>
-                <input
-                  type="range"
-                  min={0}
-                  max={50}
+                <CustomSlider
+                  min={5}
+                  max={100}
                   value={migrationWave}
-                  onChange={e => setMigrationWave(Number(e.target.value))}
-                  className="w-full"
+                  onChange={setMigrationWave}
+                  style={{ width: '100%', minWidth: '300px' }}
                 />
                 <div className="mt-2 text-sm text-gray-500">{migrationWave}%</div>
               </div>

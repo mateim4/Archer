@@ -68,7 +68,7 @@ const SettingsView: React.FC = () => {
       onClick={() => onClick(id)}
       className={`flex items-center px-4 py-2 border-b-2 transition-all duration-200 ${
         isActive 
-          ? 'border-blue-600 text-blue-600 bg-blue-50/50' 
+          ? 'border-orange-600 text-orange-600 bg-orange-50/50' 
           : 'border-transparent hover:border-gray-300 hover:text-gray-700'
       }`}
       style={{
@@ -143,14 +143,40 @@ const SettingsView: React.FC = () => {
           WebkitBackdropFilter: 'blur(10px) saturate(120%)'
         }}
       >
-        <h4 className="font-medium mb-4">Add New Hardware</h4>
-        <div className="grid grid-cols-5 gap-4">
+        <h4 
+          className="font-medium mb-6"
+          style={{
+            fontSize: '16px',
+            fontWeight: '600',
+            color: 'var(--color-neutral-foreground)',
+            fontFamily: 'Montserrat, -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", system-ui, ui-sans-serif, Helvetica, Arial, sans-serif'
+          }}
+        >
+          Add New Hardware
+        </h4>
+        <div className="grid grid-cols-5 gap-6">
           <div>
-            <label className="block text-sm font-medium mb-1">Category</label>
+            <label 
+              className="block text-sm font-medium mb-3"
+              style={{
+                fontSize: '14px',
+                fontWeight: '500',
+                color: 'var(--color-neutral-foreground)',
+                lineHeight: '1.4',
+                fontFamily: 'inherit'
+              }}
+            >
+              Category
+            </label>
             <select 
               value={newHardwareItem.category}
               onChange={(e) => setNewHardwareItem({...newHardwareItem, category: e.target.value})}
               className="fluent-input w-full"
+              style={{
+                minHeight: '40px',
+                fontSize: '14px',
+                fontFamily: 'inherit'
+              }}
             >
               <option value="">Select...</option>
               <option value="Compute">Compute</option>
@@ -159,33 +185,81 @@ const SettingsView: React.FC = () => {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Model</label>
+            <label 
+              className="block text-sm font-medium mb-3"
+              style={{
+                fontSize: '14px',
+                fontWeight: '500',
+                color: 'var(--color-neutral-foreground)',
+                lineHeight: '1.4',
+                fontFamily: 'inherit'
+              }}
+            >
+              Model
+            </label>
             <input
               type="text"
               value={newHardwareItem.model}
               onChange={(e) => setNewHardwareItem({...newHardwareItem, model: e.target.value})}
               className="fluent-input w-full"
               placeholder="e.g., Dell R750"
+              style={{
+                minHeight: '40px',
+                fontSize: '14px',
+                fontFamily: 'inherit'
+              }}
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">CPU Cores</label>
+            <label 
+              className="block text-sm font-medium mb-3"
+              style={{
+                fontSize: '14px',
+                fontWeight: '500',
+                color: 'var(--color-neutral-foreground)',
+                lineHeight: '1.4',
+                fontFamily: 'inherit'
+              }}
+            >
+              CPU Cores
+            </label>
             <input
               type="number"
               value={newHardwareItem.cores}
               onChange={(e) => setNewHardwareItem({...newHardwareItem, cores: e.target.value})}
               className="fluent-input w-full"
               placeholder="64"
+              style={{
+                minHeight: '40px',
+                fontSize: '14px',
+                fontFamily: 'inherit'
+              }}
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Memory (GB)</label>
+            <label 
+              className="block text-sm font-medium mb-3"
+              style={{
+                fontSize: '14px',
+                fontWeight: '500',
+                color: 'var(--color-neutral-foreground)',
+                lineHeight: '1.4',
+                fontFamily: 'inherit'
+              }}
+            >
+              Memory (GB)
+            </label>
             <input
               type="number"
               value={newHardwareItem.memory}
               onChange={(e) => setNewHardwareItem({...newHardwareItem, memory: e.target.value})}
               className="fluent-input w-full"
               placeholder="512"
+              style={{
+                minHeight: '40px',
+                fontSize: '14px',
+                fontFamily: 'inherit'
+              }}
             />
           </div>
           <div className="flex items-end">
@@ -201,20 +275,18 @@ const SettingsView: React.FC = () => {
       </div>
 
       {/* Hardware List */}
-      <div 
-        className="border rounded-lg overflow-hidden"
-        style={{ 
-          borderColor: 'var(--color-neutral-stroke)',
-          borderRadius: 'var(--border-radius-lg)'
-        }}
-      >
+      <div className="fluent-card overflow-hidden">
         <div 
-          className="grid grid-cols-6 gap-4 p-4 border-b font-medium"
+          className="fluent-table-header" 
           style={{ 
-            borderBottomColor: 'var(--color-neutral-stroke)',
-            background: 'var(--color-neutral-background-secondary)',
-            fontSize: 'var(--font-size-body)',
-            fontWeight: 'var(--font-weight-medium)'
+            display: 'grid',
+            gridTemplateColumns: 'repeat(6, 1fr)',
+            gap: 'var(--fluent-spacing-horizontal-l)',
+            padding: 'var(--fluent-spacing-horizontal-l)',
+            background: 'var(--fluent-color-neutral-background-3)',
+            fontSize: 'var(--fluent-font-size-body-1)',
+            fontWeight: 'var(--fluent-font-weight-semibold)',
+            color: 'var(--fluent-color-neutral-foreground-1)'
           }}
         >
           <div>Category</div>
@@ -224,20 +296,43 @@ const SettingsView: React.FC = () => {
           <div>Price (USD)</div>
           <div>Actions</div>
         </div>
-        <div className="divide-y" style={{ borderColor: 'var(--color-neutral-stroke)' }}>
+        <div>
           {hardwareBasket.map((item) => (
-            <div key={item.id} className="grid grid-cols-6 gap-4 p-4 hover:bg-gray-50/50 transition-colors duration-200">
+            <div 
+              key={item.id} 
+              className="fluent-table-row"
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(6, 1fr)',
+                gap: 'var(--fluent-spacing-horizontal-l)',
+                padding: 'var(--fluent-spacing-horizontal-l)',
+                borderBottom: '1px solid var(--fluent-color-neutral-stroke-2)',
+                fontSize: 'var(--fluent-font-size-body-1)',
+                color: 'var(--fluent-color-neutral-foreground-2)',
+                transition: 'background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = 'var(--fluent-color-neutral-background-2)'}
+              onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+            >
               <div>{item.category}</div>
-              <div className="font-medium">{item.model}</div>
-              <div>{item.cores > 0 ? item.cores : '-'}</div>
-              <div>{item.memory > 0 ? item.memory : '-'}</div>
+              <div style={{ fontWeight: 'var(--fluent-font-weight-medium)' }}>{item.model}</div>
+              <div>{item.cores > 0 ? item.cores : '—'}</div>
+              <div>{item.memory > 0 ? item.memory : '—'}</div>
               <div>${item.price.toLocaleString()}</div>
               <div>
                 <button 
                   onClick={() => handleRemoveHardware(item.id)}
-                  className="text-red-600 hover:text-red-700 transition-colors duration-200"
+                  className="fluent-button"
+                  style={{
+                    padding: 'var(--fluent-spacing-vertical-xs) var(--fluent-spacing-horizontal-s)',
+                    color: 'var(--fluent-color-danger-foreground-1)',
+                    border: '1px solid var(--fluent-color-danger-background-1)',
+                    background: 'transparent'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = 'var(--fluent-color-danger-background-1)'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                 >
-                  <Trash2 size={16} />
+                  <Trash2 size={14} />
                 </button>
               </div>
             </div>

@@ -163,7 +163,7 @@ export const InfoTooltip: React.FC<InfoTooltipProps> = ({
     >
       <HelpCircle 
         size={size} 
-        className="text-blue-500 hover:text-blue-600 transition-colors duration-200" 
+        className="text-orange-500 hover:text-orange-600 transition-colors duration-200" 
       />
     </Tooltip>
   );

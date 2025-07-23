@@ -9,9 +9,7 @@ import {
   AlertTriangle, 
   CheckCircle, 
   Info, 
-  Zap,
-  Filter,
-  Download
+  Zap
 } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
 import { InfoTooltip } from '../components/Tooltip';
@@ -23,9 +21,7 @@ const DashboardView: React.FC = () => {
     environmentSummary,
     analysisReport,
     loading,
-    processRvToolsFile,
-    getEnvironmentSummary,
-    analyzeEnvironment
+    processRvToolsFile
   } = useAppStore();
 
   const [activeTab, setActiveTab] = useState('clusters');
@@ -59,31 +55,36 @@ const DashboardView: React.FC = () => {
   const FileUploadComponent = () => (
     <div className="flex-1 flex items-center justify-center p-8">
       <div 
-        className="text-center p-12 rounded-xl border-2 border-dashed transition-all duration-300 hover:border-solid group cursor-pointer"
+        className="text-center p-12 cursor-pointer group transition-all duration-300 hover:shadow-lg"
         style={{
-          borderColor: 'var(--color-neutral-stroke-accessible)',
-          backgroundColor: 'var(--color-neutral-card-surface)',
-          backdropFilter: 'blur(30px) saturate(150%)',
-          WebkitBackdropFilter: 'blur(30px) saturate(150%)',
-          borderRadius: 'var(--border-radius-xl)',
+          height: 'auto',
+          padding: '48px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          background: 'rgba(255, 255, 255, 0.85)',
+          border: '1px solid var(--fluent-color-neutral-stroke-2)',
+          borderRadius: '12px',
+          boxShadow: 'var(--fluent-shadow-4)',
           fontFamily: 'var(--font-family)',
-          boxShadow: 'inset 0 1px 0 0 rgba(255, 255, 255, 0.2), 0 8px 32px rgba(0, 0, 0, 0.1)'
+          position: 'relative',
+          overflow: 'hidden',
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
         }}
         onClick={handleFileUpload}
       >
         <div 
-          className="mx-auto w-16 h-16 rounded-xl flex items-center justify-center mb-6 transition-transform duration-300 group-hover:scale-105"
+          className="mx-auto w-16 h-16 rounded-xl flex items-center justify-center mb-6 transition-transform duration-300 group-hover:scale-105 relative z-10"
           style={{ 
             borderRadius: 'var(--border-radius-lg)',
             background: 'linear-gradient(135deg, rgba(15, 108, 189, 0.1) 0%, rgba(15, 108, 189, 0.2) 100%)',
-            backdropFilter: 'blur(10px)',
             border: `1px solid rgba(15, 108, 189, 0.2)`
           }}
         >
           <Upload size={32} color="var(--color-brand-primary)" />
         </div>
         <h3 
-          className="font-semibold mb-2"
+          className="font-semibold mb-2 transition-colors duration-300 relative z-10"
           style={{ 
             fontSize: 'var(--font-size-title3)',
             color: 'var(--color-neutral-foreground)',
@@ -93,7 +94,7 @@ const DashboardView: React.FC = () => {
           Upload RVTools Export
         </h3>
         <p 
-          className="mb-6 max-w-sm mx-auto"
+          className="mb-6 max-w-sm mx-auto transition-colors duration-300 relative z-10"
           style={{ 
             fontSize: 'var(--font-size-body)',
             color: 'var(--color-neutral-foreground-secondary)'
@@ -102,12 +103,12 @@ const DashboardView: React.FC = () => {
           Select your RVTools .xlsx or .csv export file to begin infrastructure analysis
         </p>
         <button 
-          className="fluent-button fluent-button-primary"
+          className="fluent-button fluent-button-primary transition-all duration-300 hover:scale-105 hover:shadow-lg relative z-10"
         >
           Select File
         </button>
         <p 
-          className="mt-4"
+          className="mt-4 transition-colors duration-300 relative z-10"
           style={{ 
             fontSize: 'var(--font-size-caption)',
             color: 'var(--color-neutral-foreground-tertiary)'
@@ -115,7 +116,7 @@ const DashboardView: React.FC = () => {
         >
           Supports .xlsx and .csv files up to 50MB
         </p>
-        <div className="mt-6 flex items-center justify-center">
+        <div className="mt-6 flex items-center justify-center relative z-10">
           <InfoTooltip 
             content={
               <div>
@@ -149,85 +150,89 @@ const DashboardView: React.FC = () => {
         label: 'Clusters', 
         value: environmentSummary.cluster_count, 
         icon: Server, 
-        color: 'var(--color-brand-primary)',
+        color: 'var(--fluent-color-brand-background-1)',
         tooltip: 'Total number of vSphere clusters detected in your environment'
       },
       { 
         label: 'Hosts', 
         value: environmentSummary.total_hosts, 
         icon: HardDrive, 
-        color: 'var(--color-semantic-info)',
+        color: 'var(--fluent-color-info-background-1)',
         tooltip: 'Physical ESXi hosts across all clusters'
       },
       { 
         label: 'VMs', 
         value: environmentSummary.total_vms, 
         icon: Activity, 
-        color: 'var(--color-semantic-success)',
+        color: 'var(--fluent-color-success-background-1)',
         tooltip: 'Total virtual machines (powered on and off)'
       },
       { 
         label: 'vCPUs', 
         value: environmentSummary.total_cpu_cores || 'N/A', 
         icon: Cpu, 
-        color: 'var(--color-semantic-warning)',
+        color: 'var(--fluent-color-warning-background-1)',
         tooltip: 'Total virtual CPU cores allocated across all VMs'
       },
       { 
         label: 'Memory', 
         value: `${(environmentSummary.total_memory_gb / 1024).toFixed(1)} TB`, 
         icon: MemoryStick, 
-        color: 'var(--color-brand-primary)',
+        color: 'var(--fluent-color-brand-background-1)',
         tooltip: 'Total memory allocated across all VMs and hosts'
       },
       { 
         label: 'Storage', 
         value: `${(environmentSummary.total_storage_gb / 1024).toFixed(1)} TB`, 
         icon: HardDrive, 
-        color: 'var(--color-semantic-info)',
+        color: 'var(--fluent-color-info-background-1)',
         tooltip: 'Total storage provisioned across all VMs'
       }
     ];
 
     return (
-      <div 
-        className="fluent-card p-6 mb-6"
-      >
-        <div className="grid grid-cols-6 gap-6">
+      <div className="fluent-card" style={{ padding: 'var(--fluent-spacing-horizontal-l)' }}>
+        <div style={{ 
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+          gap: 'var(--fluent-spacing-horizontal-m)'
+        }}>
           {summaryItems.map((item, index) => (
-            <div key={index} className="text-center">
-              <div className="flex items-center justify-center mb-3">
+            <div key={index} style={{ textAlign: 'center' }}>
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center',
+                marginBottom: 'var(--fluent-spacing-vertical-xs)'
+              }}>
                 <div 
-                  className="inline-flex items-center justify-center w-10 h-10 rounded-lg"
                   style={{ 
-                    borderRadius: 'var(--border-radius-lg)',
-                    background: `linear-gradient(135deg, ${item.color}15 0%, ${item.color}25 100%)`,
-                    backdropFilter: 'blur(10px)',
-                    border: `1px solid ${item.color}30`
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: 'var(--fluent-border-radius-medium)',
+                    background: item.color,
+                    marginRight: 'var(--fluent-spacing-horizontal-xs)'
                   }}
                 >
-                  <item.icon size={20} color={item.color} />
+                  <item.icon size={16} color={'var(--fluent-color-neutral-foreground-1)'} />
                 </div>
-                <div className="ml-2">
-                  <InfoTooltip content={item.tooltip} />
-                </div>
+                <InfoTooltip content={item.tooltip} />
               </div>
-              <div 
-                className="font-bold"
-                style={{ 
-                  fontSize: 'var(--font-size-title2)',
-                  color: 'var(--color-neutral-foreground)',
-                  fontWeight: 'var(--font-weight-bold)'
-                }}
-              >
+              <div style={{ 
+                fontSize: 'var(--fluent-font-size-title-2)',
+                fontWeight: 'var(--fluent-font-weight-semibold)',
+                color: 'var(--fluent-color-neutral-foreground-1)',
+                marginBottom: 'var(--fluent-spacing-vertical-xxs)'
+              }}>
                 {item.value}
               </div>
-              <div 
-                style={{ 
-                  fontSize: 'var(--font-size-body)',
-                  color: 'var(--color-neutral-foreground-secondary)'
-                }}
-              >
+              <div style={{ 
+                fontSize: 'var(--fluent-font-size-body-1)',
+                color: 'var(--fluent-color-neutral-foreground-2)'
+              }}>
                 {item.label}
               </div>
             </div>
@@ -237,26 +242,44 @@ const DashboardView: React.FC = () => {
     );
   };
 
-  // Tab Navigation
+  // Tab Navigation with enhanced Fluent 2 styling
   const TabNavigation = ({ tabs, activeTab, setActiveTab }: any) => (
-    <div className="border-b" style={{ borderColor: 'var(--color-neutral-stroke)' }}>
-      <nav className="flex space-x-8 px-6">
+    <div 
+      className="border-b" 
+      style={{ 
+        borderColor: 'var(--fluent-color-neutral-stroke-2)',
+        background: 'var(--fluent-color-neutral-background-1)'
+      }}
+    >
+      <nav className="flex space-x-6" style={{ padding: '0 var(--fluent-spacing-horizontal-l)' }}>
         {tabs.map((tab: any) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`py-4 px-1 border-b-2 font-medium text-sm transition-all duration-200 ${
+            className={`relative py-4 px-2 font-medium text-sm transition-all duration-200 ${
               activeTab === tab.id
-                ? 'border-blue-500'
-                : 'border-transparent hover:border-gray-300'
+                ? 'border-b-2'
+                : 'border-b-2 border-transparent hover:border-gray-300'
             }`}
             style={{
-              color: activeTab === tab.id ? 'var(--color-brand-primary)' : 'var(--color-neutral-foreground-secondary)',
-              fontWeight: activeTab === tab.id ? 'var(--font-weight-medium)' : 'var(--font-weight-regular)',
-              fontFamily: 'var(--font-family)'
+              color: activeTab === tab.id ? 'var(--fluent-color-brand-background-1)' : 'var(--fluent-color-neutral-foreground-2)',
+              fontWeight: activeTab === tab.id ? 'var(--fluent-font-weight-semibold)' : 'var(--fluent-font-weight-medium)',
+              fontFamily: 'var(--fluent-font-family-base)',
+              borderBottomColor: activeTab === tab.id ? 'var(--fluent-color-brand-background-1)' : 'transparent',
+              borderBottomWidth: '2px',
+              fontSize: 'var(--fluent-font-size-body-1)'
             }}
           >
             {tab.label}
+            {activeTab === tab.id && (
+              <div 
+                className="absolute bottom-0 left-0 right-0 h-0.5 rounded-t"
+                style={{
+                  background: 'linear-gradient(90deg, rgba(99, 102, 241, 1) 0%, rgba(147, 51, 234, 1) 100%)',
+                  boxShadow: '0 0 4px rgba(99, 102, 241, 0.4)'
+                }}
+              />
+            )}
           </button>
         ))}
       </nav>
@@ -306,118 +329,55 @@ const DashboardView: React.FC = () => {
   // Cluster Card Component
   const ClusterCard = ({ cluster }: any) => (
     <div 
-      className="fluent-card p-6 cursor-pointer group"
+      className="fluent-card cursor-pointer group flex items-center"
+      style={{ 
+        height: '52px',
+        padding: '0 12px',
+        display: 'flex',
+        alignItems: 'center'
+      }}
     >
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center">
-          <h3 
-            className="font-semibold group-hover:text-blue-600 transition-colors duration-200"
-            style={{ 
-              fontSize: 'var(--font-size-subtitle1)',
-              color: 'var(--color-neutral-foreground)',
-              fontWeight: 'var(--font-weight-semibold)'
-            }}
-          >
-            {cluster.name}
-          </h3>
-          <div className="ml-2">
-            <InfoTooltip 
-              content={
-                <div>
-                  <div className="font-medium mb-2" style={{ color: 'white' }}>
-                    Cluster Analysis
-                  </div>
-                  <div style={{ color: 'rgba(255, 255, 255, 0.9)' }}>
-                    Utilization: Uses bin-packing algorithms to calculate optimal resource usage
-                    <br /><br />
-                    vCPU Ratio: Virtual CPU to physical CPU core ratio (industry best practice: 2:1 to 4:1)
-                    <br /><br />
-                    Memory Overcommit: Memory oversubscription ratio (conservative: 1.25:1, aggressive: 2:1)
-                  </div>
-                </div>
-              }
-            />
-          </div>
-        </div>
+      {/* Checkbox */}
+      <input
+        type="checkbox"
+        className="mr-3"
+        style={{
+          width: '16px',
+          height: '16px',
+          accentColor: 'var(--fluent-color-brand-background-1)'
+        }}
+      />
+      
+      {/* Cluster name and status */}
+      <div className="flex items-center flex-1 min-w-0">
+        <h3 
+          className="font-semibold group-hover:text-orange-600 transition-colors duration-200 truncate mr-2"
+          style={{ 
+            fontSize: '14px',
+            color: 'var(--color-neutral-foreground)',
+            fontWeight: 'var(--fluent-font-weight-semibold)'
+          }}
+        >
+          {cluster.name}
+        </h3>
         <div 
-          className={`w-3 h-3 rounded-full ${
+          className={`w-2 h-2 rounded-full flex-shrink-0 ${
             cluster.status === 'healthy' ? 'bg-green-400' : 
             cluster.status === 'warning' ? 'bg-yellow-400' : 'bg-red-400'
           }`} 
         />
       </div>
-      
-      {/* Utilization bar */}
-      <div className="mb-4">
-        <div className="flex justify-between items-center mb-2">
-          <span 
-            style={{ 
-              fontSize: 'var(--font-size-caption)',
-              color: 'var(--color-neutral-foreground-secondary)'
-            }}
-          >
-            Utilization
-          </span>
-          <span 
-            className="font-medium"
-            style={{ 
-              fontSize: 'var(--font-size-caption)',
-              color: 'var(--color-neutral-foreground)',
-              fontWeight: 'var(--font-weight-medium)'
-            }}
-          >
-            {cluster.utilization}%
-          </span>
-        </div>
-        <div 
-          className="w-full h-1.5 rounded-full"
-          style={{ 
-            background: 'rgba(0, 0, 0, 0.08)',
-            backdropFilter: 'blur(5px)',
-            borderRadius: 'var(--border-radius-sm)'
-          }}
-        >
-          <div 
-            className={`h-full rounded-full transition-all duration-500 ${
-              cluster.utilization > 85 ? 'bg-red-400' :
-              cluster.utilization > 70 ? 'bg-yellow-400' : 'bg-green-400'
-            }`}
-            style={{ 
-              width: `${cluster.utilization}%`,
-              borderRadius: 'var(--border-radius-sm)'
-            }}
-          />
-        </div>
-      </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        {[
-          { label: 'Hosts', value: cluster.hosts },
-          { label: 'VMs', value: cluster.vms },
-          { label: 'vCPU Ratio', value: cluster.vcpuRatio },
-          { label: 'Memory Ratio', value: cluster.memoryOvercommit }
-        ].map((item, index) => (
-          <div key={index}>
-            <div 
-              style={{ 
-                fontSize: 'var(--font-size-caption)',
-                color: 'var(--color-neutral-foreground-secondary)'
-              }}
-            >
-              {item.label}
-            </div>
-            <div 
-              className="font-medium"
-              style={{ 
-                fontSize: 'var(--font-size-body)',
-                color: 'var(--color-neutral-foreground)',
-                fontWeight: 'var(--font-weight-medium)'
-              }}
-            >
-              {item.value}
-            </div>
-          </div>
-        ))}
+      {/* Compact stats */}
+      <div className="flex items-center space-x-4 text-xs text-gray-600 ml-4">
+        <span>{cluster.hosts}H</span>
+        <span>{cluster.vms}VM</span>
+        <span className={`px-1.5 py-0.5 rounded text-xs ${
+          cluster.utilization > 85 ? 'bg-red-100 text-red-700' :
+          cluster.utilization > 70 ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700'
+        }`}>
+          {cluster.utilization}%
+        </span>
       </div>
     </div>
   );
@@ -567,57 +527,70 @@ const DashboardView: React.FC = () => {
   }
 
   return (
-    <div className="p-6" style={{ fontFamily: 'var(--font-family)' }}>
+    <div style={{ 
+      fontFamily: 'var(--fluent-font-family-base)',
+      maxWidth: '1200px',
+      margin: '0 auto'
+    }}>
       {!isDataUploaded ? (
-        <FileUploadComponent />
+        <div className="fluent-section">
+          <FileUploadComponent />
+        </div>
       ) : (
-        <>
-          <SummaryBar />
-          <div className="fluent-card">
-            <TabNavigation
-              tabs={[
-                { id: 'clusters', label: 'Clusters' },
-                { id: 'resources', label: 'Resource Overview' },
-                { id: 'vms', label: 'VM Inventory' },
-                { id: 'hosts', label: 'Host Inventory' },
-                { id: 'health', label: 'Health & Optimization' }
-              ]}
-              activeTab={activeTab}
-              setActiveTab={setActiveTab}
-            />
-            <div className="p-6">
-              {activeTab === 'clusters' && (
-                <div className="grid grid-cols-2 gap-6">
-                  {mockClusterData.map((cluster, index) => (
-                    <ClusterCard key={index} cluster={cluster} />
-                  ))}
-                </div>
-              )}
-              {activeTab === 'health' && <HealthRecommendations />}
-              {activeTab === 'resources' && (
-                <div className="text-center py-8">
-                  <p style={{ color: 'var(--color-neutral-foreground-secondary)' }}>
-                    Resource overview charts coming soon...
-                  </p>
-                </div>
-              )}
-              {activeTab === 'vms' && (
-                <div className="text-center py-8">
-                  <p style={{ color: 'var(--color-neutral-foreground-secondary)' }}>
-                    VM inventory table coming soon...
-                  </p>
-                </div>
-              )}
-              {activeTab === 'hosts' && (
-                <div className="text-center py-8">
-                  <p style={{ color: 'var(--color-neutral-foreground-secondary)' }}>
-                    Host inventory table coming soon...
-                  </p>
-                </div>
-              )}
+        <div className="space-y-6">
+          {/* Summary Section */}
+          <div className="fluent-section">
+            <SummaryBar />
+          </div>
+
+          {/* Main Content Section */}
+          <div className="fluent-section">
+            <div className="fluent-card">
+              <TabNavigation
+                tabs={[
+                  { id: 'clusters', label: 'Clusters' },
+                  { id: 'resources', label: 'Resource Overview' },
+                  { id: 'vms', label: 'VM Inventory' },
+                  { id: 'hosts', label: 'Host Inventory' },
+                  { id: 'health', label: 'Health & Optimization' }
+                ]}
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+              />
+              <div style={{ padding: 'var(--fluent-spacing-horizontal-l)' }}>
+                {activeTab === 'clusters' && (
+                  <div className="fluent-grid fluent-grid-cols-2">
+                    {mockClusterData.map((cluster, index) => (
+                      <ClusterCard key={index} cluster={cluster} />
+                    ))}
+                  </div>
+                )}
+                {activeTab === 'health' && <HealthRecommendations />}
+                {activeTab === 'resources' && (
+                  <div className="text-center" style={{ padding: 'var(--fluent-spacing-horizontal-xxl) 0' }}>
+                    <p style={{ color: 'var(--fluent-color-neutral-foreground-2)' }}>
+                      Resource overview charts coming soon...
+                    </p>
+                  </div>
+                )}
+                {activeTab === 'vms' && (
+                  <div className="text-center" style={{ padding: 'var(--fluent-spacing-horizontal-xxl) 0' }}>
+                    <p style={{ color: 'var(--fluent-color-neutral-foreground-2)' }}>
+                      VM inventory table coming soon...
+                    </p>
+                  </div>
+                )}
+                {activeTab === 'hosts' && (
+                  <div className="text-center" style={{ padding: 'var(--fluent-spacing-horizontal-xxl) 0' }}>
+                    <p style={{ color: 'var(--fluent-color-neutral-foreground-2)' }}>
+                      Host inventory table coming soon...
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-        </>
+        </div>
       )}
     </div>
   );
