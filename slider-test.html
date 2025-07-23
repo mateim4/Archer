@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slider Test</title>
+    <style>
+        body {
+            padding: 50px;
+            font-family: Arial, sans-serif;
+        }
+        .test-container {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .slider-container {
+            width: 400px;
+            height: 66px;
+            position: relative;
+            margin: 20px 0;
+            background: #f5f5f5;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        .track {
+            width: 100%;
+            height: 27px;
+            background-image: url('/rainbow-slider-track.svg');
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            background-position: center;
+            border-radius: 13.5px;
+            cursor: pointer;
+            position: relative;
+        }
+        .thumb {
+            position: absolute;
+            width: 66px;
+            height: 66px;
+            background-image: url('/frosted-glass-slider-thumb.svg');
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            background-position: center;
+            cursor: grab;
+            top: 50%;
+            transform: translateY(-50%) translateX(-50%);
+            transition: all 0.1s ease;
+            z-index: 2;
+        }
+        .thumb:active {
+            cursor: grabbing;
+            transform: translateY(-50%) translateX(-50%) scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <h1>Custom Slider Test</h1>
+    
+    <div class="test-container">
+        <h3>Basic SVG Asset Test</h3>
+        <div class="slider-container">
+            <div class="track">
+                <div class="thumb" style="left: 50%;"></div>
+            </div>
+        </div>
+        <p>This tests if the SVG files are loading correctly.</p>
+    </div>
+
+    <div class="test-container">
+        <h3>React Component Test</h3>
+        <p>Open the main app at <a href="http://localhost:1421" target="_blank">http://localhost:1421</a> and navigate to Migration Planner to test the React component.</p>
+    </div>
+
+    <script>
+        // Simple interactive test
+        const thumb = document.querySelector('.thumb');
+        const track = document.querySelector('.track');
+        let isDragging = false;
+
+        thumb.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            console.log('Started dragging');
+            e.preventDefault();
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                const trackRect = track.getBoundingClientRect();
+                const offsetX = e.clientX - trackRect.left;
+                const percentage = Math.max(0, Math.min(100, (offsetX / trackRect.width) * 100));
+                thumb.style.left = percentage + '%';
+                console.log('Dragging to:', percentage + '%');
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (isDragging) {
+                isDragging = false;
+                console.log('Stopped dragging');
+            }
+        });
+
+        track.addEventListener('click', (e) => {
+            if (!isDragging) {
+                const trackRect = track.getBoundingClientRect();
+                const offsetX = e.clientX - trackRect.left;
+                const percentage = Math.max(0, Math.min(100, (offsetX / trackRect.width) * 100));
+                thumb.style.left = percentage + '%';
+                console.log('Clicked to:', percentage + '%');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -2,6 +2,17 @@
 
 .custom-slider {
   outline: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.custom-slider * {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 .custom-slider:focus {
@@ -17,6 +28,7 @@
 /* Animation for smoother interactions */
 .slider-thumb {
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: auto;
 }
 
 .slider-thumb:hover {
@@ -24,9 +36,15 @@
   filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.2));
 }
 
+.slider-thumb:active {
+  transform: scale(1.1);
+  filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.25));
+}
+
 .slider-track {
   position: relative;
   overflow: hidden;
+  pointer-events: auto;
 }
 
 .slider-track::after {

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import '../custom-slider.css';
 
 interface CustomSliderProps {
@@ -23,34 +23,30 @@ const CustomSlider: React.FC<CustomSliderProps> = ({
   const thumbRef = useRef<HTMLDivElement>(null);
 
   const percentage = ((value - min) / (max - min)) * 100;
+  
+  // Calculate thumb position more precisely
+  const thumbPosition = Math.max(0, Math.min(100, percentage));
 
-  const handleMouseDown = (e: React.MouseEvent) => {
+  const handleThumbMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     setIsDragging(true);
-    updateValue(e.clientX);
   };
 
-  const handleMouseMove = (e: MouseEvent) => {
-    if (isDragging) {
-      e.preventDefault();
-      updateValue(e.clientX);
-    }
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
-
-  const updateValue = (clientX: number) => {
+  const updateValue = useCallback((clientX: number) => {
     if (!trackRef.current) return;
 
     const rect = trackRef.current.getBoundingClientRect();
-    const offsetX = clientX - rect.left;
-    const newPercentage = Math.max(0, Math.min(100, (offsetX / rect.width) * 100));
-    const newValue = min + (newPercentage / 100) * (max - min);
+    const offsetX = Math.max(0, Math.min(rect.width, clientX - rect.left));
+    const newPercentage = (offsetX / rect.width) * 100;
+    const rawValue = min + (newPercentage / 100) * (max - min);
+    const newValue = Math.max(min, Math.min(max, Math.round(rawValue)));
     
-    onChange(Math.round(newValue));
-  };
+    // Only update if value actually changed
+    if (newValue !== value) {
+      onChange(newValue);
+    }
+  }, [min, max, value, onChange]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     const step = (max - min) / 100; // 1% steps
@@ -83,21 +79,40 @@ const CustomSlider: React.FC<CustomSliderProps> = ({
   };
 
   const handleTrackClick = (e: React.MouseEvent) => {
+    // Only handle clicks directly on the track, not when dragging
+    if (isDragging) return;
+    
     e.preventDefault();
+    e.stopPropagation();
     updateValue(e.clientX);
   };
 
   useEffect(() => {
+    const handleGlobalMouseMove = (e: MouseEvent) => {
+      if (isDragging) {
+        e.preventDefault();
+        updateValue(e.clientX);
+      }
+    };
+
+    const handleGlobalMouseUp = () => {
+      if (isDragging) {
+        setIsDragging(false);
+      }
+    };
+
     if (isDragging) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
+      document.addEventListener('mousemove', handleGlobalMouseMove, { passive: false });
+      document.addEventListener('mouseup', handleGlobalMouseUp);
+      document.addEventListener('mouseleave', handleGlobalMouseUp);
       
       return () => {
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
+        document.removeEventListener('mousemove', handleGlobalMouseMove);
+        document.removeEventListener('mouseup', handleGlobalMouseUp);
+        document.removeEventListener('mouseleave', handleGlobalMouseUp);
       };
     }
-  }, [isDragging]);
+  }, [isDragging, updateValue]);
 
   return (
     <div 
@@ -108,10 +123,9 @@ const CustomSlider: React.FC<CustomSliderProps> = ({
         height: '66px',
         display: 'flex',
         alignItems: 'center',
-        cursor: 'pointer',
+        userSelect: 'none',
         ...style
       }}
-      onClick={handleTrackClick}
       onKeyDown={handleKeyDown}
       tabIndex={0}
       role="slider"
@@ -132,8 +146,10 @@ const CustomSlider: React.FC<CustomSliderProps> = ({
           backgroundRepeat: 'no-repeat',
           backgroundPosition: 'center',
           borderRadius: '13.5px',
-          cursor: 'pointer'
+          cursor: 'pointer',
+          userSelect: 'none'
         }}
+        onClick={handleTrackClick}
       />
       
       {/* Frosted Glass Thumb */}
@@ -142,7 +158,9 @@ const CustomSlider: React.FC<CustomSliderProps> = ({
         className="slider-thumb"
         style={{
           position: 'absolute',
-          left: `calc(${percentage}% - 33px)`,
+          left: `${thumbPosition}%`,
+          top: '50%',
+          transform: `translate(-50%, -50%) ${isDragging ? 'scale(1.1)' : 'scale(1)'}`,
           width: '66px',
           height: '66px',
           backgroundImage: 'url(/frosted-glass-slider-thumb.svg)',
@@ -150,17 +168,17 @@ const CustomSlider: React.FC<CustomSliderProps> = ({
           backgroundRepeat: 'no-repeat',
           backgroundPosition: 'center',
           cursor: isDragging ? 'grabbing' : 'grab',
-          transition: isDragging ? 'none' : 'left 0.1s ease',
-          transform: isDragging ? 'scale(1.1)' : 'scale(1)',
+          transition: isDragging ? 'none' : 'all 0.1s ease',
           zIndex: 2,
           filter: 'drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15))',
           backdropFilter: 'blur(10px)',
           background: 'rgba(255, 255, 255, 0.1)',
           borderRadius: '50%',
           border: '1px solid rgba(255, 255, 255, 0.2)',
-          userSelect: 'none'
+          userSelect: 'none',
+          pointerEvents: 'auto'
         }}
-        onMouseDown={handleMouseDown}
+        onMouseDown={handleThumbMouseDown}
       />
     </div>
   );
