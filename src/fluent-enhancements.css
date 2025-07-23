@@ -1,0 +1,244 @@
+/* Enhanced Fluent 2 Design System Utilities */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+
+/* Update existing CSS variables and add new ones */
+:root {
+  /* Typography - Enhanced with Montserrat font stack */
+  --fluent-font-family-base: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI Variable', 'Segoe UI', system-ui, ui-sans-serif, Helvetica, Arial, sans-serif;
+  --font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI Variable', 'Segoe UI', system-ui, ui-sans-serif, Helvetica, Arial, sans-serif;
+  
+  /* Enhanced spacing for better form layouts */
+  --fluent-spacing-horizontal-xxxs: 2px;
+  --fluent-spacing-horizontal-xxs: 4px;
+  --fluent-spacing-horizontal-xs: 8px;
+  --fluent-spacing-horizontal-s: 12px;
+  --fluent-spacing-horizontal-m: 16px;
+  --fluent-spacing-horizontal-l: 20px;
+  --fluent-spacing-horizontal-xl: 24px;
+  --fluent-spacing-horizontal-xxl: 32px;
+  --fluent-spacing-horizontal-xxxl: 40px;
+  
+  /* Enhanced form-specific spacing for accessibility */
+  --fluent-form-label-margin-bottom: 8px;
+  --fluent-form-input-margin-bottom: 16px;
+  --fluent-form-section-margin-bottom: 24px;
+  --fluent-table-cell-padding-x: 16px;
+  --fluent-table-cell-padding-y: 12px;
+  --fluent-table-header-padding-x: 16px;
+  --fluent-table-header-padding-y: 14px;
+}
+
+/* Layout Utilities */
+.fluent-section {
+  margin-bottom: var(--fluent-spacing-horizontal-xl);
+}
+
+.space-y-6 > * + * {
+  margin-top: var(--fluent-spacing-horizontal-xl);
+}
+
+/* Grid System */
+.fluent-grid {
+  display: grid;
+  gap: var(--fluent-spacing-horizontal-l);
+}
+
+.fluent-grid-cols-1 {
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+.fluent-grid-cols-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.fluent-grid-cols-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.fluent-grid-cols-4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+/* Responsive grid adjustments */
+@media (max-width: 768px) {
+  .fluent-grid-cols-2 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+  
+  .fluent-grid-cols-3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  
+  .fluent-grid-cols-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Enhanced table styling for better alignment and readability */
+.fluent-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: var(--fluent-color-surface-primary);
+  border: 1px solid var(--fluent-color-neutral-stroke-1);
+  border-radius: var(--fluent-border-radius-medium);
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04), 0 8px 16px rgba(0, 0, 0, 0.06);
+  margin-bottom: var(--fluent-spacing-horizontal-xl);
+}
+
+.fluent-table-header {
+  background: var(--fluent-color-surface-secondary);
+}
+
+.fluent-table th {
+  padding: var(--fluent-table-header-padding-y) var(--fluent-table-header-padding-x);
+  text-align: left;
+  font-weight: 600;
+  font-size: var(--fluent-font-size-base-200);
+  line-height: var(--fluent-line-height-base-200);
+  color: var(--fluent-color-neutral-foreground-2);
+  border-bottom: 1px solid var(--fluent-color-neutral-stroke-1);
+  border-right: 1px solid var(--fluent-color-neutral-stroke-1);
+  white-space: nowrap;
+  position: relative;
+}
+
+.fluent-table th:last-child {
+  border-right: none;
+}
+
+.fluent-table td {
+  padding: var(--fluent-table-cell-padding-y) var(--fluent-table-cell-padding-x);
+  border-bottom: 1px solid var(--fluent-color-neutral-stroke-1);
+  border-right: 1px solid var(--fluent-color-neutral-stroke-1);
+  font-size: var(--fluent-font-size-base-300);
+  line-height: var(--fluent-line-height-base-300);
+  color: var(--fluent-color-neutral-foreground-1);
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.fluent-table td:last-child {
+  border-right: none;
+}
+
+.fluent-table tr:hover td {
+  background: rgba(15, 108, 189, 0.04);
+}
+
+.fluent-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* Enhanced grid layouts for dashboards */
+.fluent-grid {
+  display: grid;
+  gap: var(--fluent-spacing-horizontal-l);
+  margin-bottom: var(--fluent-spacing-horizontal-xl);
+}
+
+.fluent-grid-cols-1 { grid-template-columns: 1fr; }
+.fluent-grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+.fluent-grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+.fluent-grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+.fluent-grid-cols-5 { grid-template-columns: repeat(5, 1fr); }
+.fluent-grid-cols-6 { grid-template-columns: repeat(6, 1fr); }
+
+/* Enhanced card components */
+.fluent-card {
+  background: var(--fluent-color-surface-primary);
+  border: 1px solid var(--fluent-color-neutral-stroke-1);
+  border-radius: var(--fluent-border-radius-medium);
+  padding: var(--fluent-spacing-horizontal-l);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04), 0 4px 8px rgba(0, 0, 0, 0.06);
+}
+
+.fluent-card-header {
+  margin-bottom: var(--fluent-spacing-horizontal-m);
+  padding-bottom: var(--fluent-spacing-horizontal-s);
+  border-bottom: 1px solid var(--fluent-color-neutral-stroke-1);
+}
+
+.fluent-card-title {
+  font-size: var(--fluent-font-size-base-400);
+  font-weight: 600;
+  color: var(--fluent-color-neutral-foreground-1);
+  line-height: var(--fluent-line-height-base-400);
+  margin: 0;
+}
+
+.fluent-card-subtitle {
+  font-size: var(--fluent-font-size-base-200);
+  color: var(--fluent-color-neutral-foreground-2);
+  line-height: var(--fluent-line-height-base-200);
+  margin: var(--fluent-spacing-horizontal-xxs) 0 0 0;
+}
+
+/* Enhanced navigation styling */
+.fluent-nav-item {
+  display: flex;
+  align-items: center;
+  padding: var(--fluent-spacing-horizontal-s) var(--fluent-spacing-horizontal-m);
+  gap: var(--fluent-spacing-horizontal-l);
+  min-height: 44px;
+}
+
+.fluent-nav-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+/* Status badges */
+.fluent-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--fluent-spacing-horizontal-xxs) var(--fluent-spacing-horizontal-xs);
+  border-radius: var(--fluent-border-radius-small);
+  font-size: var(--fluent-font-size-base-200);
+  font-weight: 500;
+  line-height: var(--fluent-line-height-base-200);
+}
+
+.fluent-badge-success {
+  background: var(--fluent-color-surface-primary);
+  color: #107C10;
+  border: 1px solid rgba(16, 124, 16, 0.2);
+}
+
+.fluent-badge-warning {
+  background: var(--fluent-color-surface-primary);
+  color: #C5006A;
+  border: 1px solid rgba(197, 0, 106, 0.2);
+}
+
+.fluent-badge-error {
+  background: var(--fluent-color-surface-primary);
+  color: #C42B1C;
+  border: 1px solid rgba(196, 43, 28, 0.2);
+}
+
+/* Improved section spacing */
+.fluent-section {
+  margin-bottom: var(--fluent-spacing-horizontal-xxl);
+}
+
+.fluent-section-header {
+  margin-bottom: var(--fluent-spacing-horizontal-l);
+}
+
+.fluent-section-title {
+  font-size: var(--fluent-font-size-base-500);
+  font-weight: 600;
+  color: var(--fluent-color-neutral-foreground-1);
+  line-height: var(--fluent-line-height-base-500);
+  margin: 0 0 var(--fluent-spacing-horizontal-xxs) 0;
+}
+
+.fluent-section-subtitle {
+  font-size: var(--fluent-font-size-base-300);
+  color: var(--fluent-color-neutral-foreground-2);
+  line-height: var(--fluent-line-height-base-300);
+  margin: 0;
+}

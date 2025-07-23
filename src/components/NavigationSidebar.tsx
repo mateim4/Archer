@@ -1,6 +1,5 @@
 import React from 'react';
 import { BarChart3, RefreshCw, ArrowRight, Settings, Menu } from 'lucide-react';
-import { InfoTooltip } from './Tooltip';
 
 interface NavigationSidebarProps {
   collapsed: boolean;
@@ -32,7 +31,7 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
       id: 'migration', 
       label: 'Migration Planner', 
       icon: ArrowRight,
-      tooltip: 'Plan migration from VMware vSphere to Microsoft Hyper-V or Azure Local. Includes automated translation rules, compatibility analysis, and TCO calculations.'
+      tooltip: 'Plan and execute infrastructure migration strategies. Configure migration waves, target platforms, and generate migration roadmaps.'
     },
     { 
       id: 'settings', 
@@ -44,31 +43,33 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
 
   return (
     <div 
-      className={`${collapsed ? 'w-16' : 'w-72'} transition-all duration-300 ease-out relative`}
+      className={`${collapsed ? 'w-16' : 'w-64'} transition-all duration-300 ease-out relative`}
       style={{
-        background: `linear-gradient(180deg, var(--color-neutral-background) 0%, var(--color-neutral-background-secondary) 100%)`,
-        backdropFilter: 'blur(40px) saturate(180%)',
-        WebkitBackdropFilter: 'blur(40px) saturate(180%)',
-        borderRight: `1px solid var(--color-neutral-stroke)`,
-        fontFamily: 'var(--font-family)',
-        boxShadow: 'inset 1px 0 0 0 rgba(255, 255, 255, 0.2)'
+        background: 'rgba(255, 255, 255, 0.85)',
+        border: '1px solid var(--fluent-color-neutral-stroke-2)',
+        borderLeft: 'none',
+        borderTop: 'none',
+        borderBottom: 'none',
+        boxShadow: 'var(--fluent-shadow-4)',
+        fontFamily: 'Montserrat, -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", system-ui, ui-sans-serif, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"'
       }}
     >
       {/* Header */}
       <div 
         className="flex items-center justify-between h-16 px-5 border-b" 
         style={{ 
-          borderColor: 'var(--color-neutral-stroke-secondary)',
-          background: `linear-gradient(90deg, var(--color-neutral-background-tertiary) 0%, var(--color-neutral-background-secondary) 100%)`
+          borderColor: 'var(--fluent-color-neutral-stroke-2)',
+          background: 'rgba(255, 255, 255, 0.1)'
         }}
       >
         {!collapsed && (
           <h1 
             className="font-semibold truncate"
             style={{ 
-              fontSize: 'var(--font-size-title3)',
-              fontWeight: 'var(--font-weight-semibold)',
-              color: 'var(--color-neutral-foreground)'
+              fontSize: '18px',
+              fontWeight: '600',
+              color: '#000000',
+              fontFamily: 'inherit'
             }}
           >
             InfraPlanner
@@ -97,64 +98,111 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
       </div>
 
       {/* Navigation Items */}
-      <nav className="p-3">
+      <nav className="px-0 py-2">
         <div className="space-y-1">
           {navigationItems.map((item) => (
-            <div key={item.id} className="flex items-center">
-              <button
-                onClick={() => onViewChange(item.id)}
-                className={`flex-1 flex items-center h-10 px-3 text-sm font-medium rounded-md transition-all duration-200 group ${
-                  activeView === item.id ? 'shadow-sm' : ''
-                }`}
+            <button
+              key={item.id}
+              onClick={() => onViewChange(item.id)}
+              className={`w-full flex items-center text-sm font-medium transition-all duration-300 group relative overflow-hidden ${
+                activeView === item.id ? 'active-nav-item' : ''
+              }`}
+              style={{
+                minHeight: '56px',
+                borderRadius: '0px',
+                margin: '0',
+                padding: collapsed ? '16px 12px' : '16px 12px 16px 16px',
+                backgroundColor: activeView === item.id 
+                  ? 'rgba(255, 255, 255, 0.95)' 
+                  : 'transparent',
+                border: 'none',
+                borderLeft: activeView === item.id 
+                  ? '4px solid #000000' 
+                  : '4px solid transparent',
+                color: activeView === item.id 
+                  ? '#000000' 
+                  : '#424242',
+                fontWeight: activeView === item.id 
+                  ? '600' 
+                  : '500',
+                boxShadow: activeView === item.id 
+                  ? '0 1px 3px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.9)' 
+                  : 'none',
+                transform: 'none',
+                position: 'relative',
+                zIndex: activeView === item.id ? 2 : 1,
+                fontFamily: 'inherit',
+                textAlign: 'left',
+                width: '100%'
+              }}
+              onMouseEnter={(e) => {
+                if (activeView !== item.id) {
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.4)';
+                  e.currentTarget.style.borderLeft = '4px solid rgba(0, 0, 0, 0.3)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (activeView !== item.id) {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.borderLeft = '4px solid transparent';
+                }
+              }}
+            >
+              {/* Icon container */}
+              <div 
+                className="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-lg"
                 style={{
-                  borderRadius: 'var(--border-radius-md)',
-                  backgroundColor: activeView === item.id ? 'rgba(15, 108, 189, 0.15)' : 'transparent',
-                  backdropFilter: activeView === item.id ? 'blur(20px)' : 'none',
-                  color: activeView === item.id ? 'var(--color-brand-foreground)' : 'var(--color-neutral-foreground)',
-                  border: activeView === item.id ? `1px solid rgba(15, 108, 189, 0.3)` : '1px solid transparent',
-                  fontWeight: activeView === item.id ? 'var(--font-weight-medium)' : 'var(--font-weight-regular)',
-                  boxShadow: activeView === item.id ? 'inset 0 1px 0 0 rgba(255, 255, 255, 0.2)' : 'none'
-                }}
-                onMouseEnter={(e) => {
-                  if (activeView !== item.id) {
-                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
-                    e.currentTarget.style.backdropFilter = 'blur(10px)';
-                    e.currentTarget.style.border = `1px solid var(--color-neutral-stroke-secondary)`;
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (activeView !== item.id) {
-                    e.currentTarget.style.backgroundColor = 'transparent';
-                    e.currentTarget.style.backdropFilter = 'none';
-                    e.currentTarget.style.border = '1px solid transparent';
-                  }
+                  backgroundColor: 'transparent',
+                  border: 'none',
+                  marginRight: collapsed ? '0' : '12px'
                 }}
               >
                 <item.icon 
-                  className={`${collapsed ? 'mx-auto' : 'mr-3'} flex-shrink-0`} 
                   size={20} 
+                  color="#000000"
+                  strokeWidth={1.5}
                 />
-                {!collapsed && (
-                  <span className="truncate">{item.label}</span>
-                )}
-              </button>
+              </div>
+              
               {!collapsed && (
-                <div className="ml-2">
-                  <InfoTooltip 
-                    content={
-                      <div>
-                        <div className="font-medium mb-2" style={{ color: 'white' }}>
-                          {item.label}
-                        </div>
-                        <div style={{ color: 'rgba(255, 255, 255, 0.9)' }}>
-                          {item.tooltip}
-                        </div>
-                      </div>
-                    }
-                  />
+                <div className="flex-1 min-w-0">
+                  <div className="text-left relative">
+                    <div 
+                      className="font-medium truncate"
+                      style={{
+                        fontSize: '14px',
+                        lineHeight: '20px',
+                        fontWeight: activeView === item.id ? '600' : '500'
+                      }}
+                    >
+                      {item.label}
+                    </div>
+                    {activeView === item.id && (
+                      <div 
+                        className="absolute bottom-0 left-0 h-0.5 rounded-full"
+                        style={{
+                          width: '80%',
+                          background: 'linear-gradient(90deg, #a855f7 0%, #ec4899 100%)',
+                          marginTop: '4px',
+                          boxShadow: '0 0 8px rgba(168, 85, 247, 0.4)'
+                        }}
+                      />
+                    )}
+                  </div>
                 </div>
               )}
-            </div>
+              
+              {/* Active indicator */}
+              {activeView === item.id && (
+                <div 
+                  className="absolute right-3 w-2 h-2 rounded-full"
+                  style={{
+                    backgroundColor: '#000000',
+                    boxShadow: '0 0 6px rgba(0, 0, 0, 0.3)'
+                  }}
+                />
+              )}
+            </button>
           ))}
         </div>
       </nav>
