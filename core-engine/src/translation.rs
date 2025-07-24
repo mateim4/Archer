@@ -1,6 +1,7 @@
 use crate::models::*;
 use crate::Result;
 use std::collections::HashMap;
+use uuid::Uuid;
 
 /// Translation engine for VMware to Microsoft platform mapping
 pub struct TranslationEngine;
@@ -689,5 +690,55 @@ mod tests {
         let rules = TranslationRules::default();
         assert!(rules.storage_mapping_rules.prefer_dynamic_disks);
         assert_eq!(rules.storage_mapping_rules.storage_overhead_percent, 30.0);
+    }
+}
+
+/// Convenience function for translating environments
+pub async fn translate_environment(
+    environment: &VsphereEnvironment,
+    translation_rules: &TranslationRules,
+) -> Result<TranslationResult> {
+    // For simplicity, translate the first cluster
+    // In a full implementation, this would handle multiple clusters
+    if let Some(cluster) = environment.clusters.first() {
+        // Create a default sizing result for the translation
+        let sizing_result = SizingResult {
+            hardware_profile: crate::models::HardwareProfile {
+                id: Uuid::new_v4(),
+                name: "Default Translation Hardware".to_string(),
+                manufacturer: "Dell".to_string(),
+                model: "PowerEdge R750".to_string(),
+                cpu_sockets: 2,
+                cores_per_socket: 16,
+                total_cores: 32,
+                max_memory_gb: 256,
+                storage_slots: 8,
+                network_ports: 4,
+                is_hci_certified: false,
+                estimated_cost: Some(15000.0),
+                power_consumption_watts: Some(400),
+                rack_units: 2,
+                notes: Some("Default hardware for translation".to_string()),
+            },
+            required_hosts: 1,
+            total_cost: Some(15000.0),
+            utilization_metrics: crate::models::UtilizationMetrics {
+                cpu_utilization_percent: 70.0,
+                memory_utilization_percent: 75.0,
+                storage_utilization_percent: 60.0,
+                n_plus_x_compliance: true,
+            },
+            vm_placement: HashMap::new(),
+            warnings: vec![],
+        };
+        
+        TranslationEngine::translate_cluster(
+            cluster,
+            TargetPlatform::HyperVCluster,
+            &sizing_result,
+            translation_rules,
+        )
+    } else {
+        Err(crate::CoreEngineError::validation("No clusters found in environment"))
     }
 }

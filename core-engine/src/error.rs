@@ -15,7 +15,10 @@ pub enum CoreEngineError {
     DocumentError(String),
 
     #[error("IO error: {0}")]
-    IoError(#[from] std::io::Error),
+    Io(String),
+
+    #[error("Feature not implemented: {0}")]
+    NotImplemented(String),
 
     #[error("Serialization error: {0}")]
     SerializationError(#[from] serde_json::Error),
@@ -31,6 +34,12 @@ pub enum CoreEngineError {
 
     #[error("Migration planning error: {0}")]
     MigrationError(String),
+
+    #[error("Network error: {0}")]
+    NetworkError(String),
+
+    #[error("Authentication error: {0}")]
+    AuthenticationError(String),
 }
 
 impl CoreEngineError {
@@ -60,5 +69,25 @@ impl CoreEngineError {
 
     pub fn migration(msg: impl Into<String>) -> Self {
         Self::MigrationError(msg.into())
+    }
+
+    pub fn not_implemented(msg: impl Into<String>) -> Self {
+        Self::NotImplemented(msg.into())
+    }
+
+    pub fn io(msg: impl Into<String>) -> Self {
+        Self::Io(msg.into())
+    }
+
+    pub fn authentication(msg: impl Into<String>) -> Self {
+        Self::AuthenticationError(msg.into())
+    }
+
+    pub fn not_found(msg: impl Into<String>) -> Self {
+        Self::ValidationError(format!("Not found: {}", msg.into()))
+    }
+
+    pub fn serialization(msg: impl Into<String>) -> Self {
+        Self::ParsingError(format!("Serialization error: {}", msg.into()))
     }
 }

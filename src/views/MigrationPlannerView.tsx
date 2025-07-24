@@ -12,6 +12,15 @@ const MigrationPlannerView: React.FC = () => {
   const [targetNetwork, setTargetNetwork] = useState<string | null>(null);
   const [isNarrow, setIsNarrow] = useState(window.innerWidth < 1200);
 
+  // Overcommit ratio states
+  const [cpuOvercommit, setCpuOvercommit] = useState('3:1');
+  const [memoryOvercommit, setMemoryOvercommit] = useState('1.5:1');
+  const [haPolicy, setHaPolicy] = useState('n+1');
+  const [customCpuOvercommit, setCustomCpuOvercommit] = useState('');
+  const [customMemoryOvercommit, setCustomMemoryOvercommit] = useState('');
+  const [showCustomCpu, setShowCustomCpu] = useState(false);
+  const [showCustomMemory, setShowCustomMemory] = useState(false);
+
   // Migration platform options state
   const [platformOptions, setPlatformOptions] = useState([
     { id: 'azure-stack-hci', title: 'Azure Stack HCI', description: 'Hybrid cloud solution with Azure integration' },
@@ -728,7 +737,7 @@ const MigrationPlannerView: React.FC = () => {
           fontFamily: 'var(--fluent-font-family-base)',
           fontSize: '14px',
           fontWeight: isActive ? '600' : '400',
-          color: isActive ? 'var(--color-brand-primary)' : '#6b7280',
+          color: isActive ? '#8b5cf6' : '#6b7280',
           lineHeight: '1.4'
         }}
       >
@@ -980,8 +989,8 @@ const MigrationPlannerView: React.FC = () => {
                   value={migrationDuration}
                   onChange={setMigrationDuration}
                   style={{ width: '100%', minWidth: '300px' }}
+                  unit="mo"
                 />
-                <div className="mt-2 text-sm text-gray-500">{migrationDuration} month{migrationDuration > 1 ? 's' : ''}</div>
               </div>
               <div>
                 <label className="block mb-3 font-medium" style={{ fontSize: '14px', color: 'var(--color-neutral-foreground)' }}>
@@ -993,8 +1002,8 @@ const MigrationPlannerView: React.FC = () => {
                   value={migrationWave}
                   onChange={setMigrationWave}
                   style={{ width: '100%', minWidth: '300px' }}
+                  unit="VMs"
                 />
-                <div className="mt-2 text-sm text-gray-500">{migrationWave}%</div>
               </div>
             </div>
           </div>
@@ -1017,24 +1026,155 @@ const MigrationPlannerView: React.FC = () => {
             <div className="grid grid-cols-3 gap-8" style={{ alignItems: 'start' }}>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
                 <label className="block mb-3 font-medium" style={{ fontSize: '14px', color: 'var(--color-neutral-foreground)', minHeight: '20px' }}>CPU Overcommit Ratio</label>
-                <select className="w-full p-3 border rounded-lg" style={{ minHeight: '48px', fontSize: '14px' }}>
+                <select 
+                  className="w-full p-3 border rounded-lg" 
+                  style={{ 
+                    minHeight: '48px', 
+                    fontSize: '14px',
+                    background: 'rgba(255, 255, 255, 0.8)',
+                    backdropFilter: 'blur(10px)',
+                    border: '1px solid rgba(168, 85, 247, 0.2)',
+                    borderRadius: '12px',
+                    color: 'var(--color-neutral-foreground)',
+                    transition: 'all 0.2s ease'
+                  }}
+                  value={cpuOvercommit}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setCpuOvercommit(value);
+                    setShowCustomCpu(value === 'custom');
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.background = 'rgba(255, 255, 255, 0.95)';
+                    e.target.style.border = '1px solid rgba(168, 85, 247, 0.4)';
+                    e.target.style.boxShadow = '0 0 0 3px rgba(168, 85, 247, 0.1)';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.background = 'rgba(255, 255, 255, 0.8)';
+                    e.target.style.border = '1px solid rgba(168, 85, 247, 0.2)';
+                    e.target.style.boxShadow = 'none';
+                  }}
+                >
                   <option value="2:1">2:1 (Conservative)</option>
-                  <option value="3:1" selected>3:1 (Balanced)</option>
+                  <option value="3:1">3:1 (Balanced)</option>
                   <option value="4:1">4:1 (Aggressive)</option>
+                  <option value="custom">Custom...</option>
                 </select>
+                {showCustomCpu && (
+                  <input
+                    type="text"
+                    placeholder="e.g., 5:1"
+                    value={customCpuOvercommit}
+                    onChange={(e) => setCustomCpuOvercommit(e.target.value)}
+                    style={{
+                      marginTop: '8px',
+                      padding: '8px 12px',
+                      border: '1px solid rgba(168, 85, 247, 0.3)',
+                      borderRadius: '8px',
+                      fontSize: '14px',
+                      background: 'rgba(255, 255, 255, 0.9)',
+                      outline: 'none'
+                    }}
+                  />
+                )}
               </div>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
                 <label className="block mb-3 font-medium" style={{ fontSize: '14px', color: 'var(--color-neutral-foreground)', minHeight: '20px' }}>Memory Overcommit</label>
-                <select className="w-full p-3 border rounded-lg" style={{ minHeight: '48px', fontSize: '14px' }}>
+                <select 
+                  className="w-full p-3 border rounded-lg" 
+                  value={memoryOvercommit}
+                  onChange={(e) => {
+                    setMemoryOvercommit(e.target.value);
+                    if (e.target.value === 'custom') {
+                      setShowCustomMemory(true);
+                    } else {
+                      setShowCustomMemory(false);
+                    }
+                  }}
+                  style={{ 
+                    minHeight: '48px', 
+                    fontSize: '14px',
+                    background: 'rgba(255, 255, 255, 0.8)',
+                    backdropFilter: 'blur(10px)',
+                    border: '1px solid rgba(168, 85, 247, 0.2)',
+                    borderRadius: '12px',
+                    color: 'var(--color-neutral-foreground)',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.background = 'rgba(255, 255, 255, 0.95)';
+                    e.target.style.border = '1px solid rgba(168, 85, 247, 0.4)';
+                    e.target.style.boxShadow = '0 0 0 3px rgba(168, 85, 247, 0.1)';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.background = 'rgba(255, 255, 255, 0.8)';
+                    e.target.style.border = '1px solid rgba(168, 85, 247, 0.2)';
+                    e.target.style.boxShadow = 'none';
+                  }}
+                >
                   <option value="1:1">1:1 (No overcommit)</option>
-                  <option value="1.5:1" selected>1.5:1 (Conservative)</option>
+                  <option value="1.5:1">1.5:1 (Conservative)</option>
                   <option value="2:1">2:1 (Moderate)</option>
+                  <option value="custom">Custom...</option>
                 </select>
+                {showCustomMemory && (
+                  <div style={{ marginTop: '12px' }}>
+                    <input
+                      type="text"
+                      value={customMemoryOvercommit}
+                      onChange={(e) => setCustomMemoryOvercommit(e.target.value)}
+                      placeholder="e.g., 1.8:1"
+                      className="w-full p-3 border rounded-lg"
+                      style={{
+                        minHeight: '48px',
+                        fontSize: '14px',
+                        background: 'rgba(255, 255, 255, 0.9)',
+                        backdropFilter: 'blur(10px)',
+                        border: '1px solid rgba(139, 92, 246, 0.3)',
+                        borderRadius: '12px',
+                        color: 'var(--color-neutral-foreground)',
+                        transition: 'all 0.2s ease'
+                      }}
+                      onFocus={(e) => {
+                        e.target.style.border = '1px solid rgba(139, 92, 246, 0.5)';
+                        e.target.style.boxShadow = '0 0 0 3px rgba(139, 92, 246, 0.1)';
+                      }}
+                      onBlur={(e) => {
+                        e.target.style.border = '1px solid rgba(139, 92, 246, 0.3)';
+                        e.target.style.boxShadow = 'none';
+                      }}
+                    />
+                  </div>
+                )}
               </div>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
                 <label className="block mb-3 font-medium" style={{ fontSize: '14px', color: 'var(--color-neutral-foreground)', minHeight: '20px' }}>HA Policy</label>
-                <select className="w-full p-3 border rounded-lg" style={{ minHeight: '48px', fontSize: '14px' }}>
-                  <option value="n+1" selected>N+1 (Standard)</option>
+                <select 
+                  className="w-full p-3 border rounded-lg" 
+                  value={haPolicy}
+                  onChange={(e) => setHaPolicy(e.target.value)}
+                  style={{ 
+                    minHeight: '48px', 
+                    fontSize: '14px',
+                    background: 'rgba(255, 255, 255, 0.8)',
+                    backdropFilter: 'blur(10px)',
+                    border: '1px solid rgba(168, 85, 247, 0.2)',
+                    borderRadius: '12px',
+                    color: 'var(--color-neutral-foreground)',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.background = 'rgba(255, 255, 255, 0.95)';
+                    e.target.style.border = '1px solid rgba(168, 85, 247, 0.4)';
+                    e.target.style.boxShadow = '0 0 0 3px rgba(168, 85, 247, 0.1)';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.background = 'rgba(255, 255, 255, 0.8)';
+                    e.target.style.border = '1px solid rgba(168, 85, 247, 0.2)';
+                    e.target.style.boxShadow = 'none';
+                  }}
+                >
+                  <option value="n+1">N+1 (Standard)</option>
                   <option value="n+2">N+2 (High availability)</option>
                   <option value="none">None</option>
                 </select>
@@ -1261,7 +1401,14 @@ const MigrationPlannerView: React.FC = () => {
     }}>
       {/* Wizard Progress Header */}
       <div className="fluent-card mb-6" style={{ width: '100%', flexShrink: 0 }}>
-        <div style={{ width: '100%', margin: '32px 0 24px 0', display: 'flex', alignItems: 'center' }}>
+        <div style={{ 
+          width: '100%', 
+          margin: '16px 0', 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          minHeight: '48px'
+        }}>
         {wizardSteps.map((step, index) => (
           <React.Fragment key={step.num}>
             <WizardStep

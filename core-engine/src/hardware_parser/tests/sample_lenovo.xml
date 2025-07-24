@@ -1,0 +1,35 @@
+<Configuration cf_ver="1.0">
+  <System>
+    <ProductName>ThinkSystem SR650</ProductName>
+    <SerialNumber>J1234567</SerialNumber>
+    <Processor>
+      <Name>Intel Xeon Gold 6248R</Name>
+      <CoreCount>24</CoreCount>
+      <ThreadCount>48</ThreadCount>
+      <Speed>3.0</Speed>
+    </Processor>
+    <Processor>
+      <Name>Intel Xeon Gold 6248R</Name>
+      <CoreCount>24</CoreCount>
+      <ThreadCount>48</ThreadCount>
+      <Speed>3.0</Speed>
+    </Processor>
+    <Memory>
+      <Name>TruDDR4 32GB 2933MHz</Name>
+      <CapacityGB>32</CapacityGB>
+      <SpeedMHz>2933</SpeedMHz>
+      <Type>DDR4</Type>
+    </Memory>
+    <Memory>
+      <Name>TruDDR4 32GB 2933MHz</Name>
+      <CapacityGB>32</CapacityGB>
+      <SpeedMHz>2933</SpeedMHz>
+      <Type>DDR4</Type>
+    </Memory>
+    <Storage>
+      <Adapter>
+        <Name>RAID 930-8i</Name>
+      </Adapter>
+    </Storage>
+  </System>
+</Configuration>

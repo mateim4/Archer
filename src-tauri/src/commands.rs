@@ -1,5 +1,5 @@
 use crate::state::*;
-use core_engine::{parser, analysis, sizing, forecasting, translation, document_generation};
+use core_engine::{parser, analysis, sizing, forecasting, translation, document_generation, hardware_parser, vendor_data};
 use core_engine::models::*;
 use core_engine::error::CoreEngineError;
 use serde_json::Value as JsonValue;
@@ -41,16 +41,16 @@ pub async fn get_environment_summary(
     if let Some(environment) = state.get_current_environment() {
         let summary = EnvironmentSummary {
             id: environment.id,
-            name: environment.name,
+            name: environment.name.clone(),
             parsed_at: environment.parsed_at,
             cluster_count: environment.clusters.len() as u32,
-            total_vms: environment.get_total_vm_count(),
-            total_hosts: environment.get_total_host_count(),
+            total_vms: environment.get_total_vm_count() as u32,
+            total_hosts: environment.get_total_host_count() as u32,
             total_cpu_cores: environment.get_total_cpu_cores(),
             total_memory_gb: environment.get_total_memory_gb(),
             total_storage_gb: environment.get_total_storage_gb(),
-            power_on_vms: environment.get_powered_on_vm_count(),
-            power_off_vms: environment.get_powered_off_vm_count(),
+            power_on_vms: environment.get_powered_on_vm_count() as u32,
+            power_off_vms: environment.get_powered_off_vm_count() as u32,
         };
         Ok(Some(summary))
     } else {
@@ -72,7 +72,7 @@ pub async fn analyze_environment(
     // Check if we have cached analysis results
     let analysis_id = Uuid::new_v4();
     if let Some(cached) = state.analysis_cache.read().get(&environment.id) {
-        if state.is_analysis_cache_valid(&environment.id) {
+        if state._is_analysis_cache_valid(&environment.id) {
             return Ok(serde_json::to_string(&cached.analysis_report)
                 .map_err(|e| format!("Failed to serialize cached analysis: {}", e))?);
         }
@@ -103,7 +103,7 @@ pub async fn analyze_environment(
 pub async fn get_hardware_basket(
     state: tauri::State<'_, AppState>,
 ) -> Result<String, String> {
-    let basket = state.hardware_basket.read();
+    let basket = state._hardware_basket.read();
     serde_json::to_string(&*basket)
         .map_err(|e| format!("Failed to serialize hardware basket: {}", e))
 }
@@ -114,7 +114,7 @@ pub async fn add_hardware_profile(
     profile: HardwareProfile,
     state: tauri::State<'_, AppState>,
 ) -> Result<String, String> {
-    let mut basket = state.hardware_basket.write();
+    let mut basket = state._hardware_basket.write();
     basket.add_profile(profile.clone());
     
     Ok(format!("Added hardware profile: {}", profile.name))
@@ -129,7 +129,7 @@ pub async fn remove_hardware_profile(
     let profile_uuid = Uuid::parse_str(&profile_id)
         .map_err(|e| format!("Invalid profile ID: {}", e))?;
     
-    let mut basket = state.hardware_basket.write();
+    let mut basket = state._hardware_basket.write();
     if basket.remove_profile(&profile_uuid) {
         Ok("Hardware profile removed".to_string())
     } else {
@@ -154,8 +154,8 @@ pub async fn calculate_sizing(
 
     // Check cache
     let cache_key = format!("{}-{:?}", hardware_profile_id, sizing_parameters);
-    if let Some(env_hash) = state.get_environment_hash() {
-        if state.is_sizing_cache_valid(&cache_key, &env_hash) {
+    if let Some(env_hash) = state._get_environment_hash() {
+        if state._is_sizing_cache_valid(&cache_key, &env_hash) {
             if let Some(cached) = state.sizing_cache.read().get(&cache_key) {
                 return serde_json::to_string(&cached.sizing_result)
                     .map_err(|e| format!("Failed to serialize cached sizing result: {}", e));
@@ -164,18 +164,21 @@ pub async fn calculate_sizing(
     }
 
     // Get hardware profile
-    let basket = state.hardware_basket.read();
-    let hardware_profile = basket.get_profile(&profile_uuid)
-        .ok_or_else(|| "Hardware profile not found".to_string())?;
+    let hardware_profile = {
+        let basket = state._hardware_basket.read();
+        basket.get_profile(&profile_uuid)
+            .ok_or_else(|| "Hardware profile not found".to_string())?
+            .clone()
+    };
 
     // Perform sizing calculation
-    let sizing_result = match sizing::calculate_sizing(&environment, hardware_profile, &sizing_parameters).await {
+    let sizing_result = match sizing::calculate_sizing(&environment, &hardware_profile, &sizing_parameters).await {
         Ok(result) => result,
         Err(e) => return Err(format!("Sizing calculation failed: {}", e)),
     };
 
     // Cache the result
-    if let Some(env_hash) = state.get_environment_hash() {
+    if let Some(env_hash) = state._get_environment_hash() {
         let cache_entry = SizingResultCache {
             hardware_profile_id: profile_uuid,
             sizing_parameters: sizing_parameters.clone(),
@@ -216,7 +219,7 @@ pub async fn get_forecast(
 pub async fn get_translation_rules(
     state: tauri::State<'_, AppState>,
 ) -> Result<String, String> {
-    let rules = state.translation_rules.read();
+    let rules = state._translation_rules.read();
     serde_json::to_string(&*rules)
         .map_err(|e| format!("Failed to serialize translation rules: {}", e))
 }
@@ -231,7 +234,7 @@ pub async fn update_translation_rules(
         .map_err(|e| format!("Invalid translation rules format: {}", e))?;
 
     {
-        let mut rules = state.translation_rules.write();
+        let mut rules = state._translation_rules.write();
         *rules = translation_rules;
     }
 
@@ -248,7 +251,7 @@ pub async fn translate_environment(
         None => return Err("No environment loaded".to_string()),
     };
 
-    let rules = state.translation_rules.read().clone();
+    let rules = state._translation_rules.read().clone();
     
     let translation_result = match translation::translate_environment(&environment, &rules).await {
         Ok(result) => result,
@@ -318,7 +321,7 @@ pub async fn calculate_tco(
     let sizing: SizingResult = serde_json::from_value(sizing_result)
         .map_err(|e| format!("Invalid sizing result format: {}", e))?;
 
-    let tco_params = state.tco_parameters.read().clone();
+    let tco_params = state._tco_parameters.read().clone();
     
     // Simple TCO calculation (this would be more sophisticated in a real implementation)
     let current_annual_cost = tco_params.current_environment.hardware_annual_cost
@@ -365,7 +368,7 @@ pub async fn calculate_tco(
 pub async fn get_app_settings(
     state: tauri::State<'_, AppState>,
 ) -> Result<String, String> {
-    let settings = state.app_settings.read();
+    let settings = state._app_settings.read();
     serde_json::to_string(&*settings)
         .map_err(|e| format!("Failed to serialize app settings: {}", e))
 }
@@ -380,7 +383,7 @@ pub async fn update_app_settings(
         .map_err(|e| format!("Invalid app settings format: {}", e))?;
 
     {
-        let mut settings = state.app_settings.write();
+        let mut settings = state._app_settings.write();
         *settings = app_settings;
     }
 
@@ -397,7 +400,7 @@ pub async fn update_tco_parameters(
         .map_err(|e| format!("Invalid TCO parameters format: {}", e))?;
 
     {
-        let mut params = state.tco_parameters.write();
+        let mut params = state._tco_parameters.write();
         *params = tco_parameters;
     }
 
@@ -410,9 +413,11 @@ pub async fn save_hardware_basket(
     file_path: String,
     state: tauri::State<'_, AppState>,
 ) -> Result<String, String> {
-    let basket = state.hardware_basket.read();
-    let json = serde_json::to_string_pretty(&*basket)
-        .map_err(|e| format!("Failed to serialize hardware basket: {}", e))?;
+    let json = {
+        let basket = state._hardware_basket.read();
+        serde_json::to_string_pretty(&*basket)
+            .map_err(|e| format!("Failed to serialize hardware basket: {}", e))?
+    };
 
     tokio::fs::write(&file_path, json).await
         .map_err(|e| format!("Failed to write hardware basket file: {}", e))?;
@@ -433,7 +438,7 @@ pub async fn load_hardware_basket(
         .map_err(|e| format!("Failed to parse hardware basket file: {}", e))?;
 
     {
-        let mut current_basket = state.hardware_basket.write();
+        let mut current_basket = state._hardware_basket.write();
         *current_basket = basket;
     }
 
@@ -496,6 +501,18 @@ pub struct EnvironmentSummary {
     pub power_off_vms: u32,
 }
 
+/// Parse a hardware configuration file (e.g., Dell SCP, Lenovo DCSC)
+#[tauri::command]
+pub async fn parse_hardware_file(
+    file_path: String,
+) -> Result<UniversalServer, String> {
+    let parser = hardware_parser::UniversalParser;
+    match parser.parse_file(&file_path) {
+        Ok(server) => Ok(server),
+        Err(e) => Err(format!("Failed to parse hardware file: {}", e)),
+    }
+}
+
 /// TCO calculation result
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct TcoResult {
@@ -506,4 +523,188 @@ pub struct TcoResult {
     pub roi_percent: f64,
     pub payback_period_years: f64,
     pub currency: String,
+}
+
+// ========== VENDOR DATA COLLECTION COMMANDS ==========
+
+/// Configure vendor credentials
+#[tauri::command]
+pub async fn configure_vendor_credentials(
+    vendor: String,
+    api_key: Option<String>,
+    username: Option<String>,
+    password: Option<String>,
+    partner_id: Option<String>,
+    region: Option<String>,
+    state: tauri::State<'_, AppState>,
+) -> Result<String, String> {
+    let credentials = vendor_data::VendorCredentials {
+        vendor: vendor.clone(),
+        api_key,
+        username,
+        password,
+        partner_id,
+        region,
+    };
+    
+    match state.get_vendor_data_manager().await {
+        Ok(manager) => {
+            match manager.configure_vendor(&vendor, credentials).await {
+                Ok(_) => Ok(format!("Successfully configured credentials for {}", vendor)),
+                Err(e) => Err(format!("Failed to configure vendor credentials: {}", e)),
+            }
+        },
+        Err(e) => Err(format!("Failed to access vendor data manager: {}", e)),
+    }
+}
+
+/// Get all server models from all vendors
+#[tauri::command]
+pub async fn get_all_server_models(
+    state: tauri::State<'_, AppState>,
+) -> Result<Vec<vendor_data::ServerModel>, String> {
+    match state.get_vendor_data_manager().await {
+        Ok(manager) => {
+            match manager.get_all_server_models().await {
+                Ok(models) => Ok(models),
+                Err(e) => Err(format!("Failed to fetch server models: {}", e)),
+            }
+        },
+        Err(e) => Err(format!("Failed to access vendor data manager: {}", e)),
+    }
+}
+
+/// Get server models from a specific vendor
+#[tauri::command]
+pub async fn get_vendor_server_models(
+    vendor: String,
+    state: tauri::State<'_, AppState>,
+) -> Result<Vec<vendor_data::ServerModel>, String> {
+    match state.get_vendor_data_manager().await {
+        Ok(manager) => {
+            match manager.get_vendor_server_models(&vendor).await {
+                Ok(models) => Ok(models),
+                Err(e) => Err(format!("Failed to fetch {} server models: {}", vendor, e)),
+            }
+        },
+        Err(e) => Err(format!("Failed to access vendor data manager: {}", e)),
+    }
+}
+
+/// Get detailed specifications for a server model
+#[tauri::command]
+pub async fn get_model_specifications(
+    vendor: String,
+    model_id: String,
+    state: tauri::State<'_, AppState>,
+) -> Result<vendor_data::ServerSpecifications, String> {
+    match state.get_vendor_data_manager().await {
+        Ok(manager) => {
+            match manager.get_model_specifications(&vendor, &model_id).await {
+                Ok(specs) => Ok(specs),
+                Err(e) => Err(format!("Failed to fetch specifications for {}: {}", model_id, e)),
+            }
+        },
+        Err(e) => Err(format!("Failed to access vendor data manager: {}", e)),
+    }
+}
+
+/// Get compatibility matrix for a server model
+#[tauri::command]
+pub async fn get_compatibility_matrix(
+    vendor: String,
+    model_id: String,
+    state: tauri::State<'_, AppState>,
+) -> Result<vendor_data::CompatibilityMatrix, String> {
+    match state.get_vendor_data_manager().await {
+        Ok(manager) => {
+            match manager.get_compatibility_matrix(&vendor, &model_id).await {
+                Ok(matrix) => Ok(matrix),
+                Err(e) => Err(format!("Failed to fetch compatibility matrix for {}: {}", model_id, e)),
+            }
+        },
+        Err(e) => Err(format!("Failed to access vendor data manager: {}", e)),
+    }
+}
+
+/// Search for server configurations based on requirements
+#[tauri::command]
+pub async fn search_server_configurations(
+    requirements: vendor_data::SizingRequirements,
+    state: tauri::State<'_, AppState>,
+) -> Result<Vec<vendor_data::RecommendedConfiguration>, String> {
+    match state.get_vendor_data_manager().await {
+        Ok(manager) => {
+            match manager.search_configurations(&requirements).await {
+                Ok(configurations) => Ok(configurations),
+                Err(e) => Err(format!("Failed to search configurations: {}", e)),
+            }
+        },
+        Err(e) => Err(format!("Failed to access vendor data manager: {}", e)),
+    }
+}
+
+/// Enrich a parsed server configuration with vendor data
+#[tauri::command]
+pub async fn enrich_server_configuration(
+    mut server: UniversalServer,
+    state: tauri::State<'_, AppState>,
+) -> Result<UniversalServer, String> {
+    match state.get_vendor_data_manager().await {
+        Ok(manager) => {
+            match manager.enrich_configuration(&mut server).await {
+                Ok(_) => Ok(server),
+                Err(e) => Err(format!("Failed to enrich server configuration: {}", e)),
+            }
+        },
+        Err(e) => Err(format!("Failed to access vendor data manager: {}", e)),
+    }
+}
+
+/// Get pricing for a server configuration
+#[tauri::command]
+pub async fn get_configuration_pricing(
+    vendor: String,
+    configuration: vendor_data::ConfigurationRequest,
+    state: tauri::State<'_, AppState>,
+) -> Result<Option<vendor_data::PricingResponse>, String> {
+    match state.get_vendor_data_manager().await {
+        Ok(manager) => {
+            match manager.get_configuration_pricing(&vendor, &configuration).await {
+                Ok(pricing) => Ok(pricing),
+                Err(e) => Err(format!("Failed to get pricing: {}", e)),
+            }
+        },
+        Err(e) => Err(format!("Failed to access vendor data manager: {}", e)),
+    }
+}
+
+/// Refresh vendor data cache
+#[tauri::command]
+pub async fn refresh_vendor_data(
+    state: tauri::State<'_, AppState>,
+) -> Result<String, String> {
+    match state.get_vendor_data_manager().await {
+        Ok(manager) => {
+            match manager.refresh_vendor_data().await {
+                Ok(_) => Ok("Successfully refreshed vendor data cache".to_string()),
+                Err(e) => Err(format!("Failed to refresh vendor data: {}", e)),
+            }
+        },
+        Err(e) => Err(format!("Failed to access vendor data manager: {}", e)),
+    }
+}
+
+/// Get vendor data cache statistics
+#[tauri::command]
+pub async fn get_cache_statistics(
+    state: tauri::State<'_, AppState>,
+) -> Result<String, String> {
+    match state.get_vendor_data_manager().await {
+        Ok(manager) => {
+            // Access the cache through the manager (would need to expose this method)
+            Ok("Cache statistics not available yet".to_string())
+        },
+        Err(e) => Err(format!("Failed to access vendor data manager: {}", e)),
+    }
 }

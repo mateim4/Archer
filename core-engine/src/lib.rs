@@ -11,6 +11,9 @@ pub mod sizing;
 pub mod translation;
 pub mod document_generation;
 pub mod error;
+pub mod hardware_parser;
+pub mod vendor_client;
+pub mod vendor_data;
 
 pub use error::CoreEngineError;
 pub type Result<T> = std::result::Result<T, CoreEngineError>;

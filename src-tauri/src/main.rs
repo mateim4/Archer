@@ -2,10 +2,10 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod state;
-mod commands_minimal;
+mod commands;
 
 use state::AppState;
-use commands_minimal::*;
+use commands::*;
 
 fn main() {
     tauri::Builder::default()
@@ -20,33 +20,42 @@ fn main() {
             analyze_environment,
             
             // Hardware management
-            get_hardware_profiles,
+            get_hardware_basket,
             add_hardware_profile,
-            update_hardware_profile,
-            delete_hardware_profile,
-            get_hci_certified_profiles,
+            remove_hardware_profile,
             save_hardware_basket,
             load_hardware_basket,
+            parse_hardware_file,
+            
+            // Vendor API integration
+            configure_vendor_credentials,
+            
+            // Vendor Data Collection
+            get_all_server_models,
+            get_vendor_server_models,
+            get_model_specifications,
+            get_compatibility_matrix,
+            search_server_configurations,
+            enrich_server_configuration,
+            get_configuration_pricing,
+            refresh_vendor_data,
+            get_cache_statistics,
             
             // Planning
             calculate_sizing,
-            optimize_cluster_configuration,
-            generate_forecast,
+            get_forecast,
             
             // Migration
-            translate_cluster,
+            translate_environment,
             get_translation_rules,
             update_translation_rules,
             
             // Documents
             generate_hld_document,
             generate_lld_document,
-            get_document_templates,
-            upload_document_template,
             
             // TCO
             calculate_tco,
-            get_tco_parameters,
             update_tco_parameters,
             
             // Settings
@@ -54,10 +63,6 @@ fn main() {
             update_app_settings,
             
             // File operations
-            export_configuration,
-            import_configuration,
-            save_file_dialog,
-            open_file_dialog,
             file_exists,
             get_file_info,
         ])

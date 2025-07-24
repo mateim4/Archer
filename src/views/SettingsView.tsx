@@ -1,10 +1,58 @@
 import React, { useState } from 'react';
-import { Save, Plus, Trash2, Download, Upload, Settings, Database } from 'lucide-react';
+import { Download, Upload, Settings, Database, FileText } from 'lucide-react';
 import { InfoTooltip } from '../components/Tooltip';
+import { autoSave } from '../utils/autoSave';
+import VendorHardwareManager from '../components/VendorHardwareManager';
+
+interface HardwareItem {
+  id: number;
+  category: string;
+  model: string;
+  cores: number;
+  memory: number;
+  price: number;
+  currency: string;
+}
 
 const SettingsView: React.FC = () => {
+  // Add style to override table header background
+  React.useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      .fluent-table-header,
+      div.fluent-table-header,
+      .overflow-hidden .fluent-table-header,
+      .border.rounded-xl .fluent-table-header {
+        background: none !important;
+        background-color: transparent !important;
+        background-image: none !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+      }
+      
+      /* Override any Fluent UI CSS variables */
+      .fluent-table-header {
+        --fluent-color-surface-secondary: transparent !important;
+        --fluent-color-neutral-background-2: transparent !important;
+      }
+      
+      /* Pulse animation for auto-save indicator */
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+      }
+    `;
+    document.head.appendChild(style);
+    return () => { 
+      if (document.head.contains(style)) {
+        document.head.removeChild(style); 
+      }
+    };
+  }, []);
+
   const [activeTab, setActiveTab] = useState('hardware');
-  const [newHardwareItem, setNewHardwareItem] = useState({
+  const [editingItem, setEditingItem] = useState<number | null>(null);
+  const [editingValues, setEditingValues] = useState({
     category: '',
     model: '',
     cores: '',
@@ -12,75 +60,154 @@ const SettingsView: React.FC = () => {
     price: ''
   });
 
-  // Mock hardware basket data
-  const [hardwareBasket, setHardwareBasket] = useState([
-    {
-      id: 1,
-      category: 'Compute',
-      model: 'Dell PowerEdge R750',
-      cores: 64,
-      memory: 512,
-      price: 15000,
-      currency: 'USD'
-    },
-    {
-      id: 2,
-      category: 'Compute',
-      model: 'HPE ProLiant DL380 Gen11',
-      cores: 48,
-      memory: 256,
-      price: 12000,
-      currency: 'USD'
-    },
-    {
-      id: 3,
-      category: 'Storage',
-      model: 'Dell Unity XT 880F',
-      cores: 0,
-      memory: 0,
-      price: 45000,
-      currency: 'USD'
-    }
-  ]);
+  // Auto-save state to localStorage every second
+  const [calculationSettings, setCalculationSettings] = useState(() => 
+    autoSave.load('calculationSettings', {
+      cpuOvercommit: '4.0',
+      memoryOvercommit: '1.2',
+      storageEfficiency: '2.0',
+      planningHorizon: '3',
+      confidenceLevel: '95',
+      seasonality: 'auto'
+    })
+  );
+
+  // Mock hardware basket data - Load from localStorage or use defaults
+  const [hardwareBasket, setHardwareBasket] = useState<HardwareItem[]>(() => 
+    autoSave.load('hardwareBasket', [
+      {
+        id: 1,
+        category: 'Compute',
+        model: 'Dell PowerEdge R750',
+        cores: 64,
+        memory: 512,
+        price: 15000,
+        currency: 'USD'
+      },
+      {
+        id: 2,
+        category: 'Compute',
+        model: 'HPE ProLiant DL380 Gen11',
+        cores: 48,
+        memory: 256,
+        price: 12000,
+        currency: 'USD'
+      },
+      {
+        id: 3,
+        category: 'Storage',
+        model: 'Dell Unity XT 880F',
+        cores: 0,
+        memory: 0,
+        price: 45000,
+        currency: 'USD'
+      }
+    ])
+  );
+
+  // Load saved state on component mount
+  React.useEffect(() => {
+    // Load saved active tab
+    const savedTab = autoSave.load('activeTab', 'hardware');
+    setActiveTab(savedTab);
+  }, []);
+
+  // Auto-save data whenever it changes
+  React.useEffect(() => {
+    autoSave.addToSave('hardwareBasket', hardwareBasket);
+  }, [hardwareBasket]);
+
+  React.useEffect(() => {
+    autoSave.addToSave('activeTab', activeTab);
+  }, [activeTab]);
+
+  React.useEffect(() => {
+    autoSave.addToSave('calculationSettings', calculationSettings);
+  }, [calculationSettings]);
 
   const handleAddHardware = () => {
-    if (newHardwareItem.category && newHardwareItem.model) {
-      const newItem = {
-        id: hardwareBasket.length + 1,
-        category: newHardwareItem.category,
-        model: newHardwareItem.model,
-        cores: parseInt(newHardwareItem.cores) || 0,
-        memory: parseInt(newHardwareItem.memory) || 0,
-        price: parseFloat(newHardwareItem.price) || 0,
-        currency: 'USD'
-      };
-      setHardwareBasket([...hardwareBasket, newItem]);
-      setNewHardwareItem({ category: '', model: '', cores: '', memory: '', price: '' });
-    }
+    const newItem = {
+      id: Date.now(), // Use timestamp for unique ID
+      category: '',
+      model: '',
+      cores: 0,
+      memory: 0,
+      price: 0,
+      currency: 'USD'
+    };
+    setHardwareBasket([...hardwareBasket, newItem]);
+    handleEditHardware(newItem.id);
   };
 
   const handleRemoveHardware = (id: number) => {
     setHardwareBasket(hardwareBasket.filter(item => item.id !== id));
   };
 
+  const handleEditHardware = (id: number) => {
+    const item = hardwareBasket.find(item => item.id === id);
+    if (item) {
+      setEditingItem(id);
+      setEditingValues({
+        category: item.category,
+        model: item.model,
+        cores: item.cores.toString(),
+        memory: item.memory.toString(),
+        price: item.price.toString()
+      });
+    }
+  };
+
+  const handleSaveEdit = (id: number) => {
+    setHardwareBasket(hardwareBasket.map(item => 
+      item.id === id 
+        ? {
+            ...item,
+            category: editingValues.category,
+            model: editingValues.model,
+            cores: parseInt(editingValues.cores) || 0,
+            memory: parseInt(editingValues.memory) || 0,
+            price: parseFloat(editingValues.price) || 0
+          }
+        : item
+    ));
+    setEditingItem(null);
+    setEditingValues({ category: '', model: '', cores: '', memory: '', price: '' });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingItem(null);
+    setEditingValues({ category: '', model: '', cores: '', memory: '', price: '' });
+  };
+
   const TabButton = ({ id, label, icon, isActive, onClick }: any) => (
     <button
       onClick={() => onClick(id)}
-      className={`flex items-center px-4 py-2 border-b-2 transition-all duration-200 ${
-        isActive 
-          ? 'border-orange-600 text-orange-600 bg-orange-50/50' 
-          : 'border-transparent hover:border-gray-300 hover:text-gray-700'
-      }`}
+      className={`flex items-center px-6 py-3 border-b-2 transition-all duration-300 ease-in-out relative`}
       style={{
         fontFamily: 'var(--font-family)',
-        fontSize: 'var(--font-size-body)',
-        fontWeight: isActive ? 'var(--font-weight-medium)' : 'var(--font-weight-regular)',
-        color: isActive ? 'var(--color-brand-primary)' : 'var(--color-neutral-foreground-secondary)',
-        borderBottomColor: isActive ? 'var(--color-brand-primary)' : 'transparent'
+        fontSize: '14px',
+        fontWeight: isActive ? '600' : '500',
+        color: isActive ? '#8b5cf6' : '#4b5563',
+        borderBottomColor: 'transparent',
+        background: 'transparent',
       }}
     >
       {icon}
       <span className="ml-2">{label}</span>
+      {isActive && (
+        <div 
+          style={{
+            position: 'absolute',
+            bottom: '4px',
+            left: '8px',
+            right: '8px',
+            height: '3px',
+            background: 'linear-gradient(90deg, #a855f7 0%, #ec4899 100%)',
+            borderRadius: '2px',
+            boxShadow: '0 2px 8px rgba(168, 85, 247, 0.6)'
+          }}
+        />
+      )}
     </button>
   );
 
@@ -91,28 +218,29 @@ const SettingsView: React.FC = () => {
           <h3 
             className="font-medium"
             style={{ 
-              fontSize: 'var(--font-size-subtitle1)',
-              color: 'var(--color-neutral-foreground)',
-              fontWeight: 'var(--font-weight-medium)'
+              fontSize: '20px',
+              fontWeight: '600',
+              color: '#1a202c',
+              fontFamily: 'Montserrat, -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", system-ui, ui-sans-serif, Helvetica, Arial, sans-serif',
+              letterSpacing: '-0.01em'
             }}
           >
-            Hardware Basket Management
+            Hardware Basket
           </h3>
           <div className="ml-2">
             <InfoTooltip 
               content={
                 <div>
                   <div className="font-medium mb-2" style={{ color: 'white' }}>
-                    Hardware Basket Algorithm
+                    Hardware Inventory Management
                   </div>
                   <div style={{ color: 'rgba(255, 255, 255, 0.9)' }}>
-                    The hardware basket drives intelligent sizing recommendations:
+                    Centralized hardware catalog for all migration scenarios:
                     <ul className="mt-2 space-y-1">
-                      <li>• Multi-objective optimization (performance, cost, efficiency)</li>
-                      <li>• Constraint-based selection (power, space, compatibility)</li>
-                      <li>• Vendor preference weighting with price/performance ratios</li>
-                      <li>• Lifecycle cost analysis including maintenance and power</li>
-                      <li>• Future scalability and upgrade path considerations</li>
+                      <li>• CPU, memory, and pricing specifications</li>
+                      <li>• Import/export configurations for team collaboration</li>
+                      <li>• Automatic integration with sizing calculations</li>
+                      <li>• Version control for hardware configurations</li>
                     </ul>
                   </div>
                 </div>
@@ -132,150 +260,14 @@ const SettingsView: React.FC = () => {
         </div>
       </div>
 
-      {/* Add New Hardware Form */}
+      {/* Hardware List */}
       <div 
-        className="p-4 border rounded-lg"
-        style={{ 
-          borderColor: 'var(--color-neutral-stroke)',
-          borderRadius: 'var(--border-radius-lg)',
-          background: 'var(--color-neutral-background-secondary)',
-          backdropFilter: 'blur(10px) saturate(120%)',
-          WebkitBackdropFilter: 'blur(10px) saturate(120%)'
+        className="overflow-hidden border rounded-xl"
+        style={{
+          borderColor: 'rgba(139, 92, 246, 0.2)',
+          background: 'transparent'
         }}
       >
-        <h4 
-          className="font-medium mb-6"
-          style={{
-            fontSize: '16px',
-            fontWeight: '600',
-            color: 'var(--color-neutral-foreground)',
-            fontFamily: 'Montserrat, -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", system-ui, ui-sans-serif, Helvetica, Arial, sans-serif'
-          }}
-        >
-          Add New Hardware
-        </h4>
-        <div className="grid grid-cols-5 gap-6">
-          <div>
-            <label 
-              className="block text-sm font-medium mb-3"
-              style={{
-                fontSize: '14px',
-                fontWeight: '500',
-                color: 'var(--color-neutral-foreground)',
-                lineHeight: '1.4',
-                fontFamily: 'inherit'
-              }}
-            >
-              Category
-            </label>
-            <select 
-              value={newHardwareItem.category}
-              onChange={(e) => setNewHardwareItem({...newHardwareItem, category: e.target.value})}
-              className="fluent-input w-full"
-              style={{
-                minHeight: '40px',
-                fontSize: '14px',
-                fontFamily: 'inherit'
-              }}
-            >
-              <option value="">Select...</option>
-              <option value="Compute">Compute</option>
-              <option value="Storage">Storage</option>
-              <option value="Network">Network</option>
-            </select>
-          </div>
-          <div>
-            <label 
-              className="block text-sm font-medium mb-3"
-              style={{
-                fontSize: '14px',
-                fontWeight: '500',
-                color: 'var(--color-neutral-foreground)',
-                lineHeight: '1.4',
-                fontFamily: 'inherit'
-              }}
-            >
-              Model
-            </label>
-            <input
-              type="text"
-              value={newHardwareItem.model}
-              onChange={(e) => setNewHardwareItem({...newHardwareItem, model: e.target.value})}
-              className="fluent-input w-full"
-              placeholder="e.g., Dell R750"
-              style={{
-                minHeight: '40px',
-                fontSize: '14px',
-                fontFamily: 'inherit'
-              }}
-            />
-          </div>
-          <div>
-            <label 
-              className="block text-sm font-medium mb-3"
-              style={{
-                fontSize: '14px',
-                fontWeight: '500',
-                color: 'var(--color-neutral-foreground)',
-                lineHeight: '1.4',
-                fontFamily: 'inherit'
-              }}
-            >
-              CPU Cores
-            </label>
-            <input
-              type="number"
-              value={newHardwareItem.cores}
-              onChange={(e) => setNewHardwareItem({...newHardwareItem, cores: e.target.value})}
-              className="fluent-input w-full"
-              placeholder="64"
-              style={{
-                minHeight: '40px',
-                fontSize: '14px',
-                fontFamily: 'inherit'
-              }}
-            />
-          </div>
-          <div>
-            <label 
-              className="block text-sm font-medium mb-3"
-              style={{
-                fontSize: '14px',
-                fontWeight: '500',
-                color: 'var(--color-neutral-foreground)',
-                lineHeight: '1.4',
-                fontFamily: 'inherit'
-              }}
-            >
-              Memory (GB)
-            </label>
-            <input
-              type="number"
-              value={newHardwareItem.memory}
-              onChange={(e) => setNewHardwareItem({...newHardwareItem, memory: e.target.value})}
-              className="fluent-input w-full"
-              placeholder="512"
-              style={{
-                minHeight: '40px',
-                fontSize: '14px',
-                fontFamily: 'inherit'
-              }}
-            />
-          </div>
-          <div className="flex items-end">
-            <button 
-              onClick={handleAddHardware}
-              className="fluent-button fluent-button-primary flex items-center w-full"
-            >
-              <Plus size={16} className="mr-2" />
-              Add
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Hardware List */}
-      <div className="fluent-card overflow-hidden">
         <div 
           className="fluent-table-header" 
           style={{ 
@@ -283,10 +275,11 @@ const SettingsView: React.FC = () => {
             gridTemplateColumns: 'repeat(6, 1fr)',
             gap: 'var(--fluent-spacing-horizontal-l)',
             padding: 'var(--fluent-spacing-horizontal-l)',
-            background: 'var(--fluent-color-neutral-background-3)',
-            fontSize: 'var(--fluent-font-size-body-1)',
-            fontWeight: 'var(--fluent-font-weight-semibold)',
-            color: 'var(--fluent-color-neutral-foreground-1)'
+            fontSize: '14px',
+            fontWeight: '600',
+            color: '#1a202c',
+            fontFamily: 'Montserrat, -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", system-ui, ui-sans-serif, Helvetica, Arial, sans-serif',
+            borderBottom: '1px solid rgba(139, 92, 246, 0.2)'
           }}
         >
           <div>Category</div>
@@ -306,37 +299,257 @@ const SettingsView: React.FC = () => {
                 gridTemplateColumns: 'repeat(6, 1fr)',
                 gap: 'var(--fluent-spacing-horizontal-l)',
                 padding: 'var(--fluent-spacing-horizontal-l)',
-                borderBottom: '1px solid var(--fluent-color-neutral-stroke-2)',
-                fontSize: 'var(--fluent-font-size-body-1)',
-                color: 'var(--fluent-color-neutral-foreground-2)',
+                borderBottom: '1px solid rgba(139, 92, 246, 0.1)',
+                fontSize: '14px',
+                color: '#374151',
+                fontFamily: 'Montserrat, -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", system-ui, ui-sans-serif, Helvetica, Arial, sans-serif',
                 transition: 'background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.background = 'var(--fluent-color-neutral-background-2)'}
+              onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(139, 92, 246, 0.05)'}
               onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
             >
-              <div>{item.category}</div>
-              <div style={{ fontWeight: 'var(--fluent-font-weight-medium)' }}>{item.model}</div>
-              <div>{item.cores > 0 ? item.cores : '—'}</div>
-              <div>{item.memory > 0 ? item.memory : '—'}</div>
-              <div>${item.price.toLocaleString()}</div>
+              {/* Category */}
               <div>
-                <button 
-                  onClick={() => handleRemoveHardware(item.id)}
-                  className="fluent-button"
-                  style={{
-                    padding: 'var(--fluent-spacing-vertical-xs) var(--fluent-spacing-horizontal-s)',
-                    color: 'var(--fluent-color-danger-foreground-1)',
-                    border: '1px solid var(--fluent-color-danger-background-1)',
-                    background: 'transparent'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = 'var(--fluent-color-danger-background-1)'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                >
-                  <Trash2 size={14} />
-                </button>
+                {editingItem === item.id ? (
+                  <select
+                    value={editingValues.category}
+                    onChange={(e) => setEditingValues({...editingValues, category: e.target.value})}
+                    style={{
+                      width: '100%',
+                      padding: '4px 8px',
+                      border: '1px solid rgba(168, 85, 247, 0.3)',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      background: 'rgba(255, 255, 255, 0.9)'
+                    }}
+                  >
+                    <option value="">Select...</option>
+                    <option value="Compute">Compute</option>
+                    <option value="Storage">Storage</option>
+                    <option value="Network">Network</option>
+                  </select>
+                ) : (
+                  item.category
+                )}
+              </div>
+              {/* Model */}
+              <div>
+                {editingItem === item.id ? (
+                  <input
+                    type="text"
+                    value={editingValues.model}
+                    onChange={(e) => setEditingValues({...editingValues, model: e.target.value})}
+                    style={{
+                      width: '100%',
+                      padding: '4px 8px',
+                      border: '1px solid rgba(168, 85, 247, 0.3)',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      background: 'rgba(255, 255, 255, 0.9)'
+                    }}
+                    placeholder="Model name"
+                  />
+                ) : (
+                  <div style={{ fontWeight: '600', color: '#8b5cf6' }}>{item.model}</div>
+                )}
+              </div>
+              {/* CPU Cores */}
+              <div>
+                {editingItem === item.id ? (
+                  <input
+                    type="number"
+                    value={editingValues.cores}
+                    onChange={(e) => setEditingValues({...editingValues, cores: e.target.value})}
+                    style={{
+                      width: '100%',
+                      padding: '4px 8px',
+                      border: '1px solid rgba(168, 85, 247, 0.3)',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      background: 'rgba(255, 255, 255, 0.9)'
+                    }}
+                    placeholder="Cores"
+                  />
+                ) : (
+                  item.cores > 0 ? item.cores : '—'
+                )}
+              </div>
+              {/* Memory */}
+              <div>
+                {editingItem === item.id ? (
+                  <input
+                    type="number"
+                    value={editingValues.memory}
+                    onChange={(e) => setEditingValues({...editingValues, memory: e.target.value})}
+                    style={{
+                      width: '100%',
+                      padding: '4px 8px',
+                      border: '1px solid rgba(168, 85, 247, 0.3)',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      background: 'rgba(255, 255, 255, 0.9)'
+                    }}
+                    placeholder="Memory GB"
+                  />
+                ) : (
+                  item.memory > 0 ? item.memory : '—'
+                )}
+              </div>
+              {/* Price */}
+              <div>
+                {editingItem === item.id ? (
+                  <input
+                    type="number"
+                    value={editingValues.price}
+                    onChange={(e) => setEditingValues({...editingValues, price: e.target.value})}
+                    style={{
+                      width: '100%',
+                      padding: '4px 8px',
+                      border: '1px solid rgba(168, 85, 247, 0.3)',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      background: 'rgba(255, 255, 255, 0.9)'
+                    }}
+                    placeholder="Price"
+                  />
+                ) : (
+                  `$${item.price.toLocaleString()}`
+                )}
+              </div>
+              {/* Actions */}
+              <div className="flex space-x-2">
+                {editingItem === item.id ? (
+                  <>
+                    <button 
+                      onClick={() => handleSaveEdit(item.id)}
+                      className="fluent-button"
+                      style={{
+                        padding: '4px 8px',
+                        color: '#10b981',
+                        border: '1px solid #10b981',
+                        background: 'transparent',
+                        fontSize: '12px'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = '#10b981';
+                        e.currentTarget.style.color = 'white';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'transparent';
+                        e.currentTarget.style.color = '#10b981';
+                      }}
+                    >
+                      Save
+                    </button>
+                    <button 
+                      onClick={handleCancelEdit}
+                      className="fluent-button"
+                      style={{
+                        padding: '4px 8px',
+                        color: '#6b7280',
+                        border: '1px solid #6b7280',
+                        background: 'transparent',
+                        fontSize: '12px'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = '#6b7280';
+                        e.currentTarget.style.color = 'white';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'transparent';
+                        e.currentTarget.style.color = '#6b7280';
+                      }}
+                    >
+                      Cancel
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button 
+                      onClick={() => handleEditHardware(item.id)}
+                      className="fluent-button"
+                      style={{
+                        padding: '4px 8px',
+                        color: '#8b5cf6',
+                        border: '1px solid #8b5cf6',
+                        background: 'transparent',
+                        fontSize: '12px'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = '#8b5cf6';
+                        e.currentTarget.style.color = 'white';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'transparent';
+                        e.currentTarget.style.color = '#8b5cf6';
+                      }}
+                    >
+                      Edit
+                    </button>
+                    <button 
+                      onClick={() => handleRemoveHardware(item.id)}
+                      className="fluent-button"
+                      style={{
+                        padding: '4px 8px',
+                        color: '#ef4444',
+                        border: '1px solid #ef4444',
+                        background: 'transparent',
+                        fontSize: '12px'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = '#ef4444';
+                        e.currentTarget.style.color = 'white';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'transparent';
+                        e.currentTarget.style.color = '#ef4444';
+                      }}
+                    >
+                      Delete
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           ))}
+        </div>
+        
+        {/* Add Hardware Button - Center Bottom */}
+        <div className="flex justify-center py-4">
+          <button
+            onClick={handleAddHardware}
+            className="transition-all duration-150 hover:scale-110"
+            style={{
+              width: '48px',
+              height: '48px',
+              borderRadius: '12px',
+              border: '2px solid transparent',
+              background: 'linear-gradient(135deg, #a855f7, #ec4899) border-box',
+              backgroundClip: 'padding-box',
+              position: 'relative',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer'
+            }}
+          >
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                borderRadius: '12px',
+                padding: '2px',
+                background: 'linear-gradient(135deg, #a855f7, #ec4899)',
+                WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                WebkitMaskComposite: 'xor',
+                mask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                maskComposite: 'exclude'
+              }}
+            />
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" strokeWidth="3" style={{ position: 'relative', zIndex: 10 }}>
+              <path d="M12 5v14M5 12h14" stroke="#ffffff" strokeLinecap="round"/>
+            </svg>
+          </button>
         </div>
       </div>
     </div>
@@ -348,9 +561,11 @@ const SettingsView: React.FC = () => {
         <h3 
           className="font-medium"
           style={{ 
-            fontSize: 'var(--font-size-subtitle1)',
-            color: 'var(--color-neutral-foreground)',
-            fontWeight: 'var(--font-weight-medium)'
+            fontSize: '20px',
+            fontWeight: '600',
+            color: '#1a202c',
+            fontFamily: 'Montserrat, -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", system-ui, ui-sans-serif, Helvetica, Arial, sans-serif',
+            letterSpacing: '-0.01em'
           }}
         >
           Calculation Parameters
@@ -377,16 +592,24 @@ const SettingsView: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-2 gap-8">
         <div 
-          className="p-4 border rounded-lg space-y-4"
+          className="p-6 border rounded-xl space-y-4"
           style={{ 
-            borderColor: 'var(--color-neutral-stroke)',
-            borderRadius: 'var(--border-radius-lg)',
-            background: 'var(--color-neutral-background-secondary)'
+            borderColor: 'rgba(139, 92, 246, 0.2)',
+            background: 'transparent'
           }}
         >
-          <h4 className="font-medium">Sizing Parameters</h4>
+          <h4 className="font-medium"
+            style={{
+              fontSize: '16px',
+              fontWeight: '600',
+              color: '#1a202c',
+              fontFamily: 'Montserrat, -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", system-ui, ui-sans-serif, Helvetica, Arial, sans-serif'
+            }}
+          >
+            Sizing Parameters
+          </h4>
           <div className="space-y-3">
             <div>
               <div className="flex items-center mb-1">
@@ -397,7 +620,33 @@ const SettingsView: React.FC = () => {
                   />
                 </div>
               </div>
-              <input type="number" step="0.1" defaultValue="4.0" className="fluent-input w-full" />
+              <input 
+                type="number" 
+                step="0.1" 
+                value={calculationSettings.cpuOvercommit}
+                onChange={(e) => setCalculationSettings({...calculationSettings, cpuOvercommit: e.target.value})}
+                className="fluent-input w-full"
+                style={{
+                  background: 'rgba(255, 255, 255, 0.8)',
+                  backdropFilter: 'blur(10px) saturate(120%)',
+                  WebkitBackdropFilter: 'blur(10px) saturate(120%)',
+                  border: '1px solid rgba(139, 92, 246, 0.3)',
+                  borderRadius: '8px',
+                  color: '#1a202c',
+                  transition: 'all 0.2s ease-in-out',
+                  fontSize: '14px',
+                  fontFamily: 'inherit',
+                  minHeight: '40px'
+                }}
+                onFocus={(e) => {
+                  e.target.style.border = '1px solid #8b5cf6';
+                  e.target.style.boxShadow = '0 0 0 3px rgba(139, 92, 246, 0.1)';
+                }}
+                onBlur={(e) => {
+                  e.target.style.border = '1px solid rgba(139, 92, 246, 0.3)';
+                  e.target.style.boxShadow = 'none';
+                }}
+              />
             </div>
             <div>
               <div className="flex items-center mb-1">
@@ -408,7 +657,33 @@ const SettingsView: React.FC = () => {
                   />
                 </div>
               </div>
-              <input type="number" step="0.1" defaultValue="1.2" className="fluent-input w-full" />
+              <input 
+                type="number" 
+                step="0.1" 
+                value={calculationSettings.memoryOvercommit}
+                onChange={(e) => setCalculationSettings({...calculationSettings, memoryOvercommit: e.target.value})}
+                className="fluent-input w-full"
+                style={{
+                  background: 'rgba(255, 255, 255, 0.8)',
+                  backdropFilter: 'blur(10px) saturate(120%)',
+                  WebkitBackdropFilter: 'blur(10px) saturate(120%)',
+                  border: '1px solid rgba(139, 92, 246, 0.3)',
+                  borderRadius: '8px',
+                  color: '#1a202c',
+                  transition: 'all 0.2s ease-in-out',
+                  fontSize: '14px',
+                  fontFamily: 'inherit',
+                  minHeight: '40px'
+                }}
+                onFocus={(e) => {
+                  e.target.style.border = '1px solid #8b5cf6';
+                  e.target.style.boxShadow = '0 0 0 3px rgba(139, 92, 246, 0.1)';
+                }}
+                onBlur={(e) => {
+                  e.target.style.border = '1px solid rgba(139, 92, 246, 0.3)';
+                  e.target.style.boxShadow = 'none';
+                }}
+              />
             </div>
             <div>
               <div className="flex items-center mb-1">
@@ -419,20 +694,54 @@ const SettingsView: React.FC = () => {
                   />
                 </div>
               </div>
-              <input type="number" step="0.1" defaultValue="2.0" className="fluent-input w-full" />
+              <input 
+                type="number" 
+                step="0.1" 
+                value={calculationSettings.storageEfficiency}
+                onChange={(e) => setCalculationSettings({...calculationSettings, storageEfficiency: e.target.value})}
+                className="fluent-input w-full"
+                style={{
+                  background: 'rgba(255, 255, 255, 0.8)',
+                  backdropFilter: 'blur(10px) saturate(120%)',
+                  WebkitBackdropFilter: 'blur(10px) saturate(120%)',
+                  border: '1px solid rgba(139, 92, 246, 0.3)',
+                  borderRadius: '8px',
+                  color: '#1a202c',
+                  transition: 'all 0.2s ease-in-out',
+                  fontSize: '14px',
+                  fontFamily: 'inherit',
+                  minHeight: '40px'
+                }}
+                onFocus={(e) => {
+                  e.target.style.border = '1px solid #8b5cf6';
+                  e.target.style.boxShadow = '0 0 0 3px rgba(139, 92, 246, 0.1)';
+                }}
+                onBlur={(e) => {
+                  e.target.style.border = '1px solid rgba(139, 92, 246, 0.3)';
+                  e.target.style.boxShadow = 'none';
+                }}
+              />
             </div>
           </div>
         </div>
 
         <div 
-          className="p-4 border rounded-lg space-y-4"
+          className="p-6 border rounded-xl space-y-4"
           style={{ 
-            borderColor: 'var(--color-neutral-stroke)',
-            borderRadius: 'var(--border-radius-lg)',
-            background: 'var(--color-neutral-background-secondary)'
+            borderColor: 'rgba(139, 92, 246, 0.2)',
+            background: 'transparent'
           }}
         >
-          <h4 className="font-medium">Growth & Forecasting</h4>
+          <h4 className="font-medium"
+            style={{
+              fontSize: '16px',
+              fontWeight: '600',
+              color: '#1a202c',
+              fontFamily: 'Montserrat, -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", system-ui, ui-sans-serif, Helvetica, Arial, sans-serif'
+            }}
+          >
+            Growth & Forecasting
+          </h4>
           <div className="space-y-3">
             <div>
               <div className="flex items-center mb-1">
@@ -443,7 +752,32 @@ const SettingsView: React.FC = () => {
                   />
                 </div>
               </div>
-              <input type="number" defaultValue="3" className="fluent-input w-full" />
+              <input 
+                type="number" 
+                value={calculationSettings.planningHorizon}
+                onChange={(e) => setCalculationSettings({...calculationSettings, planningHorizon: e.target.value})}
+                className="fluent-input w-full"
+                style={{
+                  background: 'rgba(255, 255, 255, 0.8)',
+                  backdropFilter: 'blur(10px) saturate(120%)',
+                  WebkitBackdropFilter: 'blur(10px) saturate(120%)',
+                  border: '1px solid rgba(139, 92, 246, 0.3)',
+                  borderRadius: '8px',
+                  color: '#1a202c',
+                  transition: 'all 0.2s ease-in-out',
+                  fontSize: '14px',
+                  fontFamily: 'inherit',
+                  minHeight: '40px'
+                }}
+                onFocus={(e) => {
+                  e.target.style.border = '1px solid #8b5cf6';
+                  e.target.style.boxShadow = '0 0 0 3px rgba(139, 92, 246, 0.1)';
+                }}
+                onBlur={(e) => {
+                  e.target.style.border = '1px solid rgba(139, 92, 246, 0.3)';
+                  e.target.style.boxShadow = 'none';
+                }}
+              />
             </div>
             <div>
               <div className="flex items-center mb-1">
@@ -454,7 +788,34 @@ const SettingsView: React.FC = () => {
                   />
                 </div>
               </div>
-              <input type="number" defaultValue="95" min="80" max="99" className="fluent-input w-full" />
+              <input 
+                type="number" 
+                value={calculationSettings.confidenceLevel}
+                onChange={(e) => setCalculationSettings({...calculationSettings, confidenceLevel: e.target.value})}
+                min="80" 
+                max="99" 
+                className="fluent-input w-full"
+                style={{
+                  background: 'rgba(255, 255, 255, 0.8)',
+                  backdropFilter: 'blur(10px) saturate(120%)',
+                  WebkitBackdropFilter: 'blur(10px) saturate(120%)',
+                  border: '1px solid rgba(139, 92, 246, 0.3)',
+                  borderRadius: '8px',
+                  color: '#1a202c',
+                  transition: 'all 0.2s ease-in-out',
+                  fontSize: '14px',
+                  fontFamily: 'inherit',
+                  minHeight: '40px'
+                }}
+                onFocus={(e) => {
+                  e.target.style.border = '1px solid #8b5cf6';
+                  e.target.style.boxShadow = '0 0 0 3px rgba(139, 92, 246, 0.1)';
+                }}
+                onBlur={(e) => {
+                  e.target.style.border = '1px solid rgba(139, 92, 246, 0.3)';
+                  e.target.style.boxShadow = 'none';
+                }}
+              />
             </div>
             <div>
               <div className="flex items-center mb-1">
@@ -465,7 +826,31 @@ const SettingsView: React.FC = () => {
                   />
                 </div>
               </div>
-              <select className="fluent-input w-full">
+              <select 
+                value={calculationSettings.seasonality}
+                onChange={(e) => setCalculationSettings({...calculationSettings, seasonality: e.target.value})}
+                className="fluent-input w-full"
+                style={{
+                  background: 'rgba(255, 255, 255, 0.8)',
+                  backdropFilter: 'blur(10px) saturate(120%)',
+                  WebkitBackdropFilter: 'blur(10px) saturate(120%)',
+                  border: '1px solid rgba(139, 92, 246, 0.3)',
+                  borderRadius: '8px',
+                  color: '#1a202c',
+                  transition: 'all 0.2s ease-in-out',
+                  fontSize: '14px',
+                  fontFamily: 'inherit',
+                  minHeight: '40px'
+                }}
+                onFocus={(e) => {
+                  e.target.style.border = '1px solid #8b5cf6';
+                  e.target.style.boxShadow = '0 0 0 3px rgba(139, 92, 246, 0.1)';
+                }}
+                onBlur={(e) => {
+                  e.target.style.border = '1px solid rgba(139, 92, 246, 0.3)';
+                  e.target.style.boxShadow = 'none';
+                }}
+              >
                 <option value="auto">Auto-detect</option>
                 <option value="weekly">Weekly patterns</option>
                 <option value="monthly">Monthly patterns</option>
@@ -484,9 +869,11 @@ const SettingsView: React.FC = () => {
         <h3 
           className="font-medium"
           style={{ 
-            fontSize: 'var(--font-size-subtitle1)',
-            color: 'var(--color-neutral-foreground)',
-            fontWeight: 'var(--font-weight-medium)'
+            fontSize: '20px',
+            fontWeight: '600',
+            color: '#1a202c',
+            fontFamily: 'Montserrat, -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", system-ui, ui-sans-serif, Helvetica, Arial, sans-serif',
+            letterSpacing: '-0.01em'
           }}
         >
           Document Templates
@@ -533,16 +920,39 @@ const SettingsView: React.FC = () => {
         ].map((template, index) => (
           <div 
             key={index}
-            className="p-4 border rounded-lg hover:bg-gray-50/50 transition-colors duration-200"
+            className="p-4 border rounded-lg transition-colors duration-200"
             style={{ 
-              borderColor: 'var(--color-neutral-stroke)',
-              borderRadius: 'var(--border-radius-lg)',
-              background: 'var(--color-neutral-background-secondary)'
+              borderColor: 'rgba(139, 92, 246, 0.3)',
+              borderRadius: '12px',
+              background: 'rgba(255, 255, 255, 0.8)',
+              backdropFilter: 'blur(10px) saturate(120%)',
+              WebkitBackdropFilter: 'blur(10px) saturate(120%)',
+              boxShadow: '0 4px 16px rgba(0, 0, 0, 0.1)',
+              cursor: 'pointer'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.9)';
+              e.currentTarget.style.transform = 'translateY(-2px)';
+              e.currentTarget.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.15)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.8)';
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.1)';
             }}
           >
             <div className="flex justify-between items-start">
               <div className="flex-1">
-                <h4 className="font-medium mb-2">{template.name}</h4>
+                <h4 className="font-medium mb-2"
+                  style={{
+                    fontSize: '16px',
+                    fontWeight: '600',
+                    color: '#1a202c',
+                    fontFamily: 'Montserrat, -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", system-ui, ui-sans-serif, Helvetica, Arial, sans-serif'
+                  }}
+                >
+                  {template.name}
+                </h4>
                 <p 
                   className="mb-3"
                   style={{ 
@@ -584,20 +994,56 @@ const SettingsView: React.FC = () => {
   );
 
   return (
-    <div className="p-6" style={{ fontFamily: 'var(--font-family)' }}>
-      <div className="fluent-card">
-        <div className="p-6 border-b" style={{ borderColor: 'var(--color-neutral-stroke)' }}>
-          <h2 
-            className="font-semibold mb-6"
-            style={{ 
-              fontSize: 'var(--font-size-title2)',
-              color: 'var(--color-neutral-foreground)',
-              fontWeight: 'var(--font-weight-semibold)'
-            }}
-          >
-            Settings & Configuration
-          </h2>
-          <div className="flex space-x-0 border-b" style={{ borderColor: 'var(--color-neutral-stroke)' }}>
+    <div style={{ 
+      width: '100%',
+      height: '100vh',
+      padding: '0',
+      boxSizing: 'border-box',
+      display: 'flex',
+      flexDirection: 'column'
+    }}>
+      <div 
+        className="fluent-card"
+        style={{
+          width: '100%',
+          flex: 1,
+          maxWidth: 'none',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+          margin: '24px',
+          marginBottom: '24px'
+        }}
+      >
+        <div className="p-6 border-b" style={{ borderColor: 'rgba(226, 232, 240, 0.6)' }}>
+          <div className="flex justify-between items-start">
+            <h2 
+              className="font-semibold mb-6"
+              style={{ 
+                fontSize: '28px',
+                fontWeight: '700',
+                color: '#1a202c',
+                fontFamily: 'Montserrat, -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", system-ui, ui-sans-serif, Helvetica, Arial, sans-serif',
+                letterSpacing: '-0.02em'
+              }}
+            >
+              Settings & Configuration
+            </h2>
+            
+            {/* Auto-save indicator */}
+            <div className="flex items-center text-sm" style={{ color: '#10b981' }}>
+              <div 
+                className="w-2 h-2 bg-green-500 rounded-full mr-2"
+                style={{
+                  animation: 'pulse 2s infinite',
+                  backgroundColor: '#10b981'
+                }}
+              ></div>
+              Auto-saving every second
+            </div>
+          </div>
+          
+          <div className="flex space-x-2 border-b" style={{ borderColor: 'rgba(226, 232, 240, 0.6)' }}>
             <TabButton
               id="hardware"
               label="Hardware Basket"
@@ -619,6 +1065,13 @@ const SettingsView: React.FC = () => {
               isActive={activeTab === 'documents'}
               onClick={setActiveTab}
             />
+            <TabButton
+              id="parser"
+              label="Vendor Hardware Manager"
+              icon={<FileText size={16} />}
+              isActive={activeTab === 'parser'}
+              onClick={setActiveTab}
+            />
           </div>
         </div>
         
@@ -626,13 +1079,7 @@ const SettingsView: React.FC = () => {
           {activeTab === 'hardware' && renderHardwareTab()}
           {activeTab === 'calculation' && renderCalculationTab()}
           {activeTab === 'documents' && renderDocumentTab()}
-          
-          <div className="flex justify-end mt-8">
-            <button className="fluent-button fluent-button-primary flex items-center">
-              <Save size={16} className="mr-2" />
-              Save Settings
-            </button>
-          </div>
+          {activeTab === 'parser' && <VendorHardwareManager />}
         </div>
       </div>
     </div>

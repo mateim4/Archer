@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Custom Slider Enhancements */
 
 .custom-slider {
@@ -67,3 +68,12 @@
 .slider-track:hover::after {
   opacity: 1;
 }
+=======
+/* Custom Slider Styles */
+.custom-slider {
+  width: 100%;
+  position: relative;
+}
+
+
+>>>>>>> feature/universal-hardware-parser

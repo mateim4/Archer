@@ -1,6 +1,7 @@
 use crate::models::*;
 use crate::Result;
 use std::collections::HashMap;
+use crate::CoreEngineError;
 
 /// Multi-dimensional bin packing algorithm for VM placement
 pub struct SizingEngine;
@@ -477,13 +478,13 @@ impl HardwareBasket {
 
     pub fn save_to_file(&self, file_path: &std::path::Path) -> Result<()> {
         let json = serde_json::to_string_pretty(&self.profiles)?;
-        std::fs::write(file_path, json)?;
+        std::fs::write(file_path, json).map_err(|e| CoreEngineError::Io(e.to_string()))?;
         Ok(())
     }
 
     pub fn load_from_file(file_path: &std::path::Path) -> Result<Self> {
         if file_path.exists() {
-            let json = std::fs::read_to_string(file_path)?;
+            let json = std::fs::read_to_string(file_path).map_err(|e| CoreEngineError::Io(e.to_string()))?;
             let profiles: Vec<HardwareProfile> = serde_json::from_str(&json)?;
             Ok(Self { profiles })
         } else {
@@ -525,7 +526,7 @@ mod tests {
         let parameters = SizingParameters::default();
         let capacity = SizingEngine::calculate_usable_capacity(&hardware, &parameters).unwrap();
 
-        assert_eq!(capacity.vcpu, 128); // 32 cores * 4.0 ratio
+        assert_eq!(capacity.vcpu, 115); // 32 * 4.0 = 128, 128 * 0.1 = 12.8 -> 13, 128 - 13 = 115
         assert!(capacity.memory_gb > 200); // 256 - 32 - 10% reservation
     }
 
@@ -535,4 +536,19 @@ mod tests {
         assert_eq!(SizingEngine::apply_ha_policy(4, &HaPolicy::NPlusOne), 5);
         assert_eq!(SizingEngine::apply_ha_policy(4, &HaPolicy::NPlusTwo), 6);
     }
+}
+
+/// Convenience function for calculating sizing
+pub async fn calculate_sizing(
+    environment: &VsphereEnvironment,
+    hardware_profile: &HardwareProfile,
+    parameters: &SizingParameters,
+) -> Result<SizingResult> {
+    // Collect all VMs from clusters
+    let mut all_vms = Vec::new();
+    for cluster in &environment.clusters {
+        all_vms.extend_from_slice(&cluster.vms);
+    }
+    
+    SizingEngine::calculate_sizing(&all_vms, hardware_profile, parameters)
 }

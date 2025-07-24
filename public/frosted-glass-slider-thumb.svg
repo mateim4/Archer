@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <svg width="66" height="66" viewBox="0 0 66 66" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g filter="url(#filter0_n_7_509)">
 <rect width="66" height="66" rx="33" fill="black" fill-opacity="0.01"/>
@@ -21,3 +22,18 @@
 </filter>
 </defs>
 </svg>
+=======
+<svg width="66" height="66" viewBox="0 0 66 66" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="frostGlass" cx="30%" cy="30%" r="70%">
+      <stop offset="0%" style="stop-color:rgba(255,255,255,0.8);stop-opacity:1" />
+      <stop offset="40%" style="stop-color:rgba(255,255,255,0.4);stop-opacity:1" />
+      <stop offset="100%" style="stop-color:rgba(255,255,255,0.1);stop-opacity:1" />
+    </radialGradient>
+    <filter id="blur">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="0.5"/>
+    </filter>
+  </defs>
+  <circle cx="33" cy="33" r="31" fill="url(#frostGlass)" stroke="rgba(255,255,255,0.6)" stroke-width="2" filter="url(#blur)" />
+</svg>
+>>>>>>> feature/universal-hardware-parser

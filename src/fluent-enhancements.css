@@ -1,5 +1,4 @@
 /* Enhanced Fluent 2 Design System Utilities */
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
 
 /* Update existing CSS variables and add new ones */
 :root {
@@ -152,6 +151,11 @@
   border-radius: var(--fluent-border-radius-medium);
   padding: var(--fluent-spacing-horizontal-l);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04), 0 4px 8px rgba(0, 0, 0, 0.06);
+  outline: none; /* Remove focus outline */
+}
+
+.fluent-card:focus {
+  outline: none; /* Ensure no focus outline */
 }
 
 .fluent-card-header {

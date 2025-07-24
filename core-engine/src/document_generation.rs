@@ -48,7 +48,7 @@ impl DocumentGenerator {
 
         // Generate document bytes
         let mut buf = std::io::Cursor::new(Vec::new());
-        doc.build().pack(&mut buf).map_err(|e| CoreEngineError::IoError(std::io::Error::new(std::io::ErrorKind::Other, format!("Failed to pack document: {}", e))))?;
+        doc.build().pack(&mut buf).map_err(|e| CoreEngineError::Io(format!("Failed to pack document: {}", e)))?;
         Ok(buf.into_inner())
     }
 
@@ -87,7 +87,7 @@ impl DocumentGenerator {
 
         // Generate document bytes
         let mut buf = std::io::Cursor::new(Vec::new());
-        doc.build().pack(&mut buf).map_err(|e| CoreEngineError::IoError(std::io::Error::new(std::io::ErrorKind::Other, format!("Failed to pack document: {}", e))))?;
+        doc.build().pack(&mut buf).map_err(|e| CoreEngineError::Io(format!("Failed to pack document: {}", e)))?;
         Ok(buf.into_inner())
     }
 
@@ -992,4 +992,45 @@ mod tests {
         assert!(template.company_name.is_none());
         assert!(template.custom_styles.is_empty());
     }
+}
+
+/// Convenience function for generating HLD documents
+pub async fn generate_hld_document(
+    environment: &VsphereEnvironment,
+    sizing_result: &SizingResult,
+    translation_result: &TranslationResult,
+    output_path: &str,
+) -> Result<()> {
+    let document_data = DocumentGenerator::generate_hld(
+        environment,
+        sizing_result,
+        translation_result,
+        None,
+        None,
+    )?;
+    
+    tokio::fs::write(output_path, document_data).await
+        .map_err(|e| CoreEngineError::io(format!("Failed to write HLD document: {}", e)))?;
+    
+    Ok(())
+}
+
+/// Convenience function for generating LLD documents
+pub async fn generate_lld_document(
+    environment: &VsphereEnvironment,
+    sizing_result: &SizingResult,
+    translation_result: &TranslationResult,
+    output_path: &str,
+) -> Result<()> {
+    let document_data = DocumentGenerator::generate_lld(
+        environment,
+        sizing_result,
+        translation_result,
+        None,
+    )?;
+    
+    tokio::fs::write(output_path, document_data).await
+        .map_err(|e| CoreEngineError::io(format!("Failed to write LLD document: {}", e)))?;
+    
+    Ok(())
 }
