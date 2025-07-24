@@ -59,15 +59,11 @@ const DashboardView: React.FC = () => {
   const FileUploadComponent = () => (
     <div className="flex-1 flex items-center justify-center p-8">
       <div 
-        className="text-center p-12 rounded-xl border-2 border-dashed transition-all duration-300 hover:border-solid group cursor-pointer"
+        className="fluent-card text-center p-12 border-2 border-dashed transition-all duration-300 hover:border-solid group cursor-pointer"
         style={{
-          borderColor: 'var(--color-neutral-stroke-accessible)',
-          backgroundColor: 'var(--color-neutral-card-surface)',
-          backdropFilter: 'blur(30px) saturate(150%)',
-          WebkitBackdropFilter: 'blur(30px) saturate(150%)',
+          borderColor: 'rgba(255, 255, 255, 0.3)',
           borderRadius: 'var(--border-radius-xl)',
-          fontFamily: 'var(--font-family)',
-          boxShadow: 'inset 0 1px 0 0 rgba(255, 255, 255, 0.2), 0 8px 32px rgba(0, 0, 0, 0.1)'
+          fontFamily: 'var(--font-family)'
         }}
         onClick={handleFileUpload}
       >

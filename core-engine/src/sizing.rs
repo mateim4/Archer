@@ -537,3 +537,18 @@ mod tests {
         assert_eq!(SizingEngine::apply_ha_policy(4, &HaPolicy::NPlusTwo), 6);
     }
 }
+
+/// Convenience function for calculating sizing
+pub async fn calculate_sizing(
+    environment: &VsphereEnvironment,
+    hardware_profile: &HardwareProfile,
+    parameters: &SizingParameters,
+) -> Result<SizingResult> {
+    // Collect all VMs from clusters
+    let mut all_vms = Vec::new();
+    for cluster in &environment.clusters {
+        all_vms.extend_from_slice(&cluster.vms);
+    }
+    
+    SizingEngine::calculate_sizing(&all_vms, hardware_profile, parameters)
+}

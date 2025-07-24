@@ -422,3 +422,13 @@ mod tests {
         assert_eq!(params.annual_growth_percent, 15.0);
     }
 }
+
+/// Convenience function for generating forecasts
+pub async fn generate_forecast(
+    environment: &VsphereEnvironment,
+    forecast_params: &ForecastParameters,
+) -> Result<ForecastResult> {
+    // For now, use simple forecast with single environment
+    // In future, this could accept historical data
+    ForecastingEngine::generate_simple_forecast(environment, forecast_params)
+}

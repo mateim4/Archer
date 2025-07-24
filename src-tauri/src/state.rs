@@ -2,6 +2,8 @@ use core_engine::models::*;
 use core_engine::sizing::HardwareBasket;
 use core_engine::forecasting::ForecastParameters;
 use core_engine::translation::TranslationRules;
+use core_engine::vendor_client::VendorCredentials;
+use core_engine::vendor_data::VendorDataManager;
 use parking_lot::RwLock;
 use std::sync::Arc;
 use std::collections::HashMap;
@@ -27,6 +29,12 @@ pub struct AppState {
     
     /// Document templates
     pub _document_templates: Arc<RwLock<HashMap<String, DocumentTemplate>>>,
+    
+    /// Vendor API credentials (in production, these should be encrypted)
+    pub vendor_credentials: Arc<RwLock<HashMap<String, VendorCredentials>>>,
+    
+    /// Vendor data manager for server catalogs and sizing
+    pub vendor_data_manager: Arc<RwLock<Option<VendorDataManager>>>,
     
     /// Analysis results cache
     pub analysis_cache: Arc<RwLock<HashMap<Uuid, AnalysisResult>>>,
@@ -182,6 +190,8 @@ impl AppState {
             _tco_parameters: Arc::new(RwLock::new(TcoParameters::default())),
             _app_settings: Arc::new(RwLock::new(AppSettings::default())),
             _document_templates: Arc::new(RwLock::new(HashMap::new())),
+            vendor_credentials: Arc::new(RwLock::new(HashMap::new())),
+            vendor_data_manager: Arc::new(RwLock::new(None)),
             analysis_cache: Arc::new(RwLock::new(HashMap::new())),
             sizing_cache: Arc::new(RwLock::new(HashMap::new())),
         }
@@ -239,6 +249,50 @@ impl AppState {
             }
         }
         false
+    }
+    
+    /// Set vendor API credentials
+    pub fn set_vendor_credentials(&self, vendor: String, credentials: VendorCredentials) {
+        self.vendor_credentials.write().insert(vendor, credentials);
+    }
+    
+    /// Get vendor API credentials
+    pub fn get_vendor_credentials(&self, vendor: &str) -> Option<VendorCredentials> {
+        self.vendor_credentials.read().get(vendor).cloned()
+    }
+    
+    /// Remove vendor API credentials
+    pub fn remove_vendor_credentials(&self, vendor: &str) {
+        self.vendor_credentials.write().remove(vendor);
+    }
+    
+    /// List configured vendors
+    pub fn list_configured_vendors(&self) -> Vec<String> {
+        self.vendor_credentials.read().keys().cloned().collect()
+    }
+    
+    /// Get or initialize vendor data manager
+    pub async fn get_vendor_data_manager(&self) -> Result<VendorDataManager, core_engine::CoreEngineError> {
+        {
+            let manager_guard = self.vendor_data_manager.read();
+            if let Some(ref manager) = *manager_guard {
+                return Ok(manager.clone());
+            }
+        }
+        
+        // Initialize vendor data manager if not already created
+        let mut manager_guard = self.vendor_data_manager.write();
+        if manager_guard.is_none() {
+            let manager = VendorDataManager::new();
+            *manager_guard = Some(manager);
+        }
+        
+        // Clone the manager for return
+        if let Some(ref manager) = *manager_guard {
+            Ok(manager.clone())
+        } else {
+            Err(core_engine::CoreEngineError::config("Failed to initialize vendor data manager".to_string()))
+        }
     }
 }
 

@@ -1,5 +1,6 @@
 use crate::state::*;
-use core_engine::{parser, analysis};
+use core_engine::{parser, analysis, hardware_parser};
+use core_engine::models::UniversalServer;
 use serde_json::Value as JsonValue;
 
 /// Process RVTools Excel file and load environment data
@@ -268,4 +269,158 @@ pub async fn get_file_info(_file_path: String) -> Result<JsonValue, String> {
 pub async fn clear_environment(state: tauri::State<'_, AppState>) -> Result<String, String> {
     state.clear_current_environment();
     Ok("Environment cleared".to_string())
+}
+
+/// Parse hardware configuration file (Jules' Universal Parser)
+#[tauri::command]
+pub async fn parse_hardware_file(
+    file_path: String,
+) -> Result<UniversalServer, String> {
+    let parser = hardware_parser::UniversalParser;
+    match parser.parse_file(&file_path) {
+        Ok(server) => Ok(server),
+        Err(e) => Err(format!("Failed to parse hardware file: {}", e)),
+    }
+}
+
+/// Configure vendor API credentials
+#[tauri::command]
+pub async fn configure_vendor_credentials(
+    vendor: String,
+    endpoint: String,
+    username: Option<String>,
+    password: Option<String>,
+    api_key: Option<String>,
+    state: tauri::State<'_, AppState>,
+) -> Result<String, String> {
+    use core_engine::vendor_client::VendorCredentials;
+    
+    let credentials = VendorCredentials {
+        vendor: vendor.clone(),
+        api_key,
+        username,
+        password,
+        endpoint,
+        enabled: true,
+    };
+    
+    // Store credentials in app state (in production, these should be encrypted)
+    state.set_vendor_credentials(vendor.clone(), credentials);
+    
+    Ok(format!("Credentials configured for {}", vendor))
+}
+
+/// Test vendor API connection
+#[tauri::command]
+pub async fn test_vendor_connection(
+    vendor: String,
+    state: tauri::State<'_, AppState>,
+) -> Result<bool, String> {
+    use core_engine::vendor_client::{DellApiClient, VendorApiClient};
+    
+    let credentials = state.get_vendor_credentials(&vendor)
+        .ok_or_else(|| format!("No credentials configured for {}", vendor))?;
+    
+    match vendor.as_str() {
+        "Dell" => {
+            let mut client = DellApiClient::new();
+            match client.authenticate(&credentials).await {
+                Ok(success) => {
+                    if success {
+                        client.test_connection().await.map_err(|e| e.to_string())
+                    } else {
+                        Ok(false)
+                    }
+                },
+                Err(e) => Err(e.to_string()),
+            }
+        },
+        _ => Err(format!("Unsupported vendor: {}", vendor)),
+    }
+}
+
+/// Fetch server configurations from vendor API
+#[tauri::command]
+pub async fn fetch_vendor_configurations(
+    vendor: String,
+    state: tauri::State<'_, AppState>,
+) -> Result<JsonValue, String> {
+    use core_engine::vendor_client::{DellApiClient, VendorApiClient};
+    
+    let credentials = state.get_vendor_credentials(&vendor)
+        .ok_or_else(|| format!("No credentials configured for {}", vendor))?;
+    
+    match vendor.as_str() {
+        "Dell" => {
+            let mut client = DellApiClient::new();
+            
+            // Authenticate first
+            client.authenticate(&credentials).await
+                .map_err(|e| e.to_string())?;
+            
+            // Fetch configurations
+            let response = client.fetch_server_configurations().await
+                .map_err(|e| e.to_string())?;
+                
+            if response.success {
+                let configs = response.data.unwrap_or_default();
+                Ok(serde_json::to_value(configs).unwrap())
+            } else {
+                Err(response.error.unwrap_or_else(|| "Unknown error".to_string()))
+            }
+        },
+        _ => Err(format!("Unsupported vendor: {}", vendor)),
+    }
+}
+
+/// Fetch detailed server configuration from vendor API
+#[tauri::command]
+pub async fn fetch_server_details(
+    vendor: String,
+    server_id: String,
+    state: tauri::State<'_, AppState>,
+) -> Result<UniversalServer, String> {
+    use core_engine::vendor_client::{DellApiClient, VendorApiClient};
+    
+    let credentials = state.get_vendor_credentials(&vendor)
+        .ok_or_else(|| format!("No credentials configured for {}", vendor))?;
+    
+    match vendor.as_str() {
+        "Dell" => {
+            let mut client = DellApiClient::new();
+            
+            // Authenticate first
+            client.authenticate(&credentials).await
+                .map_err(|e| e.to_string())?;
+            
+            // Fetch server details
+            let response = client.fetch_server_details(&server_id).await
+                .map_err(|e| e.to_string())?;
+                
+            if response.success {
+                response.data.ok_or_else(|| "No server data returned".to_string())
+            } else {
+                Err(response.error.unwrap_or_else(|| "Unknown error".to_string()))
+            }
+        },
+        _ => Err(format!("Unsupported vendor: {}", vendor)),
+    }
+}
+
+/// Get cached configuration status
+#[tauri::command]
+pub async fn get_cache_status(
+    state: tauri::State<'_, AppState>,
+) -> Result<JsonValue, String> {
+    // For now, return mock cache status
+    // In a full implementation, this would query the actual cache
+    let status = serde_json::json!({
+        "total_configs": 0,
+        "by_vendor": {},
+        "last_sync": null,
+        "next_refresh": null,
+        "cache_hit_rate": 0.0
+    });
+    
+    Ok(status)
 }

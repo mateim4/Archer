@@ -1,0 +1,116 @@
+{
+  "vendors": {
+    "dell": {
+      "enabled": true,
+      "production_url": "https://api.dell.com/configurator/v3",
+      "sandbox_url": "https://sandbox-api.dell.com/configurator/v3",
+      "api_version": "v3",
+      "authentication": {
+        "auth_type": "oauth2",
+        "client_id_env": "DELL_CLIENT_ID",
+        "client_secret_env": "DELL_CLIENT_SECRET",
+        "token_url": "https://api.dell.com/oauth/token",
+        "scopes": ["configurator:read", "pricing:read"]
+      },
+      "rate_limiting": {
+        "requests_per_minute": 100,
+        "burst_limit": 10,
+        "retry_after_seconds": 60,
+        "max_retries": 3
+      },
+      "endpoints": {
+        "servers": "servers",
+        "server_details": "servers/{id}",
+        "specifications": "servers/{id}/specifications",
+        "compatibility": "servers/{id}/compatibility",
+        "pricing": "configurations/{id}/pricing",
+        "configurator": "configurator",
+        "search": "servers/search"
+      },
+      "data_mappings": "vendor_mappings/dell.json"
+    },
+    "hpe": {
+      "enabled": true,
+      "production_url": "https://api.hpe.com/catalog/v2",
+      "sandbox_url": "https://sandbox-api.hpe.com/catalog/v2",
+      "api_version": "v2",
+      "authentication": {
+        "auth_type": "api_key",
+        "api_key_env": "HPE_API_KEY"
+      },
+      "rate_limiting": {
+        "requests_per_minute": 60,
+        "burst_limit": 5,
+        "retry_after_seconds": 60,
+        "max_retries": 3
+      },
+      "endpoints": {
+        "servers": "products/servers",
+        "server_details": "products/servers/{id}",
+        "specifications": "products/servers/{id}/specifications",
+        "compatibility": "products/servers/{id}/compatibility",
+        "pricing": "products/servers/{id}/pricing",
+        "configurator": "configurator",
+        "search": "products/search"
+      },
+      "data_mappings": "vendor_mappings/hpe.json"
+    },
+    "lenovo": {
+      "enabled": true,
+      "production_url": "https://api.lenovo.com/products/v1",
+      "sandbox_url": "https://dev-api.lenovo.com/products/v1",
+      "api_version": "v1",
+      "authentication": {
+        "auth_type": "bearer_token",
+        "client_id_env": "LENOVO_CLIENT_ID",
+        "client_secret_env": "LENOVO_CLIENT_SECRET",
+        "token_url": "https://auth.lenovo.com/token",
+        "scopes": ["products:read"]
+      },
+      "rate_limiting": {
+        "requests_per_minute": 80,
+        "burst_limit": 8,
+        "retry_after_seconds": 60,
+        "max_retries": 3
+      },
+      "endpoints": {
+        "servers": "servers",
+        "server_details": "servers/{product_id}",
+        "specifications": "servers/{product_id}/specs",
+        "compatibility": "servers/{product_id}/compatibility",
+        "pricing": "servers/{product_id}/pricing",
+        "configurator": "configurator/servers",
+        "search": "search/servers"
+      },
+      "data_mappings": "vendor_mappings/lenovo.json"
+    }
+  },
+  "global_settings": {
+    "timeout_seconds": 30,
+    "user_agent": "LCM-Designer/1.0 (Vendor-Data-Collector)",
+    "retry_strategy": {
+      "max_retries": 3,
+      "initial_delay_ms": 1000,
+      "max_delay_ms": 60000,
+      "exponential_backoff": true,
+      "jitter": true
+    },
+    "cache_settings": {
+      "enable_memory_cache": true,
+      "enable_disk_cache": true,
+      "memory_cache_size_mb": 256,
+      "disk_cache_path": "vendor_cache",
+      "default_ttl_hours": 24,
+      "model_cache_ttl_hours": 72,
+      "specs_cache_ttl_hours": 48,
+      "pricing_cache_ttl_hours": 1
+    },
+    "logging": {
+      "log_requests": true,
+      "log_responses": false,
+      "log_errors": true,
+      "log_performance": true,
+      "sensitive_data_masking": true
+    }
+  }
+}

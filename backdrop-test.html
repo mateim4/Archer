@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backdrop Filter Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57);
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+        }
+
+        .test-container {
+            position: relative;
+            width: 400px;
+            height: 200px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="50" height="50" fill="red"/><rect x="50" y="50" width="50" height="50" fill="blue"/><rect x="50" width="50" height="50" fill="green"/><rect y="50" width="50" height="50" fill="yellow"/></svg>') repeat;
+            border: 2px solid white;
+            margin: 20px 0;
+        }
+
+        .blur-test {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            /* Try multiple approaches */
+            backdrop-filter: blur(20px) saturate(1.5);
+            -webkit-backdrop-filter: blur(20px) saturate(1.5);
+            background: rgba(255, 255, 255, 0.3);
+            border: 3px solid rgba(255, 255, 255, 0.8);
+            /* Force hardware acceleration */
+            will-change: backdrop-filter;
+            /* Ensure it creates its own stacking context */
+            isolation: isolate;
+        }
+
+        /* Alternative test with CSS filter instead of backdrop-filter */
+        .filter-test {
+            position: absolute;
+            top: 50%;
+            left: 75%;
+            transform: translate(-50%, -50%);
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            border: 3px solid rgba(255, 255, 255, 0.8);
+            /* Use CSS filter on background instead */
+            filter: blur(2px);
+        }
+
+        .filter-test::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            background: inherit;
+            filter: blur(10px);
+            z-index: -1;
+            border-radius: inherit;
+        }
+
+        .info {
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Backdrop Filter Browser Test</h1>
+    
+    <div class="info">
+        <p>This test checks if backdrop-filter works in your browser.</p>
+        <p>You should see a blurred circle in the middle of the colorful pattern below.</p>
+    </div>
+
+    <div class="test-container">
+        <div class="blur-test"></div>
+        <div class="filter-test"></div>
+    </div>
+
+    <div class="info">
+        <p><strong>Two tests:</strong></p>
+        <p>Left circle: backdrop-filter approach</p>
+        <p>Right circle: CSS filter approach (fallback)</p>
+    </div>
+
+    <script>
+        // Check backdrop-filter support
+        const testDiv = document.createElement('div');
+        testDiv.style.backdropFilter = 'blur(10px)';
+        const supportsBackdropFilter = testDiv.style.backdropFilter !== '';
+        
+        testDiv.style.webkitBackdropFilter = 'blur(10px)';
+        const supportsWebkitBackdropFilter = testDiv.style.webkitBackdropFilter !== '';
+
+        const info = document.querySelector('.info');
+        info.innerHTML += `
+            <p><strong>Browser Support:</strong></p>
+            <p>backdrop-filter: ${supportsBackdropFilter ? '✅ Supported' : '❌ Not supported'}</p>
+            <p>-webkit-backdrop-filter: ${supportsWebkitBackdropFilter ? '✅ Supported' : '❌ Not supported'}</p>
+        `;
+    </script>
+</body>
+</html>
