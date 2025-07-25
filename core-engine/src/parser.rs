@@ -300,6 +300,8 @@ impl RvToolsParser {
             connection_state: get_string("Connection State"),
             power_state: get_string("Power State"),
             vms: Vec::new(), // Will be populated later when parsing VMs
+            virtual_switches: vec![],
+            physical_nics: vec![],
         })
     }
 

@@ -1,5 +1,5 @@
 use crate::state::*;
-use core_engine::{parser, analysis, sizing, forecasting, translation, document_generation, hardware_parser, vendor_data};
+use core_engine::{parser, analysis, sizing, forecasting, translation, document_generation, hardware_parser, vendor_data, network_visualizer};
 use core_engine::models::*;
 use core_engine::error::CoreEngineError;
 use serde_json::Value as JsonValue;
@@ -55,6 +55,28 @@ pub async fn get_environment_summary(
         Ok(Some(summary))
     } else {
         Ok(None)
+    }
+}
+
+/// Parse a RVTools file and return the network topology
+#[tauri::command]
+pub async fn get_network_topology(
+    file_path: String,
+) -> Result<network_visualizer::parser::NetworkTopology, String> {
+    match network_visualizer::parser::parse_rvtools_report(&file_path) {
+        Ok(topology) => Ok(topology),
+        Err(e) => Err(format!("Failed to parse network topology: {}", e)),
+    }
+}
+
+/// Parse a Hyper-V JSON export and return the network topology
+#[tauri::command]
+pub async fn get_network_topology_from_hyperv(
+    json_content: String,
+) -> Result<network_visualizer::parser::NetworkTopology, String> {
+    match network_visualizer::hyperv_parser::parse_hyperv_report_json(&json_content) {
+        Ok(topology) => Ok(topology),
+        Err(e) => Err(format!("Failed to parse Hyper-V network topology: {}", e)),
     }
 }
 

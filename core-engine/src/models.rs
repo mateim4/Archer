@@ -116,6 +116,8 @@ pub struct Host {
     pub connection_state: Option<String>,
     pub power_state: Option<String>,
     pub vms: Vec<VirtualMachine>,
+    pub virtual_switches: Vec<VirtualSwitch>,
+    pub physical_nics: Vec<PhysicalNic>,
 }
 
 /// Represents a virtual machine
@@ -196,6 +198,7 @@ pub struct VirtualNic {
     pub nic_type: Option<String>,
     pub mac_address: Option<String>,
 }
+
 
 /// Health issues identified during analysis
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -362,6 +365,23 @@ pub struct VirtualSwitch {
     pub physical_adapters: Vec<String>,
     pub enable_sr_iov: bool,
     pub enable_rdma: bool,
+    pub port_groups: Vec<PortGroup>,
+}
+
+/// Represents a port group on a virtual switch
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PortGroup {
+    pub name: String,
+    pub vlan_id: u16,
+}
+
+/// Represents a physical network interface on a host
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PhysicalNic {
+    pub name: String,
+    pub speed_mbps: u32,
+    pub mac_address: String,
+    pub uplink_for_vswitch: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -369,6 +389,17 @@ pub enum SwitchType {
     External,
     Internal,
     Private,
+}
+
+impl SwitchType {
+    pub fn from_string(s: &str) -> Self {
+        match s.to_lowercase().as_str() {
+            "external" => SwitchType::External,
+            "internal" => SwitchType::Internal,
+            "private" => SwitchType::Private,
+            _ => SwitchType::External, // Default to external
+        }
+    }
 }
 
 /// Logical network definition
