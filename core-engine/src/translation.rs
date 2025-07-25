@@ -191,6 +191,7 @@ impl TranslationEngine {
                 physical_adapters: vec!["NIC1".to_string(), "NIC2".to_string()],
                 enable_sr_iov: matches!(target_platform, TargetPlatform::AzureLocal),
                 enable_rdma: matches!(target_platform, TargetPlatform::AzureLocal),
+                port_groups: vec![],
             }
         ];
 

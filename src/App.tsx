@@ -5,6 +5,7 @@ import LifecyclePlannerView from './views/LifecyclePlannerView';
 import MigrationPlannerView from './views/MigrationPlannerView';
 import SettingsView from './views/SettingsView';
 import { VendorDataCollectionView } from './views/VendorDataCollectionView';
+import NetworkVisualizerView from './views/NetworkVisualizerView';
 import { DynamicGlassMorphismBackground } from './components/DynamicGlassMorphismBackground';
 import { autoSave } from './utils/autoSave';
 
@@ -135,6 +136,7 @@ const App = () => {
                 <SettingsView />
               </div>
             }
+            {activeView === 'network-visualizer' && <NetworkVisualizerView />}
           </div>
         )}
       </main>

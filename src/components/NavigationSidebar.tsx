@@ -1,5 +1,5 @@
 import React from 'react';
-import { BarChart3, RefreshCw, ArrowRight, Settings, Menu, Database } from 'lucide-react';
+import { BarChart3, RefreshCw, ArrowRight, Settings, Menu, Database, Share2 } from 'lucide-react';
 
 interface NavigationSidebarProps {
   collapsed: boolean;
@@ -32,6 +32,12 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
       label: 'Migration Planner', 
       icon: ArrowRight,
       tooltip: 'Plan and execute infrastructure migration strategies. Configure migration waves, target platforms, and generate migration roadmaps.'
+    },
+    {
+      id: 'network-visualizer',
+      label: 'Network Visualizer',
+      icon: Share2,
+      tooltip: 'Visualize your network topology from RVTools exports.'
     },
     { 
       id: 'vendor-data', 

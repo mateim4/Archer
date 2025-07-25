@@ -65,6 +65,9 @@ fn main() {
             // File operations
             file_exists,
             get_file_info,
+
+            // Network Visualizer
+            get_network_topology,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
