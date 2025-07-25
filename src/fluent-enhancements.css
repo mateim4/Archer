@@ -6,6 +6,32 @@
   --fluent-font-family-base: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI Variable', 'Segoe UI', system-ui, ui-sans-serif, Helvetica, Arial, sans-serif;
   --font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI Variable', 'Segoe UI', system-ui, ui-sans-serif, Helvetica, Arial, sans-serif;
   
+  /* Standard Design System Colors */
+  --lcm-primary: #8b5cf6;
+  --lcm-primary-light: rgba(139, 92, 246, 0.1);
+  --lcm-primary-border: rgba(139, 92, 246, 0.2);
+  --lcm-primary-hover: rgba(139, 92, 246, 0.4);
+  
+  /* Standard Backgrounds */
+  --lcm-bg-card: rgba(255, 255, 255, 0.85);
+  --lcm-bg-card-hover: rgba(255, 255, 255, 0.95);
+  --lcm-bg-input: rgba(255, 255, 255, 0.8);
+  --lcm-bg-input-focus: rgba(255, 255, 255, 0.95);
+  --lcm-bg-dropdown: rgba(255, 255, 255, 0.85);
+  
+  /* Standard Text Colors */
+  --lcm-text-primary: #1a202c;
+  --lcm-text-secondary: #374151;
+  --lcm-text-muted: #64748b;
+  
+  /* Standard Shadows */
+  --lcm-shadow-card: 0 4px 24px 0 rgba(168,85,247,0.07), 0 1.5px 4px 0 rgba(0,0,0,0.04);
+  --lcm-shadow-card-hover: 0 8px 32px 0 rgba(168,85,247,0.12), 0 2px 8px 0 rgba(0,0,0,0.08);
+  
+  /* Standard Backdrop Filter */
+  --lcm-backdrop-filter: blur(18px) saturate(180%);
+  --lcm-backdrop-filter-intense: blur(30px) saturate(225%);
+  
   /* Enhanced spacing for better form layouts */
   --fluent-spacing-horizontal-xxxs: 2px;
   --fluent-spacing-horizontal-xxs: 4px;
@@ -34,6 +60,522 @@
 
 .space-y-6 > * + * {
   margin-top: var(--fluent-spacing-horizontal-xl);
+}
+
+/* ===================
+   STANDARD COMPONENTS
+   =================== */
+
+/* Standard Card - Use this for all cards throughout the app */
+.lcm-card {
+  background: var(--lcm-bg-card);
+  border: 1px solid var(--lcm-primary-border);
+  border-radius: 12px;
+  backdrop-filter: var(--lcm-backdrop-filter);
+  -webkit-backdrop-filter: var(--lcm-backdrop-filter);
+  box-shadow: var(--lcm-shadow-card);
+  transition: all 0.2s ease;
+  padding: 24px;
+  position: relative;
+  will-change: transform;
+}
+
+.lcm-card:hover {
+  background: var(--lcm-bg-card-hover);
+  box-shadow: var(--lcm-shadow-card-hover);
+  transform: translateY(-1px);
+}
+
+/* Variant for cards with no padding */
+.lcm-card.lcm-card-no-padding {
+  padding: 0;
+}
+
+/* Variant for cards with custom padding */
+.lcm-card.lcm-card-compact {
+  padding: 16px;
+}
+
+/* Prevent layout shifts during hover */
+.lcm-card * {
+  box-sizing: border-box;
+}
+
+/* ===================
+   RESPONSIVE TABLE SYSTEM
+   =================== */
+
+/* Responsive table container */
+.lcm-table-container {
+  background: var(--lcm-bg-card);
+  border: 1px solid var(--lcm-primary-border);
+  border-radius: 12px;
+  backdrop-filter: var(--lcm-backdrop-filter);
+  -webkit-backdrop-filter: var(--lcm-backdrop-filter);
+  box-shadow: var(--lcm-shadow-card);
+  overflow: hidden;
+}
+
+/* Table header - responsive grid */
+.lcm-table-header {
+  display: grid;
+  grid-template-columns: 
+    minmax(80px, 1fr) 
+    minmax(120px, 2fr) 
+    minmax(100px, 1fr) 
+    minmax(80px, 1fr) 
+    minmax(100px, 1fr) 
+    minmax(80px, 1fr) 
+    minmax(100px, 1fr);
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--lcm-text-primary);
+  border-bottom: 1px solid var(--lcm-primary-border);
+  background: var(--lcm-bg-card);
+}
+
+/* Table row - responsive grid */
+.lcm-table-row {
+  display: grid;
+  grid-template-columns: 
+    minmax(80px, 1fr) 
+    minmax(120px, 2fr) 
+    minmax(100px, 1fr) 
+    minmax(80px, 1fr) 
+    minmax(100px, 1fr) 
+    minmax(80px, 1fr) 
+    minmax(100px, 1fr);
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--lcm-primary-border);
+  align-items: center;
+  font-size: 0.875rem;
+  transition: background-color 0.2s ease;
+}
+
+.lcm-table-row:hover {
+  background-color: rgba(139, 92, 246, 0.05);
+}
+
+/* Mobile responsive - stack table */
+@media (max-width: 768px) {
+  .lcm-table-header {
+    display: none;
+  }
+  
+  .lcm-table-row {
+    display: block;
+    padding: 1rem;
+    border-bottom: 2px solid var(--lcm-primary-border);
+    margin-bottom: 0.5rem;
+    border-radius: 8px;
+    background: var(--lcm-bg-card);
+  }
+  
+  .lcm-table-row > div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(139, 92, 246, 0.1);
+    min-height: 48px;
+  }
+  
+  .lcm-table-row > div:last-child {
+    border-bottom: none;
+    justify-content: center;
+  }
+  
+  .lcm-table-row > div::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: var(--lcm-text-secondary);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    min-width: 100px;
+    flex-shrink: 0;
+  }
+}
+
+/* Tablet responsive - fewer columns */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .lcm-table-header,
+  .lcm-table-row {
+    grid-template-columns: 
+      minmax(80px, 1fr) 
+      minmax(120px, 2fr) 
+      minmax(100px, 1fr) 
+      minmax(100px, 1fr) 
+      minmax(100px, 1fr);
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+  }
+  
+  .lcm-table-header > div:nth-child(4),
+  .lcm-table-header > div:nth-child(6),
+  .lcm-table-row > div:nth-child(4),
+  .lcm-table-row > div:nth-child(6) {
+    display: none;
+  }
+}
+
+/* Standard Input/Dropdown - Use this for all form inputs */
+.lcm-input {
+  background: var(--lcm-bg-input);
+  border: 1px solid var(--lcm-primary-border);
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-family: var(--fluent-font-family-base);
+  color: var(--lcm-text-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+  width: 100%;
+  min-height: 48px;
+}
+
+.lcm-input:focus {
+  background: var(--lcm-bg-input-focus);
+  border: 1px solid var(--lcm-primary-hover);
+  box-shadow: 0 0 0 3px var(--lcm-primary-light);
+}
+
+/* Responsive input sizing */
+@media (max-width: 640px) {
+  .lcm-input {
+    padding: 14px 16px;
+    font-size: 16px; /* Prevent zoom on iOS */
+    min-height: 52px;
+  }
+}
+
+/* Standard Dropdown - Use this for all dropdowns */
+.lcm-dropdown {
+  background: var(--lcm-bg-dropdown) !important;
+  border: 1px solid var(--lcm-primary-border) !important;
+  border-radius: 8px !important;
+  padding: 12px 16px !important;
+  font-size: 14px !important;
+  font-family: var(--fluent-font-family-base) !important;
+  color: var(--lcm-text-primary) !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  outline: none !important;
+  width: 100% !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  backdrop-filter: var(--lcm-backdrop-filter) !important;
+  -webkit-backdrop-filter: var(--lcm-backdrop-filter) !important;
+  min-height: 48px !important;
+  box-shadow: var(--lcm-shadow-card) !important;
+}
+
+.lcm-dropdown:focus {
+  background: var(--lcm-bg-input-focus) !important;
+  border: 1px solid var(--lcm-primary-hover) !important;
+  box-shadow: 0 0 0 3px var(--lcm-primary-light) !important;
+}
+
+/* Responsive dropdown sizing */
+@media (max-width: 640px) {
+  .lcm-dropdown {
+    padding: 14px 16px !important;
+    font-size: 16px !important; /* Prevent zoom on iOS */
+    min-height: 52px !important;
+  }
+}
+
+/* ===================
+   RESPONSIVE UTILITIES
+   =================== */
+
+/* Container responsive padding */
+@media (max-width: 640px) {
+  .space-y-6 > * + * {
+    margin-top: 1rem !important;
+  }
+  
+  .max-w-7xl {
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 0.75rem !important;
+  }
+  
+  .gap-4 {
+    gap: 0.5rem !important;
+  }
+  
+  .gap-6 {
+    gap: 1rem !important;
+  }
+  
+  .px-8 {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+}
+
+/* Grid responsiveness */
+@media (max-width: 768px) {
+  .grid-cols-1.md\\:grid-cols-3 {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .lg\\:gap-6 {
+    gap: 1rem !important;
+  }
+}
+
+/* Flex responsiveness */
+@media (max-width: 640px) {
+  .flex-col.sm\\:flex-row {
+    flex-direction: column !important;
+  }
+  
+  .sm\\:items-center {
+    align-items: stretch !important;
+  }
+  
+  .sm\\:justify-between {
+    justify-content: flex-start !important;
+  }
+  
+  .flex-wrap {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  
+  .flex-wrap > * {
+    width: 100% !important;
+    margin-bottom: 0.5rem !important;
+  }
+}
+
+/* Standard Button - Use this for all primary buttons */
+.lcm-button {
+  background: linear-gradient(135deg, var(--lcm-primary), #ec4899);
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-family: var(--fluent-font-family-base);
+  font-weight: 500;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.lcm-button:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--lcm-shadow-card-hover);
+}
+
+.lcm-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Responsive button sizing */
+@media (max-width: 640px) {
+  .lcm-button {
+    padding: 14px 20px !important;
+    font-size: 16px !important;
+    min-height: 52px !important;
+    width: 100% !important;
+    justify-content: center !important;
+  }
+  
+  .lcm-button-secondary {
+    padding: 14px 20px !important;
+    font-size: 16px !important;
+    min-height: 52px !important;
+    width: 100% !important;
+    justify-content: center !important;
+  }
+  
+  /* Hide text on small buttons, show icons only */
+  .lcm-button-secondary .hidden.sm\\:inline {
+    display: none !important;
+  }
+  
+  .lcm-button-secondary .sm\\:hidden {
+    display: inline !important;
+  }
+  
+  /* Force responsive layout for main containers */
+  main {
+    padding: 0.75rem !important;
+  }
+  
+  .overflow-x-auto {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  
+  /* Make cards stack nicely */
+  .lcm-card {
+    margin-bottom: 1rem !important;
+  }
+  
+  /* Settings view responsive improvements */
+  .fluent-button.fluent-button-secondary {
+    width: 100% !important;
+    justify-content: center !important;
+    min-height: 52px !important;
+  }
+  
+  .space-x-2 > * + * {
+    margin-left: 0 !important;
+    margin-top: 0.5rem !important;
+  }
+}
+
+/* Secondary Button */
+.lcm-button-secondary {
+  background: transparent;
+  border: 1px solid var(--lcm-primary-border);
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-family: var(--fluent-font-family-base);
+  font-weight: 500;
+  color: var(--lcm-text-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.lcm-button-secondary:hover {
+  background: var(--lcm-primary-light);
+  border-color: var(--lcm-primary-hover);
+  transform: translateY(-1px);
+}
+
+/* Standard Rainbow Slider - This is THE standard slider for the app */
+.lcm-slider {
+  position: relative;
+  width: 100%;
+  height: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  user-select: none;
+  padding: 0 32px;
+  outline: none;
+}
+
+.lcm-slider-track {
+  position: relative;
+  width: 100%;
+  height: 27px;
+  background-image: url(/rainbow-slider-track.svg);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: left center;
+  border-radius: 13.5px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.lcm-slider-thumb {
+  position: absolute;
+  width: 66px;
+  height: 66px;
+  background-image: url(/frosted-glass-slider-thumb.svg);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+  cursor: grab;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 2;
+  border-radius: 50%;
+  user-select: none;
+  pointer-events: auto;
+  opacity: 1;
+  backdrop-filter: var(--lcm-backdrop-filter-intense);
+  -webkit-backdrop-filter: var(--lcm-backdrop-filter-intense);
+  background-color: rgba(255, 255, 255, 0.2);
+  will-change: backdrop-filter, transform;
+  isolation: isolate;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
+}
+
+.lcm-slider-thumb:active {
+  cursor: grabbing;
+  transform: scale(1.1);
+}
+
+/* Standard Stage Marker */
+.lcm-stage-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+
+.lcm-stage-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  font-family: var(--fluent-font-family-base);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.lcm-stage-step.active {
+  background: linear-gradient(135deg, var(--lcm-primary), #ec4899);
+  color: white;
+}
+
+.lcm-stage-step.inactive {
+  background: rgba(255, 255, 255, 0.6);
+  color: var(--lcm-text-secondary);
+}
+
+.lcm-stage-step-number {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: white;
+}
+
+.lcm-stage-step.active .lcm-stage-step-number {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.lcm-stage-step.inactive .lcm-stage-step-number {
+  background: var(--lcm-primary);
+}
+
+.lcm-stage-connector {
+  width: 32px;
+  height: 2px;
+  transition: all 0.2s ease;
+}
+
+.lcm-stage-connector.completed {
+  background: var(--lcm-primary);
+}
+
+.lcm-stage-connector.pending {
+  background: var(--lcm-primary-border);
 }
 
 /* Grid System */

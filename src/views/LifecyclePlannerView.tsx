@@ -1003,32 +1003,12 @@ const LifecyclePlannerView: React.FC = () => {
               <div style={{ display: 'flex', flexDirection: 'column' }}>
                 <label className="block mb-3 font-medium" style={{ fontSize: '14px', color: 'var(--color-neutral-foreground)', minHeight: '20px' }}>CPU Overcommit Ratio</label>
                 <select 
-                  className="w-full p-3 border rounded-lg" 
-                  style={{ 
-                    minHeight: '48px', 
-                    fontSize: '14px',
-                    background: 'rgba(255, 255, 255, 0.8)',
-                    backdropFilter: 'blur(10px)',
-                    border: '1px solid rgba(168, 85, 247, 0.2)',
-                    borderRadius: '12px',
-                    color: 'var(--color-neutral-foreground)',
-                    transition: 'all 0.2s ease'
-                  }}
+                  className="lcm-dropdown" 
                   value={cpuOvercommit}
                   onChange={(e) => {
                     const value = e.target.value;
                     setCpuOvercommit(value);
                     setShowCustomCpu(value === 'custom');
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.background = 'rgba(255, 255, 255, 0.95)';
-                    e.target.style.border = '1px solid rgba(168, 85, 247, 0.4)';
-                    e.target.style.boxShadow = '0 0 0 3px rgba(168, 85, 247, 0.1)';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.background = 'rgba(255, 255, 255, 0.8)';
-                    e.target.style.border = '1px solid rgba(168, 85, 247, 0.2)';
-                    e.target.style.boxShadow = 'none';
                   }}
                 >
                   <option value="2:1">2:1 (Conservative)</option>
@@ -1057,32 +1037,12 @@ const LifecyclePlannerView: React.FC = () => {
               <div style={{ display: 'flex', flexDirection: 'column' }}>
                 <label className="block mb-3 font-medium" style={{ fontSize: '14px', color: 'var(--color-neutral-foreground)', minHeight: '20px' }}>Memory Overcommit</label>
                 <select 
-                  className="w-full p-3 border rounded-lg" 
-                  style={{ 
-                    minHeight: '48px', 
-                    fontSize: '14px',
-                    background: 'rgba(255, 255, 255, 0.8)',
-                    backdropFilter: 'blur(10px)',
-                    border: '1px solid rgba(168, 85, 247, 0.2)',
-                    borderRadius: '12px',
-                    color: 'var(--color-neutral-foreground)',
-                    transition: 'all 0.2s ease'
-                  }}
+                  className="lcm-dropdown" 
                   value={memoryOvercommit}
                   onChange={(e) => {
                     const value = e.target.value;
                     setMemoryOvercommit(value);
                     setShowCustomMemory(value === 'custom');
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.background = 'rgba(255, 255, 255, 0.95)';
-                    e.target.style.border = '1px solid rgba(168, 85, 247, 0.4)';
-                    e.target.style.boxShadow = '0 0 0 3px rgba(168, 85, 247, 0.1)';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.background = 'rgba(255, 255, 255, 0.8)';
-                    e.target.style.border = '1px solid rgba(168, 85, 247, 0.2)';
-                    e.target.style.boxShadow = 'none';
                   }}
                 >
                   <option value="1:1">1:1 (No overcommit)</option>
@@ -1111,29 +1071,9 @@ const LifecyclePlannerView: React.FC = () => {
               <div style={{ display: 'flex', flexDirection: 'column' }}>
                 <label className="block mb-3 font-medium" style={{ fontSize: '14px', color: 'var(--color-neutral-foreground)', minHeight: '20px' }}>HA Policy</label>
                 <select 
-                  className="w-full p-3 border rounded-lg" 
-                  style={{ 
-                    minHeight: '48px', 
-                    fontSize: '14px',
-                    background: 'rgba(255, 255, 255, 0.8)',
-                    backdropFilter: 'blur(10px)',
-                    border: '1px solid rgba(168, 85, 247, 0.2)',
-                    borderRadius: '12px',
-                    color: 'var(--color-neutral-foreground)',
-                    transition: 'all 0.2s ease'
-                  }}
+                  className="lcm-dropdown" 
                   value={haPolicy}
                   onChange={(e) => setHaPolicy(e.target.value)}
-                  onFocus={(e) => {
-                    e.target.style.background = 'rgba(255, 255, 255, 0.95)';
-                    e.target.style.border = '1px solid rgba(168, 85, 247, 0.4)';
-                    e.target.style.boxShadow = '0 0 0 3px rgba(168, 85, 247, 0.1)';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.background = 'rgba(255, 255, 255, 0.8)';
-                    e.target.style.border = '1px solid rgba(168, 85, 247, 0.2)';
-                    e.target.style.boxShadow = 'none';
-                  }}
                 >
                   <option value="n+1">N+1 (Standard)</option>
                   <option value="n+2">N+2 (High availability)</option>
@@ -1349,7 +1289,7 @@ const LifecyclePlannerView: React.FC = () => {
       flexDirection: 'column'
     }}>
       {/* Wizard Progress Header */}
-      <div className="fluent-card mb-6" style={{ width: '100%', flexShrink: 0 }}>
+      <div className="lcm-card mb-6" style={{ width: '100%', flexShrink: 0 }}>
         <div style={{ 
           width: '100%', 
           margin: '16px 0', 
@@ -1383,7 +1323,7 @@ const LifecyclePlannerView: React.FC = () => {
 
       {/* Main Content Card with sticky navigation */}
       <div 
-        className="fluent-card" 
+        className="lcm-card" 
         style={{ 
           width: '100%', 
           flex: 1, 

@@ -59,7 +59,7 @@ const DashboardView: React.FC = () => {
   const FileUploadComponent = () => (
     <div className="flex-1 flex items-center justify-center p-8">
       <div 
-        className="fluent-card text-center p-12 border-2 border-dashed transition-all duration-300 hover:border-solid group cursor-pointer"
+        className="lcm-card text-center p-12 border-2 border-dashed transition-all duration-300 hover:border-solid group cursor-pointer"
         style={{
           borderColor: 'rgba(255, 255, 255, 0.3)',
           borderRadius: 'var(--border-radius-xl)',
@@ -187,7 +187,7 @@ const DashboardView: React.FC = () => {
 
     return (
       <div 
-        className="fluent-card p-6 mb-6"
+        className="lcm-card p-6 mb-6"
       >
         <div className="grid grid-cols-6 gap-6">
           {summaryItems.map((item, index) => (
@@ -302,7 +302,7 @@ const DashboardView: React.FC = () => {
   // Cluster Card Component
   const ClusterCard = ({ cluster }: any) => (
     <div 
-      className="fluent-card p-6 cursor-pointer group"
+      className="lcm-card p-6 cursor-pointer group"
     >
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center">
@@ -569,7 +569,7 @@ const DashboardView: React.FC = () => {
       ) : (
         <>
           <SummaryBar />
-          <div className="fluent-card">
+          <div className="lcm-card">
             <TabNavigation
               tabs={[
                 { id: 'clusters', label: 'Clusters' },

@@ -771,18 +771,6 @@ const MigrationPlannerView: React.FC = () => {
       case 1:
         return (
           <div>
-            <div className="flex items-center mb-6">
-              <h3 
-                className="font-medium"
-                style={{ 
-                  fontSize: '18px',
-                  color: 'var(--color-neutral-foreground)',
-                  fontWeight: '600'
-                }}
-              >
-                Migration Scope
-              </h3>
-            </div>
             <div style={{
               display: 'flex',
               flexDirection: 'column',
@@ -966,18 +954,6 @@ const MigrationPlannerView: React.FC = () => {
       case 2:
         return (
           <div>
-            <div className="flex items-center mb-6">
-              <h3 
-                className="font-medium"
-                style={{ 
-                  fontSize: '18px',
-                  color: 'var(--color-neutral-foreground)',
-                  fontWeight: '600'
-                }}
-              >
-                Migration Assessment
-              </h3>
-            </div>
             <div className="grid grid-cols-2 gap-8 max-w-4xl">
               <div>
                 <label className="block mb-3 font-medium" style={{ fontSize: '14px', color: 'var(--color-neutral-foreground)' }}>
@@ -1011,48 +987,16 @@ const MigrationPlannerView: React.FC = () => {
       case 3:
         return (
           <div>
-            <div className="flex items-center mb-6">
-              <h3 
-                className="font-medium"
-                style={{ 
-                  fontSize: '18px',
-                  color: 'var(--color-neutral)',
-                  fontWeight: '600'
-                }}
-              >
-                Migration Policies & Constraints
-              </h3>
-            </div>
             <div className="grid grid-cols-3 gap-8" style={{ alignItems: 'start' }}>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
                 <label className="block mb-3 font-medium" style={{ fontSize: '14px', color: 'var(--color-neutral-foreground)', minHeight: '20px' }}>CPU Overcommit Ratio</label>
                 <select 
-                  className="w-full p-3 border rounded-lg" 
-                  style={{ 
-                    minHeight: '48px', 
-                    fontSize: '14px',
-                    background: 'rgba(255, 255, 255, 0.8)',
-                    backdropFilter: 'blur(10px)',
-                    border: '1px solid rgba(168, 85, 247, 0.2)',
-                    borderRadius: '12px',
-                    color: 'var(--color-neutral-foreground)',
-                    transition: 'all 0.2s ease'
-                  }}
+                  className="lcm-dropdown" 
                   value={cpuOvercommit}
                   onChange={(e) => {
                     const value = e.target.value;
                     setCpuOvercommit(value);
                     setShowCustomCpu(value === 'custom');
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.background = 'rgba(255, 255, 255, 0.95)';
-                    e.target.style.border = '1px solid rgba(168, 85, 247, 0.4)';
-                    e.target.style.boxShadow = '0 0 0 3px rgba(168, 85, 247, 0.1)';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.background = 'rgba(255, 255, 255, 0.8)';
-                    e.target.style.border = '1px solid rgba(168, 85, 247, 0.2)';
-                    e.target.style.boxShadow = 'none';
                   }}
                 >
                   <option value="2:1">2:1 (Conservative)</option>
@@ -1081,7 +1025,7 @@ const MigrationPlannerView: React.FC = () => {
               <div style={{ display: 'flex', flexDirection: 'column' }}>
                 <label className="block mb-3 font-medium" style={{ fontSize: '14px', color: 'var(--color-neutral-foreground)', minHeight: '20px' }}>Memory Overcommit</label>
                 <select 
-                  className="w-full p-3 border rounded-lg" 
+                  className="lcm-dropdown" 
                   value={memoryOvercommit}
                   onChange={(e) => {
                     setMemoryOvercommit(e.target.value);
@@ -1090,26 +1034,6 @@ const MigrationPlannerView: React.FC = () => {
                     } else {
                       setShowCustomMemory(false);
                     }
-                  }}
-                  style={{ 
-                    minHeight: '48px', 
-                    fontSize: '14px',
-                    background: 'rgba(255, 255, 255, 0.8)',
-                    backdropFilter: 'blur(10px)',
-                    border: '1px solid rgba(168, 85, 247, 0.2)',
-                    borderRadius: '12px',
-                    color: 'var(--color-neutral-foreground)',
-                    transition: 'all 0.2s ease'
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.background = 'rgba(255, 255, 255, 0.95)';
-                    e.target.style.border = '1px solid rgba(168, 85, 247, 0.4)';
-                    e.target.style.boxShadow = '0 0 0 3px rgba(168, 85, 247, 0.1)';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.background = 'rgba(255, 255, 255, 0.8)';
-                    e.target.style.border = '1px solid rgba(168, 85, 247, 0.2)';
-                    e.target.style.boxShadow = 'none';
                   }}
                 >
                   <option value="1:1">1:1 (No overcommit)</option>
@@ -1150,29 +1074,9 @@ const MigrationPlannerView: React.FC = () => {
               <div style={{ display: 'flex', flexDirection: 'column' }}>
                 <label className="block mb-3 font-medium" style={{ fontSize: '14px', color: 'var(--color-neutral-foreground)', minHeight: '20px' }}>HA Policy</label>
                 <select 
-                  className="w-full p-3 border rounded-lg" 
+                  className="lcm-dropdown" 
                   value={haPolicy}
                   onChange={(e) => setHaPolicy(e.target.value)}
-                  style={{ 
-                    minHeight: '48px', 
-                    fontSize: '14px',
-                    background: 'rgba(255, 255, 255, 0.8)',
-                    backdropFilter: 'blur(10px)',
-                    border: '1px solid rgba(168, 85, 247, 0.2)',
-                    borderRadius: '12px',
-                    color: 'var(--color-neutral-foreground)',
-                    transition: 'all 0.2s ease'
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.background = 'rgba(255, 255, 255, 0.95)';
-                    e.target.style.border = '1px solid rgba(168, 85, 247, 0.4)';
-                    e.target.style.boxShadow = '0 0 0 3px rgba(168, 85, 247, 0.1)';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.background = 'rgba(255, 255, 255, 0.8)';
-                    e.target.style.border = '1px solid rgba(168, 85, 247, 0.2)';
-                    e.target.style.boxShadow = 'none';
-                  }}
                 >
                   <option value="n+1">N+1 (Standard)</option>
                   <option value="n+2">N+2 (High availability)</option>
@@ -1185,22 +1089,9 @@ const MigrationPlannerView: React.FC = () => {
       case 4:
         return (
           <div>
-            <div className="flex items-center mb-6">
-              <h3 
-                className="font-medium"
-                style={{ 
-                  fontSize: '18px',
-                  color: 'var(--color-neutral-foreground)',
-                  fontWeight: '600'
-                }}
-              >
-                Target Platform Selection
-              </h3>
-            </div>
             <div className="grid grid-cols-3 gap-8">
               {/* Platform Options */}
               <div>
-                <h4 className="font-semibold mb-6" style={{ textAlign: 'left', paddingLeft: '24px' }}>Platform Options</h4>
                 {platformOptions.map(option => (
                   <HardwareOption
                     key={option.id}
@@ -1253,7 +1144,6 @@ const MigrationPlannerView: React.FC = () => {
 
               {/* Storage Options */}
               <div>
-                <h4 className="font-semibold mb-6" style={{ textAlign: 'left', paddingLeft: '24px' }}>Storage Tier</h4>
                 {storageOptions.map(option => (
                   <HardwareOption
                     key={option.id}
@@ -1306,7 +1196,6 @@ const MigrationPlannerView: React.FC = () => {
 
               {/* Network Options */}
               <div>
-                <h4 className="font-semibold mb-6" style={{ textAlign: 'left', paddingLeft: '24px' }}>Network Cards</h4>
                 {networkOptions.map(option => (
                   <HardwareOption
                     key={option.id}
@@ -1362,21 +1251,8 @@ const MigrationPlannerView: React.FC = () => {
       case 5:
         return (
           <div>
-            <div className="flex items-center mb-6">
-              <h3 
-                className="font-medium"
-                style={{ 
-                  fontSize: '18px',
-                  color: 'var(--color-neutral-foreground)',
-                  fontWeight: '600'
-                }}
-              >
-                Migration Plan Review
-              </h3>
-            </div>
             <div className="text-center py-12">
               <div className="mb-6">
-                <h4 className="text-lg font-semibold mb-2">Migration Summary</h4>
                 <p className="text-gray-600">Ready to generate your migration roadmap</p>
               </div>
               <button className="fluent-button fluent-button-primary px-8 py-3">
@@ -1400,7 +1276,7 @@ const MigrationPlannerView: React.FC = () => {
       flexDirection: 'column'
     }}>
       {/* Wizard Progress Header */}
-      <div className="fluent-card mb-6" style={{ width: '100%', flexShrink: 0 }}>
+      <div className="lcm-card mb-6" style={{ width: '100%', flexShrink: 0 }}>
         <div style={{ 
           width: '100%', 
           margin: '16px 0', 
@@ -1434,7 +1310,7 @@ const MigrationPlannerView: React.FC = () => {
 
       {/* Main Content Card with sticky navigation */}
       <div 
-        className="fluent-card" 
+        className="lcm-card" 
         style={{ 
           width: '100%', 
           flex: 1, 

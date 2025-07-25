@@ -10,7 +10,6 @@ import {
   Info,
   Download,
   Upload,
-  ChevronDown,
   CheckCircle,
   AlertCircle,
   Clock,
@@ -242,46 +241,22 @@ export const VendorDataCollectionView: React.FC = () => {
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="fluent-input w-full appearance-none pr-10"
-        style={{
-          background: 'rgba(255, 255, 255, 0.8)',
-          border: '1px solid rgba(139, 92, 246, 0.2)',
-          borderRadius: '8px',
-          padding: '12px 40px 12px 16px',
-          fontSize: '14px',
-          fontFamily: 'Montserrat, -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", system-ui, ui-sans-serif, Helvetica, Arial, sans-serif',
-          color: '#1a202c',
-          cursor: 'pointer'
-        }}
+        className="lcm-dropdown"
       >
         <option value="">{placeholder}</option>
         {options.map(option => (
           <option key={option.value} value={option.value}>{option.label}</option>
         ))}
       </select>
-      <ChevronDown 
-        size={16} 
-        className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none"
-        style={{ color: '#64748b' }}
-      />
     </div>
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 w-full">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center">
-          <h3 
-            className="font-medium"
-            style={{ 
-              fontSize: '20px',
-              fontWeight: '600',
-              color: '#1a202c',
-              fontFamily: 'Montserrat, -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", system-ui, ui-sans-serif, Helvetica, Arial, sans-serif',
-              letterSpacing: '-0.01em'
-            }}
-          >
+          <h3 className="text-xl font-semibold text-gray-900">
             Vendor Data Collection & Server Sizing
           </h3>
           <div className="ml-2">
@@ -305,14 +280,16 @@ export const VendorDataCollectionView: React.FC = () => {
             />
           </div>
         </div>
-        <div className="flex space-x-2">
-          <button className="fluent-button fluent-button-secondary flex items-center">
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+          <button className="lcm-button-secondary flex items-center justify-center">
             <Upload size={16} className="mr-2" />
-            Import Catalog
+            <span className="hidden sm:inline">Import Catalog</span>
+            <span className="sm:hidden">Import</span>
           </button>
-          <button className="fluent-button fluent-button-secondary flex items-center">
+          <button className="lcm-button-secondary flex items-center justify-center">
             <Download size={16} className="mr-2" />
-            Export Data
+            <span className="hidden sm:inline">Export Data</span>
+            <span className="sm:hidden">Export</span>
           </button>
         </div>
       </div>
@@ -320,35 +297,31 @@ export const VendorDataCollectionView: React.FC = () => {
       {/* Status Message */}
       {message && (
         <div 
-          className="fluent-card p-4 flex items-center justify-between"
+          className="lcm-card flex items-center justify-between"
           style={{
+            padding: '16px',
             background: message.type === 'error' ? 'rgba(239, 68, 68, 0.05)' : 
                        message.type === 'success' ? 'rgba(34, 197, 94, 0.05)' : 
                        'rgba(59, 130, 246, 0.05)',
-            border: message.type === 'error' ? '1px solid rgba(239, 68, 68, 0.1)' : 
-                   message.type === 'success' ? '1px solid rgba(34, 197, 94, 0.1)' : 
-                   '1px solid rgba(59, 130, 246, 0.1)'
+            borderColor: message.type === 'error' ? 'rgba(239, 68, 68, 0.2)' : 
+                   message.type === 'success' ? 'rgba(34, 197, 94, 0.2)' : 
+                   'rgba(59, 130, 246, 0.2)'
           }}
         >
           <div className="flex items-center">
             {getStatusBadge(message.type)}
             <div className="ml-4">
-              <div 
-                className="font-medium"
-                style={{ color: '#1a202c', fontSize: '14px' }}
-              >
+              <div className="font-medium text-gray-900 text-sm">
                 {message.title}
               </div>
-              <div 
-                style={{ color: '#64748b', fontSize: '13px' }}
-              >
+              <div className="text-gray-600 text-sm">
                 {message.body}
               </div>
             </div>
           </div>
           <button
             onClick={() => setMessage(null)}
-            className="text-gray-400 hover:text-gray-600 ml-4"
+            className="text-gray-400 hover:text-gray-600 ml-4 text-lg"
           >
             ×
           </button>
@@ -356,51 +329,26 @@ export const VendorDataCollectionView: React.FC = () => {
       )}
 
       {/* Vendor Configuration */}
-      <div 
-        className="fluent-card p-6"
-        style={{
-          background: 'rgba(255, 255, 255, 0.85)',
-          border: '1px solid rgba(139, 92, 246, 0.2)',
-          borderRadius: '12px'
-        }}
-      >
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center">
-            <Settings size={20} className="mr-2" style={{ color: '#8b5cf6' }} />
-            <h4 
-              className="font-medium"
-              style={{ 
-                fontSize: '16px',
-                fontWeight: '600',
-                color: '#1a202c',
-                fontFamily: 'Montserrat, -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", system-ui, ui-sans-serif, Helvetica, Arial, sans-serif'
-              }}
-            >
-              Vendor Configuration
-            </h4>
-          </div>
-          <div className="flex space-x-2">
-            <button className="fluent-button fluent-button-secondary flex items-center">
+      <div className="lcm-card">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <h4 className="text-lg font-semibold text-gray-900">Vendor Configuration</h4>
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <button className="lcm-button-secondary flex items-center justify-center">
               <Settings size={16} className="mr-2" />
-              Configure Credentials
+              <span className="hidden sm:inline">Configure Credentials</span>
+              <span className="sm:hidden">Config</span>
             </button>
-            <button className="fluent-button fluent-button-secondary flex items-center">
+            <button className="lcm-button-secondary flex items-center justify-center">
               <RefreshCw size={16} className="mr-2" />
-              {loading ? 'Refreshing...' : 'Refresh Data'}
+              <span className="hidden sm:inline">{loading ? 'Refreshing...' : 'Refresh Data'}</span>
+              <span className="sm:hidden">Refresh</span>
             </button>
           </div>
         </div>
         
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label 
-              className="block mb-2 font-medium"
-              style={{ 
-                fontSize: '14px',
-                color: '#374151',
-                fontFamily: 'Montserrat, -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", system-ui, ui-sans-serif, Helvetica, Arial, sans-serif'
-              }}
-            >
+            <label className="block mb-2 font-medium text-sm text-gray-700">
               Filter by Vendor
             </label>
             {renderDropdown(
@@ -418,14 +366,7 @@ export const VendorDataCollectionView: React.FC = () => {
             )}
           </div>
           <div>
-            <label 
-              className="block mb-2 font-medium"
-              style={{ 
-                fontSize: '14px',
-                color: '#374151',
-                fontFamily: 'Montserrat, -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", system-ui, ui-sans-serif, Helvetica, Arial, sans-serif'
-              }}
-            >
+            <label className="block mb-2 font-medium text-sm text-gray-700">
               Form Factor
             </label>
             {renderDropdown(
@@ -442,14 +383,7 @@ export const VendorDataCollectionView: React.FC = () => {
             )}
           </div>
           <div>
-            <label 
-              className="block mb-2 font-medium"
-              style={{ 
-                fontSize: '14px',
-                color: '#374151',
-                fontFamily: 'Montserrat, -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", system-ui, ui-sans-serif, Helvetica, Arial, sans-serif'
-              }}
-            >
+            <label className="block mb-2 font-medium text-sm text-gray-700">
               Generation
             </label>
             {renderDropdown(
@@ -468,69 +402,32 @@ export const VendorDataCollectionView: React.FC = () => {
       </div>
 
       {/* Server Models Catalog */}
-      <div 
-        className="overflow-hidden border rounded-xl"
-        style={{
-          borderColor: 'rgba(139, 92, 246, 0.2)',
-          background: 'transparent'
-        }}
-      >
-        <div 
-          className="fluent-table-header" 
-          style={{ 
-            display: 'grid',
-            gridTemplateColumns: '100px 1fr 120px 100px 120px 100px 120px',
-            gap: 'var(--fluent-spacing-horizontal-l)',
-            padding: 'var(--fluent-spacing-horizontal-l)',
-            fontSize: '14px',
-            fontWeight: '600',
-            color: '#1a202c',
-            fontFamily: 'Montserrat, -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", system-ui, ui-sans-serif, Helvetica, Arial, sans-serif',
-            borderBottom: '1px solid rgba(139, 92, 246, 0.2)',
-            background: 'rgba(255, 255, 255, 0.85)'
-          }}
-        >
-          <div>Vendor</div>
-          <div>Model</div>
-          <div>Form Factor</div>
-          <div>CPU Sockets</div>
-          <div>Max Memory</div>
-          <div>Drive Bays</div>
-          <div>Actions</div>
-        </div>
-        <div style={{ maxHeight: '500px', overflowY: 'auto' }}>
-          {loading ? (
-            <div className="text-center py-8">
-              <div className="inline-flex items-center">
-                <Clock size={20} className="mr-2 animate-spin" style={{ color: '#8b5cf6' }} />
-                <span style={{ color: '#64748b', fontSize: '14px' }}>Loading server models...</span>
+      <div className="lcm-table-container">
+        <div className="overflow-x-auto">
+          <div className="lcm-table-header">
+            <div>Vendor</div>
+            <div>Model</div>
+            <div>Form Factor</div>
+            <div>CPU Sockets</div>
+            <div>Max Memory</div>
+            <div>Drive Bays</div>
+            <div>Actions</div>
+          </div>
+          <div className="overflow-y-auto" style={{ maxHeight: '500px' }}>
+            {loading ? (
+              <div className="text-center py-8">
+                <div className="inline-flex items-center">
+                  <Clock size={20} className="mr-2 animate-spin" style={{ color: '#8b5cf6' }} />
+                  <span className="text-gray-600 text-sm">Loading server models...</span>
+                </div>
               </div>
-            </div>
-          ) : (
-            serverModels.map((model) => (
-              <div 
-                key={`${model.vendor}-${model.model_id}`}
-                className="fluent-table-row"
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: '100px 1fr 120px 100px 120px 100px 120px',
-                  gap: 'var(--fluent-spacing-horizontal-l)',
-                  padding: 'var(--fluent-spacing-horizontal-l)',
-                  borderBottom: '1px solid rgba(139, 92, 246, 0.1)',
-                  alignItems: 'center',
-                  fontSize: '14px',
-                  fontFamily: 'Montserrat, -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", system-ui, ui-sans-serif, Helvetica, Arial, sans-serif',
-                  background: 'rgba(255, 255, 255, 0.75)',
-                  transition: 'background-color 0.2s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.85)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.75)';
-                }}
-              >
-                <div>
+            ) : (
+              serverModels.map((model) => (
+                <div 
+                  key={`${model.vendor}-${model.model_id}`}
+                  className="lcm-table-row"
+                >
+                <div data-label="Vendor">
                   <span 
                     className="px-2 py-1 rounded-md text-xs font-medium"
                     style={{
@@ -548,34 +445,34 @@ export const VendorDataCollectionView: React.FC = () => {
                     {model.vendor}
                   </span>
                 </div>
-                <div className="flex items-center">
+                <div className="flex items-center" data-label="Model">
                   <div className="mr-3">
                     {getFormFactorIcon(model.form_factor)}
                   </div>
                   <div>
-                    <div className="font-medium" style={{ color: '#1a202c' }}>
+                    <div className="font-medium text-gray-900">
                       {model.model_name}
                     </div>
-                    <div style={{ color: '#64748b', fontSize: '12px' }}>
+                    <div className="text-gray-600 text-xs">
                       {model.family} • {model.generation}
                     </div>
                   </div>
                 </div>
-                <div style={{ color: '#64748b' }}>
+                <div className="text-gray-600" data-label="Form Factor">
                   {formatFormFactor(model.form_factor)}
                 </div>
-                <div style={{ color: '#1a202c', fontWeight: '500' }}>
+                <div className="text-gray-900 font-medium" data-label="CPU Sockets">
                   {model.cpu_sockets}
                 </div>
-                <div style={{ color: '#1a202c', fontWeight: '500' }}>
+                <div className="text-gray-900 font-medium" data-label="Max Memory">
                   {model.max_memory_gb} GB
                 </div>
-                <div style={{ color: '#1a202c', fontWeight: '500' }}>
+                <div className="text-gray-900 font-medium" data-label="Drive Bays">
                   {model.drive_bays}
                 </div>
-                <div>
+                <div data-label="Actions">
                   <button 
-                    className="fluent-button fluent-button-subtle flex items-center text-xs"
+                    className="lcm-button-secondary text-xs px-3 py-1"
                     onClick={() => {
                       setMessage({
                         type: 'info',
@@ -592,44 +489,19 @@ export const VendorDataCollectionView: React.FC = () => {
             ))
           )}
         </div>
+        </div>
       </div>
 
       {/* Configuration Search */}
-      <div 
-        className="fluent-card p-6"
-        style={{
-          background: 'rgba(255, 255, 255, 0.85)',
-          border: '1px solid rgba(139, 92, 246, 0.2)',
-          borderRadius: '12px'
-        }}
-      >
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center">
-            <Search size={20} className="mr-2" style={{ color: '#8b5cf6' }} />
-            <h4 
-              className="font-medium"
-              style={{ 
-                fontSize: '16px',
-                fontWeight: '600',
-                color: '#1a202c',
-                fontFamily: 'Montserrat, -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", system-ui, ui-sans-serif, Helvetica, Arial, sans-serif'
-              }}
-            >
-              Server Configuration Search
-            </h4>
-          </div>
+      <div className="lcm-card">
+        <div className="mb-6">
+          <h4 className="text-lg font-semibold text-gray-900 mb-2">Configuration Search</h4>
+          <p className="text-sm text-gray-600">Find server configurations based on your workload requirements</p>
         </div>
         
-        <div className="grid grid-cols-4 gap-4 mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6 mb-6">
           <div>
-            <label 
-              className="block mb-2 font-medium"
-              style={{ 
-                fontSize: '14px',
-                color: '#374151',
-                fontFamily: 'Montserrat, -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", system-ui, ui-sans-serif, Helvetica, Arial, sans-serif'
-              }}
-            >
+            <label className="block mb-2 font-medium text-sm text-gray-700">
               Workload Type
             </label>
             {renderDropdown(
@@ -648,132 +520,84 @@ export const VendorDataCollectionView: React.FC = () => {
             )}
           </div>
           <div>
-            <label 
-              className="block mb-2 font-medium"
-              style={{ 
-                fontSize: '14px',
-                color: '#374151',
-                fontFamily: 'Montserrat, -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", system-ui, ui-sans-serif, Helvetica, Arial, sans-serif'
-              }}
-            >
+            <label className="block mb-2 font-medium text-sm text-gray-700">
               Minimum CPU Cores
             </label>
             <input
               type="number"
-              className="fluent-input w-full"
+              className="lcm-input"
               placeholder="e.g. 16"
               value={searchRequirements.cpu_cores_minimum || ''}
               onChange={(e) => setSearchRequirements(prev => ({
                 ...prev, 
                 cpu_cores_minimum: e.target.value ? parseInt(e.target.value) : undefined
               }))}
-              style={{
-                background: 'rgba(255, 255, 255, 0.8)',
-                border: '1px solid rgba(139, 92, 246, 0.2)',
-                borderRadius: '8px',
-                padding: '12px 16px',
-                fontSize: '14px',
-                fontFamily: 'Montserrat, -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", system-ui, ui-sans-serif, Helvetica, Arial, sans-serif',
-                color: '#1a202c'
-              }}
             />
           </div>
           <div>
-            <label 
-              className="block mb-2 font-medium"
-              style={{ 
-                fontSize: '14px',
-                color: '#374151',
-                fontFamily: 'Montserrat, -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", system-ui, ui-sans-serif, Helvetica, Arial, sans-serif'
-              }}
-            >
+            <label className="block mb-2 font-medium text-sm text-gray-700">
               Minimum Memory (GB)
             </label>
             <input
               type="number"
-              className="fluent-input w-full"
+              className="lcm-input"
               placeholder="e.g. 128"
               value={searchRequirements.memory_gb_minimum || ''}
               onChange={(e) => setSearchRequirements(prev => ({
                 ...prev, 
                 memory_gb_minimum: e.target.value ? parseInt(e.target.value) : undefined
               }))}
-              style={{
-                background: 'rgba(255, 255, 255, 0.8)',
-                border: '1px solid rgba(139, 92, 246, 0.2)',
-                borderRadius: '8px',
-                padding: '12px 16px',
-                fontSize: '14px',
-                fontFamily: 'Montserrat, -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", system-ui, ui-sans-serif, Helvetica, Arial, sans-serif',
-                color: '#1a202c'
-              }}
             />
           </div>
-          <div className="flex items-end">
-            <button 
-              className="fluent-button fluent-button-primary flex items-center w-full justify-center"
-              onClick={() => {
-                setMessage({
-                  type: 'info',
-                  title: 'Configuration Search',
-                  body: `Searching for ${searchRequirements.workload_type} configurations...`
-                });
-              }}
-            >
-              <Search size={16} className="mr-2" />
-              Search Configurations
-            </button>
-          </div>
+        </div>
+        
+        <div className="flex justify-center">
+          <button 
+            className="lcm-button flex items-center justify-center px-8 w-full sm:w-auto"
+            onClick={() => {
+              setMessage({
+                type: 'info',
+                title: 'Configuration Search',
+                body: `Searching for ${searchRequirements.workload_type} configurations...`
+              });
+            }}
+          >
+            <Search size={16} className="mr-2" />
+            Search Configurations
+          </button>
         </div>
 
         {/* Mock recommendations */}
         {searchRequirements.workload_type !== 'General' && (
-          <div className="mt-6 pt-4 border-t" style={{ borderColor: 'rgba(139, 92, 246, 0.2)' }}>
-            <h5 
-              className="font-medium mb-3"
-              style={{ 
-                fontSize: '15px',
-                color: '#1a202c',
-                fontFamily: 'Montserrat, -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", system-ui, ui-sans-serif, Helvetica, Arial, sans-serif'
-              }}
-            >
+          <div className="mt-8 pt-6 border-t border-gray-200">
+            <h5 className="font-semibold mb-4 text-lg text-gray-900">
               Recommended Configurations (3)
             </h5>
-            <div className="grid grid-cols-1 gap-3">
+            <div className="grid grid-cols-1 gap-4">
               {['PowerEdge R750', 'ProLiant DL380 Gen10', 'ThinkSystem SR650'].map((model, index) => (
                 <div 
                   key={model}
-                  className="fluent-card p-4 hover:shadow-lg transition-all duration-200"
-                  style={{
-                    background: 'rgba(255, 255, 255, 0.5)',
-                    border: '1px solid rgba(139, 92, 246, 0.1)',
-                    borderRadius: '8px'
-                  }}
+                  className="lcm-card lcm-card-compact"
                 >
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div className="flex items-center">
-                      <Server size={18} className="mr-3" style={{ color: '#8b5cf6' }} />
+                      <Server size={18} className="mr-3 text-purple-600 flex-shrink-0" />
                       <div>
-                        <div className="font-medium" style={{ color: '#1a202c', fontSize: '14px' }}>
+                        <div className="font-medium text-gray-900 text-sm sm:text-base">
                           {model}
                         </div>
-                        <div style={{ color: '#64748b', fontSize: '12px' }}>
+                        <div className="text-gray-600 text-xs sm:text-sm">
                           Optimized for {searchRequirements.workload_type} workloads
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                       <span 
-                        className="px-2 py-1 rounded-md text-xs font-medium"
-                        style={{
-                          background: 'rgba(34, 197, 94, 0.1)',
-                          color: '#059669',
-                          border: '1px solid rgba(34, 197, 94, 0.2)'
-                        }}
+                        className="px-3 py-1 rounded-lg text-xs font-medium bg-green-50 text-green-700 border border-green-200 text-center"
                       >
                         {85 + index * 5}% Match
                       </span>
-                      <button className="fluent-button fluent-button-subtle text-xs">
+                      <button className="lcm-button-secondary text-xs px-4 py-2">
                         View Details
                       </button>
                     </div>

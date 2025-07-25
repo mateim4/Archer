@@ -118,10 +118,23 @@ const App = () => {
             {activeView === 'migration' && <MigrationPlannerView />}
           </div>
         ) : (
-          <div style={{ maxWidth: '1200px', margin: '0 auto', padding: 'var(--fluent-spacing-horizontal-m) 0' }}>
+          <div style={{ 
+            maxWidth: (activeView === 'vendor-data' || activeView === 'settings') ? 'none' : '1200px', 
+            margin: '0 auto', 
+            padding: (activeView === 'vendor-data' || activeView === 'settings') ? '0' : 'var(--fluent-spacing-horizontal-m) 0',
+            width: '100%'
+          }}>
             {activeView === 'dashboard' && <DashboardView />}
-            {activeView === 'vendor-data' && <VendorDataCollectionView />}
-            {activeView === 'settings' && <SettingsView />}
+            {activeView === 'vendor-data' && 
+              <div style={{ padding: 'var(--fluent-spacing-horizontal-m) var(--fluent-spacing-horizontal-l)' }}>
+                <VendorDataCollectionView />
+              </div>
+            }
+            {activeView === 'settings' && 
+              <div style={{ padding: 'var(--fluent-spacing-horizontal-m) var(--fluent-spacing-horizontal-l)' }}>
+                <SettingsView />
+              </div>
+            }
           </div>
         )}
       </main>

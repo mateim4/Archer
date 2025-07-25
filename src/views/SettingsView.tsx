@@ -182,7 +182,7 @@ const SettingsView: React.FC = () => {
   const TabButton = ({ id, label, icon, isActive, onClick }: any) => (
     <button
       onClick={() => onClick(id)}
-      className={`flex items-center px-6 py-3 border-b-2 transition-all duration-300 ease-in-out relative`}
+      className={`flex items-center px-3 sm:px-6 py-3 border-b-2 transition-all duration-300 ease-in-out relative flex-shrink-0`}
       style={{
         fontFamily: 'var(--font-family)',
         fontSize: '14px',
@@ -190,6 +190,8 @@ const SettingsView: React.FC = () => {
         color: isActive ? '#8b5cf6' : '#4b5563',
         borderBottomColor: 'transparent',
         background: 'transparent',
+        minWidth: 'fit-content',
+        marginRight: '24px' // Force spacing between buttons
       }}
     >
       {icon}
@@ -214,40 +216,6 @@ const SettingsView: React.FC = () => {
   const renderHardwareTab = () => (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div className="flex items-center">
-          <h3 
-            className="font-medium"
-            style={{ 
-              fontSize: '20px',
-              fontWeight: '600',
-              color: '#1a202c',
-              fontFamily: 'Montserrat, -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", system-ui, ui-sans-serif, Helvetica, Arial, sans-serif',
-              letterSpacing: '-0.01em'
-            }}
-          >
-            Hardware Basket
-          </h3>
-          <div className="ml-2">
-            <InfoTooltip 
-              content={
-                <div>
-                  <div className="font-medium mb-2" style={{ color: 'white' }}>
-                    Hardware Inventory Management
-                  </div>
-                  <div style={{ color: 'rgba(255, 255, 255, 0.9)' }}>
-                    Centralized hardware catalog for all migration scenarios:
-                    <ul className="mt-2 space-y-1">
-                      <li>• CPU, memory, and pricing specifications</li>
-                      <li>• Import/export configurations for team collaboration</li>
-                      <li>• Automatic integration with sizing calculations</li>
-                      <li>• Version control for hardware configurations</li>
-                    </ul>
-                  </div>
-                </div>
-              }
-            />
-          </div>
-        </div>
         <div className="flex space-x-2">
           <button className="fluent-button fluent-button-secondary flex items-center">
             <Upload size={16} className="mr-2" />
@@ -557,41 +525,6 @@ const SettingsView: React.FC = () => {
 
   const renderCalculationTab = () => (
     <div className="space-y-6">
-      <div className="flex items-center">
-        <h3 
-          className="font-medium"
-          style={{ 
-            fontSize: '20px',
-            fontWeight: '600',
-            color: '#1a202c',
-            fontFamily: 'Montserrat, -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", system-ui, ui-sans-serif, Helvetica, Arial, sans-serif',
-            letterSpacing: '-0.01em'
-          }}
-        >
-          Calculation Parameters
-        </h3>
-        <div className="ml-2">
-          <InfoTooltip 
-            content={
-              <div>
-                <div className="font-medium mb-2" style={{ color: 'white' }}>
-                  Advanced Calculation Engine
-                </div>
-                <div style={{ color: 'rgba(255, 255, 255, 0.9)' }}>
-                  Calculation parameters control the accuracy and methodology of all sizing algorithms:
-                  <ul className="mt-2 space-y-1">
-                    <li>• Statistical confidence intervals for capacity planning</li>
-                    <li>• Growth forecasting using multiple time-series models</li>
-                    <li>• Risk assessment weightings for conservative vs aggressive sizing</li>
-                    <li>• Cost optimization parameters balancing CapEx vs OpEx</li>
-                  </ul>
-                </div>
-              </div>
-            }
-          />
-        </div>
-      </div>
-
       <div className="grid grid-cols-2 gap-8">
         <div 
           className="p-6 border rounded-xl space-y-4"
@@ -865,41 +798,6 @@ const SettingsView: React.FC = () => {
 
   const renderDocumentTab = () => (
     <div className="space-y-6">
-      <div className="flex items-center">
-        <h3 
-          className="font-medium"
-          style={{ 
-            fontSize: '20px',
-            fontWeight: '600',
-            color: '#1a202c',
-            fontFamily: 'Montserrat, -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", system-ui, ui-sans-serif, Helvetica, Arial, sans-serif',
-            letterSpacing: '-0.01em'
-          }}
-        >
-          Document Templates
-        </h3>
-        <div className="ml-2">
-          <InfoTooltip 
-            content={
-              <div>
-                <div className="font-medium mb-2" style={{ color: 'white' }}>
-                  Document Generation Engine
-                </div>
-                <div style={{ color: 'rgba(255, 255, 255, 0.9)' }}>
-                  Customizable document templates for different audiences:
-                  <ul className="mt-2 space-y-1">
-                    <li>• Executive summaries with business case and ROI</li>
-                    <li>• Technical specifications with detailed configurations</li>
-                    <li>• Migration runbooks with step-by-step procedures</li>
-                    <li>• Compliance reports with security and governance details</li>
-                  </ul>
-                </div>
-              </div>
-            }
-          />
-        </div>
-      </div>
-
       <div className="grid grid-cols-1 gap-4">
         {[
           { 
@@ -996,14 +894,14 @@ const SettingsView: React.FC = () => {
   return (
     <div style={{ 
       width: '100%',
-      height: '100vh',
+      minHeight: '100vh',
       padding: '0',
       boxSizing: 'border-box',
       display: 'flex',
       flexDirection: 'column'
     }}>
       <div 
-        className="fluent-card"
+        className="lcm-card"
         style={{
           width: '100%',
           flex: 1,
@@ -1011,39 +909,12 @@ const SettingsView: React.FC = () => {
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
-          margin: '24px',
-          marginBottom: '24px'
+          margin: '0',
+          marginBottom: '0'
         }}
       >
-        <div className="p-6 border-b" style={{ borderColor: 'rgba(226, 232, 240, 0.6)' }}>
-          <div className="flex justify-between items-start">
-            <h2 
-              className="font-semibold mb-6"
-              style={{ 
-                fontSize: '28px',
-                fontWeight: '700',
-                color: '#1a202c',
-                fontFamily: 'Montserrat, -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", system-ui, ui-sans-serif, Helvetica, Arial, sans-serif',
-                letterSpacing: '-0.02em'
-              }}
-            >
-              Settings & Configuration
-            </h2>
-            
-            {/* Auto-save indicator */}
-            <div className="flex items-center text-sm" style={{ color: '#10b981' }}>
-              <div 
-                className="w-2 h-2 bg-green-500 rounded-full mr-2"
-                style={{
-                  animation: 'pulse 2s infinite',
-                  backgroundColor: '#10b981'
-                }}
-              ></div>
-              Auto-saving every second
-            </div>
-          </div>
-          
-          <div className="flex space-x-2 border-b" style={{ borderColor: 'rgba(226, 232, 240, 0.6)' }}>
+        <div className="p-4 sm:p-6" style={{ borderColor: 'rgba(226, 232, 240, 0.6)' }}>
+          <div className="flex flex-col sm:flex-row border-b overflow-x-auto pb-4" style={{ borderColor: 'rgba(226, 232, 240, 0.6)' }}>
             <TabButton
               id="hardware"
               label="Hardware Basket"
@@ -1075,7 +946,7 @@ const SettingsView: React.FC = () => {
           </div>
         </div>
         
-        <div className="p-6">
+        <div className="p-4 sm:p-6 pt-8 sm:pt-12 flex-1 overflow-auto">
           {activeTab === 'hardware' && renderHardwareTab()}
           {activeTab === 'calculation' && renderCalculationTab()}
           {activeTab === 'documents' && renderDocumentTab()}
