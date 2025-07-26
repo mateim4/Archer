@@ -1,10 +1,14 @@
 import { create } from 'zustand';
 import { invoke } from '@tauri-apps/api/tauri';
+import WebFileProcessor, { UniversalServer, VMwareEnvironment } from '../utils/webFileProcessor';
 
 // Check if we're running in Tauri environment
 const isTauri = typeof window !== 'undefined' && 
   window.__TAURI_IPC__ && 
   typeof window.__TAURI_IPC__ === 'function';
+
+// Initialize web file processor for browser environment
+const webFileProcessor = new WebFileProcessor();
 
 // Mock invoke function for browser environment
 const safeInvoke = async <T>(command: string, args?: any): Promise<T> => {
@@ -35,6 +39,14 @@ export interface VsphereEnvironment {
   name: string;
   parsed_at: string;
   clusters: Cluster[];
+}
+
+export interface NetworkTopology {
+  clusters: any[];
+  hosts: any[];
+  vms: any[];
+  networks: any[];
+  platform: 'vmware' | 'hyperv';
 }
 
 export interface Cluster {
@@ -161,6 +173,10 @@ interface AppState {
   environmentSummary: any | null;
   analysisReport: AnalysisReport | null;
   
+  // Network topology
+  networkTopology: NetworkTopology | null;
+  uploadedFile: string | null; // Store file path for Tauri environment
+  
   // Hardware and sizing
   hardwareBasket: HardwareProfile[];
   sizingResults: SizingResult[];
@@ -192,10 +208,16 @@ interface AppState {
   analyzeEnvironment: () => Promise<void>;
   clearEnvironment: () => Promise<void>;
   
+  // Network topology actions
+  processNetworkTopology: (filePath: string) => Promise<void>;
+  setUploadedFile: (filePath: string | null) => void;
+  
   // Hardware actions
   getHardwareBasket: () => Promise<void>;
   addHardwareProfile: (profile: HardwareProfile) => Promise<void>;
   removeHardwareProfile: (profileId: string) => Promise<void>;
+  parseHardwareFile: (file: File | string) => Promise<UniversalServer>;
+  processVMwareFile: (file: File | string) => Promise<VMwareEnvironment>;
   
   // Sizing actions
   calculateSizing: (hardwareProfileId: string, parameters: any) => Promise<void>;
@@ -223,6 +245,11 @@ export const useAppStore = create<AppState>((set, get) => ({
   currentEnvironment: null,
   environmentSummary: null,
   analysisReport: null,
+  
+  // Network topology
+  networkTopology: null,
+  uploadedFile: null,
+  
   hardwareBasket: [],
   sizingResults: [],
   translationRules: null,
@@ -241,14 +268,15 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   // Environment actions
   processRvToolsFile: async (filePath: string) => {
-    set({ loading: true, error: null });
+    set({ loading: true, error: null, uploadedFile: filePath });
     try {
       const result = await safeInvoke<string>('process_rvtools_file', { filePath });
       console.log('RVTools processing result:', result);
       
-      // After processing, get the environment summary
+      // After processing, get the environment summary and network topology
       await get().getEnvironmentSummary();
       await get().analyzeEnvironment();
+      await get().processNetworkTopology(filePath);
     } catch (error) {
       console.error('Failed to process RVTools file:', error);
       set({ error: error instanceof Error ? error.message : String(error) });
@@ -268,41 +296,57 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   analyzeEnvironment: async () => {
-    set({ loading: true, error: null });
     try {
-      const parameters = {
-        include_powered_off_vms: false,
-        include_templates: false,
-        health_check_enabled: true,
-        optimization_recommendations_enabled: true,
-      };
-      
-      const reportJson = await safeInvoke<string>('analyze_environment', { parameters });
-      const analysisReport = JSON.parse(reportJson);
-      set({ analysisReport });
+      const report = await safeInvoke<AnalysisReport>('analyze_environment');
+      set({ analysisReport: report });
     } catch (error) {
       console.error('Failed to analyze environment:', error);
       set({ error: error instanceof Error ? error.message : String(error) });
-    } finally {
-      set({ loading: false });
     }
   },
 
   clearEnvironment: async () => {
     try {
-      await safeInvoke<string>('clear_environment');
+      await safeInvoke('clear_environment');
       set({ 
-        currentEnvironment: null, 
-        environmentSummary: null, 
+        currentEnvironment: null,
+        environmentSummary: null,
         analysisReport: null,
-        sizingResults: [],
-        translationResult: null,
-        tcoResult: null
+        networkTopology: null,
+        uploadedFile: null
       });
     } catch (error) {
       console.error('Failed to clear environment:', error);
       set({ error: error instanceof Error ? error.message : String(error) });
     }
+  },
+
+  // Network topology actions
+  processNetworkTopology: async (filePath: string) => {
+    try {
+      let result: NetworkTopology;
+      
+      if (filePath.endsWith('.xlsx')) {
+        result = await safeInvoke<NetworkTopology>('get_network_topology', { filePath });
+        result.platform = 'vmware';
+      } else if (filePath.endsWith('.json')) {
+        const fileContent = await safeInvoke<string>('read_text_file', { filePath });
+        result = await safeInvoke<NetworkTopology>('get_network_topology_from_hyperv', { jsonContent: fileContent });
+        result.platform = 'hyperv';
+      } else {
+        throw new Error('Unsupported file format for network topology');
+      }
+      
+      set({ networkTopology: result, uploadedFile: filePath });
+    } catch (error) {
+      console.error('Failed to process network topology:', error);
+      // Re-throw the error so it can be handled by the UI
+      throw error;
+    }
+  },
+
+  setUploadedFile: (filePath: string | null) => {
+    set({ uploadedFile: filePath });
   },
 
   // Hardware actions
@@ -334,6 +378,96 @@ export const useAppStore = create<AppState>((set, get) => ({
     } catch (error) {
       console.error('Failed to remove hardware profile:', error);
       set({ error: error instanceof Error ? error.message : String(error) });
+    }
+  },
+
+  parseHardwareFile: async (file: File | string): Promise<UniversalServer> => {
+    set({ loading: true, error: null });
+    try {
+      if (isTauri && typeof file === 'string') {
+        // Use Tauri backend for file path
+        const result = await safeInvoke<UniversalServer>('parse_hardware_file', { 
+          filePath: file 
+        });
+        return result;
+      } else if (!isTauri && file instanceof File) {
+        // Use web file processor for browser environment - hardware specific
+        const result = await webFileProcessor.parseHardwareFile(file);
+        return result;
+      } else {
+        throw new Error('Invalid file input for current environment');
+      }
+    } catch (error) {
+      console.error('Failed to parse hardware file:', error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      set({ error: errorMessage });
+      throw error;
+    } finally {
+      set({ loading: false });
+    }
+  },
+
+  processVMwareFile: async (file: File | string): Promise<VMwareEnvironment> => {
+    set({ loading: true, error: null });
+    try {
+      if (isTauri && typeof file === 'string') {
+        // Use Tauri backend for file path
+        // Note: This would need to be implemented in the Tauri backend
+        const result = await safeInvoke<VMwareEnvironment>('process_vmware_file', { 
+          filePath: file 
+        });
+        return result;
+      } else if (!isTauri && file instanceof File) {
+        // Use web file processor for browser environment - VMware specific
+        const result = await webFileProcessor.parseVMwareFile(file);
+        // Convert web processor format to store format
+        const convertedClusters: Cluster[] = result.clusters.map(cluster => ({
+            id: cluster.id,
+            name: cluster.name,
+            hosts: Array.from({ length: cluster.hosts }, (_, i) => ({
+              id: `${cluster.id}-host-${i + 1}`,
+              name: `Host-${i + 1}`,
+              cpu_cores: Math.floor(cluster.totalCores / cluster.hosts),
+              memory_gb: Math.floor(cluster.totalMemoryGB / cluster.hosts),
+              status: 'online'
+            })),
+            vms: Array.from({ length: cluster.vms }, (_, i) => ({
+              id: `${cluster.id}-vm-${i + 1}`,
+              name: `VM-${i + 1}`,
+              vcpus: 2,
+              memory_gb: 4,
+              storage_gb: 50,
+              power_state: cluster.powerState,
+              guest_os: Object.keys(cluster.osBreakdown)[0] || 'Unknown',
+              vmware_tools_status: 'running'
+            })),
+            utilization: cluster.utilization,
+            status: cluster.utilization > 80 ? 'warning' : 'healthy',
+            vcpu_ratio: '4:1',
+            memory_overcommit: '1.5:1'
+          }));
+
+        // Update the store with the parsed environment data
+        set({ 
+          environmentSummary: result.summary,
+          currentEnvironment: {
+            id: `env-${Date.now()}`,
+            name: file.name.replace(/\.[^/.]+$/, ''),
+            parsed_at: new Date().toISOString(),
+            clusters: convertedClusters
+          }
+        });
+        return result;
+      } else {
+        throw new Error('Invalid file input for current environment');
+      }
+    } catch (error) {
+      console.error('Failed to process VMware file:', error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      set({ error: errorMessage });
+      throw error;
+    } finally {
+      set({ loading: false });
     }
   },
 

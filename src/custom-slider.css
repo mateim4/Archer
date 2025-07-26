@@ -1,7 +1,8 @@
-<<<<<<< HEAD
 /* Custom Slider Enhancements */
 
 .custom-slider {
+  width: 100%;
+  position: relative;
   outline: none;
   user-select: none;
   -webkit-user-select: none;
@@ -68,12 +69,3 @@
 .slider-track:hover::after {
   opacity: 1;
 }
-=======
-/* Custom Slider Styles */
-.custom-slider {
-  width: 100%;
-  position: relative;
-}
-
-
->>>>>>> feature/universal-hardware-parser

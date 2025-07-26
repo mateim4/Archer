@@ -1,0 +1,57 @@
+{
+  "hosts": [
+    {
+      "name": "ESXi-Host-01",
+      "cpu_cores": 32,
+      "memory_gb": 256,
+      "status": "running"
+    },
+    {
+      "name": "ESXi-Host-02", 
+      "cpu_cores": 32,
+      "memory_gb": 256,
+      "status": "running"
+    }
+  ],
+  "vms": [
+    {
+      "name": "WebServer-VM-01",
+      "vcpus": 4,
+      "memory_gb": 8,
+      "storage_gb": 100,
+      "power_state": "poweredOn"
+    },
+    {
+      "name": "Database-VM-01",
+      "vcpus": 8,
+      "memory_gb": 16,
+      "storage_gb": 500,
+      "power_state": "poweredOn"
+    },
+    {
+      "name": "FileServer-VM-01",
+      "vcpus": 2,
+      "memory_gb": 4,
+      "storage_gb": 1000,
+      "power_state": "poweredOn"
+    }
+  ],
+  "networks": [
+    {
+      "name": "Production-VLAN-100",
+      "vlan_id": 100,
+      "subnet": "192.168.100.0/24"
+    },
+    {
+      "name": "DMZ-VLAN-200", 
+      "vlan_id": 200,
+      "subnet": "192.168.200.0/24"
+    }
+  ],
+  "clusters": [
+    {
+      "name": "Production-Cluster",
+      "hosts": ["ESXi-Host-01", "ESXi-Host-02"]
+    }
+  ]
+}

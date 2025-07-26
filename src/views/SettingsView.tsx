@@ -72,7 +72,7 @@ const SettingsView: React.FC = () => {
     })
   );
 
-  // Mock hardware basket data - Load from localStorage or use defaults
+  // Hardware basket data - Load from localStorage or use defaults
   const [hardwareBasket, setHardwareBasket] = useState<HardwareItem[]>(() => 
     autoSave.load('hardwareBasket', [
       {

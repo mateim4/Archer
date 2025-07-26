@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import CustomSlider from '../components/CustomSlider';
+import { useAppStore } from '../store/useAppStore';
 
 const LifecyclePlannerView: React.FC = () => {
+  const { environmentSummary } = useAppStore();
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedClusters, setSelectedClusters] = useState<string[]>([]);
   const [planningHorizon, setPlanningHorizon] = useState(3);
@@ -138,147 +140,8 @@ const LifecyclePlannerView: React.FC = () => {
     return () => { document.head.removeChild(style); };
   }, []);
 
-  const mockClusterData = [
-    { 
-      id: '1',
-      name: 'PROD-WEB-01', 
-      environment: 'Production',
-      hosts: 8, 
-      vms: 234, 
-      description: 'Production web services cluster',
-      utilization: 78,
-      totalCores: 512,
-      totalMemoryGB: 4096,
-      totalStorageTB: 45.2,
-      vmwareVersion: 'vSphere 8.0 U2',
-      datacenter: 'DC-WEST-01',
-      networkSegments: 12,
-      snapshots: 1847,
-      backupCompliance: 98.5,
-      uptimeHours: 8760,
-      powerState: 'on',
-      drsEnabled: true,
-      haEnabled: true,
-      vMotionCapable: true,
-      vSAN: true,
-      storagePolicy: 'VM Storage Policy - Gold',
-      hardware: 'Dell PowerEdge R750, HPE ProLiant DL380',
-      vendor: 'Dell Technologies',
-      oldestVMAge: '3.2 years',
-      largestVMCPUs: '16 vCPUs',
-      largestVMMem: '64 GB',
-      osBreakdown: {
-        'Windows Server 2019': 98,
-        'Windows Server 2022': 67,
-        'Ubuntu 22.04': 45,
-        'RHEL 9': 24
-      }
-    },
-    { 
-      id: '2',
-      name: 'PROD-APP-02', 
-      environment: 'Production',
-      hosts: 6, 
-      vms: 189, 
-      description: 'Production application services',
-      utilization: 65,
-      totalCores: 384,
-      totalMemoryGB: 3072,
-      totalStorageTB: 32.8,
-      vmwareVersion: 'vSphere 8.0 U1',
-      datacenter: 'DC-EAST-01',
-      networkSegments: 8,
-      snapshots: 1234,
-      backupCompliance: 96.2,
-      uptimeHours: 8640,
-      powerState: 'on',
-      drsEnabled: true,
-      haEnabled: true,
-      vMotionCapable: true,
-      vSAN: true,
-      storagePolicy: 'VM Storage Policy - Silver',
-      hardware: 'HPE ProLiant DL360, Dell PowerEdge R640',
-      vendor: 'HPE',
-      oldestVMAge: '4.1 years',
-      largestVMCPUs: '12 vCPUs',
-      largestVMMem: '48 GB',
-      osBreakdown: {
-        'Windows Server 2019': 89,
-        'Windows Server 2016': 34,
-        'Ubuntu 20.04': 41,
-        'RHEL 8': 25
-      }
-    },
-    { 
-      id: '3',
-      name: 'DEV-TEST-01', 
-      environment: 'Development',
-      hosts: 4, 
-      vms: 156, 
-      description: 'Development and testing environments',
-      utilization: 92,
-      totalCores: 256,
-      totalMemoryGB: 2048,
-      totalStorageTB: 18.5,
-      vmwareVersion: 'vSphere 7.0 U3',
-      datacenter: 'DC-DEV-01',
-      networkSegments: 6,
-      snapshots: 892,
-      backupCompliance: 87.3,
-      uptimeHours: 7200,
-      powerState: 'on',
-      drsEnabled: false,
-      haEnabled: false,
-      vMotionCapable: true,
-      vSAN: false,
-      storagePolicy: 'VM Storage Policy - Bronze',
-      hardware: 'Dell PowerEdge R7515, Lenovo ThinkSystem SR650',
-      vendor: 'Dell EMC',
-      oldestVMAge: '2.8 years',
-      largestVMCPUs: '8 vCPUs',
-      largestVMMem: '32 GB',
-      osBreakdown: {
-        'Ubuntu 22.04': 65,
-        'Windows Server 2019': 47,
-        'CentOS 7': 28,
-        'Debian 11': 16
-      }
-    },
-    { 
-      id: '4',
-      name: 'DMZ-EDGE-01', 
-      environment: 'DMZ',
-      hosts: 3, 
-      vms: 89, 
-      description: 'Edge and DMZ services',
-      utilization: 55,
-      totalCores: 192,
-      totalMemoryGB: 1536,
-      totalStorageTB: 12.3,
-      vmwareVersion: 'vSphere 8.0 U2',
-      datacenter: 'DC-DMZ-01',
-      networkSegments: 4,
-      snapshots: 445,
-      backupCompliance: 94.1,
-      uptimeHours: 8520,
-      powerState: 'on',
-      drsEnabled: true,
-      haEnabled: true,
-      vMotionCapable: true,
-      vSAN: false,
-      storagePolicy: 'VM Storage Policy - Bronze',
-      hardware: 'HPE ProLiant DL380, Cisco UCS C220',
-      vendor: 'Cisco Systems',
-      oldestVMAge: '1.5 years',
-      largestVMCPUs: '24 vCPUs',
-      largestVMMem: '128 GB',
-      osBreakdown: {
-        'Windows Server 2022': 38,
-        'Ubuntu 20.04': 29,
-        'FreeBSD 13': 22
-      }
-    }
-  ];
+  // Get cluster data from environment summary when available
+  const clusterData = environmentSummary?.clusters || [];
 
   // Function to validate OS breakdown totals
   const validateOSBreakdown = (osBreakdown: Record<string, number>, totalVMs: number) => {
@@ -780,7 +643,7 @@ const LifecyclePlannerView: React.FC = () => {
               paddingTop: '16px',
               overflowX: 'hidden'
             }}>
-              {mockClusterData.map(cluster => {
+              {clusterData.map((cluster: any) => {
                 // calculate metrics
                 const cpuAllocated = Math.round(cluster.utilization * 0.7);
                 const cpuConsumed = Math.round(cluster.utilization * 0.85);

@@ -1,7 +1,7 @@
 // Global Auto-Save Utility
 export class AutoSaveManager {
   private static instance: AutoSaveManager;
-  private saveInterval: number | null = null;
+  private saveInterval: NodeJS.Timeout | null = null;
   private pendingChanges: Map<string, any> = new Map();
 
   private constructor() {}

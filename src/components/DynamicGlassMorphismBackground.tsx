@@ -9,7 +9,6 @@ class DynamicGlassmorphism {
   private container: Element | null;
   private mouseX: number = 0;
   private mouseY: number = 0;
-  private spawnQueue: number = 0;
   private maxShapes: number = 12;
   private lastSpawnTime: number = 0;
 

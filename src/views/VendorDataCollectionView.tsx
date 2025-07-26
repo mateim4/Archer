@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { invoke } from '@tauri-apps/api/tauri';
 import { 
   Search, 
   Server, 
@@ -16,6 +17,7 @@ import {
   Eye
 } from 'lucide-react';
 import { InfoTooltip } from '../components/Tooltip';
+import EnhancedFileUpload from '../components/EnhancedFileUpload';
 
 // Helper function to check if we're running in Tauri
 const isTauriAvailable = (): boolean => {
@@ -63,67 +65,15 @@ export const VendorDataCollectionView: React.FC = () => {
   });
   const [message, setMessage] = useState<{ type: 'success' | 'error' | 'info'; title: string; body: string } | null>(null);
 
-  // Mock data for web mode
-  const mockServerModels: ServerModel[] = [
-    {
-      vendor: 'Dell',
-      model_id: 'r740',
-      model_name: 'PowerEdge R740',
-      family: 'PowerEdge',
-      form_factor: 'TwoU',
-      cpu_sockets: 2,
-      max_memory_gb: 3072,
-      drive_bays: 16,
-      generation: '14th Gen',
-      release_date: '2018-03-01'
-    },
-    {
-      vendor: 'Dell',
-      model_id: 'r750',
-      model_name: 'PowerEdge R750',
-      family: 'PowerEdge',
-      form_factor: 'TwoU',
-      cpu_sockets: 2,
-      max_memory_gb: 4096,
-      drive_bays: 16,
-      generation: '15th Gen',
-      release_date: '2021-04-01'
-    },
-    {
-      vendor: 'HPE',
-      model_id: 'dl380',
-      model_name: 'ProLiant DL380 Gen10',
-      family: 'ProLiant DL',
-      form_factor: 'TwoU',
-      cpu_sockets: 2,
-      max_memory_gb: 3072,
-      drive_bays: 12,
-      generation: 'Gen10',
-      release_date: '2017-06-01'
-    },
-    {
-      vendor: 'Lenovo',
-      model_id: 'sr650',
-      model_name: 'ThinkSystem SR650',
-      family: 'ThinkSystem',
-      form_factor: 'TwoU',
-      cpu_sockets: 2,
-      max_memory_gb: 4096,
-      drive_bays: 16,
-      generation: 'V2',
-      release_date: '2019-08-01'
-    }
-  ];
-
   // Load server models on component mount
   useEffect(() => {
     if (!isTauriAvailable()) {
-      // Use mock data in web mode
-      setServerModels(mockServerModels);
+      // In web mode, show a message that backend is not available
+      setServerModels([]);
       setMessage({
         type: 'info',
         title: 'Web Mode Active',
-        body: `Showing ${mockServerModels.length} sample server models (Tauri backend not available)`,
+        body: 'Server model data requires Tauri backend. Please run in desktop mode.',
       });
     } else {
       loadAllServerModels();
@@ -132,20 +82,23 @@ export const VendorDataCollectionView: React.FC = () => {
 
   const loadAllServerModels = async () => {
     if (!isTauriAvailable()) {
-      setServerModels(mockServerModels);
+      setServerModels([]);
+      setMessage({
+        type: 'info',
+        title: 'Backend Not Available',
+        body: 'Server model data requires Tauri backend. Please run in desktop mode.',
+      });
       return;
     }
 
     setLoading(true);
     try {
-      // In real Tauri mode, this would work
-      // const models: ServerModel[] = await invoke('get_all_server_models');
-      const models = mockServerModels; // Fallback for now
+      const models: ServerModel[] = await invoke('get_all_server_models');
       setServerModels(models);
       setMessage({
         type: 'success',
         title: 'Server Models Loaded',
-        body: `Found ${models.length} server models from ${new Set(models.map(m => m.vendor)).size} vendors`,
+        body: `Found ${models.length} server models from ${new Set(models.map((m: ServerModel) => m.vendor)).size} vendors`,
       });
     } catch (error) {
       setMessage({
@@ -159,16 +112,37 @@ export const VendorDataCollectionView: React.FC = () => {
   };
 
   const loadVendorModels = async (vendor: string) => {
-    const filteredModels = vendor ? 
-      mockServerModels.filter(m => m.vendor === vendor) : 
-      mockServerModels;
-    
-    setServerModels(filteredModels);
-    setMessage({
-      type: 'success',
-      title: vendor ? `${vendor} Models Loaded` : 'All Models Loaded',
-      body: `Found ${filteredModels.length} server models`,
-    });
+    if (!isTauriAvailable()) {
+      setServerModels([]);
+      setMessage({
+        type: 'info',
+        title: 'Backend Not Available',
+        body: 'Server model data requires Tauri backend. Please run in desktop mode.',
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const models: ServerModel[] = vendor ? 
+        await invoke('get_vendor_server_models', { vendor }) :
+        await invoke('get_all_server_models');
+      
+      setServerModels(models);
+      setMessage({
+        type: 'success',
+        title: vendor ? `${vendor} Models Loaded` : 'All Models Loaded',
+        body: `Found ${models.length} server models`,
+      });
+    } catch (error) {
+      setMessage({
+        type: 'error',
+        title: 'Failed to Load Server Models',
+        body: `Error: ${error}`,
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const getFormFactorIcon = (formFactor: string) => {
@@ -327,6 +301,153 @@ export const VendorDataCollectionView: React.FC = () => {
           </button>
         </div>
       )}
+
+      {/* Hardware Configuration Upload */}
+      <div className="lcm-card">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <div>
+            <h4 className="text-lg font-semibold text-gray-900">Hardware Configuration Upload</h4>
+            <p className="text-sm text-gray-600 mt-1">
+              Upload vendor-specific configuration files to populate server data
+            </p>
+          </div>
+          <div className="flex items-center text-xs text-gray-500">
+            {isTauriAvailable() ? (
+              <span className="flex items-center text-green-600">
+                <CheckCircle size={14} className="mr-1" />
+                Desktop mode: Full processing available
+              </span>
+            ) : (
+              <span className="flex items-center text-blue-600">
+                <Info size={14} className="mr-1" />
+                Web mode: Client-side processing
+              </span>
+            )}
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Dell SCP Files */}
+          <div className="space-y-4">
+            <div className="flex items-center space-x-2">
+              <div 
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-semibold text-sm"
+                style={{ background: 'linear-gradient(135deg, #0066cc 0%, #004499 100%)' }}
+              >
+                D
+              </div>
+              <div>
+                <h5 className="font-medium text-gray-900">Dell SCP Files</h5>
+                <p className="text-xs text-gray-500">System Configuration Profile (XML)</p>
+              </div>
+            </div>
+            <EnhancedFileUpload
+              uploadType="hardware"
+              acceptedTypes={['.xml']}
+              onFileProcessed={(result) => {
+                setMessage({
+                  type: 'success',
+                  title: 'Dell SCP File Processed',
+                  body: `Successfully parsed ${result.name} - ${result.model}`
+                });
+              }}
+              onError={(error) => {
+                setMessage({
+                  type: 'error',
+                  title: 'Dell SCP Processing Failed',
+                  body: error
+                });
+              }}
+            >
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-blue-400 transition-colors cursor-pointer">
+                <Upload size={16} className="mx-auto text-gray-400 mb-2" />
+                <p className="text-sm text-gray-600 mb-1">Upload Dell SCP File</p>
+                <p className="text-xs text-gray-400">XML format</p>
+              </div>
+            </EnhancedFileUpload>
+          </div>
+
+          {/* Lenovo DCSC Files */}
+          <div className="space-y-4">
+            <div className="flex items-center space-x-2">
+              <div 
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-semibold text-sm"
+                style={{ background: 'linear-gradient(135deg, #dc382d 0%, #b71c1c 100%)' }}
+              >
+                L
+              </div>
+              <div>
+                <h5 className="font-medium text-gray-900">Lenovo DCSC Files</h5>
+                <p className="text-xs text-gray-500">Data Center System Configuration (XML)</p>
+              </div>
+            </div>
+            <EnhancedFileUpload
+              uploadType="hardware"
+              acceptedTypes={['.xml']}
+              onFileProcessed={(result) => {
+                setMessage({
+                  type: 'success',
+                  title: 'Lenovo DCSC File Processed',
+                  body: `Successfully parsed ${result.name} - ${result.model}`
+                });
+              }}
+              onError={(error) => {
+                setMessage({
+                  type: 'error',
+                  title: 'Lenovo DCSC Processing Failed',
+                  body: error
+                });
+              }}
+            >
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-red-400 transition-colors cursor-pointer">
+                <Upload size={16} className="mx-auto text-gray-400 mb-2" />
+                <p className="text-sm text-gray-600 mb-1">Upload Lenovo DCSC File</p>
+                <p className="text-xs text-gray-400">XML format</p>
+              </div>
+            </EnhancedFileUpload>
+          </div>
+
+          {/* HPE iQuote Files */}
+          <div className="space-y-4">
+            <div className="flex items-center space-x-2">
+              <div 
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-semibold text-sm"
+                style={{ background: 'linear-gradient(135deg, #00b388 0%, #008766 100%)' }}
+              >
+                H
+              </div>
+              <div>
+                <h5 className="font-medium text-gray-900">HPE iQuote Files</h5>
+                <p className="text-xs text-gray-500">Quote files (CSV, TXT, XLS)</p>
+              </div>
+            </div>
+            <EnhancedFileUpload
+              uploadType="hardware"
+              acceptedTypes={['.csv', '.txt', '.xls', '.xlsx']}
+              onFileProcessed={(result) => {
+                setMessage({
+                  type: 'success',
+                  title: 'HPE iQuote File Processed',
+                  body: `Successfully parsed ${result.name} - ${result.model}`
+                });
+              }}
+              onError={(error) => {
+                setMessage({
+                  type: 'error',
+                  title: 'HPE iQuote Processing Failed',
+                  body: error
+                });
+              }}
+            >
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-green-400 transition-colors cursor-pointer">
+                <Upload size={16} className="mx-auto text-gray-400 mb-2" />
+                <p className="text-sm text-gray-600 mb-1">Upload HPE iQuote File</p>
+                <p className="text-xs text-gray-400">CSV, TXT, XLS format</p>
+              </div>
+            </EnhancedFileUpload>
+          </div>
+        </div>
+      </div>
 
       {/* Vendor Configuration */}
       <div className="lcm-card">
@@ -567,16 +688,16 @@ export const VendorDataCollectionView: React.FC = () => {
           </button>
         </div>
 
-        {/* Mock recommendations */}
-        {searchRequirements.workload_type !== 'General' && (
+        {/* Server recommendations would be displayed here when backend is available */}
+        {searchRequirements.workload_type !== 'General' && serverModels.length > 0 && (
           <div className="mt-8 pt-6 border-t border-gray-200">
             <h5 className="font-semibold mb-4 text-lg text-gray-900">
-              Recommended Configurations (3)
+              Recommended Configurations ({Math.min(3, serverModels.length)})
             </h5>
             <div className="grid grid-cols-1 gap-4">
-              {['PowerEdge R750', 'ProLiant DL380 Gen10', 'ThinkSystem SR650'].map((model, index) => (
+              {serverModels.slice(0, 3).map((model, index) => (
                 <div 
-                  key={model}
+                  key={model.model_id}
                   className="lcm-card lcm-card-compact"
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -584,7 +705,7 @@ export const VendorDataCollectionView: React.FC = () => {
                       <Server size={18} className="mr-3 text-purple-600 flex-shrink-0" />
                       <div>
                         <div className="font-medium text-gray-900 text-sm sm:text-base">
-                          {model}
+                          {model.model_name}
                         </div>
                         <div className="text-gray-600 text-xs sm:text-sm">
                           Optimized for {searchRequirements.workload_type} workloads

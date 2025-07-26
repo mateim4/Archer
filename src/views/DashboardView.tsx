@@ -16,46 +16,78 @@ import {
 import { useAppStore } from '../store/useAppStore';
 import { InfoTooltip } from '../components/Tooltip';
 import LoadingSpinner from '../components/LoadingSpinner';
-import { open } from '@tauri-apps/api/dialog';
+import EnhancedFileUpload from '../components/EnhancedFileUpload';
+import ServerFileProcessor from '../utils/serverFileProcessor';
+import { openFileDialog, getFileName, isFileTypeSupported, isTauriEnvironment } from '../utils/fileUpload';
 
 const DashboardView: React.FC = () => {
   const {
     environmentSummary,
     analysisReport,
+    uploadedFile,
     loading,
     processRvToolsFile,
+    processVMwareFile,
     getEnvironmentSummary,
     analyzeEnvironment
   } = useAppStore();
 
   const [activeTab, setActiveTab] = useState('clusters');
   const [isDataUploaded, setIsDataUploaded] = useState(false);
+  const [serverAvailable, setServerAvailable] = useState<boolean | null>(null);
 
   // Check if we have environment data
   useEffect(() => {
     setIsDataUploaded(!!environmentSummary);
   }, [environmentSummary]);
 
+  // Check server availability
+  useEffect(() => {
+    const checkServer = async () => {
+      const serverProcessor = new ServerFileProcessor();
+      const available = await serverProcessor.isServerAvailable();
+      setServerAvailable(available);
+    };
+    
+    checkServer();
+    // Check every 30 seconds
+    const interval = setInterval(checkServer, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
   const handleFileUpload = async () => {
     try {
-      const selected = await open({
+      const selected = await openFileDialog({
         multiple: false,
-        filters: [{
-          name: 'RVTools Export',
-          extensions: ['xlsx', 'csv']
-        }]
+        accept: ['xlsx', 'csv']
       });
 
-      if (selected && typeof selected === 'string') {
-        await processRvToolsFile(selected);
-        setIsDataUploaded(true);
+      if (selected) {
+        // Validate file type
+        if (!isFileTypeSupported(selected, ['xlsx', 'csv'])) {
+          throw new Error('Unsupported file format. Please upload an Excel (.xlsx) or CSV file.');
+        }
+        
+        if (isTauriEnvironment() && typeof selected === 'string') {
+          // Tauri environment - process with backend
+          await processRvToolsFile(selected);
+          setIsDataUploaded(true);
+        } else if (selected instanceof File) {
+          // Web environment - use VMware file processor
+          await processVMwareFile(selected);
+          setIsDataUploaded(true);
+        } else {
+          throw new Error('Invalid file selection.');
+        }
       }
     } catch (error) {
-      console.error('Failed to open file dialog:', error);
+      console.error('Failed to upload file:', error);
+      // You could add error state handling here
     }
   };
 
-  // File Upload Component
+  // Enhanced File Upload Component
+  // Enhanced File Upload Component
   const FileUploadComponent = () => (
     <div className="flex-1 flex items-center justify-center p-8">
       <div 
@@ -65,7 +97,6 @@ const DashboardView: React.FC = () => {
           borderRadius: 'var(--border-radius-xl)',
           fontFamily: 'var(--font-family)'
         }}
-        onClick={handleFileUpload}
       >
         <div 
           className="mx-auto w-16 h-16 rounded-xl flex items-center justify-center mb-6 transition-transform duration-300 group-hover:scale-105"
@@ -86,7 +117,7 @@ const DashboardView: React.FC = () => {
             fontWeight: 'var(--font-weight-semibold)'
           }}
         >
-          Upload RVTools Export
+          Upload RVTools Export or VMware Data
         </h3>
         <p 
           className="mb-6 max-w-sm mx-auto"
@@ -95,13 +126,59 @@ const DashboardView: React.FC = () => {
             color: 'var(--color-neutral-foreground-secondary)'
           }}
         >
-          Select your RVTools .xlsx or .csv export file to begin infrastructure analysis
+          Upload RVTools exports (.xlsx with server, .csv direct), vSphere CSV files, or VMware environment data.
         </p>
-        <button 
-          className="fluent-button fluent-button-primary"
+        
+        {!isTauriEnvironment() && (
+          <div className="mb-4 p-3 bg-blue-500/20 border border-blue-500/30 rounded-lg text-blue-300">
+            <div className="flex items-center gap-2">
+              <Info size={16} />
+              <span className="text-sm">
+                Web Mode: Advanced file processing available with client-side parsing
+              </span>
+            </div>
+            {serverAvailable !== null && (
+              <div className="flex items-center gap-2 mt-2">
+                {serverAvailable ? (
+                  <CheckCircle size={14} className="text-green-400" />
+                ) : (
+                  <AlertTriangle size={14} className="text-yellow-400" />
+                )}
+                <span className="text-xs">
+                  {serverAvailable 
+                    ? 'Backend server available - Excel files supported' 
+                    : 'Backend server offline - CSV files only'
+                  }
+                </span>
+              </div>
+            )}
+          </div>
+        )}
+        
+        <EnhancedFileUpload
+          uploadType="vmware"
+          acceptedTypes={['.xlsx', '.csv', '.txt']}
+          onFileProcessed={(result) => {
+            setIsDataUploaded(true);
+            console.log('VMware environment processed:', result);
+          }}
+          onError={(error) => {
+            console.error('Failed to process VMware file:', error);
+            // Show user-friendly error message
+            if (error.includes('Expected VMware environment data, got hardware server data')) {
+              console.log('This appears to be a hardware configuration file. Please upload a VMware environment export (RVTools, vSphere CSV) instead.');
+            } else if (error.includes('Excel files require server processing')) {
+              console.log('Excel file detected. Starting backend server for processing... Or export your RVTools data as CSV for direct processing.');
+            } else {
+              console.log('Upload failed. Please ensure you are uploading a valid RVTools export or VMware vSphere file.');
+            }
+          }}
         >
-          Select File
-        </button>
+          <button className="fluent-button fluent-button-primary">
+            Select File
+          </button>
+        </EnhancedFileUpload>
+        
         <p 
           className="mt-4"
           style={{ 
@@ -109,17 +186,17 @@ const DashboardView: React.FC = () => {
             color: 'var(--color-neutral-foreground-tertiary)'
           }}
         >
-          Supports .xlsx and .csv files up to 50MB
+          Supports .xlsx (with server), .csv and .txt files up to 50MB. Server auto-converts Excel files.
         </p>
         <div className="mt-6 flex items-center justify-center">
           <InfoTooltip 
             content={
               <div>
                 <div className="font-medium mb-2" style={{ color: 'white' }}>
-                  RVTools Data Analysis
+                  VMware Environment Analysis
                 </div>
                 <div style={{ color: 'rgba(255, 255, 255, 0.9)' }}>
-                  InfraPlanner analyzes your RVTools export using advanced algorithms to:
+                  InfraPlanner analyzes your VMware environment data using advanced algorithms to:
                   <ul className="mt-2 space-y-1">
                     <li>• Parse all virtual machines, hosts, and clusters</li>
                     <li>• Calculate resource utilization and overcommit ratios</li>
@@ -259,45 +336,7 @@ const DashboardView: React.FC = () => {
     </div>
   );
 
-  // Mock cluster data for demonstration
-  const mockClusterData = [
-    { 
-      name: 'Production Cluster 1', 
-      hosts: 8, 
-      vms: 234, 
-      vcpuRatio: '3.2:1', 
-      memoryOvercommit: '1.8:1', 
-      status: 'healthy',
-      utilization: 78
-    },
-    { 
-      name: 'Production Cluster 2', 
-      hosts: 6, 
-      vms: 189, 
-      vcpuRatio: '2.9:1', 
-      memoryOvercommit: '1.6:1', 
-      status: 'healthy',
-      utilization: 65
-    },
-    { 
-      name: 'Dev/Test Cluster', 
-      hosts: 4, 
-      vms: 156, 
-      vcpuRatio: '4.1:1', 
-      memoryOvercommit: '2.2:1', 
-      status: 'warning',
-      utilization: 92
-    },
-    { 
-      name: 'DR Cluster', 
-      hosts: 8, 
-      vms: 268, 
-      vcpuRatio: '3.5:1', 
-      memoryOvercommit: '1.9:1', 
-      status: 'healthy',
-      utilization: 45
-    }
-  ];
+  // Get cluster data from the environment summary when available
 
   // Cluster Card Component
   const ClusterCard = ({ cluster }: any) => (
@@ -584,9 +623,17 @@ const DashboardView: React.FC = () => {
             <div className="p-6">
               {activeTab === 'clusters' && (
                 <div className="grid grid-cols-2 gap-6">
-                  {mockClusterData.map((cluster, index) => (
-                    <ClusterCard key={index} cluster={cluster} />
-                  ))}
+                  {environmentSummary?.clusters && environmentSummary.clusters.length > 0 ? (
+                    environmentSummary.clusters.map((cluster: any, index: number) => (
+                      <ClusterCard key={index} cluster={cluster} />
+                    ))
+                  ) : (
+                    <div className="col-span-2 text-center py-8">
+                      <p style={{ color: 'var(--color-neutral-foreground-secondary)' }}>
+                        {uploadedFile ? 'Processing cluster data...' : 'Upload an RVTools file to view cluster information'}
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
               {activeTab === 'health' && <HealthRecommendations />}
