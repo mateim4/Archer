@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  lcm-designer:
+    build: .
+    ports:
+      - "1420:1420"  # Frontend development server
+      - "3001:3001"  # Backend API server
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/target
+    environment:
+      - NODE_ENV=development
+    working_dir: /app
+    command: npm run dev
+
+  lcm-designer-server:
+    build: .
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./server:/app/server
+    working_dir: /app/server
+    command: npm start
+    depends_on:
+      - lcm-designer
