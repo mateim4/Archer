@@ -1,0 +1,473 @@
+/*
+ * Styles for MigrationPlannerView Component
+ * This file replaces all inline styles from the original component.
+ * It uses a BEM-like naming convention with the `mp-` prefix.
+ */
+
+/* Main Layout & Containers */
+.mp-step-container {
+  width: 100%;
+}
+
+.mp-scroll-content {
+  flex: 1;
+  overflow: auto;
+  padding: 24px;
+  padding-bottom: 100px; /* Extra space for sticky buttons */
+  mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 80px), transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 80px), transparent 100%);
+}
+
+.mp-sticky-footer {
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: transparent;
+  border: none;
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  z-index: 10;
+  margin-top: -82px; /* Pull it up to overlap the faded out area */
+}
+
+/* Wizard Header */
+.mp-wizard-header-card {
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.mp-wizard-header {
+  width: 100%;
+  margin: 16px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+}
+
+.mp-wizard-step {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  flex: 1;
+  cursor: pointer;
+  padding: 8px 12px 16px;
+}
+.mp-wizard-step:hover {
+  transform: scale(1.05);
+}
+
+.mp-wizard-step-title {
+  font-family: var(--fluent-font-family-base);
+  font-size: 14px;
+  line-height: 1.4;
+  font-weight: 400;
+  color: #6b7280;
+  transition: color 0.2s ease;
+}
+
+.mp-wizard-step.active .mp-wizard-step-title {
+  font-weight: 600;
+  color: #8b5cf6;
+}
+
+.mp-wizard-step-indicator {
+  position: absolute;
+  bottom: 4px;
+  left: 8px;
+  right: 8px;
+  height: 3px;
+  background: linear-gradient(90deg, #a855f7 0%, #ec4899 100%);
+  border-radius: 2px;
+  box-shadow: 0 2px 8px rgba(168, 85, 247, 0.6);
+}
+
+.mp-wizard-connector {
+  flex: 1;
+  height: 2px; /* h-0.5 */
+  margin: 0 1rem; /* mx-4 */
+  background: var(--fluent-color-neutral-stroke-2);
+  transition: all 0.3s ease;
+}
+
+.mp-wizard-connector.completed {
+  background: linear-gradient(90deg, var(--lcm-primary) 0%, #ec4899 100%);
+}
+
+
+/* Selection Components (Square and Circle) */
+.mp-selection-square, .mp-selection-circle {
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: 2px solid rgba(156, 163, 175, 0.6);
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(5px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.mp-selection-square {
+  border-radius: 6px;
+}
+
+.mp-selection-circle {
+  border-radius: 50%;
+  margin-right: 20px;
+}
+
+.mp-selection-square.selected, .mp-selection-circle.selected {
+  border-color: rgba(168, 85, 247, 0.8);
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.8) 0%, rgba(236, 72, 153, 0.7) 100%);
+  backdrop-filter: blur(10px) saturate(180%);
+  box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.mp-checkmark {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.mp-checkmark path {
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+}
+
+
+/* Step 1: Scope Selection */
+.mp-scope-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  box-sizing: border-box;
+  padding-top: 16px;
+  overflow-x: hidden;
+}
+
+.mp-cluster-card {
+  display: flex;
+  align-items: flex-start;
+  border-radius: 20px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  width: 100%;
+  background: transparent;
+  border: 1px solid rgba(156, 163, 175, 0.3);
+  padding: 24px;
+  box-sizing: border-box;
+  margin: 0;
+  overflow: hidden;
+}
+
+.mp-cluster-card.selected {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(236, 72, 153, 0.10) 100%);
+  border: 2px solid rgba(168, 85, 247, 0.4);
+}
+
+.mp-cluster-grid {
+  display: grid;
+  grid-template-columns: minmax(128px, 1fr) minmax(350px, 2fr) 1fr;
+  align-items: flex-start;
+  width: 100%;
+  margin-left: 24px;
+  gap: 32px;
+  box-sizing: border-box;
+  overflow-x: auto;
+}
+.mp-cluster-grid.narrow {
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+.mp-cluster-details {
+  justify-self: start;
+  min-width: 0;
+  box-sizing: border-box;
+}
+.mp-cluster-grid.narrow .mp-cluster-details { grid-column: 1 / -1; }
+
+.mp-cluster-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-neutral-foreground);
+  margin-bottom: 0.5rem;
+}
+.mp-cluster-title.selected {
+  font-weight: 700;
+}
+
+.mp-cluster-description {
+  font-size: 13px;
+  color: var(--color-neutral-foreground-secondary);
+  line-height: 1.5;
+  margin-bottom: 1rem;
+}
+
+.mp-cluster-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 16px;
+  row-gap: 20px; /* gap-y-5 */
+  align-items: flex-start;
+  font-size: 12px; /* text-xs */
+}
+
+.mp-cluster-stat {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px; /* gap-3 */
+  color: #4b5563; /* text-gray-600 */
+  font-size: 14px; /* text-sm */
+}
+.mp-cluster-stat strong {
+  font-weight: 600; /* font-semibold */
+  color: #374151; /* text-gray-700 */
+}
+.mp-cluster-stat svg {
+  flex-shrink: 0;
+  margin-top: 2px; /* mt-0.5 */
+}
+.mp-cluster-stat.full-row {
+  grid-column: 1 / -1;
+}
+.mp-cluster-stat .hw-details {
+  font-size: 12px; /* text-xs */
+  margin-top: 4px; /* mt-1 */
+  line-height: 1.6; /* leading-relaxed */
+  font-weight: 600; /* font-semibold */
+  color: #374151; /* text-gray-700 */
+}
+.mp-cluster-stat > div {
+  display: flex;
+  flex-direction: column;
+}
+.mp-cluster-stat > div span {
+  line-height: 1.4;
+}
+
+.mp-cluster-workloads {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: center;
+  padding-top: 8px;
+  justify-self: center;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+.mp-cluster-grid.narrow .mp-cluster-workloads { grid-column: 1 / -1; }
+
+.mp-workload-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-neutral-foreground);
+  margin-bottom: 16px;
+  text-align: center;
+  background-color: rgba(168, 85, 247, 0.1);
+  padding: 4px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+.mp-cluster-metrics {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  padding-top: 8px;
+  justify-self: end;
+  align-self: flex-start;
+  gap: 20px;
+  min-width: 0;
+  box-sizing: border-box;
+}
+.mp-cluster-grid.narrow .mp-cluster-metrics {
+  grid-column: 1 / -1;
+  justify-self: center;
+}
+
+.mp-metric-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.mp-metric-title {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #374151;
+}
+.mp-pie-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+
+/* Pie Chart & OS Breakdown Components */
+.mp-pie-chart { display: flex; flex-direction: column; align-items: center; margin: 0 6px; }
+.mp-pie-chart-bg { stroke: rgba(229, 231, 235, 0.3); fill: none; }
+.mp-pie-chart-fg { fill: none; stroke-linecap: round; transition: stroke-dashoffset 0.5s; transform: rotate(-90deg); transform-origin: center; }
+.mp-pie-chart-percent { text-anchor: middle; font-size: 10px; font-weight: 600; fill: #374151; }
+.mp-pie-chart-label { text-anchor: middle; font-size: 9px; font-weight: 500; fill: #6b7280; }
+
+.mp-os-breakdown-container { display: flex; align-items: center; gap: 16px; justify-content: center; flex-wrap: wrap; min-width: 300px; }
+.mp-os-chart { display: flex; flex-direction: column; align-items: center; }
+.mp-os-chart-validation { display: flex; align-items: center; margin-bottom: 8px; font-size: 10px; font-weight: 600; }
+.mp-os-chart-validation.valid { color: #22c55e; }
+.mp-os-chart-validation.invalid { color: #ef4444; }
+.mp-os-chart-segment { fill: none; stroke-linecap: round; transform: rotate(-90deg); transform-origin: center; transition: stroke-dashoffset 0.5s; }
+.mp-os-chart-total { text-anchor: middle; font-size: 14px; font-weight: 700; fill: #374151; }
+.mp-os-chart-label { text-anchor: middle; font-size: 10px; font-weight: 600; fill: #6b7280; }
+.mp-os-legend { display: flex; flex-direction: column; gap: 3px; min-width: 120px; }
+.mp-os-legend-item { display: flex; align-items: center; font-size: 10px; color: #6b7280; }
+.mp-os-legend-color { width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; flex-shrink: 0; }
+.mp-os-legend-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Step 2: Assessment */
+.mp-assessment-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 32px;
+  max-width: 56rem; /* max-w-4xl */
+}
+@media (max-width: 768px) {
+  .mp-assessment-container { grid-template-columns: 1fr; }
+}
+.mp-slider-group .mp-label {
+  display: block;
+  margin-bottom: 12px;
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--color-neutral-foreground);
+}
+
+/* Step 3: Policies */
+.mp-policies-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  align-items: flex-start;
+}
+@media (max-width: 768px) {
+  .mp-policies-container { grid-template-columns: 1fr; }
+}
+.mp-policy-group {
+  display: flex;
+  flex-direction: column;
+}
+.mp-policy-group .mp-label {
+  display: block;
+  margin-bottom: 12px;
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--color-neutral-foreground);
+  min-height: 20px;
+}
+.mt-2 { margin-top: 8px; }
+
+/* Step 4: Target Platform */
+.mp-target-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+}
+@media (max-width: 1024px) {
+  .mp-target-container { grid-template-columns: 1fr; }
+}
+
+.mp-hw-option {
+  border: 1px solid rgba(156, 163, 175, 0.3);
+  border-radius: 20px;
+  padding: 24px;
+  margin-bottom: 12px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.mp-hw-option:hover {
+  transform: scale(1.02);
+}
+.mp-hw-option.selected {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(236, 72, 153, 0.10) 100%);
+  border: 2px solid rgba(168, 85, 247, 0.4);
+}
+
+.mp-hw-option-main { display: flex; align-items: center; }
+.mp-hw-option-clickable { display: flex; align-items: center; flex: 1; }
+.mp-hw-option-text { flex: 1; }
+.mp-hw-option-title { font-size: 16px; font-weight: 600; color: var(--color-neutral-foreground); margin-bottom: 0.5rem; }
+.mp-hw-option-title.selected { font-weight: 700; }
+.mp-hw-option-desc { font-size: 13px; color: var(--color-neutral-foreground-secondary); line-height: 1.5; }
+
+.mp-hw-option-menu-container { position: relative; }
+.mp-hw-option-menu-btn { padding: 8px; border-radius: 8px; transition: background-color 0.2s; }
+.mp-hw-option-menu-btn:hover { background-color: rgba(0,0,0,0.05); }
+.mp-hw-option-menu {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  margin-top: 4px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  border: 1px solid #eee;
+  padding: 4px 0;
+  z-index: 50;
+  min-width: 100px;
+  display: flex;
+  flex-direction: column;
+}
+.mp-hw-option-menu-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 8px 12px;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+.mp-hw-option-menu-item:hover { background-color: #f5f5f5; }
+.mp-hw-option-menu-item.delete { color: #ef4444; }
+
+.mp-add-btn-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+}
+.lcm-button-add svg {
+  position: relative;
+  z-index: 10;
+}
+
+/* Step 5: Plan */
+.mp-plan-container {
+  text-align: center;
+  padding: 48px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+.mp-plan-container p {
+  color: #6b7280;
+}
+
+/* Icon colors used in stats grid */
+.icon-blue { color: #3b82f6; }
+.icon-green { color: #22c55e; }
+.icon-purple { color: #8b5cf6; }
+.icon-yellow { color: #eab308; }
+.icon-gray { color: #9ca3af; }
+.icon-indigo { color: #6366f1; }
+.icon-pink { color: #ec4899; }
+.icon-teal { color: #14b8a6; }
+.icon-orange { color: #f97316; }
+.icon-cyan { color: #06b6d4; }
