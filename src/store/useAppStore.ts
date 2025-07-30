@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { invoke } from '@tauri-apps/api/tauri';
 import WebFileProcessor, { UniversalServer, VMwareEnvironment } from '../utils/webFileProcessor';
+import ServerFileProcessor from '../utils/serverFileProcessor';
 
 // Check if we're running in Tauri environment
 const isTauri = typeof window !== 'undefined' && 
@@ -9,6 +10,7 @@ const isTauri = typeof window !== 'undefined' &&
 
 // Initialize web file processor for browser environment
 const webFileProcessor = new WebFileProcessor();
+const serverFileProcessor = new ServerFileProcessor();
 
 // Mock invoke function for browser environment
 const safeInvoke = async <T>(command: string, args?: any): Promise<T> => {
@@ -211,6 +213,8 @@ interface AppState {
   // Network topology actions
   processNetworkTopology: (filePath: string) => Promise<void>;
   setUploadedFile: (filePath: string | null) => void;
+  setNetworkTopology: (topology: NetworkTopology | null) => void;
+  setCurrentEnvironment: (environment: VsphereEnvironment | null) => void;
   
   // Hardware actions
   getHardwareBasket: () => Promise<void>;
@@ -349,6 +353,14 @@ export const useAppStore = create<AppState>((set, get) => ({
     set({ uploadedFile: filePath });
   },
 
+  setNetworkTopology: (topology: NetworkTopology | null) => {
+    set({ networkTopology: topology });
+  },
+
+  setCurrentEnvironment: (environment: VsphereEnvironment | null) => {
+    set({ currentEnvironment: environment });
+  },
+
   // Hardware actions
   getHardwareBasket: async () => {
     try {
@@ -412,16 +424,101 @@ export const useAppStore = create<AppState>((set, get) => ({
     try {
       if (isTauri && typeof file === 'string') {
         // Use Tauri backend for file path
-        // Note: This would need to be implemented in the Tauri backend
-        const result = await safeInvoke<VMwareEnvironment>('process_vmware_file', { 
+        const result = await safeInvoke<string>('process_rvtools_file', { 
           filePath: file 
         });
-        return result;
+        
+        // Get the parsed environment from Tauri
+        const environment = await safeInvoke<any>('get_environment_summary');
+        
+        // Convert Tauri format to store format  
+        set({ 
+          environmentSummary: environment,
+          currentEnvironment: environment
+        });
+        return environment;
       } else if (!isTauri && file instanceof File) {
-        // Use web file processor for browser environment - VMware specific
-        const result = await webFileProcessor.parseVMwareFile(file);
-        // Convert web processor format to store format
-        const convertedClusters: Cluster[] = result.clusters.map(cluster => ({
+        // Use server file processor for browser environment with real parsing
+        const result = await serverFileProcessor.processVMwareFile(file);
+        
+        // Check if we got real parsed data (RVTools) or CSV data
+        if (typeof result === 'object' && result.clusters) {
+          // We got real parsed RVTools data from Rust parser!
+          console.log('Processing real RVTools data:', result);
+          
+          const convertedClusters: Cluster[] = result.clusters.map((cluster: any) => ({
+            id: cluster.name.replace(/\s+/g, '-').toLowerCase(),
+            name: cluster.name,
+            hosts: cluster.hosts.map((host: any) => ({
+              id: host.name || host.hostname || `host-${Math.random().toString(36).substr(2, 9)}`,
+              name: host.name || host.hostname || 'Unknown Host',
+              cpu_cores: host.cpu_cores || host.pcpu_cores || 0,
+              memory_gb: host.memory_gb || 0,
+              status: host.connection_state || host.status || 'connected'
+            })),
+            vms: cluster.vms.map((vm: any) => ({
+              id: vm.name || `vm-${Math.random().toString(36).substr(2, 9)}`,
+              name: vm.name || 'Unknown VM',
+              vcpus: vm.vcpus || vm.num_cpu || 0,
+              memory_gb: vm.memory_gb || (vm.memory_mb ? Math.round(vm.memory_mb / 1024) : 0),
+              storage_gb: vm.storage_gb || (vm.provisioned_space_mb ? Math.round(vm.provisioned_space_mb / 1024) : 0),
+              power_state: vm.power_state === 'poweredOn' || vm.power_state === 'PoweredOn' ? 'poweredOn' : 'poweredOff',
+              guest_os: vm.guest_os || vm.guest_full_name || 'Unknown',
+              vmware_tools_status: vm.vmware_tools_status || vm.tools_version_status || 'unknown'
+            })),
+            // Calculate real utilization from cluster metrics
+            utilization: cluster.metrics?.current_vcpu_pcpu_ratio ? 
+              Math.round(Math.min(cluster.metrics.current_vcpu_pcpu_ratio / 4 * 100, 100)) : // 4:1 ratio = 100%
+              Math.round(Math.min((cluster.metrics?.total_vcpus || 0) / Math.max(cluster.metrics?.total_pcpu_cores || 1, 1) / 4 * 100, 100)),
+            // Determine real status from health data
+            status: (cluster.health_status?.warnings?.length > 0 || 
+                    cluster.health_status?.zombie_vms?.length > 0 ||
+                    cluster.health_status?.outdated_tools?.length > 0) ? 'warning' : 'healthy',
+            // Use real vCPU ratio from metrics
+            vcpu_ratio: cluster.metrics?.current_vcpu_pcpu_ratio ? 
+              `${cluster.metrics.current_vcpu_pcpu_ratio.toFixed(1)}:1` : 
+              `${((cluster.metrics?.total_vcpus || 0) / Math.max(cluster.metrics?.total_pcpu_cores || 1, 1)).toFixed(1)}:1`,
+            // Use real memory overcommit ratio
+            memory_overcommit: cluster.metrics?.memory_overcommit_ratio ?
+              `${cluster.metrics.memory_overcommit_ratio.toFixed(1)}:1` :
+              `${((cluster.metrics?.provisioned_memory_gb || 0) / Math.max(cluster.metrics?.total_memory_gb || 1, 1)).toFixed(1)}:1`
+          }));
+
+          // Create environment summary from real data
+          const environmentSummary = {
+            totalClusters: result.clusters.length,
+            totalHosts: result.total_hosts || result.clusters.reduce((sum: number, c: any) => sum + (c.metrics?.total_hosts || 0), 0),
+            totalVMs: result.total_vms || result.clusters.reduce((sum: number, c: any) => sum + (c.metrics?.total_vms || 0), 0),
+            totalCores: result.summary_metrics?.total_pcores || result.clusters.reduce((sum: number, c: any) => sum + (c.metrics?.total_pcpu_cores || 0), 0),
+            totalMemoryGB: Math.round(result.summary_metrics?.total_consumed_memory_gb || result.clusters.reduce((sum: number, c: any) => sum + (c.metrics?.total_memory_gb || 0), 0)),
+            totalStorageTB: Math.round((result.summary_metrics?.total_consumed_storage_gb || result.clusters.reduce((sum: number, c: any) => sum + (c.metrics?.consumed_storage_gb || 0), 0)) / 1024 * 100) / 100,
+            averageUtilization: result.summary_metrics?.overall_vcpu_pcpu_ratio ? 
+              Math.round(Math.min(result.summary_metrics.overall_vcpu_pcpu_ratio / 4 * 100, 100)) : // 4:1 ratio = 100%
+              Math.round(result.clusters.reduce((sum: number, c: any, index: number, arr: any[]) => {
+                const ratio = c.metrics?.current_vcpu_pcpu_ratio || 0;
+                return sum + Math.min(ratio / 4 * 100, 100);
+              }, 0) / Math.max(result.clusters.length, 1))
+          };
+
+          // Update the store with real parsed data
+          set({ 
+            environmentSummary,
+            currentEnvironment: {
+              id: result.id || `env-${Date.now()}`,
+              name: result.name || file.name.replace(/\.[^/.]+$/, ''),
+              parsed_at: result.parsed_at || new Date().toISOString(),
+              clusters: convertedClusters
+            }
+          });
+          
+          return result;
+        } else if (typeof result === 'string') {
+          // We got CSV data, fall back to client-side parsing
+          console.log('Received CSV data, using client-side parsing');
+          const parsedResult = await webFileProcessor.parseVMwareExport(result);
+          
+          // Convert web processor format to store format (this keeps the old logic)
+          const convertedClusters: Cluster[] = parsedResult.clusters.map(cluster => ({
             id: cluster.id,
             name: cluster.name,
             hosts: Array.from({ length: cluster.hosts }, (_, i) => ({
@@ -447,17 +544,19 @@ export const useAppStore = create<AppState>((set, get) => ({
             memory_overcommit: '1.5:1'
           }));
 
-        // Update the store with the parsed environment data
-        set({ 
-          environmentSummary: result.summary,
-          currentEnvironment: {
-            id: `env-${Date.now()}`,
-            name: file.name.replace(/\.[^/.]+$/, ''),
-            parsed_at: new Date().toISOString(),
-            clusters: convertedClusters
-          }
-        });
-        return result;
+          set({ 
+            environmentSummary: parsedResult.summary,
+            currentEnvironment: {
+              id: `env-${Date.now()}`,
+              name: file.name.replace(/\.[^/.]+$/, ''),
+              parsed_at: new Date().toISOString(),
+              clusters: convertedClusters
+            }
+          });
+          return parsedResult;
+        } else {
+          throw new Error('Invalid data format received from server');
+        }
       } else {
         throw new Error('Invalid file input for current environment');
       }

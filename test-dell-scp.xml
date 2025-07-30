@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SystemConfiguration Model="PowerEdge R750" ServiceTag="ABC1234" TimeStamp="Tue Jul 28 15:00:00 2024">
+  <Component FQDD="CPU.Socket.1">
+    <Attribute Name="Model">Intel(R) Xeon(R) Gold 6338 CPU @ 2.00GHz</Attribute>
+    <Attribute Name="NumberOfCores">32</Attribute>
+  </Component>
+  <Component FQDD="CPU.Socket.2">
+    <Attribute Name="Model">Intel(R) Xeon(R) Gold 6338 CPU @ 2.00GHz</Attribute>
+    <Attribute Name="NumberOfCores">32</Attribute>
+  </Component>
+  <Component FQDD="DIMM.Socket.A1">
+    <Attribute Name="Size">32768</Attribute>
+    <Attribute Name="Speed">3200</Attribute>
+  </Component>
+  <Component FQDD="DIMM.Socket.A2">
+    <Attribute Name="Size">32768</Attribute>
+    <Attribute Name="Speed">3200</Attribute>
+  </Component>
+  <Component FQDD="DIMM.Socket.B1">
+    <Attribute Name="Size">32768</Attribute>
+    <Attribute Name="Speed">3200</Attribute>
+  </Component>
+  <Component FQDD="DIMM.Socket.B2">
+    <Attribute Name="Size">32768</Attribute>
+    <Attribute Name="Speed">3200</Attribute>
+  </Component>
+  <Component FQDD="Disk.Bay.0:Enclosure.Internal.0-1">
+    <Attribute Name="Model">SAMSUNG MZQLB960HAJR-00007</Attribute>
+    <Attribute Name="SizeInBytes">960197124096</Attribute>
+    <Attribute Name="MediaType">SSD</Attribute>
+  </Component>
+  <Component FQDD="Disk.Bay.1:Enclosure.Internal.0-1">
+    <Attribute Name="Model">SAMSUNG MZQLB960HAJR-00007</Attribute>
+    <Attribute Name="SizeInBytes">960197124096</Attribute>
+    <Attribute Name="MediaType">SSD</Attribute>
+  </Component>
+  <Component FQDD="NIC.Embedded.1">
+    <Attribute Name="VendorName">Intel Corporation</Attribute>
+    <Attribute Name="ProductName">Intel(R) Ethernet 10G 2P X710 Adapter</Attribute>
+  </Component>
+  <Component FQDD="NIC.Embedded.2">
+    <Attribute Name="VendorName">Intel Corporation</Attribute>
+    <Attribute Name="ProductName">Intel(R) Ethernet 10G 2P X710 Adapter</Attribute>
+  </Component>
+</SystemConfiguration>

@@ -334,9 +334,9 @@ class WebFileProcessor {
   }
 
   /**
-   * Parse VMware/vSphere export files (CSV format)
+   * Parse VMware/vSphere export files (CSV format) - Public method
    */
-  private parseVMwareExport(content: string): VMwareEnvironment {
+  public parseVMwareExport(content: string): VMwareEnvironment {
     try {
       const lines = content.split('\n').map(line => line.trim()).filter(line => line);
       

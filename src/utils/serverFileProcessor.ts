@@ -4,7 +4,8 @@
 interface ServerResponse {
   success: boolean;
   filename: string;
-  csvData: string;
+  csvData?: string;
+  environment?: any; // For parsed RVTools data
   fileType?: string;
   sheetName?: string;
   message: string;
@@ -55,7 +56,7 @@ class ServerFileProcessor {
         throw new Error(result.error || 'Failed to process file');
       }
 
-      return result.csvData;
+      return result.csvData || '';
     } catch (error) {
       if (error instanceof Error) {
         throw new Error(`Server processing failed: ${error.message}`);
@@ -65,9 +66,9 @@ class ServerFileProcessor {
   }
 
   /**
-   * Process VMware file (Excel or CSV) using server
+   * Process VMware file (Excel or CSV) using server with real RVTools parsing
    */
-  async processVMwareFile(file: File): Promise<string> {
+  async processVMwareFile(file: File): Promise<any> {
     const formData = new FormData();
     formData.append('file', file);
 
@@ -88,7 +89,16 @@ class ServerFileProcessor {
         throw new Error(result.error || 'Failed to process VMware file');
       }
 
-      return result.csvData;
+      // Return parsed environment data for RVTools files, or CSV data for CSV files
+      if (result.fileType === 'rvtools' && result.environment) {
+        console.log('Received parsed RVTools environment data:', result.environment);
+        return result.environment;
+      } else if (result.csvData) {
+        console.log('Received CSV data for client-side processing');
+        return result.csvData;
+      } else {
+        throw new Error('No valid data received from server');
+      }
     } catch (error) {
       if (error instanceof Error) {
         throw new Error(`VMware processing failed: ${error.message}`);

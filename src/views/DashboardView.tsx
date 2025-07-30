@@ -20,9 +20,176 @@ import EnhancedFileUpload from '../components/EnhancedFileUpload';
 import ServerFileProcessor from '../utils/serverFileProcessor';
 import { openFileDialog, getFileName, isFileTypeSupported, isTauriEnvironment } from '../utils/fileUpload';
 
+// Global table row selection state
+const useTableSelection = () => {
+  const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
+  
+  const toggleRowSelection = (rowId: string) => {
+    setSelectedRows(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(rowId)) {
+        newSet.delete(rowId);
+      } else {
+        newSet.add(rowId);
+      }
+      return newSet;
+    });
+  };
+
+  const clearSelection = () => {
+    setSelectedRows(new Set());
+  };
+
+  const selectAll = (rowIds: string[]) => {
+    setSelectedRows(new Set(rowIds));
+  };
+
+  const isSelected = (rowId: string) => selectedRows.has(rowId);
+
+  return {
+    selectedRows,
+    toggleRowSelection,
+    clearSelection,
+    selectAll,
+    isSelected,
+    selectedCount: selectedRows.size
+  };
+};
+
+// Reusable SelectableTableRow component
+const SelectableTableRow = ({ 
+  rowId, 
+  isSelected, 
+  onToggleSelection, 
+  children, 
+  className = "",
+  style = {}
+}: {
+  rowId: string;
+  isSelected: boolean;
+  onToggleSelection: (rowId: string) => void;
+  children: React.ReactNode;
+  className?: string;
+  style?: React.CSSProperties;
+}) => (
+  <tr
+    className={`border-t hover:bg-gray-50 cursor-pointer select-none ${
+      isSelected ? 'bg-blue-50 border-blue-200' : ''
+    } ${className}`}
+    style={{
+      borderColor: 'var(--color-neutral-stroke-tertiary)',
+      backgroundColor: isSelected ? 'rgba(59, 130, 246, 0.1)' : undefined,
+      ...style
+    }}
+    onClick={() => onToggleSelection(rowId)}
+  >
+    <td className="px-4 py-3 w-8">
+      <input
+        type="checkbox"
+        checked={isSelected}
+        onChange={() => onToggleSelection(rowId)}
+        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+        onClick={(e) => e.stopPropagation()}
+      />
+    </td>
+    {children}
+  </tr>
+);
+
+// Reusable ResizableTableHeader component
+const ResizableTableHeader = ({ 
+  column, 
+  label, 
+  width, 
+  onResize, 
+  onSort, 
+  sortField, 
+  sortOrder 
+}: { 
+  column: string;
+  label: string;
+  width: number;
+  onResize: (column: string, width: number) => void;
+  onSort: (column: string) => void;
+  sortField: string;
+  sortOrder: 'asc' | 'desc';
+}) => {
+  const [isResizing, setIsResizing] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [startWidth, setStartWidth] = useState(0);
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsResizing(true);
+    setStartX(e.clientX);
+    setStartWidth(width);
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleMouseMove = React.useCallback((e: MouseEvent) => {
+    if (!isResizing) return;
+    const diff = e.clientX - startX;
+    const newWidth = Math.max(100, startWidth + diff); // Minimum width of 100px
+    onResize(column, newWidth);
+  }, [isResizing, startX, startWidth, column, onResize]);
+
+  const handleMouseUp = React.useCallback(() => {
+    setIsResizing(false);
+  }, []);
+
+  React.useEffect(() => {
+    if (isResizing) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = 'col-resize';
+      document.body.style.userSelect = 'none';
+      
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+      };
+    }
+  }, [isResizing, handleMouseMove, handleMouseUp]);
+
+  return (
+    <th
+      className="px-4 py-3 text-left cursor-pointer hover:bg-gray-50 relative select-none"
+      onClick={() => onSort(column)}
+      style={{
+        color: 'var(--color-neutral-foreground)',
+        fontSize: 'var(--font-size-caption)',
+        fontWeight: 'var(--font-weight-semibold)',
+        width: `${width}px`,
+        minWidth: `${width}px`,
+        maxWidth: `${width}px`
+      }}
+    >
+      <div className="flex items-center gap-1">
+        {label}
+        {sortField === column && (
+          <span style={{ color: 'var(--color-brand-primary)' }}>
+            {sortOrder === 'asc' ? '↑' : '↓'}
+          </span>
+        )}
+      </div>
+      <div
+        className="absolute right-0 top-0 bottom-0 w-2 cursor-col-resize hover:bg-blue-500 transition-colors duration-200 z-20"
+        style={{ 
+          backgroundColor: isResizing ? '#3b82f6' : 'transparent',
+          opacity: isResizing ? 0.8 : 0.3
+        }}
+        onMouseDown={handleMouseDown}
+      />
+    </th>
+  );
+};
+
 const DashboardView: React.FC = () => {
   const {
     environmentSummary,
+    currentEnvironment,
     analysisReport,
     uploadedFile,
     loading,
@@ -38,8 +205,8 @@ const DashboardView: React.FC = () => {
 
   // Check if we have environment data
   useEffect(() => {
-    setIsDataUploaded(!!environmentSummary);
-  }, [environmentSummary]);
+    setIsDataUploaded(!!(environmentSummary || currentEnvironment));
+  }, [environmentSummary, currentEnvironment]);
 
   // Check server availability
   useEffect(() => {
@@ -55,39 +222,8 @@ const DashboardView: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const handleFileUpload = async () => {
-    try {
-      const selected = await openFileDialog({
-        multiple: false,
-        accept: ['xlsx', 'csv']
-      });
-
-      if (selected) {
-        // Validate file type
-        if (!isFileTypeSupported(selected, ['xlsx', 'csv'])) {
-          throw new Error('Unsupported file format. Please upload an Excel (.xlsx) or CSV file.');
-        }
-        
-        if (isTauriEnvironment() && typeof selected === 'string') {
-          // Tauri environment - process with backend
-          await processRvToolsFile(selected);
-          setIsDataUploaded(true);
-        } else if (selected instanceof File) {
-          // Web environment - use VMware file processor
-          await processVMwareFile(selected);
-          setIsDataUploaded(true);
-        } else {
-          throw new Error('Invalid file selection.');
-        }
-      }
-    } catch (error) {
-      console.error('Failed to upload file:', error);
-      // You could add error state handling here
-    }
-  };
-
-  // Enhanced File Upload Component
-  // Enhanced File Upload Component
+  // This component is now the primary method for file uploads.
+  // The old handleFileUpload function has been removed to avoid conflicts.
   const FileUploadComponent = () => (
     <div className="flex-1 flex items-center justify-center p-8">
       <div 
@@ -159,6 +295,8 @@ const DashboardView: React.FC = () => {
           uploadType="vmware"
           acceptedTypes={['.xlsx', '.csv', '.txt']}
           onFileProcessed={(result) => {
+            // The EnhancedFileUpload component now handles the state update.
+            // We just need to update the local UI state.
             setIsDataUploaded(true);
             console.log('VMware environment processed:', result);
           }}
@@ -213,92 +351,131 @@ const DashboardView: React.FC = () => {
     </div>
   );
 
-  // Summary Bar Component
+  // Summary Bar Component - Rebuilt from scratch
   const SummaryBar = () => {
-    if (!environmentSummary) return null;
+    // Calculate metrics from currentEnvironment data (real RVTools data)
+    const getMetrics = () => {
+      if (!currentEnvironment || !currentEnvironment.clusters) {
+        return {
+          clusters: 0,
+          hosts: 0,
+          vms: 0,
+          memory: '0 TB',
+          storage: '0 TB'
+        };
+      }
+
+      const clusters = currentEnvironment.clusters;
+      
+      // Calculate totals from real data
+      const totalHosts = clusters.reduce((sum: number, cluster: any) => 
+        sum + (cluster.hosts?.length || 0), 0);
+      
+      const totalVMs = clusters.reduce((sum: number, cluster: any) => 
+        sum + (cluster.vms?.length || 0), 0);
+      
+      // Calculate memory from cluster metrics if available, otherwise from VMs
+      const totalMemoryGB = clusters.reduce((sum: number, cluster: any) => {
+        if (cluster.metrics?.total_memory_gb) {
+          return sum + cluster.metrics.total_memory_gb;
+        }
+        // Fallback: calculate from VMs
+        return sum + (cluster.vms?.reduce((vmSum: number, vm: any) => 
+          vmSum + (vm.memory_gb || 0), 0) || 0);
+      }, 0);
+      
+      // Calculate storage from cluster metrics, VMs, or datastores
+      const totalStorageGB = clusters.reduce((sum: number, cluster: any) => {
+        // Priority 1: Use cluster metrics total_storage_gb
+        if (cluster.metrics?.total_storage_gb && cluster.metrics.total_storage_gb > 0) {
+          return sum + cluster.metrics.total_storage_gb;
+        }
+        
+        // Priority 2: Use cluster metrics consumed_storage_gb  
+        if (cluster.metrics?.consumed_storage_gb && cluster.metrics.consumed_storage_gb > 0) {
+          return sum + cluster.metrics.consumed_storage_gb;
+        }
+        
+        // Priority 3: Calculate from VMs using multiple field names
+        let vmStorageSum = 0;
+        if (cluster.vms?.length > 0) {
+          vmStorageSum = cluster.vms.reduce((vmSum: number, vm: any) => {
+            const storage = vm.storage_gb || 
+                          vm.provisionedSpaceGB || 
+                          (vm.provisioned_space_mb ? vm.provisioned_space_mb / 1024 : 0) ||
+                          (vm.disks?.reduce((diskSum: number, disk: any) => 
+                            diskSum + (disk.provisioned_gb || disk.capacity_gb || 0), 0) || 0);
+            return vmSum + storage;
+          }, 0);
+        }
+        
+        // Priority 4: Use cluster-level storage info if available
+        const clusterStorage = cluster.total_storage_gb || 
+                              cluster.totalStorageGB || 
+                              (cluster.total_storage_tb ? cluster.total_storage_tb * 1024 : 0) ||
+                              (cluster.datastores?.reduce((dsSum: number, ds: any) => 
+                                dsSum + (ds.capacity_gb || ds.capacity_tb * 1024 || 0), 0) || 0);
+        
+        return sum + Math.max(vmStorageSum, clusterStorage);
+      }, 0);
+
+      return {
+        clusters: clusters.length,
+        hosts: totalHosts,
+        vms: totalVMs,
+        memory: totalMemoryGB > 1024 ? `${(totalMemoryGB / 1024).toFixed(1)} TB` : `${Math.round(totalMemoryGB)} GB`,
+        storage: totalStorageGB > 1024 ? `${(totalStorageGB / 1024).toFixed(1)} TB` : `${Math.round(totalStorageGB)} GB`
+      };
+    };
+
+    const metrics = getMetrics();
 
     const summaryItems = [
-      { 
-        label: 'Clusters', 
-        value: environmentSummary.cluster_count, 
-        icon: Server, 
-        color: 'var(--color-brand-primary)',
-        tooltip: 'Total number of vSphere clusters detected in your environment'
-      },
-      { 
-        label: 'Hosts', 
-        value: environmentSummary.total_hosts, 
-        icon: HardDrive, 
-        color: 'var(--color-semantic-info)',
-        tooltip: 'Physical ESXi hosts across all clusters'
-      },
-      { 
-        label: 'VMs', 
-        value: environmentSummary.total_vms, 
-        icon: Activity, 
-        color: 'var(--color-semantic-success)',
-        tooltip: 'Total virtual machines (powered on and off)'
-      },
-      { 
-        label: 'vCPUs', 
-        value: environmentSummary.total_cpu_cores || 'N/A', 
-        icon: Cpu, 
-        color: 'var(--color-semantic-warning)',
-        tooltip: 'Total virtual CPU cores allocated across all VMs'
-      },
-      { 
-        label: 'Memory', 
-        value: `${(environmentSummary.total_memory_gb / 1024).toFixed(1)} TB`, 
-        icon: MemoryStick, 
-        color: 'var(--color-brand-primary)',
-        tooltip: 'Total memory allocated across all VMs and hosts'
-      },
-      { 
-        label: 'Storage', 
-        value: `${(environmentSummary.total_storage_gb / 1024).toFixed(1)} TB`, 
-        icon: HardDrive, 
-        color: 'var(--color-semantic-info)',
-        tooltip: 'Total storage provisioned across all VMs'
-      }
+      { label: 'Clusters', value: metrics.clusters, icon: Server },
+      { label: 'Hosts', value: metrics.hosts, icon: HardDrive },
+      { label: 'VMs', value: metrics.vms, icon: Activity },
+      { label: 'Memory', value: metrics.memory, icon: MemoryStick },
+      { label: 'Storage', value: metrics.storage, icon: HardDrive }
     ];
 
     return (
       <div 
-        className="lcm-card p-6 mb-6"
+        className="lcm-card" 
+        style={{ 
+          width: '100%', 
+          flexShrink: 0,
+          margin: '8px 8px 0 8px',
+          padding: '24px'
+        }}
       >
-        <div className="grid grid-cols-6 gap-6">
+        <div className="flex justify-between items-center gap-4">
           {summaryItems.map((item, index) => (
-            <div key={index} className="text-center">
+            <div key={index} className="flex-1 text-center min-w-0">
               <div className="flex items-center justify-center mb-3">
                 <div 
                   className="inline-flex items-center justify-center w-10 h-10 rounded-lg"
                   style={{ 
-                    borderRadius: 'var(--border-radius-lg)',
-                    background: `linear-gradient(135deg, ${item.color}15 0%, ${item.color}25 100%)`,
-                    backdropFilter: 'blur(10px)',
-                    border: `1px solid ${item.color}30`
+                    background: 'rgba(139, 92, 246, 0.1)',
+                    border: '1px solid rgba(139, 92, 246, 0.2)'
                   }}
                 >
-                  <item.icon size={20} color={item.color} />
-                </div>
-                <div className="ml-2">
-                  <InfoTooltip content={item.tooltip} />
+                  <item.icon size={20} style={{ color: '#8b5cf6' }} />
                 </div>
               </div>
               <div 
-                className="font-bold"
+                className="text-2xl font-bold mb-1 whitespace-nowrap"
                 style={{ 
-                  fontSize: 'var(--font-size-title2)',
-                  color: 'var(--color-neutral-foreground)',
-                  fontWeight: 'var(--font-weight-bold)'
+                  color: '#8b5cf6',
+                  fontWeight: 'bold'
                 }}
               >
                 {item.value}
               </div>
               <div 
+                className="text-sm font-bold whitespace-nowrap"
                 style={{ 
-                  fontSize: 'var(--font-size-body)',
-                  color: 'var(--color-neutral-foreground-secondary)'
+                  color: 'var(--color-neutral-foreground-secondary)',
+                  fontWeight: 'bold'
                 }}
               >
                 {item.label}
@@ -310,38 +487,56 @@ const DashboardView: React.FC = () => {
     );
   };
 
-  // Tab Navigation
+  // Tab Navigation without card wrapper - will be integrated into content
   const TabNavigation = ({ tabs, activeTab, setActiveTab }: any) => (
-    <div className="border-b" style={{ borderColor: 'var(--color-neutral-stroke)' }}>
-      <nav className="flex space-x-8 px-6">
-        {tabs.map((tab: any) => (
-          <button
-            key={tab.id}
+    <div className="lcm-tabs-container">
+      {tabs.map((tab: any, index: number) => (
+        <React.Fragment key={tab.id}>
+          <div 
+            className="relative flex flex-col items-center justify-center transition-all duration-300 flex-1 cursor-pointer hover:scale-105 py-2 px-3 pb-4"
             onClick={() => setActiveTab(tab.id)}
-            className={`py-4 px-1 border-b-2 font-medium text-sm transition-all duration-200 ${
-              activeTab === tab.id
-                ? 'border-blue-500'
-                : 'border-transparent hover:border-gray-300'
-            }`}
-            style={{
-              color: activeTab === tab.id ? 'var(--color-brand-primary)' : 'var(--color-neutral-foreground-secondary)',
-              fontWeight: activeTab === tab.id ? 'var(--font-weight-medium)' : 'var(--font-weight-regular)',
-              fontFamily: 'var(--font-family)'
-            }}
           >
-            {tab.label}
-          </button>
-        ))}
-      </nav>
+            <span 
+              className={`font-medium transition-colors duration-200 ${
+                activeTab === tab.id ? 'text-lcm-primary font-semibold' : 'text-lcm-text-secondary'
+              }`}
+            >
+              {tab.label}
+            </span>
+            {activeTab === tab.id && (
+              <div className="absolute bottom-1 left-2 right-2 h-0.5 z-10"
+                   style={{
+                     background: 'linear-gradient(90deg, #a855f7 0%, #ec4899 100%)',
+                     borderRadius: '2px',
+                     boxShadow: '0 2px 8px rgba(168, 85, 247, 0.6)'
+                   }} />
+            )}
+          </div>
+          {index < tabs.length - 1 && (
+            <div 
+              className="flex-1 h-0.5 mx-4"
+              style={{
+                background: 'var(--fluent-color-neutral-stroke-2)',
+                transition: 'all 0.3s ease'
+              }}
+            />
+          )}
+        </React.Fragment>
+      ))}
     </div>
   );
 
   // Get cluster data from the environment summary when available
 
-  // Cluster Card Component
+  // Cluster Card Component - now a simple card content without lcm-card wrapper
   const ClusterCard = ({ cluster }: any) => (
     <div 
-      className="lcm-card p-6 cursor-pointer group"
+      className="p-6 cursor-pointer group rounded-lg border border-gray-200 hover:border-gray-300 transition-all duration-200 bg-white hover:shadow-md"
+      style={{
+        border: '1px solid var(--color-neutral-stroke-secondary)',
+        borderRadius: 'var(--border-radius-lg)',
+        backgroundColor: 'var(--color-neutral-background1)'
+      }}
     >
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center">
@@ -401,7 +596,7 @@ const DashboardView: React.FC = () => {
               fontWeight: 'var(--font-weight-medium)'
             }}
           >
-            {cluster.utilization}%
+            {cluster.utilization || cluster.metrics?.utilization || 0}%
           </span>
         </div>
         <div 
@@ -414,23 +609,23 @@ const DashboardView: React.FC = () => {
         >
           <div 
             className={`h-full rounded-full transition-all duration-500 ${
-              cluster.utilization > 85 ? 'bg-red-400' :
-              cluster.utilization > 70 ? 'bg-yellow-400' : 'bg-green-400'
+              (cluster.utilization || cluster.metrics?.utilization || 0) > 85 ? 'bg-red-400' :
+              (cluster.utilization || cluster.metrics?.utilization || 0) > 70 ? 'bg-yellow-400' : 'bg-green-400'
             }`}
             style={{ 
-              width: `${cluster.utilization}%`,
+              width: `${cluster.utilization || cluster.metrics?.utilization || 0}%`,
               borderRadius: 'var(--border-radius-sm)'
             }}
           />
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {[
-          { label: 'Hosts', value: cluster.hosts },
-          { label: 'VMs', value: cluster.vms },
-          { label: 'vCPU Ratio', value: cluster.vcpuRatio },
-          { label: 'Memory Ratio', value: cluster.memoryOvercommit }
+          { label: 'Hosts', value: cluster.hosts?.length || 0 },
+          { label: 'VMs', value: cluster.vms?.length || 0 },
+          { label: 'vCPU Ratio', value: cluster.vcpu_ratio || cluster.vcpuRatio || (cluster.metrics?.vcpu_ratio) || 'N/A' },
+          { label: 'Memory Ratio', value: cluster.memory_overcommit || cluster.memoryOvercommit || (cluster.metrics?.memory_overcommit) || 'N/A' }
         ].map((item, index) => (
           <div key={index}>
             <div 
@@ -597,22 +792,685 @@ const DashboardView: React.FC = () => {
     );
   };
 
+  // Resource Overview Component with Charts
+  const ResourceOverview = () => {
+    const clusters = currentEnvironment?.clusters || [];
+    
+    // Calculate overall metrics
+    const totalCPUs = clusters.reduce((sum: number, cluster: any) => {
+      return sum + (cluster.hosts?.reduce((hostSum: number, host: any) => hostSum + (host.cpu_cores || 0), 0) || 0);
+    }, 0);
+    
+    const totalMemory = clusters.reduce((sum: number, cluster: any) => {
+      return sum + (cluster.hosts?.reduce((hostSum: number, host: any) => hostSum + (host.memory_gb || 0), 0) || 0);
+    }, 0);
+    
+    const totalVMs = clusters.reduce((sum: number, cluster: any) => sum + (cluster.vms?.length || 0), 0);
+
+    const utilizationData = clusters.map((cluster: any) => ({
+      name: cluster.name,
+      utilization: cluster.utilization || 0,
+      status: cluster.status || 'unknown'
+    }));
+
+    return (
+      <div className="space-y-6">
+        {/* Overview Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="lcm-card p-4 text-center">
+            <Cpu size={32} className="mx-auto mb-2" style={{ color: 'var(--color-brand-primary)' }} />
+            <div className="text-2xl font-bold" style={{ color: 'var(--color-neutral-foreground)' }}>
+              {totalCPUs}
+            </div>
+            <div style={{ color: 'var(--color-neutral-foreground-secondary)', fontSize: 'var(--font-size-caption)' }}>
+              Total CPU Cores
+            </div>
+          </div>
+          
+          <div className="lcm-card p-4 text-center">
+            <MemoryStick size={32} className="mx-auto mb-2" style={{ color: 'var(--color-brand-primary)' }} />
+            <div className="text-2xl font-bold" style={{ color: 'var(--color-neutral-foreground)' }}>
+              {Math.round(totalMemory / 1024)}TB
+            </div>
+            <div style={{ color: 'var(--color-neutral-foreground-secondary)', fontSize: 'var(--font-size-caption)' }}>
+              Total Memory
+            </div>
+          </div>
+          
+          <div className="lcm-card p-4 text-center">
+            <Server size={32} className="mx-auto mb-2" style={{ color: 'var(--color-brand-primary)' }} />
+            <div className="text-2xl font-bold" style={{ color: 'var(--color-neutral-foreground)' }}>
+              {totalVMs}
+            </div>
+            <div style={{ color: 'var(--color-neutral-foreground-secondary)', fontSize: 'var(--font-size-caption)' }}>
+              Virtual Machines
+            </div>
+          </div>
+          
+          <div className="lcm-card p-4 text-center">
+            <Activity size={32} className="mx-auto mb-2" style={{ color: 'var(--color-brand-primary)' }} />
+            <div className="text-2xl font-bold" style={{ color: 'var(--color-neutral-foreground)' }}>
+              {clusters.length}
+            </div>
+            <div style={{ color: 'var(--color-neutral-foreground-secondary)', fontSize: 'var(--font-size-caption)' }}>
+              Clusters
+            </div>
+          </div>
+        </div>
+
+        {/* Cluster Utilization Chart */}
+        <div className="lcm-card p-6">
+          <h3 className="text-lg font-semibold mb-4" style={{ color: 'var(--color-neutral-foreground)' }}>
+            Cluster Utilization Overview
+          </h3>
+          <div className="space-y-4">
+            {utilizationData.map((cluster, index) => (
+              <div key={index} className="flex items-center gap-4">
+                <div className="w-32 text-sm" style={{ color: 'var(--color-neutral-foreground)' }}>
+                  {cluster.name}
+                </div>
+                <div className="flex-1 bg-gray-200 rounded-full h-3 relative">
+                  <div 
+                    className={`h-full rounded-full transition-all duration-500 ${
+                      cluster.utilization > 85 ? 'bg-red-400' :
+                      cluster.utilization > 70 ? 'bg-yellow-400' : 'bg-green-400'
+                    }`}
+                    style={{ width: `${cluster.utilization}%` }}
+                  />
+                </div>
+                <div className="w-16 text-sm text-right" style={{ color: 'var(--color-neutral-foreground)' }}>
+                  {cluster.utilization}%
+                </div>
+                <div className={`w-3 h-3 rounded-full ${
+                  cluster.status === 'healthy' ? 'bg-green-400' : 
+                  cluster.status === 'warning' ? 'bg-yellow-400' : 'bg-red-400'
+                }`} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // VM Inventory Table Component
+  const VMInventoryTable = () => {
+    const allVMs = currentEnvironment?.clusters?.flatMap((cluster: any) => 
+      (cluster.vms || []).map((vm: any) => ({
+        ...vm,
+        cluster_name: cluster.name
+      }))
+    ) || [];
+
+    const [filter, setFilter] = useState('');
+    const [sortField, setSortField] = useState('name');
+    const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+    const [columnWidths, setColumnWidths] = useState({
+      name: 200,
+      cluster_name: 150,
+      power_state: 120,
+      guest_os: 150,
+      vcpus: 80,
+      memory_gb: 120,
+      storage_gb: 120,
+      vmware_tools_status: 130
+    });
+
+    // Add selection functionality
+    const vmSelection = useTableSelection();
+
+    const filteredVMs = allVMs.filter((vm: any) => 
+      vm.name?.toLowerCase().includes(filter.toLowerCase()) ||
+      vm.cluster_name?.toLowerCase().includes(filter.toLowerCase()) ||
+      vm.guest_os?.toLowerCase().includes(filter.toLowerCase())
+    );
+
+    const sortedVMs = [...filteredVMs].sort((a: any, b: any) => {
+      const aVal = a[sortField] || '';
+      const bVal = b[sortField] || '';
+      const comparison = aVal.toString().localeCompare(bVal.toString());
+      return sortOrder === 'asc' ? comparison : -comparison;
+    });
+
+    const handleSort = (field: string) => {
+      if (sortField === field) {
+        setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+      } else {
+        setSortField(field);
+        setSortOrder('asc');
+      }
+    };
+
+    const handleColumnResize = (column: string, newWidth: number) => {
+      setColumnWidths(prev => ({
+        ...prev,
+        [column]: Math.max(50, newWidth)
+      }));
+    };
+
+    return (
+      <div className="space-y-4">
+        {/* Filter and Controls */}
+        <div className="flex items-center gap-4">
+          <div className="flex-1 relative">
+            <Filter size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-lcm-text-muted z-10" />
+            <input
+              type="text"
+              placeholder="Filter VMs by name, cluster, or OS..."
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+              className="lcm-input pl-12"
+            />
+          </div>
+          <div className="flex items-center gap-4">
+            <div style={{ color: 'var(--color-neutral-foreground-secondary)', fontSize: 'var(--font-size-caption)' }}>
+              {sortedVMs.length} of {allVMs.length} VMs
+            </div>
+            {vmSelection.selectedCount > 0 && (
+              <div className="flex items-center gap-2">
+                <span style={{ 
+                  color: 'var(--color-brand-primary)', 
+                  fontSize: 'var(--font-size-caption)',
+                  fontWeight: 'var(--font-weight-semibold)'
+                }}>
+                  {vmSelection.selectedCount} selected
+                </span>
+                <button
+                  onClick={vmSelection.clearSelection}
+                  className="text-xs px-2 py-1 rounded border border-gray-300 hover:bg-gray-50"
+                  style={{
+                    color: 'var(--color-neutral-foreground-secondary)',
+                    fontSize: 'var(--font-size-caption)'
+                  }}
+                >
+                  Clear
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Table */}
+        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden" style={{
+          backgroundColor: 'var(--color-neutral-background1)',
+          borderColor: 'var(--color-neutral-stroke-secondary)',
+          borderRadius: 'var(--border-radius-lg)'
+        }}>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr style={{ backgroundColor: 'var(--color-neutral-background-secondary)' }}>
+                  <th className="px-4 py-3 w-8">
+                    <input
+                      type="checkbox"
+                      checked={vmSelection.selectedCount > 0 && vmSelection.selectedCount === sortedVMs.slice(0, 50).length}
+                      ref={(el) => {
+                        if (el) el.indeterminate = vmSelection.selectedCount > 0 && vmSelection.selectedCount < sortedVMs.slice(0, 50).length;
+                      }}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          vmSelection.selectAll(sortedVMs.slice(0, 50).map((vm: any, index: number) => `vm-${index}`));
+                        } else {
+                          vmSelection.clearSelection();
+                        }
+                      }}
+                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                  </th>
+                  <ResizableTableHeader 
+                    column="name" 
+                    label="VM Name" 
+                    width={columnWidths.name}
+                    onResize={handleColumnResize}
+                    onSort={handleSort}
+                    sortField={sortField}
+                    sortOrder={sortOrder}
+                  />
+                  <ResizableTableHeader 
+                    column="cluster_name" 
+                    label="Cluster" 
+                    width={columnWidths.cluster_name}
+                    onResize={handleColumnResize}
+                    onSort={handleSort}
+                    sortField={sortField}
+                    sortOrder={sortOrder}
+                  />
+                  <ResizableTableHeader 
+                    column="power_state" 
+                    label="Power State" 
+                    width={columnWidths.power_state}
+                    onResize={handleColumnResize}
+                    onSort={handleSort}
+                    sortField={sortField}
+                    sortOrder={sortOrder}
+                  />
+                  <ResizableTableHeader 
+                    column="guest_os" 
+                    label="Guest OS" 
+                    width={columnWidths.guest_os}
+                    onResize={handleColumnResize}
+                    onSort={handleSort}
+                    sortField={sortField}
+                    sortOrder={sortOrder}
+                  />
+                  <ResizableTableHeader 
+                    column="vcpus" 
+                    label="vCPUs" 
+                    width={columnWidths.vcpus}
+                    onResize={handleColumnResize}
+                    onSort={handleSort}
+                    sortField={sortField}
+                    sortOrder={sortOrder}
+                  />
+                  <ResizableTableHeader 
+                    column="memory_gb" 
+                    label="Memory (GB)" 
+                    width={columnWidths.memory_gb}
+                    onResize={handleColumnResize}
+                    onSort={handleSort}
+                    sortField={sortField}
+                    sortOrder={sortOrder}
+                  />
+                  <ResizableTableHeader 
+                    column="storage_gb" 
+                    label="Storage (GB)" 
+                    width={columnWidths.storage_gb}
+                    onResize={handleColumnResize}
+                    onSort={handleSort}
+                    sortField={sortField}
+                    sortOrder={sortOrder}
+                  />
+                  <ResizableTableHeader 
+                    column="vmware_tools_status" 
+                    label="Tools Status" 
+                    width={columnWidths.vmware_tools_status}
+                    onResize={handleColumnResize}
+                    onSort={handleSort}
+                    sortField={sortField}
+                    sortOrder={sortOrder}
+                  />
+                </tr>
+              </thead>
+              <tbody>
+                {sortedVMs.slice(0, 50).map((vm: any, index: number) => (
+                  <SelectableTableRow
+                    key={index}
+                    rowId={`vm-${index}`}
+                    isSelected={vmSelection.isSelected(`vm-${index}`)}
+                    onToggleSelection={vmSelection.toggleRowSelection}
+                  >
+                    <td className="px-4 py-3" style={{ 
+                      color: 'var(--color-neutral-foreground)', 
+                      fontSize: 'var(--font-size-body)',
+                      width: `${columnWidths.name}px`
+                    }}>
+                      {vm.name || 'Unknown'}
+                    </td>
+                    <td className="px-4 py-3" style={{ 
+                      color: 'var(--color-neutral-foreground-secondary)', 
+                      fontSize: 'var(--font-size-body)',
+                      width: `${columnWidths.cluster_name}px`
+                    }}>
+                      {vm.cluster_name || 'Unknown'}
+                    </td>
+                    <td className="px-4 py-3" style={{ width: `${columnWidths.power_state}px` }}>
+                      <span className={`px-2 py-1 rounded-full text-xs ${
+                        vm.power_state === 'poweredOn' || vm.powerState === 'poweredOn' ? 'bg-green-100 text-green-800' :
+                        vm.power_state === 'poweredOff' || vm.powerState === 'poweredOff' ? 'bg-red-100 text-red-800' :
+                        'bg-yellow-100 text-yellow-800'
+                      }`}>
+                        {vm.power_state || vm.powerState || 'Unknown'}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3" style={{ 
+                      color: 'var(--color-neutral-foreground-secondary)', 
+                      fontSize: 'var(--font-size-body)',
+                      width: `${columnWidths.guest_os}px`
+                    }}>
+                      {vm.guest_os || vm.guestOS || 'Unknown'}
+                    </td>
+                    <td className="px-4 py-3" style={{ 
+                      color: 'var(--color-neutral-foreground)', 
+                      fontSize: 'var(--font-size-body)',
+                      width: `${columnWidths.vcpus}px`
+                    }}>
+                      {vm.vcpus || vm.numCPUs || '-'}
+                    </td>
+                    <td className="px-4 py-3" style={{ 
+                      color: 'var(--color-neutral-foreground)', 
+                      fontSize: 'var(--font-size-body)',
+                      width: `${columnWidths.memory_gb}px`
+                    }}>
+                      {vm.memory_gb || vm.memoryGB || '-'}
+                    </td>
+                    <td className="px-4 py-3" style={{ 
+                      color: 'var(--color-neutral-foreground)', 
+                      fontSize: 'var(--font-size-body)',
+                      width: `${columnWidths.storage_gb}px`
+                    }}>
+                      {vm.storage_gb || vm.provisionedSpaceGB || '-'}
+                    </td>
+                    <td className="px-4 py-3" style={{ width: `${columnWidths.vmware_tools_status}px` }}>
+                      <span className={`px-2 py-1 rounded-full text-xs ${
+                        (vm.vmware_tools_status || vm.toolsStatus)?.includes('toolsOk') || 
+                        (vm.vmware_tools_status || vm.toolsStatus)?.includes('current') ? 'bg-green-100 text-green-800' :
+                        'bg-yellow-100 text-yellow-800'
+                      }`}>
+                        {vm.vmware_tools_status || vm.toolsStatus || 'Unknown'}
+                      </span>
+                    </td>
+                  </SelectableTableRow>
+                ))}
+                {sortedVMs.length > 50 && (
+                  <tr>
+                    <td colSpan={9} className="px-4 py-3 text-center" style={{ color: 'var(--color-neutral-foreground-secondary)' }}>
+                      Showing first 50 of {sortedVMs.length} VMs. Use filter to narrow results.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Host Inventory Table Component
+  const HostInventoryTable = () => {
+    const allHosts = currentEnvironment?.clusters?.flatMap((cluster: any) => 
+      (cluster.hosts || []).map((host: any) => ({
+        ...host,
+        cluster_name: cluster.name
+      }))
+    ) || [];
+
+    const [filter, setFilter] = useState('');
+    const [sortField, setSortField] = useState('name');
+    const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+    const [columnWidths, setColumnWidths] = useState({
+      name: 200,
+      cluster_name: 150,
+      status: 120,
+      cpu_cores: 100,
+      memory_gb: 120,
+      storage_gb: 120,
+      version: 150,
+      model: 180
+    });
+
+    // Add selection functionality
+    const hostSelection = useTableSelection();
+
+    const filteredHosts = allHosts.filter((host: any) => 
+      host.name?.toLowerCase().includes(filter.toLowerCase()) ||
+      host.cluster_name?.toLowerCase().includes(filter.toLowerCase()) ||
+      host.status?.toLowerCase().includes(filter.toLowerCase())
+    );
+
+    const sortedHosts = [...filteredHosts].sort((a: any, b: any) => {
+      const aVal = a[sortField] || '';
+      const bVal = b[sortField] || '';
+      if (typeof aVal === 'number' && typeof bVal === 'number') {
+        return sortOrder === 'asc' ? aVal - bVal : bVal - aVal;
+      }
+      const comparison = aVal.toString().localeCompare(bVal.toString());
+      return sortOrder === 'asc' ? comparison : -comparison;
+    });
+
+    const handleSort = (field: string) => {
+      if (sortField === field) {
+        setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+      } else {
+        setSortField(field);
+        setSortOrder('asc');
+      }
+    };
+
+    const handleColumnResize = (column: string, newWidth: number) => {
+      setColumnWidths(prev => ({
+        ...prev,
+        [column]: Math.max(50, newWidth)
+      }));
+    };
+
+    return (
+      <div className="space-y-4">
+        {/* Filter and Controls */}
+        <div className="flex items-center gap-4">
+          <div className="flex-1 relative">
+            <Filter size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-lcm-text-muted z-10" />
+            <input
+              type="text"
+              placeholder="Filter hosts by name, cluster, or status..."
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+              className="lcm-input pl-12"
+            />
+          </div>
+          <div className="flex items-center gap-4">
+            <div style={{ color: 'var(--color-neutral-foreground-secondary)', fontSize: 'var(--font-size-caption)' }}>
+              {sortedHosts.length} of {allHosts.length} Hosts
+            </div>
+            {hostSelection.selectedCount > 0 && (
+              <div className="flex items-center gap-2">
+                <span style={{ 
+                  color: 'var(--color-brand-primary)', 
+                  fontSize: 'var(--font-size-caption)',
+                  fontWeight: 'var(--font-weight-semibold)'
+                }}>
+                  {hostSelection.selectedCount} selected
+                </span>
+                <button
+                  onClick={hostSelection.clearSelection}
+                  className="text-xs px-2 py-1 rounded border border-gray-300 hover:bg-gray-50"
+                  style={{
+                    color: 'var(--color-neutral-foreground-secondary)',
+                    fontSize: 'var(--font-size-caption)'
+                  }}
+                >
+                  Clear
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Table */}
+        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden" style={{
+          backgroundColor: 'var(--color-neutral-background1)',
+          borderColor: 'var(--color-neutral-stroke-secondary)',
+          borderRadius: 'var(--border-radius-lg)'
+        }}>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr style={{ backgroundColor: 'var(--color-neutral-background-secondary)' }}>
+                  <th className="px-4 py-3 w-8">
+                    <input
+                      type="checkbox"
+                      checked={hostSelection.selectedCount > 0 && hostSelection.selectedCount === sortedHosts.length}
+                      ref={(el) => {
+                        if (el) el.indeterminate = hostSelection.selectedCount > 0 && hostSelection.selectedCount < sortedHosts.length;
+                      }}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          hostSelection.selectAll(sortedHosts.map((host: any, index: number) => `host-${index}`));
+                        } else {
+                          hostSelection.clearSelection();
+                        }
+                      }}
+                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                  </th>
+                  <ResizableTableHeader 
+                    column="name" 
+                    label="Host Name" 
+                    width={columnWidths.name}
+                    onResize={handleColumnResize}
+                    onSort={handleSort}
+                    sortField={sortField}
+                    sortOrder={sortOrder}
+                  />
+                  <ResizableTableHeader 
+                    column="cluster_name" 
+                    label="Cluster" 
+                    width={columnWidths.cluster_name}
+                    onResize={handleColumnResize}
+                    onSort={handleSort}
+                    sortField={sortField}
+                    sortOrder={sortOrder}
+                  />
+                  <ResizableTableHeader 
+                    column="status" 
+                    label="Connection State" 
+                    width={columnWidths.status}
+                    onResize={handleColumnResize}
+                    onSort={handleSort}
+                    sortField={sortField}
+                    sortOrder={sortOrder}
+                  />
+                  <ResizableTableHeader 
+                    column="cpu_cores" 
+                    label="CPU Cores" 
+                    width={columnWidths.cpu_cores}
+                    onResize={handleColumnResize}
+                    onSort={handleSort}
+                    sortField={sortField}
+                    sortOrder={sortOrder}
+                  />
+                  <ResizableTableHeader 
+                    column="memory_gb" 
+                    label="Memory (GB)" 
+                    width={columnWidths.memory_gb}
+                    onResize={handleColumnResize}
+                    onSort={handleSort}
+                    sortField={sortField}
+                    sortOrder={sortOrder}
+                  />
+                  <ResizableTableHeader 
+                    column="model" 
+                    label="CPU Model" 
+                    width={columnWidths.model}
+                    onResize={handleColumnResize}
+                    onSort={handleSort}
+                    sortField={sortField}
+                    sortOrder={sortOrder}
+                  />
+                  <ResizableTableHeader 
+                    column="version" 
+                    label="ESXi Version" 
+                    width={columnWidths.version}
+                    onResize={handleColumnResize}
+                    onSort={handleSort}
+                    sortField={sortField}
+                    sortOrder={sortOrder}
+                  />
+                </tr>
+              </thead>
+              <tbody>
+                {sortedHosts.map((host: any, index: number) => (
+                  <SelectableTableRow
+                    key={index}
+                    rowId={`host-${index}`}
+                    isSelected={hostSelection.isSelected(`host-${index}`)}
+                    onToggleSelection={hostSelection.toggleRowSelection}
+                  >
+                    <td className="px-4 py-3" style={{ 
+                      color: 'var(--color-neutral-foreground)', 
+                      fontSize: 'var(--font-size-body)',
+                      width: `${columnWidths.name}px`
+                    }}>
+                      {host.name || 'Unknown'}
+                    </td>
+                    <td className="px-4 py-3" style={{ 
+                      color: 'var(--color-neutral-foreground-secondary)', 
+                      fontSize: 'var(--font-size-body)',
+                      width: `${columnWidths.cluster_name}px`
+                    }}>
+                      {host.cluster_name || 'Unknown'}
+                    </td>
+                    <td className="px-4 py-3" style={{ width: `${columnWidths.status}px` }}>
+                      <span className={`px-2 py-1 rounded-full text-xs ${
+                        host.status === 'connected' ? 'bg-green-100 text-green-800' :
+                        host.status === 'disconnected' ? 'bg-red-100 text-red-800' :
+                        'bg-yellow-100 text-yellow-800'
+                      }`}>
+                        {host.status || 'Unknown'}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3" style={{ 
+                      color: 'var(--color-neutral-foreground)', 
+                      fontSize: 'var(--font-size-body)',
+                      width: `${columnWidths.cpu_cores}px`
+                    }}>
+                      {host.cpu_cores || host.numCPUs || '-'}
+                    </td>
+                    <td className="px-4 py-3" style={{ 
+                      color: 'var(--color-neutral-foreground)', 
+                      fontSize: 'var(--font-size-body)',
+                      width: `${columnWidths.memory_gb}px`
+                    }}>
+                      {host.memory_gb || Math.round((host.memorySize || 0) / (1024 * 1024 * 1024)) || '-'}
+                    </td>
+                    <td className="px-4 py-3" style={{ 
+                      color: 'var(--color-neutral-foreground-secondary)', 
+                      fontSize: 'var(--font-size-body)',
+                      width: `${columnWidths.model}px`
+                    }}>
+                      {host.cpu_model || host.cpuModel || 'Unknown'}
+                    </td>
+                    <td className="px-4 py-3" style={{ 
+                      color: 'var(--color-neutral-foreground-secondary)', 
+                      fontSize: 'var(--font-size-body)',
+                      width: `${columnWidths.version}px`
+                    }}>
+                      {host.esxi_version || host.esxVersion || 'Unknown'}
+                    </td>
+                  </SelectableTableRow>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   if (loading) {
     return <LoadingSpinner message="Loading dashboard..." />;
   }
 
   return (
-    <div className="p-6" style={{ fontFamily: 'var(--font-family)' }}>
+    <div style={{ 
+      width: '100%',
+      height: '100vh',
+      padding: '0',
+      boxSizing: 'border-box',
+      display: 'flex',
+      flexDirection: 'column',
+      fontFamily: 'var(--font-family)'
+    }}>
       {!isDataUploaded ? (
         <FileUploadComponent />
       ) : (
         <>
           <SummaryBar />
-          <div className="lcm-card">
+          <div 
+            className="lcm-card" 
+            style={{ 
+              width: '100%', 
+              flex: 1, 
+              maxWidth: 'none',
+              display: 'flex',
+              flexDirection: 'column',
+              overflow: 'hidden',
+              margin: '8px'
+            }}
+          >
             <TabNavigation
               tabs={[
                 { id: 'clusters', label: 'Clusters' },
-                { id: 'resources', label: 'Resource Overview' },
                 { id: 'vms', label: 'VM Inventory' },
                 { id: 'hosts', label: 'Host Inventory' },
                 { id: 'health', label: 'Health & Optimization' }
@@ -620,11 +1478,18 @@ const DashboardView: React.FC = () => {
               activeTab={activeTab}
               setActiveTab={setActiveTab}
             />
-            <div className="p-6">
+            {/* Scrollable content area */}
+            <div 
+              style={{ 
+                flex: 1, 
+                overflow: 'auto', 
+                padding: '24px'
+              }}
+            >
               {activeTab === 'clusters' && (
-                <div className="grid grid-cols-2 gap-6">
-                  {environmentSummary?.clusters && environmentSummary.clusters.length > 0 ? (
-                    environmentSummary.clusters.map((cluster: any, index: number) => (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {(environmentSummary?.clusters || currentEnvironment?.clusters) && (environmentSummary?.clusters || currentEnvironment?.clusters).length > 0 ? (
+                    (environmentSummary?.clusters || currentEnvironment?.clusters).map((cluster: any, index: number) => (
                       <ClusterCard key={index} cluster={cluster} />
                     ))
                   ) : (
@@ -637,27 +1502,8 @@ const DashboardView: React.FC = () => {
                 </div>
               )}
               {activeTab === 'health' && <HealthRecommendations />}
-              {activeTab === 'resources' && (
-                <div className="text-center py-8">
-                  <p style={{ color: 'var(--color-neutral-foreground-secondary)' }}>
-                    Resource overview charts coming soon...
-                  </p>
-                </div>
-              )}
-              {activeTab === 'vms' && (
-                <div className="text-center py-8">
-                  <p style={{ color: 'var(--color-neutral-foreground-secondary)' }}>
-                    VM inventory table coming soon...
-                  </p>
-                </div>
-              )}
-              {activeTab === 'hosts' && (
-                <div className="text-center py-8">
-                  <p style={{ color: 'var(--color-neutral-foreground-secondary)' }}>
-                    Host inventory table coming soon...
-                  </p>
-                </div>
-              )}
+              {activeTab === 'vms' && <VMInventoryTable />}
+              {activeTab === 'hosts' && <HostInventoryTable />}
             </div>
           </div>
         </>

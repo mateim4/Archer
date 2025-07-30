@@ -1,0 +1,9 @@
+VM Name,Host Name,Cluster,Datacenter,Power State,CPUs,Memory,Provisioned MB,In Use MB,Guest OS
+web-server-01,esxi-host-01,Production-Cluster,DC-East,poweredOn,4,8192,102400,85000,Microsoft Windows Server 2019 (64-bit)
+db-server-01,esxi-host-01,Production-Cluster,DC-East,poweredOn,8,32768,512000,450000,Microsoft Windows Server 2019 (64-bit)
+app-server-01,esxi-host-02,Production-Cluster,DC-East,poweredOn,2,4096,51200,40000,Ubuntu Linux (64-bit)
+app-server-02,esxi-host-02,Production-Cluster,DC-East,poweredOn,2,4096,51200,35000,Ubuntu Linux (64-bit)
+dev-server-01,esxi-host-03,Development-Cluster,DC-West,poweredOff,4,16384,204800,150000,CentOS Linux (64-bit)
+test-server-01,esxi-host-03,Development-Cluster,DC-West,poweredOn,2,8192,102400,80000,Microsoft Windows Server 2016 (64-bit)
+backup-server,esxi-host-04,Infrastructure-Cluster,DC-East,poweredOn,4,16384,1024000,900000,Microsoft Windows Server 2019 (64-bit)
+monitoring-01,esxi-host-04,Infrastructure-Cluster,DC-East,poweredOn,2,8192,102400,95000,Ubuntu Linux (64-bit)

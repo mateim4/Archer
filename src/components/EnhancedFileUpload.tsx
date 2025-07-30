@@ -39,14 +39,14 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
           break;
           
         case 'vmware':
-          result = await processVMwareFile(file);
-          onFileProcessed?.(result);
+          await processVMwareFile(file);
+          onFileProcessed?.(useAppStore.getState().currentEnvironment);
           break;
           
         case 'network':
           // For network files, we can process them as VMware for now
-          result = await processVMwareFile(file);
-          onFileProcessed?.(result);
+          await processVMwareFile(file);
+          onFileProcessed?.(useAppStore.getState().networkTopology);
           break;
           
         default:

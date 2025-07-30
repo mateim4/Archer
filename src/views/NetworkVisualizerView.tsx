@@ -39,7 +39,11 @@ const NetworkVisualizerView = () => {
   const { 
     networkTopology, 
     uploadedFile, 
-    processNetworkTopology 
+    processNetworkTopology,
+    currentEnvironment,
+    environmentSummary,
+    setNetworkTopology,
+    setCurrentEnvironment
   } = useAppStore();
 
   // Check server availability
@@ -53,6 +57,197 @@ const NetworkVisualizerView = () => {
     const interval = setInterval(checkServer, 30000);
     return () => clearInterval(interval);
   }, []);
+
+  // Create sample network topology for demonstration
+  const createSampleNetworkTopology = () => {
+    return {
+      clusters: [
+        {
+          id: 'cluster-1',
+          name: 'Production Cluster',
+          status: 'healthy',
+          utilization: 65
+        },
+        {
+          id: 'cluster-2', 
+          name: 'Development Cluster',
+          status: 'warning',
+          utilization: 45
+        }
+      ],
+      hosts: [
+        {
+          id: 'host-1',
+          name: 'esxi-prod-01.company.com',
+          cluster_id: 'cluster-1',
+          cpu_cores: 32,
+          memory_gb: 256,
+          status: 'connected'
+        },
+        {
+          id: 'host-2',
+          name: 'esxi-prod-02.company.com', 
+          cluster_id: 'cluster-1',
+          cpu_cores: 32,
+          memory_gb: 256,
+          status: 'connected'
+        },
+        {
+          id: 'host-3',
+          name: 'esxi-dev-01.company.com',
+          cluster_id: 'cluster-2', 
+          cpu_cores: 16,
+          memory_gb: 128,
+          status: 'connected'
+        }
+      ],
+      vms: [
+        {
+          id: 'vm-1',
+          name: 'web-server-01',
+          cluster_id: 'cluster-1',
+          vcpus: 4,
+          memory_gb: 16,
+          storage_gb: 100,
+          power_state: 'poweredOn',
+          guest_os: 'Windows Server 2019'
+        },
+        {
+          id: 'vm-2',
+          name: 'database-01',
+          cluster_id: 'cluster-1',
+          vcpus: 8,
+          memory_gb: 32,
+          storage_gb: 500,
+          power_state: 'poweredOn',
+          guest_os: 'Ubuntu 20.04'
+        },
+        {
+          id: 'vm-3',
+          name: 'test-server-01',
+          cluster_id: 'cluster-2',
+          vcpus: 2,
+          memory_gb: 8,
+          storage_gb: 50,
+          power_state: 'poweredOn',
+          guest_os: 'CentOS 8'
+        }
+      ],
+      networks: [
+        {
+          id: 'net_cluster-1',
+          name: 'Production Network',
+          type: 'cluster_network',
+          cluster_id: 'cluster-1',
+          vlan_id: 150
+        },
+        {
+          id: 'net_cluster-2',
+          name: 'Development Network',
+          type: 'cluster_network', 
+          cluster_id: 'cluster-2',
+          vlan_id: 250
+        },
+        {
+          id: 'mgmt_network',
+          name: 'Management Network',
+          type: 'management',
+          vlan_id: 100
+        },
+        {
+          id: 'vmotion_network',
+          name: 'vMotion Network',
+          type: 'vmotion',
+          vlan_id: 200
+        }
+      ],
+      platform: 'vmware' as const
+    };
+  };
+
+  // Initialize with sample data if no data exists
+  useEffect(() => {
+    if (!networkTopology && !currentEnvironment) {
+      const sampleTopology = createSampleNetworkTopology();
+      setNetworkTopology(sampleTopology);
+    }
+  }, []);
+
+  // Create network topology from environment data
+  const createNetworkTopologyFromEnvironment = (environmentData?: any) => {
+    const envData = environmentData || currentEnvironment;
+    if (!envData || !envData.clusters) {
+      return null;
+    }
+
+    const clusters = envData.clusters || [];
+    const hosts: any[] = [];
+    const vms: any[] = [];
+    const networks: any[] = [];
+
+    // Extract hosts and VMs from clusters
+    clusters.forEach((cluster: any) => {
+      if (cluster.hosts) {
+        hosts.push(...cluster.hosts.map((host: any) => ({
+          ...host,
+          cluster_name: cluster.name,
+          cluster_id: cluster.id
+        })));
+      }
+      if (cluster.vms) {
+        vms.push(...cluster.vms.map((vm: any) => ({
+          ...vm,
+          cluster_name: cluster.name,
+          cluster_id: cluster.id
+        })));
+      }
+    });
+
+    // Create network segments based on clusters (simplified)
+    clusters.forEach((cluster: any) => {
+      networks.push({
+        id: `net_${cluster.id}`,
+        name: `${cluster.name} Network`,
+        type: 'cluster_network',
+        cluster_id: cluster.id,
+        vlan_id: Math.floor(Math.random() * 1000) + 100 // Simulated VLAN ID
+      });
+    });
+
+    // Add management networks
+    if (clusters.length > 0) {
+      networks.push({
+        id: 'mgmt_network',
+        name: 'Management Network',
+        type: 'management',
+        vlan_id: 100
+      });
+      
+      networks.push({
+        id: 'vmotion_network',
+        name: 'vMotion Network',
+        type: 'vmotion',
+        vlan_id: 200
+      });
+    }
+
+    return {
+      clusters,
+      hosts,
+      vms,
+      networks,
+      platform: 'vmware' as const
+    };
+  };  // Update network topology when environment changes
+  useEffect(() => {
+    if (currentEnvironment && !networkTopology) {
+      const topology = createNetworkTopologyFromEnvironment();
+      if (topology) {
+        // Update the store with the created topology
+        setNetworkTopology(topology);
+      }
+    }
+  }, [currentEnvironment, networkTopology, setNetworkTopology]);
 
   // Initialize Mermaid
   useEffect(() => {
@@ -107,11 +302,22 @@ const NetworkVisualizerView = () => {
           if (serverAvailable) {
             // Use server processing for Excel files
             const result = await serverProcessor.processVMwareFile(selected);
-            console.log('Server processed file:', result);
             
-            // You could extend this to extract network topology from VMware data
-            // For now, we'll show a success message
-            setError(null);
+            // If we received environment data, update the store
+            if (result && typeof result === 'object' && result.clusters) {
+              setCurrentEnvironment(result);
+              
+              // Create network topology from the environment data
+              const topology = createNetworkTopologyFromEnvironment(result);
+              if (topology) {
+                setNetworkTopology(topology);
+              }
+              
+              setError(null);
+            } else {
+              console.log("File processed, but no environment data received.", result);
+              throw new Error('No valid environment data received from server processing.');
+            }
           } else {
             throw new Error('Excel file processing requires the backend server. Please start the server or use a CSV file.');
           }
@@ -204,18 +410,26 @@ const NetworkVisualizerView = () => {
   );
 
   return (
-    <div className="h-full lcm-card m-6 overflow-auto">
-      <div className="max-w-6xl mx-auto">
-        {/* Upload Section */}
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold mb-4" style={{ 
-            fontFamily: 'var(--font-family)',
-            color: 'var(--color-neutral-foreground)',
-            fontSize: 'var(--font-size-title3)',
-            fontWeight: 'var(--font-weight-semibold)'
-          }}>
-            Upload Network Data
-          </h2>
+    <div style={{ 
+      width: '100%',
+      height: '100vh',
+      padding: '0',
+      boxSizing: 'border-box',
+      display: 'flex',
+      flexDirection: 'column'
+    }}>
+      <div className="lcm-card" style={{ width: '100%', flex: 1, overflow: 'auto' }}>
+        <div style={{ padding: '24px' }}>
+          {/* Upload Section */}
+          <div className="mb-8">
+            <h2 className="text-xl font-semibold mb-4" style={{ 
+              fontFamily: 'var(--font-family)',
+              color: 'var(--color-neutral-foreground)',
+              fontSize: 'var(--font-size-title3)',
+              fontWeight: 'var(--font-weight-semibold)'
+            }}>
+              Upload Network Data
+            </h2>
           {!isTauriEnvironment() && (
             <div className="mb-4 space-y-2">
               {/* Server Status Indicator */}
@@ -280,38 +494,49 @@ const NetworkVisualizerView = () => {
               {error}
             </div>
           )}
-        </div>
+          </div>
 
-        {/* Tabs */}
-        {networkTopology && (
-          <>
-            <div className="mb-6">
-              <div className="flex gap-3">
-                <TabButton
-                  tab="virtual"
-                  isActive={activeTab === 'virtual'}
-                  onClick={setActiveTab}
-                  icon={Network}
-                  label="Virtual Networks"
-                />
-                <TabButton
-                  tab="hyper-v"
-                  isActive={activeTab === 'hyper-v'}
-                  onClick={setActiveTab}
-                  icon={HardDrive}
-                  label="Hyper-V Topology"
-                />
-                <TabButton
-                  tab="physical"
-                  isActive={activeTab === 'physical'}
-                  onClick={setActiveTab}
-                  icon={Server}
-                  label="Physical Infrastructure"
-                />
+          {/* Tabs */}
+          <div className="mb-6">
+            <div className="flex gap-3">
+              <TabButton
+                tab="virtual"
+                isActive={activeTab === 'virtual'}
+                onClick={setActiveTab}
+                icon={Network}
+                label="Virtual Networks"
+              />
+              <TabButton
+                tab="hyper-v"
+                isActive={activeTab === 'hyper-v'}
+                onClick={setActiveTab}
+                icon={HardDrive}
+                label="Hyper-V Topology"
+              />
+              <TabButton
+                tab="physical"
+                isActive={activeTab === 'physical'}
+                onClick={setActiveTab}
+                icon={Server}
+                label="Physical Infrastructure"
+              />
+            </div>
+          </div>
+
+          {/* Data Source Indicator */}
+          {!currentEnvironment && !uploadedFile && (
+            <div className="mb-4 p-3 bg-blue-500/20 border border-blue-500/30 rounded-lg text-blue-300">
+              <div className="flex items-center gap-2">
+                <AlertTriangle size={16} />
+                <span className="text-sm">
+                  Currently showing sample data. Upload an RVTools file to visualize your actual infrastructure.
+                </span>
               </div>
             </div>
+          )}
 
-            {/* Diagram Container */}
+          {/* Diagram Container */}
+          {networkTopology && (
             <div 
               id="mermaid-diagram" 
               className="w-full h-auto min-h-[400px] rounded-lg p-4 overflow-auto"
@@ -322,35 +547,8 @@ const NetworkVisualizerView = () => {
                 border: '1px solid var(--color-neutral-stroke-tertiary)'
               }}
             />
-          </>
-        )}
-
-        {/* Empty State */}
-        {!networkTopology && !isLoading && (
-          <div className="text-center py-16">
-            <Network size={64} className="mx-auto mb-4" style={{ color: 'var(--color-neutral-foreground-secondary)' }} />
-            <h3 className="text-xl font-semibold mb-2" style={{ 
-              fontFamily: 'var(--font-family)',
-              color: 'var(--color-neutral-foreground)',
-              fontSize: 'var(--font-size-title3)',
-              fontWeight: 'var(--font-weight-semibold)'
-            }}>
-              No Network Data
-            </h3>
-            <p className="mb-6" style={{ 
-              color: 'var(--color-neutral-foreground-secondary)',
-              fontSize: 'var(--font-size-body)'
-            }}>
-              Upload a network configuration file to visualize your infrastructure topology
-            </p>
-            <p className="text-sm" style={{ 
-              color: 'var(--color-neutral-foreground-tertiary)',
-              fontSize: 'var(--font-size-caption)'
-            }}>
-              Supported formats: CSV, JSON, XML, TXT, XLSX
-            </p>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );

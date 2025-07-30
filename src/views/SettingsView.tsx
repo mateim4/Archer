@@ -182,33 +182,25 @@ const SettingsView: React.FC = () => {
   const TabButton = ({ id, label, icon, isActive, onClick }: any) => (
     <button
       onClick={() => onClick(id)}
-      className={`flex items-center px-3 sm:px-6 py-3 border-b-2 transition-all duration-300 ease-in-out relative flex-shrink-0`}
-      style={{
-        fontFamily: 'var(--font-family)',
-        fontSize: '14px',
-        fontWeight: isActive ? '600' : '500',
-        color: isActive ? '#8b5cf6' : '#4b5563',
-        borderBottomColor: 'transparent',
-        background: 'transparent',
-        minWidth: 'fit-content',
-        marginRight: '24px' // Force spacing between buttons
-      }}
+      className="relative flex flex-col items-center justify-center transition-all duration-300 flex-1 cursor-pointer hover:scale-105 py-2 px-3 pb-4"
     >
-      {icon}
-      <span className="ml-2">{label}</span>
+      <div className="flex items-center gap-2">
+        {icon}
+        <span 
+          className={`font-medium transition-colors duration-200 ${
+            isActive ? 'text-lcm-primary font-semibold' : 'text-lcm-text-secondary'
+          }`}
+        >
+          {label}
+        </span>
+      </div>
       {isActive && (
-        <div 
-          style={{
-            position: 'absolute',
-            bottom: '4px',
-            left: '8px',
-            right: '8px',
-            height: '3px',
-            background: 'linear-gradient(90deg, #a855f7 0%, #ec4899 100%)',
-            borderRadius: '2px',
-            boxShadow: '0 2px 8px rgba(168, 85, 247, 0.6)'
-          }}
-        />
+        <div className="absolute bottom-1 left-2 right-2 h-0.5 z-10"
+             style={{
+               background: 'linear-gradient(90deg, #a855f7 0%, #ec4899 100%)',
+               borderRadius: '2px',
+               boxShadow: '0 2px 8px rgba(168, 85, 247, 0.6)'
+             }} />
       )}
     </button>
   );
@@ -894,59 +886,64 @@ const SettingsView: React.FC = () => {
   return (
     <div style={{ 
       width: '100%',
-      minHeight: '100vh',
+      height: '100vh',
       padding: '0',
       boxSizing: 'border-box',
       display: 'flex',
       flexDirection: 'column'
     }}>
+      {/* Tab Navigation Header */}
+      <div className="lcm-card mb-6" style={{ width: '100%', flexShrink: 0 }}>
+        <div className="lcm-tabs-container">
+          <TabButton
+            id="hardware"
+            label="Hardware Basket"
+            icon={<Database size={16} />}
+            isActive={activeTab === 'hardware'}
+            onClick={setActiveTab}
+          />
+          <TabButton
+            id="calculation"
+            label="Calculations"
+            icon={<Settings size={16} />}
+            isActive={activeTab === 'calculation'}
+            onClick={setActiveTab}
+          />
+          <TabButton
+            id="documents"
+            label="Documents"
+            icon={<Upload size={16} />}
+            isActive={activeTab === 'documents'}
+            onClick={setActiveTab}
+          />
+          <TabButton
+            id="parser"
+            label="Vendor Hardware Manager"
+            icon={<FileText size={16} />}
+            isActive={activeTab === 'parser'}
+            onClick={setActiveTab}
+          />
+        </div>
+      </div>
+      
+      {/* Main Content Card */}
       <div 
-        className="lcm-card"
-        style={{
-          width: '100%',
-          flex: 1,
+        className="lcm-card" 
+        style={{ 
+          width: '100%', 
+          flex: 1, 
           maxWidth: 'none',
           display: 'flex',
           flexDirection: 'column',
-          overflow: 'hidden',
-          margin: '0',
-          marginBottom: '0'
+          overflow: 'hidden'
         }}
       >
-        <div className="p-4 sm:p-6" style={{ borderColor: 'rgba(226, 232, 240, 0.6)' }}>
-          <div className="flex flex-col sm:flex-row border-b overflow-x-auto pb-4" style={{ borderColor: 'rgba(226, 232, 240, 0.6)' }}>
-            <TabButton
-              id="hardware"
-              label="Hardware Basket"
-              icon={<Database size={16} />}
-              isActive={activeTab === 'hardware'}
-              onClick={setActiveTab}
-            />
-            <TabButton
-              id="calculation"
-              label="Calculations"
-              icon={<Settings size={16} />}
-              isActive={activeTab === 'calculation'}
-              onClick={setActiveTab}
-            />
-            <TabButton
-              id="documents"
-              label="Documents"
-              icon={<Upload size={16} />}
-              isActive={activeTab === 'documents'}
-              onClick={setActiveTab}
-            />
-            <TabButton
-              id="parser"
-              label="Vendor Hardware Manager"
-              icon={<FileText size={16} />}
-              isActive={activeTab === 'parser'}
-              onClick={setActiveTab}
-            />
-          </div>
-        </div>
-        
-        <div className="p-4 sm:p-6 pt-8 sm:pt-12 flex-1 overflow-auto">
+        {/* Scrollable content area */}
+        <div style={{ 
+          flex: 1, 
+          overflow: 'auto', 
+          padding: '24px'
+        }}>
           {activeTab === 'hardware' && renderHardwareTab()}
           {activeTab === 'calculation' && renderCalculationTab()}
           {activeTab === 'documents' && renderDocumentTab()}

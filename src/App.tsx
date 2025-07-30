@@ -104,7 +104,7 @@ const App = () => {
       
       <main style={{
         flex: 1,
-        padding: (activeView === 'lifecycle' || activeView === 'migration') ? '0 48px' : 'var(--fluent-spacing-horizontal-xl)',
+        padding: (activeView === 'lifecycle' || activeView === 'migration' || activeView === 'dashboard' || activeView === 'settings' || activeView === 'network-visualizer') ? '0 48px' : 'var(--fluent-spacing-horizontal-xl)',
         overflow: 'auto',
         background: 'rgba(255, 255, 255, 0.1)',
         backdropFilter: 'blur(20px) saturate(120%)',
@@ -113,30 +113,26 @@ const App = () => {
         position: 'relative',
         zIndex: 1
       }}>
-        {(activeView === 'lifecycle' || activeView === 'migration') ? (
+        {(activeView === 'lifecycle' || activeView === 'migration' || activeView === 'dashboard' || activeView === 'settings' || activeView === 'network-visualizer') ? (
           <div style={{ width: '100%', padding: 'var(--fluent-spacing-horizontal-m) 0' }}>
             {activeView === 'lifecycle' && <LifecyclePlannerView />}
             {activeView === 'migration' && <MigrationPlannerView />}
+            {activeView === 'dashboard' && <DashboardView />}
+            {activeView === 'settings' && <SettingsView />}
+            {activeView === 'network-visualizer' && <NetworkVisualizerView />}
           </div>
         ) : (
           <div style={{ 
-            maxWidth: (activeView === 'vendor-data' || activeView === 'settings') ? 'none' : '1200px', 
+            maxWidth: (activeView === 'vendor-data') ? 'none' : '1200px', 
             margin: '0 auto', 
-            padding: (activeView === 'vendor-data' || activeView === 'settings') ? '0' : 'var(--fluent-spacing-horizontal-m) 0',
+            padding: (activeView === 'vendor-data') ? '0' : 'var(--fluent-spacing-horizontal-m) 0',
             width: '100%'
           }}>
-            {activeView === 'dashboard' && <DashboardView />}
             {activeView === 'vendor-data' && 
               <div style={{ padding: 'var(--fluent-spacing-horizontal-m) var(--fluent-spacing-horizontal-l)' }}>
                 <VendorDataCollectionView />
               </div>
             }
-            {activeView === 'settings' && 
-              <div style={{ padding: 'var(--fluent-spacing-horizontal-m) var(--fluent-spacing-horizontal-l)' }}>
-                <SettingsView />
-              </div>
-            }
-            {activeView === 'network-visualizer' && <NetworkVisualizerView />}
           </div>
         )}
       </main>
