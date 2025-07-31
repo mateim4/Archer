@@ -1,0 +1,94 @@
+/* Styles for the main App component */
+
+.app-container {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  font-family: var(--fluent-font-family-base);
+  background: transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+.app-acrylic-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 20% 20%, rgba(15, 108, 189, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(98, 100, 167, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 40% 60%, rgba(139, 69, 19, 0.02) 0%, transparent 50%);
+  z-index: 0;
+}
+
+.app-main-content {
+  flex: 1;
+  overflow: auto;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px) saturate(120%);
+  -webkit-backdrop-filter: blur(20px) saturate(120%);
+  border-left: 1px solid rgba(255, 255, 255, 0.2);
+  position: relative;
+  z-index: 1;
+  padding: var(--fluent-spacing-horizontal-xl);
+}
+
+.app-main-content.full-width {
+  padding: 0 48px;
+}
+
+.app-content-wrapper {
+  width: 100%;
+}
+
+.app-content-wrapper.full-width {
+  padding: var(--fluent-spacing-horizontal-m) 0;
+}
+
+.app-content-wrapper.constrained {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--fluent-spacing-horizontal-m) 0;
+}
+
+.app-content-wrapper.constrained-vendor {
+    padding: 0;
+    max-width: none;
+    margin: 0;
+}
+
+.app-content-wrapper-vendor-padding {
+    padding: var(--fluent-spacing-horizontal-m) var(--fluent-spacing-horizontal-l);
+}
+
+/* Styles moved from useEffect in App.tsx */
+@keyframes gradientShift {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  25% {
+    background-position: 50% 25%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  75% {
+    background-position: 50% 75%;
+  }
+}
+
+/* Navigation improvements */
+.fluent-nav-item {
+  display: flex;
+  align-items: center;
+  padding: var(--fluent-spacing-horizontal-s) var(--fluent-spacing-horizontal-m);
+  gap: var(--fluent-spacing-horizontal-m);
+}
+
+.fluent-nav-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}

@@ -474,14 +474,26 @@ export const useAppStore = create<AppState>((set, get) => ({
             status: (cluster.health_status?.warnings?.length > 0 || 
                     cluster.health_status?.zombie_vms?.length > 0 ||
                     cluster.health_status?.outdated_tools?.length > 0) ? 'warning' : 'healthy',
-            // Use real vCPU ratio from metrics
+            // Use real vCPU ratio from metrics with proper fallbacks
             vcpu_ratio: cluster.metrics?.current_vcpu_pcpu_ratio ? 
               `${cluster.metrics.current_vcpu_pcpu_ratio.toFixed(1)}:1` : 
-              `${((cluster.metrics?.total_vcpus || 0) / Math.max(cluster.metrics?.total_pcpu_cores || 1, 1)).toFixed(1)}:1`,
-            // Use real memory overcommit ratio
+              (() => {
+                const vcpus = cluster.metrics?.total_vcpus || 0;
+                const pcpus = cluster.metrics?.total_pcpu_cores || 0;
+                if (vcpus === 0 || pcpus === 0) return 'N/A';
+                const ratio = vcpus / pcpus;
+                return `${ratio.toFixed(1)}:1`;
+              })(),
+            // Use real memory overcommit ratio with proper fallbacks
             memory_overcommit: cluster.metrics?.memory_overcommit_ratio ?
               `${cluster.metrics.memory_overcommit_ratio.toFixed(1)}:1` :
-              `${((cluster.metrics?.provisioned_memory_gb || 0) / Math.max(cluster.metrics?.total_memory_gb || 1, 1)).toFixed(1)}:1`
+              (() => {
+                const provisioned = cluster.metrics?.provisioned_memory_gb || 0;
+                const total = cluster.metrics?.total_memory_gb || 0;
+                if (provisioned === 0 || total === 0) return 'N/A';
+                const ratio = provisioned / total;
+                return `${ratio.toFixed(1)}:1`;
+              })()
           }));
 
           // Create environment summary from real data
@@ -540,7 +552,7 @@ export const useAppStore = create<AppState>((set, get) => ({
             })),
             utilization: cluster.utilization,
             status: cluster.utilization > 80 ? 'warning' : 'healthy',
-            vcpu_ratio: '4:1',
+            vcpu_ratio: '4.0:1',
             memory_overcommit: '1.5:1'
           }));
 

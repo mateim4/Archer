@@ -1,6 +1,9 @@
 
-  VITE v4.5.14  ready in 161 ms
+> infra-planner@1.0.0 dev
+> vite --port 1420
 
-  ➜  Local:   http://localhost:1421/
+
+  VITE v4.5.14  ready in 553 ms
+
+  ➜  Local:   http://localhost:1420/
   ➜  Network: use --host to expose
-  ➜  press h to show help

@@ -953,7 +953,7 @@ const DashboardView: React.FC = () => {
         {/* Filter and Controls */}
         <div className="flex items-center gap-4">
           <div className="flex-1 relative">
-            <Filter size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-lcm-text-muted z-10" />
+            <Filter size={16} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-lcm-text-muted z-10" />
             <input
               type="text"
               placeholder="Filter VMs by name, cluster, or OS..."
@@ -1239,7 +1239,7 @@ const DashboardView: React.FC = () => {
         {/* Filter and Controls */}
         <div className="flex items-center gap-4">
           <div className="flex-1 relative">
-            <Filter size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-lcm-text-muted z-10" />
+            <Filter size={16} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-lcm-text-muted z-10" />
             <input
               type="text"
               placeholder="Filter hosts by name, cluster, or status..."
@@ -1488,8 +1488,8 @@ const DashboardView: React.FC = () => {
             >
               {activeTab === 'clusters' && (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {(environmentSummary?.clusters || currentEnvironment?.clusters) && (environmentSummary?.clusters || currentEnvironment?.clusters).length > 0 ? (
-                    (environmentSummary?.clusters || currentEnvironment?.clusters).map((cluster: any, index: number) => (
+                  {currentEnvironment?.clusters && currentEnvironment.clusters.length > 0 ? (
+                    currentEnvironment.clusters.map((cluster: any, index: number) => (
                       <ClusterCard key={index} cluster={cluster} />
                     ))
                   ) : (

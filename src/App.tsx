@@ -8,6 +8,7 @@ import { VendorDataCollectionView } from './views/VendorDataCollectionView';
 import NetworkVisualizerView from './views/NetworkVisualizerView';
 import { DynamicGlassMorphismBackground } from './components/DynamicGlassMorphismBackground';
 import { autoSave } from './utils/autoSave';
+import './App.css';
 
 const App = () => {
   const [activeView, setActiveView] = useState('dashboard');
@@ -22,78 +23,24 @@ const App = () => {
     };
   }, []);
 
-  // Load Avenir Next LT Pro font with Poppins fallback and comprehensive Fluent 2 styles
-  useEffect(() => {
-    const avenirLink = document.createElement('link');
-    avenirLink.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap';
-    avenirLink.rel = 'stylesheet';
-    document.head.appendChild(avenirLink);
+  const isFullWidthView = ['lifecycle', 'migration', 'dashboard', 'settings', 'network-visualizer'].includes(activeView);
+  const isVendorDataView = activeView === 'vendor-data';
 
-    const poppinsLink = document.createElement('link');
-    poppinsLink.href = 'https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap';
-    poppinsLink.rel = 'stylesheet';
-    document.head.appendChild(poppinsLink);
-    
-    const style = document.createElement('style');
-    style.textContent = `
-      /* App-specific styles only - base styles are in index.css */
-      @keyframes gradientShift {
-        0%, 100% { background-position: 0% 50%; }
-        25% { background-position: 50% 25%; }
-        50% { background-position: 100% 50%; }
-        75% { background-position: 50% 75%; }
-      }
+  const mainContentClass = `app-main-content ${isFullWidthView ? 'full-width' : ''}`;
+  let contentWrapperClass = 'app-content-wrapper';
+  if (isFullWidthView) {
+    contentWrapperClass += ' full-width';
+  } else if (isVendorDataView) {
+    contentWrapperClass += ' constrained-vendor';
+  } else {
+    contentWrapperClass += ' constrained';
+  }
 
-      /* Navigation improvements */
-      .fluent-nav-item {
-        display: flex;
-        align-items: center;
-        padding: var(--fluent-spacing-horizontal-s) var(--fluent-spacing-horizontal-m);
-        gap: var(--fluent-spacing-horizontal-m);
-      }
-
-      .fluent-nav-icon {
-        width: 20px;
-        height: 20px;
-        flex-shrink: 0;
-      }
-    `;
-    document.head.appendChild(style);
-    
-    return () => {
-      document.head.removeChild(avenirLink);
-      document.head.removeChild(poppinsLink);
-      document.head.removeChild(style);
-    };
-  }, []);
 
   return (
-    <div style={{ 
-      width: '100vw', 
-      height: '100vh', 
-      display: 'flex',
-      fontFamily: 'var(--fluent-font-family-base)',
-      background: 'transparent',
-      position: 'relative',
-      overflow: 'hidden'
-    }}>
-      {/* Dynamic Glass Morphism Background */}
+    <div className="app-container">
       <DynamicGlassMorphismBackground />
-      
-      {/* Acrylic background layers */}
-      <div style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: `
-          radial-gradient(circle at 20% 20%, rgba(15, 108, 189, 0.03) 0%, transparent 50%),
-          radial-gradient(circle at 80% 80%, rgba(98, 100, 167, 0.03) 0%, transparent 50%),
-          radial-gradient(circle at 40% 60%, rgba(139, 69, 19, 0.02) 0%, transparent 50%)
-        `,
-        zIndex: 0
-      }} />
+      <div className="app-acrylic-layer" />
 
       <NavigationSidebar 
         collapsed={navCollapsed}
@@ -102,39 +49,19 @@ const App = () => {
         onViewChange={setActiveView}
       />
       
-      <main style={{
-        flex: 1,
-        padding: (activeView === 'lifecycle' || activeView === 'migration' || activeView === 'dashboard' || activeView === 'settings' || activeView === 'network-visualizer') ? '0 48px' : 'var(--fluent-spacing-horizontal-xl)',
-        overflow: 'auto',
-        background: 'rgba(255, 255, 255, 0.1)',
-        backdropFilter: 'blur(20px) saturate(120%)',
-        WebkitBackdropFilter: 'blur(20px) saturate(120%)',
-        borderLeft: '1px solid rgba(255, 255, 255, 0.2)',
-        position: 'relative',
-        zIndex: 1
-      }}>
-        {(activeView === 'lifecycle' || activeView === 'migration' || activeView === 'dashboard' || activeView === 'settings' || activeView === 'network-visualizer') ? (
-          <div style={{ width: '100%', padding: 'var(--fluent-spacing-horizontal-m) 0' }}>
+      <main className={mainContentClass}>
+        <div className={contentWrapperClass}>
             {activeView === 'lifecycle' && <LifecyclePlannerView />}
             {activeView === 'migration' && <MigrationPlannerView />}
             {activeView === 'dashboard' && <DashboardView />}
             {activeView === 'settings' && <SettingsView />}
             {activeView === 'network-visualizer' && <NetworkVisualizerView />}
-          </div>
-        ) : (
-          <div style={{ 
-            maxWidth: (activeView === 'vendor-data') ? 'none' : '1200px', 
-            margin: '0 auto', 
-            padding: (activeView === 'vendor-data') ? '0' : 'var(--fluent-spacing-horizontal-m) 0',
-            width: '100%'
-          }}>
             {activeView === 'vendor-data' && 
-              <div style={{ padding: 'var(--fluent-spacing-horizontal-m) var(--fluent-spacing-horizontal-l)' }}>
+              <div className="app-content-wrapper-vendor-padding">
                 <VendorDataCollectionView />
               </div>
             }
-          </div>
-        )}
+        </div>
       </main>
     </div>
   );
