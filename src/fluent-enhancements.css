@@ -238,6 +238,11 @@
   min-height: 48px;
 }
 
+/* Input with icon on the left - adds proper padding for icon space */
+.lcm-input.pl-12 {
+  padding-left: 44px; /* Adjust to properly center icon */
+}
+
 .lcm-input:focus {
   background: var(--lcm-bg-input-focus);
   border: 1px solid var(--lcm-primary-hover);
@@ -250,6 +255,11 @@
     padding: 14px 16px;
     font-size: 16px; /* Prevent zoom on iOS */
     min-height: 52px;
+  }
+  
+  /* Mobile input with icon adjustment */
+  .lcm-input.pl-12 {
+    padding-left: 48px; /* Slightly more padding on mobile for easier touch */
   }
 }
 

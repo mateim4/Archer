@@ -89,9 +89,9 @@ class ServerFileProcessor {
         throw new Error(result.error || 'Failed to process VMware file');
       }
 
-      // Return parsed environment data for RVTools files, or CSV data for CSV files
-      if (result.fileType === 'rvtools' && result.environment) {
-        console.log('Received parsed RVTools environment data:', result.environment);
+      // Return parsed environment data for all supported files now
+      if (result.environment) {
+        console.log('Received parsed environment data:', result.environment);
         return result.environment;
       } else if (result.csvData) {
         console.log('Received CSV data for client-side processing');

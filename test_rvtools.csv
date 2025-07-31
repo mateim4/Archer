@@ -1,0 +1,5 @@
+VM Name,Cluster,Host,CPUs,Memory MB,Powerstate,OS
+test-vm-1,Production-Cluster,esxi-host-01,4,8192,poweredOn,Microsoft Windows Server 2019
+test-vm-2,Production-Cluster,esxi-host-01,2,4096,poweredOn,Ubuntu Linux
+test-vm-3,Production-Cluster,esxi-host-02,8,16384,poweredOn,Microsoft Windows Server 2022
+test-vm-4,Development-Cluster,esxi-host-03,2,2048,poweredOff,CentOS Linux

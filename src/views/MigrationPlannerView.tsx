@@ -3,7 +3,7 @@ import CustomSlider from '../components/CustomSlider';
 import { useAppStore } from '../store/useAppStore';
 
 const MigrationPlannerView: React.FC = () => {
-  const { environmentSummary } = useAppStore();
+  const { environmentSummary, currentEnvironment } = useAppStore();
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedClusters, setSelectedClusters] = useState<string[]>([]);
   const [migrationDuration, setMigrationDuration] = useState(12); // months
@@ -141,7 +141,7 @@ const MigrationPlannerView: React.FC = () => {
   }, []);
 
   // Get cluster data from environment summary when available
-  const clusterData = environmentSummary?.clusters || [];
+  const clusterData = currentEnvironment?.clusters || [];
 
   // Function to validate OS breakdown totals
   const validateOSBreakdown = (osBreakdown: Record<string, number>, totalVMs: number) => {
@@ -151,7 +151,9 @@ const MigrationPlannerView: React.FC = () => {
 
   // Function to get OS breakdown pie chart data
   const getOSChartData = (osBreakdown: Record<string, number>) => {
-    const total = Object.values(osBreakdown).reduce((sum, count) => sum + count, 0);
+    // Ensure osBreakdown is a valid object
+    const safeOsBreakdown = osBreakdown || {};
+    const total = Object.values(safeOsBreakdown).reduce((sum, count) => sum + count, 0);
     const osColors = [
       '#0078d4', // Windows Blue
       '#e74c3c', // Red Hat Red  
@@ -161,7 +163,7 @@ const MigrationPlannerView: React.FC = () => {
       '#34495e', // Dark Gray
     ];
     
-    return Object.entries(osBreakdown).map(([os, count], index) => ({
+    return Object.entries(safeOsBreakdown).map(([os, count], index) => ({
       os,
       count,
       percentage: Math.round((count / total) * 100),
@@ -319,9 +321,12 @@ const MigrationPlannerView: React.FC = () => {
 
   // OS Breakdown Pie Chart Component - Split layout
   const OSBreakdownChartSplit = ({ osBreakdown, totalVMs }: { osBreakdown: Record<string, number | undefined>, totalVMs: number }) => {
+    // Ensure osBreakdown is a valid object
+    const safeOsBreakdown = osBreakdown || {};
+    
     // Filter out undefined values and create clean breakdown
     const cleanBreakdown: Record<string, number> = {};
-    Object.entries(osBreakdown).forEach(([key, value]) => {
+    Object.entries(safeOsBreakdown).forEach(([key, value]) => {
       if (value !== undefined && value > 0) {
         cleanBreakdown[key] = value;
       }
@@ -645,11 +650,12 @@ const MigrationPlannerView: React.FC = () => {
             }}>
               {clusterData.map((cluster: any) => {
                 // calculate metrics
-                const cpuAllocated = Math.round(cluster.utilization * 0.7);
-                const cpuConsumed = Math.round(cluster.utilization * 0.85);
+                const utilization = cluster.utilization || cluster.metrics?.utilization || 75; // fallback to 75%
+                const cpuAllocated = Math.round(utilization * 0.7);
+                const cpuConsumed = Math.round(utilization * 0.85);
                 const cpuFree = 100 - cpuAllocated;
-                const memAllocated = Math.round(cluster.utilization * 0.8);
-                const memConsumed = Math.round(cluster.utilization * 0.9);
+                const memAllocated = Math.round(utilization * 0.8);
+                const memConsumed = Math.round(utilization * 0.9);
                 const memFree = 100 - memAllocated;
 
                 return (
@@ -692,19 +698,19 @@ const MigrationPlannerView: React.FC = () => {
                         boxSizing: 'border-box',
                       }}>
                         <div className="font-semibold mb-2" style={{ fontSize: '16px', fontWeight: selectedClusters.includes(cluster.id) ? '700' : '600', color: 'var(--color-neutral-foreground)' }}>{cluster.name}</div>
-                        <div className="text-sm mb-4" style={{ fontSize: '13px', color: 'var(--color-neutral-foreground-secondary)', lineHeight: '1.5' }}>{cluster.description}</div>
+                        <div className="text-sm mb-4" style={{ fontSize: '13px', color: 'var(--color-neutral-foreground-secondary)', lineHeight: '1.5' }}>{cluster.description || 'VMware vSphere cluster'}</div>
                         <div className="grid grid-cols-2 gap-y-5 text-xs" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: '16px', alignItems: 'start' }}>
                           <div className="flex items-start gap-3">
                             <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" className="text-blue-500 flex-shrink-0 mt-0.5"><path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" /></svg>
-                            <span className="text-gray-600 text-sm">Hosts: <span className="font-semibold text-gray-700">{cluster.hosts}</span></span>
+                            <span className="text-gray-600 text-sm">Hosts: <span className="font-semibold text-gray-700">{cluster.hosts?.length || cluster.hosts || 0}</span></span>
                           </div>
                           <div className="flex items-start gap-3">
                             <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" className="text-green-500 flex-shrink-0 mt-0.5"><path fillRule="evenodd" d="M2 6a2 2 0 012-2h4l2 2h4a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-1-1V6z" clipRule="evenodd" /></svg>
-                            <span className="text-gray-600 text-sm">VMs: <span className="font-semibold text-gray-700">{cluster.vms}</span></span>
+                            <span className="text-gray-600 text-sm">VMs: <span className="font-semibold text-gray-700">{cluster.vms?.length || cluster.vms || 0}</span></span>
                           </div>
                           <div className="flex items-start gap-3">
                             <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" className="text-purple-500 flex-shrink-0 mt-0.5"><path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" /></svg>
-                            <span className="text-gray-600 text-sm">vSphere: <span className="font-semibold text-gray-700">{cluster.vmwareVersion.split(' ')[1]}</span></span>
+                            <span className="text-gray-600 text-sm">vSphere: <span className="font-semibold text-gray-700">{cluster.vmwareVersion ? cluster.vmwareVersion.split(' ')[1] : 'Unknown'}</span></span>
                           </div>
                           <div className="flex items-start gap-3">
                             <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" className={`${cluster.vSAN ? "text-yellow-500" : "text-gray-400"} flex-shrink-0 mt-0.5`}><path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" /></svg>
@@ -714,16 +720,16 @@ const MigrationPlannerView: React.FC = () => {
                             <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" className="text-indigo-500 flex-shrink-0 mt-0.5"><path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" /></svg>
                             <div className="flex flex-col">
                               <span className="text-gray-600 text-sm leading-tight">Hardware:</span>
-                              <span className="font-semibold text-gray-700 text-xs mt-1 leading-relaxed">{cluster.hardware}</span>
+                              <span className="font-semibold text-gray-700 text-xs mt-1 leading-relaxed">{cluster.hardware || 'Unknown Hardware'}</span>
                             </div>
                           </div>
                           <div className="flex items-start gap-3">
                             <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" className="text-pink-500 flex-shrink-0 mt-0.5"><path fillRule="evenodd" d="M4 2a2 2 0 00-2 2v11a2 2 0 002 2h12a2 2 0 002-2V4a2 2 0 00-2-2H4zm0 2h12v11H4V4z" clipRule="evenodd" /><path d="M6 6h8v2H6V6zM6 10h8v2H6v-2z" /></svg>
-                            <span className="text-gray-600 text-sm">Vendor: <span className="font-semibold text-gray-700">{cluster.vendor}</span></span>
+                            <span className="text-gray-600 text-sm">Vendor: <span className="font-semibold text-gray-700">{cluster.vendor || 'VMware'}</span></span>
                           </div>
                           <div className="flex items-start gap-3">
                             <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" className="text-teal-500 flex-shrink-0 mt-0.5"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" /></svg>
-                            <span className="text-gray-600 text-sm">Age: <span className="font-semibold text-gray-700">{cluster.oldestVMAge}</span></span>
+                            <span className="text-gray-600 text-sm">Age: <span className="font-semibold text-gray-700">{cluster.oldestVMAge || '< 1 year'}</span></span>
                           </div>
                           <div className="flex items-start gap-3">
                             <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" className="text-orange-500 flex-shrink-0 mt-0.5"><path d="M3 3a1 1 0 000 2h11.586l-2.293 2.293a1 1 0 101.414 1.414l4-4a1 1 0 000-1.414l-4-4a1 1 0 10-1.414 1.414L14.586 3H3z" /></svg>
@@ -752,7 +758,7 @@ const MigrationPlannerView: React.FC = () => {
                         <div style={{ fontSize: '14px', fontWeight: '600', color: 'var(--color-neutral-foreground)', marginBottom: '16px', textAlign: 'center', backgroundColor: 'rgba(168, 85, 247, 0.1)', padding: '4px 12px', borderRadius: '8px', border: '1px solid rgba(168, 85, 247, 0.3)' }}>
                           Detected Workloads
                         </div>
-                        <OSBreakdownChartSplit osBreakdown={cluster.osBreakdown} totalVMs={cluster.vms} />
+                        <OSBreakdownChartSplit osBreakdown={cluster.osBreakdown || {}} totalVMs={cluster.vms?.length || cluster.vms || 0} />
                       </div>
                       {/* Third column: CPU and Memory pie charts */}
                       <div style={{
