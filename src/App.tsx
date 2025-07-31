@@ -8,6 +8,7 @@ import { VendorDataCollectionView } from './views/VendorDataCollectionView';
 import NetworkVisualizerView from './views/NetworkVisualizerView';
 import { DynamicGlassMorphismBackground } from './components/DynamicGlassMorphismBackground';
 import { autoSave } from './utils/autoSave';
+import './fluent-enhancements.css';
 import './App.css';
 
 const App = () => {
