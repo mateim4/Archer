@@ -1,60 +1,92 @@
 import React from 'react';
-import { BarChart3, RefreshCw, ArrowRight, Settings, Menu, Database, Share2 } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
+import {
+  BarChart3,
+  RefreshCw,
+  ArrowRight,
+  Settings,
+  Menu,
+  Database,
+  Share2,
+  FolderKanban,
+  Scaling,
+  FileText,
+  GitMerge,
+} from 'lucide-react';
 
 interface NavigationSidebarProps {
   collapsed: boolean;
   onToggleCollapse: () => void;
-  activeView: string;
-  onViewChange: (view: string) => void;
 }
 
 const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
   collapsed,
   onToggleCollapse,
-  activeView,
-  onViewChange
 }) => {
+  const location = useLocation();
+  const activeView = location.pathname;
+
   const navigationItems = [
-    { 
-      id: 'dashboard', 
-      label: 'Dashboard', 
-      icon: BarChart3,
-      tooltip: 'View comprehensive overview of your VMware environment including cluster health, resource utilization, and optimization recommendations.'
-    },
-    { 
-      id: 'lifecycle', 
-      label: 'VMware Lifecycle Planner', 
-      icon: RefreshCw,
-      tooltip: 'Plan and forecast VMware infrastructure capacity needs using advanced algorithms. Configure growth parameters, HA policies, and generate hardware recommendations.'
-    },
-    { 
-      id: 'migration', 
-      label: 'Migration Planner', 
-      icon: ArrowRight,
-      tooltip: 'Plan and execute infrastructure migration strategies. Configure migration waves, target platforms, and generate migration roadmaps.'
+    {
+      id: 'projects',
+      label: 'Projects',
+      icon: FolderKanban,
+      path: '/projects',
+      tooltip: 'Manage and view your projects.'
     },
     {
-      id: 'network-visualizer',
-      label: 'Network Visualizer',
-      icon: Share2,
-      tooltip: 'Visualize your network topology from RVTools exports.'
-    },
-    { 
-      id: 'vendor-data', 
-      label: 'Vendor Data Collection', 
+      id: 'hardware-pool',
+      label: 'Hardware Pool',
       icon: Database,
-      tooltip: 'Fetch server hardware catalogs, specifications, and compatibility data from vendor APIs. Search for optimal configurations based on requirements.'
+      path: '/hardware',
+      tooltip: 'Manage your hardware pool.'
     },
-    { 
-      id: 'settings', 
-      label: 'Settings', 
+    {
+      id: 'cluster-sizing',
+      label: 'Cluster Sizing',
+      icon: Scaling,
+      path: '/sizing',
+      tooltip: 'Plan and size your clusters.'
+    },
+    {
+      id: 'network-planning',
+      label: 'Network Planning',
+      icon: Share2,
+      path: '/network',
+      tooltip: 'Visualize and plan your network.'
+    },
+    {
+      id: 'design-docs',
+      label: 'Design Docs',
+      icon: FileText,
+      path: '/docs',
+      tooltip: 'Create and manage design documents.'
+    },
+    {
+      id: 'migration',
+      label: 'Migration',
+      icon: ArrowRight,
+      path: '/migration',
+      tooltip: 'Plan and track your migrations.'
+    },
+    {
+      id: 'workflows',
+      label: 'Workflows',
+      icon: GitMerge,
+      path: '/workflows',
+      tooltip: 'Execute guided workflows.'
+    },
+    {
+      id: 'settings',
+      label: 'Settings',
       icon: Settings,
-      tooltip: 'Configure hardware baskets, document templates, TCO parameters, and application preferences.'
-    }
+      path: '/settings',
+      tooltip: 'Configure application settings.'
+    },
   ];
 
   return (
-    <div 
+    <div
       className={`${collapsed ? 'w-16' : 'w-64'} transition-all duration-300 ease-out relative`}
       style={{
         background: 'rgba(255, 255, 255, 0.85)',
@@ -67,30 +99,30 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
       }}
     >
       {/* Header */}
-      <div 
-        className="flex items-center justify-between h-16 px-5 border-b" 
-        style={{ 
+      <div
+        className="flex items-center justify-between h-16 px-5 border-b"
+        style={{
           borderColor: 'var(--fluent-color-neutral-stroke-2)',
           background: 'rgba(255, 255, 255, 0.1)'
         }}
       >
         {!collapsed && (
-          <h1 
+          <h1
             className="font-semibold truncate"
-            style={{ 
+            style={{
               fontSize: '18px',
               fontWeight: '600',
               color: '#000000',
               fontFamily: 'inherit'
             }}
           >
-            InfraPlanner
+            InfraAID
           </h1>
         )}
         <button
           onClick={onToggleCollapse}
           className="p-2 rounded-md transition-all duration-200"
-          style={{ 
+          style={{
             borderRadius: 'var(--border-radius-md)',
             background: 'rgba(255, 255, 255, 0.1)',
             backdropFilter: 'blur(10px)',
@@ -113,55 +145,55 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
       <nav className="px-0 py-2">
         <div className="space-y-1">
           {navigationItems.map((item) => (
-            <button
+            <Link
               key={item.id}
-              onClick={() => onViewChange(item.id)}
+              to={item.path}
               className={`w-full flex items-center text-sm font-medium transition-all duration-300 group relative overflow-hidden ${
-                activeView === item.id ? 'active-nav-item' : ''
+                activeView === item.path ? 'active-nav-item' : ''
               }`}
               style={{
                 minHeight: '56px',
                 borderRadius: '0px',
                 margin: '0',
                 padding: collapsed ? '16px 12px' : '16px 12px 16px 16px',
-                backgroundColor: activeView === item.id 
-                  ? 'rgba(255, 255, 255, 0.95)' 
+                backgroundColor: activeView === item.path
+                  ? 'rgba(255, 255, 255, 0.95)'
                   : 'transparent',
                 border: 'none',
-                borderLeft: activeView === item.id 
-                  ? '4px solid #000000' 
+                borderLeft: activeView === item.path
+                  ? '4px solid #000000'
                   : '4px solid transparent',
-                color: activeView === item.id 
-                  ? '#000000' 
+                color: activeView === item.path
+                  ? '#000000'
                   : '#424242',
-                fontWeight: activeView === item.id 
-                  ? '600' 
+                fontWeight: activeView === item.path
+                  ? '600'
                   : '500',
-                boxShadow: activeView === item.id 
-                  ? '0 1px 3px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.9)' 
+                boxShadow: activeView === item.path
+                  ? '0 1px 3px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.9)'
                   : 'none',
                 transform: 'none',
                 position: 'relative',
-                zIndex: activeView === item.id ? 2 : 1,
+                zIndex: activeView === item.path ? 2 : 1,
                 fontFamily: 'inherit',
                 textAlign: 'left',
                 width: '100%'
               }}
               onMouseEnter={(e) => {
-                if (activeView !== item.id) {
+                if (activeView !== item.path) {
                   e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.4)';
                   e.currentTarget.style.borderLeft = '4px solid rgba(0, 0, 0, 0.3)';
                 }
               }}
               onMouseLeave={(e) => {
-                if (activeView !== item.id) {
+                if (activeView !== item.path) {
                   e.currentTarget.style.backgroundColor = 'transparent';
                   e.currentTarget.style.borderLeft = '4px solid transparent';
                 }
               }}
             >
               {/* Icon container */}
-              <div 
+              <div
                 className="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-lg"
                 style={{
                   backgroundColor: 'transparent',
@@ -169,8 +201,8 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
                   marginRight: collapsed ? '0' : '12px'
                 }}
               >
-                <item.icon 
-                  size={20} 
+                <item.icon
+                  size={20}
                   color="#000000"
                   strokeWidth={1.5}
                 />
@@ -179,18 +211,18 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
               {!collapsed && (
                 <div className="flex-1 min-w-0">
                   <div className="text-left relative">
-                    <div 
+                    <div
                       className="font-medium truncate"
                       style={{
                         fontSize: '14px',
                         lineHeight: '20px',
-                        fontWeight: activeView === item.id ? '600' : '500'
+                        fontWeight: activeView === item.path ? '600' : '500'
                       }}
                     >
                       {item.label}
                     </div>
-                    {activeView === item.id && (
-                      <div 
+                    {activeView === item.path && (
+                      <div
                         className="absolute bottom-0 left-0 h-0.5 rounded-full"
                         style={{
                           width: '80%',
@@ -205,8 +237,8 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
               )}
               
               {/* Active indicator */}
-              {activeView === item.id && (
-                <div 
+              {activeView === item.path && (
+                <div
                   className="absolute right-3 w-2 h-2 rounded-full"
                   style={{
                     backgroundColor: '#000000',
@@ -214,7 +246,7 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
                   }}
                 />
               )}
-            </button>
+            </Link>
           ))}
         </div>
       </nav>

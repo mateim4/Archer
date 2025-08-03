@@ -1,5 +1,5 @@
 [workspace]
-members = ["src-tauri", "core-engine"]
+members = ["core-engine", "backend"]
 resolver = "2"
 
 [workspace.dependencies]
