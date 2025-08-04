@@ -884,16 +884,9 @@ const SettingsView: React.FC = () => {
   );
 
   return (
-    <div style={{ 
-      width: '100%',
-      height: '100vh',
-      padding: '0',
-      boxSizing: 'border-box',
-      display: 'flex',
-      flexDirection: 'column'
-    }}>
+    <div className="fluent-page-container">
       {/* Tab Navigation Header */}
-      <div className="lcm-card mb-6" style={{ width: '100%', flexShrink: 0 }}>
+      <div className="lcm-card mb-6 flex-shrink-0">
         <div className="lcm-tabs-container">
           <TabButton
             id="hardware"
@@ -927,23 +920,9 @@ const SettingsView: React.FC = () => {
       </div>
       
       {/* Main Content Card */}
-      <div 
-        className="lcm-card" 
-        style={{ 
-          width: '100%', 
-          flex: 1, 
-          maxWidth: 'none',
-          display: 'flex',
-          flexDirection: 'column',
-          overflow: 'hidden'
-        }}
-      >
+      <div className="lcm-card flex-1 overflow-hidden flex flex-col">
         {/* Scrollable content area */}
-        <div style={{ 
-          flex: 1, 
-          overflow: 'auto', 
-          padding: '24px'
-        }}>
+        <div className="flex-1 overflow-auto p-6">
           {activeTab === 'hardware' && renderHardwareTab()}
           {activeTab === 'calculation' && renderCalculationTab()}
           {activeTab === 'documents' && renderDocumentTab()}

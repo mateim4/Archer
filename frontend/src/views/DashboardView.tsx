@@ -1442,30 +1442,17 @@ const DashboardView: React.FC = () => {
   }
 
   return (
-    <div style={{ 
-      width: '100%',
-      height: '100vh',
-      padding: '0',
-      boxSizing: 'border-box',
-      display: 'flex',
-      flexDirection: 'column',
-      fontFamily: 'var(--font-family)'
-    }}>
+    <div className="fluent-page-container">
       {!isDataUploaded ? (
         <FileUploadComponent />
       ) : (
         <>
           <SummaryBar />
-          <div 
-            className="lcm-card" 
+          <div className="lcm-card flex-1 overflow-hidden"
             style={{ 
-              width: '100%', 
-              flex: 1, 
-              maxWidth: 'none',
               display: 'flex',
               flexDirection: 'column',
-              overflow: 'hidden',
-              margin: '8px'
+              margin: '0'
             }}
           >
             <TabNavigation

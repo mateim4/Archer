@@ -1136,95 +1136,45 @@ const MigrationPlannerView: React.FC = () => {
   };
 
   return (
-    <div style={{ 
-      width: '100%',
-      height: '100vh',
-      padding: '0',
-      boxSizing: 'border-box',
-      display: 'flex',
-      flexDirection: 'column'
-    }}>
+    <div className="fluent-page-container">
       {/* Wizard Progress Header */}
-      <div className="lcm-card mb-6" style={{ width: '100%', flexShrink: 0 }}>
-        <div style={{ 
-          width: '100%', 
-          margin: '16px 0', 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center',
-          minHeight: '48px'
-        }}>
-        {wizardSteps.map((step, index) => (
-          <React.Fragment key={step.num}>
-            <WizardStep
-              title={step.title}
-              isActive={currentStep === step.num}
-              stepNumber={step.num}
-            />
-            {index < wizardSteps.length - 1 && (
-              <div 
-                className="flex-1 h-0.5 mx-4"
-                style={{
-                  background: currentStep > step.num 
-                    ? 'linear-gradient(90deg, var(--fluent-color-success-background-1) 0%, var(--fluent-color-success-background-2) 100%)'
-                    : 'var(--fluent-color-neutral-stroke-2)',
-                  transition: 'all 0.3s ease'
-                }}
+      <div className="lcm-card mb-6 flex-shrink-0">
+        <div className="p-4 flex items-center justify-center min-h-12">
+          {wizardSteps.map((step, index) => (
+            <React.Fragment key={step.num}>
+              <WizardStep
+                title={step.title}
+                isActive={currentStep === step.num}
+                stepNumber={step.num}
               />
-            )}
-          </React.Fragment>
-        ))}
+              {index < wizardSteps.length - 1 && (
+                <div 
+                  className="flex-1 h-0.5 mx-4 transition-all duration-300"
+                  style={{
+                    background: currentStep > step.num 
+                      ? 'linear-gradient(90deg, var(--fluent-color-success-background-1) 0%, var(--fluent-color-success-background-2) 100%)'
+                      : 'var(--fluent-color-neutral-stroke-2)'
+                  }}
+                />
+              )}
+            </React.Fragment>
+          ))}
+        </div>
       </div>
-    </div>
 
       {/* Main Content Card with sticky navigation */}
-      <div 
-        className="lcm-card" 
-        style={{ 
-          width: '100%', 
-          flex: 1, 
-          maxWidth: 'none',
-          display: 'flex',
-          flexDirection: 'column',
-          overflow: 'hidden'
-        }}
-      >
+      <div className="lcm-card flex-1 overflow-hidden flex flex-col">
         {/* Scrollable content area */}
-        <div 
-          style={{ 
-            flex: 1, 
-            overflow: 'auto', 
-            padding: '24px',
-            paddingBottom: '100px', // Extra space for sticky buttons
-            maskImage: 'linear-gradient(to bottom, black 0%, black calc(100% - 80px), transparent 100%)',
-            WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black calc(100% - 80px), transparent 100%)'
-          }}
-        >
+        <div className="flex-1 overflow-auto p-6 pb-24">
           {renderStepContent()}
         </div>
         
         {/* Sticky Navigation Footer */}
-        <div 
-          style={{
-            position: 'sticky',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            background: 'transparent',
-            border: 'none',
-            borderTop: 'none',
-            borderRadius: '0',
-            boxShadow: 'none',
-            padding: '16px 24px',
-            display: 'flex',
-            justifyContent: 'space-between',
-            zIndex: 10
-          }}
-        >
+        <div className="sticky bottom-0 left-0 right-0 p-4 flex justify-between items-center bg-transparent border-t-0 z-10">
           <button 
             onClick={prevStep}
             disabled={currentStep === 1}
-            className="fluent-button fluent-button-secondary"
+            className="fluent-button fluent-button-subtle"
           >
             Previous
           </button>
