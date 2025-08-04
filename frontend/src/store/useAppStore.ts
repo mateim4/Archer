@@ -175,6 +175,9 @@ interface AppState {
   environmentSummary: any | null;
   analysisReport: AnalysisReport | null;
   
+  // Project management
+  currentProject: { id: string; name: string; description: string } | null;
+  
   // Network topology
   networkTopology: NetworkTopology | null;
   uploadedFile: string | null; // Store file path for Tauri environment
@@ -216,6 +219,9 @@ interface AppState {
   setNetworkTopology: (topology: NetworkTopology | null) => void;
   setCurrentEnvironment: (environment: VsphereEnvironment | null) => void;
   
+  // Project actions
+  setCurrentProject: (project: { id: string; name: string; description: string } | null) => void;
+  
   // Hardware actions
   getHardwareBasket: () => Promise<void>;
   addHardwareProfile: (profile: HardwareProfile) => Promise<void>;
@@ -250,6 +256,9 @@ export const useAppStore = create<AppState>((set, get) => ({
   environmentSummary: null,
   analysisReport: null,
   
+  // Project state
+  currentProject: null,
+  
   // Network topology
   networkTopology: null,
   uploadedFile: null,
@@ -269,6 +278,9 @@ export const useAppStore = create<AppState>((set, get) => ({
   setActiveView: (view) => set({ activeView: view }),
   setLoading: (loading) => set({ loading }),
   setError: (error) => set({ error }),
+
+  // Project actions
+  setCurrentProject: (project) => set({ currentProject: project }),
 
   // Environment actions
   processRvToolsFile: async (filePath: string) => {

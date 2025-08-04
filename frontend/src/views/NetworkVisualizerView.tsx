@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Upload, Network, HardDrive, Server, AlertTriangle } from 'lucide-react';
+import { Network, HardDrive, Server, AlertTriangle } from 'lucide-react';
 import mermaid from 'mermaid';
 import { generateVirtualDiagram, generateHyperVDiagram, generatePhysicalDiagram } from '../utils/mermaidGenerator';
 import { useAppStore } from '../store/useAppStore';
-import { openFileDialog, getFileName, isFileTypeSupported, isTauriEnvironment } from '../utils/fileUpload';
-import ServerFileProcessor from '../utils/serverFileProcessor';
 
 mermaid.initialize({ 
   startOnLoad: true,
@@ -30,32 +28,39 @@ const NetworkVisualizerView = () => {
   const [activeTab, setActiveTab] = useState<'virtual' | 'hyper-v' | 'physical'>('virtual');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [serverAvailable, setServerAvailable] = useState(false);
-  
-  // Initialize server processor
-  const serverProcessor = new ServerFileProcessor();
   
   // Use the shared store
   const { 
     networkTopology, 
-    uploadedFile, 
-    processNetworkTopology,
     currentEnvironment,
     environmentSummary,
     setNetworkTopology,
     setCurrentEnvironment
   } = useAppStore();
 
-  // Check server availability
+  // Initialize mermaid on component mount
   useEffect(() => {
-    const checkServer = async () => {
-      const available = await serverProcessor.isServerAvailable();
-      setServerAvailable(available);
-    };
-    checkServer();
-    // Check every 30 seconds
-    const interval = setInterval(checkServer, 30000);
-    return () => clearInterval(interval);
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      themeVariables: {
+        darkMode: true,
+        background: '#111827',
+        primaryColor: '#8b5cf6',
+        primaryTextColor: '#f9fafb',
+        primaryBorderColor: '#8b5cf6',
+        lineColor: '#8b5cf6',
+        sectionBkgColor: '#374151',
+        altSectionBkgColor: '#4b5563',
+        gridColor: '#6b7280',
+        secondaryColor: '#ec4899',
+        tertiaryColor: '#a855f7',
+        primaryColorLight: '#c4b5fd',
+        mainBkg: '#1f2937',
+        secondBkg: '#374151',
+        tertiaryBkg: '#4b5563'
+      }
+    });
   }, []);
 
   // Create sample network topology for demonstration
@@ -272,71 +277,6 @@ const NetworkVisualizerView = () => {
     });
   }, []);
 
-  const handleFileUpload = async () => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const selected = await openFileDialog({
-        multiple: false,
-        accept: ['csv', 'json', 'xml', 'txt', 'xlsx']
-      });
-
-      if (!selected) {
-        return;
-      }
-
-      // Validate file type
-      if (!isFileTypeSupported(selected, ['csv', 'json', 'xml', 'txt', 'xlsx'])) {
-        throw new Error('Unsupported file format. Please upload a CSV, JSON, XML, TXT, or XLSX file.');
-      }
-      
-      if (isTauriEnvironment() && typeof selected === 'string') {
-        // Tauri environment - process with backend
-        await processNetworkTopology(selected);
-      } else if (selected instanceof File) {
-        // Web environment - check if it's an Excel file and server is available
-        const fileName = selected.name.toLowerCase();
-        
-        if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
-          if (serverAvailable) {
-            // Use server processing for Excel files
-            const result = await serverProcessor.processVMwareFile(selected);
-            
-            // If we received environment data, update the store
-            if (result && typeof result === 'object' && result.clusters) {
-              setCurrentEnvironment(result);
-              
-              // Create network topology from the environment data
-              const topology = createNetworkTopologyFromEnvironment(result);
-              if (topology) {
-                setNetworkTopology(topology);
-              }
-              
-              setError(null);
-            } else {
-              console.log("File processed, but no environment data received.", result);
-              throw new Error('No valid environment data received from server processing.');
-            }
-          } else {
-            throw new Error('Excel file processing requires the backend server. Please start the server or use a CSV file.');
-          }
-        } else {
-          // For CSV and other text files, show a message for now
-          // In the future, you could implement client-side CSV parsing here
-          throw new Error('CSV and text file network topology analysis is not yet implemented in the web version. Please use an Excel/XLSX RVTools export or the desktop application.');
-        }
-      } else {
-        throw new Error('Invalid file selection.');
-      }
-    } catch (error) {
-      console.error('Error uploading file:', error);
-      setError(error instanceof Error ? error.message : 'An unknown error occurred');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   // Generate mermaid diagram based on active tab and topology data
   const generateDiagram = () => {
     if (!networkTopology) return '';
@@ -362,11 +302,38 @@ const NetworkVisualizerView = () => {
           try {
             const element = document.getElementById('mermaid-diagram');
             if (element) {
-              element.innerHTML = diagramDefinition;
-              await mermaid.run();
+              // Clear the element first
+              element.innerHTML = '';
+              
+              // Use a unique ID for each render
+              const uniqueId = `mermaid-${Date.now()}`;
+              
+              // Create a temporary div to hold the mermaid syntax
+              const tempDiv = document.createElement('div');
+              tempDiv.className = 'mermaid';
+              tempDiv.textContent = diagramDefinition;
+              tempDiv.id = uniqueId;
+              
+              // Add to element
+              element.appendChild(tempDiv);
+              
+              // Initialize and render
+              await mermaid.run({
+                nodes: [tempDiv]
+              });
             }
           } catch (error) {
             console.error('Error rendering diagram:', error);
+            const element = document.getElementById('mermaid-diagram');
+            if (element) {
+              element.innerHTML = `
+                <div class="text-red-500 p-4 text-center">
+                  <p class="font-medium">Error rendering diagram</p>
+                  <p class="text-sm mt-2">${error}</p>
+                  <p class="text-sm mt-2 opacity-75">Please check the diagram syntax</p>
+                </div>
+              `;
+            }
           }
         }
       }
@@ -375,7 +342,7 @@ const NetworkVisualizerView = () => {
     renderDiagram();
   }, [networkTopology, activeTab]);
 
-  // Custom Tab Button Component
+  // Custom Tab Button Component with consistent theming
   const TabButton = ({ 
     tab, 
     isActive, 
@@ -389,116 +356,68 @@ const NetworkVisualizerView = () => {
     icon: any;
     label: string;
   }) => (
-    <button
+    <div 
+      className="relative flex flex-col items-center justify-center transition-all duration-300 flex-1 cursor-pointer hover:scale-105"
+      style={{ padding: '12px 16px 20px' }}
       onClick={() => onClick(tab)}
-      className={`
-        flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200
-        ${isActive 
-          ? 'fluent-button-accent' 
-          : 'fluent-button-secondary'
-        }
-      `}
-      style={{
-        fontFamily: 'var(--font-family)',
-        fontSize: 'var(--font-size-body)',
-        fontWeight: 'var(--font-weight-medium)'
-      }}
     >
-      <Icon size={18} />
-      {label}
-    </button>
+      <div className="flex items-center gap-2 mb-2">
+        <Icon size={18} style={{ 
+          color: isActive ? '#8b5cf6' : '#6b7280',
+          transition: 'color 0.2s ease'
+        }} />
+        <span 
+          className="font-medium transition-colors duration-200"
+          style={{
+            fontFamily: 'var(--fluent-font-family-base)',
+            fontSize: '14px',
+            fontWeight: isActive ? '600' : '400',
+            color: isActive ? '#8b5cf6' : '#6b7280',
+            lineHeight: '1.4'
+          }}
+        >
+          {label}
+        </span>
+      </div>
+      {isActive && (
+        <div style={{
+          position: 'absolute',
+          bottom: '4px',
+          left: '16px',
+          right: '16px',
+          height: '3px',
+          background: 'linear-gradient(90deg, #a855f7 0%, #ec4899 100%)',
+          borderRadius: '2px',
+          boxShadow: '0 2px 8px rgba(168, 85, 247, 0.6)'
+        }} />
+      )}
+    </div>
   );
 
   return (
-    <div style={{ 
-      width: '100%',
-      height: '100vh',
-      padding: '0',
-      boxSizing: 'border-box',
-      display: 'flex',
-      flexDirection: 'column'
-    }}>
-      <div className="lcm-card" style={{ width: '100%', flex: 1, overflow: 'auto' }}>
-        <div style={{ padding: '24px' }}>
-          {/* Upload Section */}
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold mb-4" style={{ 
-              fontFamily: 'var(--font-family)',
-              color: 'var(--color-neutral-foreground)',
-              fontSize: 'var(--font-size-title3)',
-              fontWeight: 'var(--font-weight-semibold)'
-            }}>
-              Upload Network Data
-            </h2>
-          {!isTauriEnvironment() && (
-            <div className="mb-4 space-y-2">
-              {/* Server Status Indicator */}
-              <div className={`p-3 border rounded-lg ${
-                serverAvailable 
-                  ? 'bg-green-500/20 border-green-500/30 text-green-300' 
-                  : 'bg-red-500/20 border-red-500/30 text-red-300'
-              }`}>
-                <div className="flex items-center gap-2">
-                  <div className={`w-2 h-2 rounded-full ${
-                    serverAvailable ? 'bg-green-400' : 'bg-red-400'
-                  }`} />
-                  <span className="text-sm">
-                    {serverAvailable 
-                      ? 'Backend server available - Excel files supported' 
-                      : 'Backend server offline - Only desktop application supports full functionality'
-                    }
-                  </span>
-                </div>
-              </div>
-              
-              {/* Feature Information */}
-              <div className="p-3 bg-blue-500/20 border border-blue-500/30 rounded-lg text-blue-300">
-                <div className="flex items-center gap-2">
-                  <AlertTriangle size={16} />
-                  <span className="text-sm">
-                    Network topology visualization from RVTools Excel exports {serverAvailable ? 'is supported' : 'requires the backend server'}
-                  </span>
-                </div>
-              </div>
-            </div>
-          )}
-          <div className="flex items-center gap-4">
-            <button
-              onClick={handleFileUpload}
-              disabled={isLoading}
-              className="fluent-button fluent-button-primary flex items-center gap-2"
-            >
-              {isLoading ? (
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              ) : (
-                <Upload size={16} />
-              )}
-              {isLoading ? 'Processing...' : 'Upload Network File'}
-            </button>
-            
-            {uploadedFile && (
-              <div style={{ color: 'var(--color-neutral-foreground-secondary)' }}>
-                <span className="text-sm">Uploaded: </span>
-                <span style={{ 
-                  color: 'var(--color-brand-primary)',
-                  fontWeight: 'var(--font-weight-medium)'
-                }}>
-                  {uploadedFile.split('/').pop() || uploadedFile.split('\\').pop() || 'Unknown file'}
-                </span>
-              </div>
-            )}
-          </div>
-          
+    <div className="fluent-page-container">
+      <div className="lcm-card flex-1 overflow-auto">
+        <div className="p-6">
+          {/* Error Display */}
           {error && (
-            <div className="mt-4 p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-red-300">
+            <div className="mb-6 p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-red-300">
               {error}
             </div>
           )}
-          </div>
 
           {/* Tabs */}
           <div className="mb-6">
-            <div className="flex gap-3">
+            <div 
+              className="flex border-b border-gray-200"
+              style={{
+                background: 'rgba(255, 255, 255, 0.05)',
+                borderRadius: '12px 12px 0 0',
+                border: '1px solid rgba(139, 92, 246, 0.1)',
+                borderBottom: '1px solid rgba(139, 92, 246, 0.2)',
+                backdropFilter: 'blur(8px)',
+                WebkitBackdropFilter: 'blur(8px)'
+              }}
+            >
               <TabButton
                 tab="virtual"
                 isActive={activeTab === 'virtual'}
@@ -524,8 +443,8 @@ const NetworkVisualizerView = () => {
           </div>
 
           {/* Data Source Indicator */}
-          {!currentEnvironment && !uploadedFile && (
-            <div className="mb-4 p-3 bg-blue-500/20 border border-blue-500/30 rounded-lg text-blue-300">
+          {!currentEnvironment && (
+            <div className="fluent-alert fluent-alert-info mb-4">
               <div className="flex items-center gap-2">
                 <AlertTriangle size={16} />
                 <span className="text-sm">
@@ -539,13 +458,7 @@ const NetworkVisualizerView = () => {
           {networkTopology && (
             <div 
               id="mermaid-diagram" 
-              className="w-full h-auto min-h-[400px] rounded-lg p-4 overflow-auto"
-              style={{ 
-                fontFamily: 'var(--font-family)',
-                fontSize: '14px',
-                backgroundColor: 'var(--color-neutral-background-secondary)',
-                border: '1px solid var(--color-neutral-stroke-tertiary)'
-              }}
+              className="lcm-card w-full h-auto min-h-96 overflow-auto"
             />
           )}
         </div>

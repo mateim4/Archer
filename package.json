@@ -1,0 +1,13 @@
+{
+  "name": "lcm-designer",
+  "version": "1.0.0",
+  "description": "LCM Designer - Infrastructure Planning Tool",
+  "main": "index.js",
+  "scripts": {
+    "frontend": "cd frontend && npm run dev",
+    "build": "cd frontend && npm run build"
+  },
+  "keywords": ["infrastructure", "planning", "vmware"],
+  "author": "InfraAID Team",
+  "license": "MIT"
+}
