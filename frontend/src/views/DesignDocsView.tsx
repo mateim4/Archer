@@ -127,11 +127,11 @@ const DesignDocsView: React.FC = () => {
 
   const getDocTypeColor = (type: string) => {
     switch (type) {
-      case 'HLD': return 'bg-blue-100 text-blue-800';
-      case 'LLD': return 'bg-green-100 text-green-800';
-      case 'Architecture': return 'bg-purple-100 text-purple-800';
-      case 'Requirements': return 'bg-orange-100 text-orange-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'HLD': return 'border border-blue-500/30 text-blue-800';
+      case 'LLD': return 'border border-green-500/30 text-green-800';
+      case 'Architecture': return 'border border-purple-500/30 text-purple-800';
+      case 'Requirements': return 'border border-orange-500/30 text-orange-800';
+      default: return 'border border-gray-500/30 text-gray-800';
     }
   };
 
@@ -139,10 +139,10 @@ const DesignDocsView: React.FC = () => {
     return (
       <div className="fluent-page-container">
         <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
+          <div className="h-8 border border-gray-500/30 rounded w-1/4 mb-6"></div>
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-32 bg-gray-200 rounded"></div>
+              <div key={i} className="h-32 border border-gray-500/30 rounded"></div>
             ))}
           </div>
         </div>
@@ -152,13 +152,8 @@ const DesignDocsView: React.FC = () => {
 
   return (
     <div className="fluent-page-container">
-      <div className="fluent-page-header">
-        <div>
-          <h1 className="fluent-page-title">Design Documents</h1>
-          <p className="fluent-page-subtitle">
-            Manage architecture and design documents for {currentProject?.name || 'your project'}
-          </p>
-        </div>
+      <div className="lcm-card">
+        <div className="fluent-page-header">
         <button
           onClick={() => setShowCreateForm(true)}
           className="fluent-button fluent-button-primary fluent-button-with-icon"
@@ -189,7 +184,7 @@ const DesignDocsView: React.FC = () => {
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="fluent-input"
+                className="lcm-input"
                 placeholder="e.g., System Architecture Document"
               />
             </div>
@@ -200,7 +195,7 @@ const DesignDocsView: React.FC = () => {
               <select
                 value={formData.doc_type}
                 onChange={(e) => setFormData({ ...formData, doc_type: e.target.value })}
-                className="fluent-select"
+                className="lcm-dropdown"
               >
                 <option value="HLD">High Level Design (HLD)</option>
                 <option value="LLD">Low Level Design (LLD)</option>
@@ -219,7 +214,7 @@ const DesignDocsView: React.FC = () => {
               value={formData.content}
               onChange={(e) => setFormData({ ...formData, content: e.target.value })}
               rows={15}
-              className="fluent-input font-mono"
+              className="lcm-input font-mono"
               placeholder="Write your document content in Markdown format..."
             />
           </div>
@@ -245,7 +240,7 @@ const DesignDocsView: React.FC = () => {
       {/* Documents Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
         {docs.map((doc) => (
-          <div key={doc.id} className="lcm-card lcm-card-interactive">
+          <div key={doc.id} className="p-4 rounded-lg border border-purple-500/20 hover:border-purple-500/40 transition-all duration-200">
             <div className="flex items-start justify-between mb-3">
               <div className="flex items-center gap-2">
                 <FileText size={20} className="text-purple-600" />
@@ -315,6 +310,7 @@ const DesignDocsView: React.FC = () => {
             </button>
           </div>
         )}
+      </div>
     </div>
   );
 };

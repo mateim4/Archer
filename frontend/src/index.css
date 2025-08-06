@@ -1,9 +1,12 @@
+@import "tailwindcss/preflight";
+@import "tailwindcss/utilities";
+
 /* Import Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
-/* Import Fluent 2 enhancements */
+/* Import Fluent 2 enhancements - this contains all our responsive utilities */
 @import './fluent-enhancements.css';
 
 /* CSS Reset and Fluent 2 Base Styles */
@@ -180,10 +183,10 @@ svg {
 /* Ensure proper layering */
 .glass-panel {
   position: relative;
-  background: rgba(255, 255, 255, 0.70);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: transparent;
+  border: 1px solid rgba(139, 92, 246, 0.3);
   box-shadow: 
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.4),
+    inset 0 1px 0 0 rgba(139, 92, 246, 0.2),
     0 8px 32px rgba(0, 0, 0, 0.08);
 }
 
@@ -210,13 +213,13 @@ svg {
   --color-neutral-foreground: rgba(36, 36, 36, 1);
   --color-neutral-foreground-secondary: rgba(97, 97, 97, 1);
   --color-neutral-foreground-tertiary: rgba(117, 117, 117, 1);
-  --color-neutral-background: rgba(255, 255, 255, 0.70);
-  --color-neutral-background-secondary: rgba(255, 255, 255, 0.55);
-  --color-neutral-background-tertiary: rgba(255, 255, 255, 0.45);
+  --color-neutral-background: transparent;
+  --color-neutral-background-secondary: transparent;
+  --color-neutral-background-tertiary: transparent;
   --color-neutral-stroke: rgba(0, 0, 0, 0.08);
   --color-neutral-stroke-secondary: rgba(0, 0, 0, 0.05);
   --color-brand-primary: #EA580C;
-  --color-brand-background: rgba(15, 108, 189, 0.10);
+  --color-brand-background: transparent;
   --color-brand-foreground: #0F6CBD;
 
   /* Spacing */
@@ -346,11 +349,11 @@ svg {
 
 /* Fluent 2 Card Styles */
 .fluent-card {
-  background: rgba(255, 255, 255, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: transparent;
+  border: 1px solid rgba(139, 92, 246, 0.2);
   border-radius: var(--border-radius-xl);
   box-shadow: 
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.4),
+    inset 0 1px 0 0 rgba(139, 92, 246, 0.1),
     0 8px 32px rgba(0, 0, 0, 0.08),
     0 4px 16px rgba(0, 0, 0, 0.04);
   transition: all 0.2s ease;
@@ -373,19 +376,20 @@ svg {
 .fluent-input {
   font-family: "Poppins", "Segoe UI Variable", "Segoe UI", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   font-size: var(--font-size-body);
-  padding: var(--spacing-md);
-  border: 1px solid var(--color-neutral-stroke);
-  border-radius: var(--border-radius-lg);
-  background: rgba(255, 255, 255, 0.8);
+  padding: 16px 20px;
+  border: 2px solid var(--color-neutral-stroke);
+  border-radius: 16px;
+  background: transparent;
   color: var(--color-neutral-foreground);
   transition: all 0.15s ease;
   outline: none;
+  min-height: 56px;
 }
 
 .fluent-input:focus {
   border-color: var(--color-brand-primary);
-  box-shadow: 0 0 0 2px rgba(15, 108, 189, 0.2);
-  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 0 3px rgba(15, 108, 189, 0.2);
+  background: transparent;
 }
 
 /* Dynamic Glass Morphism Background Styles */

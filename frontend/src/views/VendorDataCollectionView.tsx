@@ -469,7 +469,7 @@ export const VendorDataCollectionView: React.FC = () => {
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label className="block mb-2 font-medium text-sm text-gray-700">
+            <label className="fluent-label">
               Filter by Vendor
             </label>
             {renderDropdown(
@@ -487,7 +487,7 @@ export const VendorDataCollectionView: React.FC = () => {
             )}
           </div>
           <div>
-            <label className="block mb-2 font-medium text-sm text-gray-700">
+            <label className="fluent-label">
               Form Factor
             </label>
             {renderDropdown(
@@ -504,7 +504,7 @@ export const VendorDataCollectionView: React.FC = () => {
             )}
           </div>
           <div>
-            <label className="block mb-2 font-medium text-sm text-gray-700">
+            <label className="fluent-label">
               Generation
             </label>
             {renderDropdown(
@@ -614,7 +614,7 @@ export const VendorDataCollectionView: React.FC = () => {
       </div>
 
       {/* Configuration Search */}
-      <div className="lcm-card">
+      <div className="p-6 border border-purple-500/20 rounded-lg bg-transparent backdrop-blur-sm">
         <div className="mb-6">
           <h4 className="text-lg font-semibold text-gray-900 mb-2">Configuration Search</h4>
           <p className="text-sm text-gray-600">Find server configurations based on your workload requirements</p>
@@ -622,7 +622,7 @@ export const VendorDataCollectionView: React.FC = () => {
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6 mb-6">
           <div>
-            <label className="block mb-2 font-medium text-sm text-gray-700">
+            <label className="fluent-label">
               Workload Type
             </label>
             {renderDropdown(
@@ -641,7 +641,7 @@ export const VendorDataCollectionView: React.FC = () => {
             )}
           </div>
           <div>
-            <label className="block mb-2 font-medium text-sm text-gray-700">
+            <label className="fluent-label">
               Minimum CPU Cores
             </label>
             <input
@@ -656,7 +656,7 @@ export const VendorDataCollectionView: React.FC = () => {
             />
           </div>
           <div>
-            <label className="block mb-2 font-medium text-sm text-gray-700">
+            <label className="fluent-label">
               Minimum Memory (GB)
             </label>
             <input
@@ -698,7 +698,7 @@ export const VendorDataCollectionView: React.FC = () => {
               {serverModels.slice(0, 3).map((model, index) => (
                 <div 
                   key={model.model_id}
-                  className="lcm-card lcm-card-compact"
+                  className="p-4 border border-purple-500/20 rounded-lg bg-transparent hover:border border-purple-500/200/10 transition-all duration-200"
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div className="flex items-center">
@@ -714,7 +714,7 @@ export const VendorDataCollectionView: React.FC = () => {
                     </div>
                     <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                       <span 
-                        className="px-3 py-1 rounded-lg text-xs font-medium bg-green-50 text-green-700 border border-green-200 text-center"
+                        className="px-3 py-1 rounded-lg text-xs font-medium border border-green-500/20 text-green-700 border border-green-200 text-center"
                       >
                         {85 + index * 5}% Match
                       </span>

@@ -4,25 +4,42 @@ import mermaid from 'mermaid';
 import { generateVirtualDiagram, generateHyperVDiagram, generatePhysicalDiagram } from '../utils/mermaidGenerator';
 import { useAppStore } from '../store/useAppStore';
 
-mermaid.initialize({ 
-  startOnLoad: true,
-  theme: 'base',
-  themeVariables: {
-    background: '#ffffff',
-    primaryColor: '#f8fafc',
-    primaryTextColor: '#1a202c',
-    primaryBorderColor: '#8b5cf6',
-    lineColor: '#8b5cf6',
-    sectionBkgColor: '#f1f5f9',
-    altSectionBkgColor: '#e2e8f0',
-    gridColor: '#e2e8f0',
-    secondaryColor: '#ec4899',
-    tertiaryColor: '#a855f7',
-    primaryColorLight: '#f3e8ff',
-    fontFamily: 'Montserrat, -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", system-ui, ui-sans-serif, Helvetica, Arial, sans-serif',
-    fontSize: '14px'
-  }
-});
+// Define consistent color palette for diagrams
+const DIAGRAM_THEME = {
+  // Primary colors - Purple theme to match app
+  primary: '#8b5cf6',      // Main purple
+  primaryLight: '#c4b5fd',  // Light purple
+  primaryDark: '#6d28d9',   // Dark purple
+  
+  // Secondary colors 
+  secondary: '#ec4899',     // Pink accent
+  secondaryLight: '#f9a8d4', // Light pink
+  
+  // Tertiary colors
+  tertiary: '#3b82f6',      // Blue
+  tertiaryLight: '#93c5fd', // Light blue
+  
+  // Status colors
+  success: '#10b981',       // Green
+  warning: '#f59e0b',       // Orange  
+  error: '#ef4444',         // Red
+  info: '#06b6d4',          // Cyan
+  
+  // Neutral colors
+  neutral: '#6b7280',       // Gray
+  neutralLight: '#d1d5db',  // Light gray
+  neutralDark: '#374151',   // Dark gray
+  
+  // Background colors
+  bgPrimary: '#ffffff',     // White
+  bgSecondary: '#f8fafc',   // Very light gray
+  bgTertiary: '#f1f5f9',    // Light gray
+  
+  // Text colors
+  textPrimary: '#1a202c',   // Dark gray/black
+  textSecondary: '#4b5563', // Medium gray
+  textLight: '#ffffff',     // White
+};
 
 const NetworkVisualizerView = () => {
   const [activeTab, setActiveTab] = useState<'virtual' | 'hyper-v' | 'physical'>('virtual');
@@ -38,27 +55,32 @@ const NetworkVisualizerView = () => {
     setCurrentEnvironment
   } = useAppStore();
 
-  // Initialize mermaid on component mount
+  // Initialize mermaid on component mount with consistent theme
   useEffect(() => {
     mermaid.initialize({
       startOnLoad: true,
-      theme: 'dark',
+      theme: 'base',
       themeVariables: {
-        darkMode: true,
-        background: '#111827',
-        primaryColor: '#8b5cf6',
-        primaryTextColor: '#f9fafb',
-        primaryBorderColor: '#8b5cf6',
-        lineColor: '#8b5cf6',
-        sectionBkgColor: '#374151',
-        altSectionBkgColor: '#4b5563',
-        gridColor: '#6b7280',
-        secondaryColor: '#ec4899',
-        tertiaryColor: '#a855f7',
-        primaryColorLight: '#c4b5fd',
-        mainBkg: '#1f2937',
-        secondBkg: '#374151',
-        tertiaryBkg: '#4b5563'
+        background: DIAGRAM_THEME.bgPrimary,
+        primaryColor: DIAGRAM_THEME.bgSecondary,
+        primaryTextColor: DIAGRAM_THEME.textPrimary,
+        primaryBorderColor: DIAGRAM_THEME.primary,
+        lineColor: DIAGRAM_THEME.primary,
+        sectionBkgColor: DIAGRAM_THEME.bgTertiary,
+        altSectionBkgColor: DIAGRAM_THEME.neutralLight,
+        gridColor: DIAGRAM_THEME.neutralLight,
+        secondaryColor: DIAGRAM_THEME.secondary,
+        tertiaryColor: DIAGRAM_THEME.tertiary,
+        primaryColorLight: DIAGRAM_THEME.primaryLight,
+        fontFamily: 'Montserrat, -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", system-ui, ui-sans-serif, Helvetica, Arial, sans-serif',
+        fontSize: '14px',
+        fontWeight: '500'
+      },
+      flowchart: {
+        nodeSpacing: 50,
+        rankSpacing: 60,
+        curve: 'basis',
+        padding: 15
       }
     });
   }, []);
@@ -254,42 +276,27 @@ const NetworkVisualizerView = () => {
     }
   }, [currentEnvironment, networkTopology, setNetworkTopology]);
 
-  // Initialize Mermaid
-  useEffect(() => {
-    mermaid.initialize({ 
-      startOnLoad: true, 
-      theme: 'base',
-      themeVariables: {
-        primaryColor: '#8b5cf6',
-        primaryTextColor: '#ffffff',
-        primaryBorderColor: '#6d28d9',
-        lineColor: '#a855f7',
-        sectionBkgColor: '#1f2937',
-        altSectionBkgColor: '#374151',
-        gridColor: '#4b5563',
-        secondaryColor: '#ec4899',
-        tertiaryColor: '#3b82f6',
-        background: '#111827',
-        mainBkg: '#1f2937',
-        secondBkg: '#374151',
-        tertiaryBkg: '#4b5563'
-      }
-    });
-  }, []);
-
   // Generate mermaid diagram based on active tab and topology data
   const generateDiagram = () => {
-    if (!networkTopology) return '';
+    if (!networkTopology) {
+      console.warn('No network topology available');
+      return '';
+    }
     
-    switch (activeTab) {
-      case 'virtual':
-        return generateVirtualDiagram(networkTopology);
-      case 'hyper-v':
-        return generateHyperVDiagram(networkTopology);
-      case 'physical':
-        return generatePhysicalDiagram(networkTopology);
-      default:
-        return '';
+    try {
+      switch (activeTab) {
+        case 'virtual':
+          return generateVirtualDiagram(networkTopology);
+        case 'hyper-v':
+          return generateHyperVDiagram(networkTopology);
+        case 'physical':
+          return generatePhysicalDiagram(networkTopology);
+        default:
+          return '';
+      }
+    } catch (error) {
+      console.error('Error generating diagram definition:', error);
+      return `graph TD\n  ERROR["⚠️ Error generating diagram"]`;
     }
   };
 
@@ -298,6 +305,25 @@ const NetworkVisualizerView = () => {
     const renderDiagram = async () => {
       if (networkTopology) {
         const diagramDefinition = generateDiagram();
+        
+        if (!diagramDefinition || diagramDefinition.trim() === '') {
+          const element = document.getElementById('mermaid-diagram');
+          if (element) {
+            element.innerHTML = `
+              <div class="border border-gray-200 rounded-lg p-6 text-center">
+                <div class="text-gray-400 mb-2">
+                  <svg class="w-8 h-8 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                  </svg>
+                </div>
+                <p class="font-medium text-gray-600 mb-1">No diagram data available</p>
+                <p class="text-sm text-gray-500">Upload an RVTools file or configure your infrastructure to generate network diagrams</p>
+              </div>
+            `;
+          }
+          return;
+        }
+        
         if (diagramDefinition) {
           try {
             const element = document.getElementById('mermaid-diagram');
@@ -326,11 +352,30 @@ const NetworkVisualizerView = () => {
             console.error('Error rendering diagram:', error);
             const element = document.getElementById('mermaid-diagram');
             if (element) {
+              let errorMessage = 'Unknown error occurred';
+              
+              if (error instanceof Error) {
+                errorMessage = error.message;
+              } else if (typeof error === 'string') {
+                errorMessage = error;
+              } else if (error && typeof error === 'object') {
+                // Handle cases where error is an object
+                errorMessage = JSON.stringify(error, null, 2);
+              }
+              
+              // Log the diagram definition for debugging
+              console.error('Failed diagram definition:', diagramDefinition);
+              
               element.innerHTML = `
-                <div class="text-red-500 p-4 text-center">
-                  <p class="font-medium">Error rendering diagram</p>
-                  <p class="text-sm mt-2">${error}</p>
-                  <p class="text-sm mt-2 opacity-75">Please check the diagram syntax</p>
+                <div class="border border-red-200 rounded-lg p-6 text-center">
+                  <div class="text-red-600 mb-2">
+                    <svg class="w-8 h-8 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 15.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                    </svg>
+                  </div>
+                  <p class="font-semibold text-red-800 mb-2">Error rendering diagram</p>
+                  <p class="text-sm text-red-600 mb-2">${errorMessage}</p>
+                  <p class="text-xs text-red-500 opacity-75">Check browser console for more details</p>
                 </div>
               `;
             }
@@ -388,7 +433,7 @@ const NetworkVisualizerView = () => {
           height: '3px',
           background: 'linear-gradient(90deg, #a855f7 0%, #ec4899 100%)',
           borderRadius: '2px',
-          boxShadow: '0 2px 8px rgba(168, 85, 247, 0.6)'
+          boxShadow: 'none'
         }} />
       )}
     </div>
@@ -396,72 +441,65 @@ const NetworkVisualizerView = () => {
 
   return (
     <div className="fluent-page-container">
-      <div className="lcm-card flex-1 overflow-auto">
-        <div className="p-6">
-          {/* Error Display */}
-          {error && (
-            <div className="mb-6 p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-red-300">
-              {error}
-            </div>
-          )}
-
-          {/* Tabs */}
-          <div className="mb-6">
-            <div 
-              className="flex border-b border-gray-200"
-              style={{
-                background: 'rgba(255, 255, 255, 0.05)',
-                borderRadius: '12px 12px 0 0',
-                border: '1px solid rgba(139, 92, 246, 0.1)',
-                borderBottom: '1px solid rgba(139, 92, 246, 0.2)',
-                backdropFilter: 'blur(8px)',
-                WebkitBackdropFilter: 'blur(8px)'
-              }}
-            >
-              <TabButton
-                tab="virtual"
-                isActive={activeTab === 'virtual'}
-                onClick={setActiveTab}
-                icon={Network}
-                label="Virtual Networks"
-              />
-              <TabButton
-                tab="hyper-v"
-                isActive={activeTab === 'hyper-v'}
-                onClick={setActiveTab}
-                icon={HardDrive}
-                label="Hyper-V Topology"
-              />
-              <TabButton
-                tab="physical"
-                isActive={activeTab === 'physical'}
-                onClick={setActiveTab}
-                icon={Server}
-                label="Physical Infrastructure"
-              />
-            </div>
-          </div>
-
-          {/* Data Source Indicator */}
-          {!currentEnvironment && (
-            <div className="fluent-alert fluent-alert-info mb-4">
-              <div className="flex items-center gap-2">
-                <AlertTriangle size={16} />
-                <span className="text-sm">
-                  Currently showing sample data. Upload an RVTools file to visualize your actual infrastructure.
-                </span>
-              </div>
-            </div>
-          )}
-
-          {/* Diagram Container */}
-          {networkTopology && (
-            <div 
-              id="mermaid-diagram" 
-              className="lcm-card w-full h-auto min-h-96 overflow-auto"
-            />
-          )}
+      <div className="lcm-card">
+        {/* Error Display */}
+      {error && (
+        <div className="mb-6 p-3 border border-red-500/30 rounded-lg text-red-300">
+          {error}
         </div>
+      )}
+
+      {/* Tabs */}
+      <div className="mb-6">
+        <div 
+          className="flex"
+          style={{
+            background: 'transparent'
+          }}
+        >
+          <TabButton
+            tab="virtual"
+            isActive={activeTab === 'virtual'}
+            onClick={setActiveTab}
+            icon={Network}
+            label="Virtual Networks"
+          />
+          <TabButton
+            tab="hyper-v"
+            isActive={activeTab === 'hyper-v'}
+            onClick={setActiveTab}
+            icon={HardDrive}
+            label="Hyper-V Topology"
+          />
+          <TabButton
+            tab="physical"
+            isActive={activeTab === 'physical'}
+            onClick={setActiveTab}
+            icon={Server}
+            label="Physical Infrastructure"
+          />
+        </div>
+      </div>
+
+      {/* Data Source Indicator */}
+      {!currentEnvironment && (
+        <div className="mb-4 p-3 rounded-lg bg-transparent">
+          <div className="flex items-center gap-2">
+            <AlertTriangle size={16} className="text-purple-400" />
+            <span className="text-sm text-gray-600">
+              Currently showing sample data. Upload an RVTools file to visualize your actual infrastructure.
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* Diagram Container - Direct rendering without card wrapper */}
+      {networkTopology && (
+        <div 
+          id="mermaid-diagram" 
+          className="w-full h-auto min-h-96 overflow-auto rounded-lg bg-transparent p-4"
+        />
+      )}
       </div>
     </div>
   );

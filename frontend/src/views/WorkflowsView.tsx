@@ -207,21 +207,21 @@ const WorkflowsView: React.FC = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'completed': return 'bg-green-100 text-green-800';
-      case 'running': return 'bg-blue-100 text-blue-800';
-      case 'failed': return 'bg-red-100 text-red-800';
-      case 'paused': return 'bg-yellow-100 text-yellow-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'completed': return 'border border-green-500/30 text-green-800';
+      case 'running': return 'border border-blue-500/30 text-blue-800';
+      case 'failed': return 'border border-red-500/30 text-red-800';
+      case 'paused': return 'border border-yellow-500/30 text-yellow-800';
+      default: return 'border border-gray-500/30 text-gray-800';
     }
   };
 
   const getCategoryColor = (category: string) => {
     switch (category) {
-      case 'assessment': return 'bg-purple-100 text-purple-800';
-      case 'sizing': return 'bg-blue-100 text-blue-800';
-      case 'migration': return 'bg-orange-100 text-orange-800';
-      case 'validation': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'assessment': return 'border border-purple-500/30 text-purple-800';
+      case 'sizing': return 'border border-blue-500/30 text-blue-800';
+      case 'migration': return 'border border-orange-500/30 text-orange-800';
+      case 'validation': return 'border border-green-500/30 text-green-800';
+      default: return 'border border-gray-500/30 text-gray-800';
     }
   };
 
@@ -256,190 +256,196 @@ const WorkflowsView: React.FC = () => {
 
   return (
     <div className="fluent-page-container">
-      <div className="fluent-page-header">
-        <div>
-          <h1 className="fluent-page-title">Workflows</h1>
-          <p className="fluent-page-subtitle">
-            Automated workflows for infrastructure management and migration
-          </p>
+      <div className="lcm-card">
+        <div className="fluent-page-header">
+          <div>
+            <h1 className="fluent-page-title">Workflows</h1>
+            <p className="fluent-page-subtitle">Execute guided workflows for assessment, sizing, migration, and validation</p>
+          </div>
+          <div className="flex gap-4">
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="lcm-dropdown"
+            >
+              <option value="all">All Categories</option>
+              <option value="assessment">Assessment</option>
+              <option value="sizing">Sizing</option>
+              <option value="migration">Migration</option>
+              <option value="validation">Validation</option>
+            </select>
+          </div>
         </div>
-        <div className="flex gap-4">
-          <select
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            className="fluent-select"
-          >
-            <option value="all">All Categories</option>
-            <option value="assessment">Assessment</option>
-            <option value="sizing">Sizing</option>
-            <option value="migration">Migration</option>
-            <option value="validation">Validation</option>
-          </select>
-        </div>
-      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Workflows List */}
-          <div className="space-y-4">
-            <h2 className="text-xl font-semibold text-gray-900">Available Workflows</h2>
-            {filteredWorkflows.map((workflow) => (
-              <div
-                key={workflow.id}
-                className={`bg-white rounded-lg shadow-md p-6 cursor-pointer transition-all hover:shadow-lg ${
-                  activeWorkflow?.id === workflow.id ? 'ring-2 ring-blue-500' : ''
-                }`}
-                onClick={() => setActiveWorkflow(workflow)}
-              >
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-center gap-3">
-                    {getStatusIcon(workflow.status)}
-                    <div>
-                      <h3 className="font-semibold text-gray-900">{workflow.name}</h3>
-                      <p className="text-sm text-gray-600">{workflow.description}</p>
-                    </div>
-                  </div>
-                  <div className="flex flex-col gap-2 items-end">
-                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${getCategoryColor(workflow.category)}`}>
-                      {workflow.category}
-                    </span>
-                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(workflow.status)}`}>
-                      {workflow.status.replace('_', ' ')}
-                    </span>
+        {/* Workflows List */}
+        <div className="space-y-4 mb-8">
+          {filteredWorkflows.map((workflow) => (
+            <div
+              key={workflow.id}
+              className="p-6 rounded-lg border border-purple-500/20 hover:border-purple-500/40 transition-all duration-200 bg-transparent"
+            >
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  {getStatusIcon(workflow.status)}
+                  <div>
+                    <h3 className="font-semibold text-gray-900 text-lg">{workflow.name}</h3>
+                    <p className="text-sm text-gray-600">{workflow.description}</p>
                   </div>
                 </div>
-
-                <div className="mb-3">
-                  <div className="flex justify-between text-sm text-gray-600 mb-1">
-                    <span>Progress</span>
-                    <span>{workflow.progress}%</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${workflow.progress}%` }}
-                    ></div>
-                  </div>
-                </div>
-
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-500">Est. {workflow.totalEstimatedTime}</span>
-                  <div className="flex gap-2">
-                    {workflow.status === 'not_started' && (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          startWorkflow(workflow.id);
-                        }}
-                        className="flex items-center gap-1 px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors"
-                      >
-                        <Play size={14} />
-                        Start
-                      </button>
-                    )}
-                    {workflow.status === 'running' && (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          pauseWorkflow(workflow.id);
-                        }}
-                        className="flex items-center gap-1 px-3 py-1 bg-yellow-600 text-white text-sm rounded hover:bg-yellow-700 transition-colors"
-                      >
-                        <Pause size={14} />
-                        Pause
-                      </button>
-                    )}
-                    {(workflow.status === 'completed' || workflow.status === 'failed') && (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          resetWorkflow(workflow.id);
-                        }}
-                        className="flex items-center gap-1 px-3 py-1 bg-gray-600 text-white text-sm rounded hover:bg-gray-700 transition-colors"
-                      >
-                        <RotateCcw size={14} />
-                        Reset
-                      </button>
-                    )}
-                  </div>
+                <div className="flex flex-col gap-2 items-end">
+                  <span className={`px-3 py-1 text-xs font-medium rounded-full ${getCategoryColor(workflow.category)}`}>
+                    {workflow.category}
+                  </span>
+                  <span className={`px-3 py-1 text-xs font-medium rounded-full ${getStatusColor(workflow.status)}`}>
+                    {workflow.status.replace('_', ' ')}
+                  </span>
                 </div>
               </div>
-            ))}
-          </div>
 
-          {/* Workflow Details */}
-          <div className="space-y-4">
-            {activeWorkflow ? (
-              <>
-                <div className="bg-white rounded-lg shadow-md p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div>
-                      <h2 className="text-xl font-semibold text-gray-900">{activeWorkflow.name}</h2>
-                      <p className="text-gray-600">{activeWorkflow.description}</p>
-                    </div>
-                    <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded">
-                      <Settings size={20} />
+              <div className="mb-4">
+                <div className="flex justify-between text-sm text-gray-600 mb-2">
+                  <span>Progress</span>
+                  <span>{workflow.progress}%</span>
+                </div>
+                <div className="w-full border border-gray-500/20 rounded-full h-2">
+                  <div
+                    className="border border-blue-500/30 h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${workflow.progress}%` }}
+                  ></div>
+                </div>
+              </div>
+
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-500">Est. {workflow.totalEstimatedTime}</span>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setActiveWorkflow(workflow)}
+                    className="flex items-center gap-1 px-4 py-2 border border-purple-500/30 text-white text-sm rounded hover:border-purple-500/50 transition-colors bg-transparent"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => {
+                      setWorkflows(workflows.filter(w => w.id !== workflow.id));
+                    }}
+                    className="flex items-center gap-1 px-4 py-2 border border-red-500/30 text-white text-sm rounded hover:border-red-500/50 transition-colors bg-transparent"
+                  >
+                    Remove
+                  </button>
+                  {workflow.status === 'not_started' && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        startWorkflow(workflow.id);
+                      }}
+                      className="flex items-center gap-1 px-4 py-2 border border-blue-500/30 text-white text-sm rounded hover:border-purple-500/50 transition-colors bg-transparent"
+                    >
+                      <Play size={14} />
+                      Start
                     </button>
-                  </div>
+                  )}
+                  {workflow.status === 'running' && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        pauseWorkflow(workflow.id);
+                      }}
+                      className="flex items-center gap-1 px-4 py-2 border border-yellow-500/30 text-white text-sm rounded hover:border-purple-500/50 transition-colors bg-transparent"
+                    >
+                      <Pause size={14} />
+                      Pause
+                    </button>
+                  )}
+                  {(workflow.status === 'completed' || workflow.status === 'failed') && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        resetWorkflow(workflow.id);
+                      }}
+                      className="flex items-center gap-1 px-4 py-2 border border-gray-500/30 text-white text-sm rounded hover:border-purple-500/50 transition-colors bg-transparent"
+                    >
+                      <RotateCcw size={14} />
+                      Reset
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
 
-                  <div className="grid grid-cols-2 gap-4 mb-6">
-                    <div className="text-center p-4 bg-gray-50 rounded-lg">
-                      <div className="text-2xl font-bold text-blue-600">{activeWorkflow.progress}%</div>
-                      <div className="text-sm text-gray-600">Progress</div>
-                    </div>
-                    <div className="text-center p-4 bg-gray-50 rounded-lg">
-                      <div className="text-2xl font-bold text-gray-900">{activeWorkflow.steps.length}</div>
-                      <div className="text-sm text-gray-600">Steps</div>
-                    </div>
-                  </div>
+        {/* Add Workflow Button */}
+        <div className="flex justify-center">
+          <button className="fluent-button fluent-button-primary">
+            Add New Workflow
+          </button>
+        </div>
 
-                  <h3 className="font-semibold text-gray-900 mb-4">Workflow Steps</h3>
-                  <div className="space-y-3">
-                    {activeWorkflow.steps.map((step, index) => (
-                      <div
-                        key={step.id}
-                        className={`flex items-center p-4 rounded-lg border-2 ${
-                          step.status === 'completed' ? 'border-green-200 bg-green-50' :
-                          step.status === 'running' ? 'border-blue-200 bg-blue-50' :
-                          step.status === 'failed' ? 'border-red-200 bg-red-50' :
-                          'border-gray-200 bg-gray-50'
-                        }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="flex-shrink-0">
-                            {getStatusIcon(step.status)}
-                          </div>
-                          <div className="flex-grow">
-                            <h4 className="font-medium text-gray-900">{step.name}</h4>
-                            <p className="text-sm text-gray-600">{step.description}</p>
-                            <div className="flex gap-4 mt-1 text-xs text-gray-500">
-                              <span>Est: {step.estimatedTime}</span>
-                              {step.actualTime && <span>Actual: {step.actualTime}</span>}
-                            </div>
+        {/* Workflow Details Modal/Panel */}
+        {activeWorkflow && (
+          <div className="fluent-modal-overlay">
+            <div className="fluent-modal">
+              <div className="fluent-modal-header">
+                <h2 className="fluent-modal-title">{activeWorkflow.name}</h2>
+                <button 
+                  onClick={() => setActiveWorkflow(null)}
+                  className="fluent-button fluent-button-subtle fluent-button-icon"
+                >
+                  ×
+                </button>
+              </div>
+              <div className="fluent-modal-content">
+                <p className="text-gray-600 mb-6">{activeWorkflow.description}</p>
+                
+                <div className="grid grid-cols-2 gap-4 mb-6">
+                  <div className="text-center p-4 border border-gray-500/20 rounded-lg bg-transparent">
+                    <div className="text-2xl font-bold text-blue-600">{activeWorkflow.progress}%</div>
+                    <div className="text-sm text-gray-600">Progress</div>
+                  </div>
+                  <div className="text-center p-4 border border-gray-500/20 rounded-lg bg-transparent">
+                    <div className="text-2xl font-bold text-gray-900">{activeWorkflow.steps.length}</div>
+                    <div className="text-sm text-gray-600">Steps</div>
+                  </div>
+                </div>
+
+                <h3 className="font-semibold text-gray-900 mb-4">Workflow Steps</h3>
+                <div className="space-y-3">
+                  {activeWorkflow.steps.map((step, index) => (
+                    <div
+                      key={step.id}
+                      className={`flex items-center p-4 rounded-lg border-2 bg-transparent ${
+                        step.status === 'completed' ? 'border-green-500/30' :
+                        step.status === 'running' ? 'border-blue-500/30' :
+                        step.status === 'failed' ? 'border-red-500/30' :
+                        'border-gray-500/20'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="flex-shrink-0">
+                          {getStatusIcon(step.status)}
+                        </div>
+                        <div className="flex-grow">
+                          <h4 className="font-medium text-gray-900">{step.name}</h4>
+                          <p className="text-sm text-gray-600">{step.description}</p>
+                          <div className="flex gap-4 mt-1 text-xs text-gray-500">
+                            <span>Est: {step.estimatedTime}</span>
+                            {step.actualTime && <span>Actual: {step.actualTime}</span>}
                           </div>
                         </div>
-                        {index < activeWorkflow.steps.length - 1 && (
-                          <div className="ml-4">
-                            <ChevronRight size={16} className="text-gray-400" />
-                          </div>
-                        )}
                       </div>
-                    ))}
-                  </div>
+                      {index < activeWorkflow.steps.length - 1 && (
+                        <div className="ml-4">
+                          <ChevronRight size={16} className="text-gray-400" />
+                        </div>
+                      )}
+                    </div>
+                  ))}
                 </div>
-              </>
-            ) : (
-              <div className="bg-white rounded-lg shadow-md p-6 text-center">
-                <div className="text-gray-400 mb-4">
-                  <Settings size={64} className="mx-auto" />
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Select a Workflow</h3>
-                <p className="text-gray-600">
-                  Choose a workflow from the list to view details and manage execution.
-                </p>
               </div>
-            )}
+            </div>
           </div>
-        </div>
+        )}
+      </div>
     </div>
   );
 };

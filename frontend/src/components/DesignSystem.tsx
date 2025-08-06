@@ -97,16 +97,19 @@ export const standardCardStyle = {
 
 // Standard Input/Dropdown Style
 export const standardInputStyle = {
-  background: DESIGN_TOKENS.colors.background.input,
-  border: `1px solid ${DESIGN_TOKENS.colors.primaryBorder}`,
-  borderRadius: DESIGN_TOKENS.borderRadius.md,
-  padding: '12px 16px',
+  background: 'transparent',
+  border: `2px solid ${DESIGN_TOKENS.colors.primaryBorder}`,
+  borderRadius: '16px',
+  padding: '16px 20px',
   fontSize: DESIGN_TOKENS.typography.fontSize.sm,
   fontFamily: DESIGN_TOKENS.typography.fontFamily,
   color: DESIGN_TOKENS.colors.text.primary,
   cursor: 'pointer',
   transition: 'all 0.2s ease',
   outline: 'none',
+  minHeight: '56px',
+  width: '100%',
+  boxSizing: 'border-box' as const,
 };
 
 // Standard Button Style
@@ -158,13 +161,13 @@ export const StandardDropdown: React.FC<StandardDropdownProps> = ({
         ...style
       }}
       onFocus={(e) => {
-        e.target.style.background = DESIGN_TOKENS.colors.background.inputFocus;
-        e.target.style.border = `1px solid ${DESIGN_TOKENS.colors.primaryHover}`;
+        e.target.style.background = 'transparent';
+        e.target.style.border = `2px solid ${DESIGN_TOKENS.colors.primaryHover}`;
         e.target.style.boxShadow = `0 0 0 3px ${DESIGN_TOKENS.colors.primaryLight}`;
       }}
       onBlur={(e) => {
-        e.target.style.background = DESIGN_TOKENS.colors.background.input;
-        e.target.style.border = `1px solid ${DESIGN_TOKENS.colors.primaryBorder}`;
+        e.target.style.background = 'transparent';
+        e.target.style.border = `2px solid ${DESIGN_TOKENS.colors.primaryBorder}`;
         e.target.style.boxShadow = 'none';
       }}
     >
@@ -337,7 +340,7 @@ export const StandardStageMarker: React.FC<StandardStageMarkerProps> = ({
             width: '24px',
             height: '24px',
             borderRadius: '50%',
-            background: currentStep === step.num ? 'rgba(255, 255, 255, 0.2)' : DESIGN_TOKENS.colors.primary,
+            background: currentStep === step.num ? 'transparent' : DESIGN_TOKENS.colors.primary,
             color: 'white',
             display: 'flex',
             alignItems: 'center',

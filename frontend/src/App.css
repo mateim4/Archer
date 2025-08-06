@@ -10,6 +10,33 @@
   overflow: hidden;
 }
 
+/* Responsive app container */
+@media (max-width: 768px) {
+  .app-container {
+    flex-direction: row; /* Keep sidebar behavior on mobile */
+  }
+  
+  /* Hide sidebar by default on mobile */
+  .app-container > div:first-of-type {
+    position: fixed;
+    z-index: 1000;
+    height: 100vh;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+  
+  /* Show sidebar when not collapsed on mobile */
+  .app-container > div:first-of-type:not(.collapsed) {
+    transform: translateX(0);
+  }
+}
+
+@media (max-width: 640px) {
+  .app-container {
+    height: 100dvh; /* Use dynamic viewport height on mobile */
+  }
+}
+
 .app-acrylic-layer {
   position: absolute;
   top: 0;
@@ -22,10 +49,10 @@
   z-index: 0;
 }
 
-.app-main-content {
+.main-content {
   flex: 1;
   overflow: auto;
-  background: rgba(255, 255, 255, 0.1);
+  background: transparent;
   backdrop-filter: blur(20px) saturate(120%);
   -webkit-backdrop-filter: blur(20px) saturate(120%);
   border-left: 1px solid rgba(255, 255, 255, 0.2);
@@ -34,16 +61,49 @@
   padding: var(--fluent-spacing-horizontal-xl);
 }
 
-.app-main-content.full-width {
+.main-content.full-width {
   padding: 0 48px;
 }
 
-.app-content-wrapper {
+/* Responsive main content */
+@media (max-width: 1024px) {
+  .main-content.full-width {
+    padding: 0 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-content.full-width {
+    padding: 0 16px;
+    border-left: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .main-content.full-width {
+    padding: 0 12px;
+  }
+}
+
+.content-wrapper {
   width: 100%;
 }
 
-.app-content-wrapper.full-width {
+.content-wrapper.full-width {
   padding: var(--fluent-spacing-horizontal-m) 0;
+}
+
+/* Responsive content wrapper */
+@media (max-width: 768px) {
+  .content-wrapper.full-width {
+    padding: var(--fluent-spacing-horizontal-s) 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .app-content-wrapper.full-width {
+    padding: var(--fluent-spacing-horizontal-xs) 0;
+  }
 }
 
 .app-content-wrapper.constrained {
@@ -202,19 +262,25 @@
 .form-group input,
 .form-group textarea {
   width: 100%;
-  padding: 0.75rem;
-  border: 1px solid var(--fluent-color-neutral-stroke-1);
-  border-radius: var(--fluent-border-radius-medium);
-  background: var(--fluent-color-neutral-background-1);
+  padding: 16px 20px;
+  border: 2px solid var(--fluent-color-neutral-stroke-1);
+  border-radius: 16px;
+  background: transparent;
   color: var(--fluent-color-neutral-foreground-1);
   font-family: inherit;
+  min-height: 56px;
+}
+
+.form-group textarea {
+  min-height: 120px;
+  resize: vertical;
 }
 
 .form-group input:focus,
 .form-group textarea:focus {
   outline: none;
   border-color: var(--fluent-color-brand-background);
-  box-shadow: 0 0 0 2px var(--fluent-color-brand-background-2);
+  box-shadow: 0 0 0 3px var(--fluent-color-brand-background-2);
 }
 
 .form-actions {

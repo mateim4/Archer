@@ -132,12 +132,9 @@ const HardwarePoolView: React.FC = () => {
 
   return (
     <div className="fluent-page-container">
-      {/* Page Header */}
-      <div className="fluent-page-header">
-        <div>
-          <h1 className="fluent-page-title">Hardware Pool</h1>
-          <p className="fluent-page-subtitle">Manage the hardware inventory for your infrastructure projects</p>
-        </div>
+      <div className="lcm-card">
+        {/* Page Header */}
+        <div className="fluent-page-header">
         <button
           onClick={() => setShowCreateForm(true)}
           className="fluent-button fluent-button-primary fluent-button-with-icon"
@@ -154,27 +151,27 @@ const HardwarePoolView: React.FC = () => {
       )}
 
       {/* Search and Filter Bar */}
-      <div className="lcm-card lcm-card-compact mb-6">
+      <div className="mb-6 p-4 border border-purple-500/20 rounded-lg bg-transparent">
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <div className="lcm-input-with-icon">
+              <Search className="lcm-input-icon text-gray-400 w-4 h-4" />
               <input
                 type="text"
                 placeholder="Search hardware by name, vendor, or model..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="fluent-input pl-10"
+                className="lcm-input"
               />
             </div>
           </div>
           <div className="flex gap-3">
-            <div className="relative">
-              <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <div className="lcm-input-with-icon">
+              <Filter className="lcm-input-icon text-gray-400 w-4 h-4" />
               <select
                 value={selectedVendor}
                 onChange={(e) => setSelectedVendor(e.target.value)}
-                className="fluent-select pl-10 pr-8"
+                className="lcm-dropdown"
               >
                 <option value="">All Vendors</option>
                 {vendors.map(vendor => (
@@ -210,7 +207,7 @@ const HardwarePoolView: React.FC = () => {
                     type="text"
                     value={newHardware.name}
                     onChange={(e) => setNewHardware({ ...newHardware, name: e.target.value })}
-                    className="fluent-input"
+                    className="lcm-input"
                     placeholder="e.g., Production Server 01"
                     required
                   />
@@ -220,7 +217,7 @@ const HardwarePoolView: React.FC = () => {
                   <select
                     value={newHardware.vendor}
                     onChange={(e) => setNewHardware({ ...newHardware, vendor: e.target.value })}
-                    className="fluent-select"
+                    className="lcm-dropdown"
                     required
                   >
                     <option value="">Select Vendor</option>
@@ -237,7 +234,7 @@ const HardwarePoolView: React.FC = () => {
                     type="text"
                     value={newHardware.model}
                     onChange={(e) => setNewHardware({ ...newHardware, model: e.target.value })}
-                    className="fluent-input"
+                    className="lcm-input"
                     placeholder="e.g., PowerEdge R750"
                     required
                   />
@@ -256,7 +253,7 @@ const HardwarePoolView: React.FC = () => {
                         ...newHardware, 
                         specs: { ...newHardware.specs, cpu: e.target.value }
                       })}
-                      className="fluent-input"
+                      className="lcm-input"
                       placeholder="e.g., Intel Xeon Silver 4314"
                     />
                   </div>
@@ -269,7 +266,7 @@ const HardwarePoolView: React.FC = () => {
                         ...newHardware, 
                         specs: { ...newHardware.specs, memory: e.target.value }
                       })}
-                      className="fluent-input"
+                      className="lcm-input"
                       placeholder="e.g., 128GB DDR4"
                     />
                   </div>
@@ -282,7 +279,7 @@ const HardwarePoolView: React.FC = () => {
                         ...newHardware, 
                         specs: { ...newHardware.specs, storage: e.target.value }
                       })}
-                      className="fluent-input"
+                      className="lcm-input"
                       placeholder="e.g., 2TB NVMe SSD"
                     />
                   </div>
@@ -295,7 +292,7 @@ const HardwarePoolView: React.FC = () => {
                         ...newHardware, 
                         specs: { ...newHardware.specs, network: e.target.value }
                       })}
-                      className="fluent-input"
+                      className="lcm-input"
                       placeholder="e.g., 4x 25GbE"
                     />
                   </div>
@@ -325,7 +322,7 @@ const HardwarePoolView: React.FC = () => {
       {/* Hardware Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredHardware.map((item) => (
-          <div key={item.id} className="lcm-card lcm-card-interactive">
+          <div key={item.id} className="p-4 rounded-lg border border-purple-500/20 hover:border-purple-500/40 transition-all duration-200">
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center">
                 <div className="fluent-icon-container fluent-icon-container-primary mr-3">
@@ -414,6 +411,7 @@ const HardwarePoolView: React.FC = () => {
           </p>
         </div>
       )}
+      </div>
     </div>
   );
 };

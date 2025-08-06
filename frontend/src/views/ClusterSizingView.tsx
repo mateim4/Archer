@@ -136,12 +136,6 @@ const ClusterSizingView: React.FC = () => {
 
   return (
     <div className="fluent-page-container">
-      <div className="fluent-page-header">
-        <div>
-          <h1 className="fluent-page-title">Cluster Sizing</h1>
-          <p className="fluent-page-subtitle">Calculate optimal hardware configurations for your workload requirements.</p>
-        </div>
-      </div>
 
       {error && (
         <div className="fluent-alert fluent-alert-error mb-6">
@@ -163,7 +157,7 @@ const ClusterSizingView: React.FC = () => {
                 <select
                   value={clusterSpec.workloadType}
                   onChange={(e) => setClusterSpec({ ...clusterSpec, workloadType: e.target.value })}
-                  className="fluent-select"
+                  className="lcm-dropdown"
                 >
                   <option value="general">General Purpose</option>
                   <option value="compute">Compute Intensive</option>
@@ -179,60 +173,60 @@ const ClusterSizingView: React.FC = () => {
                     type="number"
                     value={clusterSpec.expectedVMs}
                     onChange={(e) => setClusterSpec({ ...clusterSpec, expectedVMs: parseInt(e.target.value) || 0 })}
-                    className="fluent-input"
+                    className="lcm-input"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">CPU per VM</label>
+                <div className="fluent-form-group">
+                  <label className="fluent-label">CPU per VM</label>
                   <input
                     type="number"
                     value={clusterSpec.avgCpuPerVM}
                     onChange={(e) => setClusterSpec({ ...clusterSpec, avgCpuPerVM: parseInt(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500"
+                    className="lcm-input"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Memory per VM (GB)</label>
+                <div className="fluent-form-group">
+                  <label className="fluent-label">Memory per VM (GB)</label>
                   <input
                     type="number"
                     value={clusterSpec.avgMemoryPerVM}
                     onChange={(e) => setClusterSpec({ ...clusterSpec, avgMemoryPerVM: parseInt(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500"
+                    className="lcm-input"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Storage per VM (GB)</label>
+                <div className="fluent-form-group">
+                  <label className="fluent-label">Storage per VM (GB)</label>
                   <input
                     type="number"
                     value={clusterSpec.avgStoragePerVM}
                     onChange={(e) => setClusterSpec({ ...clusterSpec, avgStoragePerVM: parseInt(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500"
+                    className="lcm-input"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Redundancy Factor</label>
+                <div className="fluent-form-group">
+                  <label className="fluent-label">Redundancy Factor</label>
                   <input
                     type="number"
                     step="0.1"
                     value={clusterSpec.redundancyFactor}
                     onChange={(e) => setClusterSpec({ ...clusterSpec, redundancyFactor: parseFloat(e.target.value) || 1 })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500"
+                    className="lcm-input"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Oversubscription Ratio</label>
+                <div className="fluent-form-group">
+                  <label className="fluent-label">Oversubscription Ratio</label>
                   <input
                     type="number"
                     step="0.1"
                     value={clusterSpec.oversubscriptionRatio}
                     onChange={(e) => setClusterSpec({ ...clusterSpec, oversubscriptionRatio: parseFloat(e.target.value) || 1 })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500"
+                    className="lcm-input"
                   />
                 </div>
               </div>
@@ -244,19 +238,19 @@ const ClusterSizingView: React.FC = () => {
         <div className="space-y-6">
           {sizingResult && (
             <>
-              <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+              <div className="p-4 rounded-lg border border-purple-500/20">
+                <h2 className="fluent-card-title flex items-center mb-4">
                   <TrendingUp className="w-5 h-5 mr-2" />
                   Sizing Results
                 </h2>
                 
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center p-4 bg-purple-50 rounded-lg">
+                  <div className="text-center p-4 rounded-lg border border-purple-500/20">
                     <div className="text-2xl font-bold text-purple-600">{sizingResult.requiredHosts}</div>
                     <div className="text-sm text-gray-600">Required Hosts</div>
                   </div>
-                  <div className="text-center p-4 bg-blue-50 rounded-lg">
-                    <div className="text-2xl font-bold text-blue-600">{sizingResult.utilizationPercentage.toFixed(1)}%</div>
+                  <div className="text-center p-4 rounded-lg border border-purple-500/20">
+                    <div className="text-2xl font-bold text-purple-600">{sizingResult.utilizationPercentage.toFixed(1)}%</div>
                     <div className="text-sm text-gray-600">Utilization</div>
                   </div>
                 </div>
@@ -286,7 +280,7 @@ const ClusterSizingView: React.FC = () => {
                 </div>
 
                 {sizingResult.utilizationPercentage > 90 && (
-                  <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                  <div className="mt-4 p-3 border border-amber-200 rounded-lg">
                     <div className="flex items-center text-amber-800">
                       <AlertCircle className="w-4 h-4 mr-2" />
                       <span className="text-sm">High utilization detected. Consider adding more hosts for better performance.</span>
@@ -295,13 +289,13 @@ const ClusterSizingView: React.FC = () => {
                 )}
               </div>
 
-              <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Recommended Hardware</h3>
+              <div className="p-4 rounded-lg border border-purple-500/20">
+                <h3 className="fluent-card-title mb-4">Recommended Hardware</h3>
                 <div className="space-y-3">
                   {sizingResult.recommendedHardware.map((hardware, index) => (
-                    <div key={hardware.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div key={hardware.id} className="flex items-center justify-between p-3 rounded-lg border border-gray-500/20">
                       <div className="flex items-center">
-                        <div className="p-2 bg-purple-100 rounded-lg mr-3">
+                        <div className="p-2 rounded-lg mr-3 border border-purple-500/20">
                           {getWorkloadIcon(clusterSpec.workloadType)}
                         </div>
                         <div>
@@ -321,10 +315,12 @@ const ClusterSizingView: React.FC = () => {
           )}
 
           {availableHardware.length === 0 && (
-            <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6 text-center">
-              <AlertCircle className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No Hardware Available</h3>
-              <p className="text-gray-600">Add hardware items to the hardware pool to enable cluster sizing calculations.</p>
+            <div className="fluent-empty-state">
+              <div className="fluent-empty-state-icon">
+                <AlertCircle className="w-12 h-12" />
+              </div>
+              <h3 className="fluent-empty-state-title">No Hardware Available</h3>
+              <p className="fluent-empty-state-description">Add hardware items to the hardware pool to enable cluster sizing calculations.</p>
             </div>
           )}
         </div>
