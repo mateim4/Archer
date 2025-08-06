@@ -39,6 +39,12 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
       icon: Share2,
       tooltip: 'Visualize your network topology from RVTools exports.'
     },
+    {
+      id: 'projects',
+      label: 'Projects',
+      icon: FolderKanban,
+      tooltip: 'Manage infrastructure projects, timelines, and artifacts.'
+    },
     { 
       id: 'vendor-data', 
       label: 'Vendor Data Collection', 

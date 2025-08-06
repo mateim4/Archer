@@ -3,6 +3,7 @@ import NavigationSidebar from './components/NavigationSidebar';
 import DashboardView from './views/DashboardView';
 import LifecyclePlannerView from './views/LifecyclePlannerView';
 import MigrationPlannerView from './views/MigrationPlannerView';
+import ProjectsView from './views/ProjectsView';
 import SettingsView from './views/SettingsView';
 import { VendorDataCollectionView } from './views/VendorDataCollectionView';
 import NetworkVisualizerView from './views/NetworkVisualizerView';
@@ -23,7 +24,7 @@ const App = () => {
     };
   }, []);
 
-  const isFullWidthView = ['lifecycle', 'migration', 'dashboard', 'settings', 'network-visualizer'].includes(activeView);
+  const isFullWidthView = ['lifecycle', 'migration', 'dashboard', 'settings', 'network-visualizer', 'projects'].includes(activeView);
   const isVendorDataView = activeView === 'vendor-data';
 
   const mainContentClass = `app-main-content ${isFullWidthView ? 'full-width' : ''}`;
@@ -54,6 +55,7 @@ const App = () => {
             {activeView === 'lifecycle' && <LifecyclePlannerView />}
             {activeView === 'migration' && <MigrationPlannerView />}
             {activeView === 'dashboard' && <DashboardView />}
+            {activeView === 'projects' && <ProjectsView />}
             {activeView === 'settings' && <SettingsView />}
             {activeView === 'network-visualizer' && <NetworkVisualizerView />}
             {activeView === 'vendor-data' && 
