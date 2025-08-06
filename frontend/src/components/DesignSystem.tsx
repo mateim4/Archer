@@ -114,7 +114,7 @@ export const standardInputStyle = {
 
 // Standard Button Style
 export const standardButtonStyle = {
-  background: `linear-gradient(135deg, ${DESIGN_TOKENS.colors.primary}, #ec4899)`,
+  background: `linear-gradient(135deg, ${DESIGN_TOKENS.colors.primary}, #6366f1)`,
   border: 'none',
   borderRadius: DESIGN_TOKENS.borderRadius.md,
   padding: '12px 24px',
@@ -326,7 +326,7 @@ export const StandardStageMarker: React.FC<StandardStageMarkerProps> = ({
             padding: '8px 16px',
             borderRadius: DESIGN_TOKENS.borderRadius.lg,
             background: currentStep === step.num 
-              ? `linear-gradient(135deg, ${DESIGN_TOKENS.colors.primary}, #ec4899)`
+              ? `linear-gradient(135deg, ${DESIGN_TOKENS.colors.primary}, #6366f1)`
               : 'rgba(255, 255, 255, 0.6)',
             color: currentStep === step.num ? 'white' : DESIGN_TOKENS.colors.text.secondary,
             cursor: onStepClick ? 'pointer' : 'default',
@@ -372,7 +372,7 @@ export const StandardStageMarker: React.FC<StandardStageMarkerProps> = ({
 // ===================
 
 export const STANDARD_GRADIENTS = {
-  primary: `linear-gradient(135deg, ${DESIGN_TOKENS.colors.primary}, #ec4899)`,
+  primary: `linear-gradient(135deg, ${DESIGN_TOKENS.colors.primary}, #6366f1)`,
   card: 'linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7))',
   rainbow: 'linear-gradient(90deg, #ff6b6b, #ffd93d, #6bcf7f, #4d9de0, #9b59b6)',
 };

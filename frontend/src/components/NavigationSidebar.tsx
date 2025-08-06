@@ -190,7 +190,7 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
                     textDecoration: 'none',
                     color: isActive ? 'white' : '#424242',
                     background: isActive 
-                      ? 'linear-gradient(90deg, #a855f7 0%, #ec4899 100%)' 
+                      ? 'linear-gradient(90deg, #8b5cf6 0%, #6366f1 100%)' 
                       : 'transparent',
                     padding: !isOpen ? '16px 12px' : '16px 12px 16px 16px',
                     borderRadius: '8px',

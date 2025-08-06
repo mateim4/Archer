@@ -6,7 +6,13 @@
   "scripts": {
     "dev": "npm --prefix frontend run dev",
     "build": "npm --prefix frontend run build",
-    "preview": "npm --prefix frontend run preview"
+    "preview": "npm --prefix frontend run preview",
+    "backend": "./start-backend.sh",
+    "start": "concurrently \"npm run backend\" \"npm run dev\"",
+    "install-all": "npm install && npm --prefix frontend install && npm --prefix legacy-server install",
+    "test:ui": "npx playwright test tests/ui-analysis.spec.ts",
+    "test:ux": "npx playwright test tests/ux-improvements.spec.ts",
+    "check-colors": "./check-colors.sh"
   },
   "keywords": [
     "infrastructure",
@@ -16,6 +22,7 @@
   "author": "InfraAID Team",
   "license": "MIT",
   "devDependencies": {
+    "@playwright/test": "^1.54.2",
     "@tailwindcss/postcss": "^4.1.11"
   }
 }

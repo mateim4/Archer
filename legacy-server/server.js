@@ -52,6 +52,95 @@ app.get('/health', (req, res) => {
   res.json({ status: 'OK', message: 'LCM Designer Server is running' });
 });
 
+// Mock project data store (in production, this would be a database)
+const projects = [
+  {
+    id: '1',
+    name: 'Project Phoenix',
+    description: 'Migrate the legacy infrastructure to the new platform.',
+    owner_id: 'user:admin',
+    created_at: '2024-01-15T00:00:00Z',
+    updated_at: '2024-01-20T00:00:00Z'
+  },
+  {
+    id: '2', 
+    name: 'Project Titan',
+    description: 'Large scale datacenter consolidation project.',
+    owner_id: 'user:admin',
+    created_at: '2024-01-10T00:00:00Z',
+    updated_at: '2024-01-18T00:00:00Z'
+  },
+  {
+    id: '3',
+    name: 'Project Nova', 
+    description: 'Cloud migration and modernization initiative.',
+    owner_id: 'user:admin',
+    created_at: '2024-01-05T00:00:00Z',
+    updated_at: '2024-01-15T00:00:00Z'
+  }
+];
+
+// Project API endpoints
+app.get('/api/projects', (req, res) => {
+  console.log('📋 GET /api/projects - Fetching all projects');
+  res.json(projects);
+});
+
+app.post('/api/projects', (req, res) => {
+  const { name, description, owner_id } = req.body;
+  
+  if (!name || !description) {
+    return res.status(400).json({ error: 'Name and description are required' });
+  }
+  
+  const newProject = {
+    id: (projects.length + 1).toString(),
+    name,
+    description,
+    owner_id: owner_id || 'user:admin',
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  };
+  
+  projects.push(newProject);
+  res.status(201).json(newProject);
+});
+
+app.get('/api/projects/:id', (req, res) => {
+  const project = projects.find(p => p.id === req.params.id);
+  if (!project) {
+    return res.status(404).json({ error: 'Project not found' });
+  }
+  res.json(project);
+});
+
+app.put('/api/projects/:id', (req, res) => {
+  const projectIndex = projects.findIndex(p => p.id === req.params.id);
+  if (projectIndex === -1) {
+    return res.status(404).json({ error: 'Project not found' });
+  }
+  
+  const { name, description } = req.body;
+  projects[projectIndex] = {
+    ...projects[projectIndex],
+    name: name || projects[projectIndex].name,
+    description: description || projects[projectIndex].description,
+    updated_at: new Date().toISOString()
+  };
+  
+  res.json(projects[projectIndex]);
+});
+
+app.delete('/api/projects/:id', (req, res) => {
+  const projectIndex = projects.findIndex(p => p.id === req.params.id);
+  if (projectIndex === -1) {
+    return res.status(404).json({ error: 'Project not found' });
+  }
+  
+  projects.splice(projectIndex, 1);
+  res.status(204).send();
+});
+
 // Excel to CSV conversion endpoint
 app.post('/api/convert-excel', upload.single('file'), (req, res) => {
   try {
