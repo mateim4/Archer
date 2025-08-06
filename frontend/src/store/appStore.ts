@@ -111,6 +111,75 @@ export interface AppSettings {
   }
 }
 
+// --- Project Management Models ---
+
+export interface Project {
+  id: string;
+  name: string;
+  description: string;
+  start_date: string;
+  end_date: string;
+  users: string[];
+  workflows: Workflow[];
+  artifacts: ProjectArtifact[];
+  hardware_allocations: HardwareAllocation[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Workflow {
+  id: string;
+  name: string;
+  description: string;
+  workflow_type: 'Migration' | 'NewDeployment' | 'Decommission' | 'Lifecycle' | 'Custom';
+  stages: Stage[];
+  created_at: string;
+}
+
+export interface Stage {
+  id: string;
+  name: string;
+  description: string;
+  due_date?: string;
+  status: 'NotStarted' | 'InProgress' | 'Completed' | 'Blocked';
+  comments: Comment[];
+}
+
+export interface Comment {
+  id: string;
+  user: string;
+  content: string;
+  created_at: string;
+}
+
+export interface ProjectArtifact {
+  id: string;
+  name: string;
+  description: string;
+  artifact_type: 'Design' | 'NetworkTopology' | 'BillOfMaterials' | 'SizingResult' | 'Other';
+  file_path: string;
+  uploaded_at: string;
+}
+
+export interface HardwareAllocation {
+  id: string;
+  server_id: string;
+  project_id: string;
+  start_date: string;
+  end_date: string;
+}
+
+export interface HardwarePool {
+    servers: Server[];
+}
+
+export interface Server {
+    id: string;
+    name: string;
+    model: string;
+}
+
+
 // Application state interface
 interface AppState {
   // Environment state
@@ -155,6 +224,12 @@ interface AppState {
   isLoading: boolean
   notifications: Notification[]
 
+  // Project Management State
+  projects: Project[]
+  selectedProject: Project | null
+  isProjectsLoading: boolean
+  projectsError: string | null
+
   // Actions
   setCurrentView: (view: string) => void
   addNotification: (notification: Notification) => void
@@ -193,6 +268,14 @@ interface AppState {
   // Document generation actions
   generateHLD: (outputPath: string, sizingResult: SizingResult, translationResult: any) => Promise<void>
   generateLLD: (outputPath: string, sizingResult: SizingResult, translationResult: any) => Promise<void>
+
+  // Project Management Actions
+  fetchProjects: () => Promise<void>
+  fetchProject: (projectId: string) => Promise<void>
+  createProject: (name: string, description: string) => Promise<void>
+  updateProject: (project: Project) => Promise<void>
+  deleteProject: (projectId: string) => Promise<void>
+  setSelectedProject: (project: Project | null) => void
 }
 
 export interface Notification {
@@ -250,6 +333,12 @@ export const useAppStore = create<AppState>((set, get) => ({
   currentView: 'dashboard',
   isLoading: false,
   notifications: [],
+
+  // Project Management State
+  projects: [],
+  selectedProject: null,
+  isProjectsLoading: false,
+  projectsError: null,
 
   // UI actions
   setCurrentView: (view: string) => set({ currentView: view }),
@@ -667,5 +756,117 @@ export const useAppStore = create<AppState>((set, get) => ({
         timestamp: new Date(),
       })
     }
+  },
+
+  // Project Management Actions
+  fetchProjects: async () => {
+    set({ isProjectsLoading: true, projectsError: null });
+    try {
+      const resultJson = await invoke<string>('list_projects');
+      const projects = JSON.parse(resultJson);
+      set({ projects, isProjectsLoading: false });
+    } catch (error) {
+      const errorMessage = error as string;
+      set({ projectsError: errorMessage, isProjectsLoading: false });
+      get().addNotification({
+        id: Date.now().toString(),
+        type: 'error',
+        title: 'Failed to Fetch Projects',
+        message: errorMessage,
+        timestamp: new Date(),
+      });
+    }
+  },
+
+  fetchProject: async (projectId: string) => {
+    set({ isProjectsLoading: true, projectsError: null });
+    try {
+      const resultJson = await invoke<string>('get_project', { id: projectId });
+      const project = JSON.parse(resultJson);
+      set({ selectedProject: project, isProjectsLoading: false });
+    } catch (error) {
+      const errorMessage = error as string;
+      set({ projectsError: errorMessage, isProjectsLoading: false });
+    }
+  },
+
+  createProject: async (name: string, description: string) => {
+    try {
+      const resultJson = await invoke<string>('create_project', { name, description });
+      const newProject = JSON.parse(resultJson);
+      set((state) => ({ projects: [...state.projects, newProject] }));
+      get().addNotification({
+        id: Date.now().toString(),
+        type: 'success',
+        title: 'Project Created',
+        message: `Project "${newProject.name}" has been created.`,
+        timestamp: new Date(),
+      });
+    } catch (error) {
+      const errorMessage = error as string;
+      get().addNotification({
+        id: Date.now().toString(),
+        type: 'error',
+        title: 'Failed to Create Project',
+        message: errorMessage,
+        timestamp: new Date(),
+      });
+    }
+  },
+
+  updateProject: async (project: Project) => {
+    try {
+      await invoke('update_project', { projectData: project });
+      set((state) => ({
+        projects: state.projects.map((p) => (p.id === project.id ? project : p)),
+        selectedProject: state.selectedProject?.id === project.id ? project : state.selectedProject,
+      }));
+      get().addNotification({
+        id: Date.now().toString(),
+        type: 'success',
+        title: 'Project Updated',
+        message: `Project "${project.name}" has been updated.`,
+        timestamp: new Date(),
+      });
+    } catch (error) {
+      const errorMessage = error as string;
+      get().addNotification({
+        id: Date.now().toString(),
+        type: 'error',
+        title: 'Failed to Update Project',
+        message: errorMessage,
+        timestamp: new Date(),
+      });
+    }
+  },
+
+  deleteProject: async (projectId: string) => {
+    try {
+      await invoke('delete_project', { id: projectId });
+      set((state) => ({
+        projects: state.projects.filter((p) => p.id !== projectId),
+        selectedProject: state.selectedProject?.id === projectId ? null : state.selectedProject,
+      }));
+      get().addNotification({
+        id: Date.now().toString(),
+        type: 'success',
+        title: 'Project Deleted',
+        message: 'The project has been deleted.',
+        timestamp: new Date(),
+      });
+    } catch (error) {
+      const errorMessage = error as string;
+      get().addNotification({
+        id: Date.now().toString(),
+        type: 'error',
+        title: 'Failed to Delete Project',
+        message: errorMessage,
+        timestamp: new Date(),
+      });
+    }
+  },
+
+  setSelectedProject: (project: Project | null) => {
+    set({ selectedProject: project });
   },
 }))

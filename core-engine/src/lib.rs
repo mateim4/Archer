@@ -15,6 +15,7 @@ pub mod hardware_parser;
 pub mod vendor_client;
 pub mod vendor_data;
 pub mod network_visualizer;
+pub mod project_manager;
 
 pub use error::CoreEngineError;
 pub type Result<T> = std::result::Result<T, CoreEngineError>;
