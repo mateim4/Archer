@@ -29,6 +29,40 @@ const safeInvoke = async <T>(command: string, args?: any): Promise<T> => {
         }) as T;
       case 'get_hardware_basket':
         return JSON.stringify([]) as T;
+      case 'list_hardware_assets':
+        return [
+          {
+            id: 'asset-1',
+            name: 'Dell PowerEdge R750',
+            manufacturer: 'Dell',
+            model: 'PowerEdge R750',
+            cpu_cores: 64,
+            memory_gb: 512,
+            storage_capacity_gb: 7680,
+            status: 'Available',
+            location: 'Rack A-01',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          },
+          {
+            id: 'asset-2',
+            name: 'HPE ProLiant DL380',
+            manufacturer: 'HPE',
+            model: 'ProLiant DL380 Gen10',
+            cpu_cores: 48,
+            memory_gb: 256,
+            storage_capacity_gb: 3840,
+            status: 'InUse',
+            location: 'Rack B-03',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }
+        ] as T;
+      case 'create_hardware_asset':
+      case 'update_hardware_asset':
+      case 'delete_hardware_asset':
+      case 'lock_hardware_asset':
+        return null as T;
       default:
         throw new Error(`Mock not implemented for command: ${command}`);
     }
@@ -79,6 +113,38 @@ export interface VirtualMachine {
   power_state: string;
   guest_os: string;
   vmware_tools_status: string;
+}
+
+// Hardware Pool Types
+export enum AssetStatus {
+  Available = 'Available',
+  InUse = 'InUse',
+  Locked = 'Locked',
+  Maintenance = 'Maintenance',
+  Decommissioned = 'Decommissioned',
+}
+
+export interface HardwareAsset {
+  id: string; // uuid
+  name: string;
+  manufacturer: string;
+  model: string;
+  cpu_cores: number;
+  memory_gb: number;
+  storage_capacity_gb: number;
+  status: AssetStatus;
+  location: string;
+  created_at: string; // ISO 8601 date string
+  updated_at: string; // ISO 8601 date string
+}
+
+export interface AssetLock {
+  id: string; // uuid
+  asset_id: string; // uuid
+  project_id: string;
+  start_date: string; // ISO 8601 date string
+  end_date: string; // ISO 8601 date string
+  created_at: string; // ISO 8601 date string
 }
 
 export interface HardwareProfile {
@@ -186,6 +252,9 @@ interface AppState {
   hardwareBasket: HardwareProfile[];
   sizingResults: SizingResult[];
   
+  // Hardware Pool
+  hardwarePoolAssets: HardwareAsset[];
+  
   // Translation and migration
   translationRules: any | null;
   translationResult: any | null;
@@ -232,6 +301,13 @@ interface AppState {
   // Sizing actions
   calculateSizing: (hardwareProfileId: string, parameters: any) => Promise<void>;
   
+  // Hardware Pool Actions
+  listHardwareAssets: () => Promise<void>;
+  createHardwareAsset: (asset: Omit<HardwareAsset, 'id' | 'created_at' | 'updated_at'>) => Promise<void>;
+  updateHardwareAsset: (asset: HardwareAsset) => Promise<void>;
+  deleteHardwareAsset: (id: string) => Promise<void>;
+  lockHardwareAsset: (assetId: string, projectId: string, startDate: string, endDate: string) => Promise<void>;
+  
   // Translation actions
   getTranslationRules: () => Promise<void>;
   updateTranslationRules: (rules: any) => Promise<void>;
@@ -265,6 +341,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   
   hardwareBasket: [],
   sizingResults: [],
+  hardwarePoolAssets: [],
   translationRules: null,
   translationResult: null,
   tcoParameters: null,
@@ -730,6 +807,62 @@ export const useAppStore = create<AppState>((set, get) => ({
     } catch (error) {
       console.error('Failed to update app settings:', error);
       set({ error: error instanceof Error ? error.message : String(error) });
+    }
+  },
+
+  // Hardware Pool Actions
+  listHardwareAssets: async () => {
+    set({ loading: true, error: null });
+    try {
+      const assets = await safeInvoke<HardwareAsset[]>('list_hardware_assets');
+      set({ hardwarePoolAssets: assets, loading: false });
+    } catch (error) {
+      console.error('Failed to list hardware assets:', error);
+      set({ error: error instanceof Error ? error.message : String(error), loading: false });
+    }
+  },
+
+  createHardwareAsset: async (asset) => {
+    set({ loading: true, error: null });
+    try {
+      await safeInvoke('create_hardware_asset', { asset });
+      await get().listHardwareAssets();
+    } catch (error) {
+      console.error('Failed to create hardware asset:', error);
+      set({ error: error instanceof Error ? error.message : String(error), loading: false });
+    }
+  },
+
+  updateHardwareAsset: async (asset) => {
+    set({ loading: true, error: null });
+    try {
+      await safeInvoke('update_hardware_asset', { id: asset.id, asset });
+      await get().listHardwareAssets();
+    } catch (error) {
+      console.error('Failed to update hardware asset:', error);
+      set({ error: error instanceof Error ? error.message : String(error), loading: false });
+    }
+  },
+
+  deleteHardwareAsset: async (id) => {
+    set({ loading: true, error: null });
+    try {
+      await safeInvoke('delete_hardware_asset', { id });
+      await get().listHardwareAssets();
+    } catch (error) {
+      console.error('Failed to delete hardware asset:', error);
+      set({ error: error instanceof Error ? error.message : String(error), loading: false });
+    }
+  },
+
+  lockHardwareAsset: async (assetId, projectId, startDate, endDate) => {
+    set({ loading: true, error: null });
+    try {
+      await safeInvoke('lock_hardware_asset', { assetId, projectId, startDate, endDate });
+      await get().listHardwareAssets();
+    } catch (error) {
+      console.error('Failed to lock hardware asset:', error);
+      set({ error: error instanceof Error ? error.message : String(error), loading: false });
     }
   },
 }));
