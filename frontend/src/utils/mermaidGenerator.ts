@@ -9,8 +9,8 @@ const DIAGRAM_THEME = {
   primaryDark: '#6d28d9',   // Dark purple
   
   // Secondary colors 
-  secondary: '#ec4899',     // Pink accent
-  secondaryLight: '#f9a8d4', // Light pink
+  secondary: '#6366f1',     // Indigo accent
+  secondaryLight: '#a5b4fc', // Light indigo
   
   // Tertiary colors
   tertiary: '#3b82f6',      // Blue

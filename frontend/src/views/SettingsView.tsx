@@ -61,16 +61,14 @@ const SettingsView: React.FC = () => {
   });
 
   // Auto-save state to localStorage every second
-  const [calculationSettings, setCalculationSettings] = useState(() => 
-    autoSave.load('calculationSettings', {
-      cpuOvercommit: '4.0',
-      memoryOvercommit: '1.2',
-      storageEfficiency: '2.0',
-      planningHorizon: '3',
-      confidenceLevel: '95',
-      seasonality: 'auto'
-    })
-  );
+    const [calculationSettings, setCalculationSettings] = useState({
+    forecastPeriod: '36',
+    optimization: 'balanced',
+    cpuOvercommit: '4.0',
+    memoryOvercommit: '1.2',
+    storageEfficiency: '2.0',
+    planningHorizon: '3'
+  });
 
   // Hardware basket data - Load from localStorage or use defaults
   const [hardwareBasket, setHardwareBasket] = useState<HardwareItem[]>(() => 
@@ -212,7 +210,7 @@ const SettingsView: React.FC = () => {
           left: '16px',
           right: '16px',
           height: '3px',
-          background: 'linear-gradient(90deg, #a855f7 0%, #ec4899 100%)',
+          background: 'linear-gradient(90deg, #8b5cf6 0%, #6366f1 100%)',
           borderRadius: '2px',
           boxShadow: 'none'
         }} />
@@ -499,7 +497,7 @@ const SettingsView: React.FC = () => {
               height: '48px',
               borderRadius: '12px',
               border: '2px solid transparent',
-              background: 'linear-gradient(135deg, #a855f7, #ec4899) border-box',
+              background: 'linear-gradient(135deg, #8b5cf6, #6366f1) border-box',
               backgroundClip: 'padding-box',
               position: 'relative',
               display: 'flex',
@@ -514,7 +512,7 @@ const SettingsView: React.FC = () => {
                 inset: 0,
                 borderRadius: '12px',
                 padding: '2px',
-                background: 'linear-gradient(135deg, #a855f7, #ec4899)',
+                background: 'linear-gradient(135deg, #8b5cf6, #6366f1)',
                 WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
                 WebkitMaskComposite: 'xor',
                 mask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
@@ -639,44 +637,6 @@ const SettingsView: React.FC = () => {
                 className="lcm-input"
               />
             </div>
-            <div>
-              <div className="flex items-center mb-1">
-                <label className="text-sm font-medium">Confidence Level (%)</label>
-                <div className="ml-2">
-                  <InfoTooltip 
-                    content="Statistical confidence level for capacity planning. Higher values result in more conservative sizing recommendations."
-                  />
-                </div>
-              </div>
-              <input 
-                type="number" 
-                value={calculationSettings.confidenceLevel}
-                onChange={(e) => setCalculationSettings({...calculationSettings, confidenceLevel: e.target.value})}
-                min="80" 
-                max="99" 
-                className="lcm-input"
-              />
-            </div>
-            <div>
-              <div className="flex items-center mb-1">
-                <label className="text-sm font-medium">Seasonality Detection</label>
-                <div className="ml-2">
-                  <InfoTooltip 
-                    content="Enable automatic detection of seasonal patterns in workload data for more accurate forecasting."
-                  />
-                </div>
-              </div>
-              <select 
-                value={calculationSettings.seasonality}
-                onChange={(e) => setCalculationSettings({...calculationSettings, seasonality: e.target.value})}
-                className="lcm-dropdown"
-              >
-                <option value="auto">Auto-detect</option>
-                <option value="weekly">Weekly patterns</option>
-                <option value="monthly">Monthly patterns</option>
-                <option value="none">No seasonality</option>
-              </select>
-            </div>
           </div>
         </div>
       </div>
@@ -709,19 +669,19 @@ const SettingsView: React.FC = () => {
             style={{ 
               borderColor: 'rgba(139, 92, 246, 0.3)',
               borderRadius: '12px',
-              background: 'rgba(139, 92, 246, 0.1)',
+              background: 'transparent',
               backdropFilter: 'blur(10px) saturate(120%)',
               WebkitBackdropFilter: 'blur(10px) saturate(120%)',
               boxShadow: 'none',
               cursor: 'pointer'
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(139, 92, 246, 0.15)';
+              e.currentTarget.style.background = 'rgba(139, 92, 246, 0.05)';
               e.currentTarget.style.transform = 'translateY(-2px)';
               e.currentTarget.style.boxShadow = 'none';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'rgba(139, 92, 246, 0.1)';
+              e.currentTarget.style.background = 'transparent';
               e.currentTarget.style.transform = 'translateY(0)';
               e.currentTarget.style.boxShadow = 'none';
             }}
