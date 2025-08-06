@@ -1,6 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import CustomSlider from '../components/CustomSlider';
 import { useAppStore } from '../store/useAppStore';
+import { 
+  Database, 
+  Settings, 
+  Target, 
+  Activity, 
+  FileText,
+  Layers,
+  Shield,
+  Server,
+  Network,
+  CheckCircle
+} from 'lucide-react';
 
 const MigrationPlannerView: React.FC = () => {
   const { environmentSummary, currentEnvironment } = useAppStore();
@@ -122,10 +134,10 @@ const MigrationPlannerView: React.FC = () => {
     style.innerHTML = `
       .acrylic-dropdown {
         border-radius: 14px !important;
-        background: rgba(255,255,255,0.65) !important;
+        background: transparent !important;
         backdrop-filter: blur(18px) saturate(180%) !important;
         -webkit-backdrop-filter: blur(18px) saturate(180%) !important;
-        box-shadow: 0 4px 24px 0 rgba(168,85,247,0.07), 0 1.5px 4px 0 rgba(0,0,0,0.04) !important;
+        box-shadow: none !important;
         color: var(--color-neutral-foreground) !important;
         border: 1.5px solid var(--fluent-color-neutral-stroke-2) !important;
         padding: 14px 40px 14px 16px !important;
@@ -197,7 +209,7 @@ const MigrationPlannerView: React.FC = () => {
           viewBox="0 0 16 16"
           fill="none"
           style={{
-            filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2))',
+            filter: 'none',
           }}
         >
           <path
@@ -207,7 +219,7 @@ const MigrationPlannerView: React.FC = () => {
             strokeLinecap="round"
             strokeLinejoin="round"
             style={{
-              filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1))',
+              filter: 'none',
             }}
           />
         </svg>
@@ -242,7 +254,7 @@ const MigrationPlannerView: React.FC = () => {
           viewBox="0 0 16 16"
           fill="none"
           style={{
-            filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2))',
+            filter: 'none',
           }}
         >
           <path
@@ -252,7 +264,7 @@ const MigrationPlannerView: React.FC = () => {
             strokeLinecap="round"
             strokeLinejoin="round"
             style={{
-              filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1))',
+              filter: 'none',
             }}
           />
         </svg>
@@ -531,7 +543,7 @@ const MigrationPlannerView: React.FC = () => {
                 e.stopPropagation();
                 setShowMenu(!showMenu);
               }}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              className="p-2 rounded-lg hover:border border-gray-500/30 transition-colors"
               style={{ cursor: 'pointer' }}
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -542,7 +554,7 @@ const MigrationPlannerView: React.FC = () => {
             </button>
             {showMenu && (
               <div
-                className="absolute right-0 top-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50"
+                className="absolute right-0 top-full mt-1 bg-transparent backdrop-blur-sm rounded-lg border border-purple-500/30 py-1 z-50"
                 style={{ 
                   minWidth: '100px',
                   display: 'flex',
@@ -556,7 +568,7 @@ const MigrationPlannerView: React.FC = () => {
                     setShowMenu(false);
                     onEdit();
                   }}
-                  className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 transition-colors"
+                  className="w-full text-left px-3 py-2 text-sm hover:border border-gray-500/20 transition-colors"
                   style={{ 
                     display: 'block',
                     width: '100%',
@@ -573,7 +585,7 @@ const MigrationPlannerView: React.FC = () => {
                     setShowMenu(false);
                     onDelete();
                   }}
-                  className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 text-red-600 transition-colors"
+                  className="w-full text-left px-3 py-2 text-sm hover:border border-gray-500/20 text-red-600 transition-colors"
                   style={{ 
                     display: 'block',
                     width: '100%',
@@ -592,25 +604,38 @@ const MigrationPlannerView: React.FC = () => {
     );
   };
 
-  // Wizard Step Component with enhanced highlighting
-  const WizardStep = ({ title, isActive, stepNumber }: { title: string; isActive: boolean; stepNumber: number; }) => (
+  // Wizard Step Component with enhanced highlighting and responsive scaling
+  const WizardStep = ({ title, isActive, stepNumber, icon: Icon }: { title: string; isActive: boolean; stepNumber: number; icon: any }) => (
     <div 
-      className="relative flex flex-col items-center justify-center transition-all duration-300 flex-1 cursor-pointer hover:scale-105"
-      style={{ padding: '8px 12px 16px' }}
+      className="relative flex flex-col items-center justify-center transition-all duration-300 cursor-pointer hover:scale-105 wizard-step-responsive"
+      style={{ 
+        padding: '12px 8px 20px',
+        minWidth: '120px',
+        flex: '1 1 auto'
+      }}
       onClick={() => setCurrentStep(stepNumber)}
     >
-      <span 
-        className="font-medium transition-colors duration-200"
-        style={{
-          fontFamily: 'var(--fluent-font-family-base)',
-          fontSize: '14px',
-          fontWeight: isActive ? '600' : '400',
+      <div className="flex items-center gap-2 mb-2 wizard-step-content">
+        <Icon size={18} style={{ 
           color: isActive ? '#8b5cf6' : '#6b7280',
-          lineHeight: '1.4'
-        }}
-      >
-        {title}
-      </span>
+          transition: 'color 0.2s ease',
+          flexShrink: 0
+        }} />
+        <span 
+          className="font-medium transition-colors duration-200 wizard-step-title"
+          style={{
+            fontFamily: 'var(--fluent-font-family-base)',
+            fontSize: '14px',
+            fontWeight: isActive ? '600' : '400',
+            color: isActive ? '#8b5cf6' : '#6b7280',
+            lineHeight: '1.4',
+            textAlign: 'center',
+            whiteSpace: 'nowrap'
+          }}
+        >
+          {title}
+        </span>
+      </div>
       {isActive && (
         <div style={{
           position: 'absolute',
@@ -620,18 +645,18 @@ const MigrationPlannerView: React.FC = () => {
           height: '3px',
           background: 'linear-gradient(90deg, #a855f7 0%, #ec4899 100%)',
           borderRadius: '2px',
-          boxShadow: '0 2px 8px rgba(168, 85, 247, 0.6)'
+          boxShadow: 'none'
         }} />
       )}
     </div>
   );
 
   const wizardSteps = [
-    { num: 1, title: 'Migration Scope', description: 'Select clusters and workloads for migration' },
-    { num: 2, title: 'Migration Assessment', description: 'Analyze migration complexity and dependencies' },
-    { num: 3, title: 'Migration Policies', description: 'Define migration approach and constraints' },
-    { num: 4, title: 'Target Platform', description: 'Choose destination infrastructure platform' },
-    { num: 5, title: 'Migration Plan', description: 'Review migration strategy and generate roadmap' }
+    { num: 1, title: 'Migration Scope', description: 'Select clusters and workloads for migration', icon: Database },
+    { num: 2, title: 'Migration Assessment', description: 'Analyze migration complexity and dependencies', icon: Activity },
+    { num: 3, title: 'Migration Policies', description: 'Define migration approach and constraints', icon: Settings },
+    { num: 4, title: 'Target Platform', description: 'Choose destination infrastructure platform', icon: Target },
+    { num: 5, title: 'Migration Plan', description: 'Review migration strategy and generate roadmap', icon: FileText }
   ];
 
   const renderStepContent = () => {
@@ -755,7 +780,7 @@ const MigrationPlannerView: React.FC = () => {
                         minWidth: 0,
                         boxSizing: 'border-box',
                       }}>
-                        <div style={{ fontSize: '14px', fontWeight: '600', color: 'var(--color-neutral-foreground)', marginBottom: '16px', textAlign: 'center', backgroundColor: 'rgba(168, 85, 247, 0.1)', padding: '4px 12px', borderRadius: '8px', border: '1px solid rgba(168, 85, 247, 0.3)' }}>
+                        <div style={{ fontSize: '14px', fontWeight: '600', color: 'var(--color-neutral-foreground)', marginBottom: '16px', textAlign: 'center', backgroundColor: "transparent", padding: '4px 12px', borderRadius: '8px', border: '1px solid rgba(168, 85, 247, 0.3)' }}>
                           Detected Workloads
                         </div>
                         <OSBreakdownChartSplit osBreakdown={cluster.osBreakdown || {}} totalVMs={cluster.vms?.length || cluster.vms || 0} />
@@ -885,7 +910,7 @@ const MigrationPlannerView: React.FC = () => {
                       border: '1px solid rgba(168, 85, 247, 0.3)',
                       borderRadius: '8px',
                       fontSize: '14px',
-                      background: 'rgba(255, 255, 255, 0.9)',
+                      background: 'transparent',
                       outline: 'none'
                     }}
                   />
@@ -917,25 +942,7 @@ const MigrationPlannerView: React.FC = () => {
                       value={customMemoryOvercommit}
                       onChange={(e) => setCustomMemoryOvercommit(e.target.value)}
                       placeholder="e.g., 1.8:1"
-                      className="w-full p-3 border rounded-lg"
-                      style={{
-                        minHeight: '48px',
-                        fontSize: '14px',
-                        background: 'rgba(255, 255, 255, 0.9)',
-                        backdropFilter: 'blur(10px)',
-                        border: '1px solid rgba(139, 92, 246, 0.3)',
-                        borderRadius: '12px',
-                        color: 'var(--color-neutral-foreground)',
-                        transition: 'all 0.2s ease'
-                      }}
-                      onFocus={(e) => {
-                        e.target.style.border = '1px solid rgba(139, 92, 246, 0.5)';
-                        e.target.style.boxShadow = '0 0 0 3px rgba(139, 92, 246, 0.1)';
-                      }}
-                      onBlur={(e) => {
-                        e.target.style.border = '1px solid rgba(139, 92, 246, 0.3)';
-                        e.target.style.boxShadow = 'none';
-                      }}
+                      className="lcm-input"
                     />
                   </div>
                 )}
@@ -1139,26 +1146,30 @@ const MigrationPlannerView: React.FC = () => {
     <div className="fluent-page-container">
       {/* Wizard Progress Header */}
       <div className="lcm-card mb-6 flex-shrink-0">
-        <div className="p-4 flex items-center justify-center min-h-12">
-          {wizardSteps.map((step, index) => (
-            <React.Fragment key={step.num}>
-              <WizardStep
-                title={step.title}
-                isActive={currentStep === step.num}
-                stepNumber={step.num}
-              />
-              {index < wizardSteps.length - 1 && (
-                <div 
-                  className="flex-1 h-0.5 mx-4 transition-all duration-300"
-                  style={{
-                    background: currentStep > step.num 
-                      ? 'linear-gradient(90deg, var(--fluent-color-success-background-1) 0%, var(--fluent-color-success-background-2) 100%)'
-                      : 'var(--fluent-color-neutral-stroke-2)'
-                  }}
+        <div className="p-4 flex items-center justify-center min-h-12 wizard-header-container overflow-x-auto">
+          <div className="flex items-center justify-center wizard-steps-wrapper" style={{ minWidth: 'max-content' }}>
+            {wizardSteps.map((step, index) => (
+              <React.Fragment key={step.num}>
+                <WizardStep
+                  title={step.title}
+                  isActive={currentStep === step.num}
+                  stepNumber={step.num}
+                  icon={step.icon}
                 />
-              )}
-            </React.Fragment>
-          ))}
+                {index < wizardSteps.length - 1 && (
+                  <div 
+                    className="flex-shrink-0 h-0.5 mx-2 transition-all duration-300 wizard-connector"
+                    style={{
+                      width: '32px',
+                      background: currentStep > step.num 
+                        ? 'linear-gradient(90deg, var(--fluent-color-success-background-1) 0%, var(--fluent-color-success-background-2) 100%)'
+                        : 'var(--fluent-color-neutral-stroke-2)'
+                    }}
+                  />
+                )}
+              </React.Fragment>
+            ))}
+          </div>
         </div>
       </div>
 

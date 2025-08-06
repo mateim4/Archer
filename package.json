@@ -4,10 +4,18 @@
   "description": "LCM Designer - Infrastructure Planning Tool",
   "main": "index.js",
   "scripts": {
-    "frontend": "cd frontend && npm run dev",
-    "build": "cd frontend && npm run build"
+    "dev": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build",
+    "preview": "npm --prefix frontend run preview"
   },
-  "keywords": ["infrastructure", "planning", "vmware"],
+  "keywords": [
+    "infrastructure",
+    "planning",
+    "vmware"
+  ],
   "author": "InfraAID Team",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.11"
+  }
 }

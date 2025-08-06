@@ -1,0 +1,43 @@
+/* Styles for the NavigationSidebar component */
+.nav-sidebar {
+    background-color: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
+    transition: width 0.3s ease;
+    width: 250px;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+}
+
+.nav-sidebar.collapsed {
+    width: 80px;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    color: #eee;
+    text-decoration: none;
+}
+
+.nav-item.active {
+    background: linear-gradient(90deg, #a855f7 0%, #ec4899 100%);
+    color: white;
+}
+
+.nav-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.nav-text {
+    margin-left: 15px;
+}
+
+.nav-sidebar.collapsed .nav-text {
+    display: none;
+}

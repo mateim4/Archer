@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Input Field Styling Test</title>
+    <link rel="stylesheet" href="src/index.css">
+    <link rel="stylesheet" href="src/fluent-enhancements.css">
+    <style>
+        body {
+            padding: 2rem;
+            background: linear-gradient(135deg, 
+                #B8E6F0 0%, 
+                #87CEEB 25%, 
+                #7DD3FC 50%, 
+                #5EADD8 75%, 
+                #4A90B8 100%);
+            font-family: "Poppins", "Segoe UI Variable", "Segoe UI", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+        }
+        
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 16px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        
+        .test-section {
+            margin-bottom: 2rem;
+        }
+        
+        .test-section h2 {
+            color: #1a202c;
+            margin-bottom: 1rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #374151;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Input Field Styling Test</h1>
+        <p>This page demonstrates the new taller, rounded corner text entry fields with transparent background and border-only styling.</p>
+        
+        <div class="test-section">
+            <h2>Standard Input Fields</h2>
+            
+            <div class="form-group">
+                <label>Regular Input (.fluent-input)</label>
+                <input type="text" class="fluent-input" placeholder="Enter some text...">
+            </div>
+            
+            <div class="form-group">
+                <label>LCM Input (.lcm-input)</label>
+                <input type="text" class="lcm-input" placeholder="Enter some text...">
+            </div>
+            
+            <div class="form-group">
+                <label>Email Input</label>
+                <input type="email" class="fluent-input" placeholder="your.email@example.com">
+            </div>
+            
+            <div class="form-group">
+                <label>Password Input</label>
+                <input type="password" class="fluent-input" placeholder="Enter password...">
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Select/Dropdown Fields</h2>
+            
+            <div class="form-group">
+                <label>Standard Select (.fluent-select)</label>
+                <select class="fluent-select">
+                    <option value="">Choose an option...</option>
+                    <option value="1">Option 1</option>
+                    <option value="2">Option 2</option>
+                    <option value="3">Option 3</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>LCM Dropdown (.lcm-dropdown)</label>
+                <select class="lcm-dropdown">
+                    <option value="">Select item...</option>
+                    <option value="apple">Apple</option>
+                    <option value="banana">Banana</option>
+                    <option value="cherry">Cherry</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Textarea Fields</h2>
+            
+            <div class="form-group">
+                <label>Standard Textarea</label>
+                <textarea class="fluent-input" rows="4" placeholder="Enter your message here..."></textarea>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Form Group Test</h2>
+            <div class="form-group">
+                <label>Form Group Input</label>
+                <input type="text" placeholder="Using .form-group styling">
+            </div>
+            
+            <div class="form-group">
+                <label>Form Group Textarea</label>
+                <textarea rows="3" placeholder="Using .form-group styling"></textarea>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Input States</h2>
+            <p>Try clicking on the inputs above to see the focus states with enhanced borders and shadow effects.</p>
+        </div>
+    </div>
+</body>
+</html>

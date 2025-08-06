@@ -248,7 +248,7 @@ export const HardwareFileUpload: React.FC = () => {
       {error && (
         <div style={{
           padding: 'var(--fluent-spacing-horizontal-m)',
-          backgroundColor: 'rgba(196, 43, 28, 0.1)',
+          backgroundColor: 'transparent',
           border: '1px solid rgba(196, 43, 28, 0.3)',
           borderRadius: 'var(--fluent-border-radius-medium)',
           color: '#C42B1C',

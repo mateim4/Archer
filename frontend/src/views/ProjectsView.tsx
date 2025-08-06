@@ -69,12 +69,9 @@ const ProjectsView: React.FC = () => {
 
   return (
     <div className="fluent-page-container">
-      {/* Page Header */}
-      <div className="fluent-page-header">
-        <div>
-          <h1 className="fluent-page-title">Projects</h1>
-          <p className="fluent-page-subtitle">Manage your infrastructure projects and configurations</p>
-        </div>
+      <div className="lcm-card">
+        {/* Page Header */}
+        <div className="fluent-page-header">
         <button
           onClick={() => setShowCreateForm(true)}
           className="fluent-button fluent-button-primary fluent-button-with-icon"
@@ -91,17 +88,17 @@ const ProjectsView: React.FC = () => {
       )}
 
       {/* Search and View Controls */}
-      <div className="lcm-card lcm-card-compact mb-6">
+      <div className="mb-6 p-4 border border-purple-500/20 rounded-lg bg-transparent">
         <div className="flex flex-col sm:flex-row gap-4 items-center">
           <div className="flex-1">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <div className="lcm-input-with-icon">
+              <Search className="lcm-input-icon text-gray-400 w-4 h-4" />
               <input
                 type="text"
                 placeholder="Search projects..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="fluent-input pl-10"
+                className="lcm-input"
               />
             </div>
           </div>
@@ -145,7 +142,7 @@ const ProjectsView: React.FC = () => {
                     type="text"
                     value={newProject.name}
                     onChange={(e) => setNewProject({ ...newProject, name: e.target.value })}
-                    className="fluent-input"
+                    className="lcm-input"
                     placeholder="Enter project name"
                     required
                   />
@@ -155,7 +152,7 @@ const ProjectsView: React.FC = () => {
                   <textarea
                     value={newProject.description}
                     onChange={(e) => setNewProject({ ...newProject, description: e.target.value })}
-                    className="fluent-input"
+                    className="lcm-input"
                     placeholder="Enter project description"
                     rows={3}
                     style={{ resize: 'vertical', minHeight: '80px' }}
@@ -187,7 +184,7 @@ const ProjectsView: React.FC = () => {
       {viewMode === 'grid' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredProjects.map((project) => (
-            <div key={project.id} className="lcm-card lcm-card-interactive">
+            <div key={project.id} className="p-4 rounded-lg border border-purple-500/20 hover:border-purple-500/40 transition-all duration-200">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center">
                   <div className="fluent-icon-container fluent-icon-container-primary mr-3">
@@ -214,7 +211,7 @@ const ProjectsView: React.FC = () => {
           ))}
         </div>
       ) : (
-        <div className="lcm-card lcm-card-no-padding">
+        <div className="border border-purple-500/20 rounded-lg bg-transparent overflow-hidden">
           <div className="lcm-table-header">
             <div>Name</div>
             <div>Description</div>
@@ -269,6 +266,7 @@ const ProjectsView: React.FC = () => {
           </button>
         </div>
       )}
+      </div>
     </div>
   );
 };

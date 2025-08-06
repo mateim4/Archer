@@ -1,6 +1,55 @@
 // Mermaid diagram generators for network topology visualization
 import { NetworkTopology } from '../store/useAppStore';
 
+// Consistent theme system for all diagrams
+const DIAGRAM_THEME = {
+  // Primary colors - Purple theme to match app
+  primary: '#8b5cf6',      // Main purple
+  primaryLight: '#c4b5fd',  // Light purple
+  primaryDark: '#6d28d9',   // Dark purple
+  
+  // Secondary colors 
+  secondary: '#ec4899',     // Pink accent
+  secondaryLight: '#f9a8d4', // Light pink
+  
+  // Tertiary colors
+  tertiary: '#3b82f6',      // Blue
+  tertiaryLight: '#93c5fd', // Light blue
+  
+  // Status colors
+  success: '#10b981',       // Green
+  warning: '#f59e0b',       // Orange  
+  error: '#ef4444',         // Red
+  info: '#06b6d4',          // Cyan
+  
+  // Neutral colors
+  neutral: '#6b7280',       // Gray
+  neutralLight: '#d1d5db',  // Light gray
+  neutralDark: '#374151',   // Dark gray
+  
+  // Background colors
+  bgPrimary: '#ffffff',     // White
+  bgSecondary: '#f8fafc',   // Very light gray
+  bgTertiary: '#f1f5f9',    // Light gray
+  
+  // Text colors
+  textPrimary: '#1a202c',   // Dark gray/black
+  textSecondary: '#4b5563', // Medium gray
+  textLight: '#ffffff',     // White
+};
+
+// Generate consistent styling for all diagram types
+const generateDiagramStyles = () => `
+  classDef virtualNetwork fill:${DIAGRAM_THEME.primary},stroke:${DIAGRAM_THEME.primaryDark},stroke-width:3px,color:${DIAGRAM_THEME.textLight},rx:12,ry:12
+  classDef virtualMachine fill:${DIAGRAM_THEME.tertiary},stroke:${DIAGRAM_THEME.primaryDark},stroke-width:2px,color:${DIAGRAM_THEME.textLight},rx:8,ry:8
+  classDef cluster fill:${DIAGRAM_THEME.success},stroke:${DIAGRAM_THEME.primaryDark},stroke-width:3px,color:${DIAGRAM_THEME.textLight},rx:10,ry:10
+  classDef physicalHost fill:${DIAGRAM_THEME.warning},stroke:${DIAGRAM_THEME.primaryDark},stroke-width:2px,color:${DIAGRAM_THEME.textLight},rx:8,ry:8
+  classDef datacenter fill:${DIAGRAM_THEME.neutralDark},stroke:${DIAGRAM_THEME.primary},stroke-width:4px,color:${DIAGRAM_THEME.textLight},rx:15,ry:15
+  classDef infrastructure fill:${DIAGRAM_THEME.info},stroke:${DIAGRAM_THEME.primaryDark},stroke-width:2px,color:${DIAGRAM_THEME.textLight},rx:8,ry:8
+  classDef managementFunction fill:${DIAGRAM_THEME.secondary},stroke:${DIAGRAM_THEME.primaryDark},stroke-width:2px,color:${DIAGRAM_THEME.textLight},rx:8,ry:8
+  classDef moreItems fill:${DIAGRAM_THEME.neutral},stroke:${DIAGRAM_THEME.neutralDark},stroke-width:1px,color:${DIAGRAM_THEME.textLight},rx:6,ry:6
+`;
+
 /**
  * Generate a virtual network diagram using Mermaid syntax
  */
@@ -62,13 +111,11 @@ export function generateVirtualDiagram(topology: NetworkTopology): string {
   // Add connections
   diagram += '\n' + connections.join('\n') + '\n';
 
-  // Add style classes
-  diagram += `
-  classDef virtualNetwork fill:#8b5cf6,stroke:#6d28d9,stroke-width:2px,color:white
-  classDef virtualMachine fill:#a855f7,stroke:#7c3aed,stroke-width:2px,color:white
-  classDef managementFunction fill:#10b981,stroke:#059669,stroke-width:2px,color:white
-  classDef moreItems fill:#6b7280,stroke:#4b5563,stroke-width:1px,color:white
+  // Add consistent style classes with rounded corners
+  diagram += '\n' + generateDiagramStyles();
   
+  // Apply classes to elements
+  diagram += `
   class ${topology.networks.map((_: any, i: number) => `VN${i}`).join(',')} virtualNetwork
   class ${topology.vms?.slice(0, 20).map((_: any, i: number) => `VM${i}`).join(',') || ''} virtualMachine
   class MGMT,VMOTION managementFunction
@@ -147,12 +194,12 @@ export function generateHyperVDiagram(topology: NetworkTopology): string {
   // Add connections
   diagram += '\n' + connections.join('\n') + '\n';
 
-  // Add style classes
+  // Add consistent style classes with rounded corners
+  diagram += '\n' + generateDiagramStyles();
+  
+  // Apply classes to elements (add hyperVHost alias for physicalHost)
   diagram += `
-  classDef cluster fill:#3b82f6,stroke:#1e40af,stroke-width:3px,color:white
-  classDef hyperVHost fill:#ec4899,stroke:#db2777,stroke-width:3px,color:white
-  classDef virtualMachine fill:#a855f7,stroke:#7c3aed,stroke-width:2px,color:white
-  classDef moreItems fill:#6b7280,stroke:#4b5563,stroke-width:1px,color:white
+  classDef hyperVHost fill:${DIAGRAM_THEME.secondary},stroke:${DIAGRAM_THEME.primaryDark},stroke-width:3px,color:${DIAGRAM_THEME.textLight},rx:8,ry:8
   
   class ${topology.clusters?.map((_: any, i: number) => `CL${i}`).join(',') || ''} cluster
   class ${topology.hosts.map((_: any, i: number) => `HV${i}`).join(',')} hyperVHost
@@ -255,14 +302,11 @@ export function generatePhysicalDiagram(topology: NetworkTopology): string {
   // Add connections
   diagram += '\n' + connections.join('\n') + '\n';
 
-  // Add style classes
-  diagram += `
-  classDef datacenter fill:#1f2937,stroke:#111827,stroke-width:4px,color:white
-  classDef cluster fill:#10b981,stroke:#059669,stroke-width:3px,color:white
-  classDef physicalHost fill:#f59e0b,stroke:#d97706,stroke-width:2px,color:white
-  classDef infrastructure fill:#6366f1,stroke:#4338ca,stroke-width:2px,color:white
-  classDef moreItems fill:#6b7280,stroke:#4b5563,stroke-width:1px,color:white
+  // Add consistent style classes with rounded corners
+  diagram += '\n' + generateDiagramStyles();
   
+  // Apply classes to elements
+  diagram += `
   class DC datacenter
   class ${topology.clusters.map((_: any, i: number) => `CL${i}`).join(',')} cluster
   class ${topology.hosts?.slice(0, 12).map((_: any, i: number) => `PH${i}`).join(',') || ''} physicalHost

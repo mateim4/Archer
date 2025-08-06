@@ -339,7 +339,7 @@ const CustomSlider: React.FC<CustomSliderProps> = ({
             // Enhanced backdrop-filter with 50% more intensity
             backdropFilter: 'blur(30px) saturate(2.25)',
             WebkitBackdropFilter: 'blur(30px) saturate(2.25)',
-            background: 'rgba(255, 255, 255, 0.2)',
+            background: 'transparent',
             willChange: 'backdrop-filter, transform',
             isolation: 'isolate',
             filter: 'drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15))'

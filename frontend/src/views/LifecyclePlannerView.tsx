@@ -122,10 +122,10 @@ const LifecyclePlannerView: React.FC = () => {
     style.innerHTML = `
       .acrylic-dropdown {
         border-radius: 14px !important;
-        background: rgba(255,255,255,0.65) !important;
+        background: transparent !important;
         backdrop-filter: blur(18px) saturate(180%) !important;
         -webkit-backdrop-filter: blur(18px) saturate(180%) !important;
-        box-shadow: 0 4px 24px 0 rgba(168,85,247,0.07), 0 1.5px 4px 0 rgba(0,0,0,0.04) !important;
+        box-shadow: none !important;
         color: var(--color-neutral-foreground) !important;
         border: 1.5px solid var(--fluent-color-neutral-stroke-2) !important;
         padding: 14px 40px 14px 16px !important;
@@ -197,7 +197,7 @@ const LifecyclePlannerView: React.FC = () => {
           viewBox="0 0 16 16"
           fill="none"
           style={{
-            filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2))',
+            filter: 'none',
           }}
         >
           <path
@@ -207,7 +207,7 @@ const LifecyclePlannerView: React.FC = () => {
             strokeLinecap="round"
             strokeLinejoin="round"
             style={{
-              filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1))',
+              filter: 'none',
             }}
           />
         </svg>
@@ -242,7 +242,7 @@ const LifecyclePlannerView: React.FC = () => {
           viewBox="0 0 16 16"
           fill="none"
           style={{
-            filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2))',
+            filter: 'none',
           }}
         >
           <path
@@ -252,7 +252,7 @@ const LifecyclePlannerView: React.FC = () => {
             strokeLinecap="round"
             strokeLinejoin="round"
             style={{
-              filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1))',
+              filter: 'none',
             }}
           />
         </svg>
@@ -531,7 +531,7 @@ const LifecyclePlannerView: React.FC = () => {
                 e.stopPropagation();
                 setShowMenu(!showMenu);
               }}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              className="p-2 rounded-lg hover:border border-gray-500/30 transition-colors"
               style={{ cursor: 'pointer' }}
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -542,7 +542,7 @@ const LifecyclePlannerView: React.FC = () => {
             </button>
             {showMenu && (
               <div
-                className="absolute right-0 top-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50"
+                className="absolute right-0 top-full mt-1 bg-transparent backdrop-blur-sm rounded-lg border border-purple-500/30 py-1 z-50"
                 style={{ 
                   minWidth: '100px',
                   display: 'flex',
@@ -556,7 +556,7 @@ const LifecyclePlannerView: React.FC = () => {
                     setShowMenu(false);
                     onEdit();
                   }}
-                  className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 transition-colors"
+                  className="w-full text-left px-3 py-2 text-sm hover:border border-gray-500/20 transition-colors"
                   style={{ 
                     display: 'block',
                     width: '100%',
@@ -573,7 +573,7 @@ const LifecyclePlannerView: React.FC = () => {
                     setShowMenu(false);
                     onDelete();
                   }}
-                  className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 text-red-600 transition-colors"
+                  className="w-full text-left px-3 py-2 text-sm hover:border border-gray-500/20 text-red-600 transition-colors"
                   style={{ 
                     display: 'block',
                     width: '100%',
@@ -620,7 +620,7 @@ const LifecyclePlannerView: React.FC = () => {
           height: '3px',
           background: 'linear-gradient(90deg, #a855f7 0%, #ec4899 100%)',
           borderRadius: '2px',
-          boxShadow: '0 2px 8px rgba(168, 85, 247, 0.6)'
+          boxShadow: 'none'
         }} />
       )}
     </div>
@@ -755,7 +755,7 @@ const LifecyclePlannerView: React.FC = () => {
                         minWidth: 0,
                         boxSizing: 'border-box',
                       }}>
-                        <div style={{ fontSize: '14px', fontWeight: '600', color: 'var(--color-neutral-foreground)', marginBottom: '16px', textAlign: 'center', backgroundColor: 'rgba(168, 85, 247, 0.1)', padding: '4px 12px', borderRadius: '8px', border: '1px solid rgba(168, 85, 247, 0.3)' }}>
+                        <div style={{ fontSize: '14px', fontWeight: '600', color: 'var(--color-neutral-foreground)', marginBottom: '16px', textAlign: 'center', backgroundColor: "transparent", padding: '4px 12px', borderRadius: '8px', border: '1px solid rgba(168, 85, 247, 0.3)' }}>
                           Detected Workloads
                         </div>
                         <OSBreakdownChartSplit osBreakdown={cluster.osBreakdown} totalVMs={cluster.vms?.length || cluster.vms || 0} />
@@ -897,7 +897,7 @@ const LifecyclePlannerView: React.FC = () => {
                       border: '1px solid rgba(168, 85, 247, 0.3)',
                       borderRadius: '8px',
                       fontSize: '14px',
-                      background: 'rgba(255, 255, 255, 0.9)',
+                      background: 'transparent',
                       outline: 'none'
                     }}
                   />
@@ -931,7 +931,7 @@ const LifecyclePlannerView: React.FC = () => {
                       border: '1px solid rgba(168, 85, 247, 0.3)',
                       borderRadius: '8px',
                       fontSize: '14px',
-                      background: 'rgba(255, 255, 255, 0.9)',
+                      background: 'transparent',
                       outline: 'none'
                     }}
                   />

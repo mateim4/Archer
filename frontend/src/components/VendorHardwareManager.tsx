@@ -326,13 +326,14 @@ const VendorHardwareManager: React.FC = () => {
       {/* Tab Selection */}
       <div className="tab-container" style={{ marginBottom: '20px' }}>
         <button 
-          className={`tab-button ${activeTab === 'upload' ? 'active' : ''}`}
+          className={`fluent-button ${activeTab === 'upload' ? 'fluent-button-primary' : 'fluent-button-secondary'}`}
           onClick={() => setActiveTab('upload')}
+          style={{ marginRight: '8px' }}
         >
           📁 Upload File
         </button>
         <button 
-          className={`tab-button ${activeTab === 'vendor' ? 'active' : ''}`}
+          className={`fluent-button ${activeTab === 'vendor' ? 'fluent-button-primary' : 'fluent-button-secondary'}`}
           onClick={() => setActiveTab('vendor')}
         >
           🌐 Fetch from Vendor
@@ -565,11 +566,18 @@ const VendorHardwareManager: React.FC = () => {
           cursor: pointer;
           border-bottom: 3px solid transparent;
           font-weight: 500;
+          color: #6b7280;
+          transition: all 0.2s ease;
         }
         
         .tab-button.active {
-          border-bottom-color: #0078d4;
-          color: #0078d4;
+          border-bottom-color: #8b5cf6;
+          color: #8b5cf6;
+        }
+        
+        .tab-button:hover {
+          color: #8b5cf6;
+          background: rgba(139, 92, 246, 0.05);
         }
         
         .credentials-form {
@@ -705,17 +713,19 @@ const VendorHardwareManager: React.FC = () => {
         }
         
         button {
-          background: #0078d4;
+          background: #8b5cf6;
           color: white;
           border: none;
           padding: 8px 16px;
           border-radius: 4px;
           cursor: pointer;
           font-weight: 500;
+          transition: all 0.2s ease;
         }
         
         button:hover {
-          background: #106ebe;
+          background: #7c3aed;
+          transform: translateY(-1px);
         }
         
         button:disabled {

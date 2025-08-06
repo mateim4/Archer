@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   BarChart3,
@@ -15,16 +15,28 @@ import {
 } from 'lucide-react';
 
 interface NavigationSidebarProps {
-  collapsed: boolean;
-  onToggleCollapse: () => void;
+  isOpen: boolean;
+  onToggle: (open: boolean) => void;
+  isProjectOpen: boolean;
 }
 
 const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
-  collapsed,
-  onToggleCollapse,
+  isOpen,
+  onToggle,
+  isProjectOpen,
 }) => {
   const location = useLocation();
   const activeView = location.pathname;
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const navigationItems = [
     {
@@ -32,81 +44,103 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
       label: 'Projects',
       icon: FolderKanban,
       path: '/projects',
-      tooltip: 'Manage and view your projects.'
+      tooltip: 'Manage and organize your infrastructure projects.',
+      requiresProject: false,
     },
     {
       id: 'hardware-pool',
       label: 'Hardware Pool',
       icon: Database,
-      path: '/hardware',
-      tooltip: 'Manage your hardware pool.'
+      path: '/hardware-pool',
+      tooltip: 'View and manage available hardware resources.',
+      requiresProject: true,
     },
     {
       id: 'cluster-sizing',
       label: 'Cluster Sizing',
       icon: Scaling,
-      path: '/sizing',
-      tooltip: 'Plan and size your clusters.'
+      path: '/cluster-sizing',
+      tooltip: 'Calculate optimal cluster configurations.',
+      requiresProject: true,
     },
     {
-      id: 'network-planning',
-      label: 'Network Planning',
+      id: 'network-visualizer',
+      label: 'Network Visualizer',
       icon: Share2,
-      path: '/network',
-      tooltip: 'Visualize and plan your network.'
+      path: '/network-visualizer',
+      tooltip: 'Visualize and analyze network topologies.',
+      requiresProject: true,
     },
     {
       id: 'design-docs',
-      label: 'Design Docs',
+      label: 'Design Documents',
       icon: FileText,
-      path: '/docs',
-      tooltip: 'Create and manage design documents.'
+      path: '/design-docs',
+      tooltip: 'Generate and manage design documentation.',
+      requiresProject: true,
     },
     {
-      id: 'migration',
-      label: 'Migration',
-      icon: ArrowRight,
-      path: '/migration',
-      tooltip: 'Plan and track your migrations.'
+      id: 'migration-planner',
+      label: 'Migration Planner',
+      icon: GitMerge,
+      path: '/migration-planner',
+      tooltip: 'Plan and execute infrastructure migrations.',
+      requiresProject: true,
     },
     {
       id: 'workflows',
       label: 'Workflows',
-      icon: GitMerge,
+      icon: RefreshCw,
       path: '/workflows',
-      tooltip: 'Execute guided workflows.'
+      tooltip: 'Automate and monitor infrastructure workflows.',
+      requiresProject: true,
     },
     {
       id: 'settings',
       label: 'Settings',
       icon: Settings,
       path: '/settings',
-      tooltip: 'Configure application settings.'
+      tooltip: 'Configure application settings.',
+      requiresProject: false,
     },
   ];
 
+  const filteredNavItems = navigationItems.filter(item => !item.requiresProject || isProjectOpen);
+
   return (
-    <div
-      className={`${collapsed ? 'w-16' : 'w-64'} transition-all duration-300 ease-out relative`}
-      style={{
-        background: 'rgba(255, 255, 255, 0.85)',
-        border: '1px solid var(--fluent-color-neutral-stroke-2)',
-        borderLeft: 'none',
-        borderTop: 'none',
-        borderBottom: 'none',
-        boxShadow: 'var(--fluent-shadow-4)',
-        fontFamily: 'Montserrat, -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", system-ui, ui-sans-serif, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"'
-      }}
-    >
+    <>
+      {/* Mobile overlay */}
+      {isMobile && isOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-40"
+          onClick={() => onToggle(false)}
+        />
+      )}
+      
+      <div
+        className={`${!isOpen ? 'w-16' : 'w-64'} ${isMobile ? 'fixed z-50 h-full' : ''} transition-all duration-300 ease-out relative ${!isOpen && isMobile ? 'collapsed' : ''}`}
+        style={{
+          background: 'rgba(255, 255, 255, 0.85)',
+          backdropFilter: 'blur(20px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+          border: '1px solid rgba(255, 255, 255, 0.3)',
+          borderLeft: 'none',
+          borderTop: 'none',
+          borderBottom: 'none',
+          boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
+          fontFamily: 'Poppins, -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", system-ui, ui-sans-serif, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"',
+          transform: isMobile && !isOpen ? 'translateX(-100%)' : 'translateX(0)',
+        }}
+      >
       {/* Header */}
       <div
         className="flex items-center justify-between h-16 px-5 border-b"
         style={{
           borderColor: 'var(--fluent-color-neutral-stroke-2)',
-          background: 'rgba(255, 255, 255, 0.1)'
+          background: 'transparent'
         }}
       >
-        {!collapsed && (
+        {isOpen && (
           <h1
             className="font-semibold truncate"
             style={{
@@ -119,138 +153,94 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
             InfraAID
           </h1>
         )}
+        
         <button
-          onClick={onToggleCollapse}
-          className="p-2 rounded-md transition-all duration-200"
+          onClick={() => onToggle(!isOpen)}
+          className="flex items-center justify-center w-8 h-8 rounded-lg transition-colors duration-200 hover:bg-white/20"
           style={{
-            borderRadius: 'var(--border-radius-md)',
-            background: 'rgba(255, 255, 255, 0.1)',
-            backdropFilter: 'blur(10px)',
-            border: `1px solid var(--color-neutral-stroke-secondary)`
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
-            e.currentTarget.style.transform = 'scale(1.05)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
-            e.currentTarget.style.transform = 'scale(1)';
+            color: '#424242',
+            background: 'transparent',
+            border: 'none',
+            cursor: 'pointer'
           }}
         >
-          <Menu size={20} color="var(--color-neutral-foreground-secondary)" />
+          <ArrowRight 
+            size={16} 
+            style={{ 
+              transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+              transition: 'transform 0.2s ease-in-out'
+            }} 
+          />
         </button>
       </div>
 
-      {/* Navigation Items */}
-      <nav className="px-0 py-2">
-        <div className="space-y-1">
-          {navigationItems.map((item) => (
-            <Link
-              key={item.id}
-              to={item.path}
-              className={`w-full flex items-center text-sm font-medium transition-all duration-300 group relative overflow-hidden ${
-                activeView === item.path ? 'active-nav-item' : ''
-              }`}
-              style={{
-                minHeight: '56px',
-                borderRadius: '0px',
-                margin: '0',
-                padding: collapsed ? '16px 12px' : '16px 12px 16px 16px',
-                backgroundColor: activeView === item.path
-                  ? 'rgba(255, 255, 255, 0.95)'
-                  : 'transparent',
-                border: 'none',
-                borderLeft: activeView === item.path
-                  ? '4px solid #000000'
-                  : '4px solid transparent',
-                color: activeView === item.path
-                  ? '#000000'
-                  : '#424242',
-                fontWeight: activeView === item.path
-                  ? '600'
-                  : '500',
-                boxShadow: activeView === item.path
-                  ? '0 1px 3px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.9)'
-                  : 'none',
-                transform: 'none',
-                position: 'relative',
-                zIndex: activeView === item.path ? 2 : 1,
-                fontFamily: 'inherit',
-                textAlign: 'left',
-                width: '100%'
-              }}
-              onMouseEnter={(e) => {
-                if (activeView !== item.path) {
-                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.4)';
-                  e.currentTarget.style.borderLeft = '4px solid rgba(0, 0, 0, 0.3)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (activeView !== item.path) {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                  e.currentTarget.style.borderLeft = '4px solid transparent';
-                }
-              }}
-            >
-              {/* Icon container */}
-              <div
-                className="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-lg"
-                style={{
-                  backgroundColor: 'transparent',
-                  border: 'none',
-                  marginRight: collapsed ? '0' : '12px'
-                }}
-              >
-                <item.icon
-                  size={20}
-                  color="#000000"
-                  strokeWidth={1.5}
-                />
-              </div>
-              
-              {!collapsed && (
-                <div className="flex-1 min-w-0">
-                  <div className="text-left relative">
-                    <div
-                      className="font-medium truncate"
+      {/* Navigation */}
+      <nav className="flex-1 overflow-y-auto pt-4 pb-6">
+        <ul className="space-y-1 px-3">
+          {filteredNavItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = activeView === item.path;
+            
+            return (
+              <li key={item.id}>
+                <Link
+                  to={item.path}
+                  className="group flex items-center rounded-lg transition-all duration-200 hover:bg-white/20"
+                  style={{
+                    textDecoration: 'none',
+                    color: isActive ? 'white' : '#424242',
+                    background: isActive 
+                      ? 'linear-gradient(90deg, #a855f7 0%, #ec4899 100%)' 
+                      : 'transparent',
+                    padding: !isOpen ? '16px 12px' : '16px 12px 16px 16px',
+                    borderRadius: '8px',
+                    fontWeight: isActive ? '600' : '500',
+                    fontSize: '14px',
+                    position: 'relative',
+                    border: '1px solid transparent',
+                    boxShadow: isActive ? '0 4px 15px rgba(0, 0, 0, 0.2)' : 'none',
+                    minHeight: '48px'
+                  }}
+                  title={!isOpen ? item.tooltip : ''}
+                >
+                  {/* Active indicator removed for cleaner gradient background look */}
+                  
+                  <div
+                    className="flex items-center justify-center"
+                    style={{
+                      width: '20px',
+                      height: '20px',
+                      marginRight: !isOpen ? '0' : '12px'
+                    }}
+                  >
+                    <Icon 
+                      size={20} 
+                      style={{ 
+                        color: isActive ? 'white' : '#424242',
+                        transition: 'color 0.2s ease-in-out'
+                      }} 
+                    />
+                  </div>
+                  
+                  {isOpen && (
+                    <span
+                      className="flex-1 truncate"
                       style={{
-                        fontSize: '14px',
-                        lineHeight: '20px',
-                        fontWeight: activeView === item.path ? '600' : '500'
+                        fontFamily: 'inherit',
+                        fontWeight: 'inherit'
                       }}
                     >
                       {item.label}
-                    </div>
-                    {activeView === item.path && (
-                      <div
-                        className="absolute bottom-0 left-0 h-0.5 rounded-full"
-                        style={{
-                          width: '80%',
-                          background: 'linear-gradient(90deg, #a855f7 0%, #ec4899 100%)',
-                          marginTop: '4px',
-                          boxShadow: '0 0 8px rgba(168, 85, 247, 0.4)'
-                        }}
-                      />
-                    )}
-                  </div>
-                </div>
-              )}
-              
-              {/* Active indicator */}
-              {activeView === item.path && (
-                <div
-                  className="absolute right-3 w-2 h-2 rounded-full"
-                  style={{
-                    backgroundColor: '#000000',
-                    boxShadow: '0 0 6px rgba(0, 0, 0, 0.3)'
-                  }}
-                />
-              )}
-            </Link>
-          ))}
-        </div>
+                    </span>
+                  )}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
       </nav>
-    </div>
+      </div>
+    </>
   );
 };
 

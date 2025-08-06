@@ -73,12 +73,12 @@ const SelectableTableRow = ({
   style?: React.CSSProperties;
 }) => (
   <tr
-    className={`border-t hover:bg-gray-50 cursor-pointer select-none ${
-      isSelected ? 'bg-blue-50 border-blue-200' : ''
+    className={`border-t hover:border border-gray-500/20 cursor-pointer select-none ${
+      isSelected ? 'border border-blue-500/20 border-blue-200' : ''
     } ${className}`}
     style={{
       borderColor: 'var(--color-neutral-stroke-tertiary)',
-      backgroundColor: isSelected ? 'rgba(59, 130, 246, 0.1)' : undefined,
+      backgroundColor: undefined,
       ...style
     }}
     onClick={() => onToggleSelection(rowId)}
@@ -88,7 +88,7 @@ const SelectableTableRow = ({
         type="checkbox"
         checked={isSelected}
         onChange={() => onToggleSelection(rowId)}
-        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+        className="rounded border-purple-500/30 text-purple-600 focus:ring-purple-500"
         onClick={(e) => e.stopPropagation()}
       />
     </td>
@@ -155,7 +155,7 @@ const ResizableTableHeader = ({
 
   return (
     <th
-      className="px-4 py-3 text-left cursor-pointer hover:bg-gray-50 relative select-none"
+      className="px-4 py-3 text-left cursor-pointer hover:border border-gray-500/20 relative select-none"
       onClick={() => onSort(column)}
       style={{
         color: 'var(--color-neutral-foreground)',
@@ -175,7 +175,7 @@ const ResizableTableHeader = ({
         )}
       </div>
       <div
-        className="absolute right-0 top-0 bottom-0 w-2 cursor-col-resize hover:bg-blue-500 transition-colors duration-200 z-20"
+        className="absolute right-0 top-0 bottom-0 w-2 cursor-col-resize hover:border border-blue-500/200 transition-colors duration-200 z-20"
         style={{ 
           backgroundColor: isResizing ? '#3b82f6' : 'transparent',
           opacity: isResizing ? 0.8 : 0.3
@@ -266,7 +266,7 @@ const DashboardView: React.FC = () => {
         </p>
         
         {!isTauriEnvironment() && (
-          <div className="mb-4 p-3 bg-blue-500/20 border border-blue-500/30 rounded-lg text-blue-300">
+          <div className="mb-4 p-3 border border-blue-500/200/20 border border-blue-500/30 rounded-lg text-blue-300">
             <div className="flex items-center gap-2">
               <Info size={16} />
               <span className="text-sm">
@@ -508,7 +508,7 @@ const DashboardView: React.FC = () => {
                    style={{
                      background: 'linear-gradient(90deg, #a855f7 0%, #ec4899 100%)',
                      borderRadius: '2px',
-                     boxShadow: '0 2px 8px rgba(168, 85, 247, 0.6)'
+                     boxShadow: 'none'
                    }} />
             )}
           </div>
@@ -531,12 +531,7 @@ const DashboardView: React.FC = () => {
   // Cluster Card Component - now a simple card content without lcm-card wrapper
   const ClusterCard = ({ cluster }: any) => (
     <div 
-      className="p-6 cursor-pointer group rounded-lg border border-gray-200 hover:border-gray-300 transition-all duration-200 bg-white hover:shadow-md"
-      style={{
-        border: '1px solid var(--color-neutral-stroke-secondary)',
-        borderRadius: 'var(--border-radius-lg)',
-        backgroundColor: 'var(--color-neutral-background1)'
-      }}
+      className="lcm-card lcm-card-interactive cursor-pointer"
     >
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center">
@@ -571,8 +566,8 @@ const DashboardView: React.FC = () => {
         </div>
         <div 
           className={`w-3 h-3 rounded-full ${
-            cluster.status === 'healthy' ? 'bg-green-400' : 
-            cluster.status === 'warning' ? 'bg-yellow-400' : 'bg-red-400'
+            cluster.status === 'healthy' ? 'border-2 border-green-500 bg-transparent' : 
+            cluster.status === 'warning' ? 'border-2 border-yellow-500 bg-transparent' : 'border-2 border-red-500 bg-transparent'
           }`} 
         />
       </div>
@@ -609,8 +604,8 @@ const DashboardView: React.FC = () => {
         >
           <div 
             className={`h-full rounded-full transition-all duration-500 ${
-              (cluster.utilization || cluster.metrics?.utilization || 0) > 85 ? 'bg-red-400' :
-              (cluster.utilization || cluster.metrics?.utilization || 0) > 70 ? 'bg-yellow-400' : 'bg-green-400'
+              (cluster.utilization || cluster.metrics?.utilization || 0) > 85 ? 'border-2 border-red-500 bg-transparent' :
+              (cluster.utilization || cluster.metrics?.utilization || 0) > 70 ? 'border-2 border-yellow-500 bg-transparent' : 'border-2 border-green-500 bg-transparent'
             }`}
             style={{ 
               width: `${cluster.utilization || cluster.metrics?.utilization || 0}%`,
@@ -708,7 +703,7 @@ const DashboardView: React.FC = () => {
                 WebkitBackdropFilter: 'blur(20px) saturate(120%)',
                 borderColor: 'var(--color-neutral-stroke-secondary)',
                 borderRadius: 'var(--border-radius-lg)',
-                boxShadow: 'inset 0 1px 0 0 rgba(255, 255, 255, 0.1)'
+                boxShadow: 'none'
               }}
             >
               <div 
@@ -817,7 +812,7 @@ const DashboardView: React.FC = () => {
       <div className="space-y-6">
         {/* Overview Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="lcm-card p-4 text-center">
+          <div className="p-4 text-center rounded-lg border border-purple-500/20">
             <Cpu size={32} className="mx-auto mb-2" style={{ color: 'var(--color-brand-primary)' }} />
             <div className="text-2xl font-bold" style={{ color: 'var(--color-neutral-foreground)' }}>
               {totalCPUs}
@@ -827,7 +822,7 @@ const DashboardView: React.FC = () => {
             </div>
           </div>
           
-          <div className="lcm-card p-4 text-center">
+          <div className="p-4 text-center rounded-lg border border-purple-500/20">
             <MemoryStick size={32} className="mx-auto mb-2" style={{ color: 'var(--color-brand-primary)' }} />
             <div className="text-2xl font-bold" style={{ color: 'var(--color-neutral-foreground)' }}>
               {Math.round(totalMemory / 1024)}TB
@@ -837,7 +832,7 @@ const DashboardView: React.FC = () => {
             </div>
           </div>
           
-          <div className="lcm-card p-4 text-center">
+          <div className="p-4 text-center rounded-lg border border-purple-500/20">
             <Server size={32} className="mx-auto mb-2" style={{ color: 'var(--color-brand-primary)' }} />
             <div className="text-2xl font-bold" style={{ color: 'var(--color-neutral-foreground)' }}>
               {totalVMs}
@@ -847,7 +842,7 @@ const DashboardView: React.FC = () => {
             </div>
           </div>
           
-          <div className="lcm-card p-4 text-center">
+          <div className="p-4 text-center rounded-lg border border-purple-500/20">
             <Activity size={32} className="mx-auto mb-2" style={{ color: 'var(--color-brand-primary)' }} />
             <div className="text-2xl font-bold" style={{ color: 'var(--color-neutral-foreground)' }}>
               {clusters.length}
@@ -859,7 +854,7 @@ const DashboardView: React.FC = () => {
         </div>
 
         {/* Cluster Utilization Chart */}
-        <div className="lcm-card p-6">
+        <div className="p-6 rounded-lg border border-purple-500/20">
           <h3 className="text-lg font-semibold mb-4" style={{ color: 'var(--color-neutral-foreground)' }}>
             Cluster Utilization Overview
           </h3>
@@ -869,11 +864,11 @@ const DashboardView: React.FC = () => {
                 <div className="w-32 text-sm" style={{ color: 'var(--color-neutral-foreground)' }}>
                   {cluster.name}
                 </div>
-                <div className="flex-1 bg-gray-200 rounded-full h-3 relative">
+                <div className="flex-1 border border-gray-500/30 rounded-full h-3 relative">
                   <div 
                     className={`h-full rounded-full transition-all duration-500 ${
-                      cluster.utilization > 85 ? 'bg-red-400' :
-                      cluster.utilization > 70 ? 'bg-yellow-400' : 'bg-green-400'
+                      cluster.utilization > 85 ? 'border-2 border-red-500 bg-transparent' :
+                      cluster.utilization > 70 ? 'border-2 border-yellow-500 bg-transparent' : 'border-2 border-green-500 bg-transparent'
                     }`}
                     style={{ width: `${cluster.utilization}%` }}
                   />
@@ -882,8 +877,8 @@ const DashboardView: React.FC = () => {
                   {cluster.utilization}%
                 </div>
                 <div className={`w-3 h-3 rounded-full ${
-                  cluster.status === 'healthy' ? 'bg-green-400' : 
-                  cluster.status === 'warning' ? 'bg-yellow-400' : 'bg-red-400'
+                  cluster.status === 'healthy' ? 'border-2 border-green-500 bg-transparent' : 
+                  cluster.status === 'warning' ? 'border-2 border-yellow-500 bg-transparent' : 'border-2 border-red-500 bg-transparent'
                 }`} />
               </div>
             ))}
@@ -952,14 +947,14 @@ const DashboardView: React.FC = () => {
       <div className="space-y-4">
         {/* Filter and Controls */}
         <div className="flex items-center gap-4">
-          <div className="flex-1 relative">
-            <Filter size={16} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-lcm-text-muted z-10" />
+          <div className="flex-1 lcm-input-with-icon">
+            <Filter className="lcm-input-icon text-gray-400" size={16} />
             <input
               type="text"
               placeholder="Filter VMs by name, cluster, or OS..."
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
-              className="lcm-input pl-12"
+              className="lcm-input"
             />
           </div>
           <div className="flex items-center gap-4">
@@ -977,7 +972,7 @@ const DashboardView: React.FC = () => {
                 </span>
                 <button
                   onClick={vmSelection.clearSelection}
-                  className="text-xs px-2 py-1 rounded border border-gray-300 hover:bg-gray-50"
+                  className="text-xs px-2 py-1 rounded border border-gray-300 hover:border border-gray-500/20"
                   style={{
                     color: 'var(--color-neutral-foreground-secondary)',
                     fontSize: 'var(--font-size-caption)'
@@ -991,7 +986,7 @@ const DashboardView: React.FC = () => {
         </div>
 
         {/* Table */}
-        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden" style={{
+        <div className="border border-gray-500/20 rounded-lg border border-gray-200 overflow-hidden" style={{
           backgroundColor: 'var(--color-neutral-background1)',
           borderColor: 'var(--color-neutral-stroke-secondary)',
           borderRadius: 'var(--border-radius-lg)'
@@ -1014,7 +1009,7 @@ const DashboardView: React.FC = () => {
                           vmSelection.clearSelection();
                         }
                       }}
-                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      className="rounded border-purple-500/30 text-purple-600 focus:ring-purple-500"
                     />
                   </th>
                   <ResizableTableHeader 
@@ -1115,9 +1110,9 @@ const DashboardView: React.FC = () => {
                     </td>
                     <td className="px-4 py-3" style={{ width: `${columnWidths.power_state}px` }}>
                       <span className={`px-2 py-1 rounded-full text-xs ${
-                        vm.power_state === 'poweredOn' || vm.powerState === 'poweredOn' ? 'bg-green-100 text-green-800' :
-                        vm.power_state === 'poweredOff' || vm.powerState === 'poweredOff' ? 'bg-red-100 text-red-800' :
-                        'bg-yellow-100 text-yellow-800'
+                        vm.power_state === 'poweredOn' || vm.powerState === 'poweredOn' ? 'border border-green-500/30 text-green-800' :
+                        vm.power_state === 'poweredOff' || vm.powerState === 'poweredOff' ? 'border border-red-500/30 text-red-800' :
+                        'border border-yellow-500/30 text-yellow-800'
                       }`}>
                         {vm.power_state || vm.powerState || 'Unknown'}
                       </span>
@@ -1153,8 +1148,8 @@ const DashboardView: React.FC = () => {
                     <td className="px-4 py-3" style={{ width: `${columnWidths.vmware_tools_status}px` }}>
                       <span className={`px-2 py-1 rounded-full text-xs ${
                         (vm.vmware_tools_status || vm.toolsStatus)?.includes('toolsOk') || 
-                        (vm.vmware_tools_status || vm.toolsStatus)?.includes('current') ? 'bg-green-100 text-green-800' :
-                        'bg-yellow-100 text-yellow-800'
+                        (vm.vmware_tools_status || vm.toolsStatus)?.includes('current') ? 'border border-green-500/30 text-green-800' :
+                        'border border-yellow-500/30 text-yellow-800'
                       }`}>
                         {vm.vmware_tools_status || vm.toolsStatus || 'Unknown'}
                       </span>
@@ -1238,14 +1233,14 @@ const DashboardView: React.FC = () => {
       <div className="space-y-4">
         {/* Filter and Controls */}
         <div className="flex items-center gap-4">
-          <div className="flex-1 relative">
-            <Filter size={16} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-lcm-text-muted z-10" />
+          <div className="flex-1 lcm-input-with-icon">
+            <Filter className="lcm-input-icon text-gray-400" size={16} />
             <input
               type="text"
               placeholder="Filter hosts by name, cluster, or status..."
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
-              className="lcm-input pl-12"
+              className="lcm-input"
             />
           </div>
           <div className="flex items-center gap-4">
@@ -1263,7 +1258,7 @@ const DashboardView: React.FC = () => {
                 </span>
                 <button
                   onClick={hostSelection.clearSelection}
-                  className="text-xs px-2 py-1 rounded border border-gray-300 hover:bg-gray-50"
+                  className="text-xs px-2 py-1 rounded border border-gray-300 hover:border border-gray-500/20"
                   style={{
                     color: 'var(--color-neutral-foreground-secondary)',
                     fontSize: 'var(--font-size-caption)'
@@ -1277,7 +1272,7 @@ const DashboardView: React.FC = () => {
         </div>
 
         {/* Table */}
-        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden" style={{
+        <div className="border border-gray-500/20 rounded-lg border border-gray-200 overflow-hidden" style={{
           backgroundColor: 'var(--color-neutral-background1)',
           borderColor: 'var(--color-neutral-stroke-secondary)',
           borderRadius: 'var(--border-radius-lg)'
@@ -1300,7 +1295,7 @@ const DashboardView: React.FC = () => {
                           hostSelection.clearSelection();
                         }
                       }}
-                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      className="rounded border-purple-500/30 text-purple-600 focus:ring-purple-500"
                     />
                   </th>
                   <ResizableTableHeader 
@@ -1392,9 +1387,9 @@ const DashboardView: React.FC = () => {
                     </td>
                     <td className="px-4 py-3" style={{ width: `${columnWidths.status}px` }}>
                       <span className={`px-2 py-1 rounded-full text-xs ${
-                        host.status === 'connected' ? 'bg-green-100 text-green-800' :
-                        host.status === 'disconnected' ? 'bg-red-100 text-red-800' :
-                        'bg-yellow-100 text-yellow-800'
+                        host.status === 'connected' ? 'border border-green-500/30 text-green-800' :
+                        host.status === 'disconnected' ? 'border border-red-500/30 text-red-800' :
+                        'border border-yellow-500/30 text-yellow-800'
                       }`}>
                         {host.status || 'Unknown'}
                       </span>

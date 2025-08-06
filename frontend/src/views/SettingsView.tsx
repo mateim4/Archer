@@ -180,29 +180,44 @@ const SettingsView: React.FC = () => {
   };
 
   const TabButton = ({ id, label, icon, isActive, onClick }: any) => (
-    <button
+    <div 
+      className="relative flex flex-col items-center justify-center transition-all duration-300 flex-1 cursor-pointer hover:scale-105"
+      style={{ padding: '12px 16px 20px' }}
       onClick={() => onClick(id)}
-      className="relative flex flex-col items-center justify-center transition-all duration-300 flex-1 cursor-pointer hover:scale-105 py-2 px-3 pb-4"
     >
-      <div className="flex items-center gap-2">
-        {icon}
+      <div className="flex items-center gap-2 mb-2">
+        <div style={{ 
+          color: isActive ? '#8b5cf6' : '#6b7280',
+          transition: 'color 0.2s ease'
+        }}>
+          {icon}
+        </div>
         <span 
-          className={`font-medium transition-colors duration-200 ${
-            isActive ? 'text-lcm-primary font-semibold' : 'text-lcm-text-secondary'
-          }`}
+          className="font-medium transition-colors duration-200"
+          style={{
+            fontFamily: 'var(--fluent-font-family-base)',
+            fontSize: '14px',
+            fontWeight: isActive ? '600' : '400',
+            color: isActive ? '#8b5cf6' : '#6b7280',
+            lineHeight: '1.4'
+          }}
         >
           {label}
         </span>
       </div>
       {isActive && (
-        <div className="absolute bottom-1 left-2 right-2 h-0.5 z-10"
-             style={{
-               background: 'linear-gradient(90deg, #a855f7 0%, #ec4899 100%)',
-               borderRadius: '2px',
-               boxShadow: '0 2px 8px rgba(168, 85, 247, 0.6)'
-             }} />
+        <div style={{
+          position: 'absolute',
+          bottom: '4px',
+          left: '16px',
+          right: '16px',
+          height: '3px',
+          background: 'linear-gradient(90deg, #a855f7 0%, #ec4899 100%)',
+          borderRadius: '2px',
+          boxShadow: 'none'
+        }} />
       )}
-    </button>
+    </div>
   );
 
   const renderHardwareTab = () => (
@@ -280,7 +295,7 @@ const SettingsView: React.FC = () => {
                       border: '1px solid rgba(168, 85, 247, 0.3)',
                       borderRadius: '6px',
                       fontSize: '14px',
-                      background: 'rgba(255, 255, 255, 0.9)'
+                      background: 'transparent'
                     }}
                   >
                     <option value="">Select...</option>
@@ -305,7 +320,7 @@ const SettingsView: React.FC = () => {
                       border: '1px solid rgba(168, 85, 247, 0.3)',
                       borderRadius: '6px',
                       fontSize: '14px',
-                      background: 'rgba(255, 255, 255, 0.9)'
+                      background: 'transparent'
                     }}
                     placeholder="Model name"
                   />
@@ -326,7 +341,7 @@ const SettingsView: React.FC = () => {
                       border: '1px solid rgba(168, 85, 247, 0.3)',
                       borderRadius: '6px',
                       fontSize: '14px',
-                      background: 'rgba(255, 255, 255, 0.9)'
+                      background: 'transparent'
                     }}
                     placeholder="Cores"
                   />
@@ -347,7 +362,7 @@ const SettingsView: React.FC = () => {
                       border: '1px solid rgba(168, 85, 247, 0.3)',
                       borderRadius: '6px',
                       fontSize: '14px',
-                      background: 'rgba(255, 255, 255, 0.9)'
+                      background: 'transparent'
                     }}
                     placeholder="Memory GB"
                   />
@@ -368,7 +383,7 @@ const SettingsView: React.FC = () => {
                       border: '1px solid rgba(168, 85, 247, 0.3)',
                       borderRadius: '6px',
                       fontSize: '14px',
-                      background: 'rgba(255, 255, 255, 0.9)'
+                      background: 'transparent'
                     }}
                     placeholder="Price"
                   />
@@ -550,27 +565,7 @@ const SettingsView: React.FC = () => {
                 step="0.1" 
                 value={calculationSettings.cpuOvercommit}
                 onChange={(e) => setCalculationSettings({...calculationSettings, cpuOvercommit: e.target.value})}
-                className="fluent-input w-full"
-                style={{
-                  background: 'rgba(255, 255, 255, 0.8)',
-                  backdropFilter: 'blur(10px) saturate(120%)',
-                  WebkitBackdropFilter: 'blur(10px) saturate(120%)',
-                  border: '1px solid rgba(139, 92, 246, 0.3)',
-                  borderRadius: '8px',
-                  color: '#1a202c',
-                  transition: 'all 0.2s ease-in-out',
-                  fontSize: '14px',
-                  fontFamily: 'inherit',
-                  minHeight: '40px'
-                }}
-                onFocus={(e) => {
-                  e.target.style.border = '1px solid #8b5cf6';
-                  e.target.style.boxShadow = '0 0 0 3px rgba(139, 92, 246, 0.1)';
-                }}
-                onBlur={(e) => {
-                  e.target.style.border = '1px solid rgba(139, 92, 246, 0.3)';
-                  e.target.style.boxShadow = 'none';
-                }}
+                className="lcm-input"
               />
             </div>
             <div>
@@ -587,27 +582,7 @@ const SettingsView: React.FC = () => {
                 step="0.1" 
                 value={calculationSettings.memoryOvercommit}
                 onChange={(e) => setCalculationSettings({...calculationSettings, memoryOvercommit: e.target.value})}
-                className="fluent-input w-full"
-                style={{
-                  background: 'rgba(255, 255, 255, 0.8)',
-                  backdropFilter: 'blur(10px) saturate(120%)',
-                  WebkitBackdropFilter: 'blur(10px) saturate(120%)',
-                  border: '1px solid rgba(139, 92, 246, 0.3)',
-                  borderRadius: '8px',
-                  color: '#1a202c',
-                  transition: 'all 0.2s ease-in-out',
-                  fontSize: '14px',
-                  fontFamily: 'inherit',
-                  minHeight: '40px'
-                }}
-                onFocus={(e) => {
-                  e.target.style.border = '1px solid #8b5cf6';
-                  e.target.style.boxShadow = '0 0 0 3px rgba(139, 92, 246, 0.1)';
-                }}
-                onBlur={(e) => {
-                  e.target.style.border = '1px solid rgba(139, 92, 246, 0.3)';
-                  e.target.style.boxShadow = 'none';
-                }}
+                className="lcm-input"
               />
             </div>
             <div>
@@ -624,27 +599,7 @@ const SettingsView: React.FC = () => {
                 step="0.1" 
                 value={calculationSettings.storageEfficiency}
                 onChange={(e) => setCalculationSettings({...calculationSettings, storageEfficiency: e.target.value})}
-                className="fluent-input w-full"
-                style={{
-                  background: 'rgba(255, 255, 255, 0.8)',
-                  backdropFilter: 'blur(10px) saturate(120%)',
-                  WebkitBackdropFilter: 'blur(10px) saturate(120%)',
-                  border: '1px solid rgba(139, 92, 246, 0.3)',
-                  borderRadius: '8px',
-                  color: '#1a202c',
-                  transition: 'all 0.2s ease-in-out',
-                  fontSize: '14px',
-                  fontFamily: 'inherit',
-                  minHeight: '40px'
-                }}
-                onFocus={(e) => {
-                  e.target.style.border = '1px solid #8b5cf6';
-                  e.target.style.boxShadow = '0 0 0 3px rgba(139, 92, 246, 0.1)';
-                }}
-                onBlur={(e) => {
-                  e.target.style.border = '1px solid rgba(139, 92, 246, 0.3)';
-                  e.target.style.boxShadow = 'none';
-                }}
+                className="lcm-input"
               />
             </div>
           </div>
@@ -681,27 +636,7 @@ const SettingsView: React.FC = () => {
                 type="number" 
                 value={calculationSettings.planningHorizon}
                 onChange={(e) => setCalculationSettings({...calculationSettings, planningHorizon: e.target.value})}
-                className="fluent-input w-full"
-                style={{
-                  background: 'rgba(255, 255, 255, 0.8)',
-                  backdropFilter: 'blur(10px) saturate(120%)',
-                  WebkitBackdropFilter: 'blur(10px) saturate(120%)',
-                  border: '1px solid rgba(139, 92, 246, 0.3)',
-                  borderRadius: '8px',
-                  color: '#1a202c',
-                  transition: 'all 0.2s ease-in-out',
-                  fontSize: '14px',
-                  fontFamily: 'inherit',
-                  minHeight: '40px'
-                }}
-                onFocus={(e) => {
-                  e.target.style.border = '1px solid #8b5cf6';
-                  e.target.style.boxShadow = '0 0 0 3px rgba(139, 92, 246, 0.1)';
-                }}
-                onBlur={(e) => {
-                  e.target.style.border = '1px solid rgba(139, 92, 246, 0.3)';
-                  e.target.style.boxShadow = 'none';
-                }}
+                className="lcm-input"
               />
             </div>
             <div>
@@ -719,27 +654,7 @@ const SettingsView: React.FC = () => {
                 onChange={(e) => setCalculationSettings({...calculationSettings, confidenceLevel: e.target.value})}
                 min="80" 
                 max="99" 
-                className="fluent-input w-full"
-                style={{
-                  background: 'rgba(255, 255, 255, 0.8)',
-                  backdropFilter: 'blur(10px) saturate(120%)',
-                  WebkitBackdropFilter: 'blur(10px) saturate(120%)',
-                  border: '1px solid rgba(139, 92, 246, 0.3)',
-                  borderRadius: '8px',
-                  color: '#1a202c',
-                  transition: 'all 0.2s ease-in-out',
-                  fontSize: '14px',
-                  fontFamily: 'inherit',
-                  minHeight: '40px'
-                }}
-                onFocus={(e) => {
-                  e.target.style.border = '1px solid #8b5cf6';
-                  e.target.style.boxShadow = '0 0 0 3px rgba(139, 92, 246, 0.1)';
-                }}
-                onBlur={(e) => {
-                  e.target.style.border = '1px solid rgba(139, 92, 246, 0.3)';
-                  e.target.style.boxShadow = 'none';
-                }}
+                className="lcm-input"
               />
             </div>
             <div>
@@ -754,27 +669,7 @@ const SettingsView: React.FC = () => {
               <select 
                 value={calculationSettings.seasonality}
                 onChange={(e) => setCalculationSettings({...calculationSettings, seasonality: e.target.value})}
-                className="fluent-input w-full"
-                style={{
-                  background: 'rgba(255, 255, 255, 0.8)',
-                  backdropFilter: 'blur(10px) saturate(120%)',
-                  WebkitBackdropFilter: 'blur(10px) saturate(120%)',
-                  border: '1px solid rgba(139, 92, 246, 0.3)',
-                  borderRadius: '8px',
-                  color: '#1a202c',
-                  transition: 'all 0.2s ease-in-out',
-                  fontSize: '14px',
-                  fontFamily: 'inherit',
-                  minHeight: '40px'
-                }}
-                onFocus={(e) => {
-                  e.target.style.border = '1px solid #8b5cf6';
-                  e.target.style.boxShadow = '0 0 0 3px rgba(139, 92, 246, 0.1)';
-                }}
-                onBlur={(e) => {
-                  e.target.style.border = '1px solid rgba(139, 92, 246, 0.3)';
-                  e.target.style.boxShadow = 'none';
-                }}
+                className="lcm-dropdown"
               >
                 <option value="auto">Auto-detect</option>
                 <option value="weekly">Weekly patterns</option>
@@ -814,21 +709,21 @@ const SettingsView: React.FC = () => {
             style={{ 
               borderColor: 'rgba(139, 92, 246, 0.3)',
               borderRadius: '12px',
-              background: 'rgba(255, 255, 255, 0.8)',
+              background: 'rgba(139, 92, 246, 0.1)',
               backdropFilter: 'blur(10px) saturate(120%)',
               WebkitBackdropFilter: 'blur(10px) saturate(120%)',
-              boxShadow: '0 4px 16px rgba(0, 0, 0, 0.1)',
+              boxShadow: 'none',
               cursor: 'pointer'
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.9)';
+              e.currentTarget.style.background = 'rgba(139, 92, 246, 0.15)';
               e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.15)';
+              e.currentTarget.style.boxShadow = 'none';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.8)';
+              e.currentTarget.style.background = 'rgba(139, 92, 246, 0.1)';
               e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.1)';
+              e.currentTarget.style.boxShadow = 'none';
             }}
           >
             <div className="flex justify-between items-start">
@@ -887,7 +782,7 @@ const SettingsView: React.FC = () => {
     <div className="fluent-page-container">
       {/* Tab Navigation Header */}
       <div className="lcm-card mb-6 flex-shrink-0">
-        <div className="lcm-tabs-container">
+        <div className="flex" style={{ background: 'transparent' }}>
           <TabButton
             id="hardware"
             label="Hardware Basket"
