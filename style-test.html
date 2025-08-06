@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hardware Pool Style Test</title>
+    <style>
+        /* Test CSS Variables */
+        :root {
+            --brand-primary: #6366f1;
+            --brand-primary-hover: #5855eb;
+            --brand-primary-active: #4f46e5;
+            --brand-secondary: #8b5cf6;
+            --brand-accent: #06b6d4;
+            --spacing-xl: 2rem;
+            --spacing-lg: 1.5rem;
+            --spacing-md: 1rem;
+            --radius-lg: 0.5rem;
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --font-size-3xl: 1.875rem;
+            --font-family-primary: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI Variable', 'Segoe UI', system-ui;
+        }
+
+        .hardware-pool-container {
+            padding: var(--spacing-xl) !important;
+            font-family: var(--font-family-primary) !important;
+            background-color: rgba(248, 250, 252, 0.5) !important;
+            min-height: 100vh !important;
+        }
+
+        .hardware-pool-header {
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            margin-bottom: var(--spacing-xl) !important;
+            padding: var(--spacing-lg) !important;
+            background: rgba(255, 255, 255, 0.9) !important;
+            border-radius: var(--radius-lg) !important;
+            box-shadow: var(--shadow-md) !important;
+        }
+
+        .hardware-pool-title {
+            font-size: var(--font-size-3xl) !important;
+            font-weight: 700 !important;
+            color: var(--brand-primary) !important;
+            margin: 0 !important;
+        }
+
+        .hardware-pool-primary-btn {
+            background-color: var(--brand-primary) !important;
+            color: white !important;
+            padding: var(--spacing-md) var(--spacing-lg) !important;
+            border: none !important;
+            border-radius: var(--radius-lg) !important;
+            font-weight: 600 !important;
+            cursor: pointer !important;
+        }
+
+        .hardware-pool-primary-btn:hover {
+            background-color: var(--brand-primary-hover) !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="hardware-pool-container">
+        <div class="hardware-pool-header">
+            <h1 class="hardware-pool-title">Hardware Pool Style Test</h1>
+            <button class="hardware-pool-primary-btn">Create Asset</button>
+        </div>
+        <p>This is a test to verify our Hardware Pool styling is working correctly.</p>
+        <p>The title should be purple (#6366f1) and the button should have proper styling.</p>
+    </div>
+</body>
+</html>

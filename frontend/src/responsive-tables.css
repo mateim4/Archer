@@ -1,0 +1,118 @@
+/* Global responsive table styling */
+
+/* Responsive table adjustments for narrow screens */
+@media (max-width: 1024px) {
+  .responsive-table {
+    font-size: 0.875rem; /* text-sm equivalent */
+  }
+  
+  .responsive-table th {
+    padding: 8px 12px !important;
+    font-size: 0.75rem !important; /* text-xs equivalent */
+  }
+  
+  .responsive-table td {
+    padding: 6px 12px !important;
+    font-size: 0.875rem !important; /* text-sm equivalent */
+  }
+  
+  /* Adjust minimum column widths for mobile */
+  .responsive-table .col-narrow {
+    min-width: 60px !important;
+  }
+  
+  .responsive-table .col-medium {
+    min-width: 80px !important;
+  }
+  
+  .responsive-table .col-wide {
+    min-width: 120px !important;
+  }
+  
+  /* Better text overflow handling */
+  .responsive-table td {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 0; /* This forces ellipsis when content overflows */
+  }
+  
+  /* Hover to show full content */
+  .responsive-table td:hover {
+    overflow: visible;
+    white-space: normal;
+    word-wrap: break-word;
+    position: relative;
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    padding: 8px 12px;
+    border-radius: 4px;
+  }
+}
+
+/* Specific adjustments for very small screens */
+@media (max-width: 768px) {
+  .responsive-table th {
+    padding: 6px 8px !important;
+    font-size: 0.75rem !important;
+  }
+  
+  .responsive-table td {
+    padding: 4px 8px !important;
+    font-size: 0.8125rem !important;
+  }
+  
+  .responsive-table .col-narrow {
+    min-width: 50px !important;
+  }
+  
+  .responsive-table .col-medium {
+    min-width: 70px !important;
+  }
+  
+  .responsive-table .col-wide {
+    min-width: 100px !important;
+  }
+}
+
+/* Improved resize handle visibility */
+.resize-handle {
+  background-color: rgba(59, 130, 246, 0.5) !important;
+  opacity: 0.9 !important;
+  border-right: 1px solid rgba(59, 130, 246, 0.7) !important;
+  box-shadow: inset 0 0 2px rgba(59, 130, 246, 0.4) !important;
+}
+
+.resize-handle:hover {
+  opacity: 1 !important;
+  background-color: #3b82f6 !important;
+  box-shadow: 0 0 4px rgba(59, 130, 246, 0.8) !important;
+}
+
+/* Table header hover effects for better UX */
+th:hover .resize-handle {
+  opacity: 1 !important;
+  background-color: rgba(59, 130, 246, 0.7) !important;
+}
+
+/* Visual feedback when resizing */
+th.resizing,
+th.resizing .resize-handle {
+  background-color: #3b82f6 !important;
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.9) !important;
+}
+
+/* Improved resize handle visibility on mobile */
+@media (max-width: 1024px) {
+  .resize-handle {
+    width: 8px !important;
+    opacity: 1 !important;
+    background-color: rgba(59, 130, 246, 0.6) !important;
+  }
+  
+  .resize-handle:hover {
+    opacity: 1 !important;
+    background-color: #3b82f6 !important;
+  }
+}
