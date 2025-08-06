@@ -4,6 +4,7 @@ use core_engine::forecasting::ForecastParameters;
 use core_engine::translation::TranslationRules;
 use core_engine::vendor_client::VendorCredentials;
 use core_engine::vendor_data::VendorDataManager;
+use core_engine::project_manager::ProjectManager;
 use parking_lot::RwLock;
 use std::sync::Arc;
 use std::collections::HashMap;
@@ -41,6 +42,15 @@ pub struct AppState {
     
     /// Sizing results cache
     pub sizing_cache: Arc<RwLock<HashMap<String, SizingResultCache>>>,
+
+    /// Loaded projects
+    pub projects: Arc<RwLock<HashMap<Uuid, Project>>>,
+
+    /// Shared hardware pool
+    pub hardware_pool: Arc<RwLock<HardwarePool>>,
+
+    /// Project manager for loading/saving projects
+    pub project_manager: Arc<RwLock<Option<ProjectManager>>>,
 }
 
 /// TCO calculation parameters
@@ -194,6 +204,9 @@ impl AppState {
             vendor_data_manager: Arc::new(RwLock::new(None)),
             analysis_cache: Arc::new(RwLock::new(HashMap::new())),
             sizing_cache: Arc::new(RwLock::new(HashMap::new())),
+            projects: Arc::new(RwLock::new(HashMap::new())),
+            hardware_pool: Arc::new(RwLock::new(HardwarePool::default())),
+            project_manager: Arc::new(RwLock::new(None)),
         }
     }
 

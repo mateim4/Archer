@@ -58,6 +58,107 @@ pub async fn get_environment_summary(
     }
 }
 
+// ========== PROJECT MANAGEMENT COMMANDS ==========
+
+/// List all available projects
+#[tauri::command]
+pub async fn list_projects(state: tauri::State<'_, AppState>) -> Result<String, String> {
+    let projects_guard = state.projects.read();
+    let projects: Vec<&Project> = projects_guard.values().collect();
+    serde_json::to_string(&projects)
+        .map_err(|e| format!("Failed to serialize projects: {}", e))
+}
+
+/// Create a new project
+#[tauri::command]
+pub async fn create_project(
+    name: String,
+    description: String,
+    state: tauri::State<'_, AppState>,
+) -> Result<String, String> {
+    let mut new_project = Project::new(name, description);
+    let project_manager_guard = state.project_manager.read();
+
+    if let Some(manager) = &*project_manager_guard {
+        // Save the project to disk
+        manager.save_project(&new_project).map_err(|e| e.to_string())?;
+
+        // Add the project to the in-memory state
+        let mut projects_guard = state.projects.write();
+        projects_guard.insert(new_project.id, new_project.clone());
+
+        serde_json::to_string(&new_project)
+            .map_err(|e| format!("Failed to serialize new project: {}", e))
+    } else {
+        Err("Project manager not initialized".to_string())
+    }
+}
+
+/// Get a single project by its ID
+#[tauri::command]
+pub async fn get_project(id: String, state: tauri::State<'_, AppState>) -> Result<String, String> {
+    let project_id = Uuid::parse_str(&id).map_err(|e| format!("Invalid project ID: {}", e))?;
+    let projects_guard = state.projects.read();
+
+    if let Some(project) = projects_guard.get(&project_id) {
+        serde_json::to_string(project)
+            .map_err(|e| format!("Failed to serialize project: {}", e))
+    } else {
+        Err("Project not found".to_string())
+    }
+}
+
+/// Update an existing project
+#[tauri::command]
+pub async fn update_project(
+    project_data: JsonValue,
+    state: tauri::State<'_, AppState>,
+) -> Result<String, String> {
+    let mut project: Project = serde_json::from_value(project_data)
+        .map_err(|e| format!("Invalid project data: {}", e))?;
+
+    project.updated_at = Utc::now();
+
+    let project_manager_guard = state.project_manager.read();
+    if let Some(manager) = &*project_manager_guard {
+        // Save the updated project to disk
+        manager.save_project(&project).map_err(|e| e.to_string())?;
+
+        // Update the in-memory state
+        let mut projects_guard = state.projects.write();
+        if projects_guard.contains_key(&project.id) {
+            projects_guard.insert(project.id, project);
+            Ok("Project updated successfully".to_string())
+        } else {
+            Err("Project not found in state".to_string())
+        }
+    } else {
+        Err("Project manager not initialized".to_string())
+    }
+}
+
+/// Delete a project by its ID
+#[tauri::command]
+pub async fn delete_project(id: String, state: tauri::State<'_, AppState>) -> Result<String, String> {
+    let project_id = Uuid::parse_str(&id).map_err(|e| format!("Invalid project ID: {}", e))?;
+
+    let project_manager_guard = state.project_manager.read();
+    if let Some(manager) = &*project_manager_guard {
+        // Delete the project file from disk
+        manager.delete_project(&project_id).map_err(|e| e.to_string())?;
+
+        // Remove the project from in-memory state
+        let mut projects_guard = state.projects.write();
+        if projects_guard.remove(&project_id).is_some() {
+            Ok("Project deleted successfully".to_string())
+        } else {
+            Err("Project not found in state".to_string())
+        }
+    } else {
+        Err("Project manager not initialized".to_string())
+    }
+}
+
 /// Parse a RVTools file and return the network topology
 #[tauri::command]
 pub async fn get_network_topology(
