@@ -1,6 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useAppStore } from '../store/useAppStore';
-import type { HardwareAsset } from '../store/useAppStore';
+import type { HardwareAsset, AssetStatus } from '../store/useAppStore';
+import HardwareAssetForm from '../components/HardwareAssetForm';
+import GlassmorphicLayout from '../components/GlassmorphicLayout';
 
 const HardwarePoolView: React.FC = () => {
   const {
@@ -15,10 +17,46 @@ const HardwarePoolView: React.FC = () => {
 
   const [showForm, setShowForm] = useState(false);
   const [editingAsset, setEditingAsset] = useState<HardwareAsset | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<AssetStatus | 'All'>('All');
+  const [manufacturerFilter, setManufacturerFilter] = useState<string>('All');
 
   useEffect(() => {
     listHardwareAssets();
   }, [listHardwareAssets]);
+
+  // Filter and search logic
+  const filteredAssets = useMemo(() => {
+    let filtered = hardwarePoolAssets;
+
+    // Search filter
+    if (searchTerm) {
+      filtered = filtered.filter(asset =>
+        asset.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        asset.manufacturer.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        asset.model.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        asset.location.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Status filter
+    if (statusFilter !== 'All') {
+      filtered = filtered.filter(asset => asset.status === statusFilter);
+    }
+
+    // Manufacturer filter
+    if (manufacturerFilter !== 'All') {
+      filtered = filtered.filter(asset => asset.manufacturer === manufacturerFilter);
+    }
+
+    return filtered;
+  }, [hardwarePoolAssets, searchTerm, statusFilter, manufacturerFilter]);
+
+  // Get unique manufacturers for filter
+  const uniqueManufacturers = useMemo(() => {
+    const manufacturers = Array.from(new Set(hardwarePoolAssets.map(asset => asset.manufacturer)));
+    return manufacturers.sort();
+  }, [hardwarePoolAssets]);
 
   const handleCreate = () => {
     setEditingAsset(null);
@@ -93,15 +131,7 @@ const HardwarePoolView: React.FC = () => {
   }
 
   return (
-    <div style={{ 
-      padding: '24px',
-      background: 'rgba(255, 255, 255, 0.95)',
-      borderRadius: '12px',
-      margin: '20px',
-      backdropFilter: 'blur(20px)',
-      border: '1px solid rgba(255, 255, 255, 0.2)',
-      boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
-    }}>
+    <GlassmorphicLayout>
       {/* Header */}
       <div style={{ 
         display: 'flex',
@@ -148,6 +178,171 @@ const HardwarePoolView: React.FC = () => {
         </button>
       </div>
 
+      {/* Search and Filter Controls */}
+      <div style={{
+        display: 'flex',
+        gap: '16px',
+        marginBottom: '24px',
+        flexWrap: 'wrap',
+        alignItems: 'center'
+      }}>
+        {/* Search Input */}
+        <div style={{ flex: '1', minWidth: '280px' }}>
+          <input
+            type="text"
+            placeholder="🔍 Search assets by name, manufacturer, model, or location..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '12px 16px',
+              border: '2px solid rgba(99, 102, 241, 0.2)',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontFamily: 'Montserrat, sans-serif',
+              background: 'rgba(255, 255, 255, 0.8)',
+              transition: 'border-color 0.3s ease'
+            }}
+            onFocus={(e) => {
+              e.currentTarget.style.borderColor = '#6366f1';
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.2)';
+            }}
+          />
+        </div>
+
+        {/* Status Filter */}
+        <div style={{ minWidth: '140px' }}>
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value as AssetStatus | 'All')}
+            style={{
+              width: '100%',
+              padding: '12px',
+              border: '2px solid rgba(99, 102, 241, 0.2)',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontFamily: 'Montserrat, sans-serif',
+              background: 'rgba(255, 255, 255, 0.8)',
+              cursor: 'pointer'
+            }}
+          >
+            <option value="All">All Status</option>
+            <option value="Available">Available</option>
+            <option value="InUse">In Use</option>
+            <option value="Locked">Locked</option>
+            <option value="Maintenance">Maintenance</option>
+            <option value="Decommissioned">Decommissioned</option>
+          </select>
+        </div>
+
+        {/* Manufacturer Filter */}
+        <div style={{ minWidth: '140px' }}>
+          <select
+            value={manufacturerFilter}
+            onChange={(e) => setManufacturerFilter(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '12px',
+              border: '2px solid rgba(99, 102, 241, 0.2)',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontFamily: 'Montserrat, sans-serif',
+              background: 'rgba(255, 255, 255, 0.8)',
+              cursor: 'pointer'
+            }}
+          >
+            <option value="All">All Manufacturers</option>
+            {uniqueManufacturers.map(manufacturer => (
+              <option key={manufacturer} value={manufacturer}>{manufacturer}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Clear Filters Button */}
+        {(searchTerm || statusFilter !== 'All' || manufacturerFilter !== 'All') && (
+          <button
+            onClick={() => {
+              setSearchTerm('');
+              setStatusFilter('All');
+              setManufacturerFilter('All');
+            }}
+            style={{
+              padding: '12px 16px',
+              border: '2px solid rgba(99, 102, 241, 0.3)',
+              borderRadius: '8px',
+              background: 'transparent',
+              color: '#6366f1',
+              fontSize: '14px',
+              fontWeight: '500',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease',
+              fontFamily: 'Montserrat, sans-serif'
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.background = 'rgba(99, 102, 241, 0.1)';
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.background = 'transparent';
+            }}
+          >
+            🧹 Clear Filters
+          </button>
+        )}
+      </div>
+
+      {/* Results Summary */}
+      <div style={{
+        marginBottom: '20px',
+        padding: '16px',
+        background: 'rgba(99, 102, 241, 0.05)',
+        borderRadius: '8px',
+        border: '2px solid rgba(99, 102, 241, 0.1)'
+      }}>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '12px'
+        }}>
+          <div style={{
+            fontSize: '14px',
+            fontWeight: '500',
+            color: '#6366f1',
+            fontFamily: 'Montserrat, sans-serif'
+          }}>
+            📊 Showing {filteredAssets.length} of {hardwarePoolAssets.length} assets
+            {(searchTerm || statusFilter !== 'All' || manufacturerFilter !== 'All') && (
+              <span style={{ color: '#8b5cf6', marginLeft: '8px' }}>
+                (filtered)
+              </span>
+            )}
+          </div>
+          
+          <div style={{
+            display: 'flex',
+            gap: '16px',
+            fontSize: '12px',
+            fontFamily: 'Montserrat, sans-serif'
+          }}>
+            <span style={{ color: '#10b981' }}>
+              🟢 Available: {filteredAssets.filter(a => a.status === 'Available').length}
+            </span>
+            <span style={{ color: '#f59e0b' }}>
+              🟡 In Use: {filteredAssets.filter(a => a.status === 'InUse').length}
+            </span>
+            <span style={{ color: '#ef4444' }}>
+              🔴 Locked: {filteredAssets.filter(a => a.status === 'Locked').length}
+            </span>
+            <span style={{ color: '#8b5cf6' }}>
+              🔧 Maintenance: {filteredAssets.filter(a => a.status === 'Maintenance').length}
+            </span>
+          </div>
+        </div>
+      </div>
+
       {/* Assets Table */}
       {hardwarePoolAssets.length === 0 ? (
         <div style={{
@@ -187,7 +382,7 @@ const HardwarePoolView: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {hardwarePoolAssets.map((asset, index) => (
+              {filteredAssets.map((asset, index) => (
                 <tr key={asset.id} style={{ 
                   borderBottom: '1px solid rgba(99, 102, 241, 0.1)',
                   background: index % 2 === 0 ? 'rgba(255, 255, 255, 0.5)' : 'rgba(99, 102, 241, 0.02)'
@@ -302,7 +497,39 @@ const HardwarePoolView: React.FC = () => {
           <div style={{ fontSize: '14px', color: '#6b7280' }}>Total Assets</div>
         </div>
       </div>
-    </div>
+
+      {/* Hardware Asset Form Modal */}
+      <HardwareAssetForm
+        asset={editingAsset}
+        isOpen={showForm}
+        onClose={() => {
+          setShowForm(false);
+          setEditingAsset(null);
+        }}
+        onSubmit={(assetData) => {
+          if (editingAsset) {
+            // For update, we need the full asset object
+            updateHardwareAsset({
+              ...editingAsset,
+              ...assetData,
+              updated_at: new Date().toISOString()
+            });
+          } else {
+            // For create, we need all required fields
+            createHardwareAsset({
+              name: assetData.name || '',
+              manufacturer: assetData.manufacturer || '',
+              model: assetData.model || '',
+              cpu_cores: assetData.cpu_cores || 0,
+              memory_gb: assetData.memory_gb || 0,
+              storage_capacity_gb: assetData.storage_capacity_gb || 0,
+              status: assetData.status || 'Available' as AssetStatus,
+              location: assetData.location || ''
+            });
+          }
+        }}
+      />
+    </GlassmorphicLayout>
   );
 };
 

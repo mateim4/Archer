@@ -1,735 +1,837 @@
 import React, { useState, useEffect } from 'react';
-import { invoke } from '@tauri-apps/api/tauri';
 import { 
-  Search, 
-  Server, 
-  RefreshCw, 
-  Settings,
-  Database,
-  Cloud,
-  Monitor,
-  Info,
-  Download,
-  Upload,
-  CheckCircle,
-  AlertCircle,
-  Clock,
-  Eye
-} from 'lucide-react';
-import { InfoTooltip } from '../components/Tooltip';
+  CloudArrowUpRegular,
+  DocumentDataRegular, 
+  ServerRegular,
+  SearchRegular,
+  DatabaseRegular,
+  SettingsRegular,
+  CloudSyncRegular,
+  CheckmarkCircleRegular,
+  ErrorCircleRegular,
+  InfoRegular
+} from '@fluentui/react-icons';
+import GlassmorphicLayout from '../components/GlassmorphicLayout';
+import ConsistentCard from '../components/ConsistentCard';
+import ConsistentButton from '../components/ConsistentButton';
 import EnhancedFileUpload from '../components/EnhancedFileUpload';
 
-// Helper function to check if we're running in Tauri
-const isTauriAvailable = (): boolean => {
-  return typeof window !== 'undefined' && 
-         window.__TAURI_IPC__ && 
-         typeof window.__TAURI_IPC__ === 'function';
-};
-
-interface ServerModel {
-  vendor: string;
+// Types
+interface VendorModel {
   model_id: string;
+  vendor: string;
   model_name: string;
   family: string;
+  generation: string;
   form_factor: string;
   cpu_sockets: number;
   max_memory_gb: number;
   drive_bays: number;
-  generation: string;
-  release_date?: string;
-  end_of_life?: string;
 }
 
-interface SizingRequirements {
+interface MessageState {
+  type: 'success' | 'error' | 'info';
+  title: string;
+  body: string;
+}
+
+interface SearchRequirements {
   workload_type: string;
   cpu_cores_minimum?: number;
   memory_gb_minimum?: number;
-  storage_gb_minimum?: number;
-  network_bandwidth_gbps?: number;
-  form_factor_preference?: string;
-  budget_maximum?: number;
-  power_limit_watts?: number;
-  redundancy_required: boolean;
-  specific_features: string[];
 }
 
-export const VendorDataCollectionView: React.FC = () => {
-  // State
-  const [loading, setLoading] = useState(false);
-  const [serverModels, setServerModels] = useState<ServerModel[]>([]);
+const VendorDataCollectionView: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<'overview' | 'upload' | 'search' | 'basket'>('overview');
   const [selectedVendor, setSelectedVendor] = useState<string>('');
-  const [searchRequirements, setSearchRequirements] = useState<SizingRequirements>({
-    workload_type: 'General',
-    redundancy_required: false,
-    specific_features: [],
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
+  const [message, setMessage] = useState<MessageState | null>(null);
+  const [serverModels, setServerModels] = useState<VendorModel[]>([]);
+  const [searchRequirements, setSearchRequirements] = useState<SearchRequirements>({
+    workload_type: 'General'
   });
-  const [message, setMessage] = useState<{ type: 'success' | 'error' | 'info'; title: string; body: string } | null>(null);
 
-  // Load server models on component mount
+  const vendors = [
+    { value: '', label: 'All Vendors' },
+    { value: 'Dell', label: 'Dell Technologies' },
+    { value: 'HPE', label: 'Hewlett Packard Enterprise' },
+    { value: 'Lenovo', label: 'Lenovo' }
+  ];
+
+  // Mock data for demonstration
   useEffect(() => {
-    if (!isTauriAvailable()) {
-      // In web mode, show a message that backend is not available
-      setServerModels([]);
-      setMessage({
-        type: 'info',
-        title: 'Web Mode Active',
-        body: 'Server model data requires Tauri backend. Please run in desktop mode.',
-      });
-    } else {
-      loadAllServerModels();
-    }
+    const mockModels: VendorModel[] = [
+      {
+        model_id: 'dell-r750xs',
+        vendor: 'Dell',
+        model_name: 'PowerEdge R750xs',
+        family: 'PowerEdge',
+        generation: '15th Gen',
+        form_factor: 'OneU',
+        cpu_sockets: 2,
+        max_memory_gb: 768,
+        drive_bays: 8
+      },
+      {
+        model_id: 'hpe-dl380-gen10',
+        vendor: 'HPE',
+        model_name: 'ProLiant DL380 Gen10',
+        family: 'ProLiant',
+        generation: 'Gen10',
+        form_factor: 'TwoU',
+        cpu_sockets: 2,
+        max_memory_gb: 1536,
+        drive_bays: 12
+      },
+      {
+        model_id: 'lenovo-sr650-v2',
+        vendor: 'Lenovo',
+        model_name: 'ThinkSystem SR650 V2',
+        family: 'ThinkSystem',
+        generation: 'V2',
+        form_factor: 'OneU',
+        cpu_sockets: 2,
+        max_memory_gb: 1024,
+        drive_bays: 10
+      }
+    ];
+    setServerModels(mockModels);
   }, []);
 
-  const loadAllServerModels = async () => {
-    if (!isTauriAvailable()) {
-      setServerModels([]);
-      setMessage({
-        type: 'info',
-        title: 'Backend Not Available',
-        body: 'Server model data requires Tauri backend. Please run in desktop mode.',
-      });
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const models: ServerModel[] = await invoke('get_all_server_models');
-      setServerModels(models);
-      setMessage({
-        type: 'success',
-        title: 'Server Models Loaded',
-        body: `Found ${models.length} server models from ${new Set(models.map((m: ServerModel) => m.vendor)).size} vendors`,
-      });
-    } catch (error) {
-      setMessage({
-        type: 'error',
-        title: 'Failed to Load Server Models',
-        body: `Error: ${error}`,
-      });
-    } finally {
-      setLoading(false);
-    }
+  const formatFormFactor = (formFactor: string): string => {
+    const mapping: { [key: string]: string } = {
+      'OneU': '1U Rack',
+      'TwoU': '2U Rack',
+      'FourU': '4U Rack',
+      'Tower': 'Tower',
+      'Blade': 'Blade'
+    };
+    return mapping[formFactor] || formFactor;
   };
 
-  const loadVendorModels = async (vendor: string) => {
-    if (!isTauriAvailable()) {
-      setServerModels([]);
-      setMessage({
-        type: 'info',
-        title: 'Backend Not Available',
-        body: 'Server model data requires Tauri backend. Please run in desktop mode.',
-      });
-      return;
+  const getStatsOverview = () => [
+    { 
+      title: 'Server Models', 
+      value: '1,247', 
+      icon: <ServerRegular />, 
+      change: '+23 this week',
+      color: '#0066cc'
+    },
+    { 
+      title: 'Vendors Active', 
+      value: '3', 
+      icon: <DatabaseRegular />, 
+      change: 'Dell, HPE, Lenovo',
+      color: '#16a34a'
+    },
+    { 
+      title: 'Configs Processed', 
+      value: '89', 
+      icon: <DocumentDataRegular />, 
+      change: '+12 today',
+      color: '#dc2626'
+    },
+    { 
+      title: 'Last Sync', 
+      value: '2 hrs ago', 
+      icon: <CloudSyncRegular />, 
+      change: 'All vendors current',
+      color: '#7c3aed'
     }
+  ];
 
-    setLoading(true);
-    try {
-      const models: ServerModel[] = vendor ? 
-        await invoke('get_vendor_server_models', { vendor }) :
-        await invoke('get_all_server_models');
-      
-      setServerModels(models);
-      setMessage({
-        type: 'success',
-        title: vendor ? `${vendor} Models Loaded` : 'All Models Loaded',
-        body: `Found ${models.length} server models`,
-      });
-    } catch (error) {
-      setMessage({
-        type: 'error',
-        title: 'Failed to Load Server Models',
-        body: `Error: ${error}`,
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const getFormFactorIcon = (formFactor: string) => {
-    switch (formFactor) {
-      case 'OneU':
-      case 'TwoU':
-      case 'FourU':
-        return <Server size={20} />;
-      case 'Tower':
-        return <Monitor size={20} />;
-      case 'Blade':
-        return <Database size={20} />;
-      default:
-        return <Cloud size={20} />;
-    }
-  };
-
-  const formatFormFactor = (formFactor: string) => {
-    switch (formFactor) {
-      case 'OneU': return '1U Rack';
-      case 'TwoU': return '2U Rack';
-      case 'FourU': return '4U Rack';
-      case 'Tower': return 'Tower';
-      case 'Blade': return 'Blade';
-      case 'MicroServer': return 'Micro Server';
-      default: return formFactor;
-    }
-  };
-
-  const getStatusBadge = (type: 'success' | 'error' | 'info') => {
-    switch (type) {
-      case 'success':
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'overview':
         return (
-          <div className="inline-flex items-center px-3 py-1 rounded-lg" style={{ 
-            background: 'rgba(34, 197, 94, 0.1)', 
-            color: '#059669',
-            border: '1px solid rgba(34, 197, 94, 0.2)'
-          }}>
-            <CheckCircle size={16} className="mr-2" />
-            Success
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px' }}>
+            {getStatsOverview().map((stat, index) => (
+              <ConsistentCard
+                key={index}
+                title={stat.value}
+                subtitle={stat.title}
+                icon={<div style={{ color: stat.color, fontSize: '24px' }}>{stat.icon}</div>}
+                style={{ textAlign: 'center' }}
+              >
+                <div style={{ 
+                  marginTop: '12px', 
+                  padding: '8px 12px', 
+                  background: 'rgba(59, 130, 246, 0.1)', 
+                  borderRadius: '6px',
+                  fontSize: '12px',
+                  color: '#374151'
+                }}>
+                  {stat.change}
+                </div>
+              </ConsistentCard>
+            ))}
           </div>
         );
-      case 'error':
-        return (
-          <div className="inline-flex items-center px-3 py-1 rounded-lg" style={{ 
-            background: 'rgba(239, 68, 68, 0.1)', 
-            color: '#dc2626',
-            border: '1px solid rgba(239, 68, 68, 0.2)'
-          }}>
-            <AlertCircle size={16} className="mr-2" />
-            Error
-          </div>
-        );
-      default:
-        return (
-          <div className="inline-flex items-center px-3 py-1 rounded-lg" style={{ 
-            background: 'rgba(59, 130, 246, 0.1)', 
-            color: '#2563eb',
-            border: '1px solid rgba(59, 130, 246, 0.2)'
-          }}>
-            <Info size={16} className="mr-2" />
-            Info
-          </div>
-        );
-    }
-  };
 
-  const renderDropdown = (value: string, onChange: (value: string) => void, options: { value: string; label: string }[], placeholder = "Select option") => (
-    <div className="relative">
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="lcm-dropdown"
-      >
-        <option value="">{placeholder}</option>
-        {options.map(option => (
-          <option key={option.value} value={option.value}>{option.label}</option>
-        ))}
-      </select>
-    </div>
-  );
-
-  return (
-    <div className="space-y-6 w-full">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex items-center">
-          <h3 className="text-xl font-semibold text-gray-900">
-            Vendor Data Collection & Server Sizing
-          </h3>
-          <div className="ml-2">
-            <InfoTooltip 
-              content={
+      case 'upload':
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            <ConsistentCard 
+              title="Hardware Configuration Upload"
+              subtitle="Upload vendor-specific configuration files to populate server data"
+              icon={<CloudArrowUpRegular />}
+            >
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
+                gap: '24px',
+                marginTop: '24px'
+              }}>
+                {/* Dell Upload */}
                 <div>
-                  <div className="font-medium mb-2" style={{ color: 'white' }}>
-                    Vendor Hardware Management
+                  <div style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: '12px', 
+                    marginBottom: '16px' 
+                  }}>
+                    <div style={{
+                      width: '32px',
+                      height: '32px',
+                      borderRadius: '8px',
+                      background: 'linear-gradient(135deg, #0066cc 0%, #004499 100%)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'white',
+                      fontWeight: '600',
+                      fontSize: '14px'
+                    }}>
+                      D
+                    </div>
+                    <div>
+                      <div style={{ fontWeight: '500', color: '#111827' }}>Dell SCP Files</div>
+                      <div style={{ fontSize: '12px', color: '#6b7280' }}>System Configuration Profile (XML)</div>
+                    </div>
                   </div>
-                  <div style={{ color: 'rgba(255, 255, 255, 0.9)' }}>
-                    Comprehensive vendor data collection system:
-                    <ul className="mt-2 space-y-1">
-                      <li>• Dell, HPE, and Lenovo server catalogs</li>
-                      <li>• Real-time API integration for specs and pricing</li>
-                      <li>• Advanced configuration search and recommendations</li>
-                      <li>• Automated compatibility validation</li>
-                    </ul>
+                  <EnhancedFileUpload
+                    uploadType="hardware"
+                    acceptedTypes={['.xml']}
+                    onFileProcessed={(result) => {
+                      setMessage({
+                        type: 'success',
+                        title: 'Dell SCP File Processed',
+                        body: `${result.name || 'File'} has been analyzed and server data extracted.`
+                      });
+                    }}
+                    onError={(error) => {
+                      setMessage({
+                        type: 'error',
+                        title: 'Dell SCP Processing Failed',
+                        body: error
+                      });
+                    }}
+                  />
+                </div>
+
+                {/* HPE Upload */}
+                <div>
+                  <div style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: '12px', 
+                    marginBottom: '16px' 
+                  }}>
+                    <div style={{
+                      width: '32px',
+                      height: '32px',
+                      borderRadius: '8px',
+                      background: 'linear-gradient(135deg, #00b388 0%, #008766 100%)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'white',
+                      fontWeight: '600',
+                      fontSize: '14px'
+                    }}>
+                      H
+                    </div>
+                    <div>
+                      <div style={{ fontWeight: '500', color: '#111827' }}>HPE iQuote Files</div>
+                      <div style={{ fontSize: '12px', color: '#6b7280' }}>Quote files (CSV, TXT, XLS)</div>
+                    </div>
                   </div>
+                  <EnhancedFileUpload
+                    uploadType="hardware"
+                    acceptedTypes={['.csv', '.txt', '.xls', '.xlsx']}
+                    onFileProcessed={(result) => {
+                      setMessage({
+                        type: 'success',
+                        title: 'HPE iQuote File Processed',
+                        body: `${result.name || 'File'} has been analyzed and server data extracted.`
+                      });
+                    }}
+                    onError={(error) => {
+                      setMessage({
+                        type: 'error',
+                        title: 'HPE iQuote Processing Failed',
+                        body: error
+                      });
+                    }}
+                  />
+                </div>
+
+                {/* Lenovo Upload */}
+                <div>
+                  <div style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: '12px', 
+                    marginBottom: '16px' 
+                  }}>
+                    <div style={{
+                      width: '32px',
+                      height: '32px',
+                      borderRadius: '8px',
+                      background: 'linear-gradient(135deg, #dc382d 0%, #b71c1c 100%)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'white',
+                      fontWeight: '600',
+                      fontSize: '14px'
+                    }}>
+                      L
+                    </div>
+                    <div>
+                      <div style={{ fontWeight: '500', color: '#111827' }}>Lenovo DCSC Files</div>
+                      <div style={{ fontSize: '12px', color: '#6b7280' }}>Data Center System Configuration (XML)</div>
+                    </div>
+                  </div>
+                  <EnhancedFileUpload
+                    uploadType="hardware"
+                    acceptedTypes={['.xml']}
+                    onFileProcessed={(result) => {
+                      setMessage({
+                        type: 'success',
+                        title: 'Lenovo DCSC File Processed',
+                        body: `${result.name || 'File'} has been analyzed and server data extracted.`
+                      });
+                    }}
+                    onError={(error) => {
+                      setMessage({
+                        type: 'error',
+                        title: 'Lenovo DCSC Processing Failed',
+                        body: error
+                      });
+                    }}
+                  />
+                </div>
+              </div>
+            </ConsistentCard>
+
+            {/* Vendor Configuration */}
+            <ConsistentCard
+              title="Vendor API Configuration"
+              subtitle="Configure credentials and settings for real-time vendor data access"
+              icon={<SettingsRegular />}
+              actions={
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <ConsistentButton variant="outline" size="small">
+                    Configure
+                  </ConsistentButton>
+                  <ConsistentButton variant="secondary" size="small" loading={loading}>
+                    Test Connection
+                  </ConsistentButton>
                 </div>
               }
-            />
+            >
+              <div style={{ marginTop: '16px', color: '#6b7280', fontSize: '14px' }}>
+                Configure API credentials for Dell, HPE, and Lenovo to enable real-time pricing and specification retrieval.
+              </div>
+            </ConsistentCard>
+          </div>
+        );
+
+      case 'search':
+        return (
+          <ConsistentCard
+            title="Configuration Search"
+            subtitle="Find server configurations based on your workload requirements"
+            icon={<SearchRegular />}
+          >
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+              gap: '16px',
+              marginTop: '24px',
+              marginBottom: '24px'
+            }}>
+              <div>
+                <label style={{ 
+                  display: 'block', 
+                  marginBottom: '8px', 
+                  fontSize: '14px', 
+                  fontWeight: '500',
+                  color: '#374151'
+                }}>
+                  Workload Type
+                </label>
+                <select
+                  value={searchRequirements.workload_type}
+                  onChange={(e) => setSearchRequirements(prev => ({...prev, workload_type: e.target.value}))}
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    border: '1px solid rgba(0, 0, 0, 0.1)',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    background: 'rgba(255, 255, 255, 0.8)'
+                  }}
+                >
+                  <option value="General">General Purpose</option>
+                  <option value="WebServer">Web Server</option>
+                  <option value="Database">Database</option>
+                  <option value="Virtualization">Virtualization</option>
+                  <option value="HighPerformanceComputing">HPC</option>
+                  <option value="Storage">Storage</option>
+                  <option value="AIMLTraining">AI/ML Training</option>
+                  <option value="AIMLInference">AI/ML Inference</option>
+                </select>
+              </div>
+              <div>
+                <label style={{ 
+                  display: 'block', 
+                  marginBottom: '8px', 
+                  fontSize: '14px', 
+                  fontWeight: '500',
+                  color: '#374151'
+                }}>
+                  Minimum CPU Cores
+                </label>
+                <input
+                  type="number"
+                  placeholder="e.g. 16"
+                  value={searchRequirements.cpu_cores_minimum || ''}
+                  onChange={(e) => setSearchRequirements(prev => ({
+                    ...prev, 
+                    cpu_cores_minimum: e.target.value ? parseInt(e.target.value) : undefined
+                  }))}
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    border: '1px solid rgba(0, 0, 0, 0.1)',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    background: 'rgba(255, 255, 255, 0.8)'
+                  }}
+                />
+              </div>
+              <div>
+                <label style={{ 
+                  display: 'block', 
+                  marginBottom: '8px', 
+                  fontSize: '14px', 
+                  fontWeight: '500',
+                  color: '#374151'
+                }}>
+                  Minimum Memory (GB)
+                </label>
+                <input
+                  type="number"
+                  placeholder="e.g. 128"
+                  value={searchRequirements.memory_gb_minimum || ''}
+                  onChange={(e) => setSearchRequirements(prev => ({
+                    ...prev, 
+                    memory_gb_minimum: e.target.value ? parseInt(e.target.value) : undefined
+                  }))}
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    border: '1px solid rgba(0, 0, 0, 0.1)',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    background: 'rgba(255, 255, 255, 0.8)'
+                  }}
+                />
+              </div>
+            </div>
+            
+            <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+              <ConsistentButton 
+                variant="primary"
+                loading={loading}
+                onClick={() => {
+                  setMessage({
+                    type: 'info',
+                    title: 'Configuration Search',
+                    body: `Searching for ${searchRequirements.workload_type} configurations...`
+                  });
+                }}
+              >
+                <SearchRegular style={{ marginRight: '8px' }} />
+                Search Configurations
+              </ConsistentButton>
+            </div>
+
+            {/* Mock search results */}
+            {searchRequirements.workload_type !== 'General' && (
+              <div style={{ 
+                borderTop: '1px solid rgba(0, 0, 0, 0.1)', 
+                paddingTop: '24px',
+                marginTop: '24px'
+              }}>
+                <h4 style={{ marginBottom: '16px', color: '#111827', fontSize: '16px', fontWeight: '600' }}>
+                  Recommended Configurations (3)
+                </h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {serverModels.slice(0, 3).map((model, index) => (
+                    <div 
+                      key={model.model_id}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '16px',
+                        border: '1px solid rgba(0, 0, 0, 0.1)',
+                        borderRadius: '8px',
+                        background: 'rgba(255, 255, 255, 0.5)'
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <ServerRegular style={{ color: '#7c3aed', fontSize: '20px' }} />
+                        <div>
+                          <div style={{ fontWeight: '500', color: '#111827' }}>
+                            {model.model_name}
+                          </div>
+                          <div style={{ fontSize: '12px', color: '#6b7280' }}>
+                            Optimized for {searchRequirements.workload_type} workloads
+                          </div>
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <span style={{
+                          padding: '4px 8px',
+                          background: 'rgba(34, 197, 94, 0.1)',
+                          color: '#059669',
+                          borderRadius: '4px',
+                          fontSize: '12px',
+                          fontWeight: '500'
+                        }}>
+                          {85 + index * 5}% Match
+                        </span>
+                        <ConsistentButton variant="outline" size="small">
+                          View Details
+                        </ConsistentButton>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </ConsistentCard>
+        );
+
+      case 'basket':
+        return (
+          <ConsistentCard
+            title="Hardware Basket"
+            subtitle="Browse and search through available server models and configurations"
+            icon={<DatabaseRegular />}
+            actions={
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <select
+                  value={selectedVendor}
+                  onChange={(e) => setSelectedVendor(e.target.value)}
+                  style={{
+                    padding: '6px 12px',
+                    border: '1px solid rgba(0, 0, 0, 0.1)',
+                    borderRadius: '6px',
+                    fontSize: '12px',
+                    background: 'rgba(255, 255, 255, 0.8)'
+                  }}
+                >
+                  {vendors.map(vendor => (
+                    <option key={vendor.value} value={vendor.value}>
+                      {vendor.label}
+                    </option>
+                  ))}
+                </select>
+                <ConsistentButton variant="outline" size="small" loading={loading}>
+                  <CloudSyncRegular style={{ marginRight: '4px' }} />
+                  Refresh
+                </ConsistentButton>
+              </div>
+            }
+          >
+            {/* Search and Filter Bar */}
+            <div style={{ 
+              display: 'flex', 
+              gap: '16px', 
+              marginBottom: '24px',
+              padding: '16px',
+              background: 'rgba(255, 255, 255, 0.5)',
+              borderRadius: '12px',
+              border: '1px solid rgba(0, 0, 0, 0.05)'
+            }}>
+              <div style={{ flex: 1, position: 'relative' }}>
+                <SearchRegular style={{
+                  position: 'absolute',
+                  left: '12px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  color: '#6b7280',
+                  fontSize: '16px'
+                }} />
+                <input
+                  type="text"
+                  placeholder="Search servers, models, or vendors..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '12px 12px 12px 40px',
+                    border: '1px solid rgba(0, 0, 0, 0.1)',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    background: 'rgba(255, 255, 255, 0.8)',
+                    outline: 'none'
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Server Models Table */}
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ 
+                width: '100%', 
+                borderCollapse: 'collapse',
+                fontSize: '14px'
+              }}>
+                <thead>
+                  <tr style={{ 
+                    background: 'rgba(0, 0, 0, 0.02)',
+                    borderBottom: '1px solid rgba(0, 0, 0, 0.1)'
+                  }}>
+                    <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', color: '#374151' }}>Vendor</th>
+                    <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', color: '#374151' }}>Model</th>
+                    <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', color: '#374151' }}>Form Factor</th>
+                    <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', color: '#374151' }}>CPU Sockets</th>
+                    <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', color: '#374151' }}>Max Memory</th>
+                    <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', color: '#374151' }}>Drive Bays</th>
+                    <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', color: '#374151' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {serverModels
+                    .filter(model => 
+                      !selectedVendor || model.vendor === selectedVendor
+                    )
+                    .filter(model =>
+                      !searchQuery || 
+                      model.model_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                      model.vendor.toLowerCase().includes(searchQuery.toLowerCase())
+                    )
+                    .map((model) => (
+                      <tr 
+                        key={model.model_id}
+                        style={{
+                          borderBottom: '1px solid rgba(0, 0, 0, 0.05)',
+                          transition: 'background-color 0.2s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.02)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = 'transparent';
+                        }}
+                      >
+                        <td style={{ padding: '12px' }}>
+                          <span style={{
+                            padding: '4px 8px',
+                            borderRadius: '4px',
+                            fontSize: '12px',
+                            fontWeight: '500',
+                            background: model.vendor === 'Dell' ? 'rgba(59, 130, 246, 0.1)' :
+                                       model.vendor === 'HPE' ? 'rgba(16, 185, 129, 0.1)' :
+                                       'rgba(245, 158, 11, 0.1)',
+                            color: model.vendor === 'Dell' ? '#2563eb' :
+                                   model.vendor === 'HPE' ? '#059669' :
+                                   '#d97706'
+                          }}>
+                            {model.vendor}
+                          </span>
+                        </td>
+                        <td style={{ padding: '12px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <ServerRegular style={{ color: '#6b7280' }} />
+                            <div>
+                              <div style={{ fontWeight: '500', color: '#111827' }}>
+                                {model.model_name}
+                              </div>
+                              <div style={{ fontSize: '12px', color: '#6b7280' }}>
+                                {model.family} • {model.generation}
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td style={{ padding: '12px', color: '#6b7280' }}>
+                          {formatFormFactor(model.form_factor)}
+                        </td>
+                        <td style={{ padding: '12px', color: '#111827', fontWeight: '500' }}>
+                          {model.cpu_sockets}
+                        </td>
+                        <td style={{ padding: '12px', color: '#111827', fontWeight: '500' }}>
+                          {model.max_memory_gb} GB
+                        </td>
+                        <td style={{ padding: '12px', color: '#111827', fontWeight: '500' }}>
+                          {model.drive_bays}
+                        </td>
+                        <td style={{ padding: '12px' }}>
+                          <ConsistentButton 
+                            variant="outline" 
+                            size="small"
+                            onClick={() => {
+                              setMessage({
+                                type: 'info',
+                                title: 'Specifications Preview',
+                                body: `Detailed specs for ${model.model_name} would be loaded from vendor API`
+                              });
+                            }}
+                          >
+                            View Specs
+                          </ConsistentButton>
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+          </ConsistentCard>
+        );
+
+      default:
+        return <div>Configuration options coming soon...</div>;
+    }
+  };
+
+  return (
+    <GlassmorphicLayout>
+      {/* Header */}
+      <div style={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'space-between', 
+        marginBottom: '24px',
+        flexWrap: 'wrap',
+        gap: '16px'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ fontSize: '24px', color: '#7c3aed' }}>
+            <CloudArrowUpRegular />
+          </div>
+          <div>
+            <h1 style={{ margin: '0', fontSize: '24px', fontWeight: '600', color: '#111827' }}>
+              Vendor Data Collection & Server Sizing
+            </h1>
+            <p style={{ margin: '4px 0 0 0', fontSize: '14px', color: '#6b7280' }}>
+              Comprehensive vendor hardware management and server configuration tools
+            </p>
           </div>
         </div>
-        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-          <button className="lcm-button-secondary flex items-center justify-center">
-            <Upload size={16} className="mr-2" />
-            <span className="hidden sm:inline">Import Catalog</span>
-            <span className="sm:hidden">Import</span>
-          </button>
-          <button className="lcm-button-secondary flex items-center justify-center">
-            <Download size={16} className="mr-2" />
-            <span className="hidden sm:inline">Export Data</span>
-            <span className="sm:hidden">Export</span>
-          </button>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <ConsistentButton variant="outline">
+            <DocumentDataRegular style={{ marginRight: '8px' }} />
+            Import Catalog
+          </ConsistentButton>
+          <ConsistentButton variant="secondary">
+            <CloudArrowUpRegular style={{ marginRight: '8px' }} />
+            Export Data
+          </ConsistentButton>
         </div>
       </div>
-
       {/* Status Message */}
       {message && (
-        <div 
-          className="lcm-card flex items-center justify-between"
+        <ConsistentCard
           style={{
-            padding: '16px',
+            marginBottom: '24px',
             background: message.type === 'error' ? 'rgba(239, 68, 68, 0.05)' : 
                        message.type === 'success' ? 'rgba(34, 197, 94, 0.05)' : 
                        'rgba(59, 130, 246, 0.05)',
-            borderColor: message.type === 'error' ? 'rgba(239, 68, 68, 0.2)' : 
-                   message.type === 'success' ? 'rgba(34, 197, 94, 0.2)' : 
-                   'rgba(59, 130, 246, 0.2)'
+            border: message.type === 'error' ? '1px solid rgba(239, 68, 68, 0.2)' : 
+                   message.type === 'success' ? '1px solid rgba(34, 197, 94, 0.2)' : 
+                   '1px solid rgba(59, 130, 246, 0.2)'
           }}
+          actions={
+            <ConsistentButton
+              variant="ghost"
+              size="small"
+              onClick={() => setMessage(null)}
+            >
+              ×
+            </ConsistentButton>
+          }
         >
-          <div className="flex items-center">
-            {getStatusBadge(message.type)}
-            <div className="ml-4">
-              <div className="font-medium text-gray-900 text-sm">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ fontSize: '20px' }}>
+              {message.type === 'success' && <CheckmarkCircleRegular style={{ color: '#059669' }} />}
+              {message.type === 'error' && <ErrorCircleRegular style={{ color: '#dc2626' }} />}
+              {message.type === 'info' && <InfoRegular style={{ color: '#2563eb' }} />}
+            </div>
+            <div>
+              <div style={{ fontWeight: '500', color: '#111827', fontSize: '14px' }}>
                 {message.title}
               </div>
-              <div className="text-gray-600 text-sm">
+              <div style={{ color: '#6b7280', fontSize: '14px' }}>
                 {message.body}
               </div>
             </div>
           </div>
-          <button
-            onClick={() => setMessage(null)}
-            className="text-gray-400 hover:text-gray-600 ml-4 text-lg"
-          >
-            ×
-          </button>
-        </div>
+        </ConsistentCard>
       )}
 
-      {/* Hardware Configuration Upload */}
-      <div className="lcm-card">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-          <div>
-            <h4 className="text-lg font-semibold text-gray-900">Hardware Configuration Upload</h4>
-            <p className="text-sm text-gray-600 mt-1">
-              Upload vendor-specific configuration files to populate server data
-            </p>
-          </div>
-          <div className="flex items-center text-xs text-gray-500">
-            {isTauriAvailable() ? (
-              <span className="flex items-center text-green-600">
-                <CheckCircle size={14} className="mr-1" />
-                Desktop mode: Full processing available
-              </span>
-            ) : (
-              <span className="flex items-center text-blue-600">
-                <Info size={14} className="mr-1" />
-                Web mode: Client-side processing
-              </span>
-            )}
-          </div>
-        </div>
-        
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Dell SCP Files */}
-          <div className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <div 
-                className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-semibold text-sm"
-                style={{ background: 'linear-gradient(135deg, #0066cc 0%, #004499 100%)' }}
-              >
-                D
-              </div>
-              <div>
-                <h5 className="font-medium text-gray-900">Dell SCP Files</h5>
-                <p className="text-xs text-gray-500">System Configuration Profile (XML)</p>
-              </div>
-            </div>
-            <EnhancedFileUpload
-              uploadType="hardware"
-              acceptedTypes={['.xml']}
-              onFileProcessed={(result) => {
-                setMessage({
-                  type: 'success',
-                  title: 'Dell SCP File Processed',
-                  body: `Successfully parsed ${result.name} - ${result.model}`
-                });
-              }}
-              onError={(error) => {
-                setMessage({
-                  type: 'error',
-                  title: 'Dell SCP Processing Failed',
-                  body: error
-                });
-              }}
-            >
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-blue-400 transition-colors cursor-pointer">
-                <Upload size={16} className="mx-auto text-gray-400 mb-2" />
-                <p className="text-sm text-gray-600 mb-1">Upload Dell SCP File</p>
-                <p className="text-xs text-gray-400">XML format</p>
-              </div>
-            </EnhancedFileUpload>
-          </div>
-
-          {/* Lenovo DCSC Files */}
-          <div className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <div 
-                className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-semibold text-sm"
-                style={{ background: 'linear-gradient(135deg, #dc382d 0%, #b71c1c 100%)' }}
-              >
-                L
-              </div>
-              <div>
-                <h5 className="font-medium text-gray-900">Lenovo DCSC Files</h5>
-                <p className="text-xs text-gray-500">Data Center System Configuration (XML)</p>
-              </div>
-            </div>
-            <EnhancedFileUpload
-              uploadType="hardware"
-              acceptedTypes={['.xml']}
-              onFileProcessed={(result) => {
-                setMessage({
-                  type: 'success',
-                  title: 'Lenovo DCSC File Processed',
-                  body: `Successfully parsed ${result.name} - ${result.model}`
-                });
-              }}
-              onError={(error) => {
-                setMessage({
-                  type: 'error',
-                  title: 'Lenovo DCSC Processing Failed',
-                  body: error
-                });
-              }}
-            >
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-red-400 transition-colors cursor-pointer">
-                <Upload size={16} className="mx-auto text-gray-400 mb-2" />
-                <p className="text-sm text-gray-600 mb-1">Upload Lenovo DCSC File</p>
-                <p className="text-xs text-gray-400">XML format</p>
-              </div>
-            </EnhancedFileUpload>
-          </div>
-
-          {/* HPE iQuote Files */}
-          <div className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <div 
-                className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-semibold text-sm"
-                style={{ background: 'linear-gradient(135deg, #00b388 0%, #008766 100%)' }}
-              >
-                H
-              </div>
-              <div>
-                <h5 className="font-medium text-gray-900">HPE iQuote Files</h5>
-                <p className="text-xs text-gray-500">Quote files (CSV, TXT, XLS)</p>
-              </div>
-            </div>
-            <EnhancedFileUpload
-              uploadType="hardware"
-              acceptedTypes={['.csv', '.txt', '.xls', '.xlsx']}
-              onFileProcessed={(result) => {
-                setMessage({
-                  type: 'success',
-                  title: 'HPE iQuote File Processed',
-                  body: `Successfully parsed ${result.name} - ${result.model}`
-                });
-              }}
-              onError={(error) => {
-                setMessage({
-                  type: 'error',
-                  title: 'HPE iQuote Processing Failed',
-                  body: error
-                });
-              }}
-            >
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-green-400 transition-colors cursor-pointer">
-                <Upload size={16} className="mx-auto text-gray-400 mb-2" />
-                <p className="text-sm text-gray-600 mb-1">Upload HPE iQuote File</p>
-                <p className="text-xs text-gray-400">CSV, TXT, XLS format</p>
-              </div>
-            </EnhancedFileUpload>
-          </div>
-        </div>
-      </div>
-
-      {/* Vendor Configuration */}
-      <div className="lcm-card">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-          <h4 className="text-lg font-semibold text-gray-900">Vendor Configuration</h4>
-          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-            <button className="lcm-button-secondary flex items-center justify-center">
-              <Settings size={16} className="mr-2" />
-              <span className="hidden sm:inline">Configure Credentials</span>
-              <span className="sm:hidden">Config</span>
-            </button>
-            <button className="lcm-button-secondary flex items-center justify-center">
-              <RefreshCw size={16} className="mr-2" />
-              <span className="hidden sm:inline">{loading ? 'Refreshing...' : 'Refresh Data'}</span>
-              <span className="sm:hidden">Refresh</span>
-            </button>
-          </div>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label className="fluent-label">
-              Filter by Vendor
-            </label>
-            {renderDropdown(
-              selectedVendor,
-              (value) => {
-                setSelectedVendor(value);
-                loadVendorModels(value);
-              },
-              [
-                { value: 'Dell', label: 'Dell' },
-                { value: 'HPE', label: 'HPE' },
-                { value: 'Lenovo', label: 'Lenovo' }
-              ],
-              'All Vendors'
-            )}
-          </div>
-          <div>
-            <label className="fluent-label">
-              Form Factor
-            </label>
-            {renderDropdown(
-              '',
-              () => {},
-              [
-                { value: 'OneU', label: '1U Rack' },
-                { value: 'TwoU', label: '2U Rack' },
-                { value: 'FourU', label: '4U Rack' },
-                { value: 'Tower', label: 'Tower' },
-                { value: 'Blade', label: 'Blade' }
-              ],
-              'All Form Factors'
-            )}
-          </div>
-          <div>
-            <label className="fluent-label">
-              Generation
-            </label>
-            {renderDropdown(
-              '',
-              () => {},
-              [
-                { value: '14th Gen', label: '14th Gen' },
-                { value: '15th Gen', label: '15th Gen' },
-                { value: 'Gen10', label: 'Gen10' },
-                { value: 'V2', label: 'V2' }
-              ],
-              'All Generations'
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Server Models Catalog */}
-      <div className="lcm-table-container">
-        <div className="overflow-x-auto">
-          <div className="lcm-table-header">
-            <div>Vendor</div>
-            <div>Model</div>
-            <div>Form Factor</div>
-            <div>CPU Sockets</div>
-            <div>Max Memory</div>
-            <div>Drive Bays</div>
-            <div>Actions</div>
-          </div>
-          <div className="overflow-y-auto" style={{ maxHeight: '500px' }}>
-            {loading ? (
-              <div className="text-center py-8">
-                <div className="inline-flex items-center">
-                  <Clock size={20} className="mr-2 animate-spin" style={{ color: '#8b5cf6' }} />
-                  <span className="text-gray-600 text-sm">Loading server models...</span>
-                </div>
-              </div>
-            ) : (
-              serverModels.map((model) => (
-                <div 
-                  key={`${model.vendor}-${model.model_id}`}
-                  className="lcm-table-row"
-                >
-                <div data-label="Vendor">
-                  <span 
-                    className="px-2 py-1 rounded-md text-xs font-medium"
-                    style={{
-                      background: model.vendor === 'Dell' ? 'rgba(59, 130, 246, 0.1)' :
-                                 model.vendor === 'HPE' ? 'rgba(16, 185, 129, 0.1)' :
-                                 'rgba(245, 158, 11, 0.1)',
-                      color: model.vendor === 'Dell' ? '#2563eb' :
-                             model.vendor === 'HPE' ? '#059669' :
-                             '#d97706',
-                      border: model.vendor === 'Dell' ? '1px solid rgba(59, 130, 246, 0.2)' :
-                              model.vendor === 'HPE' ? '1px solid rgba(16, 185, 129, 0.2)' :
-                              '1px solid rgba(245, 158, 11, 0.2)'
-                    }}
-                  >
-                    {model.vendor}
-                  </span>
-                </div>
-                <div className="flex items-center" data-label="Model">
-                  <div className="mr-3">
-                    {getFormFactorIcon(model.form_factor)}
-                  </div>
-                  <div>
-                    <div className="font-medium text-gray-900">
-                      {model.model_name}
-                    </div>
-                    <div className="text-gray-600 text-xs">
-                      {model.family} • {model.generation}
-                    </div>
-                  </div>
-                </div>
-                <div className="text-gray-600" data-label="Form Factor">
-                  {formatFormFactor(model.form_factor)}
-                </div>
-                <div className="text-gray-900 font-medium" data-label="CPU Sockets">
-                  {model.cpu_sockets}
-                </div>
-                <div className="text-gray-900 font-medium" data-label="Max Memory">
-                  {model.max_memory_gb} GB
-                </div>
-                <div className="text-gray-900 font-medium" data-label="Drive Bays">
-                  {model.drive_bays}
-                </div>
-                <div data-label="Actions">
-                  <button 
-                    className="lcm-button-secondary text-xs px-3 py-1"
-                    onClick={() => {
-                      setMessage({
-                        type: 'info',
-                        title: 'Specifications Preview',
-                        body: `Detailed specs for ${model.model_name} would be loaded from vendor API`
-                      });
-                    }}
-                  >
-                    <Eye size={14} className="mr-1" />
-                    View Specs
-                  </button>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-        </div>
-      </div>
-
-      {/* Configuration Search */}
-      <div className="p-6 border border-purple-500/20 rounded-lg bg-transparent backdrop-blur-sm">
-        <div className="mb-6">
-          <h4 className="text-lg font-semibold text-gray-900 mb-2">Configuration Search</h4>
-          <p className="text-sm text-gray-600">Find server configurations based on your workload requirements</p>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6 mb-6">
-          <div>
-            <label className="fluent-label">
-              Workload Type
-            </label>
-            {renderDropdown(
-              searchRequirements.workload_type,
-              (value) => setSearchRequirements(prev => ({...prev, workload_type: value})),
-              [
-                { value: 'General', label: 'General Purpose' },
-                { value: 'WebServer', label: 'Web Server' },
-                { value: 'Database', label: 'Database' },
-                { value: 'Virtualization', label: 'Virtualization' },
-                { value: 'HighPerformanceComputing', label: 'HPC' },
-                { value: 'Storage', label: 'Storage' },
-                { value: 'AIMLTraining', label: 'AI/ML Training' },
-                { value: 'AIMLInference', label: 'AI/ML Inference' }
-              ]
-            )}
-          </div>
-          <div>
-            <label className="fluent-label">
-              Minimum CPU Cores
-            </label>
-            <input
-              type="number"
-              className="lcm-input"
-              placeholder="e.g. 16"
-              value={searchRequirements.cpu_cores_minimum || ''}
-              onChange={(e) => setSearchRequirements(prev => ({
-                ...prev, 
-                cpu_cores_minimum: e.target.value ? parseInt(e.target.value) : undefined
-              }))}
-            />
-          </div>
-          <div>
-            <label className="fluent-label">
-              Minimum Memory (GB)
-            </label>
-            <input
-              type="number"
-              className="lcm-input"
-              placeholder="e.g. 128"
-              value={searchRequirements.memory_gb_minimum || ''}
-              onChange={(e) => setSearchRequirements(prev => ({
-                ...prev, 
-                memory_gb_minimum: e.target.value ? parseInt(e.target.value) : undefined
-              }))}
-            />
-          </div>
-        </div>
-        
-        <div className="flex justify-center">
-          <button 
-            className="lcm-button flex items-center justify-center px-8 w-full sm:w-auto"
-            onClick={() => {
-              setMessage({
-                type: 'info',
-                title: 'Configuration Search',
-                body: `Searching for ${searchRequirements.workload_type} configurations...`
-              });
+      {/* Tab Navigation */}
+      <div style={{ 
+        display: 'flex', 
+        gap: '4px', 
+        marginBottom: '24px',
+        padding: '4px',
+        background: 'rgba(255, 255, 255, 0.3)',
+        borderRadius: '12px',
+        border: '1px solid rgba(0, 0, 0, 0.05)'
+      }}>
+        {[
+          { id: 'overview', label: 'Overview', icon: <DatabaseRegular /> },
+          { id: 'upload', label: 'Upload', icon: <CloudArrowUpRegular /> },
+          { id: 'search', label: 'Search', icon: <SearchRegular /> },
+          { id: 'basket', label: 'Hardware Basket', icon: <ServerRegular /> }
+        ].map(tab => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id as any)}
+            style={{
+              flex: 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              padding: '12px 16px',
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: '500',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              background: activeTab === tab.id ? 'rgba(255, 255, 255, 0.9)' : 'transparent',
+              color: activeTab === tab.id ? '#111827' : '#6b7280',
+              boxShadow: activeTab === tab.id ? '0 2px 4px rgba(0, 0, 0, 0.1)' : 'none'
             }}
           >
-            <Search size={16} className="mr-2" />
-            Search Configurations
+            <div style={{ fontSize: '16px' }}>{tab.icon}</div>
+            {tab.label}
           </button>
-        </div>
-
-        {/* Server recommendations would be displayed here when backend is available */}
-        {searchRequirements.workload_type !== 'General' && serverModels.length > 0 && (
-          <div className="mt-8 pt-6 border-t border-gray-200">
-            <h5 className="font-semibold mb-4 text-lg text-gray-900">
-              Recommended Configurations ({Math.min(3, serverModels.length)})
-            </h5>
-            <div className="grid grid-cols-1 gap-4">
-              {serverModels.slice(0, 3).map((model, index) => (
-                <div 
-                  key={model.model_id}
-                  className="p-4 border border-purple-500/20 rounded-lg bg-transparent hover:border border-purple-500/200/10 transition-all duration-200"
-                >
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div className="flex items-center">
-                      <Server size={18} className="mr-3 text-purple-600 flex-shrink-0" />
-                      <div>
-                        <div className="font-medium text-gray-900 text-sm sm:text-base">
-                          {model.model_name}
-                        </div>
-                        <div className="text-gray-600 text-xs sm:text-sm">
-                          Optimized for {searchRequirements.workload_type} workloads
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                      <span 
-                        className="px-3 py-1 rounded-lg text-xs font-medium border border-green-500/20 text-green-700 border border-green-200 text-center"
-                      >
-                        {85 + index * 5}% Match
-                      </span>
-                      <button className="lcm-button-secondary text-xs px-4 py-2">
-                        View Details
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        ))}
       </div>
-    </div>
+
+      {/* Tab Content */}
+      {renderTabContent()}
+    </GlassmorphicLayout>
   );
 };
 
