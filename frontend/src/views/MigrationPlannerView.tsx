@@ -14,9 +14,17 @@ import {
   Network,
   CheckCircle
 } from 'lucide-react';
+import { 
+  DatabaseRegular,
+  SettingsRegular,
+  TargetRegular,
+  DocumentDataRegular,
+  DiagramRegular
+} from '@fluentui/react-icons';
 
 const MigrationPlannerView: React.FC = () => {
   const { environmentSummary, currentEnvironment } = useAppStore();
+  const [activeTab, setActiveTab] = useState<'overview' | 'wizard'>('overview');
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedClusters, setSelectedClusters] = useState<string[]>([]);
   const [migrationDuration, setMigrationDuration] = useState(12); // months
@@ -652,6 +660,206 @@ const MigrationPlannerView: React.FC = () => {
     </div>
   );
 
+  const getMigrationOverview = () => [
+    { 
+      title: 'Total VMs', 
+      value: selectedClusters.length > 0 ? 
+        currentEnvironment?.clusters?.filter(c => selectedClusters.includes(c.id))
+          .reduce((total, cluster) => total + (cluster.vms?.length || 0), 0) || 0 : 
+        currentEnvironment?.clusters?.reduce((total, cluster) => total + (cluster.vms?.length || 0), 0) || 0, 
+      icon: <DatabaseRegular />, 
+      change: 'Available for migration',
+      color: '#0066cc'
+    },
+    { 
+      title: 'Selected Clusters', 
+      value: selectedClusters.length, 
+      icon: <TargetRegular />, 
+      change: `${currentEnvironment?.clusters?.length || 0} total clusters`,
+      color: '#16a34a'
+    },
+    { 
+      title: 'Migration Duration', 
+      value: `${migrationDuration} months`, 
+      icon: <SettingsRegular />, 
+      change: `${migrationApproach} approach`,
+      color: '#dc2626'
+    },
+    { 
+      title: 'Migration Progress', 
+      value: `Wave ${Math.ceil(migrationWave / 25)}`, 
+      icon: <DiagramRegular />, 
+      change: `${migrationWave}% per wave`,
+      color: '#7c3aed'
+    }
+  ];
+
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'overview':
+        return (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px' }}>
+            {getMigrationOverview().map((stat, index) => (
+              <div
+                key={index}
+                style={{
+                  background: 'rgba(255, 255, 255, 0.7)',
+                  backdropFilter: 'blur(20px) saturate(180%)',
+                  WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                  border: '1px solid rgba(139, 92, 246, 0.2)',
+                  borderRadius: '16px',
+                  padding: '24px',
+                  textAlign: 'center' as const,
+                  transition: 'all 0.3s ease',
+                  boxShadow: '0 8px 32px rgba(139, 92, 246, 0.1)'
+                }}
+              >
+                <div style={{ color: stat.color, fontSize: '24px', marginBottom: '12px' }}>
+                  {stat.icon}
+                </div>
+                <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#111827', marginBottom: '4px' }}>
+                  {stat.value}
+                </div>
+                <div style={{ fontSize: '14px', fontWeight: '500', color: '#6b7280', marginBottom: '12px' }}>
+                  {stat.title}
+                </div>
+                <div style={{ 
+                  marginTop: '12px', 
+                  padding: '8px 12px', 
+                  background: 'rgba(59, 130, 246, 0.1)', 
+                  borderRadius: '6px',
+                  fontSize: '12px',
+                  color: '#374151'
+                }}>
+                  {stat.change}
+                </div>
+              </div>
+            ))}
+          </div>
+        );
+
+      case 'wizard':
+        return (
+          <div>
+            {/* Wizard Progress Header */}
+            <div style={{ 
+              background: 'rgba(255, 255, 255, 0.7)',
+              backdropFilter: 'blur(20px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+              border: '1px solid rgba(139, 92, 246, 0.2)',
+              borderRadius: '16px',
+              marginBottom: '24px',
+              padding: '16px'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '48px', overflowX: 'auto' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: 'max-content' }}>
+                  {wizardSteps.map((step, index) => (
+                    <React.Fragment key={step.num}>
+                      <WizardStep
+                        title={step.title}
+                        isActive={currentStep === step.num}
+                        stepNumber={step.num}
+                        icon={step.icon}
+                      />
+                      {index < wizardSteps.length - 1 && (
+                        <div 
+                          style={{
+                            flexShrink: 0,
+                            height: '2px',
+                            margin: '0 8px',
+                            width: '32px',
+                            transition: 'all 0.3s ease',
+                            background: currentStep > step.num 
+                              ? 'linear-gradient(90deg, #10b981 0%, #059669 100%)'
+                              : 'rgba(156, 163, 175, 0.3)'
+                          }}
+                        />
+                      )}
+                    </React.Fragment>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Main Content */}
+            <div style={{ 
+              background: 'rgba(255, 255, 255, 0.5)',
+              backdropFilter: 'blur(16px) saturate(150%)',
+              WebkitBackdropFilter: 'blur(16px) saturate(150%)',
+              border: '1px solid rgba(139, 92, 246, 0.1)',
+              borderRadius: '16px',
+              overflow: 'hidden',
+              display: 'flex',
+              flexDirection: 'column'
+            }}>
+              {/* Scrollable content area */}
+              <div style={{ flex: 1, overflow: 'auto', padding: '24px', paddingBottom: '96px' }}>
+                {renderStepContent()}
+              </div>
+              
+              {/* Sticky Navigation Footer */}
+              <div style={{ 
+                position: 'sticky', 
+                bottom: 0, 
+                left: 0, 
+                right: 0, 
+                padding: '16px 24px', 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center', 
+                background: 'rgba(255, 255, 255, 0.9)',
+                backdropFilter: 'blur(20px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                borderTop: '1px solid rgba(139, 92, 246, 0.1)',
+                zIndex: 10
+              }}>
+                <button 
+                  onClick={prevStep}
+                  disabled={currentStep === 1}
+                  style={{
+                    padding: '12px 24px',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    cursor: currentStep === 1 ? 'not-allowed' : 'pointer',
+                    transition: 'all 0.2s ease',
+                    background: currentStep === 1 ? 'rgba(156, 163, 175, 0.3)' : 'rgba(139, 92, 246, 0.1)',
+                    color: currentStep === 1 ? '#9ca3af' : '#8b5cf6',
+                    opacity: currentStep === 1 ? 0.5 : 1
+                  }}
+                >
+                  Previous
+                </button>
+                <button 
+                  onClick={nextStep}
+                  disabled={currentStep === wizardSteps.length}
+                  style={{
+                    padding: '12px 24px',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    cursor: currentStep === wizardSteps.length ? 'not-allowed' : 'pointer',
+                    transition: 'all 0.2s ease',
+                    background: currentStep === wizardSteps.length ? 'rgba(156, 163, 175, 0.3)' : 'linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%)',
+                    color: 'white',
+                    opacity: currentStep === wizardSteps.length ? 0.5 : 1,
+                    boxShadow: currentStep === wizardSteps.length ? 'none' : '0 2px 4px rgba(139, 92, 246, 0.2)'
+                  }}
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  };
+
   const wizardSteps = [
     { num: 1, title: 'Migration Scope', description: 'Select clusters and workloads for migration', icon: Database },
     { num: 2, title: 'Migration Assessment', description: 'Analyze migration complexity and dependencies', icon: Activity },
@@ -1146,60 +1354,49 @@ const MigrationPlannerView: React.FC = () => {
   return (
     <GlassmorphicLayout>
       <div className="fluent-page-container">
-        {/* Wizard Progress Header */}
-        <div className="lcm-card mb-6 flex-shrink-0">
-          <div className="p-4 flex items-center justify-center min-h-12 wizard-header-container overflow-x-auto">
-            <div className="flex items-center justify-center wizard-steps-wrapper" style={{ minWidth: 'max-content' }}>
-              {wizardSteps.map((step, index) => (
-                <React.Fragment key={step.num}>
-                  <WizardStep
-                    title={step.title}
-                    isActive={currentStep === step.num}
-                    stepNumber={step.num}
-                    icon={step.icon}
-                  />
-                  {index < wizardSteps.length - 1 && (
-                    <div 
-                      className="flex-shrink-0 h-0.5 mx-2 transition-all duration-300 wizard-connector"
-                      style={{
-                        width: '32px',
-                        background: currentStep > step.num 
-                          ? 'linear-gradient(90deg, var(--fluent-color-success-background-1) 0%, var(--fluent-color-success-background-2) 100%)'
-                          : 'var(--fluent-color-neutral-stroke-2)'
-                      }}
-                    />
-                  )}
-                </React.Fragment>
-              ))}
-            </div>
-          </div>
+        {/* Tab Navigation */}
+        <div style={{ 
+          display: 'flex', 
+          gap: '4px', 
+          marginBottom: '24px',
+          padding: '4px',
+          background: 'rgba(255, 255, 255, 0.3)',
+          borderRadius: '12px',
+          border: '1px solid rgba(0, 0, 0, 0.05)'
+        }}>
+          {[
+            { id: 'overview', label: 'Overview', icon: <DiagramRegular /> },
+            { id: 'wizard', label: 'Migration Wizard', icon: <TargetRegular /> }
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as any)}
+              style={{
+                flex: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                padding: '12px 16px',
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontWeight: '500',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                background: activeTab === tab.id ? 'rgba(255, 255, 255, 0.9)' : 'transparent',
+                color: activeTab === tab.id ? '#111827' : '#6b7280',
+                boxShadow: activeTab === tab.id ? '0 2px 4px rgba(0, 0, 0, 0.1)' : 'none'
+              }}
+            >
+              <div style={{ fontSize: '16px' }}>{tab.icon}</div>
+              {tab.label}
+            </button>
+          ))}
         </div>
 
-        {/* Main Content Card with sticky navigation */}
-        <div className="lcm-card flex-1 overflow-hidden flex flex-col">
-          {/* Scrollable content area */}
-          <div className="flex-1 overflow-auto p-6 pb-24">
-            {renderStepContent()}
-          </div>
-          
-          {/* Sticky Navigation Footer */}
-          <div className="sticky bottom-0 left-0 right-0 p-4 flex justify-between items-center bg-transparent border-t-0 z-10">
-            <button 
-              onClick={prevStep}
-              disabled={currentStep === 1}
-              className="fluent-button fluent-button-subtle"
-            >
-              Previous
-            </button>
-            <button 
-              onClick={nextStep}
-              disabled={currentStep === wizardSteps.length}
-              className="fluent-button fluent-button-primary"
-            >
-              Next
-            </button>
-          </div>
-        </div>
+        {/* Tab Content */}
+        {renderTabContent()}
       </div>
     </GlassmorphicLayout>
   );
