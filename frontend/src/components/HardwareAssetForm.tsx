@@ -151,7 +151,7 @@ const HardwareAssetForm: React.FC<HardwareAssetFormProps> = ({
               color: '#6366f1',
               fontFamily: 'Montserrat, sans-serif'
             }}>
-              {asset ? '✏️ Edit Hardware Asset' : '➕ Add Hardware Asset'}
+              {asset ? '✏️ Edit Hardware Asset' : '<span style="color: white">+</span> Add Hardware Asset'}
             </h2>
           </div>
 

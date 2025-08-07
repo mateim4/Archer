@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Network, HardDrive, Server, AlertTriangle } from 'lucide-react';
 import mermaid from 'mermaid';
 import { generateVirtualDiagram, generateHyperVDiagram, generatePhysicalDiagram } from '../utils/mermaidGenerator';
@@ -494,11 +494,17 @@ const NetworkVisualizerView = () => {
       )}
 
       {/* Diagram Container - Direct rendering without card wrapper */}
-      {networkTopology && (
-        <div 
-          id="mermaid-diagram" 
-          className="w-full h-auto min-h-96 overflow-auto rounded-lg bg-transparent p-4"
-        />
+      <div 
+        id="mermaid-diagram" 
+        className="w-full h-auto min-h-96 overflow-auto rounded-lg bg-transparent p-4"
+      />
+      
+      {!networkTopology && (
+        <div className="text-center py-12 text-gray-500">
+          <Server size={48} className="mx-auto mb-4 opacity-50" />
+          <p>No network topology data available.</p>
+          <p className="text-sm mt-2">Upload infrastructure data to generate network diagrams.</p>
+        </div>
       )}
       </div>
     </div>
