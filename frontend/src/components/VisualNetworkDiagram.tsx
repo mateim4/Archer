@@ -58,29 +58,18 @@ const VisualNetworkDiagram: React.FC<VisualNetworkDiagramProps> = ({
 
   const getIconPath = (iconName?: string) => {
     if (!iconName || !NETWORK_ICON_INDEX[iconName]) return null;
-    // Map icon names to their corresponding SVG files
-    const iconFileMap: Record<string, string> = {
-      'virtual-network': 'Virtual-Network.svg',
-      'virtual-machine': 'Virtual-Machine.svg',
-      'windows-vm': 'Virtual-Machine.svg',
-      'linux-vm': 'Virtual-Machine.svg',
-      'load-balancer': 'Load-Balancer.svg',
-      'application-gateway': 'Application-Gateway.svg',
-      'network-security-group': 'Network-Security-Group.svg',
-      'vpn-gateway': 'VPN-Gateway.svg',
-      'express-route': 'ExpressRoute.svg',
-      'traffic-manager': 'Traffic-Manager.svg',
-      'cdn': 'CDN.svg',
-      'firewall': 'Azure-Firewall.svg',
-      'ddos-protection': 'DDoS-Protection.svg',
-      'dns-zone': 'DNS-Zones.svg',
-      'private-dns-zone': 'Private-DNS-Zones.svg',
-      'bastion': 'Bastion.svg',
-      'nat-gateway': 'NAT-Gateway.svg'
-    };
     
-    const filename = iconFileMap[iconName];
-    return filename ? `/src/assets/network-icons/${filename}` : null;
+    // Get the Azure icon name from the network icon index
+    const iconConfig = NETWORK_ICON_INDEX[iconName];
+    if (!iconConfig || !iconConfig.azureIconName) return null;
+    
+    try {
+      // Use dynamic import with proper URL resolution for Vite
+      return new URL(`../assets/network-icons/${iconConfig.azureIconName}.svg`, import.meta.url).href;
+    } catch (error) {
+      console.warn(`Failed to resolve Azure icon path: ${iconConfig.azureIconName}`);
+      return null;
+    }
   };
 
   const renderNode = (node: NetworkNode) => {
