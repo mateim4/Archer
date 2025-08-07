@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Calculator, Cpu, HardDrive, Network, Zap, TrendingUp, AlertCircle } from 'lucide-react';
 import { apiClient, HardwareItem } from '../utils/apiClient';
+import GlassmorphicLayout from '../components/GlassmorphicLayout';
 
 interface ClusterSpec {
   workloadType: string;
@@ -126,27 +127,30 @@ const ClusterSizingView: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="fluent-page-container">
-        <div className="flex items-center justify-center min-h-96">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+      <GlassmorphicLayout>
+        <div className="fluent-page-container">
+          <div className="flex items-center justify-center min-h-96">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+          </div>
         </div>
-      </div>
+      </GlassmorphicLayout>
     );
   }
 
   return (
-    <div className="fluent-page-container">
+    <GlassmorphicLayout>
+      <div className="fluent-page-container">
 
-      {error && (
-        <div className="fluent-alert fluent-alert-error mb-6">
-          <p>{error}</p>
-        </div>
-      )}
+        {error && (
+          <div className="fluent-alert fluent-alert-error mb-6">
+            <p>{error}</p>
+          </div>
+        )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Input Section */}
-        <div className="space-y-6">
-          <div className="lcm-card">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Input Section */}
+          <div className="space-y-6">
+            <div className="lcm-card">
             <h2 className="fluent-card-title flex items-center mb-4">
               <Calculator className="w-5 h-5 mr-2" />
               Workload Requirements
@@ -325,7 +329,8 @@ const ClusterSizingView: React.FC = () => {
           )}
         </div>
       </div>
-    </div>
+      </div>
+    </GlassmorphicLayout>
   );
 };
 

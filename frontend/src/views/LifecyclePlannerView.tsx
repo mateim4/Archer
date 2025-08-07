@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import CustomSlider from '../components/CustomSlider';
 import { useAppStore } from '../store/useAppStore';
+import GlassmorphicLayout from '../components/GlassmorphicLayout';
 
 const LifecyclePlannerView: React.FC = () => {
   const { environmentSummary, currentEnvironment } = useAppStore();
@@ -1149,24 +1150,25 @@ const LifecyclePlannerView: React.FC = () => {
   };
 
   return (
-    <div className="fluent-page-container">
-      {/* Wizard Progress Header */}
-      <div className="lcm-card mb-6 flex-shrink-0">
-        <div className="p-4 flex items-center justify-center min-h-12">
-          {wizardSteps.map((step, index) => (
-            <React.Fragment key={step.num}>
-              <WizardStep
-                title={step.title}
-                isActive={currentStep === step.num}
-                stepNumber={step.num}
-              />
-              {index < wizardSteps.length - 1 && (
-                <div 
-                  className="flex-1 h-0.5 mx-4 transition-all duration-300"
-                  style={{
-                    background: currentStep > step.num 
-                      ? 'linear-gradient(90deg, var(--fluent-color-success-background-1) 0%, var(--fluent-color-success-background-2) 100%)'
-                      : 'var(--fluent-color-neutral-stroke-2)'
+    <GlassmorphicLayout>
+      <div className="fluent-page-container">
+        {/* Wizard Progress Header */}
+        <div className="lcm-card mb-6 flex-shrink-0">
+          <div className="p-4 flex items-center justify-center min-h-12">
+            {wizardSteps.map((step, index) => (
+              <React.Fragment key={step.num}>
+                <WizardStep
+                  title={step.title}
+                  isActive={currentStep === step.num}
+                  stepNumber={step.num}
+                />
+                {index < wizardSteps.length - 1 && (
+                  <div 
+                    className="flex-1 h-0.5 mx-4 transition-all duration-300"
+                    style={{
+                      background: currentStep > step.num 
+                        ? 'linear-gradient(90deg, var(--fluent-color-success-background-1) 0%, var(--fluent-color-success-background-2) 100%)'
+                        : 'var(--fluent-color-neutral-stroke-2)'
                   }}
                 />
               )}
@@ -1200,7 +1202,8 @@ const LifecyclePlannerView: React.FC = () => {
           </button>
         </div>
       </div>
-    </div>
+      </div>
+    </GlassmorphicLayout>
   );
 };
 

@@ -3,6 +3,7 @@ import { Network, HardDrive, Server, AlertTriangle } from 'lucide-react';
 import mermaid from 'mermaid';
 import { generateVirtualDiagram, generateHyperVDiagram, generatePhysicalDiagram } from '../utils/mermaidGenerator';
 import { useAppStore } from '../store/useAppStore';
+import GlassmorphicLayout from '../components/GlassmorphicLayout';
 
 // Define consistent color palette for diagrams
 const DIAGRAM_THEME = {
@@ -440,23 +441,24 @@ const NetworkVisualizerView = () => {
   );
 
   return (
-    <div className="fluent-page-container">
-      <div className="lcm-card">
-        {/* Error Display */}
-      {error && (
-        <div className="mb-6 p-3 border border-red-500/30 rounded-lg text-red-300">
-          {error}
-        </div>
-      )}
+    <GlassmorphicLayout>
+      <div className="fluent-page-container">
+        <div className="lcm-card">
+          {/* Error Display */}
+        {error && (
+          <div className="mb-6 p-3 border border-red-500/30 rounded-lg text-red-300">
+            {error}
+          </div>
+        )}
 
-      {/* Tabs */}
-      <div className="mb-6">
-        <div 
-          className="flex"
-          style={{
-            background: 'transparent'
-          }}
-        >
+        {/* Tabs */}
+        <div className="mb-6">
+          <div 
+            className="flex"
+            style={{
+              background: 'transparent'
+            }}
+          >
           <TabButton
             tab="virtual"
             isActive={activeTab === 'virtual'}
@@ -507,7 +509,8 @@ const NetworkVisualizerView = () => {
         </div>
       )}
       </div>
-    </div>
+      </div>
+    </GlassmorphicLayout>
   );
 };
 

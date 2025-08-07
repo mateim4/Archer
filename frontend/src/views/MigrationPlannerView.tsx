@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import CustomSlider from '../components/CustomSlider';
 import { useAppStore } from '../store/useAppStore';
+import GlassmorphicLayout from '../components/GlassmorphicLayout';
 import { 
   Database, 
   Settings, 
@@ -1143,62 +1144,64 @@ const MigrationPlannerView: React.FC = () => {
   };
 
   return (
-    <div className="fluent-page-container">
-      {/* Wizard Progress Header */}
-      <div className="lcm-card mb-6 flex-shrink-0">
-        <div className="p-4 flex items-center justify-center min-h-12 wizard-header-container overflow-x-auto">
-          <div className="flex items-center justify-center wizard-steps-wrapper" style={{ minWidth: 'max-content' }}>
-            {wizardSteps.map((step, index) => (
-              <React.Fragment key={step.num}>
-                <WizardStep
-                  title={step.title}
-                  isActive={currentStep === step.num}
-                  stepNumber={step.num}
-                  icon={step.icon}
-                />
-                {index < wizardSteps.length - 1 && (
-                  <div 
-                    className="flex-shrink-0 h-0.5 mx-2 transition-all duration-300 wizard-connector"
-                    style={{
-                      width: '32px',
-                      background: currentStep > step.num 
-                        ? 'linear-gradient(90deg, var(--fluent-color-success-background-1) 0%, var(--fluent-color-success-background-2) 100%)'
-                        : 'var(--fluent-color-neutral-stroke-2)'
-                    }}
+    <GlassmorphicLayout>
+      <div className="fluent-page-container">
+        {/* Wizard Progress Header */}
+        <div className="lcm-card mb-6 flex-shrink-0">
+          <div className="p-4 flex items-center justify-center min-h-12 wizard-header-container overflow-x-auto">
+            <div className="flex items-center justify-center wizard-steps-wrapper" style={{ minWidth: 'max-content' }}>
+              {wizardSteps.map((step, index) => (
+                <React.Fragment key={step.num}>
+                  <WizardStep
+                    title={step.title}
+                    isActive={currentStep === step.num}
+                    stepNumber={step.num}
+                    icon={step.icon}
                   />
-                )}
-              </React.Fragment>
-            ))}
+                  {index < wizardSteps.length - 1 && (
+                    <div 
+                      className="flex-shrink-0 h-0.5 mx-2 transition-all duration-300 wizard-connector"
+                      style={{
+                        width: '32px',
+                        background: currentStep > step.num 
+                          ? 'linear-gradient(90deg, var(--fluent-color-success-background-1) 0%, var(--fluent-color-success-background-2) 100%)'
+                          : 'var(--fluent-color-neutral-stroke-2)'
+                      }}
+                    />
+                  )}
+                </React.Fragment>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Main Content Card with sticky navigation */}
+        <div className="lcm-card flex-1 overflow-hidden flex flex-col">
+          {/* Scrollable content area */}
+          <div className="flex-1 overflow-auto p-6 pb-24">
+            {renderStepContent()}
+          </div>
+          
+          {/* Sticky Navigation Footer */}
+          <div className="sticky bottom-0 left-0 right-0 p-4 flex justify-between items-center bg-transparent border-t-0 z-10">
+            <button 
+              onClick={prevStep}
+              disabled={currentStep === 1}
+              className="fluent-button fluent-button-subtle"
+            >
+              Previous
+            </button>
+            <button 
+              onClick={nextStep}
+              disabled={currentStep === wizardSteps.length}
+              className="fluent-button fluent-button-primary"
+            >
+              Next
+            </button>
           </div>
         </div>
       </div>
-
-      {/* Main Content Card with sticky navigation */}
-      <div className="lcm-card flex-1 overflow-hidden flex flex-col">
-        {/* Scrollable content area */}
-        <div className="flex-1 overflow-auto p-6 pb-24">
-          {renderStepContent()}
-        </div>
-        
-        {/* Sticky Navigation Footer */}
-        <div className="sticky bottom-0 left-0 right-0 p-4 flex justify-between items-center bg-transparent border-t-0 z-10">
-          <button 
-            onClick={prevStep}
-            disabled={currentStep === 1}
-            className="fluent-button fluent-button-subtle"
-          >
-            Previous
-          </button>
-          <button 
-            onClick={nextStep}
-            disabled={currentStep === wizardSteps.length}
-            className="fluent-button fluent-button-primary"
-          >
-            Next
-          </button>
-        </div>
-      </div>
-    </div>
+    </GlassmorphicLayout>
   );
 };
 
