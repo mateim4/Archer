@@ -174,7 +174,7 @@ const HardwarePoolView: React.FC = () => {
             e.currentTarget.style.boxShadow = 'none';
           }}
         >
-          ➕ Add Hardware Asset
+          <span style={{ color: 'white' }}>+</span> Add Hardware Asset
         </button>
       </div>
 
