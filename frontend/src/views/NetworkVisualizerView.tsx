@@ -544,11 +544,27 @@ const NetworkVisualizerView = () => {
                 margin: '0 0 12px 0', 
                 fontSize: '16px', 
                 fontWeight: '600', 
-                color: '#374151' 
+                color: '#374151',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
               }}>
-                {activeTab === 'virtual' ? '🟢 VMware vSphere Environment' :
-                 activeTab === 'hyper-v' ? '🔵 Microsoft Hyper-V Environment' :
-                 '🟠 Physical Infrastructure'}
+                {activeTab === 'virtual' ? (
+                  <>
+                    <CloudRegular style={{ color: '#16a34a' }} />
+                    VMware vSphere Environment
+                  </>
+                ) : activeTab === 'hyper-v' ? (
+                  <>
+                    <ServerRegular style={{ color: '#0066cc' }} />
+                    Microsoft Hyper-V Environment
+                  </>
+                ) : (
+                  <>
+                    <GlobeRegular style={{ color: '#f59e0b' }} />
+                    Physical Infrastructure
+                  </>
+                )}
               </h3>
               <div style={{ 
                 display: 'grid', 

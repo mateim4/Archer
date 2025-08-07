@@ -1,29 +1,35 @@
 /**
  * Network Icon Index and Configuration
  * 
- * Comprehensive mapping of Microsoft Azure stencils for network topology diagrams.
- * Icons are sourced from: https://github.com/sandroasp/Microsoft-Integration-and-Azure-Stencils-Pack-for-Visio
+ * Comprehensive mapping of Microsoft Azure stencil icons for network topology diagrams.
+ * Using actual Microsoft Integration and Azure Stencils Pack from:
+ * https://github.com/sandroasp/Microsoft-Integration-and-Azure-Stencils-Pack-for-Visio
  */
+
+import React from 'react';
+import AzureIcon from '../components/AzureIcon';
 
 export interface NetworkIcon {
   name: string;
   description: string;
   category: string;
   useCases: string[];
-  mermaidSymbol: string;
+  azureIconName: string; // Microsoft Azure stencil name
+  iconComponent: any; // React component for the Azure icon
   color: string;
   backgroundColor?: string;
   borderColor?: string;
 }
 
 export const NETWORK_ICON_INDEX: Record<string, NetworkIcon> = {
-  // Virtual Infrastructure
+  // Virtual Infrastructure - Using actual Microsoft Azure stencils
   'virtual-network': {
     name: 'Virtual Network',
     description: 'Azure Virtual Network (VNet) - isolated network environment',
     category: 'networking',
     useCases: ['VNet isolation', 'Subnet segmentation', 'Network boundaries', 'VLAN representation'],
-    mermaidSymbol: '🌐',
+    azureIconName: 'Virtual-networks',
+    iconComponent: React.createElement(() => React.createElement(AzureIcon, { name: 'Virtual-networks', size: 24 })),
     color: '#0078d4',
     backgroundColor: 'rgba(0, 120, 212, 0.1)',
     borderColor: '#0078d4'
@@ -34,7 +40,8 @@ export const NETWORK_ICON_INDEX: Record<string, NetworkIcon> = {
     description: 'Compute instances - Windows/Linux VMs',
     category: 'compute',
     useCases: ['ESXi hosts', 'Guest VMs', 'Workload instances', 'Application servers'],
-    mermaidSymbol: '💻',
+    azureIconName: 'Virtual-machines',
+    iconComponent: React.createElement(() => React.createElement(AzureIcon, { name: 'Virtual-machines', size: 24 })),
     color: '#00bcf2',
     backgroundColor: 'rgba(0, 188, 242, 0.1)',
     borderColor: '#00bcf2'
@@ -45,7 +52,8 @@ export const NETWORK_ICON_INDEX: Record<string, NetworkIcon> = {
     description: 'Windows Server virtual machines',
     category: 'compute',
     useCases: ['Windows workloads', 'Domain controllers', 'IIS servers', 'SQL Server instances'],
-    mermaidSymbol: '🖥️',
+    azureIconName: 'Windows-VM',
+    iconComponent: React.createElement(() => React.createElement(AzureIcon, { name: 'Windows-VM', size: 24 })),
     color: '#00a1f1',
     backgroundColor: 'rgba(0, 161, 241, 0.1)',
     borderColor: '#00a1f1'
@@ -56,7 +64,8 @@ export const NETWORK_ICON_INDEX: Record<string, NetworkIcon> = {
     description: 'Linux virtual machines',
     category: 'compute',
     useCases: ['Linux workloads', 'Web servers', 'Database servers', 'Container hosts'],
-    mermaidSymbol: '🐧',
+    azureIconName: 'Linux-VM',
+    iconComponent: React.createElement(() => React.createElement(AzureIcon, { name: 'Linux-VM', size: 24 })),
     color: '#f25022',
     backgroundColor: 'rgba(242, 80, 34, 0.1)',
     borderColor: '#f25022'
@@ -67,19 +76,21 @@ export const NETWORK_ICON_INDEX: Record<string, NetworkIcon> = {
     description: 'SQL Server database virtual machines',
     category: 'database',
     useCases: ['Database servers', 'Data storage', 'OLTP systems', 'Analytics workloads'],
-    mermaidSymbol: '🗄️',
+    azureIconName: 'SQL-Server-VM',
+    iconComponent: React.createElement(() => React.createElement(AzureIcon, { name: 'SQL-Server-VM', size: 24 })),
     color: '#7fba00',
     backgroundColor: 'rgba(127, 186, 0, 0.1)',
     borderColor: '#7fba00'
   },
   
-  // Networking Components
+  // Networking Components - Using Microsoft Azure stencils
   'virtual-network-gateway': {
     name: 'Virtual Network Gateway',
     description: 'VPN and ExpressRoute gateways',
     category: 'networking',
     useCases: ['Site-to-site VPN', 'Point-to-site VPN', 'ExpressRoute connections', 'Hybrid connectivity'],
-    mermaidSymbol: '🌉',
+    azureIconName: 'Virtual-network-gateways',
+    iconComponent: React.createElement(() => React.createElement(AzureIcon, { name: 'Virtual-network-gateways', size: 24 })),
     color: '#804998',
     backgroundColor: 'rgba(128, 73, 152, 0.1)',
     borderColor: '#804998'
@@ -90,7 +101,8 @@ export const NETWORK_ICON_INDEX: Record<string, NetworkIcon> = {
     description: 'Encrypted network tunnels',
     category: 'security',
     useCases: ['Site-to-site connectivity', 'Secure communications', 'Branch office connections', 'Remote access'],
-    mermaidSymbol: '🔐',
+    azureIconName: 'VPN-Tunnel',
+    iconComponent: React.createElement(() => React.createElement(AzureIcon, { name: 'VPN-Tunnel', size: 24 })),
     color: '#ffb900',
     backgroundColor: 'rgba(255, 185, 0, 0.1)',
     borderColor: '#ffb900'
@@ -101,7 +113,8 @@ export const NETWORK_ICON_INDEX: Record<string, NetworkIcon> = {
     description: 'Traffic distribution and high availability',
     category: 'networking',
     useCases: ['Traffic distribution', 'High availability', 'Health probes', 'Backend pools'],
-    mermaidSymbol: '⚖️',
+    azureIconName: 'Load-balancers',
+    iconComponent: React.createElement(() => React.createElement(AzureIcon, { name: 'Load-balancers', size: 24 })),
     color: '#fe6db6',
     backgroundColor: 'rgba(254, 109, 182, 0.1)',
     borderColor: '#fe6db6'
@@ -112,7 +125,8 @@ export const NETWORK_ICON_INDEX: Record<string, NetworkIcon> = {
     description: 'Layer 7 load balancer and web application firewall',
     category: 'networking',
     useCases: ['Web app load balancing', 'SSL termination', 'URL-based routing', 'WAF protection'],
-    mermaidSymbol: '🚪',
+    azureIconName: 'Application-Gateways',
+    iconComponent: React.createElement(() => React.createElement(AzureIcon, { name: 'Application-Gateways', size: 24 })),
     color: '#008575',
     backgroundColor: 'rgba(0, 133, 117, 0.1)',
     borderColor: '#008575'
@@ -123,7 +137,8 @@ export const NETWORK_ICON_INDEX: Record<string, NetworkIcon> = {
     description: 'Network-level security rules and filtering',
     category: 'security',
     useCases: ['Access control', 'Port filtering', 'IP restrictions', 'Security rules'],
-    mermaidSymbol: '🛡️',
+    azureIconName: 'Network-security-groups',
+    iconComponent: React.createElement(() => React.createElement(AzureIcon, { name: 'Network-security-groups', size: 24 })),
     color: '#d13438',
     backgroundColor: 'rgba(209, 52, 56, 0.1)',
     borderColor: '#d13438'
@@ -134,7 +149,8 @@ export const NETWORK_ICON_INDEX: Record<string, NetworkIcon> = {
     description: 'Network security and threat protection',
     category: 'security',
     useCases: ['Perimeter security', 'Threat protection', 'IDPS', 'Network filtering'],
-    mermaidSymbol: '🔥',
+    azureIconName: 'Firewalls',
+    iconComponent: React.createElement(() => React.createElement(AzureIcon, { name: 'Firewalls', size: 24 })),
     color: '#ff4b00',
     backgroundColor: 'rgba(255, 75, 0, 0.1)',
     borderColor: '#ff4b00'
@@ -145,7 +161,8 @@ export const NETWORK_ICON_INDEX: Record<string, NetworkIcon> = {
     description: 'Distributed denial of service attack protection',
     category: 'security',
     useCases: ['Attack mitigation', 'Traffic analysis', 'Always-on monitoring', 'Adaptive tuning'],
-    mermaidSymbol: '🛡️',
+    azureIconName: 'DDoS-protection-plans',
+    iconComponent: React.createElement(() => React.createElement(AzureIcon, { name: 'DDoS-protection-plans', size: 24 })),
     color: '#881798',
     backgroundColor: 'rgba(136, 23, 152, 0.1)',
     borderColor: '#881798'
@@ -156,7 +173,8 @@ export const NETWORK_ICON_INDEX: Record<string, NetworkIcon> = {
     description: 'Network Address Translation for outbound connectivity',
     category: 'networking',
     useCases: ['Outbound internet access', 'SNAT', 'IP masquerading', 'Egress traffic'],
-    mermaidSymbol: '🔄',
+    azureIconName: 'NAT-gateways',
+    iconComponent: React.createElement(() => React.createElement(AzureIcon, { name: 'NAT-gateways', size: 24 })),
     color: '#0078d4',
     backgroundColor: 'rgba(0, 120, 212, 0.1)',
     borderColor: '#0078d4'
@@ -167,7 +185,8 @@ export const NETWORK_ICON_INDEX: Record<string, NetworkIcon> = {
     description: 'Custom routing rules and traffic steering',
     category: 'networking',
     useCases: ['Traffic routing', 'Next-hop definitions', 'Route overrides', 'Network segmentation'],
-    mermaidSymbol: '🗺️',
+    azureIconName: 'Route-tables',
+    iconComponent: React.createElement(() => React.createElement(AzureIcon, { name: 'Route-tables', size: 24 })),
     color: '#5e5e5e',
     backgroundColor: 'rgba(94, 94, 94, 0.1)',
     borderColor: '#5e5e5e'
@@ -178,7 +197,8 @@ export const NETWORK_ICON_INDEX: Record<string, NetworkIcon> = {
     description: 'Private dedicated network connections',
     category: 'networking',
     useCases: ['Private connectivity', 'High bandwidth', 'Predictable performance', 'SLA guarantees'],
-    mermaidSymbol: '⚡',
+    azureIconName: 'ExpressRoute-circuits',
+    iconComponent: React.createElement(() => React.createElement(AzureIcon, { name: 'ExpressRoute-circuits', size: 24 })),
     color: '#ff8c00',
     backgroundColor: 'rgba(255, 140, 0, 0.1)',
     borderColor: '#ff8c00'
@@ -190,7 +210,8 @@ export const NETWORK_ICON_INDEX: Record<string, NetworkIcon> = {
     description: 'Clustered compute resources',
     category: 'compute',
     useCases: ['ESXi clusters', 'Hyper-V clusters', 'High availability', 'Resource pooling'],
-    mermaidSymbol: '🏗️',
+    azureIconName: 'Virtual-Clusters',
+    iconComponent: React.createElement(() => React.createElement(AzureIcon, { name: 'Virtual-Clusters', size: 24 })),
     color: '#00bcf2',
     backgroundColor: 'rgba(0, 188, 242, 0.1)',
     borderColor: '#00bcf2'
@@ -202,7 +223,8 @@ export const NETWORK_ICON_INDEX: Record<string, NetworkIcon> = {
     description: 'Virtual Local Area Network segmentation',
     category: 'networking',
     useCases: ['Network segmentation', 'Broadcast domains', 'Traffic isolation', 'Port groups'],
-    mermaidSymbol: '📡',
+    azureIconName: 'Virtual-networks',
+    iconComponent: React.createElement(() => React.createElement(AzureIcon, { name: 'Virtual-networks', size: 24 })),
     color: '#0078d4',
     backgroundColor: 'rgba(0, 120, 212, 0.1)',
     borderColor: '#0078d4'
@@ -213,7 +235,8 @@ export const NETWORK_ICON_INDEX: Record<string, NetworkIcon> = {
     description: 'VMware vSphere distributed switching',
     category: 'virtualization',
     useCases: ['Centralized switching', 'VLAN management', 'Port group policies', 'Network consistency'],
-    mermaidSymbol: '🔀',
+    azureIconName: 'Virtual-networks',
+    iconComponent: React.createElement(() => React.createElement(AzureIcon, { name: 'Virtual-networks', size: 24 })),
     color: '#4b7c9d',
     backgroundColor: 'rgba(75, 124, 157, 0.1)',
     borderColor: '#4b7c9d'
@@ -224,7 +247,8 @@ export const NETWORK_ICON_INDEX: Record<string, NetworkIcon> = {
     description: 'Virtual switch port configurations',
     category: 'virtualization',
     useCases: ['VM network assignment', 'VLAN tagging', 'Traffic shaping', 'Security policies'],
-    mermaidSymbol: '🔌',
+    azureIconName: 'Virtual-networks',
+    iconComponent: React.createElement(() => React.createElement(AzureIcon, { name: 'Virtual-networks', size: 24 })),
     color: '#7fba00',
     backgroundColor: 'rgba(127, 186, 0, 0.1)',
     borderColor: '#7fba00'
@@ -235,7 +259,8 @@ export const NETWORK_ICON_INDEX: Record<string, NetworkIcon> = {
     description: 'ESXi management and service interfaces',
     category: 'virtualization',
     useCases: ['vMotion', 'Management traffic', 'IP storage', 'Fault tolerance'],
-    mermaidSymbol: '⚙️',
+    azureIconName: 'Virtual-networks',
+    iconComponent: React.createElement(() => React.createElement(AzureIcon, { name: 'Virtual-networks', size: 24 })),
     color: '#005a9b',
     backgroundColor: 'rgba(0, 90, 155, 0.1)',
     borderColor: '#005a9b'
@@ -246,7 +271,8 @@ export const NETWORK_ICON_INDEX: Record<string, NetworkIcon> = {
     description: 'Physical network interface cards',
     category: 'hardware',
     useCases: ['Physical connectivity', 'NIC teaming', 'Uplink redundancy', 'Bandwidth aggregation'],
-    mermaidSymbol: '🔗',
+    azureIconName: 'Virtual-networks',
+    iconComponent: React.createElement(() => React.createElement(AzureIcon, { name: 'Virtual-networks', size: 24 })),
     color: '#e3008c',
     backgroundColor: 'rgba(227, 0, 140, 0.1)',
     borderColor: '#e3008c'

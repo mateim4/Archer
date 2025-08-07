@@ -4,19 +4,10 @@ import {
   ICON_CATEGORIES, 
   TECHNOLOGY_ICON_SETS,
   getIconsByCategory,
-  getTechnologyIcons 
+  getTechnologyIcons,
+  NetworkIcon
 } from '../utils/networkIconIndex';
-
-interface NetworkIcon {
-  name: string;
-  description: string;
-  category: string;
-  useCases: string[];
-  mermaidSymbol: string;
-  color: string;
-  backgroundColor?: string;
-  borderColor?: string;
-}
+import AzureIcon from './AzureIcon';
 
 const NetworkComponentGuide: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'categories' | 'technologies' | 'complete'>('categories');
@@ -51,14 +42,20 @@ const NetworkComponentGuide: React.FC = () => {
       <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
         <div 
           style={{ 
-            fontSize: '24px', 
             marginRight: '12px',
             background: icon.backgroundColor || `${icon.color}20`,
             padding: '8px',
-            borderRadius: '8px'
+            borderRadius: '8px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
           }}
         >
-          {icon.mermaidSymbol}
+          <AzureIcon 
+            name={icon.azureIconName} 
+            size={24} 
+            color={icon.color}
+          />
         </div>
         <div>
           <h4 style={{ 
