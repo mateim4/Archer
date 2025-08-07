@@ -1,246 +1,436 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import {
-  BarChart3,
-  RefreshCw,
-  ArrowRight,
-  Settings,
-  Menu,
-  Database,
-  Share2,
-  FolderKanban,
-  Scaling,
-  FileText,
-  GitMerge,
-} from 'lucide-react';
+import React, { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { 
+  HomeRegular,
+  HomeFilled,
+  DatabaseRegular,
+  DatabaseFilled,
+  ServerRegular,
+  ServerFilled,
+  ArrowSyncRegular,
+  ArrowSyncFilled,
+  ResizeRegular,
+  ResizeFilled,
+  GlobeRegular,
+  GlobeFilled,
+  CalendarRegular,
+  CalendarFilled,
+  DocumentRegular,
+  DocumentFilled,
+  FolderRegular,
+  FolderFilled,
+  FlashRegular,
+  FlashFilled,
+  SettingsRegular,
+  SettingsFilled,
+  NavigationRegular
+} from '@fluentui/react-icons';
 
 interface NavigationSidebarProps {
   isOpen: boolean;
-  onToggle: (open: boolean) => void;
-  isProjectOpen: boolean;
+  onToggle: () => void;
+  isProjectOpen?: boolean;
 }
 
-const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
-  isOpen,
+interface MenuItem {
+  id: string;
+  title: string;
+  icon: React.ReactElement;
+  iconFilled: React.ReactElement;
+  path: string;
+  badge?: string;
+  badgeType?: 'brand' | 'success' | 'warning' | 'danger';
+}
+
+const NavigationSidebar: React.FC<NavigationSidebarProps> = ({ 
+  isOpen, 
   onToggle,
-  isProjectOpen,
+  isProjectOpen = false 
 }) => {
+  const navigate = useNavigate();
   const location = useLocation();
-  const activeView = location.pathname;
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  const navigationItems = [
-    {
-      id: 'projects',
-      label: 'Projects',
-      icon: FolderKanban,
-      path: '/projects',
-      tooltip: 'Manage and organize your infrastructure projects.',
-      requiresProject: false,
+  const mainMenuItems: MenuItem[] = [
+    { 
+      id: 'data-collection', 
+      title: 'Data Collection', 
+      icon: <DatabaseRegular />, 
+      iconFilled: <DatabaseFilled />, 
+      path: '/data-collection' 
     },
-    {
-      id: 'hardware-pool',
-      label: 'Hardware Pool',
-      icon: Database,
-      path: '/hardware-pool',
-      tooltip: 'View and manage available hardware resources.',
-      requiresProject: true,
+    { 
+      id: 'hardware-pool', 
+      title: 'Hardware Pool', 
+      icon: <ServerRegular />, 
+      iconFilled: <ServerFilled />, 
+      path: '/hardware-pool', 
+      badge: 'New', 
+      badgeType: 'brand' 
     },
-    {
-      id: 'cluster-sizing',
-      label: 'Cluster Sizing',
-      icon: Scaling,
-      path: '/cluster-sizing',
-      tooltip: 'Calculate optimal cluster configurations.',
-      requiresProject: true,
+    { 
+      id: 'migration-planner', 
+      title: 'Migration Planner', 
+      icon: <ArrowSyncRegular />, 
+      iconFilled: <ArrowSyncFilled />, 
+      path: '/migration-planner' 
     },
-    {
-      id: 'network-visualizer',
-      label: 'Network Visualizer',
-      icon: Share2,
-      path: '/network-visualizer',
-      tooltip: 'Visualize and analyze network topologies.',
-      requiresProject: true,
+    { 
+      id: 'cluster-sizing', 
+      title: 'Cluster Sizing', 
+      icon: <ResizeRegular />, 
+      iconFilled: <ResizeFilled />, 
+      path: '/cluster-sizing' 
     },
-    {
-      id: 'design-docs',
-      label: 'Design Documents',
-      icon: FileText,
-      path: '/design-docs',
-      tooltip: 'Generate and manage design documentation.',
-      requiresProject: true,
+    { 
+      id: 'network-visualizer', 
+      title: 'Network Visualizer', 
+      icon: <GlobeRegular />, 
+      iconFilled: <GlobeFilled />, 
+      path: '/network-visualizer' 
     },
-    {
-      id: 'migration-planner',
-      label: 'Migration Planner',
-      icon: GitMerge,
-      path: '/migration-planner',
-      tooltip: 'Plan and execute infrastructure migrations.',
-      requiresProject: true,
+    { 
+      id: 'lifecycle-planner', 
+      title: 'Lifecycle Planning', 
+      icon: <CalendarRegular />, 
+      iconFilled: <CalendarFilled />, 
+      path: '/lifecycle-planner' 
     },
-    {
-      id: 'workflows',
-      label: 'Workflows',
-      icon: RefreshCw,
-      path: '/workflows',
-      tooltip: 'Automate and monitor infrastructure workflows.',
-      requiresProject: true,
-    },
-    {
-      id: 'settings',
-      label: 'Settings',
-      icon: Settings,
-      path: '/settings',
-      tooltip: 'Configure application settings.',
-      requiresProject: false,
+    { 
+      id: 'design-docs', 
+      title: 'Design Documents', 
+      icon: <DocumentRegular />, 
+      iconFilled: <DocumentFilled />, 
+      path: '/design-docs' 
     },
   ];
 
-  const filteredNavItems = navigationItems.filter(item => !item.requiresProject || isProjectOpen);
+  const projectMenuItems: MenuItem[] = [
+    { 
+      id: 'projects', 
+      title: 'Project Management', 
+      icon: <FolderRegular />, 
+      iconFilled: <FolderFilled />, 
+      path: '/projects' 
+    },
+    { 
+      id: 'workflows', 
+      title: 'Workflows', 
+      icon: <FlashRegular />, 
+      iconFilled: <FlashFilled />, 
+      path: '/workflows' 
+    }
+  ];
+
+  const handleItemClick = (path: string) => {
+    navigate(path);
+  };
+
+  const isItemActive = (path: string) => {
+    return location.pathname === path;
+  };
 
   return (
-    <>
-      {/* Mobile overlay */}
-      {isMobile && isOpen && (
-        <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-40"
-          onClick={() => onToggle(false)}
-        />
-      )}
-      
-      <div
-        className={`${!isOpen ? 'w-16' : 'w-64'} ${isMobile ? 'fixed z-50 h-full' : ''} transition-all duration-300 ease-out relative ${!isOpen && isMobile ? 'collapsed' : ''}`}
-        style={{
-          background: 'rgba(255, 255, 255, 0.85)',
-          backdropFilter: 'blur(20px) saturate(180%)',
-          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-          border: '1px solid rgba(255, 255, 255, 0.3)',
-          borderLeft: 'none',
-          borderTop: 'none',
-          borderBottom: 'none',
-          boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
-          fontFamily: 'Poppins, -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", system-ui, ui-sans-serif, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"',
-          transform: isMobile && !isOpen ? 'translateX(-100%)' : 'translateX(0)',
-        }}
-      >
+        <nav 
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: isOpen ? '280px' : '60px',
+        height: '100vh',
+        background: 'rgba(255, 255, 255, 0.25)',
+        backdropFilter: 'blur(40px) saturate(200%)',
+        WebkitBackdropFilter: 'blur(40px) saturate(200%)',
+        borderRight: '1px solid rgba(255, 255, 255, 0.3)',
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+        zIndex: 1000,
+        display: 'flex',
+        flexDirection: 'column',
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+        overflow: 'hidden'
+      }}
+    >
       {/* Header */}
-      <div
-        className="flex items-center justify-between h-16 px-5 border-b"
-        style={{
-          borderColor: 'var(--fluent-color-neutral-stroke-2)',
-          background: 'transparent'
-        }}
-      >
-        {isOpen && (
-          <h1
-            className="font-semibold truncate"
+            {/* Header */}
+      <div style={{ 
+        padding: '20px 16px',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.2)',
+        background: 'rgba(255, 255, 255, 0.1)',
+        backdropFilter: 'blur(10px)'
+      }}>
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: '12px',
+          justifyContent: isOpen ? 'space-between' : 'center'
+        }}>
+          <button
+            onClick={onToggle}
             style={{
+              padding: '8px',
+              borderRadius: '8px',
+              border: 'none',
+              background: 'rgba(255, 255, 255, 0.2)',
+              color: '#8b5cf6',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.2s ease',
+              backdropFilter: 'blur(10px)',
               fontSize: '18px',
-              fontWeight: '600',
-              color: '#000000',
-              fontFamily: 'inherit'
+              width: '36px',
+              height: '36px'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(139, 92, 246, 0.2)';
+              e.currentTarget.style.transform = 'scale(1.05)';
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(139, 92, 246, 0.3)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
+              e.currentTarget.style.transform = 'scale(1)';
+              e.currentTarget.style.boxShadow = 'none';
             }}
           >
-            InfraAID
-          </h1>
-        )}
-        
-        <button
-          onClick={() => onToggle(!isOpen)}
-          className="flex items-center justify-center w-8 h-8 rounded-lg transition-colors duration-200 hover:bg-white/20"
-          style={{
-            color: '#424242',
-            background: 'transparent',
-            border: 'none',
-            cursor: 'pointer'
-          }}
-        >
-          <ArrowRight 
-            size={16} 
-            style={{ 
-              transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-              transition: 'transform 0.2s ease-in-out'
-            }} 
-          />
-        </button>
+            <NavigationRegular />
+          </button>
+          
+          {isOpen && (
+            <div style={{ flex: 1 }}>
+              <h1 style={{ 
+                margin: 0,
+                fontSize: '18px',
+                fontWeight: '700',
+                background: 'linear-gradient(135deg, #8b5cf6, #6366f1)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                fontFamily: "'Poppins', system-ui, sans-serif"
+              }}>
+                LCM Designer
+              </h1>
+              <p style={{ 
+                margin: 0,
+                fontSize: '12px',
+                color: 'rgba(44, 44, 44, 0.8)',
+                fontWeight: '400',
+                fontFamily: "'Poppins', system-ui, sans-serif"
+              }}>
+                Infrastructure Planning
+              </p>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto pt-4 pb-6">
-        <ul className="space-y-1 px-3">
-          {filteredNavItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = activeView === item.path;
-            
-            return (
-              <li key={item.id}>
-                <Link
-                  to={item.path}
-                  className="group flex items-center rounded-lg transition-all duration-200 hover:bg-white/20"
-                  style={{
-                    textDecoration: 'none',
-                    color: isActive ? 'white' : '#424242',
-                    background: isActive 
-                      ? 'linear-gradient(90deg, #8b5cf6 0%, #6366f1 100%)' 
-                      : 'transparent',
-                    padding: !isOpen ? '16px 12px' : '16px 12px 16px 16px',
-                    borderRadius: '8px',
-                    fontWeight: isActive ? '600' : '500',
-                    fontSize: '14px',
-                    position: 'relative',
-                    border: '1px solid transparent',
-                    boxShadow: isActive ? '0 4px 15px rgba(0, 0, 0, 0.2)' : 'none',
-                    minHeight: '48px'
-                  }}
-                  title={!isOpen ? item.tooltip : ''}
-                >
-                  {/* Active indicator removed for cleaner gradient background look */}
+      {/* Main Navigation */}
+      <div style={{ 
+        padding: '24px 16px',
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '16px',
+        overflow: 'hidden'
+      }}>
+        {/* Main Menu */}
+        <div style={{ 
+          display: 'flex', 
+          flexDirection: 'column', 
+          gap: '6px',
+          flex: 1
+        }}>
+          {mainMenuItems.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => handleItemClick(item.path)}
+              style={{
+                width: '100%',
+                padding: isOpen ? '14px 20px' : '14px 10px',
+                borderRadius: '12px',
+                border: 'none',
+                background: isItemActive(item.path) 
+                  ? 'linear-gradient(135deg, rgba(139, 92, 246, 0.9), rgba(99, 102, 241, 0.9))'
+                  : 'transparent',
+                color: isItemActive(item.path) ? '#ffffff' : '#2c2c2c',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                justifyContent: isOpen ? 'flex-start' : 'center',
+                position: 'relative',
+                minHeight: '48px',
+                fontFamily: "'Poppins', system-ui, sans-serif",
+                fontSize: '14px',
+                fontWeight: '500',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                backdropFilter: isItemActive(item.path) ? 'blur(10px)' : 'none',
+                boxShadow: isItemActive(item.path) 
+                  ? '0 4px 16px rgba(255, 255, 255, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3)' 
+                  : 'none',
+                textShadow: isItemActive(item.path) ? '0 1px 2px rgba(0, 0, 0, 0.1)' : 'none'
+              }}
+              onMouseEnter={(e) => {
+                const target = e.currentTarget as HTMLElement;
+                if (!isItemActive(item.path)) {
+                  target.style.background = 'rgba(255, 255, 255, 0.15)';
+                  target.style.backdropFilter = 'blur(8px)';
+                  target.style.transform = 'translateY(-2px)';
+                  target.style.boxShadow = '0 6px 20px rgba(255, 255, 255, 0.15)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                const target = e.currentTarget as HTMLElement;
+                if (!isItemActive(item.path)) {
+                  target.style.background = 'transparent';
+                  target.style.backdropFilter = 'none';
+                  target.style.transform = 'translateY(0)';
+                  target.style.boxShadow = 'none';
+                }
+              }}
+            >
+              <div style={{ 
+                fontSize: '20px', 
+                flexShrink: 0,
+                filter: isItemActive(item.path) ? 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1))' : 'none',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                {isItemActive(item.path) ? item.iconFilled : item.icon}
+              </div>
+              
+              {isOpen && (
+                <>
+                  <span style={{ 
+                    flex: 1, 
+                    textAlign: 'left',
+                    fontWeight: isItemActive(item.path) ? '600' : '500'
+                  }}>
+                    {item.title}
+                  </span>
                   
-                  <div
-                    className="flex items-center justify-center"
-                    style={{
-                      width: '20px',
-                      height: '20px',
-                      marginRight: !isOpen ? '0' : '12px'
-                    }}
-                  >
-                    <Icon 
-                      size={20} 
-                      style={{ 
-                        color: isActive ? 'white' : '#424242',
-                        transition: 'color 0.2s ease-in-out'
-                      }} 
-                    />
-                  </div>
-                  
-                  {isOpen && (
-                    <span
-                      className="flex-1 truncate"
-                      style={{
-                        fontFamily: 'inherit',
-                        fontWeight: 'inherit'
-                      }}
-                    >
-                      {item.label}
+                  {item.badge && (
+                    <span style={{
+                      padding: '4px 8px',
+                      borderRadius: '6px',
+                      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.6))',
+                      color: '#8b5cf6',
+                      fontSize: '10px',
+                      fontWeight: '700',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px',
+                      backdropFilter: 'blur(10px)',
+                      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+                    }}>
+                      {item.badge}
                     </span>
                   )}
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      </nav>
+                </>
+              )}
+            </button>
+          ))}
+        </div>
+
+        {/* Divider */}
+        {isOpen && (
+          <div style={{ 
+            margin: '20px 16px',
+            height: '1px',
+            background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent)',
+            boxShadow: '0 1px 0 rgba(255, 255, 255, 0.1)'
+          }} />
+        )}
+
+        {/* Project Menu */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          {isOpen && (
+            <h3 style={{ 
+              margin: '0 0 12px 20px',
+              fontSize: '11px',
+              fontWeight: '600',
+              textTransform: 'uppercase',
+              letterSpacing: '1.2px',
+              color: 'rgba(44, 44, 44, 0.6)',
+              fontFamily: "'Poppins', system-ui, sans-serif",
+              textShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
+            }}>
+              Project Tools
+            </h3>
+          )}
+          
+          {projectMenuItems.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => handleItemClick(item.path)}
+              style={{
+                width: '100%',
+                padding: isOpen ? '14px 20px' : '14px 10px',
+                borderRadius: '12px',
+                border: 'none',
+                background: isItemActive(item.path) 
+                  ? 'linear-gradient(135deg, rgba(139, 92, 246, 0.9), rgba(99, 102, 241, 0.9))'
+                  : 'transparent',
+                color: isItemActive(item.path) ? '#ffffff' : '#2c2c2c',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                justifyContent: isOpen ? 'flex-start' : 'center',
+                minHeight: '48px',
+                fontFamily: "'Poppins', system-ui, sans-serif",
+                fontSize: '14px',
+                fontWeight: '500',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                backdropFilter: isItemActive(item.path) ? 'blur(10px)' : 'none',
+                boxShadow: isItemActive(item.path) 
+                  ? '0 4px 16px rgba(255, 255, 255, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3)' 
+                  : 'none',
+                textShadow: isItemActive(item.path) ? '0 1px 2px rgba(0, 0, 0, 0.1)' : 'none'
+              }}
+              onMouseEnter={(e) => {
+                const target = e.currentTarget as HTMLElement;
+                if (!isItemActive(item.path)) {
+                  target.style.background = 'rgba(255, 255, 255, 0.15)';
+                  target.style.backdropFilter = 'blur(8px)';
+                  target.style.transform = 'translateY(-2px)';
+                  target.style.boxShadow = '0 6px 20px rgba(255, 255, 255, 0.15)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                const target = e.currentTarget as HTMLElement;
+                if (!isItemActive(item.path)) {
+                  target.style.background = 'transparent';
+                  target.style.backdropFilter = 'none';
+                  target.style.transform = 'translateY(0)';
+                  target.style.boxShadow = 'none';
+                }
+              }}
+            >
+              <div style={{ 
+                fontSize: '20px', 
+                flexShrink: 0,
+                filter: isItemActive(item.path) ? 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1))' : 'none',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                {isItemActive(item.path) ? item.iconFilled : item.icon}
+              </div>
+              
+              {isOpen && (
+                <span style={{ 
+                  flex: 1, 
+                  textAlign: 'left',
+                  fontWeight: isItemActive(item.path) ? '600' : '500'
+                }}>
+                  {item.title}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
       </div>
-    </>
+    </nav>
   );
 };
 

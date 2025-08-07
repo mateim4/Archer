@@ -1,0 +1,815 @@
+/**
+ * Microsoft Fluent UI 2 Design System with Glassmorphic + Light Acrylic
+ * Following ALL Fluent 2 guidelines with purple gradient theme
+ * Reference: https://fluent2.microsoft.design/
+ */
+
+/* ===================
+   FLUENT 2 PROVIDER & THEME SYSTEM
+   =================== */
+
+/* Provider and Theme System */
+.fluent-provider {
+  /* Base provider setup */
+  width: 100%;
+  min-height: 100vh;
+  font-family: var(--fluent-font-family-base);
+  background: linear-gradient(135deg, 
+    rgba(139, 92, 246, 0.05) 0%, 
+    rgba(99, 102, 241, 0.08) 25%,
+    rgba(168, 85, 247, 0.06) 50%,
+    rgba(139, 92, 246, 0.04) 75%,
+    rgba(99, 102, 241, 0.03) 100%);
+  background-attachment: fixed;
+  color: var(--fluent-color-text-primary);
+  --fluent-color-scheme: light;
+  position: relative;
+}
+
+.fluent-provider::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 20%, rgba(139, 92, 246, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(99, 102, 241, 0.06) 0%, transparent 50%),
+    radial-gradient(circle at 40% 70%, rgba(168, 85, 247, 0.05) 0%, transparent 50%);
+  pointer-events: none;
+  animation: fluent2-atmosphere-shift 20s ease-in-out infinite;
+  z-index: -1;
+}
+
+@keyframes fluent2-atmosphere-shift {
+  0%, 100% { 
+    opacity: 0.6; 
+    filter: hue-rotate(0deg) blur(0.5px); 
+  }
+  33% { 
+    opacity: 0.8; 
+    filter: hue-rotate(10deg) blur(0.3px); 
+  }
+  66% { 
+    opacity: 0.7; 
+    filter: hue-rotate(-5deg) blur(0.4px); 
+  }
+}
+
+.fluent-theme-light {
+  --fluent-color-scheme: light;
+  color-scheme: light;
+}
+
+.fluent-theme-dark {
+  --fluent-color-scheme: dark;
+  color-scheme: dark;
+  
+  /* Dark theme token overrides */
+  --fluent-color-text-primary: rgba(255, 255, 255, 0.9);
+  --fluent-color-text-secondary: rgba(255, 255, 255, 0.7);
+  --fluent-color-text-tertiary: rgba(255, 255, 255, 0.5);
+  --fluent-color-background-primary: rgba(16, 16, 16, 0.95);
+  --fluent-color-background-secondary: rgba(32, 32, 32, 0.9);
+  --fluent-color-stroke-primary: rgba(255, 255, 255, 0.1);
+  --fluent-color-stroke-secondary: rgba(255, 255, 255, 0.08);
+}
+
+/* ===================
+   FLUENT 2 DESIGN TOKENS
+   =================== */
+
+:root {
+  /* === Fluent 2 Core Colors === */
+  --fluent-color-brand-primary: #8b5cf6;
+  --fluent-color-brand-secondary: #a855f7;
+  --fluent-color-brand-accent: #6366f1;
+  
+  /* === Fluent 2 Neutral Colors === */
+  --fluent-color-neutral-foreground-1: #242424;
+  --fluent-color-neutral-foreground-2: #424242;
+  --fluent-color-neutral-foreground-3: #616161;
+  --fluent-color-neutral-foreground-4: #777777;
+  --fluent-color-neutral-foreground-disabled: #bdbdbd;
+  
+  /* === Fluent 2 Surface Colors with Acrylic === */
+  --fluent-color-surface-primary: rgba(255, 255, 255, 0.7);
+  --fluent-color-surface-secondary: rgba(255, 255, 255, 0.5);
+  --fluent-color-surface-tertiary: rgba(255, 255, 255, 0.3);
+  --fluent-color-surface-canvas: rgba(249, 249, 249, 0.8);
+  
+  /* === Fluent 2 Stroke Colors === */
+  --fluent-color-stroke-primary: rgba(139, 92, 246, 0.2);
+  --fluent-color-stroke-secondary: rgba(139, 92, 246, 0.1);
+  --fluent-color-stroke-tertiary: rgba(0, 0, 0, 0.08);
+  --fluent-color-stroke-focus: #8b5cf6;
+  
+  /* === Fluent 2 Typography Scale === */
+  --fluent-font-family-base: "Poppins", "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
+  --fluent-font-size-100: 10px;   /* Caption 2 */
+  --fluent-font-size-200: 12px;   /* Caption 1 */
+  --fluent-font-size-300: 14px;   /* Body 1 */
+  --fluent-font-size-400: 16px;   /* Body 1 Strong */
+  --fluent-font-size-500: 18px;   /* Body 2 */
+  --fluent-font-size-600: 20px;   /* Subtitle 2 */
+  --fluent-font-size-700: 24px;   /* Subtitle 1 */
+  --fluent-font-size-800: 28px;   /* Title 3 */
+  --fluent-font-size-900: 32px;   /* Title 2 */
+  --fluent-font-size-1000: 40px;  /* Title 1 */
+  
+  /* === Fluent 2 Font Weights === */
+  --fluent-font-weight-regular: 400;
+  --fluent-font-weight-medium: 500;
+  --fluent-font-weight-semibold: 600;
+  --fluent-font-weight-bold: 700;
+  
+  /* === Fluent 2 Line Heights === */
+  --fluent-line-height-100: 14px;
+  --fluent-line-height-200: 16px;
+  --fluent-line-height-300: 20px;
+  --fluent-line-height-400: 22px;
+  --fluent-line-height-500: 24px;
+  --fluent-line-height-600: 28px;
+  --fluent-line-height-700: 32px;
+  --fluent-line-height-800: 36px;
+  --fluent-line-height-900: 40px;
+  --fluent-line-height-1000: 52px;
+  
+  /* === Fluent 2 Spacing Scale === */
+  --fluent-spacing-xs: 2px;
+  --fluent-spacing-s: 4px;
+  --fluent-spacing-m: 8px;
+  --fluent-spacing-l: 12px;
+  --fluent-spacing-xl: 16px;
+  --fluent-spacing-xxl: 20px;
+  --fluent-spacing-xxxl: 24px;
+  --fluent-spacing-4xl: 32px;
+  
+  /* === Fluent 2 Border Radius === */
+  --fluent-border-radius-none: 0px;
+  --fluent-border-radius-small: 4px;
+  --fluent-border-radius-medium: 6px;
+  --fluent-border-radius-large: 8px;
+  --fluent-border-radius-xlarge: 12px;
+  --fluent-border-radius-circular: 50%;
+  
+  /* === Fluent 2 Shadows === */
+  --fluent-shadow-2: 0px 1px 2px rgba(0, 0, 0, 0.14), 0px 0px 2px rgba(0, 0, 0, 0.12);
+  --fluent-shadow-4: 0px 2px 4px rgba(0, 0, 0, 0.14), 0px 0px 2px rgba(0, 0, 0, 0.12);
+  --fluent-shadow-8: 0px 4px 8px rgba(0, 0, 0, 0.14), 0px 0px 2px rgba(0, 0, 0, 0.12);
+  --fluent-shadow-16: 0px 8px 16px rgba(0, 0, 0, 0.14), 0px 0px 2px rgba(0, 0, 0, 0.12);
+  --fluent-shadow-28: 0px 14px 28px rgba(0, 0, 0, 0.24), 0px 0px 8px rgba(0, 0, 0, 0.20);
+  
+  /* === Custom Glassmorphic + Acrylic Effects === */
+  --fluent-glassmorphic-primary: backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%);
+  --fluent-glassmorphic-secondary: backdrop-filter: blur(16px) saturate(150%); -webkit-backdrop-filter: blur(16px) saturate(150%);
+  --fluent-glassmorphic-subtle: backdrop-filter: blur(12px) saturate(120%); -webkit-backdrop-filter: blur(12px) saturate(120%);
+  
+  /* === Fluent 2 Motion/Animation === */
+  --fluent-curve-accelerate: cubic-bezier(0.9, 0.1, 1, 0.2);
+  --fluent-curve-decelerate: cubic-bezier(0.1, 0.9, 0.2, 1);
+  --fluent-curve-ease-max: cubic-bezier(0.8, 0, 0.1, 1);
+  --fluent-curve-ease: cubic-bezier(0.33, 0, 0.67, 1);
+  --fluent-curve-linear: cubic-bezier(0, 0, 1, 1);
+  
+  --fluent-duration-ultra-fast: 50ms;
+  --fluent-duration-faster: 100ms;
+  --fluent-duration-fast: 150ms;
+  --fluent-duration-normal: 200ms;
+  --fluent-duration-gentle: 250ms;
+  --fluent-duration-slow: 300ms;
+  --fluent-duration-slower: 400ms;
+  --fluent-duration-ultra-slow: 500ms;
+}
+
+/* ===================
+   FLUENT 2 BUTTON SYSTEM
+   =================== */
+
+.fluent2-button {
+  font-family: var(--fluent-font-family-base);
+  font-size: var(--fluent-font-size-300);
+  font-weight: var(--fluent-font-weight-medium);
+  line-height: var(--fluent-line-height-300);
+  padding: var(--fluent-spacing-m) var(--fluent-spacing-xl);
+  border-radius: var(--fluent-border-radius-medium);
+  border: 1px solid transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--fluent-spacing-m);
+  transition: all var(--fluent-duration-fast) var(--fluent-curve-ease);
+  outline: none;
+  position: relative;
+  min-height: 32px;
+  text-decoration: none;
+  box-sizing: border-box;
+  transform: translateY(0);
+}
+
+/* Button sizes */
+.fluent2-button-small {
+  min-height: 28px;
+  padding: var(--fluent-spacing-s) var(--fluent-spacing-l);
+  font-size: var(--fluent-font-size-200);
+}
+
+.fluent2-button-large {
+  min-height: 40px;
+  padding: var(--fluent-spacing-l) var(--fluent-spacing-xxl);
+  font-size: var(--fluent-font-size-400);
+}
+
+/* Button icon positioning */
+.fluent2-button-icon-before,
+.fluent2-button-icon-after {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fluent2-button-text {
+  flex: 1;
+}
+
+.fluent2-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Primary Button with Glassmorphic Effect */
+.fluent2-button-primary {
+  background: linear-gradient(135deg, var(--fluent-color-brand-primary), var(--fluent-color-brand-accent));
+  color: white;
+  box-shadow: var(--fluent-shadow-2);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  transform: translateY(0);
+}
+
+.fluent2-button-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #7c3aed, #5b5bf6);
+  box-shadow: var(--fluent-shadow-8);
+  transform: translateY(-2px) scale(1.02);
+}
+
+.fluent2-button-primary:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: var(--fluent-shadow-2);
+}
+
+/* Secondary Button with Light Acrylic */
+.fluent2-button-secondary {
+  background: var(--fluent-color-surface-primary);
+  color: var(--fluent-color-neutral-foreground-1);
+  border: 1px solid var(--fluent-color-stroke-primary);
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  box-shadow: var(--fluent-shadow-2);
+  transform: translateY(0);
+}
+
+.fluent2-button-secondary:hover:not(:disabled) {
+  background: var(--fluent-color-surface-secondary);
+  border-color: var(--fluent-color-brand-primary);
+  box-shadow: var(--fluent-shadow-4);
+  transform: translateY(-2px) scale(1.01);
+}
+
+/* Subtle Button */
+.fluent2-button-subtle {
+  background: transparent;
+  color: var(--fluent-color-neutral-foreground-2);
+  border: 1px solid transparent;
+  transform: translateY(0);
+}
+
+.fluent2-button-subtle:hover:not(:disabled) {
+  background: var(--fluent-color-surface-tertiary);
+  backdrop-filter: blur(12px) saturate(120%);
+  -webkit-backdrop-filter: blur(12px) saturate(120%);
+  transform: translateY(-1px);
+}
+
+/* Icon Button */
+.fluent2-button-icon {
+  padding: var(--fluent-spacing-m);
+  min-width: 32px;
+  min-height: 32px;
+}
+
+/* ===================
+   FLUENT 2 CARD SYSTEM
+   =================== */
+
+.fluent2-card {
+  background: var(--fluent-color-surface-primary);
+  border: 1px solid var(--fluent-color-stroke-secondary);
+  border-radius: var(--fluent-border-radius-large);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  box-shadow: var(--fluent-shadow-4);
+  padding: var(--fluent-spacing-xxxl);
+  transition: all var(--fluent-duration-normal) var(--fluent-curve-ease);
+  outline: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.fluent2-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.02) 0%, rgba(99, 102, 241, 0.02) 100%);
+  pointer-events: none;
+}
+
+.fluent2-card:hover {
+  box-shadow: var(--fluent-shadow-8);
+  transform: translateY(-2px);
+  border-color: var(--fluent-color-stroke-primary);
+}
+
+.fluent2-card-interactive {
+  cursor: pointer;
+}
+
+.fluent2-card-interactive:hover {
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: var(--fluent-shadow-16);
+}
+
+/* Card elevation variants */
+.fluent2-card-elevation-low {
+  box-shadow: var(--fluent-shadow-2);
+}
+
+.fluent2-card-elevation-medium {
+  box-shadow: var(--fluent-shadow-4);
+}
+
+.fluent2-card-elevation-high {
+  box-shadow: var(--fluent-shadow-8);
+}
+
+/* ===================
+   FLUENT 2 INPUT SYSTEM
+   =================== */
+
+.fluent2-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fluent-spacing-s);
+}
+
+.fluent2-input-wrapper label {
+  color: var(--fluent-color-neutral-foreground-1);
+  margin: 0;
+}
+
+.fluent2-input-required {
+  color: #C42B1C;
+}
+
+.fluent2-input {
+  font-family: var(--fluent-font-family-base);
+  font-size: var(--fluent-font-size-300);
+  line-height: var(--fluent-line-height-300);
+  padding: var(--fluent-spacing-l) var(--fluent-spacing-xl);
+  border: 1px solid var(--fluent-color-stroke-tertiary);
+  border-radius: var(--fluent-border-radius-medium);
+  background: var(--fluent-color-surface-primary);
+  color: var(--fluent-color-neutral-foreground-1);
+  outline: none;
+  transition: all var(--fluent-duration-fast) var(--fluent-curve-ease);
+  min-height: 32px;
+  box-sizing: border-box;
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+}
+
+.fluent2-input-small {
+  min-height: 28px;
+  padding: var(--fluent-spacing-s) var(--fluent-spacing-l);
+  font-size: var(--fluent-font-size-200);
+}
+
+.fluent2-input-large {
+  min-height: 40px;
+  padding: var(--fluent-spacing-l) var(--fluent-spacing-xl);
+  font-size: var(--fluent-font-size-400);
+}
+
+.fluent2-input-error {
+  border-color: #C42B1C;
+}
+
+.fluent2-input-error-message {
+  color: #C42B1C;
+  margin: 0;
+}
+
+.fluent2-input::placeholder {
+  color: var(--fluent-color-neutral-foreground-3);
+}
+
+.fluent2-input:focus {
+  border-color: var(--fluent-color-stroke-focus);
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.fluent2-input:hover:not(:focus) {
+  border-color: var(--fluent-color-stroke-primary);
+}
+
+/* ===================
+   FLUENT 2 TYPOGRAPHY
+   =================== */
+
+.fluent2-text {
+  font-family: var(--fluent-font-family-base);
+  margin: 0;
+  color: var(--fluent-color-neutral-foreground-1);
+}
+
+/* Display */
+.fluent2-text-display {
+  font-size: var(--fluent-font-size-1000);
+  font-weight: var(--fluent-font-weight-semibold);
+  line-height: var(--fluent-line-height-1000);
+}
+
+/* Title Levels */
+.fluent2-text-title-1 {
+  font-size: var(--fluent-font-size-900);
+  font-weight: var(--fluent-font-weight-semibold);
+  line-height: var(--fluent-line-height-900);
+}
+
+.fluent2-text-title-2 {
+  font-size: var(--fluent-font-size-800);
+  font-weight: var(--fluent-font-weight-semibold);
+  line-height: var(--fluent-line-height-800);
+}
+
+.fluent2-text-title-3 {
+  font-size: var(--fluent-font-size-700);
+  font-weight: var(--fluent-font-weight-semibold);
+  line-height: var(--fluent-line-height-700);
+}
+
+/* Subtitle Levels */
+.fluent2-text-subtitle-1 {
+  font-size: var(--fluent-font-size-600);
+  font-weight: var(--fluent-font-weight-semibold);
+  line-height: var(--fluent-line-height-600);
+}
+
+.fluent2-text-subtitle-2 {
+  font-size: var(--fluent-font-size-500);
+  font-weight: var(--fluent-font-weight-semibold);
+  line-height: var(--fluent-line-height-500);
+}
+
+/* Body Text */
+.fluent2-text-body-1 {
+  font-size: var(--fluent-font-size-300);
+  font-weight: var(--fluent-font-weight-regular);
+  line-height: var(--fluent-line-height-300);
+}
+
+.fluent2-text-body-1-strong {
+  font-size: var(--fluent-font-size-300);
+  font-weight: var(--fluent-font-weight-semibold);
+  line-height: var(--fluent-line-height-300);
+}
+
+.fluent2-text-body-2 {
+  font-size: var(--fluent-font-size-400);
+  font-weight: var(--fluent-font-weight-regular);
+  line-height: var(--fluent-line-height-400);
+}
+
+/* Caption Text */
+.fluent2-text-caption-1 {
+  font-size: var(--fluent-font-size-200);
+  font-weight: var(--fluent-font-weight-regular);
+  line-height: var(--fluent-line-height-200);
+  color: var(--fluent-color-neutral-foreground-2);
+}
+
+.fluent2-text-caption-2 {
+  font-size: var(--fluent-font-size-100);
+  font-weight: var(--fluent-font-weight-regular);
+  line-height: var(--fluent-line-height-100);
+  color: var(--fluent-color-neutral-foreground-3);
+}
+
+/* ===================
+   FLUENT 2 NAVIGATION
+   =================== */
+
+.fluent2-nav {
+  background: var(--fluent-color-surface-primary);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-right: 1px solid var(--fluent-color-stroke-secondary);
+  padding: var(--fluent-spacing-xl);
+}
+
+.fluent2-nav-item {
+  display: flex;
+  align-items: center;
+  gap: var(--fluent-spacing-l);
+  padding: var(--fluent-spacing-l) var(--fluent-spacing-xl);
+  border-radius: var(--fluent-border-radius-medium);
+  color: var(--fluent-color-neutral-foreground-2);
+  text-decoration: none;
+  transition: all var(--fluent-duration-fast) var(--fluent-curve-ease);
+  min-height: 40px;
+  font-family: var(--fluent-font-family-base);
+  font-size: var(--fluent-font-size-300);
+  font-weight: var(--fluent-font-weight-medium);
+}
+
+.fluent2-nav-item:hover {
+  background: var(--fluent-color-surface-secondary);
+  color: var(--fluent-color-neutral-foreground-1);
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+}
+
+.fluent2-nav-item-active {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(99, 102, 241, 0.1));
+  color: var(--fluent-color-brand-primary);
+  border: 1px solid var(--fluent-color-stroke-primary);
+}
+
+.fluent2-nav-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+/* ===================
+   FLUENT 2 DIVIDER
+   =================== */
+
+.fluent2-divider {
+  border: none;
+  height: 1px;
+  background: var(--fluent-color-stroke-tertiary);
+  margin: var(--fluent-spacing-xl) 0;
+}
+
+.fluent2-divider-vertical {
+  width: 1px;
+  height: auto;
+  background: var(--fluent-color-stroke-tertiary);
+  margin: 0 var(--fluent-spacing-xl);
+}
+
+/* ===================
+   FLUENT 2 BADGE
+   =================== */
+
+.fluent2-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--fluent-spacing-xs) var(--fluent-spacing-m);
+  border-radius: var(--fluent-border-radius-small);
+  font-family: var(--fluent-font-family-base);
+  font-size: var(--fluent-font-size-200);
+  font-weight: var(--fluent-font-weight-medium);
+  line-height: var(--fluent-line-height-200);
+  backdrop-filter: blur(12px) saturate(120%);
+  -webkit-backdrop-filter: blur(12px) saturate(120%);
+}
+
+/* Badge sizes */
+.fluent2-badge-small {
+  padding: var(--fluent-spacing-xs) var(--fluent-spacing-s);
+  font-size: var(--fluent-font-size-100);
+  line-height: var(--fluent-line-height-100);
+}
+
+.fluent2-badge-large {
+  padding: var(--fluent-spacing-s) var(--fluent-spacing-l);
+  font-size: var(--fluent-font-size-300);
+  line-height: var(--fluent-line-height-300);
+}
+
+.fluent2-badge-brand {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(99, 102, 241, 0.1));
+  color: var(--fluent-color-brand-primary);
+  border: 1px solid var(--fluent-color-stroke-primary);
+}
+
+.fluent2-badge-neutral {
+  background: rgba(97, 97, 97, 0.1);
+  color: var(--fluent-color-neutral-foreground-2);
+  border: 1px solid rgba(97, 97, 97, 0.2);
+}
+
+.fluent2-badge-success {
+  background: rgba(16, 124, 16, 0.1);
+  color: #107C10;
+  border: 1px solid rgba(16, 124, 16, 0.2);
+}
+
+.fluent2-badge-warning {
+  background: rgba(255, 192, 0, 0.1);
+  color: #F7630C;
+  border: 1px solid rgba(255, 192, 0, 0.2);
+}
+
+.fluent2-badge-danger {
+  background: rgba(196, 43, 28, 0.1);
+  color: #C42B1C;
+  border: 1px solid rgba(196, 43, 28, 0.2);
+}
+
+/* ===================
+   FLUENT 2 TOAST/ALERT
+   =================== */
+
+.fluent2-toast {
+  background: var(--fluent-color-surface-primary);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--fluent-color-stroke-secondary);
+  border-radius: var(--fluent-border-radius-large);
+  box-shadow: var(--fluent-shadow-16);
+  padding: var(--fluent-spacing-xl);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--fluent-spacing-l);
+  min-width: 320px;
+  max-width: 600px;
+}
+
+.fluent2-toast-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.fluent2-toast-content {
+  flex: 1;
+}
+
+.fluent2-toast-title {
+  font-family: var(--fluent-font-family-base);
+  font-size: var(--fluent-font-size-300);
+  font-weight: var(--fluent-font-weight-semibold);
+  line-height: var(--fluent-line-height-300);
+  color: var(--fluent-color-neutral-foreground-1);
+  margin: 0 0 var(--fluent-spacing-xs) 0;
+}
+
+.fluent2-toast-message {
+  font-family: var(--fluent-font-family-base);
+  font-size: var(--fluent-font-size-300);
+  font-weight: var(--fluent-font-weight-regular);
+  line-height: var(--fluent-line-height-300);
+  color: var(--fluent-color-neutral-foreground-2);
+  margin: 0;
+}
+
+/* ===================
+   FLUENT 2 RESPONSIVE DESIGN
+   =================== */
+
+@media (max-width: 768px) {
+  .fluent2-card {
+    padding: var(--fluent-spacing-xl);
+  }
+  
+  .fluent2-button {
+    min-height: 44px !important;
+    font-size: var(--fluent-font-size-400);
+    padding: var(--fluent-spacing-l) var(--fluent-spacing-xl);
+  }
+  
+  .fluent2-button-small {
+    min-height: 40px !important;
+    padding: var(--fluent-spacing-m) var(--fluent-spacing-l);
+    font-size: var(--fluent-font-size-300);
+  }
+  
+  .fluent2-input {
+    min-height: 44px !important;
+    font-size: var(--fluent-font-size-400);
+    padding: var(--fluent-spacing-l) var(--fluent-spacing-xl);
+  }
+  
+  .fluent2-nav-item {
+    min-height: 48px !important;
+    padding: var(--fluent-spacing-l) var(--fluent-spacing-xl);
+  }
+}
+
+/* ===================
+   FLUENT 2 ANIMATION UTILITIES
+   =================== */
+
+.fluent2-fade-in {
+  animation: fluent2-fade-in var(--fluent-duration-normal) var(--fluent-curve-ease);
+}
+
+.fluent2-slide-up {
+  animation: fluent2-slide-up var(--fluent-duration-gentle) var(--fluent-curve-ease);
+}
+
+.fluent2-scale-in {
+  animation: fluent2-scale-in var(--fluent-duration-fast) var(--fluent-curve-ease);
+}
+
+@keyframes fluent2-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fluent2-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fluent2-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ===================
+   UTILITY CLASSES
+   =================== */
+
+.fluent2-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.fluent2-focus-visible:focus-visible {
+  outline: 2px solid var(--fluent-color-stroke-focus);
+  outline-offset: 2px;
+}
+
+.fluent2-flex {
+  display: flex;
+}
+
+.fluent2-flex-column {
+  flex-direction: column;
+}
+
+.fluent2-gap-xs {
+  gap: var(--fluent-spacing-xs);
+}
+
+.fluent2-gap-s {
+  gap: var(--fluent-spacing-s);
+}
+
+.fluent2-gap-m {
+  gap: var(--fluent-spacing-m);
+}
+
+.fluent2-gap-l {
+  gap: var(--fluent-spacing-l);
+}
+
+.fluent2-gap-xl {
+  gap: var(--fluent-spacing-xl);
+}

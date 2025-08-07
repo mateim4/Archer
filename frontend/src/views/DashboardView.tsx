@@ -19,6 +19,7 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import EnhancedFileUpload from '../components/EnhancedFileUpload';
 import ServerFileProcessor from '../utils/serverFileProcessor';
 import { openFileDialog, getFileName, isFileTypeSupported, isTauriEnvironment } from '../utils/fileUpload';
+import GlassmorphicLayout from '../components/GlassmorphicLayout';
 
 // Global table row selection state
 const useTableSelection = () => {
@@ -1437,17 +1438,21 @@ const DashboardView: React.FC = () => {
   }
 
   return (
-    <div className="fluent-page-container">
+    <GlassmorphicLayout>
       {!isDataUploaded ? (
         <FileUploadComponent />
       ) : (
         <>
           <SummaryBar />
-          <div className="lcm-card flex-1 overflow-hidden"
-            style={{ 
+          <div style={{ 
               display: 'flex',
               flexDirection: 'column',
-              margin: '0'
+              margin: '0',
+              padding: '24px',
+              flex: 1,
+              overflow: 'hidden',
+              background: 'rgba(255, 255, 255, 0.05)',
+              backdropFilter: 'blur(10px)'
             }}
           >
             <TabNavigation
@@ -1490,7 +1495,7 @@ const DashboardView: React.FC = () => {
           </div>
         </>
       )}
-    </div>
+    </GlassmorphicLayout>
   );
 };
 
