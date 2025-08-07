@@ -9,9 +9,11 @@ import {
 } from '@fluentui/react-icons';
 import mermaid from 'mermaid';
 import { generateVirtualDiagram, generateHyperVDiagram, generatePhysicalDiagram } from '../utils/mermaidGenerator';
+import { generateVMwareNetworkTopology, generateHyperVNetworkTopology, generatePhysicalNetworkTopology } from '../utils/networkTopologyGenerator';
 import { useAppStore } from '../store/useAppStore';
 import GlassmorphicLayout from '../components/GlassmorphicLayout';
 import NetworkComponentGuide from '../components/NetworkComponentGuide';
+import VisualNetworkDiagram from '../components/VisualNetworkDiagram';
 
 // Define consistent color palette for diagrams
 const DIAGRAM_THEME = {
@@ -477,6 +479,38 @@ const NetworkVisualizerView = () => {
       case 'virtual':
       case 'hyper-v':
       case 'physical':
+        const renderVisualDiagram = () => {
+          let topologyData;
+          let technology: 'vmware' | 'hyperv' | 'physical';
+          
+          switch (activeTab) {
+            case 'virtual':
+              topologyData = generateVMwareNetworkTopology(networkTopology || undefined);
+              technology = 'vmware';
+              break;
+            case 'hyper-v':
+              topologyData = generateHyperVNetworkTopology(networkTopology || undefined);
+              technology = 'hyperv';
+              break;
+            case 'physical':
+              topologyData = generatePhysicalNetworkTopology();
+              technology = 'physical';
+              break;
+            default:
+              return null;
+          }
+
+          return (
+            <VisualNetworkDiagram
+              technology={technology}
+              nodes={topologyData.nodes}
+              connections={topologyData.connections}
+              width={1400}
+              height={900}
+            />
+          );
+        };
+
         return (
           <div>
             {/* Data Source Indicator */}
@@ -497,21 +531,70 @@ const NetworkVisualizerView = () => {
               </div>
             )}
 
-            {/* Diagram Container */}
-            <div 
-              id="mermaid-diagram" 
-              style={{
-                width: '100%',
-                minHeight: '400px',
-                overflow: 'auto',
-                borderRadius: '12px',
-                background: 'rgba(255, 255, 255, 0.5)',
-                backdropFilter: 'blur(16px) saturate(150%)',
-                WebkitBackdropFilter: 'blur(16px) saturate(150%)',
-                border: '1px solid rgba(139, 92, 246, 0.1)',
-                padding: '16px'
-              }}
-            />
+            {/* Technology-specific information panel */}
+            <div style={{
+              marginBottom: '16px',
+              padding: '16px',
+              borderRadius: '12px',
+              background: 'rgba(255, 255, 255, 0.7)',
+              backdropFilter: 'blur(20px) saturate(180%)',
+              border: '1px solid rgba(139, 92, 246, 0.2)'
+            }}>
+              <h3 style={{ 
+                margin: '0 0 12px 0', 
+                fontSize: '16px', 
+                fontWeight: '600', 
+                color: '#374151' 
+              }}>
+                {activeTab === 'virtual' ? '🟢 VMware vSphere Environment' :
+                 activeTab === 'hyper-v' ? '🔵 Microsoft Hyper-V Environment' :
+                 '🟠 Physical Infrastructure'}
+              </h3>
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+                gap: '16px',
+                fontSize: '14px',
+                color: '#6b7280'
+              }}>
+                {activeTab === 'virtual' && (
+                  <>
+                    <div><strong>Management:</strong> vCenter Server, DVS, Port Groups</div>
+                    <div><strong>Virtualization:</strong> ESXi Hosts, VMkernel Adapters</div>
+                    <div><strong>Networking:</strong> VLAN Segmentation, vMotion, Storage</div>
+                    <div><strong>Features:</strong> DRS, HA, vMotion, Storage vMotion</div>
+                  </>
+                )}
+                {activeTab === 'hyper-v' && (
+                  <>
+                    <div><strong>Management:</strong> SCVMM, Failover Clustering</div>
+                    <div><strong>Virtualization:</strong> Hyper-V Hosts, Generation 2 VMs</div>
+                    <div><strong>Networking:</strong> Virtual Switches, NIC Teaming</div>
+                    <div><strong>Features:</strong> Live Migration, CSV, Dynamic Memory</div>
+                  </>
+                )}
+                {activeTab === 'physical' && (
+                  <>
+                    <div><strong>Core:</strong> Redundant Core Switches, 100GbE</div>
+                    <div><strong>Distribution:</strong> L3 Switching, VLAN Routing</div>
+                    <div><strong>Security:</strong> Next-Gen Firewalls, DMZ</div>
+                    <div><strong>Services:</strong> Load Balancing, Storage Arrays</div>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Visual Network Diagram */}
+            <div style={{
+              borderRadius: '12px',
+              background: 'rgba(255, 255, 255, 0.5)',
+              backdropFilter: 'blur(16px) saturate(150%)',
+              WebkitBackdropFilter: 'blur(16px) saturate(150%)',
+              border: '1px solid rgba(139, 92, 246, 0.1)',
+              overflow: 'hidden'
+            }}>
+              {renderVisualDiagram()}
+            </div>
             
             {!networkTopology && (
               <div style={{ textAlign: 'center', padding: '48px 0', color: '#6b7280' }}>

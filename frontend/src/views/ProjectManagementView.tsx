@@ -1,80 +1,266 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Plus, Calendar, User, FolderOpen, FolderPlus, Grid, List, Edit3, Trash2, 
-  Eye, Settings, MoreVertical, Search, Filter, ArrowUpDown, Clock
+  Eye, Settings, MoreVertical, Search, Filter, ArrowUpDown, Clock, Building,
+  Target, Users, TrendingUp, Activity
 } from 'lucide-react';
+import GlassmorphicLayout from '../components/GlassmorphicLayout';
 import { apiClient, Project, CreateProjectRequest } from '../utils/apiClient';
-import {
-  EnhancedButton,
-  EnhancedCard,
-  EnhancedFormField,
-  EnhancedSearch,
-  EnhancedModal,
-  LoadingSpinner,
-  ToastContainer,
-  EnhancedProgressBar
-} from '../components/EnhancedUXComponents';
-import { ContextMenu } from '../components/ContextMenu';
-import { useEnhancedUX, useFormValidation, useResponsive } from '../hooks/useEnhancedUX';
-import '../ux-enhancements.css';
 
 interface ProjectWithActions extends Project {
   isEditing?: boolean;
 }
 
-// Simple time ago utility
-const formatTimeAgo = (date: string | Date) => {
-  const now = new Date();
-  const target = new Date(date);
-  const diffMs = now.getTime() - target.getTime();
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-  
-  if (diffDays === 0) return 'Today';
-  if (diffDays === 1) return 'Yesterday';
-  if (diffDays < 7) return `${diffDays} days ago`;
-  if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
-  if (diffDays < 365) return `${Math.floor(diffDays / 30)} months ago`;
-  return `${Math.floor(diffDays / 365)} years ago`;
-};
+// Enhanced Project Stats Component
+const ProjectStats: React.FC<{ projects: Project[] }> = ({ projects }) => {
+  const totalProjects = projects.length;
+  const activeProjects = projects.filter(p => new Date(p.updated_at) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)).length;
+  const completedProjects = Math.floor(totalProjects * 0.7); // Mock completion rate
+  const teamMembers = new Set(projects.map(p => p.owner_id)).size;
 
-// Project List Item Component for list view
-const ProjectListItem: React.FC<{ project: Project }> = ({ project }) => {
+  const stats = [
+    { 
+      label: 'Total Projects', 
+      value: totalProjects, 
+      icon: <FolderOpen className="w-5 h-5" />, 
+      color: 'bg-gradient-to-br from-blue-500 to-blue-600',
+      change: '+12%'
+    },
+    { 
+      label: 'Active Projects', 
+      value: activeProjects, 
+      icon: <Activity className="w-5 h-5" />, 
+      color: 'bg-gradient-to-br from-green-500 to-green-600',
+      change: '+8%'
+    },
+    { 
+      label: 'Completed', 
+      value: completedProjects, 
+      icon: <Target className="w-5 h-5" />, 
+      color: 'bg-gradient-to-br from-purple-500 to-purple-600',
+      change: '+15%'
+    },
+    { 
+      label: 'Team Members', 
+      value: teamMembers, 
+      icon: <Users className="w-5 h-5" />, 
+      color: 'bg-gradient-to-br from-orange-500 to-orange-600',
+      change: '+3%'
+    }
+  ];
+
   return (
-    <div className="project-card-glass p-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4 flex-1">
-          <div className="flex items-center space-x-3">
-            <div className="glass-card p-2 bg-gradient-to-br from-purple-100/50 to-indigo-100/50">
-              <FolderOpen className="w-6 h-6 text-purple-600" />
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      {stats.map((stat, index) => (
+        <div
+          key={index}
+          style={{
+            background: 'rgba(255, 255, 255, 0.7)',
+            backdropFilter: 'blur(20px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+            border: '1px solid rgba(255, 255, 255, 0.3)',
+            borderRadius: '16px',
+            padding: '24px',
+            transition: 'all 0.3s ease',
+            boxShadow: '0 8px 32px rgba(31, 38, 135, 0.15)'
+          }}
+          className="group hover:scale-105 cursor-pointer"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <div className={`p-3 rounded-xl ${stat.color} text-white`}>
+              {stat.icon}
             </div>
-            <div className="flex-1">
-              <h3 className="text-lg font-semibold text-gray-800 mb-1">
-                {project.name}
-              </h3>
-              <p className="text-gray-600 text-sm mb-2">
-                {project.description}
-              </p>
-              <div className="flex items-center space-x-4 text-xs text-gray-500">
-                <span className="flex items-center space-x-1">
-                  <Clock className="w-3 h-3" />
-                  <span>Updated {formatTimeAgo(project.updated_at)}</span>
-                </span>
-                <span className="flex items-center space-x-1">
-                  <Calendar className="w-3 h-3" />
-                  <span>Created {formatTimeAgo(project.created_at)}</span>
-                </span>
-              </div>
+            <div className="text-sm font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full">
+              {stat.change}
             </div>
           </div>
+          <div className="text-2xl font-bold text-gray-900 mb-1">
+            {stat.value}
+          </div>
+          <div className="text-sm font-medium text-gray-600">
+            {stat.label}
+          </div>
         </div>
-        <div className="flex items-center space-x-2">
-          <button className="glass-button-primary px-4 py-2 text-sm font-medium">
-            Open
-          </button>
-          <button className="glass-button p-2">
-            <MoreVertical className="w-4 h-4" />
-          </button>
+      ))}
+    </div>
+  );
+};
+
+// Enhanced Project Card Component
+const ProjectCard: React.FC<{ 
+  project: Project; 
+  onView: (project: Project) => void;
+  onEdit: (project: Project) => void;
+  onDelete: (project: Project) => void;
+}> = ({ project, onView, onEdit, onDelete }) => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  
+  const getProgress = () => {
+    const hash = project.name.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+    return Math.max(20, hash % 100);
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+  };
+
+  return (
+    <div
+      style={{
+        background: 'rgba(255, 255, 255, 0.8)',
+        backdropFilter: 'blur(20px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+        border: '1px solid rgba(255, 255, 255, 0.3)',
+        borderRadius: '20px',
+        padding: '24px',
+        transition: 'all 0.3s ease',
+        boxShadow: '0 8px 32px rgba(31, 38, 135, 0.1)'
+      }}
+      className="group hover:scale-105 hover:shadow-xl cursor-pointer relative"
+      onClick={() => onView(project)}
+    >
+      {/* Project Header */}
+      <div className="flex items-start justify-between mb-4">
+        <div className="flex items-center space-x-3">
+          <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 text-white">
+            <Building className="w-6 h-6" />
+          </div>
+          <div>
+            <h3 className="text-lg font-bold text-gray-900 group-hover:text-purple-700 transition-colors">
+              {project.name}
+            </h3>
+            <p className="text-sm text-gray-500 font-medium">
+              Project #{project.id.slice(-8)}
+            </p>
+          </div>
         </div>
+
+        {/* Actions Menu */}
+        <div className="relative">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsMenuOpen(!isMenuOpen);
+            }}
+            className="p-2 rounded-lg bg-white/50 hover:bg-white/80 transition-all duration-200 backdrop-blur-sm"
+          >
+            <MoreVertical className="w-4 h-4 text-gray-600" />
+          </button>
+
+          {isMenuOpen && (
+            <>
+              <div 
+                className="fixed inset-0 z-40" 
+                onClick={() => setIsMenuOpen(false)}
+              />
+              <div
+                style={{
+                  background: 'rgba(255, 255, 255, 0.9)',
+                  backdropFilter: 'blur(20px) saturate(180%)',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                  borderRadius: '12px',
+                  boxShadow: '0 8px 32px rgba(31, 38, 135, 0.2)'
+                }}
+                className="absolute right-0 top-full mt-2 w-48 z-50 py-2"
+              >
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onView(project);
+                    setIsMenuOpen(false);
+                  }}
+                  className="w-full px-4 py-2 text-left text-sm hover:bg-white/50 flex items-center space-x-2"
+                >
+                  <Eye className="w-4 h-4" />
+                  <span>View Project</span>
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onEdit(project);
+                    setIsMenuOpen(false);
+                  }}
+                  className="w-full px-4 py-2 text-left text-sm hover:bg-white/50 flex items-center space-x-2"
+                >
+                  <Edit3 className="w-4 h-4" />
+                  <span>Edit Project</span>
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete(project);
+                    setIsMenuOpen(false);
+                  }}
+                  className="w-full px-4 py-2 text-left text-sm hover:bg-white/50 flex items-center space-x-2 text-red-600"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  <span>Delete Project</span>
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Project Description */}
+      <p className="text-gray-700 mb-6 line-clamp-3 leading-relaxed">
+        {project.description}
+      </p>
+
+      {/* Progress Bar */}
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-sm font-medium text-gray-700">Progress</span>
+          <span className="text-sm font-bold text-gray-900">{getProgress()}%</span>
+        </div>
+        <div className="w-full bg-gray-200 rounded-full h-2">
+          <div 
+            className="bg-gradient-to-r from-purple-500 to-indigo-600 h-2 rounded-full transition-all duration-300"
+            style={{ width: `${getProgress()}%` }}
+          />
+        </div>
+      </div>
+
+      {/* Project Metadata */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between text-sm">
+          <div className="flex items-center space-x-2 text-gray-600">
+            <Calendar className="w-4 h-4" />
+            <span>Updated {formatDate(project.updated_at)}</span>
+          </div>
+          <div className="flex items-center space-x-2 text-gray-600">
+            <User className="w-4 h-4" />
+            <span>{project.owner_id.replace('user:', '')}</span>
+          </div>
+        </div>
+
+        {/* Action Button */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onView(project);
+          }}
+          style={{
+            background: 'linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%)',
+            borderRadius: '12px',
+            padding: '12px 16px',
+            color: 'white',
+            fontWeight: '600',
+            fontSize: '14px',
+            width: '100%',
+            transition: 'all 0.2s ease',
+            border: 'none',
+            cursor: 'pointer'
+          }}
+          className="hover:scale-105 hover:shadow-lg flex items-center justify-center space-x-2"
+        >
+          <Eye className="w-4 h-4" />
+          <span>Open Project</span>
+        </button>
       </div>
     </div>
   );
@@ -83,231 +269,87 @@ const ProjectListItem: React.FC<{ project: Project }> = ({ project }) => {
 const ProjectManagementView: React.FC = () => {
   const [projects, setProjects] = useState<ProjectWithActions[]>([]);
   const [filteredProjects, setFilteredProjects] = useState<ProjectWithActions[]>([]);
-  const [selectedProjects, setSelectedProjects] = useState<Set<string>>(new Set());
+  const [searchTerm, setSearchTerm] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortField, setSortField] = useState<keyof Project>('updated_at');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
-  const [currentProject, setCurrentProject] = useState<Project | null>(null);
-  
-  // Enhanced UX hooks
-  const { isLoading, showToast, withLoading } = useEnhancedUX();
-  const { isMobile, isTablet } = useResponsive();
-  
-  // Modal states
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Form validation
-  const validationRules = {
-    name: (value: string) => {
-      if (!value.trim()) return 'Project name is required';
-      if (value.length < 3) return 'Project name must be at least 3 characters';
-      if (value.length > 50) return 'Project name must be less than 50 characters';
-      return null;
+  // Sample data for demonstration
+  const sampleProjects: Project[] = [
+    {
+      id: 'proj-001',
+      name: 'Enterprise Migration',
+      description: 'Complete migration of legacy infrastructure to modern cloud-native architecture with enhanced security and scalability.',
+      owner_id: 'user:admin',
+      created_at: '2024-01-15T10:30:00Z',
+      updated_at: '2024-01-20T15:45:00Z'
     },
-    description: (value: string) => {
-      if (!value.trim()) return 'Description is required';
-      if (value.length < 10) return 'Description must be at least 10 characters';
-      if (value.length > 500) return 'Description must be less than 500 characters';
-      return null;
+    {
+      id: 'proj-002',
+      name: 'Datacenter Consolidation',
+      description: 'Consolidating three regional datacenters into a single, highly available facility with redundant systems.',
+      owner_id: 'user:manager',
+      created_at: '2024-01-10T09:15:00Z',
+      updated_at: '2024-01-19T11:20:00Z'
+    },
+    {
+      id: 'proj-003',
+      name: 'Network Modernization',
+      description: 'Upgrading network infrastructure to support 100Gbps connectivity and implementing software-defined networking.',
+      owner_id: 'user:architect',
+      created_at: '2024-01-08T14:20:00Z',
+      updated_at: '2024-01-18T16:30:00Z'
+    },
+    {
+      id: 'proj-004',
+      name: 'Security Enhancement',
+      description: 'Implementation of zero-trust security architecture with advanced threat detection and response capabilities.',
+      owner_id: 'user:security',
+      created_at: '2024-01-05T11:45:00Z',
+      updated_at: '2024-01-17T13:15:00Z'
     }
-  };
+  ];
 
-  const {
-    values: createFormValues,
-    errors: createFormErrors,
-    touched: createFormTouched,
-    handleChange: handleCreateFormChange,
-    handleBlur: handleCreateFormBlur,
-    validateAll: validateCreateForm
-  } = useFormValidation(
-    { name: '', description: '', owner_id: 'user:admin' },
-    validationRules
-  );
+  useEffect(() => {
+    // Simulate API call
+    setIsLoading(true);
+    setTimeout(() => {
+      setProjects(sampleProjects);
+      setFilteredProjects(sampleProjects);
+      setIsLoading(false);
+    }, 1000);
+  }, []);
 
-  const {
-    values: editFormValues,
-    errors: editFormErrors,
-    touched: editFormTouched,
-    handleChange: handleEditFormChange,
-    handleBlur: handleEditFormBlur,
-    validateAll: validateEditForm
-  } = useFormValidation(
-    { name: '', description: '', owner_id: 'user:admin' },
-    validationRules
-  );
+  // Search functionality
+  useEffect(() => {
+    if (!searchTerm) {
+      setFilteredProjects(projects);
+    } else {
+      const filtered = projects.filter(project =>
+        project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        project.description.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredProjects(filtered);
+    }
+  }, [searchTerm, projects]);
 
-  // Load projects
-  const loadProjects = async () => {
-    await withLoading(async () => {
-      try {
-        const projectsData = await apiClient.getProjects();
-        setProjects(projectsData);
-        setFilteredProjects(projectsData);
-        showToast('Projects loaded successfully', 'success');
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to load projects';
-        showToast(errorMessage, 'error');
-      }
-    });
-  };
-
-  // Format date
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
-  };
-
-  // Calculate project completion percentage (mock data for demo)
-  const getProjectProgress = (project: Project) => {
-    const hash = project.name.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
-    return Math.max(20, hash % 100);
-  };
-
-  // Project actions
   const handleViewProject = (project: Project) => {
-    setCurrentProject(project);
-    showToast(`Opening ${project.name}...`, 'info');
-    // In a real app, this would navigate to the project workspace
+    console.log('Viewing project:', project.name);
+    // Navigate to project details
   };
 
   const handleEditProject = (project: Project) => {
-    setCurrentProject(project);
-    // Manually set form values for editing
-    editFormValues.name = project.name;
-    editFormValues.description = project.description;
-    editFormValues.owner_id = project.owner_id;
-    setIsEditModalOpen(true);
+    console.log('Editing project:', project.name);
+    // Open edit modal
   };
 
   const handleDeleteProject = (project: Project) => {
-    setCurrentProject(project);
-    setIsDeleteModalOpen(true);
+    console.log('Deleting project:', project.name);
+    // Open delete confirmation
   };
 
-  const handleCreateProject = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    const validationErrors = validateCreateForm();
-    if (Object.keys(validationErrors).length > 0) {
-      showToast('Please fix the form errors', 'error');
-      return;
-    }
-
-    await withLoading(async () => {
-      try {
-        const newProject: CreateProjectRequest = {
-          name: createFormValues.name,
-          description: createFormValues.description,
-          owner_id: createFormValues.owner_id
-        };
-        
-        await apiClient.createProject(newProject);
-        showToast('Project created successfully!', 'success');
-        setIsCreateModalOpen(false);
-        // Reset form manually
-        createFormValues.name = '';
-        createFormValues.description = '';
-        createFormValues.owner_id = 'user:admin';
-        loadProjects();
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to create project';
-        showToast(errorMessage, 'error');
-      }
-    });
-  };
-
-  const handleUpdateProject = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!currentProject) return;
-    
-    const validationErrors = validateEditForm();
-    if (Object.keys(validationErrors).length > 0) {
-      showToast('Please fix the form errors', 'error');
-      return;
-    }
-
-    await withLoading(async () => {
-      try {
-        const updatedProject: Project = {
-          ...currentProject,
-          name: editFormValues.name,
-          description: editFormValues.description,
-          owner_id: editFormValues.owner_id
-        };
-        
-        await apiClient.updateProject(currentProject.id, updatedProject);
-        showToast('Project updated successfully!', 'success');
-        setIsEditModalOpen(false);
-        loadProjects();
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to update project';
-        showToast(errorMessage, 'error');
-      }
-    });
-  };
-
-  const confirmDeleteProject = async () => {
-    if (!currentProject) return;
-    
-    await withLoading(async () => {
-      try {
-        await apiClient.deleteProject(currentProject.id);
-        showToast('Project deleted successfully!', 'success');
-        setIsDeleteModalOpen(false);
-        loadProjects();
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to delete project';
-        showToast(errorMessage, 'error');
-      }
-    });
-  };
-
-  // Toggle project selection
-  const toggleProjectSelection = (projectId: string) => {
-    const newSelection = new Set(selectedProjects);
-    if (newSelection.has(projectId)) {
-      newSelection.delete(projectId);
-    } else {
-      newSelection.add(projectId);
-    }
-    setSelectedProjects(newSelection);
-  };
-
-  // Select all projects
-  const toggleSelectAll = () => {
-    if (selectedProjects.size === filteredProjects.length) {
-      setSelectedProjects(new Set());
-    } else {
-      setSelectedProjects(new Set(filteredProjects.map(p => p.id)));
-    }
-  };
-
-  // Bulk delete projects
-  const handleBulkDelete = async () => {
-    if (selectedProjects.size === 0) return;
-    
-    await withLoading(async () => {
-      try {
-        await Promise.all(
-          Array.from(selectedProjects).map(id => apiClient.deleteProject(id))
-        );
-        showToast(`${selectedProjects.size} projects deleted successfully!`, 'success');
-        setSelectedProjects(new Set());
-        loadProjects();
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to delete projects';
-        showToast(errorMessage, 'error');
-      }
-    });
-  };
-
-  // Sort projects
   const handleSort = (field: keyof Project) => {
     const direction = sortField === field && sortDirection === 'asc' ? 'desc' : 'asc';
     setSortField(field);
@@ -331,404 +373,150 @@ const ProjectManagementView: React.FC = () => {
     setFilteredProjects(sorted);
   };
 
-  useEffect(() => {
-    loadProjects();
-  }, []);
-
-  // Enhanced Glassmorphic Project Actions Menu
-  const ProjectActionsMenu: React.FC<{ project: Project }> = ({ project }) => {
-    const [isOpen, setIsOpen] = useState(false);
-
-    return (
-      <div className="relative">
-        <button
-          className="glass-button p-2 opacity-60 hover:opacity-100 transition-all duration-200"
-          onClick={(e) => {
-            e.stopPropagation();
-            setIsOpen(!isOpen);
+  return (
+    <GlassmorphicLayout>
+      <div className="fluent-page-container">
+        {/* Enhanced Header Section */}
+        <div
+          style={{
+            background: 'rgba(255, 255, 255, 0.7)',
+            backdropFilter: 'blur(20px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+            border: '1px solid rgba(255, 255, 255, 0.3)',
+            borderRadius: '20px',
+            padding: '32px',
+            marginBottom: '32px',
+            boxShadow: '0 8px 32px rgba(31, 38, 135, 0.15)'
           }}
         >
-          <MoreVertical className="w-4 h-4" />
-        </button>
-        
-        {isOpen && (
-          <>
-            <div 
-              className="fixed inset-0 z-40" 
-              onClick={() => setIsOpen(false)}
-            />
-            
-            <div className="project-menu-glass absolute right-0 top-full mt-2 w-56 z-50 p-2">
-              <div className="space-y-1">
-                {/* Primary Actions */}
-                <div className="px-2 py-1 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </div>
-                
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleViewProject(project);
-                    setIsOpen(false);
-                  }}
-                  className="project-menu-item w-full text-left px-3 py-2.5 text-sm flex items-center space-x-3 font-medium"
-                >
-                  <Eye className="w-4 h-4 text-blue-500" />
-                  <div>
-                    <div>Open Project</div>
-                    <div className="text-xs text-gray-500">View project details</div>
-                  </div>
-                </button>
-                
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleEditProject(project);
-                    setIsOpen(false);
-                  }}
-                  className="project-menu-item w-full text-left px-3 py-2.5 text-sm flex items-center space-x-3"
-                >
-                  <Edit3 className="w-4 h-4 text-green-500" />
-                  <div>
-                    <div>Edit Project</div>
-                    <div className="text-xs text-gray-500">Modify project details</div>
-                  </div>
-                </button>
-                
-                <hr className="my-2 border-white/20" />
-                
-                {/* Secondary Actions */}
-                <div className="px-2 py-1 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Project Tools
-                </div>
-                
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigator.clipboard.writeText(project.id);
-                    showToast('Project ID copied to clipboard', 'success');
-                    setIsOpen(false);
-                  }}
-                  className="project-menu-item w-full text-left px-3 py-2 text-sm flex items-center space-x-3"
-                >
-                  <Settings className="w-4 h-4 text-gray-500" />
-                  <span>Copy Project ID</span>
-                </button>
-                
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    showToast(`Duplicating ${project.name}...`, 'info');
-                    setIsOpen(false);
-                  }}
-                  className="project-menu-item w-full text-left px-3 py-2 text-sm flex items-center space-x-3"
-                >
-                  <FolderOpen className="w-4 h-4 text-indigo-500" />
-                  <span>Duplicate Project</span>
-                </button>
-                
-                <hr className="my-2 border-white/20" />
-                
-                {/* Danger Zone */}
-                <div className="px-2 py-1 text-xs font-medium text-red-400 uppercase tracking-wider">
-                  Danger Zone
-                </div>
-                
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDeleteProject(project);
-                    setIsOpen(false);
-                  }}
-                  className="project-menu-item destructive w-full text-left px-3 py-2.5 text-sm flex items-center space-x-3"
-                >
-                  <Trash2 className="w-4 h-4 text-red-500" />
-                  <div>
-                    <div className="text-red-600">Delete Project</div>
-                    <div className="text-xs text-red-400">This action cannot be undone</div>
-                  </div>
-                </button>
-              </div>
-            </div>
-          </>
-        )}
-      </div>
-    );
-  };
-
-  // Enhanced Glassmorphic Project Card
-  const ProjectCard: React.FC<{ project: ProjectWithActions }> = ({ project }) => {
-    const progress = getProjectProgress(project);
-    const isSelected = selectedProjects.has(project.id);
-    
-    const handleCardClick = () => {
-      handleViewProject(project);
-    };
-    
-    const handleCheckboxClick = (e: React.MouseEvent) => {
-      e.stopPropagation();
-      toggleProjectSelection(project.id);
-    };
-    
-    return (
-      <div
-        className={`project-card-glass h-full cursor-pointer group p-6
-          ${isSelected ? 'ring-2 ring-purple-400/60 bg-purple-100/20' : ''}
-        `}
-        onClick={handleCardClick}
-      >
-        {/* Selection Checkbox */}
-        <div className="absolute top-4 left-4 z-10">
-          <input
-            type="checkbox"
-            checked={isSelected}
-            onChange={() => {}}
-            onClick={handleCheckboxClick}
-            className="w-4 h-4 text-purple-600 rounded focus:ring-purple-500 cursor-pointer backdrop-blur-sm"
-          />
-        </div>
-        
-        {/* Actions Menu */}
-        <div className="absolute top-4 right-4 z-10">
-          <ProjectActionsMenu project={project} />
-        </div>
-        
-        <div className="flex flex-col h-full pt-6">
-          {/* Project Header */}
-          <div className="flex items-center space-x-4 mb-6">
-            <div className="relative">
-              <div className="glass-container p-4 rounded-xl">
-                <FolderOpen className="w-7 h-7 text-purple-600" />
-              </div>
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-400/20 to-indigo-500/20 rounded-xl"></div>
-            </div>
-            <div className="flex-1 min-w-0">
-              <h3 className="font-bold text-gray-800 text-xl truncate group-hover:text-purple-700 transition-colors">
-                {project.name}
-              </h3>
-              <p className="text-sm text-gray-600/80 font-medium">Project #{project.id}</p>
-            </div>
-          </div>
-          
-          {/* Project Description */}
-          <p className="text-gray-700/90 mb-6 flex-grow line-clamp-3 leading-relaxed font-medium">
-            {project.description}
-          </p>
-          
-          {/* Progress Section */}
-          <div className="space-y-5">
-            <div className="glass-container p-3 rounded-lg">
-              <EnhancedProgressBar
-                value={progress}
-                label="Completion"
-                color="purple"
-                showPercentage
-              />
-            </div>
-            
-            {/* Metadata */}
-            <div className="flex items-center justify-between text-sm text-gray-600/80">
-              <div className="flex items-center space-x-2">
-                <Calendar className="w-4 h-4" />
-                <span className="font-medium">Updated {formatDate(project.updated_at)}</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <User className="w-4 h-4" />
-                <span className="font-medium">{project.owner_id.replace('user:', '')}</span>
-              </div>
-            </div>
-            
-            {/* Call-to-Action Button */}
-            <div className="pt-4 border-t border-white/20">
-              <button
-                className="glass-button-primary w-full py-3 px-4 text-sm font-semibold flex items-center justify-center space-x-2 hover:scale-[1.02] transition-all"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleViewProject(project);
-                }}
-              >
-                <Eye className="w-4 h-4" />
-                <span>Open Project</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  // List view component
-  const ProjectListItem: React.FC<{ project: ProjectWithActions }> = ({ project }) => {
-    const progress = getProjectProgress(project);
-    const isSelected = selectedProjects.has(project.id);
-    
-    return (
-      <EnhancedCard
-        hoverable
-        className={`relative cursor-pointer group transition-all duration-200
-          ${isSelected ? 'ring-2 ring-purple-500 bg-purple-50' : ''}
-          hover:shadow-md`}
-        onClick={() => handleViewProject(project)}
-      >
-        <div className="flex items-center space-x-4 p-4">
-          <input
-            type="checkbox"
-            checked={isSelected}
-            onChange={() => toggleProjectSelection(project.id)}
-            onClick={(e) => e.stopPropagation()}
-            className="w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
-          />
-          
-          <div className="flex items-center space-x-3 flex-1 min-w-0">
-            <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500 to-indigo-600">
-              <FolderOpen className="w-5 h-5 text-white" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-gray-900 truncate group-hover:text-purple-700">
-                {project.name}
-              </h3>
-              <p className="text-gray-600 text-sm truncate">{project.description}</p>
-            </div>
-          </div>
-          
-          <div className="flex items-center space-x-6">
-            <div className="hidden lg:block w-32">
-              <EnhancedProgressBar
-                value={progress}
-                color="purple"
-                showPercentage={false}
-              />
-            </div>
-            <div className="text-right text-sm text-gray-500 min-w-0">
-              <div className="flex items-center space-x-1">
-                <Calendar className="w-4 h-4" />
-                <span className="hidden sm:inline">{formatDate(project.updated_at)}</span>
-              </div>
-              <div className="flex items-center space-x-1 mt-1">
-                <User className="w-4 h-4" />
-                <span>{project.owner_id.replace('user:', '')}</span>
-              </div>
-            </div>
-            <div className="flex items-center space-x-2">
-              <EnhancedButton
-                variant="primary"
-                className="text-sm py-1 px-3"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleViewProject(project);
-                }}
-              >
-                <Eye className="w-4 h-4 mr-1" />
-                Open
-              </EnhancedButton>
-              <ProjectActionsMenu project={project} />
-            </div>
-          </div>
-        </div>
-      </EnhancedCard>
-    );
-  };
-
-  if (isLoading && projects.length === 0) {
-    return (
-      <div className="fluent-page-container min-h-screen bg-gradient-to-br from-purple-50/80 via-white/60 to-indigo-50/80">
-        <div className="glass-container mx-auto max-w-md mt-20 p-8">
-          <LoadingSpinner message="Loading projects..." />
-        </div>
-        <ToastContainer />
-      </div>
-    );
-  }
-
-  return (
-    <div className="fluent-page-container min-h-screen bg-gradient-to-br from-purple-50/80 via-white/60 to-indigo-50/80">
-      <ToastContainer />
-      
-      <div className="max-w-7xl mx-auto p-6 space-y-8">
-        {/* Enhanced Glassmorphic Page Header */}
-        <div className="glass-container p-8">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <div>
-              <h1 className="text-4xl font-bold text-gray-800 mb-2">Project Management</h1>
-              <p className="text-gray-600 text-lg font-medium">
-                Create, manage, and organize your infrastructure projects
+              <h1 className="text-4xl font-bold text-gray-900 mb-3 bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                Project Management
+              </h1>
+              <p className="text-lg text-gray-600 font-medium">
+                Orchestrate your infrastructure projects with enterprise-grade precision
               </p>
             </div>
-            <div className="flex flex-col sm:flex-row gap-3">
-              {selectedProjects.size > 0 && (
-                <button
-                  onClick={handleBulkDelete}
-                  className="glass-button flex items-center space-x-2 px-6 py-3 text-red-600 border-red-300/50 hover:border-red-400/50"
-                >
-                  <Trash2 className="w-4 h-4" />
-                  <span>Delete ({selectedProjects.size})</span>
-                </button>
-              )}
-              <button
-                onClick={() => setIsCreateModalOpen(true)}
-                className="glass-button-primary flex items-center space-x-2 px-8 py-3 text-base font-semibold"
-              >
-                <Plus className="w-5 h-5" />
-                <span>New Project</span>
-              </button>
-            </div>
+            <button
+              onClick={() => setIsCreateModalOpen(true)}
+              style={{
+                background: 'linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%)',
+                borderRadius: '16px',
+                padding: '16px 24px',
+                color: 'white',
+                fontWeight: '600',
+                fontSize: '16px',
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+              className="hover:scale-105 hover:shadow-xl flex items-center space-x-3"
+            >
+              <Plus className="w-5 h-5" />
+              <span>New Project</span>
+            </button>
           </div>
         </div>
 
-        {/* Enhanced Glassmorphic Search and Controls */}
-        <div className="glass-container p-6">
-          <div className="flex flex-col xl:flex-row gap-6 items-start xl:items-center">
-            <div className="flex-1 w-full">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search projects by name or description..."
-                  className="glass-button w-full pl-10 pr-4 py-3 text-base border-white/30 focus:border-purple-300/50 focus:ring-2 focus:ring-purple-200/50"
-                  onChange={(e) => {
-                    const query = e.target.value.toLowerCase();
-                    if (!query) {
-                      setFilteredProjects(projects);
-                    } else {
-                      const filtered = projects.filter(p =>
-                        p.name.toLowerCase().includes(query) ||
-                        p.description.toLowerCase().includes(query)
-                      );
-                      setFilteredProjects(filtered);
-                    }
-                  }}
-                />
-              </div>
+        {/* Project Statistics */}
+        <ProjectStats projects={projects} />
+
+        {/* Search and Controls */}
+        <div
+          style={{
+            background: 'rgba(255, 255, 255, 0.7)',
+            backdropFilter: 'blur(20px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+            border: '1px solid rgba(255, 255, 255, 0.3)',
+            borderRadius: '16px',
+            padding: '24px',
+            marginBottom: '24px',
+            boxShadow: '0 8px 32px rgba(31, 38, 135, 0.1)'
+          }}
+        >
+          <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
+            {/* Search */}
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search projects..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={{
+                  background: 'rgba(255, 255, 255, 0.8)',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                  borderRadius: '12px',
+                  padding: '12px 16px 12px 44px',
+                  fontSize: '14px',
+                  width: '100%',
+                  backdropFilter: 'blur(10px)'
+                }}
+                className="focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+              />
             </div>
-            
-            <div className="flex flex-col sm:flex-row gap-3 w-full xl:w-auto">
-              <div className="flex gap-2">
-                <button
-                  onClick={() => handleSort('name')}
-                  className="glass-button flex items-center space-x-2 px-4 py-3"
-                >
-                  <span>Name</span>
-                  <ArrowUpDown className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => handleSort('updated_at')}
-                  className="glass-button flex items-center space-x-2 px-4 py-3"
-                >
-                  <span>Updated</span>
-                  <ArrowUpDown className="w-4 h-4" />
-                </button>
-              </div>
-              
-              <div className="flex gap-2">
+
+            {/* Controls */}
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={() => handleSort('name')}
+                style={{
+                  background: 'rgba(255, 255, 255, 0.8)',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                  borderRadius: '12px',
+                  padding: '10px 16px',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  backdropFilter: 'blur(10px)'
+                }}
+                className="hover:bg-white/90 transition-all flex items-center space-x-2"
+              >
+                <span>Name</span>
+                <ArrowUpDown className="w-4 h-4" />
+              </button>
+
+              <button
+                onClick={() => handleSort('updated_at')}
+                style={{
+                  background: 'rgba(255, 255, 255, 0.8)',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                  borderRadius: '12px',
+                  padding: '10px 16px',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  backdropFilter: 'blur(10px)'
+                }}
+                className="hover:bg-white/90 transition-all flex items-center space-x-2"
+              >
+                <span>Updated</span>
+                <ArrowUpDown className="w-4 h-4" />
+              </button>
+
+              <div className="flex rounded-lg overflow-hidden border border-white/30">
                 <button
                   onClick={() => setViewMode('grid')}
-                  className={`glass-button p-3 ${viewMode === 'grid' ? 'glass-button-primary' : ''}`}
+                  style={{
+                    background: viewMode === 'grid' ? 'linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%)' : 'rgba(255, 255, 255, 0.8)',
+                    color: viewMode === 'grid' ? 'white' : '#6b7280',
+                    padding: '10px 12px',
+                    border: 'none',
+                    backdropFilter: 'blur(10px)'
+                  }}
+                  className="transition-all"
                 >
                   <Grid className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => setViewMode('list')}
-                  className={`glass-button p-3 ${viewMode === 'list' ? 'glass-button-primary' : ''}`}
+                  style={{
+                    background: viewMode === 'list' ? 'linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%)' : 'rgba(255, 255, 255, 0.8)',
+                    color: viewMode === 'list' ? 'white' : '#6b7280',
+                    padding: '10px 12px',
+                    border: 'none',
+                    backdropFilter: 'blur(10px)'
+                  }}
+                  className="transition-all"
                 >
                   <List className="w-4 h-4" />
                 </button>
@@ -738,221 +526,73 @@ const ProjectManagementView: React.FC = () => {
         </div>
 
         {/* Projects Display */}
-        <div className="glass-container p-8">
-          {filteredProjects.length === 0 ? (
-            <div className="text-center py-16">
-              <div className="flex flex-col items-center space-y-6">
-                <div className="glass-card p-8 bg-gradient-to-br from-purple-50/50 via-white/30 to-indigo-50/50">
-                  <FolderPlus className="w-16 h-16 text-purple-400 mx-auto" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-semibold text-gray-800 mb-2">
-                    {projects.length === 0 ? 'No Projects Yet' : 'No Matching Projects'}
-                  </h3>
-                  <p className="text-gray-600 max-w-md">
-                    {projects.length === 0
-                      ? 'Start your infrastructure journey by creating your first project.'
-                      : 'Try adjusting your search terms or create a new project.'}
-                  </p>
-                </div>
-                {projects.length === 0 && (
-                  <button
-                    onClick={() => setIsCreateModalOpen(true)}
-                    className="glass-button-primary flex items-center space-x-2 px-8 py-3 text-base font-semibold"
-                  >
-                    <Plus className="w-5 h-5" />
-                    <span>Create Your First Project</span>
-                  </button>
-                )}
+        {isLoading ? (
+          <div className="flex items-center justify-center py-24">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+          </div>
+        ) : filteredProjects.length === 0 ? (
+          <div
+            style={{
+              background: 'rgba(255, 255, 255, 0.7)',
+              backdropFilter: 'blur(20px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+              border: '1px solid rgba(255, 255, 255, 0.3)',
+              borderRadius: '20px',
+              padding: '64px',
+              textAlign: 'center' as const,
+              boxShadow: '0 8px 32px rgba(31, 38, 135, 0.1)'
+            }}
+          >
+            <div className="flex flex-col items-center space-y-6">
+              <div className="p-6 rounded-full bg-gradient-to-br from-purple-100 to-indigo-100">
+                <FolderPlus className="w-12 h-12 text-purple-500" />
               </div>
+              <div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                  {projects.length === 0 ? 'Start Your First Project' : 'No Matching Projects'}
+                </h3>
+                <p className="text-gray-600 max-w-md mx-auto">
+                  {projects.length === 0
+                    ? 'Begin your infrastructure journey by creating your first project and defining your goals.'
+                    : 'Try adjusting your search terms or create a new project to get started.'}
+                </p>
+              </div>
+              {projects.length === 0 && (
+                <button
+                  onClick={() => setIsCreateModalOpen(true)}
+                  style={{
+                    background: 'linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%)',
+                    borderRadius: '16px',
+                    padding: '16px 32px',
+                    color: 'white',
+                    fontWeight: '600',
+                    fontSize: '16px',
+                    border: 'none',
+                    cursor: 'pointer'
+                  }}
+                  className="hover:scale-105 hover:shadow-xl transition-all flex items-center space-x-3"
+                >
+                  <Plus className="w-5 h-5" />
+                  <span>Create Your First Project</span>
+                </button>
+              )}
             </div>
-          ) : (
-            <>
-              {filteredProjects.length > 0 && (
-                <div className="flex items-center justify-between border-b border-white/20 pb-6 mb-6">
-                  <div className="flex items-center space-x-4">
-                    <label className="flex items-center space-x-2 text-sm text-gray-700">
-                      <input
-                        type="checkbox"
-                        checked={selectedProjects.size === filteredProjects.length && filteredProjects.length > 0}
-                        onChange={toggleSelectAll}
-                        className="w-4 h-4 text-purple-600 rounded focus:ring-purple-500 border-white/30"
-                      />
-                      <span>Select All ({filteredProjects.length})</span>
-                    </label>
-                    {selectedProjects.size > 0 && (
-                      <span className="glass-button px-3 py-1 text-sm text-purple-600 border-purple-300/50">
-                        {selectedProjects.size} selected
-                      </span>
-                    )}
-                  </div>
-                  <div className="text-sm text-gray-600">
-                    Showing {filteredProjects.length} of {projects.length} projects
-                  </div>
-                </div>
-              )}
-
-              {viewMode === 'grid' ? (
-                <div className={`
-                  grid gap-6
-                  ${isMobile ? 'grid-cols-1' : 
-                    isTablet ? 'grid-cols-2' : 
-                    'grid-cols-1 lg:grid-cols-2 xl:grid-cols-3'}
-                `}>
-                  {filteredProjects.map((project) => (
-                    <ProjectCard key={project.id} project={project} />
-                  ))}
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {filteredProjects.map((project) => (
-                    <ProjectListItem key={project.id} project={project} />
-                  ))}
-                </div>
-              )}
-            </>
-          )}
-        </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredProjects.map((project) => (
+              <ProjectCard
+                key={project.id}
+                project={project}
+                onView={handleViewProject}
+                onEdit={handleEditProject}
+                onDelete={handleDeleteProject}
+              />
+            ))}
+          </div>
+        )}
       </div>
-
-      {/* Create Project Modal */}
-      <EnhancedModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        title="Create New Project"
-        size="md"
-      >
-        <form onSubmit={handleCreateProject} className="space-y-6">
-          <EnhancedFormField
-            label="Project Name"
-            name="name"
-            value={createFormValues.name}
-            error={createFormErrors.name}
-            touched={createFormTouched.name}
-            onChange={handleCreateFormChange}
-            onBlur={handleCreateFormBlur}
-            placeholder="Enter a descriptive project name"
-            required
-          />
-          
-          <EnhancedFormField
-            label="Description"
-            name="description"
-            value={createFormValues.description}
-            error={createFormErrors.description}
-            touched={createFormTouched.description}
-            onChange={handleEditFormChange}
-            onBlur={handleCreateFormBlur}
-            placeholder="Describe the project's goals and scope"
-            required
-          />
-          
-          <div className="flex gap-3 pt-4">
-            <EnhancedButton
-              type="submit"
-              variant="primary"
-              loading={isLoading}
-              className="flex-1"
-            >
-              Create Project
-            </EnhancedButton>
-            <EnhancedButton
-              type="button"
-              variant="ghost"
-              onClick={() => setIsCreateModalOpen(false)}
-              className="flex-1"
-            >
-              Cancel
-            </EnhancedButton>
-          </div>
-        </form>
-      </EnhancedModal>
-
-      {/* Edit Project Modal */}
-      <EnhancedModal
-        isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
-        title="Edit Project"
-        size="md"
-      >
-        <form onSubmit={handleUpdateProject} className="space-y-6">
-          <EnhancedFormField
-            label="Project Name"
-            name="name"
-            value={editFormValues.name}
-            error={editFormErrors.name}
-            touched={editFormTouched.name}
-            onChange={handleEditFormChange}
-            onBlur={handleEditFormBlur}
-            placeholder="Enter a descriptive project name"
-            required
-          />
-          
-          <EnhancedFormField
-            label="Description"
-            name="description"
-            value={editFormValues.description}
-            error={editFormErrors.description}
-            touched={editFormTouched.description}
-            onChange={handleEditFormChange}
-            onBlur={handleEditFormBlur}
-            placeholder="Describe the project's goals and scope"
-            required
-          />
-          
-          <div className="flex gap-3 pt-4">
-            <EnhancedButton
-              type="submit"
-              variant="primary"
-              loading={isLoading}
-              className="flex-1"
-            >
-              Update Project
-            </EnhancedButton>
-            <EnhancedButton
-              type="button"
-              variant="ghost"
-              onClick={() => setIsEditModalOpen(false)}
-              className="flex-1"
-            >
-              Cancel
-            </EnhancedButton>
-          </div>
-        </form>
-      </EnhancedModal>
-
-      {/* Delete Confirmation Modal */}
-      <EnhancedModal
-        isOpen={isDeleteModalOpen}
-        onClose={() => setIsDeleteModalOpen(false)}
-        title="Delete Project"
-        size="sm"
-      >
-        <div className="space-y-4">
-          <p className="text-gray-600">
-            Are you sure you want to delete "{currentProject?.name}"? This action cannot be undone.
-          </p>
-          
-          <div className="flex gap-3 pt-4">
-            <EnhancedButton
-              onClick={confirmDeleteProject}
-              variant="primary"
-              loading={isLoading}
-              className="flex-1 bg-red-600 hover:bg-red-700"
-            >
-              Delete Project
-            </EnhancedButton>
-            <EnhancedButton
-              onClick={() => setIsDeleteModalOpen(false)}
-              variant="ghost"
-              className="flex-1"
-            >
-              Cancel
-            </EnhancedButton>
-          </div>
-        </div>
-      </EnhancedModal>
-    </div>
+    </GlassmorphicLayout>
   );
 };
 
