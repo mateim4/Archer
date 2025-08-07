@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, FileText, Edit3, Trash2, Save, X, Download, Upload } from 'lucide-react';
 import { apiClient, DesignDocument, CreateDesignDocRequest } from '../utils/apiClient';
 import { useAppStore } from '../store/useAppStore';
+import GlassmorphicLayout from '../components/GlassmorphicLayout';
 
 interface DocFormData {
   name: string;
@@ -151,22 +152,23 @@ const DesignDocsView: React.FC = () => {
   }
 
   return (
-    <div className="fluent-page-container">
-      <div className="lcm-card">
-        <div className="fluent-page-header">
-        <button
-          onClick={() => setShowCreateForm(true)}
-          className="fluent-button fluent-button-primary fluent-button-with-icon"
-        >
-          <Plus className="w-4 h-4" />
-          New Document
-        </button>
-      </div>
-
-      {error && (
-        <div className="fluent-alert fluent-alert-error mb-6">
-          <p>{error}</p>
+    <GlassmorphicLayout>
+      <div className="fluent-page-container">
+        <div className="lcm-card">
+          <div className="fluent-page-header">
+          <button
+            onClick={() => setShowCreateForm(true)}
+            className="fluent-button fluent-button-primary fluent-button-with-icon"
+          >
+            <Plus className="w-4 h-4" />
+            New Document
+          </button>
         </div>
+
+        {error && (
+          <div className="fluent-alert fluent-alert-error mb-6">
+            <p>{error}</p>
+          </div>
       )}
 
       {/* Create/Edit Form */}
@@ -311,7 +313,8 @@ const DesignDocsView: React.FC = () => {
           </div>
         )}
       </div>
-    </div>
+      </div>
+    </GlassmorphicLayout>
   );
 };
 
