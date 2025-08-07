@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Network, HardDrive, Server, AlertTriangle } from 'lucide-react';
+import { 
+  GlobeRegular,
+  ServerRegular,
+  CloudRegular,
+  DiagramRegular
+} from '@fluentui/react-icons';
 import mermaid from 'mermaid';
 import { generateVirtualDiagram, generateHyperVDiagram, generatePhysicalDiagram } from '../utils/mermaidGenerator';
 import { useAppStore } from '../store/useAppStore';
@@ -43,7 +49,7 @@ const DIAGRAM_THEME = {
 };
 
 const NetworkVisualizerView = () => {
-  const [activeTab, setActiveTab] = useState<'virtual' | 'hyper-v' | 'physical'>('virtual');
+  const [activeTab, setActiveTab] = useState<'overview' | 'virtual' | 'hyper-v' | 'physical'>('overview');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
@@ -304,7 +310,7 @@ const NetworkVisualizerView = () => {
   // Render diagram when topology or active tab changes
   useEffect(() => {
     const renderDiagram = async () => {
-      if (networkTopology) {
+      if (activeTab !== 'overview' && networkTopology) {
         const diagramDefinition = generateDiagram();
         
         if (!diagramDefinition || diagramDefinition.trim() === '') {
@@ -388,127 +394,197 @@ const NetworkVisualizerView = () => {
     renderDiagram();
   }, [networkTopology, activeTab]);
 
-  // Custom Tab Button Component with consistent theming
-  const TabButton = ({ 
-    tab, 
-    isActive, 
-    onClick, 
-    icon: Icon, 
-    label 
-  }: {
-    tab: 'virtual' | 'hyper-v' | 'physical';
-    isActive: boolean;
-    onClick: (tab: 'virtual' | 'hyper-v' | 'physical') => void;
-    icon: any;
-    label: string;
-  }) => (
-    <div 
-      className="relative flex flex-col items-center justify-center transition-all duration-300 flex-1 cursor-pointer hover:scale-105"
-      style={{ padding: '12px 16px 20px' }}
-      onClick={() => onClick(tab)}
-    >
-      <div className="flex items-center gap-2 mb-2">
-        <Icon size={18} style={{ 
-          color: isActive ? '#8b5cf6' : '#6b7280',
-          transition: 'color 0.2s ease'
-        }} />
-        <span 
-          className="font-medium transition-colors duration-200"
-          style={{
-            fontFamily: 'var(--fluent-font-family-base)',
-            fontSize: '14px',
-            fontWeight: isActive ? '600' : '400',
-            color: isActive ? '#8b5cf6' : '#6b7280',
-            lineHeight: '1.4'
-          }}
-        >
-          {label}
-        </span>
-      </div>
-      {isActive && (
-        <div style={{
-          position: 'absolute',
-          bottom: '4px',
-          left: '16px',
-          right: '16px',
-          height: '3px',
-          background: 'linear-gradient(90deg, #a855f7 0%, #ec4899 100%)',
-          borderRadius: '2px',
-          boxShadow: 'none'
-        }} />
-      )}
-    </div>
-  );
+  const getNetworkOverview = () => [
+    { 
+      title: 'Total Networks', 
+      value: networkTopology?.networks?.length || 0, 
+      icon: <GlobeRegular />, 
+      change: 'Management, vMotion, VM networks',
+      color: '#0066cc'
+    },
+    { 
+      title: 'Clusters Mapped', 
+      value: networkTopology?.clusters?.length || 0, 
+      icon: <ServerRegular />, 
+      change: 'Active infrastructure clusters',
+      color: '#16a34a'
+    },
+    { 
+      title: 'Network Segments', 
+      value: networkTopology?.networks?.filter(n => n.type === 'cluster_network')?.length || 0, 
+      icon: <DiagramRegular />, 
+      change: 'Isolated network zones',
+      color: '#dc2626'
+    },
+    { 
+      title: 'Platform Type', 
+      value: networkTopology?.platform === 'vmware' ? 'VMware' : 'Unknown', 
+      icon: <CloudRegular />, 
+      change: 'Current virtualization',
+      color: '#7c3aed'
+    }
+  ];
+
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'overview':
+        return (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px' }}>
+            {getNetworkOverview().map((stat, index) => (
+              <div
+                key={index}
+                style={{
+                  background: 'rgba(255, 255, 255, 0.7)',
+                  backdropFilter: 'blur(20px) saturate(180%)',
+                  WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                  border: '1px solid rgba(139, 92, 246, 0.2)',
+                  borderRadius: '16px',
+                  padding: '24px',
+                  textAlign: 'center' as const,
+                  transition: 'all 0.3s ease',
+                  boxShadow: '0 8px 32px rgba(139, 92, 246, 0.1)'
+                }}
+              >
+                <div style={{ color: stat.color, fontSize: '24px', marginBottom: '12px' }}>
+                  {stat.icon}
+                </div>
+                <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#111827', marginBottom: '4px' }}>
+                  {stat.value}
+                </div>
+                <div style={{ fontSize: '14px', fontWeight: '500', color: '#6b7280', marginBottom: '12px' }}>
+                  {stat.title}
+                </div>
+                <div style={{ 
+                  marginTop: '12px', 
+                  padding: '8px 12px', 
+                  background: 'rgba(59, 130, 246, 0.1)', 
+                  borderRadius: '6px',
+                  fontSize: '12px',
+                  color: '#374151'
+                }}>
+                  {stat.change}
+                </div>
+              </div>
+            ))}
+          </div>
+        );
+
+      case 'virtual':
+      case 'hyper-v':
+      case 'physical':
+        return (
+          <div>
+            {/* Data Source Indicator */}
+            {!currentEnvironment && (
+              <div style={{ 
+                marginBottom: '16px', 
+                padding: '12px', 
+                borderRadius: '8px', 
+                background: 'rgba(168, 85, 247, 0.1)',
+                border: '1px solid rgba(168, 85, 247, 0.2)'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <AlertTriangle size={16} style={{ color: '#a855f7' }} />
+                  <span style={{ fontSize: '14px', color: '#6b7280' }}>
+                    Currently showing sample data. Upload an RVTools file to visualize your actual infrastructure.
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* Diagram Container */}
+            <div 
+              id="mermaid-diagram" 
+              style={{
+                width: '100%',
+                minHeight: '400px',
+                overflow: 'auto',
+                borderRadius: '12px',
+                background: 'rgba(255, 255, 255, 0.5)',
+                backdropFilter: 'blur(16px) saturate(150%)',
+                WebkitBackdropFilter: 'blur(16px) saturate(150%)',
+                border: '1px solid rgba(139, 92, 246, 0.1)',
+                padding: '16px'
+              }}
+            />
+            
+            {!networkTopology && (
+              <div style={{ textAlign: 'center', padding: '48px 0', color: '#6b7280' }}>
+                <Server size={48} style={{ margin: '0 auto 16px', opacity: 0.5 }} />
+                <p>No network topology data available.</p>
+                <p style={{ fontSize: '14px', marginTop: '8px' }}>Upload infrastructure data to generate network diagrams.</p>
+              </div>
+            )}
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  };
 
   return (
     <GlassmorphicLayout>
       <div className="fluent-page-container">
-        <div className="lcm-card">
-          {/* Error Display */}
+        {/* Error Display */}
         {error && (
-          <div className="mb-6 p-3 border border-red-500/30 rounded-lg text-red-300">
+          <div style={{
+            marginBottom: '24px',
+            padding: '12px',
+            background: 'rgba(239, 68, 68, 0.05)',
+            border: '1px solid rgba(239, 68, 68, 0.2)',
+            borderRadius: '8px',
+            color: '#dc2626'
+          }}>
             {error}
           </div>
         )}
 
-        {/* Tabs */}
-        <div className="mb-6">
-          <div 
-            className="flex"
-            style={{
-              background: 'transparent'
-            }}
-          >
-          <TabButton
-            tab="virtual"
-            isActive={activeTab === 'virtual'}
-            onClick={setActiveTab}
-            icon={Network}
-            label="Virtual Networks"
-          />
-          <TabButton
-            tab="hyper-v"
-            isActive={activeTab === 'hyper-v'}
-            onClick={setActiveTab}
-            icon={HardDrive}
-            label="Hyper-V Topology"
-          />
-          <TabButton
-            tab="physical"
-            isActive={activeTab === 'physical'}
-            onClick={setActiveTab}
-            icon={Server}
-            label="Physical Infrastructure"
-          />
+        {/* Tab Navigation */}
+        <div style={{ 
+          display: 'flex', 
+          gap: '4px', 
+          marginBottom: '24px',
+          padding: '4px',
+          background: 'rgba(255, 255, 255, 0.3)',
+          borderRadius: '12px',
+          border: '1px solid rgba(0, 0, 0, 0.05)'
+        }}>
+          {[
+            { id: 'overview', label: 'Overview', icon: <DiagramRegular /> },
+            { id: 'virtual', label: 'Virtual Networks', icon: <GlobeRegular /> },
+            { id: 'hyper-v', label: 'Hyper-V Topology', icon: <ServerRegular /> },
+            { id: 'physical', label: 'Physical Infrastructure', icon: <CloudRegular /> }
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as any)}
+              style={{
+                flex: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                padding: '12px 16px',
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontWeight: '500',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                background: activeTab === tab.id ? 'rgba(255, 255, 255, 0.9)' : 'transparent',
+                color: activeTab === tab.id ? '#111827' : '#6b7280',
+                boxShadow: activeTab === tab.id ? '0 2px 4px rgba(0, 0, 0, 0.1)' : 'none'
+              }}
+            >
+              <div style={{ fontSize: '16px' }}>{tab.icon}</div>
+              {tab.label}
+            </button>
+          ))}
         </div>
-      </div>
 
-      {/* Data Source Indicator */}
-      {!currentEnvironment && (
-        <div className="mb-4 p-3 rounded-lg bg-transparent">
-          <div className="flex items-center gap-2">
-            <AlertTriangle size={16} className="text-purple-400" />
-            <span className="text-sm text-gray-600">
-              Currently showing sample data. Upload an RVTools file to visualize your actual infrastructure.
-            </span>
-          </div>
-        </div>
-      )}
-
-      {/* Diagram Container - Direct rendering without card wrapper */}
-      <div 
-        id="mermaid-diagram" 
-        className="w-full h-auto min-h-96 overflow-auto rounded-lg bg-transparent p-4"
-      />
-      
-      {!networkTopology && (
-        <div className="text-center py-12 text-gray-500">
-          <Server size={48} className="mx-auto mb-4 opacity-50" />
-          <p>No network topology data available.</p>
-          <p className="text-sm mt-2">Upload infrastructure data to generate network diagrams.</p>
-        </div>
-      )}
-      </div>
+        {/* Tab Content */}
+        {renderTabContent()}
       </div>
     </GlassmorphicLayout>
   );
