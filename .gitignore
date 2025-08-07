@@ -7,3 +7,4 @@ Cargo.lock
 # Build outputs
 dist/
 build/
+network-stencils/

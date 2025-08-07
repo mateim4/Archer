@@ -4,12 +4,14 @@ import {
   GlobeRegular,
   ServerRegular,
   CloudRegular,
-  DiagramRegular
+  DiagramRegular,
+  BookRegular
 } from '@fluentui/react-icons';
 import mermaid from 'mermaid';
 import { generateVirtualDiagram, generateHyperVDiagram, generatePhysicalDiagram } from '../utils/mermaidGenerator';
 import { useAppStore } from '../store/useAppStore';
 import GlassmorphicLayout from '../components/GlassmorphicLayout';
+import NetworkComponentGuide from '../components/NetworkComponentGuide';
 
 // Define consistent color palette for diagrams
 const DIAGRAM_THEME = {
@@ -49,7 +51,7 @@ const DIAGRAM_THEME = {
 };
 
 const NetworkVisualizerView = () => {
-  const [activeTab, setActiveTab] = useState<'overview' | 'virtual' | 'hyper-v' | 'physical'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'virtual' | 'hyper-v' | 'physical' | 'guide'>('overview');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
@@ -469,6 +471,9 @@ const NetworkVisualizerView = () => {
           </div>
         );
 
+      case 'guide':
+        return <NetworkComponentGuide />;
+
       case 'virtual':
       case 'hyper-v':
       case 'physical':
@@ -554,7 +559,8 @@ const NetworkVisualizerView = () => {
             { id: 'overview', label: 'Overview', icon: <DiagramRegular /> },
             { id: 'virtual', label: 'Virtual Networks', icon: <GlobeRegular /> },
             { id: 'hyper-v', label: 'Hyper-V Topology', icon: <ServerRegular /> },
-            { id: 'physical', label: 'Physical Infrastructure', icon: <CloudRegular /> }
+            { id: 'physical', label: 'Physical Infrastructure', icon: <CloudRegular /> },
+            { id: 'guide', label: 'Component Guide', icon: <BookRegular /> }
           ].map(tab => (
             <button
               key={tab.id}
