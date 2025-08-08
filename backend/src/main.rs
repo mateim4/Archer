@@ -4,6 +4,8 @@ use tower_http::cors::CorsLayer;
 mod api;
 mod models;
 mod database;
+mod migration_models;
+mod migration_api;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

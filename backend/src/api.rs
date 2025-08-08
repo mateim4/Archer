@@ -7,6 +7,7 @@ use axum::{
 };
 use crate::database::Database;
 use crate::models::*;
+use crate::migration_api::MigrationApi;
 use anyhow::Result;
 use std::sync::Arc;
 
@@ -22,6 +23,7 @@ pub fn api_router(db: Database) -> Router {
                 .nest("/auth", auth_routes())
                 .nest("/projects", projects_routes())
                 .nest("/users", users_routes())
+                .nest("/migration", migration_routes())
         )
         .with_state(state)
 }
@@ -395,4 +397,13 @@ pub async fn delete_design_doc(
     Ok(Json(serde_json::json!({
         "message": "Design document deleted successfully"
     })))
+}
+
+fn migration_routes() -> Router<AppState> {
+    Router::new()
+        .route("/projects", get(MigrationApi::list_migration_projects).post(MigrationApi::create_migration_project))
+        .route("/projects/:id", get(MigrationApi::get_migration_project))
+        .route("/projects/:id/tasks", get(MigrationApi::list_migration_tasks).post(MigrationApi::create_migration_task))
+        .route("/projects/:id/template/:template_id", post(MigrationApi::apply_project_template))
+        .route("/tasks/:id/status", put(MigrationApi::update_task_status))
 }

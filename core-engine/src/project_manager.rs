@@ -53,7 +53,7 @@ impl ProjectManager {
                     .map_err(|e| CoreEngineError::io(format!("Failed to read project file at {}: {}", path.display(), e)))?;
 
                 let project: Project = serde_json::from_str(&file_content)
-                    .map_err(|e| CoreEngineError::json(format!("Failed to parse project file {}: {}", path.display(), e)))?;
+                    .map_err(|e| CoreEngineError::parsing(format!("Failed to parse project file {}: {}", path.display(), e)))?;
 
                 projects.insert(project.id, project);
             }
@@ -65,7 +65,7 @@ impl ProjectManager {
     pub fn save_project(&self, project: &Project) -> Result<(), CoreEngineError> {
         let project_file = self.projects_dir.join(format!("{}.json", project.id));
         let file_content = serde_json::to_string_pretty(project)
-            .map_err(|e| CoreEngineError::json(format!("Failed to serialize project {}: {}", project.id, e)))?;
+            .map_err(|e| CoreEngineError::serialization(format!("Failed to serialize project {}: {}", project.id, e)))?;
 
         fs::write(&project_file, file_content)
             .map_err(|e| CoreEngineError::io(format!("Failed to write project file {}: {}", project_file.display(), e)))
@@ -93,7 +93,7 @@ impl ProjectManager {
                 ))
             })?;
             serde_json::from_str(&file_content)
-                .map_err(|e| CoreEngineError::json(format!("Failed to parse hardware pool file: {}", e)))
+                .map_err(|e| CoreEngineError::parsing(format!("Failed to parse hardware pool file: {}", e)))
         } else {
             // If the file doesn't exist, return a default, empty pool
             Ok(HardwarePool::default())
@@ -103,9 +103,9 @@ impl ProjectManager {
     /// Saves the hardware pool to its file.
     pub fn save_hardware_pool(&self, hardware_pool: &HardwarePool) -> Result<(), CoreEngineError> {
         let file_content = serde_json::to_string_pretty(hardware_pool)
-            .map_err(|e| CoreEngineError::json(format!("Failed to serialize hardware pool: {}", e)))?;
+            .map_err(|e| CoreEngineError::serialization(format!("Failed to serialize hardware pool: {}", e)))?;
 
         fs::write(&self.hardware_pool_file, file_content)
-            .map_err(|e| CoreEngineError::io(format!("Failed to write hardware pool file: {}", self.hardware_pool_file.display(), e)))
+            .map_err(|e| CoreEngineError::io(format!("Failed to write hardware pool file {}: {}", self.hardware_pool_file.display(), e)))
     }
 }
