@@ -15,6 +15,8 @@ import DesignDocsView from './views/DesignDocsView';
 import ProjectsView from './views/ProjectsView';
 import EnhancedProjectsView from './views/EnhancedProjectsView';
 import ProjectManagementView from './views/ProjectManagementView';
+import MigrationProjects from './views/MigrationProjects';
+import MigrationDashboard from './views/MigrationDashboard';
 import WorkflowsView from './views/WorkflowsView';
 import SettingsView from './views/SettingsView';
 
@@ -78,6 +80,8 @@ function App() {
             <Route path="/projects" element={<ProjectManagementView />} />
             <Route path="/projects-enhanced" element={<EnhancedProjectsView />} />
             <Route path="/projects-classic" element={<ProjectsView />} />
+            <Route path="/migration-dashboard" element={<MigrationDashboard />} />
+            <Route path="/migration-projects" element={<MigrationProjects />} />
             <Route path="/workflows"element={<WorkflowsView />} />
             <Route path="/settings" element={<SettingsView />} />
           </Routes>

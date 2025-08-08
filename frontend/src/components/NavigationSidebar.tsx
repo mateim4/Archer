@@ -23,7 +23,9 @@ import {
   FlashFilled,
   SettingsRegular,
   SettingsFilled,
-  NavigationRegular
+  NavigationRegular,
+  DataUsageRegular,
+  DataUsageFilled
 } from '@fluentui/react-icons';
 
 interface NavigationSidebarProps {
@@ -111,6 +113,24 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
       icon: <FolderRegular />, 
       iconFilled: <FolderFilled />, 
       path: '/projects' 
+    },
+    { 
+      id: 'migration-dashboard', 
+      title: 'Migration Dashboard', 
+      icon: <DataUsageRegular />, 
+      iconFilled: <DataUsageFilled />, 
+      path: '/migration-dashboard',
+      badge: 'New',
+      badgeType: 'brand'
+    },
+    { 
+      id: 'migration-projects', 
+      title: 'Migration Projects', 
+      icon: <ArrowSyncRegular />, 
+      iconFilled: <ArrowSyncFilled />, 
+      path: '/migration-projects',
+      badge: 'New',
+      badgeType: 'success'
     },
     { 
       id: 'workflows', 
