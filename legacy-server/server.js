@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const multer = require('multer');
-const XLSX = require('xlsx');
+const ExcelJS = require('exceljs');
 const path = require('path');
 const fs = require('fs');
 const { spawn } = require('child_process');
@@ -142,7 +142,7 @@ app.delete('/api/projects/:id', (req, res) => {
 });
 
 // Excel to CSV conversion endpoint
-app.post('/api/convert-excel', upload.single('file'), (req, res) => {
+app.post('/api/convert-excel', upload.single('file'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded' });
@@ -169,14 +169,30 @@ app.post('/api/convert-excel', upload.single('file'), (req, res) => {
     }
 
     // Process Excel file
-    const workbook = XLSX.readFile(filePath);
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.readFile(filePath);
     
     // Get the first worksheet
-    const sheetName = workbook.SheetNames[0];
-    const worksheet = workbook.Sheets[sheetName];
+    const worksheet = workbook.worksheets[0];
     
     // Convert to CSV
-    const csvData = XLSX.utils.sheet_to_csv(worksheet);
+    let csvData = '';
+    worksheet.eachRow((row, rowNumber) => {
+      const rowValues = [];
+      row.eachCell((cell, colNumber) => {
+        // Handle different cell types
+        let value = '';
+        if (cell.value !== null && cell.value !== undefined) {
+          if (typeof cell.value === 'object' && cell.value.text) {
+            value = cell.value.text; // Rich text
+          } else {
+            value = cell.value.toString();
+          }
+        }
+        rowValues.push(`"${value.replace(/"/g, '""')}"`);
+      });
+      csvData += rowValues.join(',') + '\n';
+    });
     
     // Clean up uploaded file
     fs.unlinkSync(filePath);
@@ -187,7 +203,7 @@ app.post('/api/convert-excel', upload.single('file'), (req, res) => {
       success: true,
       filename: originalName,
       csvData: csvData,
-      sheetName: sheetName,
+      sheetName: worksheet.name,
       message: 'Excel file converted to CSV successfully'
     });
     
@@ -226,20 +242,48 @@ app.post('/api/process-vmware', upload.single('file'), async (req, res) => {
         console.warn('RVTools parser not found, using basic Excel parsing fallback');
         
         // Basic Excel parsing fallback
-        const workbook = XLSX.readFile(filePath);
-        const sheetNames = workbook.SheetNames;
+        const workbook = new ExcelJS.Workbook();
+        await workbook.xlsx.readFile(filePath);
+        const worksheets = workbook.worksheets;
         
         // Try to find the vInfo sheet which contains VM information
-        const vInfoSheet = sheetNames.find(name => name.toLowerCase().includes('vinfo')) || sheetNames[0];
-        const worksheet = workbook.Sheets[vInfoSheet];
-        const jsonData = XLSX.utils.sheet_to_json(worksheet);
+        const vInfoSheet = worksheets.find(ws => ws.name.toLowerCase().includes('vinfo')) || worksheets[0];
+        
+        // Convert worksheet to JSON format
+        const jsonData = [];
+        const headers = [];
+        
+        // Get headers from first row
+        const headerRow = vInfoSheet.getRow(1);
+        headerRow.eachCell((cell, colNumber) => {
+          headers[colNumber] = cell.value ? cell.value.toString() : '';
+        });
+        
+        // Get data from remaining rows
+        for (let rowNumber = 2; rowNumber <= vInfoSheet.rowCount; rowNumber++) {
+          const row = vInfoSheet.getRow(rowNumber);
+          const rowData = {};
+          let hasData = false;
+          
+          row.eachCell((cell, colNumber) => {
+            if (headers[colNumber]) {
+              const value = cell.value ? cell.value.toString() : '';
+              rowData[headers[colNumber]] = value;
+              if (value) hasData = true;
+            }
+          });
+          
+          if (hasData) {
+            jsonData.push(rowData);
+          }
+        }
         
         // Generate environment data from Excel content
         const environmentData = generateEnvironmentFromExcel(jsonData, originalName);
         
         // Log the processed data summary
         console.log(`Excel parsing summary:
-          - Sheet used: ${vInfoSheet}
+          - Sheet used: ${vInfoSheet.name}
           - Total rows: ${jsonData.length}
           - VMs found: ${environmentData.total_vms}
           - Clusters: ${environmentData.clusters.length}
