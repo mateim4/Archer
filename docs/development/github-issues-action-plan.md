@@ -27,11 +27,23 @@ Based on the comprehensive UI/UX fixes documented in `docs/development/github-is
 
 ## 🚨 NEW CRITICAL ISSUES TO CREATE
 
-### 1. Security Vulnerabilities (CRITICAL)
-- **Priority:** Critical
-- **Description:** GitHub detected 38 vulnerabilities (2 critical, 15 high, 17 moderate, 4 low)
-- **Action:** Address Dependabot security alerts
-- **Labels:** security, dependencies, critical
+### 1. Security Vulnerabilities (PARTIALLY RESOLVED - HIGH PRIORITY)
+- **Priority:** High (was Critical)
+- **Status:** ✅ Major vulnerabilities fixed in frontend and legacy-server
+- **Description:** GitHub still reporting 38 vulnerabilities (2 critical, 15 high, 17 moderate, 4 low)
+- **Progress:** 
+  - ✅ Frontend: Updated Vite to v7.1.1, resolved esbuild issues
+  - ✅ Legacy-server: Replaced xlsx with exceljs, updated multer
+  - 🔍 Remaining: Likely transitive dependencies or other packages
+- **Next:** Run comprehensive audit across all project components
+- **Labels:** security, dependencies, high-priority
+
+### 2. Comprehensive Dependency Audit (NEW - HIGH)
+- **Priority:** High
+- **Description:** Audit all packages across frontend/, tauri-app/, backend/, etc.
+- **Action:** Check each package.json and Cargo.toml for vulnerabilities
+- **Goal:** Achieve zero security vulnerabilities across entire project
+- **Labels:** security, audit, dependencies
 
 ### 2. Project Structure Optimization (HIGH)
 - **Priority:** High  
