@@ -1,7 +1,0 @@
-🚀 LCM Designer Server running on port 3001
-📁 File upload endpoint: http://localhost:3001/api/convert-excel
-🔧 VMware processing: http://localhost:3001/api/process-vmware
-💚 Health check: http://localhost:3001/health
-Processing VMware file: test-rvtools.csv
-Successfully processed VMware file: test-rvtools.csv
-Processing file: test-rvtools.csv
