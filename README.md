@@ -10,6 +10,8 @@ New to the project? Start here:
 
 **🔧 [Dependencies Guide](DEPENDENCIES.md)** - Detailed system requirements
 
+**✅ Project Status**: Development environment stabilized, security vulnerabilities resolved, ready for active development!
+
 ## Features
 
 - **Dashboard**: Upload and analyze VMware RVTools exports
@@ -21,10 +23,11 @@ New to the project? Start here:
 
 ## Architecture
 
-- **Frontend**: React + TypeScript + Vite
-- **Backend API**: Express.js server for file processing
+- **Frontend**: React + TypeScript + Vite (v5.4.19 - stable)
+- **Backend API**: Express.js server for secure file processing  
+- **Legacy Server**: ExcelJS-based processing (security hardened)
 - **Desktop App**: Tauri (Rust) for native desktop functionality
-- **UI Framework**: Custom Fluent UI-inspired design system
+- **UI Framework**: Custom Fluent UI-inspired design system with Tailwind CSS v3
 
 ## Development Setup
 
@@ -33,6 +36,14 @@ New to the project? Start here:
 ```bash
 git clone https://github.com/mateim4/LCMDesigner.git
 cd LCMDesigner
+
+# Frontend development server (recommended for UI work)
+cd frontend
+npm install
+npm run dev          # Starts on http://localhost:1420
+
+# Or full stack setup
+cd ..
 ./scripts/setup-dependencies.sh
 npm install
 npm run dev
@@ -72,23 +83,33 @@ npm run type-check   # Run TypeScript type checking
 
 ```
 LCMDesigner/
-├── src/                           # Frontend React application
-│   ├── components/               # Reusable UI components
-│   ├── views/                   # Main application views
-│   ├── store/                   # State management (Zustand)
-│   ├── utils/                   # Utility functions
-│   └── types/                   # TypeScript type definitions
-├── src-tauri/                   # Tauri desktop application
-│   ├── src/                     # Rust source code
-│   └── Cargo.toml              # Rust dependencies
-├── server/                      # Express.js API server
-│   ├── server.js               # Main server file
-│   └── package.json            # Server dependencies
-├── core-engine/                 # Rust core engine
-│   └── src/                    # Core business logic
-├── scripts/                     # Setup and utility scripts
-├── public/                      # Static assets
-└── docs/                       # Documentation
+├── frontend/                    # React + TypeScript frontend
+│   ├── src/                    # Source code
+│   │   ├── components/         # Reusable UI components
+│   │   ├── views/             # Main application views
+│   │   ├── store/             # State management (Zustand)
+│   │   ├── utils/             # Utility functions
+│   │   └── types/             # TypeScript definitions
+│   ├── public/                # Static assets
+│   └── package.json           # Frontend dependencies
+├── legacy-server/             # Express.js API (secure)
+│   ├── server.js             # ExcelJS-based processing
+│   └── uploads/              # File upload directory
+├── backend/                   # Rust backend (future)
+│   └── src/                  # Rust API implementation
+├── src-tauri/                # Tauri desktop app
+│   ├── src/                  # Rust desktop code
+│   └── Cargo.toml           # Tauri dependencies
+├── core-engine/              # Core business logic
+│   └── src/                 # Rust processing engine
+├── docs/                     # Documentation
+│   ├── development/         # Development guides
+│   ├── design/             # UI/UX documentation
+│   └── testing/            # Testing documentation
+├── scripts/                  # Setup utilities
+├── tests/                   # Playwright E2E tests
+└── .github/                 # GitHub templates
+    └── ISSUE_TEMPLATE/      # Issue templates
 ```
 
 ## System Requirements
@@ -118,10 +139,11 @@ LCMDesigner/
 
 ### Processing Capabilities
 
-- **Server-side Excel processing**: Automatic conversion and parsing
-- **Client-side CSV processing**: Web-based parsing for smaller files
+- **Server-side Excel processing**: Secure ExcelJS-based conversion and parsing
+- **Client-side CSV processing**: Web-based parsing for smaller files  
 - **Real-time file validation**: Type checking and format verification
 - **Vendor detection**: Automatic identification of file sources
+- **Security hardened**: All vulnerabilities resolved, sandboxed processing
 
 ## Contributing
 
@@ -140,6 +162,15 @@ LCMDesigner/
 - Add JSDoc comments for public APIs
 - Update documentation for new features
 - Test your changes on multiple platforms if possible
+- Use GitHub issue templates for bugs, features, and UI/UX improvements
+
+### Project Status
+
+✅ **Security**: All major vulnerabilities resolved  
+✅ **Development Environment**: Stable and running (port 1420)  
+✅ **Dependencies**: Clean and up-to-date  
+✅ **Documentation**: Comprehensive guides and templates  
+✅ **GitHub Integration**: Issue templates and workflows ready
 
 ## Troubleshooting
 
@@ -147,7 +178,14 @@ LCMDesigner/
 
 1. **JavaScriptCore GTK not found**: See [DEPENDENCIES.md](DEPENDENCIES.md) for installation instructions
 2. **Build failures**: Try `npm run clean && npm install && cargo clean`
-3. **Port conflicts**: Change ports in `vite.config.ts` and `server/server.js`
+3. **Port conflicts**: Frontend runs on port 1420, backend on 3001
+4. **Vite errors**: Run `cd frontend && rm -rf node_modules && npm install`
+
+### Recent Fixes
+
+✅ **Security vulnerabilities resolved** (ExcelJS migration, dependency updates)  
+✅ **Vite module resolution fixed** (Tailwind CSS compatibility)  
+✅ **Development environment stabilized** (working on port 1420)
 
 ### Getting Help
 
@@ -157,10 +195,12 @@ LCMDesigner/
 
 ## Security
 
-- All file processing is sandboxed
+- All file processing is sandboxed and security hardened
+- ExcelJS replaces vulnerable xlsx library (2024 security update)
 - No sensitive data is stored permanently
-- Server endpoints are CORS-protected
+- Server endpoints are CORS-protected  
 - Input validation on all file uploads
+- Regular dependency audits and updates
 
 ## License
 
@@ -176,14 +216,22 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Roadmap
 
+### Immediate (Next Sprint)
+- [ ] Project structure optimization
+- [ ] Performance improvements and bundle optimization
+- [ ] Comprehensive testing infrastructure
+
+### Short Term
 - [ ] Enhanced network topology visualization
 - [ ] Additional vendor API integrations
 - [ ] Advanced migration planning tools
+
+### Long Term  
 - [ ] Cloud platform support
 - [ ] Mobile companion app
 - [ ] Enterprise SSO integration
 
 ---
 
-For detailed setup instructions, see [QUICK_START.md](QUICK_START.md)  
-For system requirements, see [DEPENDENCIES.md](DEPENDENCIES.md)
+**🔗 Quick Links**  
+📋 [Quick Start Guide](QUICK_START.md) | 🔧 [Dependencies](DEPENDENCIES.md) | 📝 [GitHub Issues](https://github.com/mateim4/LCMDesigner/issues)
