@@ -566,6 +566,235 @@ function parseRVToolsFile(filePath) {
   });
 }
 
+// Hardware basket storage (in production, this would be a database)
+const hardwareBaskets = [];
+
+// Hardware basket API endpoints
+app.get('/api/hardware-baskets', (req, res) => {
+  console.log('📦 GET /api/hardware-baskets - Fetching all hardware baskets');
+  res.json(hardwareBaskets);
+});
+
+app.post('/api/hardware-baskets/upload', upload.single('file'), async (req, res) => {
+  try {
+    console.log('📦 POST /api/hardware-baskets/upload - Processing hardware basket upload');
+    
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+
+    const filePath = req.file.path;
+    const originalName = req.file.originalname;
+    const { vendor, quarter, year } = req.body;
+    
+    console.log(`Processing hardware basket: ${originalName} (${vendor} Q${quarter} ${year})`);
+
+    // Process Excel file
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.readFile(filePath);
+    
+    // Parse hardware basket data - Look for the main data worksheet
+    const models = [];
+    const configurations = [];
+    
+    // Find the main pricing worksheet (usually "Dell Lot Pricing", "Pricing", or similar)
+    let dataWorksheet = null;
+    for (const worksheet of workbook.worksheets) {
+      const name = worksheet.name.toLowerCase();
+      if (name.includes('pricing') || name.includes('lot') || name.includes('config') || name.includes('server')) {
+        dataWorksheet = worksheet;
+        break;
+      }
+    }
+    
+    // If no specific worksheet found, use the first one with substantial data
+    if (!dataWorksheet) {
+      dataWorksheet = workbook.worksheets.find(ws => ws.rowCount > 10) || workbook.worksheets[0];
+    }
+    
+    console.log(`Using worksheet: "${dataWorksheet.name}" with ${dataWorksheet.rowCount} rows`);
+    
+    // Find header row by looking for common hardware terms
+    let headerRowNumber = 1;
+    let headers = [];
+    
+    for (let rowNumber = 1; rowNumber <= Math.min(10, dataWorksheet.rowCount); rowNumber++) {
+      const row = dataWorksheet.getRow(rowNumber);
+      const rowValues = [];
+      let hasHardwareTerms = 0;
+      
+      row.eachCell((cell, colNumber) => {
+        if (cell.value) {
+          const value = cell.value.toString().toLowerCase();
+          rowValues.push(cell.value.toString());
+          
+          // Count hardware-related terms
+          if (value.includes('lot') || value.includes('description') || value.includes('item') || 
+              value.includes('specification') || value.includes('price') || value.includes('model') ||
+              value.includes('sku') || value.includes('part')) {
+            hasHardwareTerms++;
+          }
+        }
+      });
+      
+      // If this row has multiple hardware terms, it's likely the header
+      if (hasHardwareTerms >= 3 && rowValues.length >= 5) {
+        headerRowNumber = rowNumber;
+        headers = rowValues;
+        console.log(`Found header row ${rowNumber}: [${headers.slice(0, 5).join(' | ')}...]`);
+        break;
+      }
+    }
+    
+    // If no clear header found, use a sensible default
+    if (headers.length === 0) {
+      headerRowNumber = 1;
+      const headerRow = dataWorksheet.getRow(1);
+      headerRow.eachCell((cell, colNumber) => {
+        headers[colNumber] = cell.value ? cell.value.toString() : `Column${colNumber}`;
+      });
+    }
+    
+    // Process data rows starting after the header
+    let processedCount = 0;
+    for (let rowNumber = headerRowNumber + 1; rowNumber <= dataWorksheet.rowCount; rowNumber++) {
+      const row = dataWorksheet.getRow(rowNumber);
+      const rowData = {};
+      let hasData = false;
+      
+      row.eachCell((cell, colNumber) => {
+        if (headers[colNumber]) {
+          const value = cell.value ? cell.value.toString().trim() : '';
+          rowData[headers[colNumber]] = value;
+          if (value && value !== '[object Object]') {
+            hasData = true;
+          }
+        }
+      });
+      
+      if (hasData && processedCount < 100) { // Limit to first 100 items for performance
+        // Extract model information with better field mapping
+        const lotDescription = rowData['Lot Description'] || rowData['Description'] || rowData['Item'] || '';
+        const item = rowData['Item'] || rowData['Product'] || rowData['Model'] || '';
+        const specification = rowData['Specification'] || rowData['Specs'] || rowData['Config'] || '';
+        const format = rowData['Dell Format or model'] || rowData['Format'] || rowData['Model'] || '';
+        
+        // Determine model name from available fields
+        let modelName = 'Unknown Model';
+        if (lotDescription && lotDescription.length > 5 && !lotDescription.toLowerCase().includes('server')) {
+          modelName = lotDescription;
+        } else if (format && format.length > 2) {
+          modelName = format;
+        } else if (item && item.length > 5) {
+          modelName = item;
+        } else if (specification && specification.length > 10) {
+          modelName = specification.substring(0, 50);
+        }
+        
+        // Extract category and form factor from description
+        let category = 'Server';
+        let formFactor = 'N/A';
+        
+        const desc = (lotDescription + ' ' + specification).toLowerCase();
+        if (desc.includes('rack')) formFactor = 'Rack';
+        else if (desc.includes('tower')) formFactor = 'Tower';
+        else if (desc.includes('blade')) formFactor = 'Blade';
+        
+        if (desc.includes('1u')) formFactor = '1U Rack';
+        else if (desc.includes('2u')) formFactor = '2U Rack';
+        
+        // Extract pricing
+        const listPrice = rowData['Listprice'] || rowData['List Price'] || '0';
+        const netPrice = rowData['Net Price US$'] || rowData['Net Price'] || rowData['Sell price'] || '0';
+        
+        // Create model entry
+        const model = {
+          id: `model_${models.length + 1}`,
+          name: modelName,
+          category: category,
+          formFactor: formFactor,
+          vendor: vendor || 'Unknown',
+          price: netPrice || listPrice || '0',
+          specifications: {
+            lotDescription: lotDescription,
+            item: item,
+            specification: specification,
+            format: format,
+            listPrice: listPrice,
+            netPrice: netPrice,
+            ...rowData
+          }
+        };
+        
+        models.push(model);
+        
+        // Create configuration from model
+        const config = {
+          id: `config_${configurations.length + 1}`,
+          model_id: model.id,
+          configuration: rowData
+        };
+        configurations.push(config);
+        
+        processedCount++;
+      }
+    }
+    
+    // Create hardware basket entry
+    const basketId = `basket_${Date.now()}`;
+    const hardwareBasket = {
+      id: basketId,
+      name: `${vendor} Q${quarter} ${year}`,
+      vendor: vendor || 'Unknown',
+      quarter: quarter || 'Unknown',
+      year: parseInt(year) || new Date().getFullYear(),
+      filename: originalName,
+      created_at: new Date().toISOString(),
+      models: models,
+      configurations: configurations
+    };
+    
+    hardwareBaskets.push(hardwareBasket);
+    
+    // Clean up uploaded file
+    fs.unlinkSync(filePath);
+    
+    console.log(`Successfully processed hardware basket: ${models.length} models, ${configurations.length} configurations`);
+    
+    res.json({
+      success: true,
+      basket_id: basketId,
+      total_models: models.length,
+      total_configurations: configurations.length,
+      message: 'Hardware basket uploaded successfully'
+    });
+    
+  } catch (error) {
+    console.error('Error processing hardware basket:', error);
+    
+    // Clean up file if it exists
+    if (req.file && fs.existsSync(req.file.path)) {
+      fs.unlinkSync(req.file.path);
+    }
+    
+    res.status(500).json({
+      error: 'Failed to process hardware basket',
+      message: error.message
+    });
+  }
+});
+
+app.get('/api/hardware-baskets/:basketId/models', (req, res) => {
+  console.log(`📦 GET /api/hardware-baskets/${req.params.basketId}/models - Fetching models`);
+  
+  const basket = hardwareBaskets.find(b => b.id === req.params.basketId);
+  if (!basket) {
+    return res.status(404).json({ error: 'Hardware basket not found' });
+  }
+  
+  res.json(basket.models || []);
+});
+
 // Error handling middleware
 app.use((error, req, res, next) => {
   if (error instanceof multer.MulterError) {

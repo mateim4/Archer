@@ -23,11 +23,12 @@ html, body {
   font-family: 'Poppins', 'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
+  overflow-x: hidden; /* Prevent horizontal scrolling */
+  overflow-y: auto; /* Allow vertical scrolling */
 }
 
 #root {
-  height: 100vh;
+  min-height: 100vh; /* Allow content to expand beyond viewport */
   width: 100vw;
 }
 

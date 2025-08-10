@@ -718,98 +718,307 @@
   }
 }
 
-/* ===================
-   FLUENT 2 ANIMATION UTILITIES
-   =================== */
-
-.fluent2-fade-in {
-  animation: fluent2-fade-in var(--fluent-duration-normal) var(--fluent-curve-ease);
-}
-
-.fluent2-slide-up {
-  animation: fluent2-slide-up var(--fluent-duration-gentle) var(--fluent-curve-ease);
-}
-
-.fluent2-scale-in {
-  animation: fluent2-scale-in var(--fluent-duration-fast) var(--fluent-curve-ease);
-}
-
-@keyframes fluent2-fade-in {
-  from {
-    opacity: 0;
+@media (max-width: 640px) {
+  .fluent2-page-enhanced {
+    gap: var(--fluent-spacing-xl);
+    padding: var(--fluent-spacing-l);
   }
-  to {
-    opacity: 1;
+  
+  .fluent2-content-group {
+    gap: var(--fluent-spacing-m);
+    margin-bottom: var(--fluent-spacing-xl);
   }
-}
-
-@keyframes fluent2-slide-up {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
+  
+  .fluent2-content-group-loose {
+    gap: var(--fluent-spacing-l);
+    margin-bottom: var(--fluent-spacing-xxl);
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  
+  .fluent2-section-header {
+    margin-bottom: var(--fluent-spacing-l);
   }
-}
-
-@keyframes fluent2-scale-in {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
+  
+  .fluent2-section-title {
+    font-size: var(--fluent-font-size-600);
   }
 }
 
 /* ===================
-   UTILITY CLASSES
+   ENHANCED VISUAL HIERARCHY - Issue 7 Improvements
    =================== */
 
-.fluent2-visually-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
+/* Enhanced Typography Scale with Better Hierarchy */
+.fluent2-text-mega {
+  font-size: var(--fluent-font-size-1000);
+  font-weight: var(--fluent-font-weight-bold);
+  line-height: var(--fluent-line-height-1000);
+  letter-spacing: -0.03em;
+  color: var(--fluent-color-neutral-foreground-1);
+  margin: 0 0 var(--fluent-spacing-xl) 0;
 }
 
-.fluent2-focus-visible:focus-visible {
-  outline: 2px solid var(--fluent-color-stroke-focus);
-  outline-offset: 2px;
+.fluent2-text-hero {
+  font-size: var(--fluent-font-size-900);
+  font-weight: var(--fluent-font-weight-bold);
+  line-height: var(--fluent-line-height-900);
+  letter-spacing: -0.025em;
+  color: var(--fluent-color-neutral-foreground-1);
+  margin: 0 0 var(--fluent-spacing-l) 0;
 }
 
-.fluent2-flex {
+/* Enhanced Section Headers */
+.fluent2-section-header {
   display: flex;
-}
-
-.fluent2-flex-column {
   flex-direction: column;
+  gap: var(--fluent-spacing-s);
+  margin-bottom: var(--fluent-spacing-xl);
+  padding-bottom: var(--fluent-spacing-m);
+  border-bottom: 1px solid var(--fluent-color-stroke-tertiary);
 }
 
-.fluent2-gap-xs {
-  gap: var(--fluent-spacing-xs);
-}
-
-.fluent2-gap-s {
+.fluent2-section-title {
+  font-size: var(--fluent-font-size-700);
+  font-weight: var(--fluent-font-weight-semibold);
+  line-height: var(--fluent-line-height-700);
+  color: var(--fluent-color-neutral-foreground-1);
+  margin: 0;
+  display: flex;
+  align-items: center;
   gap: var(--fluent-spacing-s);
 }
 
-.fluent2-gap-m {
-  gap: var(--fluent-spacing-m);
+.fluent2-section-title::before {
+  content: '';
+  width: 4px;
+  height: 1.5rem;
+  background: linear-gradient(135deg, var(--fluent-color-brand-primary), var(--fluent-color-brand-accent));
+  border-radius: 2px;
+  flex-shrink: 0;
 }
 
-.fluent2-gap-l {
+.fluent2-section-description {
+  font-size: var(--fluent-font-size-300);
+  font-weight: var(--fluent-font-weight-regular);
+  line-height: var(--fluent-line-height-300);
+  color: var(--fluent-color-neutral-foreground-2);
+  margin: 0;
+  max-width: 60ch;
+}
+
+/* Enhanced Content Grouping */
+.fluent2-content-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fluent-spacing-l);
+  margin-bottom: var(--fluent-spacing-xxl);
+}
+
+.fluent2-content-group:last-child {
+  margin-bottom: 0;
+}
+
+.fluent2-content-group-tight {
+  gap: var(--fluent-spacing-m);
+  margin-bottom: var(--fluent-spacing-xl);
+}
+
+.fluent2-content-group-loose {
+  gap: var(--fluent-spacing-xl);
+  margin-bottom: var(--fluent-spacing-xxxl);
+}
+
+/* Enhanced Visual Separators */
+.fluent2-divider-enhanced {
+  border: none;
+  height: 1px;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    var(--fluent-color-stroke-secondary) 25%, 
+    var(--fluent-color-stroke-primary) 50%, 
+    var(--fluent-color-stroke-secondary) 75%, 
+    transparent 100%
+  );
+  margin: var(--fluent-spacing-xxl) 0;
+}
+
+.fluent2-divider-enhanced-thick {
+  height: 2px;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    var(--fluent-color-brand-secondary) 25%, 
+    var(--fluent-color-brand-primary) 50%, 
+    var(--fluent-color-brand-secondary) 75%, 
+    transparent 100%
+  );
+}
+
+/* Enhanced Page Layout Structure */
+.fluent2-page-enhanced {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fluent-spacing-xxxl);
+  padding: var(--fluent-spacing-xxxl);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.fluent2-page-header-enhanced {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fluent-spacing-l);
+  margin-bottom: var(--fluent-spacing-xxxl);
+  padding-bottom: var(--fluent-spacing-xl);
+  border-bottom: 2px solid var(--fluent-color-stroke-secondary);
+}
+
+.fluent2-page-title-enhanced {
+  font-size: var(--fluent-font-size-900);
+  font-weight: var(--fluent-font-weight-bold);
+  line-height: var(--fluent-line-height-900);
+  color: var(--fluent-color-neutral-foreground-1);
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.fluent2-page-subtitle-enhanced {
+  font-size: var(--fluent-font-size-400);
+  font-weight: var(--fluent-font-weight-regular);
+  line-height: var(--fluent-line-height-400);
+  color: var(--fluent-color-neutral-foreground-2);
+  margin: 0;
+  max-width: 65ch;
+}
+
+/* Enhanced Card Hierarchy */
+.fluent2-card-enhanced {
+  background: var(--fluent-color-surface-primary);
+  border: 1px solid var(--fluent-color-stroke-secondary);
+  border-radius: var(--fluent-border-radius-large);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  box-shadow: var(--fluent-shadow-4);
+  padding: var(--fluent-spacing-xxxl);
+  transition: all var(--fluent-duration-normal) var(--fluent-curve-ease);
+  outline: none;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
   gap: var(--fluent-spacing-l);
 }
 
-.fluent2-gap-xl {
+.fluent2-card-enhanced::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.02) 0%, rgba(99, 102, 241, 0.02) 100%);
+  pointer-events: none;
+}
+
+.fluent2-card-enhanced:hover {
+  box-shadow: var(--fluent-shadow-8);
+  transform: translateY(-2px);
+  border-color: var(--fluent-color-stroke-primary);
+}
+
+.fluent2-card-header-enhanced {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fluent-spacing-s);
+  margin-bottom: var(--fluent-spacing-l);
+  padding-bottom: var(--fluent-spacing-m);
+  border-bottom: 1px solid var(--fluent-color-stroke-tertiary);
+}
+
+.fluent2-card-title-enhanced {
+  font-size: var(--fluent-font-size-600);
+  font-weight: var(--fluent-font-weight-semibold);
+  line-height: var(--fluent-line-height-600);
+  color: var(--fluent-color-neutral-foreground-1);
+  margin: 0;
+}
+
+.fluent2-card-subtitle-enhanced {
+  font-size: var(--fluent-font-size-300);
+  font-weight: var(--fluent-font-weight-regular);
+  line-height: var(--fluent-line-height-300);
+  color: var(--fluent-color-neutral-foreground-2);
+  margin: 0;
+}
+
+.fluent2-card-content-enhanced {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fluent-spacing-m);
+  flex: 1;
+}
+
+/* Enhanced List Styling */
+.fluent2-list-enhanced {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fluent-spacing-s);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fluent2-list-enhanced li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--fluent-spacing-s);
+  padding: var(--fluent-spacing-s);
+  border-radius: var(--fluent-border-radius-medium);
+  transition: background-color var(--fluent-duration-fast) var(--fluent-curve-ease);
+}
+
+.fluent2-list-enhanced li:hover {
+  background: var(--fluent-color-surface-secondary);
+}
+
+.fluent2-list-enhanced li::before {
+  content: '→';
+  color: var(--fluent-color-brand-primary);
+  font-weight: var(--fluent-font-weight-semibold);
+  flex-shrink: 0;
+  margin-top: 0.1em;
+}
+
+/* Enhanced Form Layout */
+.fluent2-form-enhanced {
+  display: flex;
+  flex-direction: column;
   gap: var(--fluent-spacing-xl);
 }
+
+.fluent2-form-section-enhanced {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fluent-spacing-l);
+  padding: var(--fluent-spacing-xl);
+  background: var(--fluent-color-surface-secondary);
+  border-radius: var(--fluent-border-radius-large);
+  border: 1px solid var(--fluent-color-stroke-tertiary);
+}
+
+.fluent2-form-group-enhanced {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fluent-spacing-s);
+}
+
+.fluent2-form-actions-enhanced {
+  display: flex;
+  gap: var(--fluent-spacing-m);
+  justify-content: flex-end;
+  margin-top: var(--fluent-spacing-xl);
+  padding-top: var(--fluent-spacing-l);
+  border-top: 1px solid var(--fluent-color-stroke-tertiary);
+}
+
+/* ===================
+   END ENHANCED VISUAL HIERARCHY
+   =================== */

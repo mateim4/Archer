@@ -8,6 +8,7 @@ use axum::{
 use crate::database::Database;
 use crate::models::*;
 use crate::migration_api::MigrationApi;
+use crate::hardware_basket_api;
 use anyhow::Result;
 use std::sync::Arc;
 
@@ -24,6 +25,7 @@ pub fn api_router(db: Database) -> Router {
                 .nest("/projects", projects_routes())
                 .nest("/users", users_routes())
                 .nest("/migration", migration_routes())
+                .merge(hardware_basket_api::hardware_basket_routes())
         )
         .with_state(state)
 }

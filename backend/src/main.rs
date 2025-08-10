@@ -6,6 +6,7 @@ mod models;
 mod database;
 mod migration_models;
 mod migration_api;
+mod hardware_basket_api;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

@@ -9,12 +9,20 @@ import {
   CloudSyncRegular,
   CheckmarkCircleRegular,
   ErrorCircleRegular,
-  InfoRegular
+  InfoRegular,
+  EyeRegular,
+  DeleteRegular
 } from '@fluentui/react-icons';
 import GlassmorphicLayout from '../components/GlassmorphicLayout';
 import ConsistentCard from '../components/ConsistentCard';
 import ConsistentButton from '../components/ConsistentButton';
-import EnhancedFileUpload from '../components/EnhancedFileUpload';
+import SimpleFileUpload from '../components/SimpleFileUpload';
+import { parseHardwareBasket } from '../utils/hardwareBasketParser';
+import type { 
+  HardwareBasket, 
+  HardwareModel, 
+  ImportResult 
+} from '../types/hardwareBasketTypes';
 
 // Types
 interface VendorModel {
@@ -51,6 +59,12 @@ const VendorDataCollectionView: React.FC = () => {
   const [searchRequirements, setSearchRequirements] = useState<SearchRequirements>({
     workload_type: 'General'
   });
+
+  // Hardware basket state
+  const [hardwareBaskets, setHardwareBaskets] = useState<HardwareBasket[]>([]);
+  const [selectedBasket, setSelectedBasket] = useState<string>('');
+  const [hardwareModels, setHardwareModels] = useState<HardwareModel[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
 
   const vendors = [
     { value: '', label: 'All Vendors' },
@@ -109,6 +123,93 @@ const VendorDataCollectionView: React.FC = () => {
     };
     return mapping[formFactor] || formFactor;
   };
+
+  // Hardware basket functions
+  const fetchHardwareBaskets = async () => {
+    try {
+      const response = await fetch('/api/hardware-baskets');
+      if (response.ok) {
+        const data = await response.json();
+        setHardwareBaskets(data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch hardware baskets:', error);
+    }
+  };
+
+  const fetchHardwareModels = async (basketId: string) => {
+    try {
+      setLoading(true);
+      const response = await fetch(`/api/hardware-baskets/${basketId}/models`);
+      if (response.ok) {
+        const data = await response.json();
+        setHardwareModels(data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch hardware models:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFileUpload = async (file: File) => {
+    setIsUploading(true);
+    try {
+      // Parse the file first
+      const parsedData = await parseHardwareBasket(file);
+
+      // Upload to backend
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('vendor', parsedData.vendor);
+      formData.append('quarter', parsedData.quarter);
+      formData.append('year', parsedData.year.toString());
+
+      const response = await fetch('/api/hardware-baskets/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        const result: ImportResult = await response.json();
+        setMessage({
+          type: 'success',
+          title: 'Hardware Basket Uploaded',
+          body: `Successfully imported ${result.total_models || 0} models and ${result.total_configurations || 0} configurations`
+        });
+        fetchHardwareBaskets(); // Refresh the list
+        if (hardwareBaskets.length > 0) {
+          setSelectedBasket(hardwareBaskets[0].id); // Auto-select first basket
+        }
+      } else {
+        throw new Error('Upload failed');
+      }
+    } catch (error) {
+      setMessage({
+        type: 'error',
+        title: 'Upload Failed',
+        body: error instanceof Error ? error.message : 'Unknown error occurred'
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  // Fetch hardware baskets when basket tab is accessed
+  useEffect(() => {
+    if (activeTab === 'basket') {
+      fetchHardwareBaskets();
+    }
+  }, [activeTab]);
+
+  // Fetch models when basket is selected
+  useEffect(() => {
+    if (selectedBasket) {
+      fetchHardwareModels(selectedBasket);
+    } else {
+      setHardwareModels([]);
+    }
+  }, [selectedBasket]);
 
   const getStatsOverview = () => [
     { 
@@ -176,12 +277,14 @@ const VendorDataCollectionView: React.FC = () => {
               title="Hardware Configuration Upload"
               subtitle="Upload vendor-specific configuration files to populate server data"
               icon={<CloudArrowUpRegular />}
+              allowOverflow={true}
             >
               <div style={{ 
                 display: 'grid', 
-                gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
+                gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', // Increased minmax to accommodate upload components
                 gap: '24px',
-                marginTop: '24px'
+                marginTop: '24px',
+                alignItems: 'start' // Align items to start to prevent stretching
               }}>
                 {/* Dell Upload */}
                 <div>
@@ -210,9 +313,11 @@ const VendorDataCollectionView: React.FC = () => {
                       <div style={{ fontSize: '12px', color: '#6b7280' }}>System Configuration Profile (XML)</div>
                     </div>
                   </div>
-                  <EnhancedFileUpload
+                  <SimpleFileUpload
                     uploadType="hardware"
                     acceptedTypes={['.xml']}
+                    label="Upload Dell SCP"
+                    description="Select XML file"
                     onFileProcessed={(result) => {
                       setMessage({
                         type: 'success',
@@ -257,17 +362,19 @@ const VendorDataCollectionView: React.FC = () => {
                       <div style={{ fontSize: '12px', color: '#6b7280' }}>Quote files (CSV, TXT, XLS)</div>
                     </div>
                   </div>
-                  <EnhancedFileUpload
+                  <SimpleFileUpload
                     uploadType="hardware"
                     acceptedTypes={['.csv', '.txt', '.xls', '.xlsx']}
-                    onFileProcessed={(result) => {
+                    label="Upload HPE iQuote"
+                    description="Select quote files"
+                    onFileProcessed={(result: any) => {
                       setMessage({
                         type: 'success',
                         title: 'HPE iQuote File Processed',
                         body: `${result.name || 'File'} has been analyzed and server data extracted.`
                       });
                     }}
-                    onError={(error) => {
+                    onError={(error: string) => {
                       setMessage({
                         type: 'error',
                         title: 'HPE iQuote Processing Failed',
@@ -304,17 +411,19 @@ const VendorDataCollectionView: React.FC = () => {
                       <div style={{ fontSize: '12px', color: '#6b7280' }}>Data Center System Configuration (XML)</div>
                     </div>
                   </div>
-                  <EnhancedFileUpload
+                  <SimpleFileUpload
                     uploadType="hardware"
                     acceptedTypes={['.xml']}
-                    onFileProcessed={(result) => {
+                    label="Upload Lenovo DCSC"
+                    description="Select XML file"
+                    onFileProcessed={(result: any) => {
                       setMessage({
                         type: 'success',
                         title: 'Lenovo DCSC File Processed',
                         body: `${result.name || 'File'} has been analyzed and server data extracted.`
                       });
                     }}
-                    onError={(error) => {
+                    onError={(error: string) => {
                       setMessage({
                         type: 'error',
                         title: 'Lenovo DCSC Processing Failed',
@@ -530,180 +639,271 @@ const VendorDataCollectionView: React.FC = () => {
 
       case 'basket':
         return (
-          <ConsistentCard
-            title="Hardware Basket"
-            subtitle="Browse and search through available server models and configurations"
-            icon={<DatabaseRegular />}
-            actions={
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <select
-                  value={selectedVendor}
-                  onChange={(e) => setSelectedVendor(e.target.value)}
-                  style={{
-                    padding: '6px 12px',
-                    border: '1px solid rgba(0, 0, 0, 0.1)',
-                    borderRadius: '6px',
-                    fontSize: '12px',
-                    background: 'rgba(255, 255, 255, 0.8)'
-                  }}
-                >
-                  {vendors.map(vendor => (
-                    <option key={vendor.value} value={vendor.value}>
-                      {vendor.label}
-                    </option>
-                  ))}
-                </select>
-                <ConsistentButton variant="outline" size="small" loading={loading}>
-                  <CloudSyncRegular style={{ marginRight: '4px' }} />
-                  Refresh
-                </ConsistentButton>
-              </div>
-            }
-          >
-            {/* Search and Filter Bar */}
-            <div style={{ 
-              display: 'flex', 
-              gap: '16px', 
-              marginBottom: '24px',
-              padding: '16px',
-              background: 'rgba(255, 255, 255, 0.5)',
-              borderRadius: '12px',
-              border: '1px solid rgba(0, 0, 0, 0.05)'
-            }}>
-              <div style={{ flex: 1, position: 'relative' }}>
-                <SearchRegular style={{
-                  position: 'absolute',
-                  left: '12px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  color: '#6b7280',
-                  fontSize: '16px'
-                }} />
-                <input
-                  type="text"
-                  placeholder="Search servers, models, or vendors..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '12px 12px 12px 40px',
-                    border: '1px solid rgba(0, 0, 0, 0.1)',
-                    borderRadius: '8px',
-                    fontSize: '14px',
-                    background: 'rgba(255, 255, 255, 0.8)',
-                    outline: 'none'
-                  }}
-                />
-              </div>
-            </div>
-
-            {/* Server Models Table */}
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ 
-                width: '100%', 
-                borderCollapse: 'collapse',
-                fontSize: '14px'
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            {/* Upload Section */}
+            <ConsistentCard
+              title="Upload Hardware Basket"
+              subtitle="Import Excel hardware basket files from Dell, Lenovo, and other vendors"
+              icon={<CloudArrowUpRegular />}
+              allowOverflow={true}
+            >
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', // Increased to 340px for better fit
+                gap: '32px', // Increased gap for better spacing
+                marginTop: '0', // Remove top margin to prevent header overlap
+                alignItems: 'start',
+                padding: '16px 0' // Add vertical padding for proper spacing
               }}>
-                <thead>
-                  <tr style={{ 
-                    background: 'rgba(0, 0, 0, 0.02)',
-                    borderBottom: '1px solid rgba(0, 0, 0, 0.1)'
+                {/* Excel Upload */}
+                <div style={{ 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  gap: '16px',
+                  minHeight: '250px' // Ensure minimum height for content
+                }}>
+                  <div style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: '12px'
                   }}>
-                    <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', color: '#374151' }}>Vendor</th>
-                    <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', color: '#374151' }}>Model</th>
-                    <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', color: '#374151' }}>Form Factor</th>
-                    <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', color: '#374151' }}>CPU Sockets</th>
-                    <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', color: '#374151' }}>Max Memory</th>
-                    <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', color: '#374151' }}>Drive Bays</th>
-                    <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', color: '#374151' }}>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {serverModels
-                    .filter(model => 
-                      !selectedVendor || model.vendor === selectedVendor
-                    )
-                    .filter(model =>
-                      !searchQuery || 
-                      model.model_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                      model.vendor.toLowerCase().includes(searchQuery.toLowerCase())
-                    )
-                    .map((model) => (
-                      <tr 
-                        key={model.model_id}
-                        style={{
-                          borderBottom: '1px solid rgba(0, 0, 0, 0.05)',
-                          transition: 'background-color 0.2s ease'
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.02)';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.backgroundColor = 'transparent';
-                        }}
-                      >
-                        <td style={{ padding: '12px' }}>
-                          <span style={{
-                            padding: '4px 8px',
-                            borderRadius: '4px',
-                            fontSize: '12px',
-                            fontWeight: '500',
-                            background: model.vendor === 'Dell' ? 'rgba(59, 130, 246, 0.1)' :
-                                       model.vendor === 'HPE' ? 'rgba(16, 185, 129, 0.1)' :
-                                       'rgba(245, 158, 11, 0.1)',
-                            color: model.vendor === 'Dell' ? '#2563eb' :
-                                   model.vendor === 'HPE' ? '#059669' :
-                                   '#d97706'
-                          }}>
-                            {model.vendor}
-                          </span>
-                        </td>
-                        <td style={{ padding: '12px' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <ServerRegular style={{ color: '#6b7280' }} />
-                            <div>
-                              <div style={{ fontWeight: '500', color: '#111827' }}>
-                                {model.model_name}
-                              </div>
-                              <div style={{ fontSize: '12px', color: '#6b7280' }}>
-                                {model.family} • {model.generation}
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-                        <td style={{ padding: '12px', color: '#6b7280' }}>
-                          {formatFormFactor(model.form_factor)}
-                        </td>
-                        <td style={{ padding: '12px', color: '#111827', fontWeight: '500' }}>
-                          {model.cpu_sockets}
-                        </td>
-                        <td style={{ padding: '12px', color: '#111827', fontWeight: '500' }}>
-                          {model.max_memory_gb} GB
-                        </td>
-                        <td style={{ padding: '12px', color: '#111827', fontWeight: '500' }}>
-                          {model.drive_bays}
-                        </td>
-                        <td style={{ padding: '12px' }}>
-                          <ConsistentButton 
-                            variant="outline" 
-                            size="small"
-                            onClick={() => {
-                              setMessage({
-                                type: 'info',
-                                title: 'Specifications Preview',
-                                body: `Detailed specs for ${model.model_name} would be loaded from vendor API`
-                              });
+                    <div style={{
+                      width: '32px',
+                      height: '32px',
+                      borderRadius: '8px',
+                      background: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'white',
+                      fontWeight: '600',
+                      fontSize: '14px',
+                      flexShrink: 0
+                    }}>
+                      📊
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: '500', color: '#111827' }}>Hardware Basket Files</div>
+                      <div style={{ fontSize: '12px', color: '#6b7280' }}>Excel files with pricing and configurations</div>
+                    </div>
+                  </div>
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                    <SimpleFileUpload
+                      uploadType="hardware-basket"
+                      acceptedTypes={['.xlsx', '.xls']}
+                      label="Upload Hardware Basket"
+                      description="Select Excel files"
+                      onFileProcessed={async (result: any) => {
+                      if (result.file) {
+                        await handleFileUpload(result.file);
+                      }
+                    }}
+                    onError={(error: string) => {
+                      setMessage({
+                        type: 'error',
+                        title: 'Hardware Basket Upload Failed',
+                        body: error
+                      });
+                    }}
+                  />
+                  </div>
+                </div>
+              </div>
+            </ConsistentCard>
+
+            {/* Hardware Basket Browser */}
+            <ConsistentCard
+              title="Hardware Basket Browser"
+              subtitle="Browse and search through uploaded hardware baskets and models"
+              icon={<DatabaseRegular />}
+              actions={
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <select
+                    value={selectedBasket}
+                    onChange={(e) => setSelectedBasket(e.target.value)}
+                    style={{
+                      padding: '6px 12px',
+                      border: '1px solid rgba(0, 0, 0, 0.1)',
+                      borderRadius: '6px',
+                      fontSize: '12px',
+                      background: 'rgba(255, 255, 255, 0.8)'
+                    }}
+                  >
+                    <option value="">Select Hardware Basket</option>
+                    {hardwareBaskets.map(basket => (
+                      <option key={basket.id} value={basket.id}>
+                        {basket.name} - {basket.vendor} {basket.quarter} {basket.year}
+                      </option>
+                    ))}
+                  </select>
+                  <ConsistentButton 
+                    variant="outline" 
+                    size="small" 
+                    loading={loading}
+                    onClick={() => fetchHardwareBaskets()}
+                  >
+                    <CloudSyncRegular style={{ marginRight: '4px' }} />
+                    Refresh
+                  </ConsistentButton>
+                </div>
+              }
+            >
+              {/* Search and Filter Bar */}
+              <div style={{ 
+                display: 'flex', 
+                gap: '16px', 
+                marginBottom: '24px',
+                padding: '16px',
+                background: 'rgba(255, 255, 255, 0.5)',
+                borderRadius: '12px',
+                border: '1px solid rgba(0, 0, 0, 0.05)'
+              }}>
+                <div style={{ flex: 1, position: 'relative' }}>
+                  <SearchRegular style={{
+                    position: 'absolute',
+                    left: '12px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    color: '#6b7280',
+                    fontSize: '16px'
+                  }} />
+                  <input
+                    type="text"
+                    placeholder="Search hardware models..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '12px 12px 12px 40px',
+                      border: '1px solid rgba(0, 0, 0, 0.1)',
+                      borderRadius: '8px',
+                      fontSize: '14px',
+                      background: 'rgba(255, 255, 255, 0.8)',
+                      outline: 'none'
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Hardware Models Table */}
+              {selectedBasket ? (
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{ 
+                    width: '100%', 
+                    borderCollapse: 'collapse',
+                    fontSize: '14px'
+                  }}>
+                    <thead>
+                      <tr style={{ 
+                        background: 'rgba(0, 0, 0, 0.02)',
+                        borderBottom: '1px solid rgba(0, 0, 0, 0.1)'
+                      }}>
+                        <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', color: '#374151' }}>Model</th>
+                        <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', color: '#374151' }}>Category</th>
+                        <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', color: '#374151' }}>Form Factor</th>
+                        <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', color: '#374151' }}>Configurations</th>
+                        <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', color: '#374151' }}>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {hardwareModels
+                        .filter(model =>
+                          !searchQuery || 
+                          model.model_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          model.lot_description.toLowerCase().includes(searchQuery.toLowerCase())
+                        )
+                        .map((model) => (
+                          <tr 
+                            key={model.id}
+                            style={{
+                              borderBottom: '1px solid rgba(0, 0, 0, 0.05)',
+                              transition: 'background-color 0.2s ease'
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.02)';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.backgroundColor = 'transparent';
                             }}
                           >
-                            View Specs
-                          </ConsistentButton>
-                        </td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
-            </div>
-          </ConsistentCard>
+                            <td style={{ padding: '12px' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <ServerRegular style={{ color: '#6b7280' }} />
+                                <div>
+                                  <div style={{ fontWeight: '500', color: '#111827' }}>
+                                    {model.model_name}
+                                  </div>
+                                  <div style={{ fontSize: '12px', color: '#6b7280' }}>
+                                    {model.lot_description}
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                            <td style={{ padding: '12px' }}>
+                              <span style={{
+                                padding: '4px 8px',
+                                borderRadius: '4px',
+                                fontSize: '12px',
+                                fontWeight: '500',
+                                background: 'rgba(59, 130, 246, 0.1)',
+                                color: '#2563eb'
+                              }}>
+                                {model.category}
+                              </span>
+                            </td>
+                            <td style={{ padding: '12px', color: '#6b7280' }}>
+                              {model.form_factor || 'N/A'}
+                            </td>
+                            <td style={{ padding: '12px', color: '#111827', fontWeight: '500' }}>
+                              {/* This would come from a separate API call in real implementation */}
+                              View Details
+                            </td>
+                            <td style={{ padding: '12px' }}>
+                              <div style={{ display: 'flex', gap: '8px' }}>
+                                <ConsistentButton 
+                                  variant="outline" 
+                                  size="small"
+                                  onClick={() => {
+                                    setMessage({
+                                      type: 'info',
+                                      title: 'Model Details',
+                                      body: `Viewing details for ${model.model_name}`
+                                    });
+                                  }}
+                                >
+                                  <EyeRegular style={{ marginRight: '4px' }} />
+                                  View
+                                </ConsistentButton>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                  {hardwareModels.length === 0 && !loading && (
+                    <div style={{ 
+                      padding: '48px', 
+                      textAlign: 'center',
+                      color: '#6b7280'
+                    }}>
+                      {selectedBasket ? 'No models found in this basket.' : 'Select a hardware basket to view models.'}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div style={{ 
+                  padding: '48px', 
+                  textAlign: 'center',
+                  color: '#6b7280'
+                }}>
+                  {hardwareBaskets.length === 0 
+                    ? 'Upload an Excel hardware basket file to get started.' 
+                    : 'Select a hardware basket from the dropdown above to view models.'
+                  }
+                </div>
+              )}
+            </ConsistentCard>
+          </div>
         );
 
       default:

@@ -150,3 +150,211 @@ impl From<DesignDocument> for DesignDocResponse {
         }
     }
 }
+
+// Hardware Basket Models
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct HardwareVendor {
+    pub id: Option<Thing>,
+    pub name: String,
+    pub contact_info: Option<String>,
+    pub support_info: Option<String>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct HardwareBasket {
+    pub id: Option<Thing>,
+    pub name: String,
+    pub vendor_id: Thing,
+    pub quarter: String,
+    pub year: i32,
+    pub import_date: DateTime<Utc>,
+    pub file_path: String,
+    pub exchange_rate: Option<f64>,
+    pub currency_from: String,
+    pub currency_to: String,
+    pub validity_date: Option<DateTime<Utc>>,
+    pub created_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct HardwareModel {
+    pub id: Option<Thing>,
+    pub basket_id: Thing,
+    pub vendor_id: Thing,
+    pub lot_description: String,
+    pub model_name: String,
+    pub model_number: Option<String>,
+    pub form_factor: Option<String>,
+    pub category: String,
+    pub base_specifications: serde_json::Value,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct HardwareConfiguration {
+    pub id: Option<Thing>,
+    pub model_id: Thing,
+    pub part_number: Option<String>,
+    pub sku: Option<String>,
+    pub description: String,
+    pub item_type: String,
+    pub quantity: i32,
+    pub specifications: Option<serde_json::Value>,
+    pub compatibility_notes: Option<String>,
+    pub created_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct HardwarePricing {
+    pub id: Option<Thing>,
+    pub configuration_id: Option<Thing>,
+    pub model_id: Option<Thing>,
+    pub list_price: f64,
+    pub net_price_usd: f64,
+    pub net_price_eur: Option<f64>,
+    pub currency: String,
+    pub valid_from: DateTime<Utc>,
+    pub valid_to: Option<DateTime<Utc>>,
+    pub support_options: serde_json::Value, // Array of support options
+    pub created_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CountrySupport {
+    pub id: Option<Thing>,
+    pub vendor_id: Thing,
+    pub country: String,
+    pub region: Option<String>,
+    pub fulfillment_capability: String,
+    pub web_ordering: bool,
+    pub delivery_terms: String,
+    pub delivery_time_days: Option<i32>,
+    pub import_duties: Option<String>,
+    pub vat_rates: Option<String>,
+    pub freight_costs: Option<String>,
+    pub affiliate_info: Option<String>,
+    pub created_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ExchangeRate {
+    pub id: Option<Thing>,
+    pub from_currency: String,
+    pub to_currency: String,
+    pub rate: f64,
+    pub effective_date: DateTime<Utc>,
+    pub expiry_date: Option<DateTime<Utc>>,
+    pub source: String,
+    pub created_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ImportResult {
+    pub id: Option<Thing>,
+    pub basket_id: Thing,
+    pub status: String, // processing, completed, failed, partial
+    pub total_models: i32,
+    pub processed_models: i32,
+    pub total_configurations: i32,
+    pub processed_configurations: i32,
+    pub errors: serde_json::Value, // Array of errors
+    pub warnings: serde_json::Value, // Array of warnings
+    pub started_at: DateTime<Utc>,
+    pub completed_at: Option<DateTime<Utc>>,
+}
+
+// Hardware Basket DTOs
+#[derive(Debug, Deserialize)]
+pub struct CreateHardwareBasketRequest {
+    pub name: String,
+    pub vendor_name: String,
+    pub quarter: String,
+    pub year: i32,
+    pub exchange_rate: Option<f64>,
+    pub currency_from: String,
+    pub currency_to: String,
+    pub validity_date: Option<DateTime<Utc>>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ProcessExcelRequest {
+    pub basket_id: String,
+}
+
+#[derive(Debug, Serialize)]
+pub struct HardwareBasketResponse {
+    pub id: String,
+    pub name: String,
+    pub vendor_name: String,
+    pub quarter: String,
+    pub year: i32,
+    pub import_date: DateTime<Utc>,
+    pub file_path: String,
+    pub exchange_rate: Option<f64>,
+    pub currency_from: String,
+    pub currency_to: String,
+    pub validity_date: Option<DateTime<Utc>>,
+    pub created_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct HardwareModelResponse {
+    pub id: String,
+    pub basket_id: String,
+    pub vendor_name: String,
+    pub lot_description: String,
+    pub model_name: String,
+    pub model_number: Option<String>,
+    pub form_factor: Option<String>,
+    pub category: String,
+    pub base_specifications: serde_json::Value,
+    pub pricing: Option<HardwarePricingResponse>,
+    pub configurations: Vec<HardwareConfigurationResponse>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct HardwareConfigurationResponse {
+    pub id: String,
+    pub model_id: String,
+    pub part_number: Option<String>,
+    pub sku: Option<String>,
+    pub description: String,
+    pub item_type: String,
+    pub quantity: i32,
+    pub specifications: Option<serde_json::Value>,
+    pub compatibility_notes: Option<String>,
+    pub created_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct HardwarePricingResponse {
+    pub id: String,
+    pub list_price: f64,
+    pub net_price_usd: f64,
+    pub net_price_eur: Option<f64>,
+    pub currency: String,
+    pub valid_from: DateTime<Utc>,
+    pub valid_to: Option<DateTime<Utc>>,
+    pub support_options: serde_json::Value,
+    pub created_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct ImportResultResponse {
+    pub id: String,
+    pub basket_id: String,
+    pub status: String,
+    pub total_models: i32,
+    pub processed_models: i32,
+    pub total_configurations: i32,
+    pub processed_configurations: i32,
+    pub errors: serde_json::Value,
+    pub warnings: serde_json::Value,
+    pub started_at: DateTime<Utc>,
+    pub completed_at: Option<DateTime<Utc>>,
+}

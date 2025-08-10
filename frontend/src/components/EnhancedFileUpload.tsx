@@ -7,7 +7,7 @@ interface EnhancedFileUploadProps {
   onFileProcessed?: (result: any) => void;
   onError?: (error: string) => void;
   acceptedTypes?: string[];
-  uploadType: 'hardware' | 'vmware' | 'network';
+  uploadType: 'hardware' | 'vmware' | 'network' | 'hardware-basket';
   children?: React.ReactNode;
 }
 
@@ -36,6 +36,11 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
         case 'hardware':
           result = await parseHardwareFile(file);
           onFileProcessed?.(result);
+          break;
+          
+        case 'hardware-basket':
+          // For hardware basket files, return the file for external processing
+          onFileProcessed?.({ file });
           break;
           
         case 'vmware':
@@ -126,6 +131,8 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
     switch (uploadType) {
       case 'hardware':
         return 'Upload hardware configuration files (Dell SCP, Lenovo DCSC, HPE iQuote)';
+      case 'hardware-basket':
+        return 'Upload hardware basket Excel files with pricing and configurations';
       case 'vmware':
         return 'Upload VMware environment exports (vSphere exports, RVTools CSV)';
       case 'network':
@@ -139,6 +146,8 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
     switch (uploadType) {
       case 'hardware':
         return 'Parsing hardware configuration...';
+      case 'hardware-basket':
+        return 'Processing hardware basket file...';
       case 'vmware':
         return 'Processing VMware environment data...';
       case 'network':
@@ -170,33 +179,42 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
 
   return (
     <div
-      className={`relative border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
+      className={`relative border-2 border-dashed rounded-lg text-center transition-colors ${
         dragActive
           ? 'border-purple-400 bg-purple-50'
           : 'border-gray-300 hover:border-purple-400'
       } ${processing ? 'pointer-events-none opacity-75' : 'cursor-pointer'}`}
-      onClick={!processing ? handleFileSelect : undefined}
-      onDragEnter={isWebEnvironment ? handleDrag : undefined}
-      onDragLeave={isWebEnvironment ? handleDrag : undefined}
-      onDragOver={isWebEnvironment ? handleDrag : undefined}
-      onDrop={isWebEnvironment ? handleDrop : undefined}
       style={{
+        width: '100%',
+        maxWidth: '100%',
+        height: '140px', // Fixed height instead of minHeight
+        padding: '8px', // Further reduced padding
+        boxSizing: 'border-box',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
         background: dragActive 
           ? 'linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%)'
           : 'rgba(255, 255, 255, 0.1)',
         backdropFilter: 'blur(10px)',
         borderColor: dragActive ? 'rgba(168, 85, 247, 0.5)' : 'rgba(156, 163, 175, 0.5)',
       }}
+      onClick={!processing ? handleFileSelect : undefined}
+      onDragEnter={isWebEnvironment ? handleDrag : undefined}
+      onDragLeave={isWebEnvironment ? handleDrag : undefined}
+      onDragOver={isWebEnvironment ? handleDrag : undefined}
+      onDrop={isWebEnvironment ? handleDrop : undefined}
     >
       {processing ? (
-        <div className="flex flex-col items-center space-y-3">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
-          <p className="text-sm text-gray-600">{getProcessingMessage()}</p>
+        <div className="flex flex-col items-center space-y-1">
+          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-purple-500"></div>
+          <p className="text-xs text-gray-600">{getProcessingMessage()}</p>
         </div>
       ) : (
-        <div className="flex flex-col items-center space-y-3">
+        <div className="flex flex-col items-center space-y-1">
           <svg
-            className="w-12 h-12 text-gray-400"
+            className="w-6 h-6 text-gray-400"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -208,11 +226,11 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
               d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
             />
           </svg>
-          <div>
-            <p className="text-lg font-medium text-gray-700 mb-1">
+          <div className="flex flex-col items-center">
+            <p className="text-xs font-medium text-gray-700 mb-0.5">
               {isWebEnvironment && dragActive ? 'Drop file here' : 'Click to upload file'}
             </p>
-            <p className="text-sm text-gray-500 mb-2">{getUploadMessage()}</p>
+            <p className="text-xs text-gray-500 mb-0.5">{getUploadMessage()}</p>
             {isWebEnvironment && (
               <p className="text-xs text-gray-400">
                 Or drag and drop files here
@@ -220,12 +238,12 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
             )}
             {!isWebEnvironment && (
               <p className="text-xs text-blue-500">
-                ✓ Desktop mode: Full backend processing available
+                ✓ Desktop mode available
               </p>
             )}
           </div>
           <div className="text-xs text-gray-400">
-            Supported formats: {acceptedTypes.join(', ')}
+            {acceptedTypes.join(', ')}
           </div>
         </div>
       )}
