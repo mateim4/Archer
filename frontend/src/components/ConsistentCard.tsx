@@ -11,6 +11,7 @@ interface ConsistentCardProps {
   hover?: boolean;
   onClick?: () => void;
   style?: React.CSSProperties;
+  allowOverflow?: boolean; // New prop to control overflow behavior
 }
 
 const ConsistentCard: React.FC<ConsistentCardProps> = ({
@@ -23,7 +24,8 @@ const ConsistentCard: React.FC<ConsistentCardProps> = ({
   padding = 'medium',
   hover = false,
   onClick,
-  style = {}
+  style = {},
+  allowOverflow = false
 }) => {
   const paddingMap = {
     none: '0',
@@ -40,7 +42,7 @@ const ConsistentCard: React.FC<ConsistentCardProps> = ({
     borderRadius: '16px',
     boxShadow: '0 8px 32px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.5)',
     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-    overflow: 'hidden',
+    overflow: allowOverflow ? 'visible' : 'hidden',
     cursor: onClick ? 'pointer' : 'default',
     ...style
   };

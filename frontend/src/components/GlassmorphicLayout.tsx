@@ -33,7 +33,8 @@ const GlassmorphicLayout: React.FC<GlassmorphicLayoutProps> = ({
     boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
     minHeight: 'calc(100vh - 120px)',
     fontFamily: "'Poppins', system-ui, sans-serif",
-    overflow: 'hidden',
+    overflowY: 'auto', // Allow vertical scrolling
+    overflowX: 'hidden', // Prevent horizontal scrolling
     position: 'relative',
     ...style
   };

@@ -16,7 +16,7 @@ import {
 import { useAppStore } from '../store/useAppStore';
 import { InfoTooltip } from '../components/Tooltip';
 import LoadingSpinner from '../components/LoadingSpinner';
-import EnhancedFileUpload from '../components/EnhancedFileUpload';
+import SimpleFileUpload from '../components/SimpleFileUpload';
 import ServerFileProcessor from '../utils/serverFileProcessor';
 import { openFileDialog, getFileName, isFileTypeSupported, isTauriEnvironment } from '../utils/fileUpload';
 import GlassmorphicLayout from '../components/GlassmorphicLayout';
@@ -292,16 +292,18 @@ const DashboardView: React.FC = () => {
           </div>
         )}
         
-        <EnhancedFileUpload
+        <SimpleFileUpload
           uploadType="vmware"
           acceptedTypes={['.xlsx', '.csv', '.txt']}
-          onFileProcessed={(result) => {
-            // The EnhancedFileUpload component now handles the state update.
+          label="Select VMware File"
+          description="Upload RVTools or vSphere export"
+          onFileProcessed={(result: any) => {
+            // The SimpleFileUpload component now handles the state update.
             // We just need to update the local UI state.
             setIsDataUploaded(true);
             console.log('VMware environment processed:', result);
           }}
-          onError={(error) => {
+          onError={(error: string) => {
             console.error('Failed to process VMware file:', error);
             // Show user-friendly error message
             if (error.includes('Expected VMware environment data, got hardware server data')) {
@@ -312,11 +314,7 @@ const DashboardView: React.FC = () => {
               console.log('Upload failed. Please ensure you are uploading a valid RVTools export or VMware vSphere file.');
             }
           }}
-        >
-          <button className="fluent-button fluent-button-primary">
-            Select File
-          </button>
-        </EnhancedFileUpload>
+        />
         
         <p 
           className="mt-4"

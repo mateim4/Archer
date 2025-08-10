@@ -12,8 +12,15 @@ export default defineConfig({
   // tauri expects a fixed port, fail if that port is not available
   server: {
     host: '0.0.0.0',
-    port: 3001,
+    port: 1420, // Changed from 3001 to avoid conflict with backend
     strictPort: true,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
   },
   
   // to make use of `TAURI_DEBUG` and other env variables

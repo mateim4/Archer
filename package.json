@@ -25,5 +25,9 @@
     "@playwright/test": "^1.54.2",
     "@tailwindcss/postcss": "^4.1.11",
     "@types/node": "^24.2.0"
+  },
+  "dependencies": {
+    "form-data": "^4.0.4",
+    "node-fetch": "^3.3.2"
   }
 }

@@ -46,7 +46,8 @@ function App() {
       <div style={{ 
         minHeight: '100vh',
         display: 'flex',
-        position: 'relative'
+        position: 'relative',
+        overflowY: 'auto' // Allow the entire app container to scroll
       }}>
         <NavigationSidebar 
           isOpen={isSidebarOpen}
@@ -66,7 +67,10 @@ function App() {
           borderRadius: '0 0 0 24px',
           border: '1px solid rgba(255, 255, 255, 0.2)',
           borderRight: 'none',
-          borderBottom: 'none'
+          borderBottom: 'none',
+          overflowY: 'auto', // Enable vertical scrolling
+          overflowX: 'hidden', // Prevent horizontal scrolling
+          maxHeight: '100vh' // Ensure it doesn't exceed viewport height
         }}>
           <Routes>
             <Route path="/" element={<VendorDataCollectionView />} />

@@ -16,7 +16,7 @@
   font-family: var(--fluent-font-family-base);
   background: transparent;
   position: relative;
-  overflow: hidden;
+  overflow: hidden; /* Keep this for the container to prevent horizontal scrolling */
 }
 
 /* Responsive app container */
@@ -61,7 +61,8 @@
 
 .main-content {
   flex: 1;
-  overflow: auto;
+  overflow-y: auto; /* Enable vertical scrolling */
+  overflow-x: hidden; /* Prevent horizontal scrolling */
   background: var(--fluent-color-background-primary);
   backdrop-filter: var(--fluent-backdrop-filter-base);
   -webkit-backdrop-filter: var(--fluent-backdrop-filter-base);
