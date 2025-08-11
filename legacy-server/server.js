@@ -587,11 +587,86 @@ app.post('/api/hardware-baskets/upload', upload.single('file'), async (req, res)
     const originalName = req.file.originalname;
     const { vendor, quarter, year } = req.body;
     
-    console.log(`Processing hardware basket: ${originalName} (${vendor} Q${quarter} ${year})`);
-
-    // Process Excel file
+    // Extract vendor, quarter, and year from filename if not provided
+    let finalVendor = vendor;
+    let finalQuarter = quarter;
+    let finalYear = year;
+    
+    if (!finalVendor || !finalQuarter || !finalYear) {
+      const fileName = originalName.toLowerCase();
+      
+      // Extract vendor from filename
+      if (!finalVendor) {
+        if (fileName.includes('dell')) finalVendor = 'Dell';
+        else if (fileName.includes('lenovo')) finalVendor = 'Lenovo';
+        else if (fileName.includes('hp')) finalVendor = 'HP';
+        else if (fileName.includes('cisco')) finalVendor = 'Cisco';
+        else finalVendor = 'Unknown';
+      }
+      
+      // Extract quarter from filename
+      if (!finalQuarter) {
+        if (fileName.includes('q1')) finalQuarter = 'Q1';
+        else if (fileName.includes('q2')) finalQuarter = 'Q2';
+        else if (fileName.includes('q3')) finalQuarter = 'Q3';
+        else if (fileName.includes('q4')) finalQuarter = 'Q4';
+        else finalQuarter = 'Q3'; // Default
+      }
+      
+      // Extract year from filename
+      if (!finalYear) {
+        const yearMatch = fileName.match(/20\d{2}/);
+        finalYear = yearMatch ? yearMatch[0] : new Date().getFullYear().toString();
+      }
+    }
+    
+    console.log(`Processing hardware basket: ${originalName} (${finalVendor} ${finalQuarter} ${finalYear})`);
+    
+    // Process Excel file first
     const workbook = new ExcelJS.Workbook();
     await workbook.xlsx.readFile(filePath);
+    
+    // Extract quotation date from Cover sheet if available
+    let quotationDate = new Date(); // Default to current date
+    const coverSheet = workbook.worksheets.find(ws => 
+      ws.name.toLowerCase().includes('cover') || 
+      ws.name.toLowerCase().includes('quote') ||
+      ws.name.toLowerCase().includes('summary')
+    );
+    
+    if (coverSheet) {
+      console.log(`📄 Found cover sheet: "${coverSheet.name}"`);
+      // Look for date fields in the first 20 rows
+      for (let rowNumber = 1; rowNumber <= Math.min(20, coverSheet.rowCount); rowNumber++) {
+        const row = coverSheet.getRow(rowNumber);
+        row.eachCell((cell, colNumber) => {
+          if (cell.value) {
+            const cellText = cell.value.toString().toLowerCase();
+            const nextCell = row.getCell(colNumber + 1);
+            
+            // Look for quotation/quote date labels
+            if ((cellText.includes('quotation') || cellText.includes('quote') || 
+                 cellText.includes('valid') || cellText.includes('date')) && 
+                nextCell && nextCell.value) {
+              
+              const dateValue = nextCell.value;
+              if (dateValue instanceof Date) {
+                quotationDate = dateValue;
+                console.log(`📅 Found quotation date: ${quotationDate.toISOString().split('T')[0]}`);
+              } else if (typeof dateValue === 'string') {
+                const parsedDate = new Date(dateValue);
+                if (!isNaN(parsedDate.getTime())) {
+                  quotationDate = parsedDate;
+                  console.log(`📅 Found quotation date: ${quotationDate.toISOString().split('T')[0]}`);
+                }
+              }
+            }
+          }
+        });
+      }
+    } else {
+      console.log(`⚠️  No cover sheet found, using current date for quotation`);
+    }
     
     // Parse hardware basket data - Look for the main data worksheet
     const models = [];
@@ -655,8 +730,14 @@ app.post('/api/hardware-baskets/upload', upload.single('file'), async (req, res)
       });
     }
     
-    // Process data rows starting after the header
-    let processedCount = 0;
+    // Group configurations by Lot Description - each lot is a unique hardware model
+    const lotGroups = new Map();
+    let totalProcessed = 0;
+    
+    // Debug: Log all available column headers
+    console.log(`📋 Available columns: [${headers.join(', ')}]`);
+    
+    // First pass: collect all rows and group by Lot Description
     for (let rowNumber = headerRowNumber + 1; rowNumber <= dataWorksheet.rowCount; rowNumber++) {
       const row = dataWorksheet.getRow(rowNumber);
       const rowData = {};
@@ -672,86 +753,267 @@ app.post('/api/hardware-baskets/upload', upload.single('file'), async (req, res)
         }
       });
       
-      if (hasData && processedCount < 100) { // Limit to first 100 items for performance
-        // Extract model information with better field mapping
-        const lotDescription = rowData['Lot Description'] || rowData['Description'] || rowData['Item'] || '';
-        const item = rowData['Item'] || rowData['Product'] || rowData['Model'] || '';
-        const specification = rowData['Specification'] || rowData['Specs'] || rowData['Config'] || '';
-        const format = rowData['Dell Format or model'] || rowData['Format'] || rowData['Model'] || '';
+      if (hasData) {
+        // Try multiple possible column names for lot description
+        // The actual lot description might be in "Item" column if "Lot Description" is empty
+        let lotDescription = rowData['Lot Description'] || rowData['lotDescription'] || 
+                             rowData['LOT DESCRIPTION'] || rowData['Lot'] || '';
         
-        // Determine model name from available fields
-        let modelName = 'Unknown Model';
-        if (lotDescription && lotDescription.length > 5 && !lotDescription.toLowerCase().includes('server')) {
-          modelName = lotDescription;
-        } else if (format && format.length > 2) {
-          modelName = format;
-        } else if (item && item.length > 5) {
-          modelName = item;
-        } else if (specification && specification.length > 10) {
-          modelName = specification.substring(0, 50);
+        // If Lot Description is empty, use Item as the lot identifier
+        if (!lotDescription || lotDescription.trim().length === 0) {
+          lotDescription = rowData['Item'] || rowData['item'] || rowData['ITEM'] || '';
         }
         
-        // Extract category and form factor from description
-        let category = 'Server';
-        let formFactor = 'N/A';
+        const item = rowData['Item'] || rowData['item'] || rowData['ITEM'] || '';
+        const specification = rowData['Specification'] || rowData['specification'] || rowData['SPECIFICATION'] || '';
         
-        const desc = (lotDescription + ' ' + specification).toLowerCase();
-        if (desc.includes('rack')) formFactor = 'Rack';
-        else if (desc.includes('tower')) formFactor = 'Tower';
-        else if (desc.includes('blade')) formFactor = 'Blade';
+        // Enhanced debug: log more details about the first few rows
+        if (totalProcessed < 10) {
+          console.log(`🔍 Debug Row ${rowNumber}:`);
+          console.log(`   Lot Description columns: "${rowData['Lot Description']}" | "${rowData['lotDescription']}" | "${rowData['LOT DESCRIPTION']}" | "${rowData['Lot']}"`);
+          console.log(`   Item columns: "${rowData['Item']}" | "${rowData['item']}" | "${rowData['ITEM']}"`);
+          console.log(`   Final lotDescription: "${lotDescription}"`);
+          console.log(`   Final item: "${item}"`);
+          console.log(`   Specification: "${specification}"`);
+          
+          // Show all non-empty fields for debugging
+          const nonEmptyFields = Object.entries(rowData).filter(([key, value]) => value && value.trim()).slice(0, 5);
+          console.log(`   Non-empty fields: ${nonEmptyFields.map(([k, v]) => `${k}="${v}"`).join(', ')}`);
+        }
         
-        if (desc.includes('1u')) formFactor = '1U Rack';
-        else if (desc.includes('2u')) formFactor = '2U Rack';
+        totalProcessed++;
         
-        // Extract pricing
-        const listPrice = rowData['Listprice'] || rowData['List Price'] || '0';
-        const netPrice = rowData['Net Price US$'] || rowData['Net Price'] || rowData['Sell price'] || '0';
+        // Use a different strategy: if Item looks like a lot identifier (short code), use it
+        // Otherwise, try to extract a lot identifier from the item or specification
+        let finalLotDescription = lotDescription;
         
-        // Create model entry
-        const model = {
-          id: `model_${models.length + 1}`,
-          name: modelName,
-          category: category,
-          formFactor: formFactor,
-          vendor: vendor || 'Unknown',
-          price: netPrice || listPrice || '0',
-          specifications: {
-            lotDescription: lotDescription,
-            item: item,
-            specification: specification,
-            format: format,
-            listPrice: listPrice,
-            netPrice: netPrice,
-            ...rowData
+        if (!finalLotDescription || finalLotDescription.trim().length === 0) {
+          // If Item is short (likely a code like SMI1, SMI2), use it as lot description
+          if (item && item.length <= 10 && /^[A-Z0-9]+$/i.test(item.trim())) {
+            finalLotDescription = item.trim();
+          } else {
+            // Try to extract from specification or use a generic approach
+            finalLotDescription = `Lot_${Math.floor(rowNumber / 10)}`; // Group by blocks of 10 rows
           }
-        };
+        }
         
-        models.push(model);
-        
-        // Create configuration from model
-        const config = {
-          id: `config_${configurations.length + 1}`,
-          model_id: model.id,
-          configuration: rowData
-        };
-        configurations.push(config);
-        
-        processedCount++;
+        // Only process rows that have meaningful data
+        if (finalLotDescription && finalLotDescription.trim().length > 0) {
+          if (!lotGroups.has(finalLotDescription)) {
+            lotGroups.set(finalLotDescription, {
+              lotDescription: finalLotDescription,
+              configurations: [],
+              pricing: null
+            });
+            console.log(`📦 New lot group created: "${finalLotDescription}"`);
+          }
+          
+          // Add this configuration row to the lot group
+          lotGroups.get(finalLotDescription).configurations.push({
+            item: item || 'N/A',
+            specification: specification || 'N/A',
+            rawData: rowData
+          });
+        }
       }
     }
+    
+    console.log(`📊 Found ${lotGroups.size} unique lot descriptions with configurations`);
+    
+    // If no lots were found, fall back to individual row processing
+    if (lotGroups.size === 0) {
+      console.log(`⚠️  No lot groups found, falling back to individual row processing`);
+      
+      // Simple fallback: treat each row as a separate model
+      for (let rowNumber = headerRowNumber + 1; rowNumber <= Math.min(headerRowNumber + 100, dataWorksheet.rowCount); rowNumber++) {
+        const row = dataWorksheet.getRow(rowNumber);
+        const rowData = {};
+        let hasData = false;
+        
+        row.eachCell((cell, colNumber) => {
+          if (headers[colNumber]) {
+            const value = cell.value ? cell.value.toString().trim() : '';
+            rowData[headers[colNumber]] = value;
+            if (value && value !== '[object Object]') {
+              hasData = true;
+            }
+          }
+        });
+        
+        if (hasData) {
+          const lotDescription = rowData['Lot Description'] || rowData['lotDescription'] || '';
+          const item = rowData['Item'] || rowData['item'] || '';
+          const specification = rowData['Specification'] || rowData['specification'] || '';
+          
+          if (lotDescription || item) {
+            const model = {
+              id: `model_${models.length + 1}`,
+              name: lotDescription || item || 'Unknown Model',
+              category: 'Server',
+              formFactor: 'Rack',
+              vendor: vendor || 'Dell',
+              price: rowData['Net Price US$'] || rowData['netPrice'] || '0',
+              specifications: rowData
+            };
+            models.push(model);
+          }
+        }
+      }
+    } else {
+    
+    // Second pass: create models from grouped lots
+    let processedLots = 0;
+    for (const [lotDescription, lotData] of lotGroups) {
+      if (processedLots >= 50) break; // Limit for performance
+      
+      // Extract model information from the lot
+      const modelName = lotDescription;
+      const configurations = lotData.configurations;
+      
+      // Find key configuration details
+      let modelNumber = '';
+      let processorInfo = '';
+      let ramInfo = '';
+      let networkInfo = '';
+      let price5yrPSP = '';
+      
+      const allPrices = {};
+      
+      // Debug: log the first few configurations for this lot
+      if (processedLots < 3) {
+        console.log(`🔧 Processing lot "${lotDescription}" with ${configurations.length} configurations:`);
+        configurations.slice(0, 3).forEach((config, idx) => {
+          console.log(`   Config ${idx}: Item="${config.item}" Spec="${config.specification}"`);
+          // Show the raw data values from the 'Listprice' column which contains the actual specification values
+          const specValue = config.rawData['Listprice'] || config.rawData['listprice'] || '';
+          console.log(`     → Actual spec value from Listprice column: "${specValue}"`);
+        });
+      }
+      
+      // Parse configurations to extract structured data
+      configurations.forEach(config => {
+        const itemType = config.item.toLowerCase();
+        const specType = config.specification.toLowerCase();
+        // The actual specification VALUES are in the rawData['Listprice'] column!
+        const specValue = config.rawData['Listprice'] || config.rawData['listprice'] || '';
+        const rawData = config.rawData;
+        
+        // Extract key specifications based on the specification type, using the Listprice column value
+        if (specType.includes('dell format') || specType.includes('format') || specType.includes('model')) {
+          // For model number, use the specification value from Listprice column
+          if (specValue && (specValue.includes('R') || specValue.includes('PowerEdge') || 
+                           specValue.includes('Dell') || /[A-Z]\d+/.test(specValue) || specValue.includes('U '))) {
+            modelNumber = specValue;
+          }
+        } else if (specType.includes('processor') || specType.includes('socket') || specType.includes('cpu')) {
+          // For processor info, use the specification value from Listprice column
+          if (specValue && (specValue.includes('Intel') || specValue.includes('Xeon') || specValue.includes('Core') || 
+                           specValue.includes('GHz') || specValue.includes('x ') || /\d+Y/.test(specValue) || 
+                           specValue.includes('4309') || specValue.includes('proc'))) {
+            processorInfo = specValue;
+          }
+        } else if (specType.includes('ram') || specType.includes('memory') || specType.includes('capacity')) {
+          // For RAM info, use the specification value from Listprice column
+          if (specValue && (specValue.includes('GB') || specValue.includes('DDR') || specValue.includes('Memory') ||
+                           specValue.includes('RAM') || /\d+GB/.test(specValue) || specValue.includes('x ') ||
+                           specValue.includes('16GB') || specValue.includes('32GB'))) {
+            ramInfo = specValue;
+          }
+        } else if (specType.includes('nicports') || specType.includes('network') || specType.includes('nic') ||
+                   specType.includes('ethernet') || specType.includes('port')) {
+          // For network info, use the specification value from Listprice column
+          if (specValue && (specValue.includes('Port') || specValue.includes('NIC') || specValue.includes('Ethernet') ||
+                           specValue.includes('Network') || specValue.includes('Gb') || /\d+G/.test(specValue))) {
+            networkInfo = specValue;
+          }
+        }
+        
+        // Extract pricing information
+        if (rawData['Price with 5yr PSP'] || rawData['Price with 5yr PS']) {
+          price5yrPSP = rawData['Price with 5yr PSP'] || rawData['Price with 5yr PS'];
+        }
+        
+        // Collect all price options with multiple column name variations
+        Object.keys(rawData).forEach(key => {
+          const keyLower = key.toLowerCase();
+          if (keyLower.includes('price') || keyLower.includes('listprice') || 
+              keyLower.includes('net price') || keyLower.includes('support')) {
+            // Only include non-empty, valid price values
+            const value = rawData[key];
+            if (value && value !== '[object Object]' && value.toString().trim() !== '') {
+              allPrices[key] = value;
+            }
+          }
+        });
+      });
+      
+      // Debug: show extracted values for the first few lots
+      if (processedLots < 3) {
+        console.log(`📋 Extracted values for lot "${lotDescription}":`);
+        console.log(`   Model Number: "${modelNumber}"`);
+        console.log(`   Processor: "${processorInfo}"`);
+        console.log(`   RAM: "${ramInfo}"`);
+        console.log(`   Network: "${networkInfo}"`);
+        console.log(`   Prices found: ${Object.keys(allPrices).length}`);
+      }
+      
+      // Determine form factor from lot description
+      let formFactor = 'Rack';
+      const desc = lotDescription.toLowerCase();
+      if (desc.includes('1u')) formFactor = '1U Rack';
+      else if (desc.includes('2u')) formFactor = '2U Rack';
+      else if (desc.includes('tower')) formFactor = 'Tower';
+      else if (desc.includes('blade')) formFactor = 'Blade';
+      
+      // Create the hardware model
+      const model = {
+        id: `model_${models.length + 1}`,
+        lot_description: lotDescription,
+        model_name: modelName,
+        model_number: modelNumber,
+        category: 'Server',
+        form_factor: formFactor,
+        vendor: vendor || 'Dell',
+        
+        // Key specifications for UI display
+        processor_info: processorInfo,
+        ram_info: ramInfo,
+        network_info: networkInfo,
+        
+        // Pricing (current/last price only)
+        price_5yr_psp: price5yrPSP,
+        all_prices: allPrices,
+        quotation_date: quotationDate.toISOString(),
+        
+        // Full configuration details for expandable view
+        full_configurations: configurations.map((config, index) => ({
+          id: `config_${models.length + 1}_${index}`,
+          item_type: config.item,
+          description: config.specification,
+          raw_data: config.rawData
+        }))
+      };
+      
+      models.push(model);
+      processedLots++;
+      totalProcessed += configurations.length;
+    }
+    } // End of enhanced lot processing
     
     // Create hardware basket entry
     const basketId = `basket_${Date.now()}`;
     const hardwareBasket = {
       id: basketId,
-      name: `${vendor} Q${quarter} ${year}`,
-      vendor: vendor || 'Unknown',
-      quarter: quarter || 'Unknown',
-      year: parseInt(year) || new Date().getFullYear(),
+      name: `${finalVendor} ${finalQuarter} ${finalYear}`,
+      vendor: finalVendor,
+      quarter: finalQuarter,
+      year: parseInt(finalYear) || new Date().getFullYear(),
       filename: originalName,
+      quotation_date: quotationDate.toISOString(),
       created_at: new Date().toISOString(),
       models: models,
-      configurations: configurations
+      total_lots: models.length,
+      total_configurations: totalProcessed
     };
     
     hardwareBaskets.push(hardwareBasket);
@@ -759,13 +1021,13 @@ app.post('/api/hardware-baskets/upload', upload.single('file'), async (req, res)
     // Clean up uploaded file
     fs.unlinkSync(filePath);
     
-    console.log(`Successfully processed hardware basket: ${models.length} models, ${configurations.length} configurations`);
+    console.log(`✅ Successfully processed hardware basket: ${models.length} lots (models), ${totalProcessed} total configurations`);
     
     res.json({
       success: true,
       basket_id: basketId,
       total_models: models.length,
-      total_configurations: configurations.length,
+      total_configurations: totalProcessed,
       message: 'Hardware basket uploaded successfully'
     });
     

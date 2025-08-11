@@ -7,6 +7,7 @@ import NavigationSidebar from './components/NavigationSidebar';
 import HeaderSettings from './components/HeaderSettings';
 import VendorDataCollectionView from './views/VendorDataCollectionView';
 import HardwarePoolView from './views/HardwarePoolView';
+import HardwareBasketView from './views/HardwareBasketView';
 import MigrationPlannerView from './views/MigrationPlannerView';
 import ClusterSizingView from './views/ClusterSizingView';
 import NetworkVisualizerView from './views/NetworkVisualizerView';
@@ -76,6 +77,7 @@ function App() {
             <Route path="/" element={<VendorDataCollectionView />} />
             <Route path="/data-collection" element={<VendorDataCollectionView />} />
             <Route path="/hardware-pool" element={<HardwarePoolView />} />
+            <Route path="/hardware-baskets" element={<HardwareBasketView />} />
             <Route path="/migration-planner" element={<MigrationPlannerView />} />
             <Route path="/cluster-sizing" element={<ClusterSizingView />} />
             <Route path="/network-visualizer" element={<NetworkVisualizerView />} />
