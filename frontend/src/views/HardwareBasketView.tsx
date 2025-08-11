@@ -298,14 +298,20 @@ const HardwareBasketView: React.FC = () => {
             appearance="subtle"
             icon={<EyeRegular />}
             size="small"
+            title="View details and models"
             onClick={() => handleViewBasket(item)}
-          />
+          >
+            View Details
+          </Button>
           <Button
             appearance="subtle"
             icon={<DeleteRegular />}
             size="small"
+            title="Delete this hardware basket"
             onClick={() => handleDeleteBasket(item.id)}
-          />
+          >
+            Delete
+          </Button>
         </div>
       ),
     }),

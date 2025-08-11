@@ -75,6 +75,7 @@ const VendorDataCollectionView: React.FC = () => {
 
   // Mock data for demonstration
   useEffect(() => {
+    console.log('VendorDataCollectionView mounted, initializing mock data...');
     const mockModels: VendorModel[] = [
       {
         model_id: 'dell-r750xs',
@@ -854,9 +855,22 @@ const VendorDataCollectionView: React.FC = () => {
                             <td style={{ padding: '12px', color: '#6b7280' }}>
                               {model.form_factor || 'N/A'}
                             </td>
-                            <td style={{ padding: '12px', color: '#111827', fontWeight: '500' }}>
-                              {/* This would come from a separate API call in real implementation */}
-                              View Details
+                            <td style={{ padding: '12px' }}>
+                              <ConsistentButton 
+                                variant="outline" 
+                                size="small"
+                                onClick={() => {
+                                  console.log('View Details button clicked for model:', model.model_name);
+                                  // Fetch configurations for this model
+                                  setMessage({
+                                    type: 'info',
+                                    title: 'Configuration Details',
+                                    body: `Loading configuration details for ${model.model_name}...`
+                                  });
+                                }}
+                              >
+                                View Details
+                              </ConsistentButton>
                             </td>
                             <td style={{ padding: '12px' }}>
                               <div style={{ display: 'flex', gap: '8px' }}>
@@ -864,10 +878,40 @@ const VendorDataCollectionView: React.FC = () => {
                                   variant="outline" 
                                   size="small"
                                   onClick={() => {
+                                    console.log('View button clicked for model:', model.model_name);
+                                    // Show comprehensive model details
+                                    const specifications = model.base_specifications ? 
+                                      Object.entries(model.base_specifications).map(([key, value]) => 
+                                        `${key}: ${typeof value === 'object' ? JSON.stringify(value) : value}`
+                                      ).join('\n') : 'No specifications available';
+                                    
+                                    const detailsText = `
+Hardware Model Details:
+═══════════════════════
+
+📋 Basic Information:
+• Model: ${model.model_name}
+• Lot Description: ${model.lot_description}
+• Category: ${model.category}
+• Form Factor: ${model.form_factor || 'N/A'}
+
+🔧 Specifications:
+${specifications}
+
+📊 Technical Details:
+• Model ID: ${model.id}
+• Basket ID: ${model.basket_id}
+• Created: ${new Date(model.created_at).toLocaleDateString()}
+• Updated: ${new Date(model.updated_at).toLocaleDateString()}
+
+💡 This model is available in the selected hardware basket and can be used for project configurations.
+                                    `.trim();
+
+                                    console.log('Setting message:', detailsText);
                                     setMessage({
                                       type: 'info',
-                                      title: 'Model Details',
-                                      body: `Viewing details for ${model.model_name}`
+                                      title: `Hardware Details: ${model.model_name}`,
+                                      body: detailsText
                                     });
                                   }}
                                 >
@@ -936,6 +980,19 @@ const VendorDataCollectionView: React.FC = () => {
           </div>
         </div>
         <div style={{ display: 'flex', gap: '8px' }}>
+          <ConsistentButton 
+            variant="outline"
+            onClick={() => {
+              console.log('Test message button clicked');
+              setMessage({
+                type: 'info',
+                title: 'Test Message',
+                body: 'This is a test to verify that the message system is working correctly.'
+              });
+            }}
+          >
+            Test Message
+          </ConsistentButton>
           <ConsistentButton variant="outline">
             <DocumentDataRegular style={{ marginRight: '8px' }} />
             Import Catalog
