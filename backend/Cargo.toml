@@ -3,18 +3,21 @@ name = "backend"
 version = "0.1.0"
 edition = "2021"
 
-[dependencies]
-axum = { version = "0.7", features = ["multipart"] }
-tokio = { version = "1.0", features = ["full"] }
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-surrealdb = { version = "1.5", features = ["kv-mem"] }
-anyhow = "1.0"
-thiserror = "1.0"
-tower = "0.5"
-tower-http = { version = "0.5", features = ["cors", "fs"] }
-uuid = { version = "1.0", features = ["v4", "serde"] }
-chrono = { version = "0.4", features = ["serde"] }
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-# Add the core-engine as a library
+[dependencies]
+axum = { version = "0.6.20", features = ["multipart", "http1"] }
+tokio = { version = "1.32.0", features = ["full"] }
+tower-http = { version = "0.4.4", features = ["cors"] }
+surrealdb = { version = "1.0.0-beta.9", features = ["kv-mem"] }
+serde = { version = "1.0.188", features = ["derive"] }
+serde_json = "1.0.107"
+chrono = { version = "0.4.31", features = ["serde"] }
+anyhow = "1.0.75"
+calamine = "0.22.1"
+tracing = "0.1.37"
+tracing-subscriber = "0.3.17"
+tempfile = "3.8.0"
+uuid = { version = "1.4.1", features = ["v4", "serde"] }
+hyper = { version = "0.14", features = ["server"] }
 core-engine = { path = "../core-engine" }
