@@ -4,6 +4,30 @@
  * Based on analysis of Q3 2025 Excel files
  */
 
+// User roles and permissions
+export type UserRole = 'admin' | 'editor' | 'viewer';
+
+export interface User {
+  id: string;
+  username: string;
+  email: string;
+  ad_guid: string;
+  role: UserRole;
+}
+
+// Hardware basket creation request
+export interface CreateHardwareBasketRequest {
+  name: string;
+  vendor_name: string;
+  quarter: string;
+  year: number;
+  exchange_rate?: number;
+  currency_from: string;
+  currency_to: string;
+  validity_date?: Date;
+  is_global?: boolean; // Defaults to true, only admins can set to false
+}
+
 // Base vendor information
 export interface HardwareVendor {
   id: string;
@@ -27,7 +51,12 @@ export interface HardwareBasket {
   currency_from: string;
   currency_to: string;
   validity_date?: Date;
+  created_by: string; // User ID who created this basket
+  is_global: boolean; // Whether this basket is globally visible
   created_at: Date;
+  description?: string; // Optional description
+  total_models?: number; // Total number of models in this basket
+  total_configurations?: number; // Total number of configurations in this basket
 }
 
 // Base hardware model/lot
@@ -43,6 +72,10 @@ export interface HardwareModel {
   base_specifications: HardwareSpecifications;
   created_at: Date;
   updated_at: Date;
+  cpu_specs?: string; // CPU specifications as string
+  memory_specs?: string; // Memory specifications as string  
+  storage_specs?: string; // Storage specifications as string
+  configuration_count?: number; // Number of configurations for this model
 }
 
 // Hardware specifications (nested JSON)
@@ -450,3 +483,30 @@ export const LENOVO_PARSE_CONFIG: ParseConfig = {
     }
   }
 };
+
+// Permission checking utilities
+export class UserPermissions {
+  static isAdmin(user: User): boolean {
+    return user.role === 'admin';
+  }
+  
+  static canManageHardwareBaskets(user: User): boolean {
+    return user.role === 'admin';
+  }
+  
+  static canCreateHardwareBaskets(user: User): boolean {
+    return user.role === 'admin' || user.role === 'editor';
+  }
+  
+  static canViewHardwareBaskets(user: User): boolean {
+    return true; // All users can view global hardware baskets
+  }
+  
+  static canDeleteHardwareBasket(user: User, basket: HardwareBasket): boolean {
+    return user.role === 'admin' || basket.created_by === user.id;
+  }
+  
+  static canUploadToHardwareBasket(user: User): boolean {
+    return user.role === 'admin' || user.role === 'editor';
+  }
+}

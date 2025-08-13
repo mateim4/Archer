@@ -41,7 +41,7 @@ const WorkflowKanban: React.FC<{ workflow: typeof mockProject.workflows[0] }> = 
         {statuses.map(status => (
           <div key={status}>
             <h4 className="font-medium text-gray-600 mb-2">{status.replace(/([A-Z])/g, ' $1').trim()}</h4>
-            <div className="bg-gray-100 p-2 rounded-lg min-h-[100px]">
+            <div className="bg-gray-100 p-2 rounded-lg min-h-100">
               {workflow.stages
                 .filter(stage => stage.status === status)
                 .map(stage => (

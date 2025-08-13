@@ -1,0 +1,47 @@
+{
+  "file_name": "X86 Basket Q3 2025 v2 Dell Only.xlsx",
+  "total_sheets": 5,
+  "sheets": {
+    "Cover": {
+      "purpose": "Introduction/metadata sheet",
+      "dimensions": "28 rows x 3 columns",
+      "data_type": "metadata"
+    },
+    "Dell Lot Pricing": {
+      "purpose": "PRIMARY DATA - Server configurations with pricing",
+      "dimensions": "266 rows x 19 columns", 
+      "header_row": 3,
+      "headers": ["Lot Description", "Item", "Specification", "Listprice", "Net Price US$"],
+      "data_sections": 18,
+      "numeric_columns": 15,
+      "key_indicators": ["dell", "server", "rack", "intel", "amd", "processor"],
+      "note": "This is the main hardware data sheet - 266 rows of server data!"
+    },
+    "Dell Options and Upgrades": {
+      "purpose": "Additional components/upgrades",
+      "dimensions": "148 rows x 8 columns",
+      "header_row": 4,
+      "headers": ["SKU", "SKU Description", "SkuType", "Qty", "List Price"],
+      "data_sections": 4,
+      "largest_section": "108 rows (rows 40-147)",
+      "numeric_columns": 4
+    },
+    "Exchange rates": {
+      "purpose": "Currency conversion data",
+      "dimensions": "0 rows x 0 columns",
+      "note": "Empty sheet"
+    },
+    "Dell - Country List": {
+      "purpose": "Regional/country-specific information",
+      "dimensions": "89 rows x 14 columns",
+      "data_sections": 8,
+      "numeric_columns": 6
+    }
+  },
+  "parsing_insights": {
+    "primary_data_sheet": "Dell Lot Pricing",
+    "total_hardware_items": "~266 server configurations",
+    "current_parser_coverage": "Only parsing first sheet superficially - missing 262+ items!",
+    "additional_components": "148 options/upgrades in separate sheet"
+  }
+}
