@@ -18,14 +18,9 @@ export interface User {
 // Hardware basket creation request
 export interface CreateHardwareBasketRequest {
   name: string;
-  vendor_name: string;
+  vendor: string;
   quarter: string;
   year: number;
-  exchange_rate?: number;
-  currency_from: string;
-  currency_to: string;
-  validity_date?: Date;
-  is_global?: boolean; // Defaults to true, only admins can set to false
 }
 
 // Base vendor information
@@ -76,6 +71,23 @@ export interface HardwareModel {
   memory_specs?: string; // Memory specifications as string  
   storage_specs?: string; // Storage specifications as string
   configuration_count?: number; // Number of configurations for this model
+  
+  // Enhanced server specification fields
+  server_model: string; // R450, R760, etc.
+  server_size: string; // 1U, 2U, 4U
+  socket_count: number; // 1, 2, etc.
+  cpu_model: string; // Processor model name
+  cpu_cores: number; // Number of CPU cores
+  cpu_threads: number; // Number of CPU threads
+  cpu_frequency: string; // CPU frequency
+  vsan_ready: boolean; // VSAN Ready flag
+  processor_info: string; // Original processor info string
+  ram_info: string; // RAM information
+  network_info: string; // Network information
+  
+  // Source information for categorization
+  source_sheet: string; // Sheet name from Excel file
+  source_section: string; // Section within sheet (e.g., "Base Models", "Upgrade Options")
 }
 
 // Hardware specifications (nested JSON)

@@ -120,24 +120,10 @@ test.describe('Hardware Basket Upload Tests', () => {
     }
   });
 
-  test('should validate backend API connectivity', async ({ page }) => {
-    console.log('🧭 Navigated to hardware basket page');
-    
-    // Test API endpoints
-    const basketResponse = await page.request.get('http://localhost:1420/api/hardware-baskets', {
-      failOnStatusCode: false
-    });
-    
+    test('should validate backend API connectivity', async ({ request }) => {
+    // Test the primary hardware basket endpoint
+    const basketResponse = await request.get('http://localhost:3001/api/hardware-baskets');
     console.log('🔍 Baskets API status:', basketResponse.status());
-    
-    if (basketResponse.status() === 404) {
-      // Try direct backend
-      const directResponse = await page.request.get('http://localhost:3000/api/hardware-baskets', {
-        failOnStatusCode: false
-      });
-      console.log('🔍 Direct backend status:', directResponse.status());
-    }
-    
     console.log('🔍 Response headers:', basketResponse.headers());
     
     // At least one endpoint should be available

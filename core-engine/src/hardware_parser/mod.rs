@@ -1,5 +1,7 @@
 pub mod adapters;
 pub mod basket_parser;
+pub mod component_classifier;
+pub mod server_assembly;
 
 pub use basket_parser::{
     HardwareBasketParser,
