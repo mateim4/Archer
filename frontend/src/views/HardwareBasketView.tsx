@@ -125,15 +125,34 @@ const HardwareBasketView: React.FC = () => {
       setUploadProgress({ stage: 'Parsing data', progress: 30, message: 'Analyzing hardware data...' });
       const parsedData = await parseHardwareBasket(file);
 
-      // Upload to backend
-      setUploadProgress({ stage: 'Uploading', progress: 60, message: 'Uploading to server...' });
+      // Step 1: Create a hardware basket first
+      const createBasketResponse = await fetch('/api/hardware-baskets', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: `${parsedData.vendor} Hardware Basket - ${parsedData.quarter} ${parsedData.year}`,
+          vendor_name: parsedData.vendor,
+          quarter: parsedData.quarter,
+          year: parsedData.year,
+          currency_from: 'USD',
+          currency_to: 'USD',
+          exchange_rate: 1.0,
+        }),
+      });
+
+      if (!createBasketResponse.ok) {
+        throw new Error(`Failed to create hardware basket: ${createBasketResponse.statusText}`);
+      }
+
+      const basket = await createBasketResponse.json();
+
+      // Step 2: Upload the file to the created basket
       const formData = new FormData();
       formData.append('file', file);
-      formData.append('vendor', parsedData.vendor);
-      formData.append('quarter', parsedData.quarter);
-      formData.append('year', parsedData.year.toString());
 
-      const response = await fetch('/api/hardware-baskets/upload', {
+      const response = await fetch(`/api/hardware-baskets/${basket.id}/upload`, {
         method: 'POST',
         body: formData,
       });
@@ -151,7 +170,7 @@ const HardwareBasketView: React.FC = () => {
         setIsUploading(false);
         setUploadProgress(null);
         setShowUploadDialog(false);
-        setSuccess(`Successfully imported ${result.models_count} models and ${result.configurations_count} configurations`);
+        setSuccess(`Successfully imported ${result.total_models} models and ${result.total_configurations} configurations`);
         fetchHardwareBaskets(); // Refresh the list
       }, 1000);
 

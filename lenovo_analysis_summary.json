@@ -1,0 +1,56 @@
+{
+  "file_name": "X86 Basket Q3 2025 v2 Lenovo Only.xlsx", 
+  "total_sheets": 6,
+  "sheets": {
+    "Cover": {
+      "purpose": "Introduction/metadata sheet",
+      "dimensions": "29 rows x 3 columns",
+      "data_type": "metadata"
+    },
+    "Lenovo X86 Server Lots": {
+      "purpose": "PRIMARY DATA - Server configurations with pricing",
+      "dimensions": "413 rows x 8 columns",
+      "header_row": 3,
+      "headers": ["Part Number", "Description", "Quantity", "Total price in USD", "Total price in EUR"],
+      "data_sections": 19,
+      "numeric_columns": 4,
+      "key_indicators": ["lenovo", "server", "rack", "intel", "amd", "processor", "storage"],
+      "note": "This is the main hardware data sheet - 413 rows of server data!"
+    },
+    "Lenovo X86 Parts": {
+      "purpose": "Individual components/parts",
+      "dimensions": "114 rows x 6 columns",
+      "header_row": 5,
+      "headers": ["Items", "Server type applicable to", "Vendor Product Offer", "Price in $ USD", "Price in € EUR"],
+      "largest_section": "109 rows (rows 5-113)",
+      "numeric_columns": 2
+    },
+    "Lenovo X86 Services": {
+      "purpose": "Service offerings",
+      "dimensions": "45 rows x 7 columns", 
+      "header_row": 5,
+      "headers": ["Services", "System", "Direct/Indirect countries", "Vendor Product Offer", "Net price in $ USD"],
+      "data_rows": "40 rows (rows 5-44)",
+      "numeric_columns": 2
+    },
+    "Lenovo Country Data": {
+      "purpose": "Regional/country-specific information",
+      "dimensions": "80 rows x 11 columns",
+      "data_sections": 1,
+      "numeric_columns": 3
+    },
+    "Lenovo Quarterly Exchange Rates": {
+      "purpose": "Currency conversion data",
+      "dimensions": "50 rows x 11 columns",
+      "header_row": 0,
+      "headers": ["Name", "Hierarchy Code", "Code", "Name", "Current type"],
+      "numeric_columns": 1
+    }
+  },
+  "parsing_insights": {
+    "primary_data_sheet": "Lenovo X86 Server Lots", 
+    "total_hardware_items": "~413 server configurations",
+    "current_parser_coverage": "Not parsing Lenovo files at all!",
+    "additional_components": "114 parts + 45 services in separate sheets"
+  }
+}

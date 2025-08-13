@@ -1,0 +1,1315 @@
+{
+  "file_path": "/home/mateim/Downloads/work/Hardware BOM/X86 Basket Q3 2025 v2 Lenovo Only.xlsx",
+  "sheets": {
+    "Cover": {
+      "name": "Cover",
+      "total_rows": 29,
+      "total_columns": 3,
+      "non_empty_rows": 19,
+      "headers_detected": [],
+      "sample_data": [
+        {
+          "position": "row_0",
+          "data": [
+            "nan",
+            "Last Updated 020725 - NM",
+            "nan"
+          ]
+        },
+        {
+          "position": "row_1",
+          "data": [
+            "nan",
+            "Atos X86 Server Pricing",
+            "nan"
+          ]
+        },
+        {
+          "position": "row_2",
+          "data": [
+            "nan",
+            "Latest version of the Procurement basket can be found here >>click<<",
+            "nan"
+          ]
+        },
+        {
+          "position": "mid_row_14",
+          "data": [
+            "nan",
+            "nan",
+            "nan"
+          ]
+        },
+        {
+          "position": "mid_row_15",
+          "data": [
+            "nan",
+            "Exchange rates",
+            "All prices are fixed in US Dollars.\nExchange rates will be change every 3 months\nVendors are obligated to communicate the new exchange rates.\n"
+          ]
+        },
+        {
+          "position": "end_row_27",
+          "data": [
+            "nan",
+            "nan",
+            "nan"
+          ]
+        },
+        {
+          "position": "end_row_28",
+          "data": [
+            "nan",
+            "FOR PROCUREMENT INTERNAL USE ONLY",
+            "nan"
+          ]
+        }
+      ],
+      "data_patterns": {},
+      "column_analysis": {
+        "col_1": {
+          "total_values": 19,
+          "numeric_values": 0,
+          "text_values": 19,
+          "sample_values": [
+            "Last Updated 020725 - NM",
+            "Atos X86 Server Pricing",
+            "Latest version of the Procurement basket can be found here >>click<<",
+            "Eviden - Contact purchasing:",
+            "Atos - Contact purchasing:"
+          ],
+          "is_mostly_numeric": false,
+          "has_currency_data": false,
+          "has_part_numbers": true
+        },
+        "col_2": {
+          "total_values": 15,
+          "numeric_values": 1,
+          "text_values": 14,
+          "sample_values": [
+            "Olaf van den Berg - Global Lead Buyer Servers (olaf.vandenberg@atos.net)",
+            "Nick Maidment  - Global Lead Buyer Workplace (nick.maidment@atos.net)",
+            "Sameer Mhatre  - Head of Global Server Engineering  (sameer.mhatre@atos.net)",
+            "Elmer Grotenhuis - Elmer.Grotenhuis@dell.com",
+            "Lucian Braguta - lbraguta@lenovo.com"
+          ],
+          "is_mostly_numeric": false,
+          "has_currency_data": false,
+          "has_part_numbers": true
+        }
+      }
+    },
+    "Lenovo X86 Server Lots": {
+      "name": "Lenovo X86 Server Lots",
+      "total_rows": 413,
+      "total_columns": 8,
+      "non_empty_rows": 370,
+      "headers_detected": [
+        {
+          "row_index": 3,
+          "values": [
+            "Part Number",
+            "Description",
+            "Quantity",
+            "Total price in USD",
+            "Total price in EUR",
+            "Total price in USD",
+            "Total price in EUR"
+          ]
+        }
+      ],
+      "sample_data": [
+        {
+          "position": "row_0",
+          "data": [
+            "nan",
+            "nan",
+            "Currencies",
+            "Rate",
+            "nan",
+            "nan",
+            "nan",
+            "nan"
+          ]
+        },
+        {
+          "position": "row_1",
+          "data": [
+            "nan",
+            "nan",
+            "EUR/USD Exchange rate until 30/6/25",
+            "0.8607",
+            "nan",
+            "nan",
+            "nan",
+            "nan"
+          ]
+        },
+        {
+          "position": "row_2",
+          "data": [
+            "nan",
+            "nan",
+            "X86 Server RFP Basket 2025 Q2",
+            "nan",
+            "1 year Warranty",
+            "nan",
+            "3 year warranty",
+            "nan"
+          ]
+        },
+        {
+          "position": "mid_row_206",
+          "data": [
+            "nan",
+            "BYRQ",
+            "AF-6",
+            "1",
+            "nan",
+            "nan",
+            "nan",
+            "nan"
+          ]
+        },
+        {
+          "position": "mid_row_207",
+          "data": [
+            "nan",
+            "BMGE",
+            "ThinkSystem 2.5\" U.2 P5520 3.84TB Read Intensive NVMe PCIe 4.0 x4 HS SSD",
+            "16",
+            "nan",
+            "nan",
+            "nan",
+            "nan"
+          ]
+        },
+        {
+          "position": "end_row_411",
+          "data": [
+            "nan",
+            "BLK9",
+            "ThinkSystem V3 1U MS LP+LP BF Riser Cage",
+            "1",
+            "nan",
+            "nan",
+            "nan",
+            "nan"
+          ]
+        },
+        {
+          "position": "end_row_412",
+          "data": [
+            "nan",
+            "BR1X",
+            "ThinkSystem 750W 230V Titanium Hot-Swap Gen2 Power Supply v3",
+            "2",
+            "nan",
+            "nan",
+            "nan",
+            "nan"
+          ]
+        }
+      ],
+      "data_patterns": {},
+      "column_analysis": {
+        "col_1": {
+          "total_values": 349,
+          "numeric_values": 18,
+          "text_values": 331,
+          "sample_values": [
+            "Part Number",
+            "7D73CTO1WW",
+            "BLK4",
+            "BFYE",
+            "BVGL"
+          ],
+          "is_mostly_numeric": false,
+          "has_currency_data": false,
+          "has_part_numbers": true
+        },
+        "col_2": {
+          "total_values": 366,
+          "numeric_values": 0,
+          "text_values": 366,
+          "sample_values": [
+            "Currencies",
+            "EUR/USD Exchange rate until 30/6/25",
+            "X86 Server RFP Basket 2025 Q2",
+            "Description",
+            "SMI1 - Intel  - 1 Proc - Small Rack Server"
+          ],
+          "is_mostly_numeric": false,
+          "has_currency_data": false,
+          "has_part_numbers": true
+        },
+        "col_3": {
+          "total_values": 351,
+          "numeric_values": 349,
+          "text_values": 2,
+          "sample_values": [
+            "Rate",
+            "0.8607",
+            "Quantity",
+            "1",
+            "1"
+          ],
+          "is_mostly_numeric": true,
+          "has_currency_data": false,
+          "has_part_numbers": true
+        },
+        "col_4": {
+          "total_values": 12,
+          "numeric_values": 10,
+          "text_values": 2,
+          "sample_values": [
+            "1 year Warranty",
+            "Total price in USD",
+            "2850",
+            "4422",
+            "3621"
+          ],
+          "is_mostly_numeric": true,
+          "has_currency_data": false,
+          "has_part_numbers": true
+        },
+        "col_5": {
+          "total_values": 11,
+          "numeric_values": 10,
+          "text_values": 1,
+          "sample_values": [
+            "Total price in EUR",
+            "2452.995",
+            "3806.0154",
+            "3116.5947",
+            "3762.1197"
+          ],
+          "is_mostly_numeric": true,
+          "has_currency_data": false,
+          "has_part_numbers": true
+        },
+        "col_6": {
+          "total_values": 20,
+          "numeric_values": 18,
+          "text_values": 2,
+          "sample_values": [
+            "3 year warranty",
+            "Total price in USD",
+            "3069",
+            "4672",
+            "3871"
+          ],
+          "is_mostly_numeric": true,
+          "has_currency_data": false,
+          "has_part_numbers": true
+        },
+        "col_7": {
+          "total_values": 19,
+          "numeric_values": 18,
+          "text_values": 1,
+          "sample_values": [
+            "Total price in EUR",
+            "2641.4883",
+            "4021.1904",
+            "3331.7697000000003",
+            "3977.191416"
+          ],
+          "is_mostly_numeric": true,
+          "has_currency_data": false,
+          "has_part_numbers": true
+        }
+      }
+    },
+    "Lenovo X86 Parts": {
+      "name": "Lenovo X86 Parts",
+      "total_rows": 114,
+      "total_columns": 6,
+      "non_empty_rows": 111,
+      "headers_detected": [],
+      "sample_data": [
+        {
+          "position": "row_0",
+          "data": [
+            "nan",
+            "nan",
+            "nan",
+            "EUR/USD Exchange rate",
+            "0.8607",
+            "nan"
+          ]
+        },
+        {
+          "position": "row_1",
+          "data": [
+            "nan",
+            "nan",
+            "nan",
+            "nan",
+            "nan",
+            "nan"
+          ]
+        },
+        {
+          "position": "row_2",
+          "data": [
+            "nan",
+            "nan",
+            "nan",
+            "nan",
+            "nan",
+            "nan"
+          ]
+        },
+        {
+          "position": "mid_row_57",
+          "data": [
+            "nan",
+            "PERC H965e, Adapter Low Profile, DIB ",
+            "ThinkSystem SR630/645/650/665/VX650/655 V3",
+            "ThinkSystem RAID 9350-16i 4GB Flash PCIe 12Gb Adapter",
+            "2253.96",
+            "1939.9833720000001"
+          ]
+        },
+        {
+          "position": "mid_row_58",
+          "data": [
+            "nan",
+            "960GB SSD vSAS 12Gbps RI 512e 2.5in Hot-Plug ",
+            "ThinkSystem SR630/645/650/665/VX650/655 V3",
+            "ThinkSystem 2.5\" PM893 960GB Read Intensive SATA 6Gb HS SSD",
+            "851.04",
+            "732.490128"
+          ]
+        },
+        {
+          "position": "end_row_112",
+          "data": [
+            "nan",
+            "SFP+ to SFP+, 10GbE, Copper Twinax Direct Attach Cable, 3 Meter ",
+            "ThinkSystem SR630/645/650/665/VX650/655 V3",
+            "Lenovo 3M SFP+ to SFP+ Active Optical Cable",
+            "240.84",
+            "207.290988"
+          ]
+        },
+        {
+          "position": "end_row_113",
+          "data": [
+            "nan",
+            "SFP+ to SFP+, 10GbE, Copper Twinax Direct Attach Cable, 5 Meter ",
+            "ThinkSystem SR630/645/650/665/VX650/655 V3",
+            "Lenovo 5M SFP+ to SFP+ Active Optical Cable",
+            "255.96",
+            "220.304772"
+          ]
+        }
+      ],
+      "data_patterns": {},
+      "column_analysis": {
+        "col_1": {
+          "total_values": 110,
+          "numeric_values": 0,
+          "text_values": 110,
+          "sample_values": [
+            "Spare Parts / Options for Servers ",
+            "Items",
+            "Intel\u00ae Xeon\u00ae Platinum 8452Y 2G, 36C/72T, 16GT/s, 68M Cache, Turbo, HT (300W) DDR5-4800 ",
+            "Intel\u00ae Xeon\u00ae Platinum 8460Y+ 2G, 40C/80T, 16GT/s, 105M Cache, Turbo, HT (300W) DDR5-4800 ",
+            "Intel\u00ae Xeon\u00ae Platinum 8462Y+ 2.8G, 32C/64T, 16GT/s, 60M Cache, Turbo, HT (300W) DDR5-4800 "
+          ],
+          "is_mostly_numeric": false,
+          "has_currency_data": false,
+          "has_part_numbers": true
+        },
+        "col_2": {
+          "total_values": 109,
+          "numeric_values": 0,
+          "text_values": 109,
+          "sample_values": [
+            "Server type applicable to",
+            "ThinkSystem SR630 / SR650",
+            "ThinkSystem SR630 / SR650",
+            "ThinkSystem SR630 / SR650",
+            "ThinkSystem SR630 / SR650"
+          ],
+          "is_mostly_numeric": false,
+          "has_currency_data": false,
+          "has_part_numbers": true
+        },
+        "col_3": {
+          "total_values": 110,
+          "numeric_values": 0,
+          "text_values": 110,
+          "sample_values": [
+            "EUR/USD Exchange rate",
+            "Vendor Product Offer",
+            "ThinkSystem SR630 V3 Intel Xeon Platinum 8452Y 36C 300W 2.0GHz Processor Option Kit w/o Fan",
+            "ThinkSystem SR630 V3 Intel Xeon Platinum 8460Y+ 40C 300W 2.0GHz Processor Option Kit w/o Fan",
+            "ThinkSystem SR630 V3 Intel Xeon Platinum 8462Y+ 32C 300W 2.8GHz Processor Option Kit w/o Fan"
+          ],
+          "is_mostly_numeric": false,
+          "has_currency_data": false,
+          "has_part_numbers": true
+        },
+        "col_4": {
+          "total_values": 110,
+          "numeric_values": 109,
+          "text_values": 1,
+          "sample_values": [
+            "0.8607",
+            "Price in $ USD",
+            "9221.04",
+            "12468.6",
+            "12940.56"
+          ],
+          "is_mostly_numeric": true,
+          "has_currency_data": true,
+          "has_part_numbers": true
+        },
+        "col_5": {
+          "total_values": 109,
+          "numeric_values": 108,
+          "text_values": 1,
+          "sample_values": [
+            "Price in \u20ac EUR",
+            "7936.549128000001",
+            "10731.724020000001",
+            "11137.939992",
+            "13836.44106"
+          ],
+          "is_mostly_numeric": true,
+          "has_currency_data": true,
+          "has_part_numbers": true
+        }
+      }
+    },
+    "Lenovo X86 Services": {
+      "name": "Lenovo X86 Services",
+      "total_rows": 45,
+      "total_columns": 7,
+      "non_empty_rows": 42,
+      "headers_detected": [],
+      "sample_data": [
+        {
+          "position": "row_0",
+          "data": [
+            "nan",
+            "nan",
+            "nan",
+            "EUR/USD Exchange rate",
+            "0.8607",
+            "nan",
+            "nan"
+          ]
+        },
+        {
+          "position": "row_1",
+          "data": [
+            "nan",
+            "nan",
+            "nan",
+            "nan",
+            "nan",
+            "nan",
+            "nan"
+          ]
+        },
+        {
+          "position": "row_2",
+          "data": [
+            "nan",
+            "nan",
+            "nan",
+            "nan",
+            "nan",
+            "nan",
+            "nan"
+          ]
+        },
+        {
+          "position": "mid_row_22",
+          "data": [
+            "nan",
+            "3Y 24x7 4H Response +YDYD",
+            "ThinkSystem SR 650 V3",
+            "Direct Only",
+            "Premier Essential - 3Yr 24x7 4Hr Resp + YDYD SR650 V3",
+            "1792",
+            "1542.3744000000002"
+          ]
+        },
+        {
+          "position": "mid_row_23",
+          "data": [
+            "nan",
+            "5Y 24x7 4H Response +YDYD",
+            "ThinkSystem SR 650 V3",
+            "Direct Only",
+            "Premier Essential - 5Yr 24x7 4Hr Resp + YDYD SR650 V3",
+            "3694",
+            "3179.4258"
+          ]
+        },
+        {
+          "position": "end_row_43",
+          "data": [
+            "nan",
+            "3Y 24x7 4H Response +YDYD",
+            "ThinkSystem SE350",
+            "Direct Only",
+            "Premier Essential - 3Yr 24x7 4Hr Resp + YDYD SE350",
+            "828",
+            "712.6596000000001"
+          ]
+        },
+        {
+          "position": "end_row_44",
+          "data": [
+            "nan",
+            "5Y 24x7 4H Response +YDYD",
+            "ThinkSystem SE350",
+            "Direct Only",
+            "Premier Essential - 5Yr 24x7 4Hr Resp + YDYD SE350",
+            "1588",
+            "1366.7916"
+          ]
+        }
+      ],
+      "data_patterns": {},
+      "column_analysis": {
+        "col_1": {
+          "total_values": 41,
+          "numeric_values": 0,
+          "text_values": 41,
+          "sample_values": [
+            "Factory Services / Support Services",
+            "Services",
+            "3Y Next Business Day",
+            "5Y Next Business Day",
+            "3Y Next Business Day +YDYD"
+          ],
+          "is_mostly_numeric": false,
+          "has_currency_data": false,
+          "has_part_numbers": true
+        },
+        "col_2": {
+          "total_values": 40,
+          "numeric_values": 0,
+          "text_values": 40,
+          "sample_values": [
+            "System",
+            "ThinkSystem SR 630 V3",
+            "ThinkSystem SR 630 V3",
+            "ThinkSystem SR 630 V3",
+            "ThinkSystem SR 630 V3"
+          ],
+          "is_mostly_numeric": false,
+          "has_currency_data": false,
+          "has_part_numbers": true
+        },
+        "col_3": {
+          "total_values": 41,
+          "numeric_values": 0,
+          "text_values": 41,
+          "sample_values": [
+            "EUR/USD Exchange rate",
+            "Direct/Indirect countries",
+            "All",
+            "All",
+            "All"
+          ],
+          "is_mostly_numeric": false,
+          "has_currency_data": false,
+          "has_part_numbers": false
+        },
+        "col_4": {
+          "total_values": 41,
+          "numeric_values": 1,
+          "text_values": 40,
+          "sample_values": [
+            "0.8607",
+            "Vendor Product Offer",
+            "Premier Foundation - 3Yr NBD Resp SR630 V3",
+            "Premier Foundation - 5Yr NBD Resp SR630 V3",
+            "Premier Foundation - 3Yr NBD Resp + YDYD SR630 V3"
+          ],
+          "is_mostly_numeric": false,
+          "has_currency_data": false,
+          "has_part_numbers": true
+        },
+        "col_5": {
+          "total_values": 40,
+          "numeric_values": 39,
+          "text_values": 1,
+          "sample_values": [
+            "Net price in $ USD",
+            "748",
+            "1840",
+            "824",
+            "1960"
+          ],
+          "is_mostly_numeric": true,
+          "has_currency_data": true,
+          "has_part_numbers": false
+        },
+        "col_6": {
+          "total_values": 40,
+          "numeric_values": 39,
+          "text_values": 1,
+          "sample_values": [
+            "Net price in \u20ac EUR",
+            "643.8036",
+            "1583.688",
+            "709.2168",
+            "1686.972"
+          ],
+          "is_mostly_numeric": true,
+          "has_currency_data": true,
+          "has_part_numbers": true
+        }
+      }
+    },
+    "Lenovo Country Data": {
+      "name": "Lenovo Country Data",
+      "total_rows": 80,
+      "total_columns": 11,
+      "non_empty_rows": 80,
+      "headers_detected": [
+        {
+          "row_index": 2,
+          "values": [
+            "Andorra",
+            "Indirect",
+            "Indirect",
+            "No",
+            "Delivery terms as agreed between Atos and Partners",
+            "Not Applicable, as Indirect route to market",
+            "As agreed between ATOS & partner",
+            "As agreed between ATOS & partner",
+            "4.5",
+            "45"
+          ]
+        },
+        {
+          "row_index": 3,
+          "values": [
+            "Austria",
+            "Direct",
+            "Lenovo Global Technology Austria GmbH",
+            "Yes",
+            "DDP",
+            "Included in base price",
+            "0",
+            "Included in the price",
+            "20",
+            "35"
+          ]
+        },
+        {
+          "row_index": 4,
+          "values": [
+            "Belgium",
+            "Direct",
+            "Lenovo Global Technology Belgium BVBA",
+            "Yes",
+            "DDP",
+            "Included in base price",
+            "0",
+            "Included in the price",
+            "21",
+            "35"
+          ]
+        }
+      ],
+      "sample_data": [
+        {
+          "position": "row_0",
+          "data": [
+            "Country ",
+            "Fufillment Capabilities",
+            "nan",
+            "Web  ordering capabilities ",
+            "Delivery terms (DDP)",
+            "International Freight & Insurance Cost",
+            "nan",
+            " Import Duties",
+            "VAT and Sales Taxes",
+            "Delivery Time in total\n"
+          ]
+        },
+        {
+          "position": "row_1",
+          "data": [
+            "nan",
+            "Direct/Indirect",
+            "Affiliates",
+            "(Direct only - Yes/No)",
+            "(If not DDP according to current INCOTERMS comment what applies)",
+            "Indicative for South America,  Middle East and Asia",
+            "Regional Uplifts",
+            "nan",
+            "in %",
+            "in working days"
+          ]
+        },
+        {
+          "position": "row_2",
+          "data": [
+            "Andorra",
+            "Indirect",
+            "Indirect",
+            "No",
+            "Delivery terms as agreed between Atos and Partners",
+            "Not Applicable, as Indirect route to market",
+            "As agreed between ATOS & partner",
+            "As agreed between ATOS & partner",
+            "4.5",
+            "45"
+          ]
+        },
+        {
+          "position": "mid_row_40",
+          "data": [
+            "Colombia ",
+            "Direct",
+            "Lenovo Global Technology (Asia Pacific) Limited Sucursal Colombia",
+            "Yes",
+            "DDP",
+            "Included in base price",
+            "0",
+            "Included in the price",
+            "19",
+            "48"
+          ]
+        },
+        {
+          "position": "mid_row_41",
+          "data": [
+            "Ecuador",
+            "Indirect",
+            "Indirect",
+            "No",
+            "Delivery terms as agreed between Atos and Partners",
+            "Not Applicable, as Indirect route to market",
+            "As agreed between ATOS & partner",
+            "As agreed between ATOS & partner",
+            "12",
+            "40 - 50"
+          ]
+        },
+        {
+          "position": "end_row_78",
+          "data": [
+            "Thailand ",
+            "Direct",
+            "Lenovo (Thailand) Limited",
+            "Yes",
+            "DDP",
+            "Included in base price",
+            "5",
+            "Included in the price",
+            "7",
+            "35"
+          ]
+        },
+        {
+          "position": "end_row_79",
+          "data": [
+            "Vietnam ",
+            "Indirect",
+            "Indirect",
+            "No",
+            "Delivery terms as agreed between Atos and Partners",
+            "Not Applicable, as Indirect route to market",
+            "As agreed between ATOS & partner",
+            "As agreed between ATOS & partner",
+            "10",
+            "40 - 50"
+          ]
+        }
+      ],
+      "data_patterns": {},
+      "column_analysis": {
+        "col_0": {
+          "total_values": 79,
+          "numeric_values": 0,
+          "text_values": 79,
+          "sample_values": [
+            "Country ",
+            "Andorra",
+            "Austria ",
+            "Belgium ",
+            "British Virgin Islands"
+          ],
+          "is_mostly_numeric": false,
+          "has_currency_data": false,
+          "has_part_numbers": false
+        },
+        "col_1": {
+          "total_values": 80,
+          "numeric_values": 0,
+          "text_values": 80,
+          "sample_values": [
+            "Fufillment Capabilities",
+            "Direct/Indirect",
+            "Indirect",
+            "Direct",
+            "Direct"
+          ],
+          "is_mostly_numeric": false,
+          "has_currency_data": false,
+          "has_part_numbers": false
+        },
+        "col_2": {
+          "total_values": 79,
+          "numeric_values": 0,
+          "text_values": 79,
+          "sample_values": [
+            "Affiliates",
+            "Indirect",
+            "Lenovo Global Technology Austria GmbH",
+            "Lenovo Global Technology Belgium BVBA",
+            "Indirect"
+          ],
+          "is_mostly_numeric": false,
+          "has_currency_data": false,
+          "has_part_numbers": false
+        },
+        "col_3": {
+          "total_values": 80,
+          "numeric_values": 0,
+          "text_values": 80,
+          "sample_values": [
+            "Web  ordering capabilities ",
+            "(Direct only - Yes/No)",
+            "No",
+            "Yes",
+            "Yes"
+          ],
+          "is_mostly_numeric": false,
+          "has_currency_data": false,
+          "has_part_numbers": false
+        },
+        "col_4": {
+          "total_values": 80,
+          "numeric_values": 0,
+          "text_values": 80,
+          "sample_values": [
+            "Delivery terms (DDP)",
+            "(If not DDP according to current INCOTERMS comment what applies)",
+            "Delivery terms as agreed between Atos and Partners",
+            "DDP",
+            "DDP"
+          ],
+          "is_mostly_numeric": false,
+          "has_currency_data": false,
+          "has_part_numbers": false
+        },
+        "col_5": {
+          "total_values": 80,
+          "numeric_values": 0,
+          "text_values": 80,
+          "sample_values": [
+            "International Freight & Insurance Cost",
+            "Indicative for South America,  Middle East and Asia",
+            "Not Applicable, as Indirect route to market",
+            "Included in base price",
+            "Included in base price"
+          ],
+          "is_mostly_numeric": false,
+          "has_currency_data": false,
+          "has_part_numbers": false
+        },
+        "col_6": {
+          "total_values": 79,
+          "numeric_values": 34,
+          "text_values": 45,
+          "sample_values": [
+            "Regional Uplifts",
+            "As agreed between ATOS & partner",
+            "0",
+            "0",
+            "As agreed between ATOS & partner"
+          ],
+          "is_mostly_numeric": false,
+          "has_currency_data": false,
+          "has_part_numbers": false
+        },
+        "col_7": {
+          "total_values": 79,
+          "numeric_values": 0,
+          "text_values": 79,
+          "sample_values": [
+            " Import Duties",
+            "As agreed between ATOS & partner",
+            "Included in the price",
+            "Included in the price",
+            "As agreed between ATOS & partner"
+          ],
+          "is_mostly_numeric": false,
+          "has_currency_data": false,
+          "has_part_numbers": false
+        },
+        "col_8": {
+          "total_values": 77,
+          "numeric_values": 74,
+          "text_values": 3,
+          "sample_values": [
+            "VAT and Sales Taxes",
+            "in %",
+            "4.5",
+            "20",
+            "21"
+          ],
+          "is_mostly_numeric": true,
+          "has_currency_data": false,
+          "has_part_numbers": false
+        },
+        "col_9": {
+          "total_values": 80,
+          "numeric_values": 36,
+          "text_values": 44,
+          "sample_values": [
+            "Delivery Time in total\n",
+            "in working days",
+            "45",
+            "35",
+            "35"
+          ],
+          "is_mostly_numeric": false,
+          "has_currency_data": false,
+          "has_part_numbers": true
+        },
+        "col_10": {
+          "total_values": 80,
+          "numeric_values": 0,
+          "text_values": 80,
+          "sample_values": [
+            "Order\nconcept",
+            "LtL (Local to Local) or GtL(Global to Local) or booth",
+            "LtL",
+            "LtL",
+            "LtL"
+          ],
+          "is_mostly_numeric": false,
+          "has_currency_data": false,
+          "has_part_numbers": false
+        }
+      }
+    },
+    "Lenovo Quarterly Exchange Rates": {
+      "name": "Lenovo Quarterly Exchange Rates",
+      "total_rows": 50,
+      "total_columns": 11,
+      "non_empty_rows": 50,
+      "headers_detected": [
+        {
+          "row_index": 0,
+          "values": [
+            "Name",
+            "Hierarchy Code",
+            "Code",
+            "Name",
+            "Current type",
+            "Lead Currency",
+            "Local Currency",
+            "Straight Rate",
+            "Start Date",
+            "End Date"
+          ]
+        }
+      ],
+      "sample_data": [
+        {
+          "position": "row_0",
+          "data": [
+            "Name",
+            "Hierarchy Code",
+            "Code",
+            "Name",
+            "Current type",
+            "Lead Currency",
+            "Local Currency",
+            "Straight Rate",
+            "Start Date",
+            "End Date"
+          ]
+        },
+        {
+          "position": "row_1",
+          "data": [
+            "ATOS Origin",
+            "ATOS_GA",
+            "AL",
+            "ALBANIA",
+            "Fixed",
+            "USD",
+            "EUR",
+            "0.8607",
+            "2025-07-01 00:00:00",
+            "2025-09-30 00:00:00"
+          ]
+        },
+        {
+          "position": "row_2",
+          "data": [
+            "ATOS Origin",
+            "ATOS_GA",
+            "AT",
+            "AUSTRIA",
+            "Fixed",
+            "USD",
+            "EUR",
+            "0.8607",
+            "2025-07-01 00:00:00",
+            "2025-09-30 00:00:00"
+          ]
+        },
+        {
+          "position": "mid_row_25",
+          "data": [
+            "ATOS Origin",
+            "ATOS_GA",
+            "IE",
+            "IRELAND",
+            "Fixed",
+            "USD",
+            "EUR",
+            "0.8607",
+            "2025-07-01 00:00:00",
+            "2025-09-30 00:00:00"
+          ]
+        },
+        {
+          "position": "mid_row_26",
+          "data": [
+            "ATOS Origin",
+            "ATOS_GA",
+            "IN",
+            "INDIA",
+            "Fixed",
+            "USD",
+            "INR",
+            "86.0957",
+            "2025-07-01 00:00:00",
+            "2025-09-30 00:00:00"
+          ]
+        },
+        {
+          "position": "end_row_48",
+          "data": [
+            "ATOS Origin",
+            "ATOS_GA",
+            "KR",
+            "KOREA, REPUBLIC OF",
+            "Fixed",
+            "USD",
+            "KRW",
+            "1364.28",
+            "2025-07-01 00:00:00",
+            "2025-09-30 00:00:00"
+          ]
+        },
+        {
+          "position": "end_row_49",
+          "data": [
+            "ATOS Origin",
+            "ATOS_GA",
+            "AD",
+            "Andorra",
+            "Fixed",
+            "USD",
+            "EUR",
+            "0.8607",
+            "2025-07-01 00:00:00",
+            "2025-09-30 00:00:00"
+          ]
+        }
+      ],
+      "data_patterns": {},
+      "column_analysis": {
+        "col_0": {
+          "total_values": 50,
+          "numeric_values": 0,
+          "text_values": 50,
+          "sample_values": [
+            "Name",
+            "ATOS Origin",
+            "ATOS Origin",
+            "ATOS Origin",
+            "ATOS Origin"
+          ],
+          "is_mostly_numeric": false,
+          "has_currency_data": false,
+          "has_part_numbers": false
+        },
+        "col_1": {
+          "total_values": 50,
+          "numeric_values": 0,
+          "text_values": 50,
+          "sample_values": [
+            "Hierarchy Code",
+            "ATOS_GA",
+            "ATOS_GA",
+            "ATOS_GA",
+            "ATOS_GA"
+          ],
+          "is_mostly_numeric": false,
+          "has_currency_data": false,
+          "has_part_numbers": false
+        },
+        "col_2": {
+          "total_values": 50,
+          "numeric_values": 0,
+          "text_values": 50,
+          "sample_values": [
+            "Code",
+            "AL",
+            "AT",
+            "AU",
+            "BA"
+          ],
+          "is_mostly_numeric": false,
+          "has_currency_data": false,
+          "has_part_numbers": false
+        },
+        "col_3": {
+          "total_values": 50,
+          "numeric_values": 0,
+          "text_values": 50,
+          "sample_values": [
+            "Name",
+            "ALBANIA",
+            "AUSTRIA",
+            "AUSTRALIA",
+            "BOSNIA AND HERZEGOVINA"
+          ],
+          "is_mostly_numeric": false,
+          "has_currency_data": false,
+          "has_part_numbers": false
+        },
+        "col_4": {
+          "total_values": 50,
+          "numeric_values": 0,
+          "text_values": 50,
+          "sample_values": [
+            "Current type",
+            "Fixed",
+            "Fixed",
+            "Fixed",
+            "Fixed"
+          ],
+          "is_mostly_numeric": false,
+          "has_currency_data": false,
+          "has_part_numbers": false
+        },
+        "col_5": {
+          "total_values": 50,
+          "numeric_values": 0,
+          "text_values": 50,
+          "sample_values": [
+            "Lead Currency",
+            "USD",
+            "USD",
+            "USD",
+            "USD"
+          ],
+          "is_mostly_numeric": false,
+          "has_currency_data": false,
+          "has_part_numbers": false
+        },
+        "col_6": {
+          "total_values": 50,
+          "numeric_values": 0,
+          "text_values": 50,
+          "sample_values": [
+            "Local Currency",
+            "EUR",
+            "EUR",
+            "AUD",
+            "EUR"
+          ],
+          "is_mostly_numeric": false,
+          "has_currency_data": false,
+          "has_part_numbers": false
+        },
+        "col_7": {
+          "total_values": 50,
+          "numeric_values": 49,
+          "text_values": 1,
+          "sample_values": [
+            "Straight Rate",
+            "0.8607",
+            "0.8607",
+            "1.5406",
+            "0.8607"
+          ],
+          "is_mostly_numeric": true,
+          "has_currency_data": false,
+          "has_part_numbers": true
+        },
+        "col_8": {
+          "total_values": 50,
+          "numeric_values": 0,
+          "text_values": 50,
+          "sample_values": [
+            "Start Date",
+            "2025-07-01 00:00:00",
+            "2025-07-01 00:00:00",
+            "2025-07-01 00:00:00",
+            "2025-07-01 00:00:00"
+          ],
+          "is_mostly_numeric": false,
+          "has_currency_data": false,
+          "has_part_numbers": true
+        },
+        "col_9": {
+          "total_values": 50,
+          "numeric_values": 0,
+          "text_values": 50,
+          "sample_values": [
+            "End Date",
+            "2025-09-30 00:00:00",
+            "2025-09-30 00:00:00",
+            "2025-09-30 00:00:00",
+            "2025-09-30 00:00:00"
+          ],
+          "is_mostly_numeric": false,
+          "has_currency_data": false,
+          "has_part_numbers": true
+        },
+        "col_10": {
+          "total_values": 50,
+          "numeric_values": 0,
+          "text_values": 50,
+          "sample_values": [
+            "Rate explanation",
+            "Fixed 3 months from 7/1/2025",
+            "Fixed 3 months from 7/1/2025",
+            "Fixed 3 months from 7/1/2025",
+            "Fixed 3 months from 7/1/2025"
+          ],
+          "is_mostly_numeric": false,
+          "has_currency_data": false,
+          "has_part_numbers": true
+        }
+      }
+    }
+  },
+  "summary": {
+    "total_sheets": 6,
+    "total_rows_across_sheets": 672,
+    "data_heavy_sheets": [
+      "Lenovo X86 Server Lots",
+      "Lenovo X86 Parts",
+      "Lenovo Country Data"
+    ],
+    "potential_main_data_sheets": [
+      "Lenovo X86 Server Lots",
+      "Lenovo X86 Parts",
+      "Lenovo Country Data",
+      "Lenovo Quarterly Exchange Rates"
+    ]
+  }
+}

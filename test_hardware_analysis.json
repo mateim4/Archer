@@ -1,0 +1,11 @@
+{
+  "file_path": "test-files/test-hardware-basket.xlsx",
+  "sheets": {},
+  "summary": {
+    "total_sheets": 0,
+    "total_rows_across_sheets": 0,
+    "data_heavy_sheets": [],
+    "potential_main_data_sheets": []
+  },
+  "error": "File is not a zip file"
+}

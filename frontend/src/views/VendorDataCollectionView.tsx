@@ -18,10 +18,13 @@ import ConsistentCard from '../components/ConsistentCard';
 import ConsistentButton from '../components/ConsistentButton';
 import SimpleFileUpload from '../components/SimpleFileUpload';
 import { parseHardwareBasket } from '../utils/hardwareBasketParser';
+import { UserPermissions } from '../types/hardwareBasketTypes';
 import type { 
   HardwareBasket, 
   HardwareModel, 
-  ImportResult 
+  ImportResult,
+  User,
+  CreateHardwareBasketRequest
 } from '../types/hardwareBasketTypes';
 
 // Types
@@ -65,6 +68,15 @@ const VendorDataCollectionView: React.FC = () => {
   const [selectedBasket, setSelectedBasket] = useState<string>('');
   const [hardwareModels, setHardwareModels] = useState<HardwareModel[]>([]);
   const [isUploading, setIsUploading] = useState(false);
+
+  // Mock user context - in production, this would come from authentication
+  const currentUser: User = {
+    id: 'admin', // Will be sent as x-user-id header
+    username: 'admin',
+    email: 'admin@company.com',
+    ad_guid: 'sample-guid-123',
+    role: 'admin' // Change to 'editor' or 'viewer' to test different permissions
+  };
 
   const vendors = [
     { value: '', label: 'All Vendors' },
@@ -128,7 +140,11 @@ const VendorDataCollectionView: React.FC = () => {
   // Hardware basket functions
   const fetchHardwareBaskets = async () => {
     try {
-      const response = await fetch('/api/hardware-baskets');
+      const response = await fetch('/api/hardware-baskets', {
+        headers: {
+          'x-user-id': currentUser.id, // Send user ID for authentication
+        },
+      });
       if (response.ok) {
         const data = await response.json();
         setHardwareBaskets(data);
@@ -154,17 +170,22 @@ const VendorDataCollectionView: React.FC = () => {
   };
 
   const handleFileUpload = async (file: File) => {
+    // Check permissions first
+    if (!UserPermissions.canCreateHardwareBaskets(currentUser)) {
+      setMessage({
+        type: 'error',
+        title: 'Permission Denied',
+        body: 'You do not have permission to upload hardware baskets. Contact your administrator.'
+      });
+      return;
+    }
+
     setIsUploading(true);
     try {
-      // Parse the file first
-      const parsedData = await parseHardwareBasket(file);
-
-      // Upload to backend
+      // Use the simple upload endpoint
       const formData = new FormData();
       formData.append('file', file);
-      formData.append('vendor', parsedData.vendor);
-      formData.append('quarter', parsedData.quarter);
-      formData.append('year', parsedData.year.toString());
+      formData.append('vendor', selectedVendor || 'Unknown');
 
       const response = await fetch('/api/hardware-baskets/upload', {
         method: 'POST',
@@ -172,15 +193,47 @@ const VendorDataCollectionView: React.FC = () => {
       });
 
       if (response.ok) {
-        const result: ImportResult = await response.json();
-        setMessage({
-          type: 'success',
-          title: 'Hardware Basket Uploaded',
-          body: `Successfully imported ${result.total_models || 0} models and ${result.total_configurations || 0} configurations`
-        });
-        fetchHardwareBaskets(); // Refresh the list
-        if (hardwareBaskets.length > 0) {
-          setSelectedBasket(hardwareBaskets[0].id); // Auto-select first basket
+        const result = await response.json();
+        console.log('📊 Upload result:', result);
+        
+        // Process the servers and components from the simple upload response
+        if (result.servers && result.components) {
+          // Transform the response data to match our frontend expectations
+          const transformedServers = result.servers.map((server: any, index: number) => ({
+            id: `server-${index}`,
+            vendor: server.vendor,
+            model_name: server.model || server.lot_description || 'Unknown Model',
+            lot_description: server.lot_description || server.model || 'Unknown Description', 
+            category: 'Server',
+            form_factor: server.form_factor,
+            specifications: server.specifications || {},
+            unit_price_usd: server.unit_price_usd || 0
+          }));
+
+          const transformedComponents = result.components.map((component: any, index: number) => ({
+            id: `component-${index}`,
+            vendor: component.vendor,
+            model_name: component.description || 'Unknown Component',
+            lot_description: component.description || 'Unknown Description',
+            category: component.category || 'Component',
+            specifications: component.specifications || {},
+            unit_price_usd: component.unit_price_usd || 0
+          }));
+
+          // Update the hardware models with the combined data
+          setHardwareModels([...transformedServers, ...transformedComponents]);
+          
+          setMessage({
+            type: 'success',
+            title: 'Hardware Basket Uploaded',
+            body: `Successfully parsed ${result.servers.length} server configurations and ${result.components.length} components`
+          });
+        } else {
+          setMessage({
+            type: 'success', 
+            title: 'Hardware Basket Uploaded',
+            body: `Upload completed successfully`
+          });
         }
       } else {
         throw new Error('Upload failed');
@@ -314,26 +367,40 @@ const VendorDataCollectionView: React.FC = () => {
                       <div style={{ fontSize: '12px', color: '#6b7280' }}>System Configuration Profile (XML)</div>
                     </div>
                   </div>
-                  <SimpleFileUpload
-                    uploadType="hardware"
-                    acceptedTypes={['.xml']}
-                    label="Upload Dell SCP"
-                    description="Select XML file"
-                    onFileProcessed={(result) => {
-                      setMessage({
-                        type: 'success',
-                        title: 'Dell SCP File Processed',
-                        body: `${result.name || 'File'} has been analyzed and server data extracted.`
-                      });
-                    }}
-                    onError={(error) => {
-                      setMessage({
-                        type: 'error',
-                        title: 'Dell SCP Processing Failed',
-                        body: error
-                      });
-                    }}
-                  />
+                  {UserPermissions.canCreateHardwareBaskets(currentUser) ? (
+                    <SimpleFileUpload
+                      uploadType="hardware"
+                      acceptedTypes={['.xml']}
+                      label="Upload Dell SCP"
+                      description="Select XML file"
+                      onFileProcessed={(result) => {
+                        setMessage({
+                          type: 'success',
+                          title: 'Dell SCP File Processed',
+                          body: `${result.name || 'File'} has been analyzed and server data extracted.`
+                        });
+                      }}
+                      onError={(error: string) => {
+                        setMessage({
+                          type: 'error',
+                          title: 'Upload Failed',
+                          body: error || 'Failed to process Dell SCP file'
+                        });
+                      }}
+                    />
+                  ) : (
+                    <div style={{ 
+                      padding: '1rem', 
+                      backgroundColor: '#f3f4f6', 
+                      borderRadius: '8px',
+                      color: '#6b7280',
+                      textAlign: 'center'
+                    }}>
+                      <InfoRegular style={{ fontSize: '24px', marginBottom: '0.5rem' }} />
+                      <div>Upload permission required</div>
+                      <div style={{ fontSize: '12px' }}>Contact your administrator for upload access</div>
+                    </div>
+                  )}
                 </div>
 
                 {/* HPE Upload */}
