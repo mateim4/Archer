@@ -1,7 +1,18 @@
 pub mod adapters;
+pub mod basket_parser;
+
+pub use basket_parser::{
+    HardwareBasketParser,
+    ParsedHardwareBasket,
+    ParsedHardwareLot,
+    ParsedHardwareComponent,
+    ParsedHardwareOption,
+    ParsedVendorConfig,
+};
 
 use crate::models::UniversalServer;
 use crate::error::CoreEngineError;
+// ... existing code ...
 use crate::Result;
 use std::fs;
 
