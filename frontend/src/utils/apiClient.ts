@@ -45,6 +45,54 @@ export interface CreateDesignDocRequest {
   content: string;
 }
 
+export interface HardwareBasket {
+  id: string;
+  name: string;
+  vendor: string;
+  quarter: string;
+  year: number;
+  filename: string;
+  quotation_date: string;
+  created_at: string;
+  total_models: number;
+  total_configurations: number;
+}
+
+export interface HardwareModel {
+  id: string;
+  basket_id: string;
+  lot_description: string;
+  model_name: string;
+  model_number: string;
+  category: string;
+  form_factor: string;
+  vendor: string;
+  processor_info: string;
+  ram_info: string;
+  network_info: string;
+  quotation_date: string;
+  created_at?: string;
+  updated_at?: string;
+  base_specifications?: any;
+}
+
+export interface HardwareConfiguration {
+  id: string;
+  model_id: string;
+  part_number: string;
+  description: string;
+  category: string;
+  quantity: number;
+  specifications: any;
+}
+
+export interface CreateHardwareBasketRequest {
+  name: string;
+  vendor: string;
+  quarter: string;
+  year: number;
+}
+
 export class ApiClient {
   private baseUrl: string;
 
@@ -159,6 +207,42 @@ export class ApiClient {
     return this.request(`/api/projects/${projectId}/design-docs/${docId}`, {
       method: 'DELETE',
     });
+  }
+
+  // Hardware Basket methods
+  async getHardwareBaskets(): Promise<HardwareBasket[]> {
+    return this.request('/api/hardware-baskets');
+  }
+
+  async createHardwareBasket(basket: CreateHardwareBasketRequest): Promise<HardwareBasket> {
+    return this.request('/api/hardware-baskets', {
+      method: 'POST',
+      body: JSON.stringify(basket),
+    });
+  }
+
+  async uploadHardwareBasketFile(basketId: string, file: File): Promise<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    const response = await fetch(`${this.baseUrl}/api/hardware-baskets/${basketId}/upload`, {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
+  }
+
+  async getHardwareBasketModels(basketId: string): Promise<HardwareModel[]> {
+    return this.request(`/api/hardware-baskets/${basketId}/models`);
+  }
+
+  async getModelConfigurations(modelId: string): Promise<HardwareConfiguration[]> {
+    return this.request(`/api/hardware-models/${modelId}/configurations`);
   }
 }
 

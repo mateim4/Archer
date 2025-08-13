@@ -18,7 +18,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .layer(CorsLayer::permissive()); // Add CORS for frontend
 
     // run it with hyper on localhost:3000 (Axum 0.6 style)
-    let addr = std::net::SocketAddr::from(([127, 0, 0, 1], 3000));
+    let addr = std::net::SocketAddr::from(([127, 0, 0, 1], 3001));
     println!("🚀 InfraAID backend listening on {}", addr);
     println!("📊 Database initialized and ready");
     

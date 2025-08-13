@@ -28,7 +28,8 @@ import {
   DialogActions,
   DialogContent,
   ProgressBar,
-  Divider
+  Divider,
+  Tooltip
 } from '@fluentui/react-components';
 import {
   CloudArrowUpRegular,
@@ -38,7 +39,10 @@ import {
   EyeRegular,
   DocumentRegular,
   DataUsageRegular,
-  ServerRegular
+  ServerRegular,
+  ChevronDownRegular,
+  InfoRegular,
+  StorageRegular
 } from '@fluentui/react-icons';
 import GlassmorphicLayout from '../components/GlassmorphicLayout';
 import { parseHardwareBasket } from '../utils/hardwareBasketParser';
@@ -65,6 +69,9 @@ const HardwareBasketView: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
+  // State for subtabs
+  const [selectedTab, setSelectedTab] = useState<string>('servers');
+
   // State for file upload
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<UploadProgress | null>(null);
@@ -75,6 +82,24 @@ const HardwareBasketView: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [vendorFilter, setVendorFilter] = useState<string>('All');
   const [quarterFilter, setQuarterFilter] = useState<string>('All');
+
+  // Separate models into servers and extensions
+  const serverModels = useMemo(() => {
+    return hardwareModels.filter(model => 
+      model.category === 'server' || model.lot_description.toLowerCase().includes('server')
+    );
+  }, [hardwareModels]);
+
+  const extensionModels = useMemo(() => {
+    return hardwareModels.filter(model => 
+      model.category !== 'server' && !model.lot_description.toLowerCase().includes('server')
+    );
+  }, [hardwareModels]);
+
+  // Handle tab selection
+  const handleTabSelect = (tabValue: string) => {
+    setSelectedTab(tabValue);
+  };
 
   // Fetch hardware baskets on component mount
   useEffect(() => {
@@ -336,54 +361,124 @@ const HardwareBasketView: React.FC = () => {
     }),
   ];
 
-  // Define table columns for hardware models
-  const modelColumns: TableColumnDefinition<HardwareModel>[] = [
+  // Define table columns for server configurations (Subtab 1)
+  const serverColumns: TableColumnDefinition<HardwareModel>[] = [
     createTableColumn<HardwareModel>({
-      columnId: "model",
-      renderHeaderCell: () => "Model",
+      columnId: "server",
+      renderHeaderCell: () => "Server Configuration",
       renderCell: (item) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <ServerRegular style={{ color: 'var(--colorBrandBackground)' }} />
+        <div style={{ padding: '12px', border: '1px solid var(--colorNeutralStroke2)', borderRadius: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+            <ServerRegular style={{ color: 'var(--colorBrandBackground)' }} />
+            <div style={{ flex: 1 }}>
+              <Text weight="semibold" style={{ display: 'block' }}>{item.lot_description}</Text>
+              <div style={{ display: 'flex', gap: '8px', marginTop: '8px', flexWrap: 'wrap' }}>
+                {item.server_model && (
+                  <Badge appearance="outline" color="brand">
+                    {item.server_model}
+                  </Badge>
+                )}
+                {item.server_size && (
+                  <Badge appearance="outline" color="informative">
+                    {item.server_size}
+                  </Badge>
+                )}
+                {item.socket_count > 0 && (
+                  <Badge appearance="outline" color="success">
+                    {item.socket_count}S
+                  </Badge>
+                )}
+                {item.vsan_ready && (
+                  <Badge appearance="outline" color="important">
+                    VSAN Ready
+                  </Badge>
+                )}
+              </div>
+            </div>
+          </div>
+          
+          {/* Expandable Details */}
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: '1fr 1fr', 
+            gap: '16px', 
+            paddingTop: '12px',
+            borderTop: '1px solid var(--colorNeutralStroke3)'
+          }}>
+            <div>
+              <Text size={200} weight="semibold" style={{ display: 'block', marginBottom: '8px' }}>CPU Details:</Text>
+              {item.cpu_model && <Text size={200} style={{ display: 'block' }}>Model: {item.cpu_model}</Text>}
+              {item.cpu_cores > 0 && <Text size={200} style={{ display: 'block' }}>Cores: {item.cpu_cores}</Text>}
+              {item.cpu_threads > 0 && <Text size={200} style={{ display: 'block' }}>Threads: {item.cpu_threads}</Text>}
+              {item.cpu_frequency && <Text size={200} style={{ display: 'block' }}>Frequency: {item.cpu_frequency}</Text>}
+            </div>
+            <div>
+              <Text size={200} weight="semibold" style={{ display: 'block', marginBottom: '8px' }}>Additional Info:</Text>
+              {item.processor_info && <Text size={200} style={{ display: 'block' }}>Processor: {item.processor_info}</Text>}
+              {item.ram_info && <Text size={200} style={{ display: 'block' }}>RAM: {item.ram_info}</Text>}
+              {item.network_info && <Text size={200} style={{ display: 'block' }}>Network: {item.network_info}</Text>}
+            </div>
+          </div>
+        </div>
+      ),
+    }),
+    createTableColumn<HardwareModel>({
+      columnId: "pricing",
+      renderHeaderCell: () => "Pricing",
+      renderCell: (item) => (
+        <div style={{ textAlign: 'center' }}>
+          <Text weight="semibold" size={300}>Contact for Price</Text>
+          <br />
+          <Text size={200} style={{ color: 'var(--colorNeutralForeground2)' }}>
+            {item.configuration_count || 0} configurations
+          </Text>
+        </div>
+      ),
+    }),
+  ];
+
+  // Define table columns for extension components (Subtab 2)
+  const extensionColumns: TableColumnDefinition<HardwareModel>[] = [
+    createTableColumn<HardwareModel>({
+      columnId: "component",
+      renderHeaderCell: () => "Component",
+      renderCell: (item) => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <StorageRegular style={{ color: 'var(--colorBrandBackground)' }} />
           <div>
-            <Text weight="semibold">{item.model_name}</Text>
+            <Text weight="semibold">{item.lot_description}</Text>
             <br />
             <Text size={200} style={{ color: 'var(--colorNeutralForeground2)' }}>
-              {item.category}
+              SKU: {item.model_number || 'N/A'}
             </Text>
           </div>
         </div>
       ),
     }),
     createTableColumn<HardwareModel>({
-      columnId: "specifications",
-      renderHeaderCell: () => "Specifications",
+      columnId: "details",
+      renderHeaderCell: () => "Details",
       renderCell: (item) => (
-        <div>
-          {item.cpu_specs && (
-            <Text size={200}>CPU: {item.cpu_specs}</Text>
-          )}
-          {item.memory_specs && (
-            <>
-              <br />
-              <Text size={200}>Memory: {item.memory_specs}</Text>
-            </>
-          )}
-          {item.storage_specs && (
-            <>
-              <br />
-              <Text size={200}>Storage: {item.storage_specs}</Text>
-            </>
-          )}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <Tooltip content={`Category: ${item.category}\nForm Factor: ${item.form_factor || 'N/A'}`} relationship="description">
+            <Button appearance="subtle" icon={<InfoRegular />} size="small">
+              Details
+            </Button>
+          </Tooltip>
         </div>
       ),
     }),
     createTableColumn<HardwareModel>({
-      columnId: "configurations",
-      renderHeaderCell: () => "Configurations",
+      columnId: "ext_pricing",
+      renderHeaderCell: () => "Pricing",
       renderCell: (item) => (
-        <Badge appearance="outline" color="success">
-          {item.configuration_count || 0} configs
-        </Badge>
+        <div style={{ textAlign: 'center' }}>
+          <Text weight="semibold" size={300}>Contact for Price</Text>
+          <br />
+          <Text size={200} style={{ color: 'var(--colorNeutralForeground2)' }}>
+            Extension Component
+          </Text>
+        </div>
       ),
     }),
   ];
@@ -565,14 +660,14 @@ const HardwareBasketView: React.FC = () => {
           )}
         </Card>
 
-        {/* Hardware Models Table (shown when a basket is selected) */}
+        {/* Hardware Models with Subtabs (shown when a basket is selected) */}
         {selectedBasket && (
           <Card>
             <CardHeader
               header={
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Subtitle2>Models in {selectedBasket.name}</Subtitle2>
-                  <Badge appearance="outline">{hardwareModels.length}</Badge>
+                  <Subtitle2>Hardware Analysis - {selectedBasket.name}</Subtitle2>
+                  <Badge appearance="outline">{hardwareModels.length} total</Badge>
                 </div>
               }
               description={`${selectedBasket.vendor} hardware models for ${selectedBasket.quarter} ${selectedBasket.year}`}
@@ -595,29 +690,122 @@ const HardwareBasketView: React.FC = () => {
                 <Text style={{ display: 'block', marginTop: '16px' }}>Loading hardware models...</Text>
               </div>
             ) : hardwareModels.length > 0 ? (
-              <DataGrid
-                items={hardwareModels}
-                columns={modelColumns}
-                sortable
-                getRowId={(item) => item.id}
-              >
-                <DataGridHeader>
-                  <DataGridRow>
-                    {({ renderHeaderCell }) => (
-                      <DataGridHeaderCell>{renderHeaderCell()}</DataGridHeaderCell>
+              <div style={{ padding: '16px' }}>
+                {/* Custom Tab Navigation */}
+                <div style={{ 
+                  display: 'flex', 
+                  gap: '8px', 
+                  marginBottom: '16px',
+                  borderBottom: '1px solid var(--colorNeutralStroke2)'
+                }}>
+                  <Button
+                    appearance={selectedTab === 'servers' ? 'primary' : 'subtle'}
+                    onClick={() => handleTabSelect('servers')}
+                    style={{ 
+                      borderRadius: '8px 8px 0 0',
+                      border: 'none',
+                      borderBottom: selectedTab === 'servers' ? '2px solid var(--colorBrandBackground)' : 'none'
+                    }}
+                  >
+                    Server Configurations ({serverModels.length})
+                  </Button>
+                  <Button
+                    appearance={selectedTab === 'extensions' ? 'primary' : 'subtle'}
+                    onClick={() => handleTabSelect('extensions')}
+                    style={{ 
+                      borderRadius: '8px 8px 0 0',
+                      border: 'none',
+                      borderBottom: selectedTab === 'extensions' ? '2px solid var(--colorBrandBackground)' : 'none'
+                    }}
+                  >
+                    Extension Components ({extensionModels.length})
+                  </Button>
+                </div>
+                
+                <Divider style={{ margin: '16px 0' }} />
+                
+                {selectedTab === 'servers' && (
+                  <div>
+                    <Text size={300} weight="semibold" style={{ marginBottom: '16px', display: 'block' }}>
+                      Server Configurations
+                    </Text>
+                    <Text size={200} style={{ marginBottom: '24px', display: 'block', color: 'var(--colorNeutralForeground2)' }}>
+                      Detailed server specifications with lot descriptions, server models, sizes, socket counts, and pricing
+                    </Text>
+                    
+                    {serverModels.length > 0 ? (
+                      <DataGrid
+                        items={serverModels}
+                        columns={serverColumns}
+                        sortable
+                        getRowId={(item) => item.id}
+                      >
+                        <DataGridHeader>
+                          <DataGridRow>
+                            {({ renderHeaderCell }) => (
+                              <DataGridHeaderCell>{renderHeaderCell()}</DataGridHeaderCell>
+                            )}
+                          </DataGridRow>
+                        </DataGridHeader>
+                        <DataGridBody<HardwareModel>>
+                          {({ item, rowId }) => (
+                            <DataGridRow<HardwareModel> key={rowId}>
+                              {({ renderCell }) => (
+                                <DataGridCell>{renderCell(item)}</DataGridCell>
+                              )}
+                            </DataGridRow>
+                          )}
+                        </DataGridBody>
+                      </DataGrid>
+                    ) : (
+                      <div style={{ padding: '48px', textAlign: 'center' }}>
+                        <Text>No server configurations found in this basket.</Text>
+                      </div>
                     )}
-                  </DataGridRow>
-                </DataGridHeader>
-                <DataGridBody<HardwareModel>>
-                  {({ item, rowId }) => (
-                    <DataGridRow<HardwareModel> key={rowId}>
-                      {({ renderCell }) => (
-                        <DataGridCell>{renderCell(item)}</DataGridCell>
-                      )}
-                    </DataGridRow>
-                  )}
-                </DataGridBody>
-              </DataGrid>
+                  </div>
+                )}
+                
+                {selectedTab === 'extensions' && (
+                  <div>
+                    <Text size={300} weight="semibold" style={{ marginBottom: '16px', display: 'block' }}>
+                      Extension Components
+                    </Text>
+                    <Text size={200} style={{ marginBottom: '24px', display: 'block', color: 'var(--colorNeutralForeground2)' }}>
+                      Additional hardware components and extensions with SKU descriptions, part numbers, and pricing
+                    </Text>
+                    
+                    {extensionModels.length > 0 ? (
+                      <DataGrid
+                        items={extensionModels}
+                        columns={extensionColumns}
+                        sortable
+                        getRowId={(item) => item.id}
+                      >
+                        <DataGridHeader>
+                          <DataGridRow>
+                            {({ renderHeaderCell }) => (
+                              <DataGridHeaderCell>{renderHeaderCell()}</DataGridHeaderCell>
+                            )}
+                          </DataGridRow>
+                        </DataGridHeader>
+                        <DataGridBody<HardwareModel>>
+                          {({ item, rowId }) => (
+                            <DataGridRow<HardwareModel> key={rowId}>
+                              {({ renderCell }) => (
+                                <DataGridCell>{renderCell(item)}</DataGridCell>
+                              )}
+                            </DataGridRow>
+                          )}
+                        </DataGridBody>
+                      </DataGrid>
+                    ) : (
+                      <div style={{ padding: '48px', textAlign: 'center' }}>
+                        <Text>No extension components found in this basket.</Text>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             ) : (
               <div style={{ padding: '48px', textAlign: 'center' }}>
                 <Text>No hardware models found in this basket.</Text>

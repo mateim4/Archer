@@ -29,10 +29,24 @@ pub struct HardwareModel {
     pub form_factor: String,
     pub vendor: String,
     
+    // Parsed server specifications
+    pub server_model: String,      // R450, R760, etc.
+    pub server_size: String,       // 1U, 2U, 4U
+    pub socket_count: i32,         // 1, 2, etc.
+    pub cpu_model: String,         // 9434, 4309Y, etc.
+    pub cpu_cores: i32,            // 64, 32, etc.
+    pub cpu_threads: i32,          // 128, 64, etc.
+    pub cpu_frequency: String,     // 2.45GHz, 3.0GHz, etc.
+    pub vsan_ready: bool,          // VSAN RN indicator
+    
     // Key specifications for UI display
     pub processor_info: String,
     pub ram_info: String,
     pub network_info: String,
+    
+    // Source information for categorization
+    pub source_sheet: String,      // Sheet name from Excel file
+    pub source_section: String,    // Section within sheet (e.g., "Base Models", "Upgrade Options")
     
     pub quotation_date: Datetime,
 }
@@ -114,6 +128,17 @@ pub struct HardwareModelResponse {
     pub category: String,
     pub form_factor: String,
     pub vendor: String,
+    
+    // Parsed server specifications
+    pub server_model: String,
+    pub server_size: String,
+    pub socket_count: i32,
+    pub cpu_model: String,
+    pub cpu_cores: i32,
+    pub cpu_threads: i32,
+    pub cpu_frequency: String,
+    pub vsan_ready: bool,
+    
     pub processor_info: String,
     pub ram_info: String,
     pub network_info: String,
@@ -132,6 +157,14 @@ impl From<HardwareModel> for HardwareModelResponse {
             category: model.category,
             form_factor: model.form_factor,
             vendor: model.vendor,
+            server_model: model.server_model,
+            server_size: model.server_size,
+            socket_count: model.socket_count,
+            cpu_model: model.cpu_model,
+            cpu_cores: model.cpu_cores,
+            cpu_threads: model.cpu_threads,
+            cpu_frequency: model.cpu_frequency,
+            vsan_ready: model.vsan_ready,
             processor_info: model.processor_info,
             ram_info: model.ram_info,
             network_info: model.network_info,

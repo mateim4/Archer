@@ -117,9 +117,25 @@ pub fn parse_excel_data(
                 category: "Server".to_string(), // Placeholder
                 form_factor: "Unknown".to_string(), // Placeholder
                 vendor: vendor.to_string(),
+                
+                // Default values for new fields
+                server_model: "".to_string(),
+                server_size: "".to_string(),
+                socket_count: 0,
+                cpu_model: "".to_string(),
+                cpu_cores: 0,
+                cpu_threads: 0,
+                cpu_frequency: "".to_string(),
+                vsan_ready: false,
+                
                 processor_info: String::new(), // Will be populated by configurations
                 ram_info: String::new(), // Will be populated by configurations
                 network_info: String::new(), // Will be populated by configurations
+                
+                // Source information for categorization
+                source_sheet: "Generic".to_string(),
+                source_section: "Parsed Data".to_string(),
+                
                 quotation_date: quotation_date.clone(),
             });
         }
