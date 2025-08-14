@@ -5,6 +5,8 @@ use tower_http::cors::CorsLayer;
 mod api;
 mod models;
 mod database;
+mod migration_api;
+mod migration_models;
 // mod hardware_basket_api; // Disabled - using new api/hardware_baskets.rs
 // mod parser; // Disabled - using new parser in core-engine
 

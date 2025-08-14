@@ -3,10 +3,11 @@ use axum::{
     http::StatusCode,
     Json,
     response::Result as AxumResult,
+    routing::{get, post, put},
+    Router,
 };
 use serde::{Deserialize, Serialize};
-use crate::database::Database;
-use crate::api::AppState;
+use crate::database::{Database, AppState};
 use chrono::Utc;
 
 use crate::migration_models::*;
@@ -582,4 +583,17 @@ fn get_vmware_to_azure_local_template_tasks() -> Vec<TemplateTask> {
             resources: Some(vec!["Storage Architect".to_string()]),
         },
     ]
+}
+
+// Migration API routes
+pub fn routes() -> Router<AppState> {
+    Router::new()
+        // Project management routes
+        .route("/migration/projects", get(MigrationApi::list_migration_projects).post(MigrationApi::create_migration_project))
+        .route("/migration/projects/:id", get(MigrationApi::get_migration_project))
+        .route("/migration/projects/:id/template", post(MigrationApi::apply_project_template))
+        .route("/migration/projects/:id/tasks", get(MigrationApi::list_migration_tasks))
+        // Task management routes  
+        .route("/migration/tasks", post(MigrationApi::create_migration_task))
+        .route("/migration/tasks/:id/status", put(MigrationApi::update_task_status))
 }
