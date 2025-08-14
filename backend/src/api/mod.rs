@@ -6,6 +6,7 @@ use axum::{
 };
 use std::sync::Arc;
 use crate::database::Database;
+use crate::migration_api;
 
 use crate::database::AppState;
 
@@ -13,6 +14,7 @@ pub fn api_router(state: AppState) -> Router {
     Router::new()
         .route("/health", get(health_check))
         .nest("/api", hardware_baskets::routes())
+        .nest("/api", migration_api::routes())
         .with_state(state)
 }
 
