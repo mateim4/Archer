@@ -332,7 +332,14 @@ impl HardwareBasketParser {
                         let is_server_model = lot_desc.chars().take(3).collect::<String>().chars().all(|c| c.is_ascii_alphabetic()) &&
                                              lot_desc.chars().nth(3).map_or(false, |c| c.is_ascii_digit());
                         
+                        println!("🔍 Checking '{}' - first 3 chars: '{}', 4th char: '{:?}', is_server_model: {}", 
+                                lot_desc, 
+                                lot_desc.chars().take(3).collect::<String>(),
+                                lot_desc.chars().nth(3),
+                                is_server_model);
+                        
                         if !is_server_model {
+                            println!("❌ Skipping '{}' - doesn't match server model pattern", lot_desc);
                             continue; // Skip entries that don't match server model pattern
                         }
                         

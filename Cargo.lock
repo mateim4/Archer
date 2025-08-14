@@ -762,6 +762,7 @@ dependencies = [
  "serde_json",
  "serde_yaml",
  "statrs",
+ "surrealdb",
  "thiserror 1.0.69",
  "tokio",
  "tokio-test",

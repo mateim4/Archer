@@ -17,7 +17,6 @@ import GlassmorphicLayout from '../components/GlassmorphicLayout';
 import ConsistentCard from '../components/ConsistentCard';
 import ConsistentButton from '../components/ConsistentButton';
 import SimpleFileUpload from '../components/SimpleFileUpload';
-import { parseHardwareBasket } from '../utils/hardwareBasketParser';
 import { UserPermissions } from '../types/hardwareBasketTypes';
 import type { 
   HardwareBasket, 
@@ -126,6 +125,17 @@ const VendorDataCollectionView: React.FC = () => {
     setServerModels(mockModels);
   }, []);
 
+  // Fetch models when a basket is selected
+  useEffect(() => {
+    if (selectedBasket) {
+      console.log('🔄 Fetching models for selected basket:', selectedBasket);
+      fetchHardwareModels(selectedBasket);
+    } else {
+      // Clear models when no basket is selected
+      setHardwareModels([]);
+    }
+  }, [selectedBasket]);
+
   const formatFormFactor = (formFactor: string): string => {
     const mapping: { [key: string]: string } = {
       'OneU': '1U Rack',
@@ -140,7 +150,7 @@ const VendorDataCollectionView: React.FC = () => {
   // Hardware basket functions
   const fetchHardwareBaskets = async () => {
     try {
-      const response = await fetch('/api/hardware-baskets', {
+      const response = await fetch('http://localhost:3001/api/hardware-baskets', {
         headers: {
           'x-user-id': currentUser.id, // Send user ID for authentication
         },
@@ -157,13 +167,44 @@ const VendorDataCollectionView: React.FC = () => {
   const fetchHardwareModels = async (basketId: string) => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/hardware-baskets/${basketId}/models`);
+      console.log('📥 Fetching models for basket ID:', basketId);
+      
+      // Try the models endpoint first
+      let response = await fetch(`http://localhost:3001/api/hardware-baskets/${basketId}/models`);
+      let data = [];
+      
       if (response.ok) {
-        const data = await response.json();
-        setHardwareModels(data);
+        data = await response.json();
+        console.log('📊 Models endpoint returned:', data.length, 'models');
       }
+      
+      // If no models from /models endpoint, try /servers endpoint
+      if (data.length === 0) {
+        console.log('🔄 Trying servers endpoint...');
+        response = await fetch(`http://localhost:3001/api/hardware-baskets/${basketId}/servers`);
+        if (response.ok) {
+          const serversData = await response.json();
+          console.log('🖥️ Servers endpoint returned:', serversData.length, 'servers');
+          
+          // Transform server data to match frontend model format
+          data = serversData.map((server: any, index: number) => ({
+            id: `server-${index}`,
+            vendor: server.vendor,
+            model_name: server.model || server.lot_description || 'Unknown Model',
+            lot_description: server.lot_description || server.model || 'Unknown Description',
+            category: 'Server',
+            form_factor: server.form_factor,
+            specifications: server.specifications || {},
+            unit_price_usd: server.unit_price_usd || 0
+          }));
+        }
+      }
+      
+      console.log('✅ Final models to display:', data.length);
+      setHardwareModels(data);
     } catch (error) {
-      console.error('Failed to fetch hardware models:', error);
+      console.error('❌ Failed to fetch hardware models:', error);
+      setHardwareModels([]);
     } finally {
       setLoading(false);
     }
@@ -187,7 +228,7 @@ const VendorDataCollectionView: React.FC = () => {
       formData.append('file', file);
       formData.append('vendor', selectedVendor || 'Unknown');
 
-      const response = await fetch('/api/hardware-baskets/upload', {
+      const response = await fetch('http://localhost:3001/api/hardware-baskets/upload', {
         method: 'POST',
         body: formData,
       });
@@ -195,7 +236,8 @@ const VendorDataCollectionView: React.FC = () => {
       if (response.ok) {
         const result = await response.json();
         console.log('📊 Upload result:', result);
-        
+        // Refresh basket list after upload
+        fetchHardwareBaskets();
         // Process the servers and components from the simple upload response
         if (result.servers && result.components) {
           // Transform the response data to match our frontend expectations
@@ -222,7 +264,6 @@ const VendorDataCollectionView: React.FC = () => {
 
           // Update the hardware models with the combined data
           setHardwareModels([...transformedServers, ...transformedComponents]);
-          
           setMessage({
             type: 'success',
             title: 'Hardware Basket Uploaded',
@@ -798,11 +839,32 @@ const VendorDataCollectionView: React.FC = () => {
                     }}
                   >
                     <option value="">Select Hardware Basket</option>
-                    {hardwareBaskets.map(basket => (
-                      <option key={basket.id} value={basket.id}>
-                        {basket.name} - {basket.vendor} {basket.quarter} {basket.year}
-                      </option>
-                    ))}
+                    {hardwareBaskets.map((basket, index) => {
+                      // Handle SurrealDB Thing object IDs properly
+                      let basketId: string;
+                      if (typeof basket.id === 'object' && basket.id !== null) {
+                        const idObj = basket.id as { tb?: string; id?: any };
+                        if (idObj.tb && idObj.id) {
+                          // Handle nested ID objects
+                          const actualId = typeof idObj.id === 'object' && idObj.id.String 
+                            ? idObj.id.String 
+                            : String(idObj.id);
+                          basketId = `${idObj.tb}-${actualId}`;
+                        } else {
+                          basketId = `basket-${index}`;
+                        }
+                      } else {
+                        basketId = String(basket.id || `basket-${index}`);
+                      }
+                      
+                      console.log('🏀 Basket ID generated:', basketId, 'for basket:', basket.name);
+                      
+                      return (
+                        <option key={basketId} value={basketId}>
+                          {basket.name} - {basket.vendor} {basket.quarter} {basket.year}
+                        </option>
+                      );
+                    })}
                   </select>
                   <ConsistentButton 
                     variant="outline" 

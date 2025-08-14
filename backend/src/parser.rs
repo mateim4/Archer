@@ -1,7 +1,7 @@
 use calamine::{Reader, Xlsx, open_workbook};
 use serde_json::json;
 use surrealdb::sql::{Thing, Datetime};
-use crate::models::hardware_basket::{HardwareModel, HardwareConfiguration, HardwarePrice};
+use core_engine::models::hardware_basket::{HardwareModel, HardwareConfiguration, HardwarePricing as HardwarePrice};
 use anyhow::{Result, anyhow};
 use std::collections::HashMap;
 use uuid::Uuid;
