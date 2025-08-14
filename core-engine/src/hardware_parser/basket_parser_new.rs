@@ -91,24 +91,25 @@ impl HardwareBasketParser {
         let mut prices = Vec::new();
         let spec_parser = SpecParser::new();
 
+        // Step 1: Dynamically detect header row and column positions
+        let (header_row_idx, lot_desc_col, item_type_col, spec_col) = self.detect_dell_columns(worksheet)?;
+        
+        println!("📊 Dell sheet analysis: header_row={}, lot_desc_col={}, item_type_col={}, spec_col={}", 
+                header_row_idx, lot_desc_col, item_type_col, spec_col);
+
         let mut current_model: Option<HardwareModel> = None;
 
         for (row_idx, row) in worksheet.rows().enumerate() {
-            // Header is at row index 3, data starts at 4
-            if row_idx <= 3 { continue; }
+            // Skip header and rows before it
+            if row_idx <= header_row_idx { continue; }
 
-            let lot_desc = row.get(0).and_then(|c| c.as_string());
-            let item_type = row.get(1).and_then(|c| c.as_string());
-            let specification = row.get(2).and_then(|c| c.as_string());
+            let lot_desc = row.get(lot_desc_col).and_then(|c| c.as_string());
+            let item_type = row.get(item_type_col).and_then(|c| c.as_string());
+            let specification = row.get(spec_col).and_then(|c| c.as_string());
 
             if let Some(desc) = lot_desc {
-                // Check for Dell server model patterns: SMI, SMA, MEI, MEA, HVI, HVA, VEI, VEA, VOI, VOA, DHC
-                let is_server_model = desc.contains("SMI") || desc.contains("SMA") || 
-                                     desc.contains("MEI") || desc.contains("MEA") ||
-                                     desc.contains("HVI") || desc.contains("HVA") ||
-                                     desc.contains("VEI") || desc.contains("VEA") ||
-                                     desc.contains("VOI") || desc.contains("VOA") ||
-                                     desc.contains("DHC");
+                // Step 2: Use intelligent server model detection instead of hardcoded patterns
+                let is_server_model = self.is_dell_server_model(&desc, &item_type);
                 
                 if is_server_model {
                     println!("🔍 Found Dell server model: {}", desc);
@@ -425,5 +426,111 @@ impl HardwareBasketParser {
 
         println!("✅ Lenovo Parts parsed: {} models, {} configurations", models.len(), configurations.len());
         Ok((models, configurations, prices))
+    }
+
+    /// Dynamically detect column positions and header row for Dell worksheets
+    fn detect_dell_columns(&self, worksheet: &Range<DataType>) -> Result<(usize, usize, usize, usize)> {
+        // Look for header row containing key column names
+        for (row_idx, row) in worksheet.rows().enumerate() {
+            let row_text: Vec<String> = row.iter()
+                .filter_map(|cell| cell.as_string())
+                .map(|s| s.to_lowercase())
+                .collect();
+            
+            // Look for Dell-specific header patterns
+            let has_lot_desc = row_text.iter().any(|text| 
+                text.contains("lot") && text.contains("description") ||
+                text.contains("lot description") ||
+                text.contains("description")
+            );
+            
+            let has_item_type = row_text.iter().any(|text| 
+                text.contains("item") && text.contains("type") ||
+                text.contains("item type") ||
+                text.contains("type")
+            );
+            
+            let has_specification = row_text.iter().any(|text| 
+                text.contains("specification") ||
+                text.contains("spec") ||
+                text.contains("details")
+            );
+            
+            if has_lot_desc && (has_item_type || has_specification) {
+                // Found header row, now find column positions
+                let mut lot_desc_col = 0;
+                let mut item_type_col = 1;
+                let mut spec_col = 2;
+                
+                for (col_idx, cell_text) in row_text.iter().enumerate() {
+                    if cell_text.contains("lot") || cell_text.contains("description") {
+                        lot_desc_col = col_idx;
+                    } else if cell_text.contains("item") || cell_text.contains("type") {
+                        item_type_col = col_idx;
+                    } else if cell_text.contains("specification") || cell_text.contains("spec") {
+                        spec_col = col_idx;
+                    }
+                }
+                
+                println!("✅ Found Dell header at row {} with columns: lot_desc={}, item_type={}, spec={}", 
+                        row_idx, lot_desc_col, item_type_col, spec_col);
+                return Ok((row_idx, lot_desc_col, item_type_col, spec_col));
+            }
+        }
+        
+        // Fallback to original positions if no header found
+        println!("⚠️ Using fallback Dell column positions (row 3, cols 0,1,2)");
+        Ok((3, 0, 1, 2))
+    }
+
+    /// Intelligent detection of Dell server models using multiple heuristics
+    fn is_dell_server_model(&self, lot_desc: &str, item_type: &Option<String>) -> bool {
+        // Heuristic 1: Original patterns (for backward compatibility)
+        let matches_known_patterns = lot_desc.contains("SMI") || lot_desc.contains("SMA") || 
+                                    lot_desc.contains("MEI") || lot_desc.contains("MEA") ||
+                                    lot_desc.contains("HVI") || lot_desc.contains("HVA") ||
+                                    lot_desc.contains("VEI") || lot_desc.contains("VEA") ||
+                                    lot_desc.contains("VOI") || lot_desc.contains("VOA") ||
+                                    lot_desc.contains("DHC");
+        
+        if matches_known_patterns {
+            return true;
+        }
+        
+        // Heuristic 2: Pattern matching for server-like entries
+        // Look for patterns like "ABC1 - Description" or "ABCD1 - Description"
+        let server_pattern = regex::Regex::new(r"^[A-Z]{2,4}\d{1,2}\s*-\s*.+").unwrap();
+        if server_pattern.is_match(lot_desc) {
+            println!("🎯 Pattern match: {} looks like a server model", lot_desc);
+            return true;
+        }
+        
+        // Heuristic 3: Check if item_type suggests this is a server/system
+        if let Some(item_type_str) = item_type {
+            let item_lower = item_type_str.to_lowercase();
+            if item_lower.is_empty() || 
+               item_lower.contains("server") || 
+               item_lower.contains("system") ||
+               item_lower.contains("rack") ||
+               item_lower.contains("blade") {
+                println!("🎯 Item type match: {} suggests server model for '{}'", item_type_str, lot_desc);
+                return true;
+            }
+        }
+        
+        // Heuristic 4: Look for entries that contain server-related keywords in description
+        let desc_lower = lot_desc.to_lowercase();
+        if (desc_lower.contains("server") || 
+            desc_lower.contains("rack") ||
+            desc_lower.contains("compute") ||
+            desc_lower.contains("blade") ||
+            desc_lower.contains("mgmt") ||
+            desc_lower.contains("management")) &&
+           desc_lower.len() < 100 { // Avoid very long descriptions that are likely components
+            println!("🎯 Keyword match: {} contains server keywords", lot_desc);
+            return true;
+        }
+        
+        false
     }
 }
