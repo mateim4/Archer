@@ -12,10 +12,7 @@ use crate::database::AppState;
 pub fn api_router(state: AppState) -> Router {
     Router::new()
         .route("/health", get(health_check))
-        .nest("/api",
-            Router::new()
-                .merge(crate::hardware_basket_api::hardware_basket_routes())
-        )
+        .nest("/api", hardware_baskets::routes())
         .with_state(state)
 }
 

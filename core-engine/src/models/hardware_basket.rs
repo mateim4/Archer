@@ -1,6 +1,11 @@
 use serde::{Deserialize, Serialize};
 use surrealdb::sql::{Thing, Datetime};
 
+// Helper function to create current timestamp compatible with SurrealDB
+fn default_datetime() -> Datetime {
+    Datetime::default()
+}
+
 // This file creates a unified data model in Rust that mirrors the frontend's
 // TypeScript types. This ensures consistency across the entire application stack.
 // These models are defined in the core-engine crate so they can be shared
@@ -14,9 +19,9 @@ pub struct HardwareVendor {
     pub name: String,
     pub contact_info: Option<String>,
     pub support_info: Option<String>,
-    #[serde(default = "chrono::Utc::now")]
+    #[serde(default = "default_datetime")]
     pub created_at: Datetime,
-    #[serde(default = "chrono::Utc::now")]
+    #[serde(default = "default_datetime")]
     pub updated_at: Datetime,
 }
 
@@ -27,7 +32,7 @@ pub struct HardwareBasket {
     pub vendor: String, // Should link to HardwareVendor record in the future
     pub quarter: String,
     pub year: i32,
-    #[serde(default = "chrono::Utc::now")]
+    #[serde(default = "default_datetime")]
     pub import_date: Datetime,
     pub file_path: String,
     pub exchange_rate: Option<f64>,
@@ -36,7 +41,7 @@ pub struct HardwareBasket {
     pub validity_date: Option<Datetime>,
     pub created_by: String, // User ID
     pub is_global: bool,
-    #[serde(default = "chrono::Utc::now")]
+    #[serde(default = "default_datetime")]
     pub created_at: Datetime,
     pub description: Option<String>,
     pub total_models: Option<i64>,
@@ -54,9 +59,9 @@ pub struct HardwareModel {
     pub form_factor: Option<String>,
     pub category: String, // 'server', 'storage', 'network', 'component'
     pub base_specifications: HardwareSpecifications,
-    #[serde(default = "chrono::Utc::now")]
+    #[serde(default = "default_datetime")]
     pub created_at: Datetime,
-    #[serde(default = "chrono::Utc::now")]
+    #[serde(default = "default_datetime")]
     pub updated_at: Datetime,
     pub source_sheet: String,
     pub source_section: String,
@@ -73,7 +78,7 @@ pub struct HardwareConfiguration {
     pub quantity: i64,
     pub specifications: Option<serde_json::Value>,
     pub compatibility_notes: Option<String>,
-    #[serde(default = "chrono::Utc::now")]
+    #[serde(default = "default_datetime")]
     pub created_at: Datetime,
 }
 
@@ -194,7 +199,7 @@ pub struct HardwarePricing {
     pub valid_from: Datetime,
     pub valid_to: Option<Datetime>,
     pub support_options: Vec<SupportOption>,
-    #[serde(default = "chrono::Utc::now")]
+    #[serde(default = "default_datetime")]
     pub created_at: Datetime,
 }
 

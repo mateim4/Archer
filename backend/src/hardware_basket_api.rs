@@ -8,16 +8,13 @@ use axum::{
 use core_engine::hardware_parser::{
     HardwareBasketParser, ParsedHardwareBasket,
 };
-use crate::models::hardware_basket::{
-    HardwareBasket, HardwareBasketResponse, CreateHardwareBasketRequest,
-    HardwareModel, HardwareModelResponse, HardwareConfiguration, HardwarePrice,
+use core_engine::models::hardware_basket::{
+    HardwareBasket, CreateHardwareBasketRequest,
+    HardwareModel, HardwareConfiguration, HardwarePricing,
 };
 use crate::database::Database;
 use std::io::Write;
 use std::sync::Arc;
-use surrealdb::sql::Thing;
-use tempfile::NamedTempFile;
-use uuid::Uuid;
 
 pub type AppState = Arc<Database>;
 
