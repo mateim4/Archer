@@ -169,8 +169,19 @@ const VendorDataCollectionView: React.FC = () => {
       setLoading(true);
       console.log('📥 Fetching models for basket ID:', basketId);
       
+      // Extract the actual ID from the frontend format 
+      // (hardware_basket-{id} -> {id} OR hardware_basket:{id} -> {id})
+      let actualBasketId = basketId;
+      if (basketId.startsWith('hardware_basket-')) {
+        actualBasketId = basketId.replace('hardware_basket-', '');
+      } else if (basketId.startsWith('hardware_basket:')) {
+        actualBasketId = basketId.replace('hardware_basket:', '');
+      }
+      
+      console.log('🔧 Converted basket ID for API:', actualBasketId);
+      
       // Try the models endpoint first
-      let response = await fetch(`http://localhost:3001/api/hardware-baskets/${basketId}/models`);
+      let response = await fetch(`http://localhost:3001/api/hardware-baskets/${actualBasketId}/models`);
       let data = [];
       
       if (response.ok) {
@@ -181,7 +192,7 @@ const VendorDataCollectionView: React.FC = () => {
       // If no models from /models endpoint, try /servers endpoint
       if (data.length === 0) {
         console.log('🔄 Trying servers endpoint...');
-        response = await fetch(`http://localhost:3001/api/hardware-baskets/${basketId}/servers`);
+        response = await fetch(`http://localhost:3001/api/hardware-baskets/${actualBasketId}/servers`);
         if (response.ok) {
           const serversData = await response.json();
           console.log('🖥️ Servers endpoint returned:', serversData.length, 'servers');
