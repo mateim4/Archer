@@ -1,3 +1,5 @@
+pub mod hardware_basket;
+
 use serde::{Deserialize, Serialize};
 use chrono::{DateTime, Utc};
 use uuid::Uuid;
