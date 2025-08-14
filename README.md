@@ -18,14 +18,39 @@ New to the project? Start here:
 - **Network Visualizer**: Generate network topology diagrams from infrastructure data
 - **Migration Planner**: Plan and visualize infrastructure migrations
 - **Lifecycle Planner**: Track hardware lifecycle and replacement schedules
+- **Hardware Basket Management**: Parse and manage vendor hardware catalogs (Dell, Lenovo)
+  - ✅ Intelligent Excel parsing with dynamic header detection
+  - ✅ Robust server model recognition (auto-detects new patterns)
+  - ✅ Database storage with SurrealDB backend
+  - ✅ Real-time model display and filtering
 - **Vendor Data Collection**: Integrate with vendor APIs for hardware information
 - **Settings**: Configure application preferences and data sources
+
+## Recent Updates
+
+### Hardware Basket Module (August 2025)
+- **✅ Dynamic Dell Parsing**: Intelligent detection of all server models (18+ models including DHC series)
+- **✅ Robust Pattern Recognition**: Future-proof parsing that auto-detects new server prefixes
+- **✅ Database Integration**: Full SurrealDB backend with proper Thing object handling
+- **✅ Frontend Display**: Real-time basket selection and model table display
+- **🔧 In Progress**: Server configuration details (CPU, Memory, Storage) and Lenovo basket isolation
+
+### Architecture Improvements
+- **✅ Rust Backend**: High-performance parsing engine with comprehensive logging
+- **✅ Database Schema**: Proper relationships between baskets, models, and configurations
+- **✅ API Endpoints**: RESTful endpoints for basket management and model retrieval
 
 ## Architecture
 
 - **Frontend**: React + TypeScript + Vite (v5.4.19 - stable)
-- **Backend API**: Express.js server for secure file processing  
+- **Primary Backend**: Rust (Axum + SurrealDB) for hardware parsing and data management
+  - High-performance Excel parsing with `calamine` crate
+  - Dynamic header detection and intelligent pattern recognition
+  - Comprehensive logging and error handling
+  - RESTful API with proper error responses
+- **Legacy Backend**: Express.js server for secure file processing  
 - **Legacy Server**: ExcelJS-based processing (security hardened)
+- **Database**: SurrealDB with Thing objects for proper relationships
 - **Desktop App**: Tauri (Rust) for native desktop functionality
 - **UI Framework**: Custom Fluent UI-inspired design system with Tailwind CSS v3
 
@@ -66,17 +91,20 @@ See [DEPENDENCIES.md](DEPENDENCIES.md) for detailed system requirements and [QUI
 ```bash
 # Development
 npm run dev          # Start frontend dev server (port 1420)
-npm run server       # Start backend API server (port 3001)
+npm run server       # Start legacy Express API server (port 3001)
+cargo run --bin backend  # Start Rust backend (port 3001) - for hardware baskets
 npm run tauri dev    # Start Tauri desktop app
 
 # Building
 npm run build        # Build frontend for production
+cargo build --release   # Build Rust backend for production
 npm run tauri build  # Build desktop application
 
 # Utilities
 npm run clean        # Clean build artifacts
 npm run lint         # Run ESLint
 npm run type-check   # Run TypeScript type checking
+cargo test           # Run Rust backend tests
 ```
 
 ## Project Structure
@@ -87,29 +115,42 @@ LCMDesigner/
 │   ├── src/                    # Source code
 │   │   ├── components/         # Reusable UI components
 │   │   ├── views/             # Main application views
+│   │   │   └── VendorDataCollectionView.tsx  # Hardware basket management
 │   │   ├── store/             # State management (Zustand)
 │   │   ├── utils/             # Utility functions
 │   │   └── types/             # TypeScript definitions
 │   ├── public/                # Static assets
 │   └── package.json           # Frontend dependencies
-├── legacy-server/             # Express.js API (secure)
-│   ├── server.js             # ExcelJS-based processing
-│   └── uploads/              # File upload directory
-├── backend/                   # Rust backend (future)
-│   └── src/                  # Rust API implementation
-├── src-tauri/                # Tauri desktop app
-│   ├── src/                  # Rust desktop code
-│   └── Cargo.toml           # Tauri dependencies
-├── core-engine/              # Core business logic
-│   └── src/                 # Rust processing engine
-├── docs/                     # Documentation
-│   ├── development/         # Development guides
-│   ├── design/             # UI/UX documentation
-│   └── testing/            # Testing documentation
-├── scripts/                  # Setup utilities
-├── tests/                   # Playwright E2E tests
-└── .github/                 # GitHub templates
-    └── ISSUE_TEMPLATE/      # Issue templates
+├── backend/                   # Rust backend (PRIMARY)
+│   ├── src/
+│   │   ├── api/              # REST API endpoints
+│   │   │   └── hardware_baskets.rs  # Basket management API
+│   │   ├── database.rs       # SurrealDB connection
+│   │   └── main.rs          # Server entry point
+│   └── Cargo.toml           # Rust dependencies
+├── core-engine/              # Hardware parsing engine
+│   ├── src/
+│   │   ├── hardware_parser/  # Excel parsing logic
+│   │   │   ├── basket_parser_new.rs  # Robust parsing engine
+│   │   │   └── spec_parser.rs        # Hardware spec extraction
+│   │   ├── models/          # Data structures
+│   │   │   └── hardware_basket.rs   # Core data models
+│   │   └── vendor_data/     # Vendor-specific logic
+│   └── Cargo.toml          # Engine dependencies
+├── legacy-server/           # Express.js API (legacy)
+│   ├── server.js           # ExcelJS-based processing
+│   └── uploads/            # File upload directory
+├── src-tauri/              # Tauri desktop app
+│   ├── src/                # Rust desktop code
+│   └── Cargo.toml         # Tauri dependencies
+├── docs/                   # Documentation
+│   ├── development/       # Development guides
+│   ├── design/           # UI/UX documentation
+│   └── testing/          # Testing documentation
+├── scripts/               # Setup utilities
+├── tests/                # Playwright E2E tests
+└── .github/              # GitHub templates
+    └── ISSUE_TEMPLATE/   # Issue templates
 ```
 
 ## System Requirements
