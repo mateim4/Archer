@@ -1,5 +1,6 @@
 pub mod adapters;
 pub mod basket_parser;
+pub mod spec_parser;
 pub mod component_classifier;
 pub mod server_assembly;
 

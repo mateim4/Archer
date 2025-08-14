@@ -754,6 +754,7 @@ dependencies = [
  "docx-rs",
  "linfa",
  "linfa-linear",
+ "once_cell",
  "quick-xml 0.31.0",
  "regex",
  "reqwest",
