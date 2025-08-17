@@ -40,8 +40,8 @@ export interface HardwareModel {
   basket_id: string;
   lot_description: string;
   category: string;
-  part_number: string;
-  price: {
+  part_number?: string;
+  price?: {
     amount: number;
     currency: string;
   };
@@ -52,18 +52,80 @@ export interface HardwareConfiguration {
   id: string;
   model_id: string;
   description: string;
-  part_number: string;
+  part_number?: string;
+  sku?: string;
+  item_type?: string;
+  quantity?: number;
+  specifications?: any;
+  created_at?: Date | string;
 }
 
 export interface HardwarePricing {
   id: string;
-  configuration_id: string;
-  price: {
-    amount: number;
-    currency: string;
-  };
-  date_valid: string;
+  configuration_id?: string;
+  model_id?: string;
+  list_price?: number;
+  net_price_usd?: number;
+  net_price_eur?: number | null;
+  currency?: string;
+  valid_from?: string | Date;
+  support_options?: SupportOption[];
+  created_at?: string | Date;
 }
+
+// Enriched extension/component row returned by backend GET /hardware-baskets/:id/extensions
+export interface HardwareExtension {
+  id: any; // SurrealDB Thing or string
+  model_id?: any; // SurrealDB Thing or string
+  part_number?: string;
+  name: string;
+  category: string;
+  type: string;
+  size?: string;
+  speed?: string;
+  price?: { amount: number; currency: string } | null;
+}
+
+// Consolidated specifications assembled from configurations
+export interface HardwareSpecifications {
+  processor?: any;
+  memory?: any;
+  storage?: any;
+  network?: any;
+  [key: string]: any;
+}
+
+// Vendor-specific helper types (minimal)
+export interface DellLotData {
+  lot_description: string;
+  rows: any[];
+}
+
+export interface LenovoServerData {
+  server_rows: any[];
+}
+
+export interface ParseConfig {
+  header_row?: number;
+  mappings?: Record<string, string>;
+}
+
+export interface ImportError {
+  message: string;
+  row?: number;
+  severity?: 'error' | 'warning';
+}
+
+export interface SupportOption {
+  duration_years: number;
+  type: string;
+  price_usd: number;
+  price_eur?: number;
+}
+
+// Minimal parse config constants (frontend parser expects these to exist)
+export const DELL_PARSE_CONFIG: ParseConfig = { header_row: 3 };
+export const LENOVO_PARSE_CONFIG: ParseConfig = { header_row: 3 };
 
 export interface ImportResult {
   success: boolean;

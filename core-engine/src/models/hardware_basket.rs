@@ -65,6 +65,7 @@ pub struct HardwareModel {
     pub updated_at: Datetime,
     pub source_sheet: String,
     pub source_section: String,
+    pub extensions: Option<Vec<Thing>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -106,6 +107,9 @@ pub struct ProcessorSpec {
     pub max_frequency: Option<String>,
     pub tdp: Option<i32>,
     pub socket_type: Option<String>,
+    pub core_count: Option<i32>,
+    pub thread_count: Option<i32>,
+    pub frequency_ghz: Option<f32>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
