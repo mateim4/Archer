@@ -540,8 +540,9 @@ export class HardwareBasketParser {
           
           if (spec.capacity) {
             const capacity = parseInt(spec.capacity);
-            specs.memory.module_count += config.quantity;
-            specs.memory.total_capacity = `${capacity * config.quantity}GB`;
+            const qty = config.quantity || 1;
+            specs.memory.module_count += qty;
+            specs.memory.total_capacity = `${capacity * qty}GB`;
             specs.memory.module_capacity = spec.capacity;
             specs.memory.type = spec.type;
           }

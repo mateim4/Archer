@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Specification Display</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-case { margin: 20px 0; padding: 15px; border: 1px solid #ddd; background: #f9f9f9; }
+        .test-title { font-weight: bold; color: #333; margin-bottom: 10px; }
+        .spec-row { margin: 5px 0; }
+        .label { font-weight: bold; display: inline-block; width: 80px; }
+        .value { color: #666; }
+    </style>
+</head>
+<body>
+    <h1>Hardware Specification Display Test</h1>
+    
+    <div class="test-case">
+        <div class="test-title">Dell Server Example: MEA1 - Medium AMD Rack Server</div>
+        <div class="spec-row">
+            <span class="label">CPU:</span> 
+            <span class="value">2x AMD EPYC 9124 16C</span>
+        </div>
+        <div class="spec-row">
+            <span class="label">Memory:</span> 
+            <span class="value">128GB DDR4</span>
+        </div>
+        <div class="spec-row">
+            <span class="label">Status:</span> 
+            <span class="value">✅ Should display specifications (has base_specifications)</span>
+        </div>
+    </div>
+
+    <div class="test-case">
+        <div class="test-title">Lenovo Server Example: ThinkSystem</div>
+        <div class="spec-row">
+            <span class="label">CPU:</span> 
+            <span class="value">BQ65 Intel Xeon Gold 5420+ 28C 2.0GHz</span>
+        </div>
+        <div class="spec-row">
+            <span class="label">Memory:</span> 
+            <span class="value">64GB DDR5</span>
+        </div>
+        <div class="spec-row">
+            <span class="label">Storage:</span> 
+            <span class="value">1x 2.5" SATA | Total: 960GB</span>
+        </div>
+        <div class="spec-row">
+            <span class="label">Network:</span> 
+            <span class="value">1x 25Gb SFP+</span>
+        </div>
+        <div class="spec-row">
+            <span class="label">Status:</span> 
+            <span class="value">✅ Should display specifications (has base_specifications)</span>
+        </div>
+    </div>
+
+    <h2>Summary of Improvements</h2>
+    <ul>
+        <li><strong>Dell Data:</strong> Has populated base_specifications with processor, memory, storage, network</li>
+        <li><strong>Lenovo Data:</strong> Now also has populated base_specifications (improved from earlier null state)</li>
+        <li><strong>Frontend Logic:</strong> Enhanced formatCpuSpec, formatMemorySpec, formatStorageSpec, formatNetworkSpec to handle both data structures</li>
+        <li><strong>Server Filtering:</strong> Improved isActualServerModel to properly separate servers from components</li>
+        <li><strong>Sorting:</strong> Updated getSortableValue to pass model to formatters for consistent sorting</li>
+    </ul>
+
+    <h2>Testing Instructions</h2>
+    <ol>
+        <li>Open the main application at <a href="http://localhost:1420" target="_blank">http://localhost:1420</a></li>
+        <li>Navigate to "Vendor Data Collection" view</li>
+        <li>Select a Lenovo basket - specifications should now display instead of "N/A"</li>
+        <li>Select a Dell basket - should continue working correctly with proper server/component filtering</li>
+        <li>Test table sorting by clicking column headers (CPU, Memory, Storage, Network)</li>
+        <li>Verify server counts are accurate (no components mixed in)</li>
+    </ol>
+</body>
+</html>

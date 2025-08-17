@@ -1,6 +1,6 @@
 use axum::Router;
-use tokio::net::TcpListener;
-use tower_http::cors::CorsLayer;
+use std::net::{IpAddr, Ipv4Addr, SocketAddr, TcpListener as StdTcpListener};
+use tower_http::{cors::CorsLayer, trace::TraceLayer};
 
 mod api;
 mod models;
@@ -12,19 +12,54 @@ mod migration_models;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // Initialize logging
+    if std::env::var("RUST_LOG").is_err() {
+        std::env::set_var("RUST_LOG", "info,tower_http=info,backend=info");
+    }
+    tracing_subscriber::fmt::init();
     // Initialize database
     let db_state = database::init_database().await?;
     
     // build our application with the API router
     let app = api::api_router(db_state)
-        .layer(CorsLayer::permissive()); // Add CORS for frontend
+        .layer(CorsLayer::permissive()) // Add CORS for frontend
+        .layer(TraceLayer::new_for_http());
 
-    // run it with hyper on localhost:3000 (Axum 0.6 style)
-    let addr = std::net::SocketAddr::from(([127, 0, 0, 1], 3001));
+    // Determine bind host/port from env, default to 127.0.0.1:3001
+    let host: IpAddr = std::env::var("BACKEND_HOST")
+        .ok()
+        .and_then(|s| s.parse::<IpAddr>().ok())
+        .unwrap_or(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)));
+    let base_port: u16 = std::env::var("BACKEND_PORT")
+        .ok()
+        .and_then(|s| s.parse::<u16>().ok())
+        .unwrap_or(3001);
+
+    // Try a small range of ports to avoid failing when 3001 is in use
+    let mut bound: Option<(StdTcpListener, u16)> = None;
+    for port in base_port..=(base_port + 4) {
+        let addr = SocketAddr::new(host, port);
+        match StdTcpListener::bind(addr) {
+            Ok(listener) => {
+                listener.set_nonblocking(true).ok();
+                bound = Some((listener, port));
+                break;
+            }
+            Err(e) => {
+                eprintln!("⚠️ Port {} unavailable ({}), trying next...", port, e);
+            }
+        }
+    }
+
+    let (std_listener, chosen_port) = bound.ok_or_else(|| {
+        std::io::Error::new(std::io::ErrorKind::AddrInUse, "No available port in range")
+    })?;
+
+    let addr = SocketAddr::new(host, chosen_port);
     println!("🚀 InfraAID backend listening on {}", addr);
     println!("📊 Database initialized and ready");
-    
-    axum::Server::bind(&addr)
+
+    axum::Server::from_tcp(std_listener)?
         .serve(app.into_make_service())
         .await?;
         

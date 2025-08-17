@@ -1,0 +1,298 @@
+{
+  "research_metadata": {
+    "timestamp": "2025-08-18T12:00:00Z",
+    "sources_consulted": [
+      "Lenovo ThinkSystem Portfolio Documentation",
+      "Dell PowerEdge Specification Sheets", 
+      "HPE ProLiant Gen11 Technical Specifications",
+      "Intel Xeon Scalable Processor Documentation",
+      "AMD EPYC Processor Specifications"
+    ],
+    "confidence_level": "high",
+    "data_freshness": "2025 current generation"
+  },
+  "servers": [
+    {
+      "model_name": "ThinkSystem SR630 V3",
+      "vendor": "Lenovo",
+      "generation": "V3",
+      "form_factor": "1U",
+      "target_market": "General purpose, virtualization, cloud",
+      "processor": {
+        "socket_count": 2,
+        "socket_type": "LGA4677",
+        "supported_families": ["Intel Xeon Scalable 4th Gen (Sapphire Rapids)"],
+        "max_cores_per_socket": 60,
+        "max_threads_per_socket": 120,
+        "tdp_range": "150W-350W",
+        "example_processors": [
+          {
+            "model": "Intel Xeon Gold 6426Y",
+            "cores": 16,
+            "threads": 32,
+            "frequency": "2.5GHz",
+            "boost_frequency": "3.5GHz",
+            "tdp": "185W",
+            "l3_cache": "37.5MB"
+          },
+          {
+            "model": "Intel Xeon Gold 5420+",
+            "cores": 28,
+            "threads": 56,
+            "frequency": "2.0GHz",
+            "boost_frequency": "4.1GHz",
+            "tdp": "205W",
+            "l3_cache": "52.5MB"
+          },
+          {
+            "model": "Intel Xeon Platinum 8480+",
+            "cores": 56,
+            "threads": 112,
+            "frequency": "2.0GHz",
+            "boost_frequency": "3.8GHz",
+            "tdp": "350W",
+            "l3_cache": "105MB"
+          }
+        ]
+      },
+      "memory": {
+        "max_capacity": "4TB",
+        "slots": 32,
+        "slots_per_socket": 16,
+        "types": ["DDR5 RDIMM", "DDR5 LRDIMM"],
+        "speeds": ["4400", "4800", "5600"],
+        "ecc": true,
+        "ranks_supported": ["1R", "2R", "4R", "8R"],
+        "example_configs": [
+          "32GB DDR5-4800 RDIMM ECC",
+          "64GB DDR5-5600 LRDIMM ECC",
+          "128GB DDR5-4800 LRDIMM ECC"
+        ],
+        "max_dimm_capacity": "128GB",
+        "memory_protection": ["ECC", "SDDC", "Patrol Scrub", "Demand Scrub"]
+      },
+      "storage": {
+        "front_bays": {
+          "count": 10,
+          "size": "2.5\"",
+          "interfaces": ["SATA", "SAS", "NVMe"]
+        },
+        "rear_bays": {
+          "count": 2,
+          "size": "2.5\"", 
+          "interfaces": ["SATA", "SAS"]
+        },
+        "internal_m2": 4,
+        "raid_support": [
+          "SW RAID 0, 1, 5, 10",
+          "HW RAID 0, 1, 5, 6, 10, 50, 60 (with optional controller)"
+        ],
+        "max_capacity": "122TB",
+        "raid_controllers": [
+          "ThinkSystem RAID 940-16i 12Gb SAS/SATA 16-port internal",
+          "ThinkSystem RAID 940-8i 12Gb SAS/SATA 8-port internal"
+        ],
+        "nvme_support": "Up to 10x NVMe drives",
+        "boot_options": ["M.2", "Internal SD", "External USB"]
+      },
+      "network": {
+        "onboard_description": "2x 1GbE RJ45",
+        "onboard_ports": [
+          {
+            "count": 2,
+            "speed": "1Gb",
+            "type": "RJ45",
+            "controller": "Intel I350"
+          }
+        ],
+        "expansion_slots": 3,
+        "pcie_details": [
+          "Slot 1: PCIe 5.0 x16 (FHHL)",
+          "Slot 2: PCIe 5.0 x16 (FHHL)", 
+          "Slot 3: PCIe 5.0 x8 (LP)"
+        ],
+        "management": "XClarity Controller (XCC)",
+        "network_expansion_options": [
+          "ThinkSystem 10Gb 4-port Base-T LOM",
+          "ThinkSystem 25Gb 2-port SFP28 LOM",
+          "ThinkSystem 100Gb 2-port QSFP56 PCIe Adapter"
+        ]
+      },
+      "physical": {
+        "form_factor": "1U",
+        "height": "43mm",
+        "width": "482mm",
+        "depth": "760mm",
+        "weight_range": "16kg - 22kg",
+        "rack_units": 1,
+        "shipping_dimensions": "890mm x 565mm x 175mm",
+        "operating_temperature": "10°C to 35°C",
+        "storage_temperature": "-40°C to 70°C",
+        "humidity": "8% to 90% non-condensing"
+      },
+      "power": {
+        "psu_options": ["750W", "1100W", "1600W"],
+        "redundancy": "1+1 hot-swap redundant PSUs",
+        "efficiency": "80 PLUS Platinum (94% at 50% load)",
+        "typical_consumption": "200W - 600W",
+        "max_consumption": "1450W",
+        "input_voltage": "100-240V AC, 50/60Hz",
+        "power_cords": "C13 to NEMA 5-15P or C13 to C14"
+      },
+      "expansion": {
+        "pcie_slots": 3,
+        "slot_details": [
+          {
+            "slot": 1,
+            "type": "PCIe 5.0 x16",
+            "form_factor": "Full height, half length",
+            "power": "25W"
+          },
+          {
+            "slot": 2,
+            "type": "PCIe 5.0 x16", 
+            "form_factor": "Full height, half length",
+            "power": "25W"
+          },
+          {
+            "slot": 3,
+            "type": "PCIe 5.0 x8",
+            "form_factor": "Low profile",
+            "power": "10W"
+          }
+        ],
+        "io_ports": {
+          "usb": "2x USB 3.0 front, 2x USB 3.0 rear",
+          "video": "1x VGA rear",
+          "serial": "1x DB9 serial",
+          "management": "1x RJ45 XCC management"
+        },
+        "expansion_capacity": "High-performance computing, AI/ML workloads"
+      },
+      "security": {
+        "tpm": "TPM 2.0",
+        "secure_boot": "UEFI Secure Boot",
+        "trusted_platform": "Intel TXT support",
+        "firmware_protection": "UEFI firmware resilience",
+        "physical_security": "Intrusion detection switch"
+      },
+      "management": {
+        "controller": "Lenovo XClarity Controller (XCC)",
+        "remote_management": "Web UI, CLI, REST API",
+        "monitoring": "Hardware health, thermal, power",
+        "deployment": "PXE, virtual media, scripted install",
+        "integration": "XClarity Administrator, third-party tools"
+      },
+      "certifications": [
+        "VMware vSphere compatibility",
+        "Microsoft Windows Server certification",
+        "Red Hat Enterprise Linux certification",
+        "Energy Star qualified"
+      ],
+      "warranty_support": {
+        "standard": "3 years Customer Replaceable Unit and On-site",
+        "optional": "4-5 year extensions available",
+        "support_levels": ["Keep Your Drive", "Priority Support", "Onsite"]
+      }
+    },
+    {
+      "model_name": "ThinkSystem SR650 V3",
+      "vendor": "Lenovo",
+      "generation": "V3",
+      "form_factor": "2U",
+      "target_market": "Enterprise applications, databases, virtualization",
+      "processor": {
+        "socket_count": 2,
+        "socket_type": "LGA4677",
+        "supported_families": ["Intel Xeon Scalable 4th Gen", "AMD EPYC 4th Gen (Genoa)"],
+        "max_cores_per_socket": 64,
+        "max_threads_per_socket": 128,
+        "tdp_range": "150W-400W",
+        "example_processors": [
+          {
+            "model": "AMD EPYC 9554P",
+            "cores": 64,
+            "threads": 128,
+            "frequency": "3.1GHz",
+            "boost_frequency": "3.75GHz", 
+            "tdp": "360W",
+            "l3_cache": "256MB"
+          },
+          {
+            "model": "Intel Xeon Platinum 8480+",
+            "cores": 56,
+            "threads": 112,
+            "frequency": "2.0GHz",
+            "boost_frequency": "3.8GHz",
+            "tdp": "350W",
+            "l3_cache": "105MB"
+          }
+        ]
+      },
+      "memory": {
+        "max_capacity": "8TB",
+        "slots": 32,
+        "slots_per_socket": 16,
+        "types": ["DDR5 RDIMM", "DDR5 LRDIMM"],
+        "speeds": ["4400", "4800", "5600"],
+        "ecc": true,
+        "max_dimm_capacity": "256GB",
+        "example_configs": [
+          "64GB DDR5-5600 RDIMM ECC",
+          "128GB DDR5-4800 LRDIMM ECC", 
+          "256GB DDR5-4800 LRDIMM ECC"
+        ]
+      },
+      "storage": {
+        "front_bays": {
+          "count": 24,
+          "size": "2.5\"",
+          "interfaces": ["SATA", "SAS", "NVMe"]
+        },
+        "rear_bays": {
+          "count": 2,
+          "size": "2.5\"",
+          "interfaces": ["SATA", "SAS"]
+        },
+        "internal_m2": 8,
+        "raid_support": [
+          "SW RAID 0, 1, 5, 10",
+          "HW RAID 0, 1, 5, 6, 10, 50, 60"
+        ],
+        "max_capacity": "307TB",
+        "nvme_support": "Up to 24x NVMe drives"
+      },
+      "network": {
+        "onboard_description": "4x 1GbE RJ45 + 2x 10GbE SFP+",
+        "onboard_ports": [
+          {
+            "count": 4,
+            "speed": "1Gb", 
+            "type": "RJ45"
+          },
+          {
+            "count": 2,
+            "speed": "10Gb",
+            "type": "SFP+"
+          }
+        ],
+        "expansion_slots": 7,
+        "management": "XClarity Controller (XCC)"
+      },
+      "physical": {
+        "form_factor": "2U",
+        "height": "87mm",
+        "width": "482mm", 
+        "depth": "760mm",
+        "weight_range": "25kg - 40kg",
+        "rack_units": 2
+      },
+      "power": {
+        "psu_options": ["1100W", "1600W", "2000W"],
+        "redundancy": "1+1 hot-swap redundant PSUs",
+        "efficiency": "80 PLUS Platinum/Titanium",
+        "max_consumption": "1800W"
+      }
+    }
+  ]
+}

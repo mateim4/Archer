@@ -1,5 +1,24 @@
 import React from 'react';
 import { NETWORK_ICON_INDEX } from '../utils/networkIconIndex';
+import { ICON_MAP } from './AzureIcon';
+
+// Import SVG files statically for better reliability
+import VirtualMachinesIcon from '../assets/network-icons/Virtual-machines.svg';
+import VirtualNetworksIcon from '../assets/network-icons/Virtual-networks.svg';
+import VirtualNetworkGatewaysIcon from '../assets/network-icons/Virtual-network-gateways.svg';
+import VirtualClustersIcon from '../assets/network-icons/Virtual-Clusters.svg';
+import WindowsVMIcon from '../assets/network-icons/Windows-VM.svg';
+import LinuxVMIcon from '../assets/network-icons/Linux-VM.svg';
+import SQLServerVMIcon from '../assets/network-icons/SQL-Server-VM.svg';
+import LoadBalancersIcon from '../assets/network-icons/Load-balancers.svg';
+import ApplicationGatewaysIcon from '../assets/network-icons/Application-Gateways.svg';
+import NetworkSecurityGroupsIcon from '../assets/network-icons/Network-security-groups.svg';
+import FirewallsIcon from '../assets/network-icons/Firewalls.svg';
+import DDoSProtectionPlansIcon from '../assets/network-icons/DDoS-protection-plans.svg';
+import NATGatewaysIcon from '../assets/network-icons/NAT-gateways.svg';
+import RouteTablesIcon from '../assets/network-icons/Route-tables.svg';
+import ExpressRouteCircuitsIcon from '../assets/network-icons/ExpressRoute-circuits.svg';
+import VPNTunnelIcon from '../assets/network-icons/VPN-Tunnel.svg';
 
 export interface NetworkNode {
   id: string;
@@ -63,13 +82,8 @@ const VisualNetworkDiagram: React.FC<VisualNetworkDiagramProps> = ({
     const iconConfig = NETWORK_ICON_INDEX[iconName];
     if (!iconConfig || !iconConfig.azureIconName) return null;
     
-    try {
-      // Use dynamic import with proper URL resolution for Vite
-      return new URL(`../assets/network-icons/${iconConfig.azureIconName}.svg`, import.meta.url).href;
-    } catch (error) {
-      console.warn(`Failed to resolve Azure icon path: ${iconConfig.azureIconName}`);
-      return null;
-    }
+    // Get the icon path from the static mapping
+    return ICON_MAP[iconConfig.azureIconName] || null;
   };
 
   const renderNode = (node: NetworkNode) => {
