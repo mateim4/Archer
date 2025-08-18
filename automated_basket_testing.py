@@ -21,7 +21,7 @@ class AutomatedBasketTester:
     def check_backend_health(self) -> bool:
         """Check if the backend is running and responsive."""
         try:
-            response = requests.get(f"{self.backend_url}/api/health", timeout=5)
+            response = requests.get(f"{self.backend_url}/health", timeout=5)
             return response.status_code == 200
         except requests.RequestException:
             return False

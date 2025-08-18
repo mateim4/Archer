@@ -405,19 +405,19 @@ async fn upload_new_hardware_basket(
                             // model_id is a Thing in the created record
                             let model_id = created_rec.model_id.clone();
                             if let Some(ext_id) = created_rec.id.clone() {
-                                let model_record = format!("{}", model_id);
+                                let model_record_str = format!("{}", model_id);
 
                                 // Read existing model to preserve prior extensions
-                                let existing_models: Vec<HardwareModel> = match db.select(&model_record).await {
+                                let existing_models: Option<HardwareModel> = match db.select(&model_id).await {
                                     Ok(m) => m,
                                     Err(e) => {
-                                        tracing::error!("Failed to select model {}: {}", model_record, e);
-                                        Vec::new()
+                                        tracing::error!("Failed to select model {}: {}", model_record_str, e);
+                                        None
                                     }
                                 };
 
                                 let mut merged_exts: Vec<serde_json::Value> = Vec::new();
-                                if let Some(existing) = existing_models.get(0) {
+                                if let Some(existing) = existing_models.as_ref() {
                                     if let Some(exts) = &existing.extensions {
                                         for e in exts {
                                             merged_exts.push(serde_json::json!({"tb": e.tb, "id": e.id}));
@@ -427,19 +427,20 @@ async fn upload_new_hardware_basket(
                                 merged_exts.push(serde_json::json!({"tb": ext_id.tb, "id": ext_id.id}));
 
                                 let update_ext = serde_json::json!({"extensions": merged_exts});
-                                tracing::info!("Updating model {} with extension {} (merged total={})", model_record, serde_json::to_string(&ext_id).unwrap_or_default(), merged_exts.len());
+                                tracing::info!("Updating model {} with extension {} (merged total={})", model_record_str, serde_json::to_string(&ext_id).unwrap_or_default(), merged_exts.len());
                                 tracing::info!("Update payload: {}", serde_json::to_string(&update_ext).unwrap_or_default());
 
-                                let res: Result<Vec<HardwareModel>, _> = db.update(&model_record).merge(update_ext).await;
+                                let res: Result<Option<HardwareModel>, _> = db.update(&model_id).merge(update_ext).await;
                                 match res {
-                                    Ok(updated) => {
-                                        tracing::info!("Model update succeeded, updated count: {}", updated.len());
-                                        let updated_json = serde_json::to_string(&updated).unwrap_or_default();
+                                    Ok(updated_opt) => {
+                                        let updated_count = if updated_opt.is_some() { 1 } else { 0 };
+                                        tracing::info!("Model update succeeded, updated count: {}", updated_count);
+                                        let updated_json = serde_json::to_string(&updated_opt).unwrap_or_default();
                                         tracing::info!("Model update returned JSON: {}", updated_json);
 
-                                        match db.select::<Vec<serde_json::Value>>(&model_record).await {
-                                            Ok(raw) => tracing::info!("Post-merge DB select for {}: {}", model_record, serde_json::to_string(&raw).unwrap_or_default()),
-                                            Err(e) => tracing::error!("Failed to re-select model {} after update: {}", model_record, e),
+                                        match db.select::<Option<serde_json::Value>>(&model_id).await {
+                                            Ok(raw) => tracing::info!("Post-merge DB select for {}: {}", model_record_str, serde_json::to_string(&raw).unwrap_or_default()),
+                                            Err(e) => tracing::error!("Failed to re-select model {} after update: {}", model_record_str, e),
                                         }
                                     },
                                     Err(e) => tracing::error!("Model update failed: {}", e),
