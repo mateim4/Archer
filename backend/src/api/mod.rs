@@ -1,4 +1,5 @@
 pub mod hardware_baskets;
+pub mod project_management;
 
 use axum::{
     routing::get,
@@ -15,6 +16,7 @@ pub fn api_router(state: AppState) -> Router {
         .route("/health", get(health_check))
         .nest("/api", hardware_baskets::routes())
         .nest("/api", migration_api::routes())
+        .nest("/api", project_management::routes())
         .with_state(state)
 }
 
