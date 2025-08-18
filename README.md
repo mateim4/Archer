@@ -26,39 +26,6 @@ New to the project? Start here:
 - **Vendor Data Collection**: Integrate with vendor APIs for hardware information
 - **Settings**: Configure application preferences and data sources
 
-## Current Task: Project Management API
-
-This section tracks the current development focus on the new Project Management system.
-
-### Summary of Progress
-
-The entire foundation for the project management API has been laid. This was an involved task that included:
-
-*   **Codebase Investigation & Correction:** Discovered and corrected several issues with the existing code, including conflicting data models and missing API files.
-*   **Data Model Refactoring:** Refactored the `Project` data model in `core-engine` to use the required SurrealDB `Thing` IDs and organized it into its own module.
-*   **Build Fixes:** Fixed all resulting compilation errors across the `core-engine` and `backend` crates.
-*   **API Implementation:** Created the new API module for project management (`/backend/src/api/project_management.rs`) and fully implemented the `create_project` handler.
-*   **API Registration:** Registered the new API endpoint with the main Axum router, making it live.
-
-All the code for the above work has been written, debugged, and compiles successfully.
-
-### Immediate Next Step
-
-The only remaining task from the current plan is to add a unit test for the `create_project` handler.
-
-### Questions for Next Step
-
-To proceed with writing the unit test, please provide answers to the following questions:
-
-```csv
-ID,Question
-1,"Is my sole, immediate objective to add a unit test for the create_project handler, or should I plan to continue with other tasks afterward?"
-2,"Do you have any more specific details about the 'persistent and unresolvable file system errors' the previous agent encountered (e.g., commands run, exact error messages)?"
-3,"For the unit test, should I mock the database interaction with SurrealDB, or is there a different strategy I should use?"
-4,"What specific scenarios should the unit test cover? My suggestions are: a 'happy path' with valid data, a case with invalid request data, and a case simulating a database error. Is this sufficient?"
-5,"Are there any existing backend tests in the repository that you can point me to as a reference for code style, test structure, and mocking patterns?"
-```
-
 ## Recent Updates
 
 ### Hardware Basket Module (August 2025)

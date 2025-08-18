@@ -19,7 +19,7 @@ pub struct CreateProjectRequest {
 }
 
 /// The response payload for a project.
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct ProjectResponse {
     pub id: String,
     pub name: String,
@@ -68,4 +68,56 @@ pub async fn create_project(
 /// Defines the routes for the project management API.
 pub fn routes() -> Router<AppState> {
     Router::new().route("/projects", post(create_project))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use axum::{
+        body::Body,
+        http::{Request, StatusCode},
+    };
+    use serde_json::json;
+    use surrealdb::engine::local::Mem;
+    use surrealdb::Surreal;
+    use tower::util::ServiceExt; // for `oneshot`
+
+    /// Helper function to set up an AppState with an in-memory database.
+    async fn setup_app_state() -> AppState {
+        let db = Surreal::new::<Mem>(()).await.expect("Failed to create in-memory db");
+        db.use_ns("test").use_db("test").await.expect("Failed to use test ns/db");
+        AppState::new(db)
+    }
+
+    #[tokio::test]
+    async fn test_create_project_happy_path() {
+        // Arrange
+        let app_state = setup_app_state().await;
+        let app = routes().with_state(app_state);
+
+        let payload = json!({
+            "name": "Test Project",
+            "description": "A description for our test project."
+        });
+
+        // Act
+        let request = Request::builder()
+            .method("POST")
+            .uri("/projects")
+            .header("Content-Type", "application/json")
+            .body(Body::from(serde_json::to_string(&payload).unwrap()))
+            .unwrap();
+
+        let response = app.oneshot(request).await.unwrap();
+
+        // Assert
+        assert_eq!(response.status(), StatusCode::CREATED);
+
+        let body = hyper::body::to_bytes(response.into_body()).await.unwrap();
+        let project_response: ProjectResponse = serde_json::from_slice(&body).unwrap();
+
+        assert_eq!(project_response.name, "Test Project");
+        assert_eq!(project_response.description, "A description for our test project.");
+        assert!(project_response.id.starts_with("project:"));
+    }
 }

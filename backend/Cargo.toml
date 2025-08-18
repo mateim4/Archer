@@ -22,3 +22,6 @@ uuid = { version = "1.4.1", features = ["v4", "serde"] }
 hyper = { version = "0.14", features = ["server"] }
 core-engine = { path = "../core-engine" }
 regex = "1"
+
+[dev-dependencies]
+tower = { version = "0.4", features = ["util"] }
