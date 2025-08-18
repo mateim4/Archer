@@ -167,8 +167,120 @@ class ServerSpecProcessor:
             "management": gemini_spec.get('management')
         }
         
+        # Enhanced price extraction with validation
+        complete_spec["usd_price"] = self.extract_price_value(gemini_spec.get('USD Price') or gemini_spec.get('usd_price'))
+        complete_spec["eur_price"] = self.extract_price_value(gemini_spec.get('EUR Price') or gemini_spec.get('eur_price'))
+        complete_spec["price"] = self.extract_price_value(gemini_spec.get('price'))
+        
+        # Enhanced type/category enrichment with hardcoded rules
+        complete_spec["type"] = gemini_spec.get('type')
+        complete_spec["category"] = gemini_spec.get('category')
+
+        # Enhanced extension/component detection with more specific rules
+        def detect_type_category(desc, part_number=None):
+            desc_l = desc.lower() if desc else ''
+            part_l = part_number.lower() if part_number else ''
+            
+            # Server chassis detection
+            if any(pattern in desc_l for pattern in ['thinkstation', 'thinksystem', 'poweredge', 'proliant']):
+                return ('server', 'Server')
+            
+            # Processor detection
+            if any(pattern in desc_l for pattern in ['xeon', 'epyc', 'processor', 'cpu']) or any(pattern in part_l for pattern in ['cpu', 'proc']):
+                return ('processor', 'CPU')
+                
+            # Memory detection
+            if any(pattern in desc_l for pattern in ['dimm', 'tru', 'memory', 'dram', 'ram']) or any(pattern in part_l for pattern in ['mem', 'dimm', 'ram']):
+                return ('memory', 'Memory')
+                
+            # Storage detection
+            if any(pattern in desc_l for pattern in ['ssd', 'hdd', 'nvme', 'drive', 'storage', 'disk']) or any(pattern in part_l for pattern in ['ssd', 'hdd', 'drive']):
+                return ('storage', 'Storage')
+                
+            # Network detection
+            if any(pattern in desc_l for pattern in ['ethernet', 'broadcom', 'intel', 'network', 'nic', '10gbe', '25gbe', 'gigabit']) or any(pattern in part_l for pattern in ['eth', 'nic', 'net']):
+                return ('network', 'Network')
+                
+            # Power supply detection
+            if any(pattern in desc_l for pattern in ['power supply', 'psu', 'power']) or any(pattern in part_l for pattern in ['psu', 'power']):
+                return ('power', 'Power')
+                
+            # RAID controller detection
+            if any(pattern in desc_l for pattern in ['raid', 'controller', 'storage controller']) or any(pattern in part_l for pattern in ['raid', 'ctrl']):
+                return ('controller', 'RAID')
+                
+            # Cable/connectivity detection
+            if any(pattern in desc_l for pattern in ['cable', 'transceiver', 'connector']) or any(pattern in part_l for pattern in ['cable', 'conn']):
+                return ('cable', 'Cable')
+                
+            # Warranty/service detection  
+            if any(pattern in desc_l for pattern in ['warranty', 'service', 'support', 'professional services']):
+                return ('service', 'Service')
+                
+            # Generic upgrade/option
+            if any(pattern in desc_l for pattern in ['upgrade', 'option', 'kit']):
+                return ('option', 'Option')
+                
+            return ('component', 'Component')
+
+        # Enhanced description and part number analysis
+        desc = gemini_spec.get('Description') or gemini_spec.get('description') or gemini_spec.get('name')
+        part_number = gemini_spec.get('Part Number') or gemini_spec.get('part_number') or gemini_spec.get('sku')
+        
+        if desc or part_number:
+            t, c = detect_type_category(desc, part_number)
+            complete_spec['type'] = t
+            complete_spec['category'] = c
+
+        # Enhanced filtering of nonsensical entries
+        nonsensical_patterns = [
+            'select storage devices', 'no configured raid', 'operating mode selection', 
+            'efficiency mode', 'upgrade option only', 'warranty extension',
+            'professional services only', 'configuration option', 'software license',
+            'documentation', 'installation service', 'training', 'consultation'
+        ]
+        
+        skip_patterns = [
+            'n/a', 'not applicable', 'none', 'empty', 'null', 'undefined', 
+            'placeholder', 'example', 'template', 'default'
+        ]
+        
+        if desc:
+            desc_lower = desc.lower()
+            if any(pat in desc_lower for pat in nonsensical_patterns) or any(pat == desc_lower.strip() for pat in skip_patterns):
+                complete_spec['ignore'] = True
+            elif len(desc.strip()) < 5:  # Skip very short descriptions
+                complete_spec['ignore'] = True
         # Remove None values
         return {k: v for k, v in complete_spec.items() if v is not None}
+    
+    def extract_price_value(self, price_input):
+        """Extract numeric price value from various formats"""
+        if not price_input:
+            return None
+            
+        # Handle numeric values
+        if isinstance(price_input, (int, float)):
+            return float(price_input) if price_input > 0 else None
+            
+        # Handle string values
+        if isinstance(price_input, str):
+            price_str = price_input.strip().lower()
+            
+            # Skip common non-price indicators
+            if price_str in ['n/a', 'tbd', 'contact', 'varies', 'unknown', 'null', 'none', '']:
+                return None
+                
+            # Extract numeric value using regex
+            import re
+            price_match = re.search(r'[\d,]+\.?\d*', price_str.replace(',', ''))
+            if price_match:
+                try:
+                    return float(price_match.group())
+                except ValueError:
+                    return None
+        
+        return None
     
     def parse_frequency(self, freq_str: str) -> float:
         """Parse frequency string like '2.5GHz' to float"""
@@ -210,11 +322,22 @@ class ServerSpecProcessor:
             return []
     
     def update_model_specifications(self, model_id: str, specifications: Dict[str, Any]) -> bool:
-        """Update model specifications via backend API (when endpoint exists)"""
-        # This would be implemented once we add the PUT endpoint to the backend
-        print(f"Would update model {model_id} with specifications:")
-        print(json.dumps(specifications, indent=2))
-        return True
+        """Update model specifications via backend API"""
+        try:
+            url = f"{self.backend_url}/api/hardware-models/{model_id}/specifications"
+            response = requests.put(url, json=specifications, headers=API_HEADERS)
+            
+            if response.status_code == 200:
+                print(f"✅ Successfully updated model {model_id}")
+                return True
+            else:
+                print(f"❌ Failed to update model {model_id}: HTTP {response.status_code}")
+                print(f"Response: {response.text}")
+                return False
+                
+        except Exception as e:
+            print(f"❌ Error updating model {model_id}: {str(e)}")
+            return False
     
     def process_research_file(self, research_file: str) -> Dict[str, Any]:
         """Process complete Gemini research file and update database"""

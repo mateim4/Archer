@@ -51,6 +51,7 @@ pub fn routes() -> Router<AppState> {
         .route("/hardware-baskets/:id/models", get(get_hardware_basket_models))
     .route("/hardware-baskets/:id/extensions", get(get_hardware_basket_extensions))
     .route("/hardware-configurations/:id", get(get_hardware_configuration))
+    .route("/hardware-models/:id/specifications", axum::routing::put(update_hardware_model_specifications))
     .route("/admin/cleanup", post(admin_cleanup))
             .route("/hardware-baskets/:id/recount", post(recount_hardware_basket_totals))
 }
@@ -1121,6 +1122,44 @@ async fn delete_hardware_basket(
         Err(e) => {
             tracing::error!("Failed to delete basket {}: {}", id, e);
             (StatusCode::INTERNAL_SERVER_ERROR, Json(ErrorResponse { error: format!("Failed to delete basket: {}", e) })).into_response()
+        }
+    }
+}
+
+// PUT /api/hardware-models/:id/specifications
+async fn update_hardware_model_specifications(
+    Path(id): Path<String>,
+    State(db): State<AppState>,
+    Json(specifications): Json<serde_json::Value>
+) -> impl IntoResponse {
+    tracing::info!("Updating specifications for hardware model: {}", id);
+    
+    // Update the base_specifications field of the hardware model
+    let update_query = r#"
+        UPDATE type::thing('hardware_model', $model_id)
+        SET base_specifications = $specifications,
+            updated_at = time::now()
+    "#;
+    
+    match db
+        .query(update_query)
+        .bind(("model_id", &id))
+        .bind(("specifications", &specifications))
+        .await
+    {
+        Ok(_) => {
+            tracing::info!("Successfully updated specifications for model: {}", id);
+            Json(serde_json::json!({
+                "success": true,
+                "message": "Specifications updated successfully",
+                "model_id": id
+            })).into_response()
+        },
+        Err(e) => {
+            tracing::error!("Failed to update specifications for model {}: {}", id, e);
+            (StatusCode::INTERNAL_SERVER_ERROR, Json(ErrorResponse { 
+                error: format!("Failed to update specifications: {}", e) 
+            })).into_response()
         }
     }
 }

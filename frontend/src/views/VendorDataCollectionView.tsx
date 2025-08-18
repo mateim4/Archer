@@ -467,7 +467,7 @@ const VendorDataCollectionView: React.FC = () => {
 
   // Classification helpers to keep components out of the Servers table
   const isComponentLike = (text: string) => {
-    return /\b(riser|backplane|power\s*supply|psu|heatsink|chassis|retimer|adapter|controller|raid|hba|fan|rail|bezel|cable|riser\s*cage|anybay|nvme|pcie|dimm|memory|processor|cpu|ssd|hdd|drive|ethernet|nic|network|enablement|kit|vmware|esxi|operating|mode|selection|data\s*center|environment|xclarity|year|warranty|none)\b/i.test(text);
+    return /\b(riser|backplane|power\s*supply|psu|heatsink|chassis|retimer|adapter|controller|raid|hba|fan|rail|bezel|cable|riser\s*cage|anybay|nvme|pcie|dimm|memory|processor|cpu|ssd|hdd|drive|ethernet|nic|network|enablement|kit|vmware|esxi|operating|mode|selection|data\s*center|environment|xclarity|year|warranty|none|broadcom|intel\s+xeon|amd\s+epyc|thinksystem\s+(?!sr\d)|flash|gb\s|tb\s|mhz|ghz|installed|factory|config|hybrid|ready|esa|vsan|pro|max|intensive|mixed|use|hot\s+swap)\b/i.test(text);
   };
   
   const isServerLike = (text: string) => {
@@ -489,13 +489,19 @@ const VendorDataCollectionView: React.FC = () => {
       return hasSpecs && !isComponentLike(text);
     }
     
-    // For Lenovo, check if it's a server lot (not individual components)
-    const isServerLot = /^[A-Z]{3,4}\d+\s*[-–]\s*/.test(text); // matches "SMI1 - ", "VEI2 - ", etc.
+    // For Lenovo, prioritize explicit server category first
+    const hasServerCategory = m.category && String(m.category).toLowerCase() === 'server';
     
-    // Must be server-like text AND (server category OR server lot pattern) AND NOT component-like
-    return (isServerLike(text) || isServerLot) && 
-           (m.category && String(m.category).toLowerCase() === 'server') && 
-           !isComponentLike(text);
+    // Lenovo server lot patterns (matches "SMI1 - ", "VEI2 - ", etc.)
+    const isServerLot = /^[A-Z]{3,4}\d+\s*[-–]\s*/.test(text);
+    
+    // If it has server category, it's definitely a server (unless it's component-like)
+    if (hasServerCategory) {
+      return !isComponentLike(text);
+    }
+    
+    // Otherwise, check if it's a server lot pattern and server-like
+    return isServerLot && isServerLike(text) && !isComponentLike(text);
   };
   
   // Enhanced Lenovo specifications based on official documentation
@@ -657,28 +663,189 @@ const VendorDataCollectionView: React.FC = () => {
       };
     }
     
-    return enhanced;
-  }, []);
-
-  // Enhanced hardware models with Lenovo specifications
-  const enhancedHardwareModels = React.useMemo(() => {
-    return hardwareModels.map(model => {
-      // Only enhance Lenovo models
-      const currentBasket = hardwareBaskets.find(b => 
-        normalizeThingId(b.id) === selectedBasket
-      );
+    // Enhance Lenovo server model codes (VOA2, VEI1, etc.)
+    const serverCode = modelName.match(/^([A-Z]{3,4}\d+)/)?.[1];
+    if (serverCode) {
+      const baseSpecs = enhanced.base_specifications || {};
+      const description = model.lot_description || '';
       
-      if (currentBasket?.vendor === 'Lenovo') {
-        return enhanceLenovoSpecs(model);
+      // Determine specifications based on server code patterns and descriptions
+      let specs = {};
+      
+      // VMware vSAN Ready nodes
+      if (serverCode.startsWith('V')) {
+        if (description.includes('ThinkAgile VX650') || description.includes('ThinkAgile VX655')) {
+          specs = {
+            processor: {
+              socket_count: 2,
+              max_cores_per_socket: description.includes('AMD') ? 64 : 32,
+              max_threads_per_socket: description.includes('AMD') ? 128 : 64,
+              socket_type: description.includes('AMD') ? 'SP5' : 'LGA4677',
+              architecture: description.includes('AMD') ? 'AMD EPYC' : 'Intel Xeon'
+            },
+            memory: {
+              max_capacity: description.includes('VX655') ? '4TB' : '2TB',
+              slots: 24,
+              type: 'DDR5 RDIMM',
+              ecc: true,
+              speeds_supported: ['4800 MT/s', '5600 MT/s']
+            },
+            storage: {
+              front_bays: { count: 12, size: '2.5"', interfaces: ['NVMe', 'SATA'] },
+              optimization: 'vSAN Ready Node',
+              raid_support: ['vSAN Distributed RAID']
+            },
+            network: {
+              onboard_ports: '2x 25GbE SFP28',
+              pcie_slots: 4,
+              expansion_options: 'Optimized for vSAN networking'
+            },
+            physical: {
+              form_factor: '2U',
+              depth: '760mm',
+              optimized: 'vSAN Ready Node'
+            },
+            power: {
+              psu_options: ['1100W', '1600W'],
+              redundancy: '1+1',
+              efficiency: '80 PLUS Platinum'
+            }
+          };
+        }
       }
       
-      return model;
-    });
-  }, [hardwareModels, hardwareBaskets, selectedBasket, enhanceLenovoSpecs]);
-
-  const serverRows = React.useMemo(() => {
-    return enhancedHardwareModels.filter(isActualServerModel);
-  }, [enhancedHardwareModels]);
+      // Medium servers (MEA1, MEI1)
+      else if (serverCode.startsWith('ME')) {
+        specs = {
+          processor: {
+            socket_count: 2,
+            max_cores_per_socket: description.includes('AMD') ? 48 : 28,
+            max_threads_per_socket: description.includes('AMD') ? 96 : 56,
+            socket_type: description.includes('AMD') ? 'SP5' : 'LGA4677',
+            architecture: description.includes('AMD') ? 'AMD EPYC' : 'Intel Xeon Gold'
+          },
+          memory: {
+            max_capacity: '2TB',
+            slots: 24,
+            type: 'DDR5 RDIMM',
+            ecc: true,
+            speeds_supported: ['4800 MT/s']
+          },
+          storage: {
+            front_bays: { count: 16, size: '2.5"', interfaces: ['SATA', 'SAS', 'NVMe'] },
+            internal_m2: 4,
+            raid_support: ['HW RAID 0,1,5,6,10']
+          },
+          network: {
+            onboard_ports: '2x 1GbE + 2x 10GbE',
+            pcie_slots: 5,
+            expansion_options: 'Multiple networking options'
+          },
+          physical: {
+            form_factor: '2U',
+            depth: '760mm',
+            category: 'Medium Performance'
+          },
+          power: {
+            psu_options: ['1100W', '1600W'],
+            redundancy: '1+1',
+            efficiency: '80 PLUS Platinum'
+          }
+        };
+      }
+      
+      // Heavy servers (HVA1, HVI1)
+      else if (serverCode.startsWith('HV')) {
+        specs = {
+          processor: {
+            socket_count: 2,
+            max_cores_per_socket: description.includes('AMD') ? 64 : 32,
+            max_threads_per_socket: description.includes('AMD') ? 128 : 64,
+            socket_type: description.includes('AMD') ? 'SP5' : 'LGA4677',
+            architecture: description.includes('AMD') ? 'AMD EPYC' : 'Intel Xeon Platinum'
+          },
+          memory: {
+            max_capacity: '4TB',
+            slots: 32,
+            type: 'DDR5 RDIMM/LRDIMM',
+            ecc: true,
+            speeds_supported: ['4800 MT/s', '5600 MT/s']
+          },
+          storage: {
+            front_bays: { count: 24, size: '2.5"', interfaces: ['SATA', 'SAS', 'NVMe'] },
+            rear_bays: { count: 4, size: '3.5"', interfaces: ['SATA', 'SAS'] },
+            internal_m2: 8,
+            raid_support: ['HW RAID 0,1,5,6,10,50,60']
+          },
+          network: {
+            onboard_ports: '4x 1GbE + 2x 25GbE',
+            pcie_slots: 8,
+            expansion_options: 'High-performance networking'
+          },
+          physical: {
+            form_factor: '4U',
+            depth: '760mm',
+            category: 'High Performance'
+          },
+          power: {
+            psu_options: ['1600W', '2000W', '2400W'],
+            redundancy: '1+1 or N+1',
+            efficiency: '80 PLUS Platinum/Titanium'
+          }
+        };
+      }
+      
+      // Small servers (SMI1, SMA1)
+      else if (serverCode.startsWith('SM')) {
+        specs = {
+          processor: {
+            socket_count: 1,
+            max_cores_per_socket: description.includes('AMD') ? 16 : 10,
+            max_threads_per_socket: description.includes('AMD') ? 32 : 20,
+            socket_type: description.includes('AMD') ? 'SP5' : 'LGA4677',
+            architecture: description.includes('AMD') ? 'AMD EPYC' : 'Intel Xeon Silver'
+          },
+          memory: {
+            max_capacity: '1TB',
+            slots: 16,
+            type: 'DDR5 RDIMM',
+            ecc: true,
+            speeds_supported: ['4800 MT/s']
+          },
+          storage: {
+            front_bays: { count: 8, size: '2.5"', interfaces: ['SATA', 'SAS'] },
+            internal_m2: 2,
+            raid_support: ['SW RAID 0,1,10']
+          },
+          network: {
+            onboard_ports: '2x 1GbE',
+            pcie_slots: 2,
+            expansion_options: 'Basic networking expansion'
+          },
+          physical: {
+            form_factor: '1U',
+            depth: '650mm',
+            category: 'Entry Level'
+          },
+          power: {
+            psu_options: ['450W', '550W'],
+            redundancy: 'Single or 1+1',
+            efficiency: '80 PLUS Gold'
+          }
+        };
+      }
+      
+      // Apply the specifications if we found a match
+      if (Object.keys(specs).length > 0) {
+        enhanced.base_specifications = {
+          ...baseSpecs,
+          ...specs
+        };
+      }
+    }
+    
+    return enhanced;
+  }, []);
 
   // Helpers to normalize SurrealDB Thing IDs and parse sizes/speeds
   const normalizeThingId = (val: any): string => {
@@ -719,11 +886,32 @@ const VendorDataCollectionView: React.FC = () => {
     const m = txt.match(/\b(\d{1,3})\s*(?:C|CORES?)\b/i);
     return m ? parseInt(m[1], 10) : null;
   };
+  
   const extractGHz = (txt?: string): number | null => {
     if (!txt) return null;
     const m = txt.match(/(\d+(?:\.\d+)?)\s*GHZ/i);
     return m ? parseFloat(m[1]) : null;
   };
+
+  // Enhanced hardware models with Lenovo specifications
+  const enhancedHardwareModels = React.useMemo(() => {
+    return hardwareModels.map(model => {
+      // Only enhance Lenovo models
+      const currentBasket = hardwareBaskets.find(b => 
+        normalizeThingId(b.id) === selectedBasket
+      );
+      
+      if (currentBasket?.vendor === 'Lenovo') {
+        return enhanceLenovoSpecs(model);
+      }
+      
+      return model;
+    });
+  }, [hardwareModels, hardwareBaskets, selectedBasket, enhanceLenovoSpecs]);
+
+  const serverRows = React.useMemo(() => {
+    return enhancedHardwareModels.filter(isActualServerModel);
+  }, [enhancedHardwareModels]);
 
   // Build derived specs per model by analyzing its extensions
   const derivedSpecsByModelId = React.useMemo(() => {
