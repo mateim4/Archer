@@ -884,6 +884,61 @@ async fn get_hardware_basket_models(
                     }
                 }
                 v["base_specifications"] = serde_json::to_value(&specs).unwrap_or(serde_json::json!({}));
+                
+                // Populate legacy fields from base_specifications for backward compatibility
+                if let Some(processor_spec) = &specs.processor {
+                    let mut processor_parts = Vec::new();
+                    if processor_spec.count > 1 {
+                        processor_parts.push(format!("{}x", processor_spec.count));
+                    }
+                    processor_parts.push(processor_spec.model.clone());
+                    if let Some(cores) = processor_spec.core_count {
+                        processor_parts.push(format!("{}C", cores));
+                    }
+                    if let Some(threads) = processor_spec.thread_count {
+                        processor_parts.push(format!("{}T", threads));
+                    }
+                    if let Some(freq) = processor_spec.frequency_ghz {
+                        processor_parts.push(format!("{}GHz", freq));
+                    }
+                    if let Some(tdp) = processor_spec.tdp {
+                        processor_parts.push(format!("{}W", tdp));
+                    }
+                    if !processor_parts.is_empty() {
+                        v["processor_info"] = serde_json::Value::String(processor_parts.join(" "));
+                    }
+                }
+
+                if let Some(memory_spec) = &specs.memory {
+                    let mut memory_parts = Vec::new();
+                    memory_parts.push(memory_spec.total_capacity.clone());
+                    memory_parts.push(memory_spec.memory_type.clone());
+                    if let Some(speed) = &memory_spec.speed {
+                        memory_parts.push(speed.clone());
+                    }
+                    if memory_spec.module_count > 1 {
+                        memory_parts.push(format!("({}x modules)", memory_spec.module_count));
+                    }
+                    if !memory_parts.is_empty() {
+                        v["ram_info"] = serde_json::Value::String(memory_parts.join(" "));
+                    }
+                }
+
+                if let Some(network_spec) = &specs.network {
+                    let mut network_parts = Vec::new();
+                    for port in &network_spec.ports {
+                        network_parts.push(format!("{}x {} {}", port.count, port.speed, port.port_type));
+                    }
+                    if let Some(mgmt_ports) = network_spec.management_ports {
+                        if mgmt_ports > 0 {
+                            network_parts.push(format!("{}x Management", mgmt_ports));
+                        }
+                    }
+                    if !network_parts.is_empty() {
+                        v["network_info"] = serde_json::Value::String(network_parts.join(", "));
+                    }
+                }
+                
                 v
             }).collect();
 

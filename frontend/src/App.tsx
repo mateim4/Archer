@@ -15,7 +15,10 @@ import LifecyclePlannerView from './views/LifecyclePlannerView';
 import DesignDocsView from './views/DesignDocsView';
 import ProjectsView from './views/ProjectsView';
 import EnhancedProjectsView from './views/EnhancedProjectsView';
+import ProjectManagementViewNew from './views/ProjectManagementViewNew';
 import ProjectManagementView from './views/ProjectManagementView';
+import ProjectDetailView from './views/ProjectWorkspaceView';
+import ProjectTimelineView from './views/ProjectTimelineView';
 import MigrationProjects from './views/MigrationProjects';
 import MigrationDashboard from './views/MigrationDashboard';
 import WorkflowsView from './views/WorkflowsView';
@@ -83,13 +86,21 @@ function App() {
             <Route path="/network-visualizer" element={<NetworkVisualizerView />} />
             <Route path="/lifecycle-planner" element={<LifecyclePlannerView />} />
             <Route path="/design-docs" element={<DesignDocsView />} />
-            <Route path="/projects" element={<ProjectManagementView />} />
-            <Route path="/projects-enhanced" element={<EnhancedProjectsView />} />
-            <Route path="/projects-classic" element={<ProjectsView />} />
+            
+            {/* Project Management System - Unified */}
+            <Route path="/projects" element={<ProjectManagementViewNew />} />
+            <Route path="/projects/:projectId" element={<ProjectDetailView />} />
+            <Route path="/projects/:projectId/timeline" element={<ProjectTimelineView />} />
+            
+            {/* Migration & Workflow Management */}
             <Route path="/migration-dashboard" element={<MigrationDashboard />} />
             <Route path="/migration-projects" element={<MigrationProjects />} />
-            <Route path="/workflows"element={<WorkflowsView />} />
+            <Route path="/workflows" element={<WorkflowsView />} />
             <Route path="/settings" element={<SettingsView />} />
+            
+            {/* Legacy routes for backward compatibility */}
+            <Route path="/projects-enhanced" element={<EnhancedProjectsView />} />
+            <Route path="/projects-classic" element={<ProjectsView />} />
           </Routes>
         </main>
       </div>

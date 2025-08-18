@@ -8,10 +8,12 @@ use axum::{
 use core_engine::hardware_parser::{
     HardwareBasketParser, ParsedHardwareBasket,
 };
+use core_engine::hardware_parser::basket_parser_new::HardwareBasketParser as NewHardwareBasketParser;
 use core_engine::models::hardware_basket::{
     HardwareBasket, CreateHardwareBasketRequest,
     HardwareModel, HardwareConfiguration, HardwarePricing,
 };
+use surrealdb::sql::Thing;
 use crate::database::Database;
 use std::io::Write;
 use std::sync::Arc;
@@ -331,76 +333,100 @@ async fn upload_hardware_basket_simple(
              file_name, 
              vendor);
 
-    // Parse the file and create server/component structure for frontend
-    let parser = HardwareBasketParser;
-    match parser.parse_file(temp_file.path().to_str().unwrap()) {
-        Ok(parsed) => {
-            println!("✅ Successfully parsed hardware basket:");
-            println!("   📊 Hardware lots: {}", parsed.hardware_lots.len());
-            println!("   🔧 Hardware options: {}", parsed.hardware_options.len());
-            
-            // Create mock server configurations for testing frontend integration
-            let server_lots = vec![
-                serde_json::json!({
-                    "vendor": "Lenovo",
-                    "lot_description": "Lenovo ThinkSystem SR630 Server Configuration",
-                    "form_factor": "1U Rack",
-                    "model": "SR630",
-                    "platform": "ThinkSystem SR630",
-                    "description": "Complete server configuration with Intel Xeon processor",
-                    "specifications": {
-                        "cpu_count": 1,
-                        "memory_slots": 16,
-                        "drive_bays": 8,
-                        "form_factor": "1U Rack"
-                    },
-                    "unit_price_usd": 5000.0
-                }),
-                serde_json::json!({
-                    "vendor": "Lenovo",
-                    "lot_description": "Lenovo ThinkSystem SR650 Server Configuration", 
-                    "form_factor": "2U Rack",
-                    "model": "SR650",
-                    "platform": "ThinkSystem SR650",
-                    "description": "Complete server configuration with dual Intel Xeon processors",
-                    "specifications": {
-                        "cpu_count": 2,
-                        "memory_slots": 24,
-                        "drive_bays": 16,
-                        "form_factor": "2U Rack"
-                    },
-                    "unit_price_usd": 8000.0
-                })
-            ];
+    // Create mock basket and vendor IDs for parsing
+    let basket_id = Thing::from(("hardware_basket", format!("basket_{}", chrono::Utc::now().timestamp_millis())));
+    let vendor_id = Thing::from(("vendor", vendor.to_lowercase()));
 
-            let component_options: Vec<serde_json::Value> = parsed.hardware_options.iter().map(|option| {
+    // Use the new parser that returns actual HardwareModel structs
+    let new_parser = NewHardwareBasketParser;
+    match new_parser.parse_file(temp_file.path().to_str().unwrap(), &basket_id, &vendor_id) {
+        Ok((models, configurations, prices)) => {
+            println!("✅ Successfully parsed hardware basket:");
+            println!("   📊 Hardware models: {}", models.len());
+            println!("   🔧 Hardware configurations: {}", configurations.len());
+            println!("   💰 Hardware prices: {}", prices.len());
+            
+            // Convert models to JSON response format  
+            let servers: Vec<serde_json::Value> = models.iter().map(|model| {
+                let mut specs = serde_json::Map::new();
+                
+                // Extract specifications from model
+                if let Some(processor) = &model.base_specifications.processor {
+                    specs.insert("processor".to_string(), 
+                        serde_json::Value::String(format!("{} cores", processor.cores)));
+                }
+                if let Some(memory) = &model.base_specifications.memory {
+                    specs.insert("memory_gb".to_string(), 
+                        serde_json::Value::Number(serde_json::Number::from(memory.total_capacity_gb)));
+                }
+                if let Some(storage) = &model.base_specifications.storage {
+                    specs.insert("storage_type".to_string(), 
+                        serde_json::Value::String(storage.drive_type.clone()));
+                    specs.insert("storage_capacity_gb".to_string(), 
+                        serde_json::Value::Number(serde_json::Number::from(storage.total_capacity_gb)));
+                }
+                if let Some(network) = &model.base_specifications.network {
+                    specs.insert("network_ports".to_string(), 
+                        serde_json::Value::Number(serde_json::Number::from(network.port_count)));
+                }
+                
                 serde_json::json!({
-                    "vendor": option.vendor,
-                    "description": option.description,
-                    "category": option.category,
-                    "subcategory": option.option_type,
-                    "specifications": {
-                        "part_number": option.part_number,
-                        "type": option.option_type
-                    },
-                    "unit_price_usd": option.unit_price_usd
+                    "id": model.id,
+                    "vendor": vendor,
+                    "lot_description": model.lot_description,
+                    "model_name": model.model_name,
+                    "model_number": model.model_number,
+                    "form_factor": model.form_factor,
+                    "category": model.category,
+                    "description": format!("{} - {}", model.model_name, model.lot_description),
+                    "specifications": serde_json::Value::Object(specs),
+                    "source_sheet": model.source_sheet,
+                    "source_section": model.source_section
                 })
             }).collect();
             
+            // Extract extension components from models
+            let mut components: Vec<serde_json::Value> = Vec::new();
+            for model in &models {
+                if let Some(extensions) = &model.extensions {
+                    for extension in extensions {
+                        components.push(serde_json::json!({
+                            "vendor": vendor,
+                            "description": extension.description,
+                            "category": extension.component_type,
+                            "subcategory": extension.component_type,
+                            "specifications": {
+                                "part_number": extension.part_number,
+                                "type": extension.component_type
+                            },
+                            "unit_price_usd": 0.0 // TODO: Extract from pricing data
+                        }));
+                    }
+                }
+            }
+            
             println!("✅ Created structured response:");
-            println!("   🖥️  Server configurations: {}", server_lots.len());
-            println!("   🔧 Component options: {}", component_options.len());
+            println!("   🖥️  Server configurations: {}", servers.len());
+            println!("   🔧 Component options: {}", components.len());
 
             Ok(Json(serde_json::json!({
                 "message": "File parsed successfully",
                 "vendor": vendor,
                 "filename": file_name,
-                "hardware_lots": server_lots.len(),
-                "hardware_options": component_options.len(),
-                "processing_errors": parsed.processing_errors,
+                "basket_id": basket_id.id.to_string(),
+                "hardware_lots": servers.len(),
+                "hardware_options": components.len(),
+                "processing_errors": [],
                 "success": true,
-                "servers": server_lots,
-                "components": component_options
+                "servers": servers,
+                "components": components,
+                "parsing_details": {
+                    "models_parsed": models.len(),
+                    "configurations_parsed": configurations.len(),
+                    "prices_parsed": prices.len(),
+                    "server_models_found": servers.len(),
+                    "extension_components_found": components.len()
+                }
             })))
         }
         Err(e) => {

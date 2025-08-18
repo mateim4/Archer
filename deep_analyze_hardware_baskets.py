@@ -202,9 +202,9 @@ def compare_file_structures(dell_analysis, lenovo_analysis):
                 print(f"    Lenovo potential headers at rows: {[h['row'] for h in lenovo_headers[:3]]}")
 
 if __name__ == "__main__":
-    # Analyze both files
-    dell_file = "/home/mateim/Downloads/work/Hardware BOM/X86 Basket Q3 2025 v2 Dell Only.xlsx"
-    lenovo_file = "/home/mateim/Downloads/work/Hardware BOM/X86 Basket Q3 2025 v2 Lenovo Only.xlsx"
+    # Analyze both files - using actual file paths in the workspace
+    dell_file = "/Users/mateimarcu/DevApps/LCMDesigner/docs/X86 Basket Q3 2025 v2 Dell Only.xlsx"
+    lenovo_file = "/Users/mateimarcu/DevApps/LCMDesigner/docs/X86 Basket Q3 2025 v2 Lenovo Only.xlsx"
     
     print("🚀 Starting comprehensive hardware basket analysis...")
     

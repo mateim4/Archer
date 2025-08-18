@@ -1,0 +1,1507 @@
+{
+  "file_path": "/Users/mateimarcu/DevApps/LCMDesigner/docs/X86 Basket Q3 2025 v2 Lenovo Only.xlsx",
+  "total_sheets": 6,
+  "sheet_names": [
+    "Cover",
+    "Lenovo X86 Server Lots",
+    "Lenovo X86 Parts",
+    "Lenovo X86 Services",
+    "Lenovo Country Data",
+    "Lenovo Quarterly Exchange Rates"
+  ],
+  "sheets": {
+    "Cover": {
+      "dimensions": "29 rows x 3 columns",
+      "total_rows": 29,
+      "total_cols": 3,
+      "non_empty_rows": 19,
+      "header_candidates": [],
+      "data_patterns": {},
+      "sample_data": {},
+      "numeric_columns": [],
+      "content_indicators": {
+        "dell": "2",
+        "lenovo": "2",
+        "server": "6",
+        "cpu": "1"
+      },
+      "first_10_rows": [
+        {
+          "0": "",
+          "1": "Last Updated 020725 - NM",
+          "2": ""
+        },
+        {
+          "0": "",
+          "1": "Atos X86 Server Pricing",
+          "2": ""
+        },
+        {
+          "0": "",
+          "1": "Latest version of the Procurement basket can be found here >>click<<",
+          "2": ""
+        },
+        {
+          "0": "",
+          "1": "Eviden - Contact purchasing:",
+          "2": "Olaf van den Berg - Global Lead Buyer Servers (olaf.vandenberg@atos.net)"
+        },
+        {
+          "0": "",
+          "1": "Atos - Contact purchasing:",
+          "2": "Nick Maidment  - Global Lead Buyer Workplace (nick.maidment@atos.net)"
+        },
+        {
+          "0": "",
+          "1": "Contact Atos TF:",
+          "2": "Sameer Mhatre  - Head of Global Server Engineering  (sameer.mhatre@atos.net)"
+        },
+        {
+          "0": "",
+          "1": "Global Contact Dell:",
+          "2": "Elmer Grotenhuis - Elmer.Grotenhuis@dell.com"
+        },
+        {
+          "0": "",
+          "1": "Global Contact Lenovo:",
+          "2": "Lucian Braguta - lbraguta@lenovo.com"
+        },
+        {
+          "0": "",
+          "1": "Quotation date:",
+          "2": "X86 RFP 2025"
+        },
+        {
+          "0": "",
+          "1": "Release date:",
+          "2": "2025-04-01 00:00:00"
+        }
+      ]
+    },
+    "Lenovo X86 Server Lots": {
+      "dimensions": "413 rows x 8 columns",
+      "total_rows": 413,
+      "total_cols": 8,
+      "non_empty_rows": 370,
+      "header_candidates": [
+        {
+          "row": 3,
+          "values": [
+            "Part Number",
+            "Description",
+            "Quantity",
+            "Total price in USD",
+            "Total price in EUR",
+            "Total price in USD",
+            "Total price in EUR"
+          ],
+          "string_ratio": 1.0
+        }
+      ],
+      "data_patterns": {},
+      "sample_data": {
+        "section_1": [
+          {
+            "0": "",
+            "1": "Part Number",
+            "2": "Description",
+            "3": "Quantity",
+            "4": "Total price in USD",
+            "5": "Total price in EUR",
+            "6": "Total price in USD",
+            "7": "Total price in EUR"
+          },
+          {
+            "0": "",
+            "1": "",
+            "2": "",
+            "3": "",
+            "4": "",
+            "5": "",
+            "6": "",
+            "7": ""
+          },
+          {
+            "0": "",
+            "1": "7D73CTO1WW",
+            "2": "SMI1 - Intel  - 1 Proc - Small Rack Server",
+            "3": "",
+            "4": 2850,
+            "5": 2452.995,
+            "6": 3069,
+            "7": 2641.4883
+          }
+        ],
+        "section_2": [
+          {
+            "0": "",
+            "1": "7D73CTO1WW",
+            "2": "SMI1 - Intel  - 1 Proc - Small Rack Server",
+            "3": "",
+            "4": 2850,
+            "5": 2452.995,
+            "6": 3069,
+            "7": 2641.4883
+          },
+          {
+            "0": "",
+            "1": "",
+            "2": "SMI1  : ThinkSystem SR630 V3 - 1yr Warranty",
+            "3": 1,
+            "4": "",
+            "5": "",
+            "6": "",
+            "7": ""
+          },
+          {
+            "0": "",
+            "1": "BLK4",
+            "2": "ThinkSystem V3 1U 10x2.5\" Chassis",
+            "3": 1,
+            "4": "",
+            "5": "",
+            "6": "",
+            "7": ""
+          }
+        ],
+        "section_3": [
+          {
+            "0": "",
+            "1": "7D73CTO1WW",
+            "2": "SMI2 - Intel  - 2 Proc - Small Rack",
+            "3": "",
+            "4": 4422,
+            "5": 3806.0154,
+            "6": 4672,
+            "7": 4021.1904
+          },
+          {
+            "0": "",
+            "1": "",
+            "2": "SMI2  : ThinkSystem SR630 V3 - 3yr Warranty",
+            "3": 1,
+            "4": "",
+            "5": "",
+            "6": "",
+            "7": ""
+          },
+          {
+            "0": "",
+            "1": "BLK4",
+            "2": "ThinkSystem V3 1U 10x2.5\" Chassis",
+            "3": 1,
+            "4": "",
+            "5": "",
+            "6": "",
+            "7": ""
+          }
+        ],
+        "section_4": [
+          {
+            "0": "",
+            "1": "7D9CCTO1WW",
+            "2": "SMA1 - AMD - 1 Proc  - Small Rack",
+            "3": "",
+            "4": 3621,
+            "5": 3116.5947,
+            "6": 3871,
+            "7": 3331.7697000000003
+          },
+          {
+            "0": "",
+            "1": "",
+            "2": "SMA1  : ThinkSystem SR645 V3-3yr Warranty",
+            "3": 1,
+            "4": "",
+            "5": "",
+            "6": "",
+            "7": ""
+          },
+          {
+            "0": "",
+            "1": "BLK4",
+            "2": "ThinkSystem V3 1U 10x2.5\" Chassis",
+            "3": 1,
+            "4": "",
+            "5": "",
+            "6": "",
+            "7": ""
+          }
+        ],
+        "section_5": [
+          {
+            "0": "",
+            "1": "7D9CCTO1WW",
+            "2": "SMA2 - AMD - 2 Proc  - Small Rack",
+            "3": "",
+            "4": 4371,
+            "5": 3762.1197,
+            "6": 4620.88,
+            "7": 3977.191416
+          },
+          {
+            "0": "",
+            "1": "",
+            "2": "SMA2  : ThinkSystem SR645 V3-3yr Warranty",
+            "3": 1,
+            "4": "",
+            "5": "",
+            "6": "",
+            "7": ""
+          },
+          {
+            "0": "",
+            "1": "BLK4",
+            "2": "ThinkSystem V3 1U 10x2.5\" Chassis",
+            "3": 1,
+            "4": "",
+            "5": "",
+            "6": "",
+            "7": ""
+          }
+        ]
+      },
+      "numeric_columns": [
+        {
+          "column": 1,
+          "numeric_count": "18",
+          "sample_values": [
+            5977.0,
+            5977.0,
+            5977.0,
+            5977.0,
+            5977.0
+          ]
+        },
+        {
+          "column": 3,
+          "numeric_count": "349",
+          "sample_values": [
+            0.8607,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "column": 6,
+          "numeric_count": "18",
+          "sample_values": [
+            3069.0,
+            4672.0,
+            3871.0,
+            4620.88,
+            5000.0
+          ]
+        },
+        {
+          "column": 7,
+          "numeric_count": "18",
+          "sample_values": [
+            2641.4883,
+            4021.1904,
+            3331.7697000000003,
+            3977.191416,
+            4303.5
+          ]
+        }
+      ],
+      "content_indicators": {
+        "lenovo": "8",
+        "server": "14",
+        "rack": "8",
+        "intel": "18",
+        "amd": "16",
+        "processor": "18",
+        "storage": "18"
+      },
+      "first_10_rows": [
+        {
+          "0": "",
+          "1": "",
+          "2": "Currencies",
+          "3": "Rate",
+          "4": "",
+          "5": "",
+          "6": "",
+          "7": ""
+        },
+        {
+          "0": "",
+          "1": "",
+          "2": "EUR/USD Exchange rate until 30/6/25",
+          "3": 0.8607,
+          "4": "",
+          "5": "",
+          "6": "",
+          "7": ""
+        },
+        {
+          "0": "",
+          "1": "",
+          "2": "X86 Server RFP Basket 2025 Q2",
+          "3": "",
+          "4": "1 year Warranty",
+          "5": "",
+          "6": "3 year warranty",
+          "7": ""
+        },
+        {
+          "0": "",
+          "1": "Part Number",
+          "2": "Description",
+          "3": "Quantity",
+          "4": "Total price in USD",
+          "5": "Total price in EUR",
+          "6": "Total price in USD",
+          "7": "Total price in EUR"
+        },
+        {
+          "0": "",
+          "1": "",
+          "2": "",
+          "3": "",
+          "4": "",
+          "5": "",
+          "6": "",
+          "7": ""
+        },
+        {
+          "0": "",
+          "1": "7D73CTO1WW",
+          "2": "SMI1 - Intel  - 1 Proc - Small Rack Server",
+          "3": "",
+          "4": 2850,
+          "5": 2452.995,
+          "6": 3069,
+          "7": 2641.4883
+        },
+        {
+          "0": "",
+          "1": "",
+          "2": "SMI1  : ThinkSystem SR630 V3 - 1yr Warranty",
+          "3": 1,
+          "4": "",
+          "5": "",
+          "6": "",
+          "7": ""
+        },
+        {
+          "0": "",
+          "1": "BLK4",
+          "2": "ThinkSystem V3 1U 10x2.5\" Chassis",
+          "3": 1,
+          "4": "",
+          "5": "",
+          "6": "",
+          "7": ""
+        },
+        {
+          "0": "",
+          "1": "BFYE",
+          "2": "Operating mode selection for: \"Efficiency - Favoring Performance Mode\"",
+          "3": 1,
+          "4": "",
+          "5": "",
+          "6": "",
+          "7": ""
+        },
+        {
+          "0": "",
+          "1": "BVGL",
+          "2": "Data Center Environment 30 Degree Celsius / 86 Degree Fahrenheit",
+          "3": 1,
+          "4": "",
+          "5": "",
+          "6": "",
+          "7": ""
+        }
+      ]
+    },
+    "Lenovo X86 Parts": {
+      "dimensions": "114 rows x 6 columns",
+      "total_rows": 114,
+      "total_cols": 6,
+      "non_empty_rows": 111,
+      "header_candidates": [
+        {
+          "row": 5,
+          "values": [
+            "Items",
+            "Server type applicable to",
+            "Vendor Product Offer",
+            "Price in $ USD",
+            "Price in \u20ac EUR"
+          ],
+          "string_ratio": 1.0
+        }
+      ],
+      "data_patterns": {},
+      "sample_data": {
+        "section_1": [
+          {
+            "0": "",
+            "1": "Items",
+            "2": "Server type applicable to",
+            "3": "Vendor Product Offer",
+            "4": "Price in $ USD",
+            "5": "Price in \u20ac EUR"
+          },
+          {
+            "0": "",
+            "1": "Intel\u00ae Xeon\u00ae Platinum 8452Y 2G, 36C/72T, 16GT/s, 68M Cache, Turbo, HT (300W) DDR5-4800 ",
+            "2": "ThinkSystem SR630 / SR650",
+            "3": "ThinkSystem SR630 V3 Intel Xeon Platinum 8452Y 36C 300W 2.0GHz Processor Option Kit w/o Fan",
+            "4": 9221.04,
+            "5": 7936.549128000001
+          },
+          {
+            "0": "",
+            "1": "Intel\u00ae Xeon\u00ae Platinum 8460Y+ 2G, 40C/80T, 16GT/s, 105M Cache, Turbo, HT (300W) DDR5-4800 ",
+            "2": "ThinkSystem SR630 / SR650",
+            "3": "ThinkSystem SR630 V3 Intel Xeon Platinum 8460Y+ 40C 300W 2.0GHz Processor Option Kit w/o Fan",
+            "4": 12468.6,
+            "5": 10731.724020000001
+          }
+        ]
+      },
+      "numeric_columns": [
+        {
+          "column": 4,
+          "numeric_count": "109",
+          "sample_values": [
+            0.8607,
+            9221.04,
+            12468.6,
+            12940.56,
+            16075.8
+          ]
+        },
+        {
+          "column": 5,
+          "numeric_count": "108",
+          "sample_values": [
+            7936.549128000001,
+            10731.724020000001,
+            11137.939992,
+            13836.44106,
+            17847.4752
+          ]
+        }
+      ],
+      "content_indicators": {
+        "lenovo": "5",
+        "server": "2",
+        "intel": "68",
+        "amd": "34",
+        "processor": "33"
+      },
+      "first_10_rows": [
+        {
+          "0": "",
+          "1": "",
+          "2": "",
+          "3": "EUR/USD Exchange rate",
+          "4": 0.8607,
+          "5": ""
+        },
+        {
+          "0": "",
+          "1": "",
+          "2": "",
+          "3": "",
+          "4": "",
+          "5": ""
+        },
+        {
+          "0": "",
+          "1": "",
+          "2": "",
+          "3": "",
+          "4": "",
+          "5": ""
+        },
+        {
+          "0": "",
+          "1": "",
+          "2": "",
+          "3": "",
+          "4": "",
+          "5": ""
+        },
+        {
+          "0": "",
+          "1": "Spare Parts / Options for Servers ",
+          "2": "",
+          "3": "",
+          "4": "",
+          "5": ""
+        },
+        {
+          "0": "",
+          "1": "Items",
+          "2": "Server type applicable to",
+          "3": "Vendor Product Offer",
+          "4": "Price in $ USD",
+          "5": "Price in \u20ac EUR"
+        },
+        {
+          "0": "",
+          "1": "Intel\u00ae Xeon\u00ae Platinum 8452Y 2G, 36C/72T, 16GT/s, 68M Cache, Turbo, HT (300W) DDR5-4800 ",
+          "2": "ThinkSystem SR630 / SR650",
+          "3": "ThinkSystem SR630 V3 Intel Xeon Platinum 8452Y 36C 300W 2.0GHz Processor Option Kit w/o Fan",
+          "4": 9221.04,
+          "5": 7936.549128000001
+        },
+        {
+          "0": "",
+          "1": "Intel\u00ae Xeon\u00ae Platinum 8460Y+ 2G, 40C/80T, 16GT/s, 105M Cache, Turbo, HT (300W) DDR5-4800 ",
+          "2": "ThinkSystem SR630 / SR650",
+          "3": "ThinkSystem SR630 V3 Intel Xeon Platinum 8460Y+ 40C 300W 2.0GHz Processor Option Kit w/o Fan",
+          "4": 12468.6,
+          "5": 10731.724020000001
+        },
+        {
+          "0": "",
+          "1": "Intel\u00ae Xeon\u00ae Platinum 8462Y+ 2.8G, 32C/64T, 16GT/s, 60M Cache, Turbo, HT (300W) DDR5-4800 ",
+          "2": "ThinkSystem SR630 / SR650",
+          "3": "ThinkSystem SR630 V3 Intel Xeon Platinum 8462Y+ 32C 300W 2.8GHz Processor Option Kit w/o Fan",
+          "4": 12940.56,
+          "5": 11137.939992
+        },
+        {
+          "0": "",
+          "1": "Intel\u00ae Xeon\u00ae Platinum 8468 2.1G, 48C/96T, 16GT/s, 105M Cache, Turbo, HT (350W) DDR5-4800 ",
+          "2": "ThinkSystem SR630 / SR650",
+          "3": "ThinkSystem SR630 V3 Intel Xeon Platinum 8468 48C 350W 2.1GHz Processor Option Kit w/o Fan",
+          "4": 16075.8,
+          "5": 13836.44106
+        }
+      ]
+    },
+    "Lenovo X86 Services": {
+      "dimensions": "45 rows x 7 columns",
+      "total_rows": 45,
+      "total_cols": 7,
+      "non_empty_rows": 42,
+      "header_candidates": [
+        {
+          "row": 5,
+          "values": [
+            "Services",
+            "System",
+            "Direct/Indirect countries",
+            "Vendor Product Offer",
+            "Net price in $ USD",
+            "Net price in \u20ac EUR"
+          ],
+          "string_ratio": 1.0
+        }
+      ],
+      "data_patterns": {},
+      "sample_data": {
+        "section_1": [
+          {
+            "0": "",
+            "1": "Services",
+            "2": "System",
+            "3": "Direct/Indirect countries",
+            "4": "Vendor Product Offer",
+            "5": "Net price in $ USD",
+            "6": "Net price in \u20ac EUR"
+          },
+          {
+            "0": "",
+            "1": "3Y Next Business Day",
+            "2": "ThinkSystem SR 630 V3",
+            "3": "All",
+            "4": "Premier Foundation - 3Yr NBD Resp SR630 V3",
+            "5": 748,
+            "6": 643.8036
+          },
+          {
+            "0": "",
+            "1": "5Y Next Business Day",
+            "2": "ThinkSystem SR 630 V3",
+            "3": "All",
+            "4": "Premier Foundation - 5Yr NBD Resp SR630 V3",
+            "5": 1840,
+            "6": 1583.688
+          }
+        ]
+      },
+      "numeric_columns": [
+        {
+          "column": 5,
+          "numeric_count": "39",
+          "sample_values": [
+            748.0,
+            1840.0,
+            824.0,
+            1960.0,
+            1368.0
+          ]
+        },
+        {
+          "column": 6,
+          "numeric_count": "39",
+          "sample_values": [
+            643.8036,
+            1583.688,
+            709.2168,
+            1686.972,
+            1177.4376
+          ]
+        }
+      ],
+      "content_indicators": {},
+      "first_10_rows": [
+        {
+          "0": "",
+          "1": "",
+          "2": "",
+          "3": "EUR/USD Exchange rate",
+          "4": 0.8607,
+          "5": "",
+          "6": ""
+        },
+        {
+          "0": "",
+          "1": "",
+          "2": "",
+          "3": "",
+          "4": "",
+          "5": "",
+          "6": ""
+        },
+        {
+          "0": "",
+          "1": "",
+          "2": "",
+          "3": "",
+          "4": "",
+          "5": "",
+          "6": ""
+        },
+        {
+          "0": "",
+          "1": "",
+          "2": "",
+          "3": "",
+          "4": "",
+          "5": "",
+          "6": ""
+        },
+        {
+          "0": "",
+          "1": "Factory Services / Support Services",
+          "2": "",
+          "3": "",
+          "4": "",
+          "5": "",
+          "6": ""
+        },
+        {
+          "0": "",
+          "1": "Services",
+          "2": "System",
+          "3": "Direct/Indirect countries",
+          "4": "Vendor Product Offer",
+          "5": "Net price in $ USD",
+          "6": "Net price in \u20ac EUR"
+        },
+        {
+          "0": "",
+          "1": "3Y Next Business Day",
+          "2": "ThinkSystem SR 630 V3",
+          "3": "All",
+          "4": "Premier Foundation - 3Yr NBD Resp SR630 V3",
+          "5": 748,
+          "6": 643.8036
+        },
+        {
+          "0": "",
+          "1": "5Y Next Business Day",
+          "2": "ThinkSystem SR 630 V3",
+          "3": "All",
+          "4": "Premier Foundation - 5Yr NBD Resp SR630 V3",
+          "5": 1840,
+          "6": 1583.688
+        },
+        {
+          "0": "",
+          "1": "3Y Next Business Day +YDYD",
+          "2": "ThinkSystem SR 630 V3",
+          "3": "All",
+          "4": "Premier Foundation - 3Yr NBD Resp + YDYD SR630 V3",
+          "5": 824,
+          "6": 709.2168
+        },
+        {
+          "0": "",
+          "1": "5Y Next Business Day+ YDYD",
+          "2": "ThinkSystem SR 630 V3",
+          "3": "All",
+          "4": "Premier Foundation - 5Yr NBD Resp + YDYD SR630 V3",
+          "5": 1960,
+          "6": 1686.972
+        }
+      ]
+    },
+    "Lenovo Country Data": {
+      "dimensions": "80 rows x 11 columns",
+      "total_rows": 80,
+      "total_cols": 11,
+      "non_empty_rows": 80,
+      "header_candidates": [
+        {
+          "row": 0,
+          "values": [
+            "Country ",
+            "Fufillment Capabilities",
+            "Web  ordering capabilities ",
+            "Delivery terms (DDP)",
+            "International Freight & Insurance Cost",
+            " Import Duties",
+            "VAT and Sales Taxes",
+            "Delivery Time in total\n",
+            "Order\nconcept"
+          ],
+          "string_ratio": 1.0
+        },
+        {
+          "row": 1,
+          "values": [
+            "Direct/Indirect",
+            "Affiliates",
+            "(Direct only - Yes/No)",
+            "(If not DDP according to current INCOTERMS comment what applies)",
+            "Indicative for South America,  Middle East and Asia",
+            "Regional Uplifts",
+            "in %",
+            "in working days",
+            "LtL (Local to Local) or GtL(Global to Local) or booth"
+          ],
+          "string_ratio": 1.0
+        },
+        {
+          "row": 2,
+          "values": [
+            "Andorra",
+            "Indirect",
+            "Indirect",
+            "No",
+            "Delivery terms as agreed between Atos and Partners",
+            "Not Applicable, as Indirect route to market",
+            "As agreed between ATOS & partner",
+            "As agreed between ATOS & partner",
+            4.5,
+            45
+          ],
+          "string_ratio": 0.7272727272727273
+        },
+        {
+          "row": 3,
+          "values": [
+            "Austria ",
+            "Direct",
+            "Lenovo Global Technology Austria GmbH",
+            "Yes",
+            "DDP",
+            "Included in base price",
+            0,
+            "Included in the price",
+            20,
+            35
+          ],
+          "string_ratio": 0.7272727272727273
+        },
+        {
+          "row": 4,
+          "values": [
+            "Belgium ",
+            "Direct",
+            "Lenovo Global Technology Belgium BVBA",
+            "Yes",
+            "DDP",
+            "Included in base price",
+            0,
+            "Included in the price",
+            21,
+            35
+          ],
+          "string_ratio": 0.7272727272727273
+        },
+        {
+          "row": 5,
+          "values": [
+            "British Virgin Islands",
+            "Indirect",
+            "Indirect",
+            "No",
+            "Delivery terms as agreed between Atos and Partners",
+            "Not Applicable, as Indirect route to market",
+            "As agreed between ATOS & partner",
+            "As agreed between ATOS & partner",
+            17.5,
+            45
+          ],
+          "string_ratio": 0.7272727272727273
+        },
+        {
+          "row": 6,
+          "values": [
+            "Cyprus ",
+            "Indirect",
+            "Indirect",
+            "No",
+            "Delivery terms as agreed between Atos and Partners",
+            "Not Applicable, as Indirect route to market",
+            "As agreed between ATOS & partner",
+            "As agreed between ATOS & partner",
+            19,
+            "32 - 42"
+          ],
+          "string_ratio": 0.8181818181818182
+        },
+        {
+          "row": 7,
+          "values": [
+            "Denmark ",
+            "Direct",
+            "Lenovo Global Technology Denmark ApS",
+            "Yes",
+            "DDP",
+            "Included in base price",
+            0,
+            "Included in the price",
+            25,
+            35
+          ],
+          "string_ratio": 0.7272727272727273
+        },
+        {
+          "row": 8,
+          "values": [
+            "Finland",
+            "Direct",
+            "Lenovo Global Technology Finland Oy",
+            "Yes",
+            "DDP",
+            "Included in base price",
+            0,
+            "Included in the price",
+            24,
+            35
+          ],
+          "string_ratio": 0.7272727272727273
+        },
+        {
+          "row": 9,
+          "values": [
+            "France ",
+            "Direct",
+            "Lenovo Global Technology France SAS",
+            "Yes",
+            "DDP",
+            "Included in base price",
+            0,
+            "Included in the price",
+            20,
+            35
+          ],
+          "string_ratio": 0.7272727272727273
+        },
+        {
+          "row": 10,
+          "values": [
+            "Germany ",
+            "Direct",
+            "Lenovo Global Technology Germany GmbH",
+            "Yes",
+            "DDP",
+            "Included in base price",
+            0,
+            "Included in the price",
+            19,
+            35
+          ],
+          "string_ratio": 0.7272727272727273
+        },
+        {
+          "row": 11,
+          "values": [
+            "Greece ",
+            "Indirect",
+            "Indirect",
+            "No",
+            "Delivery terms as agreed between Atos and Partners",
+            "Not Applicable, as Indirect route to market",
+            "As agreed between ATOS & partner",
+            "As agreed between ATOS & partner",
+            24,
+            "30 - 40"
+          ],
+          "string_ratio": 0.8181818181818182
+        },
+        {
+          "row": 12,
+          "values": [
+            "Ireland ",
+            "Direct",
+            "Lenovo Global Technology Ireland Limited",
+            "Yes",
+            "DDP",
+            "Included in base price",
+            0,
+            "Included in the price",
+            23,
+            35
+          ],
+          "string_ratio": 0.7272727272727273
+        },
+        {
+          "row": 13,
+          "values": [
+            "Italy ",
+            "Direct",
+            "Lenovo Global Technology Italy S.R.L.",
+            "Yes",
+            "DDP",
+            "Included in base price",
+            0,
+            "Included in the price",
+            22,
+            35
+          ],
+          "string_ratio": 0.7272727272727273
+        },
+        {
+          "row": 14,
+          "values": [
+            "Luxemburg ",
+            "Direct",
+            "Lenovo Global Technology Belgium BVBA",
+            "Yes",
+            "DDP",
+            "Included in base price",
+            0,
+            "Included in the price",
+            17,
+            35
+          ],
+          "string_ratio": 0.7272727272727273
+        },
+        {
+          "row": 15,
+          "values": [
+            "Netherlands ",
+            "Direct",
+            "Lenovo Global Technology International B.V.",
+            "Yes",
+            "DDP",
+            "Included in base price",
+            0,
+            "Included in the price",
+            21,
+            35
+          ],
+          "string_ratio": 0.7272727272727273
+        },
+        {
+          "row": 16,
+          "values": [
+            "Norway ",
+            "Direct",
+            "Lenovo Global Technology (Norway) AS",
+            "Yes",
+            "DDP",
+            "Included in base price",
+            0,
+            "Included in the price",
+            25,
+            35
+          ],
+          "string_ratio": 0.7272727272727273
+        },
+        {
+          "row": 17,
+          "values": [
+            "Portugal ",
+            "Direct",
+            "Lenovo Global Technology Portugal Lda ",
+            "Yes",
+            "DDP",
+            "Included in base price",
+            0,
+            "Included in the price",
+            23,
+            35
+          ],
+          "string_ratio": 0.7272727272727273
+        },
+        {
+          "row": 18,
+          "values": [
+            "Sweden ",
+            "Direct",
+            "Lenovo Global Technology Sweden AB",
+            "Yes",
+            "DDP",
+            "Included in base price",
+            0,
+            "Included in the price",
+            25,
+            35
+          ],
+          "string_ratio": 0.7272727272727273
+        },
+        {
+          "row": 19,
+          "values": [
+            "Spain ",
+            "Direct",
+            "Lenovo Global Technology Spain S.L.",
+            "Yes",
+            "DDP",
+            "Included in base price",
+            0,
+            "Included in the price",
+            21,
+            35
+          ],
+          "string_ratio": 0.7272727272727273
+        }
+      ],
+      "data_patterns": {},
+      "sample_data": {
+        "section_1": [
+          {
+            "0": "Country ",
+            "1": "Fufillment Capabilities",
+            "2": "",
+            "3": "Web  ordering capabilities ",
+            "4": "Delivery terms (DDP)",
+            "5": "International Freight & Insurance Cost",
+            "6": "",
+            "7": " Import Duties",
+            "8": "VAT and Sales Taxes",
+            "9": "Delivery Time in total\n",
+            "10": "Order\nconcept"
+          },
+          {
+            "0": "",
+            "1": "Direct/Indirect",
+            "2": "Affiliates",
+            "3": "(Direct only - Yes/No)",
+            "4": "(If not DDP according to current INCOTERMS comment what applies)",
+            "5": "Indicative for South America,  Middle East and Asia",
+            "6": "Regional Uplifts",
+            "7": "",
+            "8": "in %",
+            "9": "in working days",
+            "10": "LtL (Local to Local) or GtL(Global to Local) or booth"
+          },
+          {
+            "0": "Andorra",
+            "1": "Indirect",
+            "2": "Indirect",
+            "3": "No",
+            "4": "Delivery terms as agreed between Atos and Partners",
+            "5": "Not Applicable, as Indirect route to market",
+            "6": "As agreed between ATOS & partner",
+            "7": "As agreed between ATOS & partner",
+            "8": 4.5,
+            "9": 45,
+            "10": "LtL"
+          }
+        ]
+      },
+      "numeric_columns": [
+        {
+          "column": 6,
+          "numeric_count": "34",
+          "sample_values": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "column": 8,
+          "numeric_count": "74",
+          "sample_values": [
+            4.5,
+            20.0,
+            21.0,
+            17.5,
+            19.0
+          ]
+        },
+        {
+          "column": 9,
+          "numeric_count": "36",
+          "sample_values": [
+            45.0,
+            35.0,
+            35.0,
+            45.0,
+            35.0
+          ]
+        }
+      ],
+      "content_indicators": {
+        "lenovo": "34"
+      },
+      "first_10_rows": [
+        {
+          "0": "Country ",
+          "1": "Fufillment Capabilities",
+          "2": "",
+          "3": "Web  ordering capabilities ",
+          "4": "Delivery terms (DDP)",
+          "5": "International Freight & Insurance Cost",
+          "6": "",
+          "7": " Import Duties",
+          "8": "VAT and Sales Taxes",
+          "9": "Delivery Time in total\n",
+          "10": "Order\nconcept"
+        },
+        {
+          "0": "",
+          "1": "Direct/Indirect",
+          "2": "Affiliates",
+          "3": "(Direct only - Yes/No)",
+          "4": "(If not DDP according to current INCOTERMS comment what applies)",
+          "5": "Indicative for South America,  Middle East and Asia",
+          "6": "Regional Uplifts",
+          "7": "",
+          "8": "in %",
+          "9": "in working days",
+          "10": "LtL (Local to Local) or GtL(Global to Local) or booth"
+        },
+        {
+          "0": "Andorra",
+          "1": "Indirect",
+          "2": "Indirect",
+          "3": "No",
+          "4": "Delivery terms as agreed between Atos and Partners",
+          "5": "Not Applicable, as Indirect route to market",
+          "6": "As agreed between ATOS & partner",
+          "7": "As agreed between ATOS & partner",
+          "8": 4.5,
+          "9": 45,
+          "10": "LtL"
+        },
+        {
+          "0": "Austria ",
+          "1": "Direct",
+          "2": "Lenovo Global Technology Austria GmbH",
+          "3": "Yes",
+          "4": "DDP",
+          "5": "Included in base price",
+          "6": 0,
+          "7": "Included in the price",
+          "8": 20,
+          "9": 35,
+          "10": "LtL"
+        },
+        {
+          "0": "Belgium ",
+          "1": "Direct",
+          "2": "Lenovo Global Technology Belgium BVBA",
+          "3": "Yes",
+          "4": "DDP",
+          "5": "Included in base price",
+          "6": 0,
+          "7": "Included in the price",
+          "8": 21,
+          "9": 35,
+          "10": "LtL"
+        },
+        {
+          "0": "British Virgin Islands",
+          "1": "Indirect",
+          "2": "Indirect",
+          "3": "No",
+          "4": "Delivery terms as agreed between Atos and Partners",
+          "5": "Not Applicable, as Indirect route to market",
+          "6": "As agreed between ATOS & partner",
+          "7": "As agreed between ATOS & partner",
+          "8": 17.5,
+          "9": 45,
+          "10": "LtL"
+        },
+        {
+          "0": "Cyprus ",
+          "1": "Indirect",
+          "2": "Indirect",
+          "3": "No",
+          "4": "Delivery terms as agreed between Atos and Partners",
+          "5": "Not Applicable, as Indirect route to market",
+          "6": "As agreed between ATOS & partner",
+          "7": "As agreed between ATOS & partner",
+          "8": 19,
+          "9": "32 - 42",
+          "10": "LtL"
+        },
+        {
+          "0": "Denmark ",
+          "1": "Direct",
+          "2": "Lenovo Global Technology Denmark ApS",
+          "3": "Yes",
+          "4": "DDP",
+          "5": "Included in base price",
+          "6": 0,
+          "7": "Included in the price",
+          "8": 25,
+          "9": 35,
+          "10": "LtL"
+        },
+        {
+          "0": "Finland",
+          "1": "Direct",
+          "2": "Lenovo Global Technology Finland Oy",
+          "3": "Yes",
+          "4": "DDP",
+          "5": "Included in base price",
+          "6": 0,
+          "7": "Included in the price",
+          "8": 24,
+          "9": 35,
+          "10": "LtL"
+        },
+        {
+          "0": "France ",
+          "1": "Direct",
+          "2": "Lenovo Global Technology France SAS",
+          "3": "Yes",
+          "4": "DDP",
+          "5": "Included in base price",
+          "6": 0,
+          "7": "Included in the price",
+          "8": 20,
+          "9": 35,
+          "10": "LtL"
+        }
+      ]
+    },
+    "Lenovo Quarterly Exchange Rates": {
+      "dimensions": "50 rows x 11 columns",
+      "total_rows": 50,
+      "total_cols": 11,
+      "non_empty_rows": 50,
+      "header_candidates": [
+        {
+          "row": 0,
+          "values": [
+            "Name",
+            "Hierarchy Code",
+            "Code",
+            "Name",
+            "Current type",
+            "Lead Currency",
+            "Local Currency",
+            "Straight Rate",
+            "Start Date",
+            "End Date"
+          ],
+          "string_ratio": 1.0
+        }
+      ],
+      "data_patterns": {},
+      "sample_data": {
+        "section_1": [
+          {
+            "0": "Name",
+            "1": "Hierarchy Code",
+            "2": "Code",
+            "3": "Name",
+            "4": "Current type",
+            "5": "Lead Currency",
+            "6": "Local Currency",
+            "7": "Straight Rate",
+            "8": "Start Date",
+            "9": "End Date",
+            "10": "Rate explanation"
+          },
+          {
+            "0": "ATOS Origin",
+            "1": "ATOS_GA",
+            "2": "AL",
+            "3": "ALBANIA",
+            "4": "Fixed",
+            "5": "USD",
+            "6": "EUR",
+            "7": 0.8607,
+            "8": "2025-07-01 00:00:00",
+            "9": "2025-09-30 00:00:00",
+            "10": "Fixed 3 months from 7/1/2025"
+          },
+          {
+            "0": "ATOS Origin",
+            "1": "ATOS_GA",
+            "2": "AT",
+            "3": "AUSTRIA",
+            "4": "Fixed",
+            "5": "USD",
+            "6": "EUR",
+            "7": 0.8607,
+            "8": "2025-07-01 00:00:00",
+            "9": "2025-09-30 00:00:00",
+            "10": "Fixed 3 months from 7/1/2025"
+          }
+        ]
+      },
+      "numeric_columns": [
+        {
+          "column": 7,
+          "numeric_count": "49",
+          "sample_values": [
+            0.8607,
+            0.8607,
+            1.5406,
+            0.8607,
+            0.8607
+          ]
+        }
+      ],
+      "content_indicators": {},
+      "first_10_rows": [
+        {
+          "0": "Name",
+          "1": "Hierarchy Code",
+          "2": "Code",
+          "3": "Name",
+          "4": "Current type",
+          "5": "Lead Currency",
+          "6": "Local Currency",
+          "7": "Straight Rate",
+          "8": "Start Date",
+          "9": "End Date",
+          "10": "Rate explanation"
+        },
+        {
+          "0": "ATOS Origin",
+          "1": "ATOS_GA",
+          "2": "AL",
+          "3": "ALBANIA",
+          "4": "Fixed",
+          "5": "USD",
+          "6": "EUR",
+          "7": 0.8607,
+          "8": "2025-07-01 00:00:00",
+          "9": "2025-09-30 00:00:00",
+          "10": "Fixed 3 months from 7/1/2025"
+        },
+        {
+          "0": "ATOS Origin",
+          "1": "ATOS_GA",
+          "2": "AT",
+          "3": "AUSTRIA",
+          "4": "Fixed",
+          "5": "USD",
+          "6": "EUR",
+          "7": 0.8607,
+          "8": "2025-07-01 00:00:00",
+          "9": "2025-09-30 00:00:00",
+          "10": "Fixed 3 months from 7/1/2025"
+        },
+        {
+          "0": "ATOS Origin",
+          "1": "ATOS_GA",
+          "2": "AU",
+          "3": "AUSTRALIA",
+          "4": "Fixed",
+          "5": "USD",
+          "6": "AUD",
+          "7": 1.5406,
+          "8": "2025-07-01 00:00:00",
+          "9": "2025-09-30 00:00:00",
+          "10": "Fixed 3 months from 7/1/2025"
+        },
+        {
+          "0": "ATOS Origin",
+          "1": "ATOS_GA",
+          "2": "BA",
+          "3": "BOSNIA AND HERZEGOVINA",
+          "4": "Fixed",
+          "5": "USD",
+          "6": "EUR",
+          "7": 0.8607,
+          "8": "2025-07-01 00:00:00",
+          "9": "2025-09-30 00:00:00",
+          "10": "Fixed 3 months from 7/1/2025"
+        },
+        {
+          "0": "ATOS Origin",
+          "1": "ATOS_GA",
+          "2": "BE",
+          "3": "BELGIUM",
+          "4": "Fixed",
+          "5": "USD",
+          "6": "EUR",
+          "7": 0.8607,
+          "8": "2025-07-01 00:00:00",
+          "9": "2025-09-30 00:00:00",
+          "10": "Fixed 3 months from 7/1/2025"
+        },
+        {
+          "0": "ATOS Origin",
+          "1": "ATOS_GA",
+          "2": "BG",
+          "3": "BULGARIA",
+          "4": "Fixed",
+          "5": "USD",
+          "6": "EUR",
+          "7": 0.8607,
+          "8": "2025-07-01 00:00:00",
+          "9": "2025-09-30 00:00:00",
+          "10": "Fixed 3 months from 7/1/2025"
+        },
+        {
+          "0": "ATOS Origin",
+          "1": "ATOS_GA",
+          "2": "BR",
+          "3": "BRAZIL",
+          "4": "Fixed",
+          "5": "USD",
+          "6": "BRL",
+          "7": 5.5579,
+          "8": "2025-07-01 00:00:00",
+          "9": "2025-09-30 00:00:00",
+          "10": "Fixed 3 months from 7/1/2025"
+        },
+        {
+          "0": "ATOS Origin",
+          "1": "ATOS_GA",
+          "2": "CA",
+          "3": "CANADA",
+          "4": "Fixed",
+          "5": "USD",
+          "6": "CAD",
+          "7": 1.375,
+          "8": "2025-07-01 00:00:00",
+          "9": "2025-09-30 00:00:00",
+          "10": "Fixed 3 months from 7/1/2025"
+        },
+        {
+          "0": "ATOS Origin",
+          "1": "ATOS_GA",
+          "2": "CH",
+          "3": "SWITZERLAND",
+          "4": "Fixed",
+          "5": "USD",
+          "6": "CHF",
+          "7": 0.8057,
+          "8": "2025-07-01 00:00:00",
+          "9": "2025-09-30 00:00:00",
+          "10": "Fixed 3 months from 7/1/2025"
+        }
+      ]
+    }
+  }
+}

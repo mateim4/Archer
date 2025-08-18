@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Plus, Calendar, User, FolderOpen, Grid, List, Edit3, Trash2, 
   Eye, Settings, MoreVertical, Search, Filter, ArrowUpDown
@@ -22,6 +23,7 @@ interface ProjectWithActions extends Project {
 }
 
 const ProjectManagementView: React.FC = () => {
+  const navigate = useNavigate();
   const [projects, setProjects] = useState<ProjectWithActions[]>([]);
   const [filteredProjects, setFilteredProjects] = useState<ProjectWithActions[]>([]);
   const [selectedProjects, setSelectedProjects] = useState<Set<string>>(new Set());
@@ -114,7 +116,8 @@ const ProjectManagementView: React.FC = () => {
   const handleViewProject = (project: Project) => {
     setCurrentProject(project);
     showToast(`Opening ${project.name}...`, 'info');
-    // In a real app, this would navigate to the project workspace
+    // Navigate to project detail view
+    navigate(`/projects/${project.id}`);
   };
 
   const handleEditProject = (project: Project) => {

@@ -193,6 +193,7 @@ impl HardwareBasketParser {
         let spec_parser = SpecParser::new();
 
         let mut current_model: Option<HardwareModel> = None;
+        let mut current_components: Vec<String> = Vec::new(); // Track components for enhanced processing
 
         println!("🔍 Lenovo Server Lots: worksheet has {} rows", worksheet.get_size().0);
 
@@ -235,36 +236,56 @@ impl HardwareBasketParser {
                 // but do NOT consider it a server if classifier thinks it's a storage/network/component
                 let keyword_server = lower.contains("server") || lower.contains("thinksystem") || lower.contains("node") || lower.contains("chassis");
 
-                let is_server = (has_known_lot_code) || (keyword_server && parsed_type == "component");
+                // CRITICAL FIX: Check for pricing data to determine if this is a main server entry
+                let has_pricing = price_usd_col.and_then(|c| row.get(c))
+                    .and_then(|v| v.as_f64())
+                    .map(|p| p > 0.0)
+                    .unwrap_or(false);
+
+                // Only treat as server if it has server indicators AND pricing data
+                let is_server = has_pricing && ((has_known_lot_code) || (keyword_server && parsed_type == "component"));
 
                 if is_server {
                     println!("🔍 Found server: '{}'", text);
-                    if let Some(model) = current_model.take() {
+                    if let Some(mut model) = current_model.take() {
+                        // Apply enhanced processing with collected components
+                        self.populate_model_specifications(&mut model, &current_components);
                         models.push(model);
                     }
+
+                    // Reset component list for new model
+                    current_components.clear();
 
                     let model_id = Thing { tb: "hardware_model".to_string(), id: surrealdb::sql::Id::rand() };
 
                     // Use description if available otherwise use part_number text
                     let lot_desc = description.unwrap_or_else(|| text.clone());
 
-                    // Derive a short model name from the lot description
-                    let lot_code = if let Some(pos) = lot_desc.find(" - ") {
-                        lot_desc[..pos].to_string()
-                    } else if let Some(pos) = lot_desc.find(' ') {
-                        lot_desc[..pos].to_string()
-                    } else {
-                        lot_desc.clone()
-                    };
+                    // Use enhanced server model detection
+                    let (model_name, form_factor) = self.is_enhanced_lenovo_server_model(&text)
+                        .unwrap_or_else(|| {
+                            // Fallback to original logic
+                            let lot_code = if let Some(pos) = lot_desc.find(" - ") {
+                                lot_desc[..pos].to_string()
+                            } else if let Some(pos) = lot_desc.find(' ') {
+                                lot_desc[..pos].to_string()
+                            } else {
+                                lot_desc.clone()
+                            };
+                            (lot_code, "1U".to_string())
+                        });
+
+                    // Extract proper model number using enhanced method
+                    let model_number = self.extract_lenovo_model_number(&lot_desc, part_number.as_deref());
 
                     current_model = Some(HardwareModel {
                         id: Some(model_id.clone()),
                         basket_id: basket_id.clone(),
                         vendor_id: vendor_id.clone(),
                         lot_description: lot_desc.clone(),
-                        model_name: lot_code,
-                        model_number: part_number.clone().map(|s| s.to_string()),
-                        form_factor: None,
+                        model_name: model_name,
+                        model_number: Some(model_number),
+                        form_factor: Some(form_factor),
                         category: "server".to_string(),
                         base_specifications: HardwareSpecifications::default(),
                         extensions: Some(Vec::new()),
@@ -304,6 +325,11 @@ impl HardwareBasketParser {
                     // This row is a component line for the current model. Try to classify and parse.
                     let desc_text = description.clone().unwrap_or_else(|| "".to_string());
                     let lower_desc = desc_text.to_lowercase();
+
+                    // Collect component description for enhanced processing
+                    if !desc_text.trim().is_empty() {
+                        current_components.push(desc_text.clone());
+                    }
 
                     // Use SpecParser to avoid misclassifying components as server entries.
                     let combined_for_classify = format!("{} {}", part_number.clone().unwrap_or_default(), desc_text);
@@ -361,21 +387,25 @@ impl HardwareBasketParser {
                             // Combine part number (if available) with description to give SpecParser more context
                             let combined = format!("{} {}", part_number.clone().unwrap_or_default(), desc_text);
                             if let Some(spec) = spec_parser.parse_processor(&combined) {
+                                println!("✅ Direct processor: {}", spec.model);
                                 model.base_specifications.processor = Some(spec);
                             }
                         },
                         "memory" => {
                             if let Some(spec) = spec_parser.parse_memory(&desc_text) {
+                                println!("✅ Direct memory: {}", spec.total_capacity);
                                 model.base_specifications.memory = Some(spec);
                             }
                         },
                         "storage" => {
                             if let Some(spec) = spec_parser.parse_storage(&desc_text) {
+                                println!("✅ Direct storage: {:?}", spec.total_capacity);
                                 model.base_specifications.storage = Some(spec);
                             }
                         },
                         "network" => {
                             if let Some(spec) = spec_parser.parse_network(&desc_text) {
+                                println!("✅ Direct network: {} ports", spec.ports.len());
                                 model.base_specifications.network = Some(spec);
                             }
                         },
@@ -385,8 +415,9 @@ impl HardwareBasketParser {
             }
         }
 
-    // Add the last processed model
-        if let Some(model) = current_model.take() {
+    // Add the last processed model with enhanced processing
+        if let Some(mut model) = current_model.take() {
+            self.populate_model_specifications(&mut model, &current_components);
             models.push(model);
         }
 
@@ -401,6 +432,7 @@ impl HardwareBasketParser {
         let spec_parser = SpecParser::new();
 
         let mut current_model: Option<HardwareModel> = None;
+        let mut current_components: Vec<String> = Vec::new(); // Track components for enhanced processing
 
         // Detect Lenovo columns for parts sheet
         let (header_row_idx, part_col, desc_col, qty_col, price_usd_col, price_eur_col) = self.detect_lenovo_columns(worksheet)?;
@@ -435,20 +467,32 @@ impl HardwareBasketParser {
                     let is_server_chassis = positive && !is_negative;
 
                     if is_server_chassis {
-                        if let Some(model) = current_model.take() {
+                        if let Some(mut model) = current_model.take() {
+                            // Apply enhanced processing with collected components
+                            self.populate_model_specifications(&mut model, &current_components);
                             models.push(model);
                         }
 
+                        // Reset component list for new model
+                        current_components.clear();
+
                         let model_id = Thing { tb: "hardware_model".to_string(), id: surrealdb::sql::Id::rand() };
+
+                        // Use enhanced server model detection for better naming and form factor
+                        let (model_name, form_factor) = self.is_enhanced_lenovo_server_model(&desc)
+                            .unwrap_or_else(|| (desc.clone(), "1U".to_string()));
+
+                        // Extract proper model number using enhanced method
+                        let model_number = self.extract_lenovo_model_number(&desc, Some(&part_num));
 
                         current_model = Some(HardwareModel {
                             id: Some(model_id.clone()),
                             basket_id: basket_id.clone(),
                             vendor_id: vendor_id.clone(),
                             lot_description: desc.clone(),
-                            model_name: desc.clone(),
-                            model_number: Some(part_num.to_string()),
-                            form_factor: None,
+                            model_name: model_name,
+                            model_number: Some(model_number),
+                            form_factor: Some(form_factor),
                             category: "server".to_string(),
                             base_specifications: HardwareSpecifications::default(),
                             extensions: Some(Vec::new()),
@@ -484,7 +528,9 @@ impl HardwareBasketParser {
                             });
                         }
                     } else if let Some(model) = current_model.as_mut() {
-                        // component/upgrade
+                        // component/upgrade - collect for enhanced processing
+                        current_components.push(desc.clone());
+                        
                         let config_id = Thing { tb: "hardware_configuration".to_string(), id: surrealdb::sql::Id::rand() };
                         
                         let item_type = if lower_desc.contains("processor") || lower_desc.contains("cpu") {
@@ -550,8 +596,9 @@ impl HardwareBasketParser {
             }
         }
 
-        // Add the last processed model
-        if let Some(model) = current_model.take() {
+        // Add the last processed model with enhanced processing
+        if let Some(mut model) = current_model.take() {
+            self.populate_model_specifications(&mut model, &current_components);
             models.push(model);
         }
 
@@ -809,6 +856,200 @@ impl HardwareBasketParser {
         }
         
         false
+    }
+
+    /// Enhanced Lenovo server model detection with better pattern matching
+    fn is_enhanced_lenovo_server_model(&self, text: &str) -> Option<(String, String)> {
+        let lower = text.to_lowercase();
+        
+        // Check for Lenovo lot codes and server patterns
+        let has_lot_code = text.contains("SMI") || text.contains("SMA") ||
+                          text.contains("MEI") || text.contains("MEA") ||
+                          text.contains("HVI") || text.contains("HVA") ||
+                          text.contains("VEI") || text.contains("VEA") ||
+                          text.contains("VOI") || text.contains("VOA") ||
+                          text.contains("DHC");
+
+        // Server model patterns
+        let server_patterns = [
+            ("sr630", "ThinkSystem SR630 V3", "1U"),
+            ("sr650", "ThinkSystem SR650 V3", "2U"), 
+            ("sr645", "ThinkSystem SR645 V3", "1U"),
+            ("sr665", "ThinkSystem SR665 V3", "2U"),
+            ("sr850", "ThinkSystem SR850 V3", "4U"),
+            ("st550", "ThinkSystem ST550", "Tower"),
+            ("st650", "ThinkSystem ST650 V3", "4U"),
+        ];
+
+        // Find matching server model
+        for (pattern, model_name, form_factor) in server_patterns.iter() {
+            if lower.contains(pattern) {
+                return Some((model_name.to_string(), form_factor.to_string()));
+            }
+        }
+
+        // Check for ThinkAgile systems
+        if lower.contains("thinkagile") {
+            if lower.contains("vx") {
+                return Some(("ThinkAgile VX Series".to_string(), "2U".to_string()));
+            } else if lower.contains("hx") {
+                return Some(("ThinkAgile HX Series".to_string(), "1U".to_string()));
+            }
+        }
+
+        // Generic server detection with lot codes
+        if has_lot_code && (lower.contains("server") || lower.contains("thinksystem")) {
+            // Extract model info from description if possible
+            let model_name = if let Some(start) = text.find("ThinkSystem") {
+                let end = text[start..].find(" -").unwrap_or(text.len() - start);
+                text[start..start + end].to_string()
+            } else {
+                "ThinkSystem Server".to_string()
+            };
+            
+            return Some((model_name, "1U".to_string())); // Default to 1U
+        }
+
+        None
+    }
+
+    /// Extract Lenovo model number from lot code or description
+    fn extract_lenovo_model_number(&self, lot_description: &str, part_number: Option<&str>) -> String {
+        // Try to extract lot code from part number first
+        if let Some(part) = part_number {
+            // Lenovo lot codes are typically 8-10 characters like "7D73CTO1WW"
+            if part.len() >= 8 && part.chars().all(|c| c.is_alphanumeric()) {
+                return part.to_string();
+            }
+        }
+
+        // Extract model number from lot description
+        if let Some(pos) = lot_description.find(" - ") {
+            let lot_code = lot_description[..pos].trim().to_string();
+            if !lot_code.is_empty() && lot_code.len() >= 3 {
+                return lot_code;
+            }
+        }
+
+        // Look for ThinkSystem model numbers
+        if let Some(start) = lot_description.find("ThinkSystem") {
+            if let Some(end) = lot_description[start..].find(" V3") {
+                let model = &lot_description[start..start+end+3];
+                return model.to_string();
+            } else if let Some(end) = lot_description[start..].find(" -") {
+                let model = &lot_description[start..start+end];
+                return model.to_string();
+            }
+        }
+
+        // Fallback: extract first meaningful word that looks like a model
+        let words: Vec<&str> = lot_description.split_whitespace().collect();
+        if let Some(first_word) = words.first() {
+            if first_word.len() >= 3 && first_word.chars().any(|c| c.is_alphanumeric()) {
+                return first_word.to_string();
+            }
+        }
+
+        "Unknown".to_string()
+    }
+
+    /// Populate model specifications using SpecParser and vendor knowledge
+    fn populate_model_specifications(&self, model: &mut HardwareModel, components: &[String]) {
+        let spec_parser = SpecParser::new();
+        
+        println!("🔧 Enhanced processing for '{}' with {} components", 
+                 model.model_name, components.len());
+
+        // Analyze components to populate base_specifications
+        for (i, component) in components.iter().enumerate() {
+            if i < 3 { // Only log first 3 components to reduce noise
+                println!("  Component {}: '{}'", i+1, component);
+            }
+            
+            let component_type = spec_parser.classify_component_for_parser(component);
+            
+            match component_type.as_str() {
+                "processor" => {
+                    if model.base_specifications.processor.is_none() {
+                        if let Some(spec) = spec_parser.parse_processor(component) {
+                            println!("✅ Parsed processor: {}", spec.model);
+                            model.base_specifications.processor = Some(spec);
+                        }
+                    }
+                },
+                "memory" => {
+                    if model.base_specifications.memory.is_none() {
+                        if let Some(spec) = spec_parser.parse_memory(component) {
+                            println!("✅ Parsed memory: {}", spec.total_capacity);
+                            model.base_specifications.memory = Some(spec);
+                        }
+                    }
+                },
+                "storage" => {
+                    if model.base_specifications.storage.is_none() {
+                        if let Some(spec) = spec_parser.parse_storage(component) {
+                            println!("✅ Parsed storage: {:?}", spec.total_capacity);
+                            model.base_specifications.storage = Some(spec);
+                        }
+                    }
+                },
+                "network" => {
+                    if model.base_specifications.network.is_none() {
+                        println!("🔍 Enhanced parsing network: '{}'", component);
+                        if let Some(spec) = spec_parser.parse_network(component) {
+                            println!("✅ Enhanced parsed network spec: {} ports", spec.ports.len());
+                            model.base_specifications.network = Some(spec);
+                        } else {
+                            println!("❌ Enhanced failed to parse network from: '{}'", component);
+                        }
+                    }
+                },
+                _ => {}
+            }
+        }
+
+        // Set form factor based on model name if not already set
+        if model.form_factor.is_none() {
+            if let Some(model_name) = &model.model_number {
+                if let Some((_, form_factor)) = self.is_enhanced_lenovo_server_model(model_name) {
+                    model.form_factor = Some(form_factor);
+                }
+            }
+        }
+
+        // Extract additional specifications from lot description
+        if let Some(form_factor) = self.extract_form_factor_from_description(&model.lot_description) {
+            model.form_factor = Some(form_factor);
+        }
+    }
+
+
+
+    /// Extract form factor from description text
+    fn extract_form_factor_from_description(&self, description: &str) -> Option<String> {
+        let lower = description.to_lowercase();
+        
+        // Direct form factor mentions
+        if lower.contains("1u") { return Some("1U".to_string()); }
+        if lower.contains("2u") { return Some("2U".to_string()); }
+        if lower.contains("4u") { return Some("4U".to_string()); }
+        if lower.contains("tower") { return Some("Tower".to_string()); }
+        
+        // Model-based inference
+        if lower.contains("sr630") || lower.contains("sr645") || lower.contains("hx") {
+            return Some("1U".to_string());
+        }
+        if lower.contains("sr650") || lower.contains("sr665") || lower.contains("vx") {
+            return Some("2U".to_string());
+        }
+        if lower.contains("sr850") || lower.contains("st650") {
+            return Some("4U".to_string());
+        }
+        if lower.contains("st550") {
+            return Some("Tower".to_string());
+        }
+        
+        None
     }
 }
 

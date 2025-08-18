@@ -69,11 +69,16 @@ class AutomatedBasketTester:
         field_stats = {}
         total_items = len(data)
         
-        # Define important fields to check
+        # Define important fields to check - updated for actual API response
         important_fields = [
-            'description', 'type', 'part_number', 'unit_price_usd', 
-            'manufacturer', 'specifications', 'category', 'sub_category',
-            'cpu_cores', 'memory_gb', 'storage_gb', 'gpu_model'
+            'lot_description', 'model_name', 'model_number', 'category', 
+            'form_factor', 'processor_info', 'ram_info', 'network_info',
+            'part_number'
+        ]
+        
+        # Also check base_specifications subfields if present
+        spec_fields = [
+            'processor', 'memory', 'storage', 'network'
         ]
         
         for field in important_fields:
@@ -85,9 +90,36 @@ class AutomatedBasketTester:
                         filled_count += 1
                     elif isinstance(value, str) and value.strip().lower() not in ['n/a', 'null', 'none', '']:
                         filled_count += 1
+                    elif isinstance(value, dict) or isinstance(value, list):
+                        filled_count += 1
             
             completion_rate = (filled_count / total_items) * 100 if total_items > 0 else 0
             field_stats[field] = completion_rate
+            
+        # Check for pricing data (special handling)
+        price_filled = 0
+        for item in data:
+            price_info = item.get('price', {}) or item.get('all_prices', {})
+            if isinstance(price_info, dict) and price_info:
+                # Check if any price field has a meaningful value
+                for price_key, price_val in price_info.items():
+                    if price_val and str(price_val) not in ['', '0', '0.0']:
+                        price_filled += 1
+                        break
+        field_stats['pricing'] = (price_filled / total_items) * 100 if total_items > 0 else 0
+            
+        # Check base_specifications fields
+        for spec_field in spec_fields:
+            filled_count = 0
+            for item in data:
+                specs = item.get('base_specifications', {})
+                if isinstance(specs, dict):
+                    spec_value = specs.get(spec_field)
+                    if spec_value is not None:
+                        filled_count += 1
+            
+            completion_rate = (filled_count / total_items) * 100 if total_items > 0 else 0
+            field_stats[f'specs_{spec_field}'] = completion_rate
         
         return field_stats
     
@@ -113,10 +145,21 @@ class AutomatedBasketTester:
             report.append("\n📝 SAMPLE PARSED ITEMS:")
             for i, item in enumerate(data[:3], 1):
                 report.append(f"\n  Sample {i}:")
-                report.append(f"    Description: {item.get('description', 'N/A')[:60]}...")
-                report.append(f"    Type: {item.get('type', 'N/A')}")
-                report.append(f"    Price: ${item.get('unit_price_usd', 0):.2f}")
-                report.append(f"    Manufacturer: {item.get('manufacturer', 'N/A')}")
+                report.append(f"    Model Name: {item.get('model_name', 'N/A')[:50]}...")
+                report.append(f"    Lot Description: {item.get('lot_description', 'N/A')[:50]}...")
+                report.append(f"    Model Number: {item.get('model_number', 'N/A')}")
+                report.append(f"    Category: {item.get('category', 'N/A')}")
+                
+            # Check for pricing
+            price_info = item.get('price', {}) or item.get('all_prices', {})
+            if isinstance(price_info, dict):
+                net_price = price_info.get('Net Price US$') or price_info.get('Total price in USD') or price_info.get('amount', '0')
+                if isinstance(net_price, str) and net_price.replace('.', '').isdigit():
+                    report.append(f"    Price: ${net_price}")
+                else:
+                    report.append(f"    Price: ${net_price}")
+            else:
+                report.append(f"    Price: $0.00")
         
         # Issues and improvements
         report.append("\n⚠️ ISSUES IDENTIFIED:")
@@ -124,13 +167,13 @@ class AutomatedBasketTester:
         if low_completion_fields:
             report.append(f"  • Low completion fields: {', '.join(low_completion_fields)}")
         
-        missing_prices = sum(1 for item in data if not item.get('unit_price_usd') or item.get('unit_price_usd') == 0)
+        missing_prices = sum(1 for item in data if not (item.get('price') or item.get('all_prices')))
         if missing_prices > 0:
             report.append(f"  • Missing prices: {missing_prices}/{len(data)} items ({missing_prices/len(data)*100:.1f}%)")
         
-        missing_types = sum(1 for item in data if not item.get('type'))
-        if missing_types > 0:
-            report.append(f"  • Missing types: {missing_types}/{len(data)} items ({missing_types/len(data)*100:.1f}%)")
+        missing_models = sum(1 for item in data if not item.get('model_name'))
+        if missing_models > 0:
+            report.append(f"  • Missing model names: {missing_models}/{len(data)} items ({missing_models/len(data)*100:.1f}%)")
         
         return "\n".join(report)
     
