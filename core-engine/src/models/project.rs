@@ -1,11 +1,15 @@
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
+use surrealdb::sql::Thing;
 use chrono::{DateTime, Utc};
+
+// Note: Uuid is still needed for local generation before DB insertion.
+use uuid::Uuid;
 
 /// Represents a single project, the top-level container for all related activities.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Project {
-    pub id: Uuid,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<Thing>,
     pub name: String,
     pub description: String,
     pub start_date: DateTime<Utc>,
@@ -21,7 +25,8 @@ pub struct Project {
 /// An event or milestone on the project's timeline.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TimelineItem {
-    pub id: Uuid,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<Thing>,
     pub name: String,
     pub description: String,
     pub date: DateTime<Utc>,
@@ -42,6 +47,7 @@ pub enum TimelineItemType {
 /// A user comment on a timeline item.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Comment {
+    // This can remain a Uuid as it's embedded and not a record itself.
     pub id: Uuid,
     pub user: String,
     pub content: String,
@@ -51,7 +57,8 @@ pub struct Comment {
 /// A file or document attached to a project.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ProjectArtifact {
-    pub id: Uuid,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<Thing>,
     pub name: String,
     pub description: String,
     pub artifact_type: ArtifactType,
@@ -78,7 +85,8 @@ pub struct HardwarePool {
 /// Represents a single server in the hardware pool.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Server {
-    pub id: Uuid,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<Thing>,
     pub name: String,
     pub model: String,
     // Other relevant server specs...
@@ -87,9 +95,10 @@ pub struct Server {
 /// Records the allocation of a specific server to a project for a period of time.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HardwareAllocation {
-    pub id: Uuid,
-    pub server_id: Uuid,
-    pub project_id: Uuid,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<Thing>,
+    pub server_id: Thing,
+    pub project_id: Thing,
     pub start_date: DateTime<Utc>,
     pub end_date: DateTime<Utc>, // When it's expected to be free again
 }
@@ -98,7 +107,7 @@ impl Project {
     pub fn new(name: String, description: String) -> Self {
         let now = Utc::now();
         Self {
-            id: Uuid::new_v4(),
+            id: None,
             name,
             description,
             start_date: now,
