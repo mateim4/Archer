@@ -1,9 +1,8 @@
-use crate::models::{Project, HardwarePool};
+use crate::models::project::{Project, HardwarePool};
 use crate::CoreEngineError;
 use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
-use uuid::Uuid;
 
 pub struct ProjectManager {
     projects_dir: PathBuf,
@@ -35,7 +34,7 @@ impl ProjectManager {
     }
 
     /// Loads all projects from the projects directory.
-    pub fn load_projects(&self) -> Result<HashMap<Uuid, Project>, CoreEngineError> {
+    pub fn load_projects(&self) -> Result<HashMap<String, Project>, CoreEngineError> {
         let mut projects = HashMap::new();
         let entries = fs::read_dir(&self.projects_dir).map_err(|e| {
             CoreEngineError::io(format!(
@@ -55,7 +54,9 @@ impl ProjectManager {
                 let project: Project = serde_json::from_str(&file_content)
                     .map_err(|e| CoreEngineError::parsing(format!("Failed to parse project file {}: {}", path.display(), e)))?;
 
-                projects.insert(project.id, project);
+                if let Some(id) = &project.id {
+                    projects.insert(id.to_string(), project);
+                }
             }
         }
         Ok(projects)
@@ -63,16 +64,21 @@ impl ProjectManager {
 
     /// Saves a single project to its file.
     pub fn save_project(&self, project: &Project) -> Result<(), CoreEngineError> {
-        let project_file = self.projects_dir.join(format!("{}.json", project.id));
+        let id_str = match &project.id {
+            Some(id) => id.to_string(),
+            None => return Err(CoreEngineError::validation("Project has no ID to save with")),
+        };
+
+        let project_file = self.projects_dir.join(format!("{}.json", id_str));
         let file_content = serde_json::to_string_pretty(project)
-            .map_err(|e| CoreEngineError::serialization(format!("Failed to serialize project {}: {}", project.id, e)))?;
+            .map_err(|e| CoreEngineError::serialization(format!("Failed to serialize project {}: {}", id_str, e)))?;
 
         fs::write(&project_file, file_content)
             .map_err(|e| CoreEngineError::io(format!("Failed to write project file {}: {}", project_file.display(), e)))
     }
 
     /// Deletes a project's file.
-    pub fn delete_project(&self, project_id: &Uuid) -> Result<(), CoreEngineError> {
+    pub fn delete_project(&self, project_id: &str) -> Result<(), CoreEngineError> {
         let project_file = self.projects_dir.join(format!("{}.json", project_id));
         if project_file.exists() {
             fs::remove_file(&project_file)
