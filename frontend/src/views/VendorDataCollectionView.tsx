@@ -472,7 +472,7 @@ const VendorDataCollectionView: React.FC = () => {
       return false;
     }
     
-    return /\b(riser|backplane|power\s*supply|psu|heatsink|chassis|retimer|adapter|controller|raid|hba|fan|rail|bezel|cable|riser\s*cage|anybay|nvme|pcie|dimm|memory|processor|cpu|ssd|hdd|drive|ethernet|nic|network|enablement|kit|vmware|esxi|operating|mode|selection|data\s*center|environment|xclarity|year|warranty|none|broadcom|intel\s+xeon|amd\s+epyc|thinksystem\s+(?!sr\d)|flash|gb\s|tb\s|mhz|ghz|installed|factory|config|hybrid|pro|max|intensive|mixed|use|hot\s+swap)\b/i.test(text);
+    return /\b(riser|backplane|power\s*supply|psu|heatsink|chassis|retimer|adapter|controller|raid|hba|fan|rail|bezel|cable|riser\s*cage|anybay|nvme|pcie|dimm|memory|processor|cpu|ssd|hdd|drive|ethernet|nic|network|enablement|kit|vmware|esxi|operating|mode|selection|data\s*center|environment|xclarity|year|warranty|none|broadcom|intel\s+xeon|amd\s+epyc|thinksystem\s+(?!sr\d)|flash|gb\s|tb\s|mhz|ghz|installed|factory|config|hybrid|options\s+and\s+upgrades|pro|max|intensive|mixed|use|hot\s+swap)\b/i.test(text);
   };
   
   const isServerLike = (text: string) => {
