@@ -55,6 +55,13 @@ impl HardwareBasketParser {
         }
         
         // Parsing for "Dell Options and Upgrades" can be added here later.
+        if let Some(Ok(worksheet)) = workbook.worksheet_range("Dell Options and Upgrades") {
+            println!("📦 Processing Dell Options and Upgrades sheet...");
+            let (opt_models, opt_configs, opt_prices) = self.parse_dell_options_and_upgrades(&worksheet, basket_id, vendor_id)?;
+            models.extend(opt_models);
+            configurations.extend(opt_configs);
+            prices.extend(opt_prices);
+        }
         
         Ok((models, configurations, prices))
     }
@@ -97,7 +104,11 @@ impl HardwareBasketParser {
         println!("📊 Dell sheet analysis: header_row={}, lot_desc_col={}, item_type_col={}, spec_col={}", 
                 header_row_idx, lot_desc_col, item_type_col, spec_col);
 
-        let mut current_model: Option<HardwareModel> = None;
+        // Detect price columns on the same header row
+        let price_cols = self.detect_dell_price_columns(worksheet, header_row_idx);
+        println!("💲 Dell price columns: list={:?} net_usd={:?} net_eur={:?}", price_cols.list_price_col, price_cols.net_price_usd_col, price_cols.net_price_eur_col);
+
+        let mut current_model: Option<(HardwareModel, Thing)> = None; // keep model and its id
 
         for (row_idx, row) in worksheet.rows().enumerate() {
             // Skip header and rows before it
@@ -113,19 +124,19 @@ impl HardwareBasketParser {
                 
                 if is_server_model {
                     println!("🔍 Found Dell server model: {}", desc);
-                    // This is a new Lot, so finalize the previous model and start a new one.
-                    if let Some(model) = current_model.take() {
+                    // Finalize previous model
+                    if let Some((model, _mid)) = current_model.take() {
                         models.push(model);
                     }
 
                     let model_id = Thing { tb: "hardware_model".to_string(), id: surrealdb::sql::Id::rand() };
 
-                    current_model = Some(HardwareModel {
+                    let mut new_model = HardwareModel {
                         id: Some(model_id.clone()),
                         basket_id: basket_id.clone(),
                         vendor_id: vendor_id.clone(),
                         lot_description: desc.clone(),
-                        model_name: desc, // Simple name for now
+                        model_name: desc.clone(), // Simple name for now
                         model_number: None,
                         form_factor: None,
                         category: "server".to_string(),
@@ -135,15 +146,54 @@ impl HardwareBasketParser {
                         updated_at: Utc::now().into(),
                         source_sheet: "Dell Lot Pricing".to_string(),
                         source_section: "Lots".to_string(),
-                    });
+                    };
+
+                    // Attempt to set form factor from any nearby item_type/specification rows for this model
+                    if let Some(it) = item_type.clone() {
+                        if it.to_lowercase().contains("form") || it.to_lowercase().contains("format") {
+                            if let Some(spec) = specification.clone() {
+                                new_model.form_factor = spec_parser.parse_form_factor(&spec);
+                            }
+                        }
+                    }
+
+                    // Pricing for the server lot on this row (if present)
+                    if let Some(list_col) = price_cols.list_price_col {
+                        let list_price = row.get(list_col).and_then(|v| v.as_f64());
+                        let net_usd = price_cols.net_price_usd_col.and_then(|c| row.get(c)).and_then(|v| v.as_f64());
+                        let net_eur = price_cols.net_price_eur_col.and_then(|c| row.get(c)).and_then(|v| v.as_f64());
+                        if list_price.or(net_usd).is_some() {
+                            let pricing_id = Thing { tb: "hardware_pricing".to_string(), id: surrealdb::sql::Id::rand() };
+                            prices.push(HardwarePricing {
+                                id: Some(pricing_id),
+                                configuration_id: None,
+                                model_id: Some(model_id.clone()),
+                                list_price: list_price.unwrap_or(net_usd.unwrap_or(0.0)),
+                                net_price_usd: net_usd.unwrap_or(list_price.unwrap_or(0.0)),
+                                net_price_eur: net_eur,
+                                currency: "USD".to_string(),
+                                valid_from: Utc::now().into(),
+                                valid_to: None,
+                                support_options: vec![],
+                                created_at: Utc::now().into(),
+                            });
+                        }
+                    }
+
+                    current_model = Some((new_model, model_id));
+                    continue; // Move to next row to collect components for this model
                 }
             }
 
-            if let (Some(model), Some(spec_str)) = (current_model.as_mut(), specification) {
-                // This row is a component of the current lot/model.
-                if let Some(item_type_str) = item_type {
-                    let spec_lower = spec_str.to_lowercase();
-                    match item_type_str.to_lowercase().as_str() {
+            // Component rows belonging to current model
+            if let (Some((model, model_id)), Some(spec_str)) = (current_model.as_mut(), specification.clone()) {
+                if let Some(item_type_str) = item_type.clone() {
+                    let lower_item = item_type_str.to_lowercase();
+                    // Skip empty filler lines
+                    if lower_item.trim().is_empty() && spec_str.trim().is_empty() { continue; }
+
+                    // Determine category and update base specs
+                    match lower_item.as_str() {
                         "processor/socket" | "processor" => {
                             if let Some(spec) = spec_parser.parse_processor(&spec_str) {
                                 model.base_specifications.processor = Some(spec);
@@ -165,24 +215,47 @@ impl HardwareBasketParser {
                             }
                         },
                         "dell format or model" | "format or model" | "form factor" => {
-                            // Parse form factor from Dell model strings like "R450 1U 1S"
                             model.form_factor = spec_parser.parse_form_factor(&spec_str);
                         },
                         _ => {
-                            // Log unmatched specifications for debugging
+                            // Unknown item types will still be captured as configurations below
                             println!("🔍 Unmatched specification: '{}' -> '{}'", item_type_str, spec_str);
                         }
                     }
+
+                    // Create a HardwareConfiguration row for every component line
+                    let cfg_id = Thing { tb: "hardware_configuration".to_string(), id: surrealdb::sql::Id::rand() };
+
+                    // Determine item_type via SpecParser if Dell label is generic
+                    let classified = if ["processor/socket", "processor", "memory", "storage", "network"].contains(&lower_item.as_str()) {
+                        lower_item.clone()
+                    } else {
+                        spec_parser.classify_component_for_parser(&spec_str)
+                    };
+
+                    configurations.push(HardwareConfiguration {
+                        id: Some(cfg_id.clone()),
+                        model_id: model_id.clone(),
+                        part_number: None,
+                        sku: None,
+                        description: spec_str.clone(),
+                        item_type: classified,
+                        quantity: 1,
+                        specifications: None,
+                        compatibility_notes: None,
+                        created_at: Utc::now().into(),
+                    });
+
+                    // Link config as extension
+                    if let Some(exts) = &mut model.extensions { exts.push(cfg_id); } else { model.extensions = Some(vec![cfg_id]); }
                 }
             }
         }
 
         // Add the last processed model
-        if let Some(model) = current_model.take() {
-            models.push(model);
-        }
+        if let Some((model, _)) = current_model.take() { models.push(model); }
 
-        println!("✅ Dell Lot Pricing parsed: {} models", models.len());
+        println!("✅ Dell Lot Pricing parsed: {} models, {} configurations, {} prices", models.len(), configurations.len(), prices.len());
         Ok((models, configurations, prices))
     }
     
@@ -606,50 +679,150 @@ impl HardwareBasketParser {
         Ok((models, configurations, prices))
     }
 
-    /// Dynamically detect column positions and header row for Dell worksheets
-    fn detect_dell_columns(&self, worksheet: &Range<DataType>) -> Result<(usize, usize, usize, usize)> {
-        // Look for header row containing key column names
+    fn parse_dell_options_and_upgrades(&self, worksheet: &Range<DataType>, basket_id: &Thing, vendor_id: &Thing) -> Result<ParseResult> {
+        let mut models = Vec::new();
+        let mut configurations = Vec::new();
+        let mut prices = Vec::new();
+        let spec_parser = SpecParser::new();
+
+        // Detect header row and columns
+        let (header_row_idx, desc_col, list_col, net_usd_col, net_eur_col) = self.detect_dell_options_columns(worksheet);
+        println!(
+            "📊 Dell Options header at row {} -> desc={}, list={:?}, net_usd={:?}, net_eur={:?}",
+            header_row_idx, desc_col, list_col, net_usd_col, net_eur_col
+        );
+
+        // Create a synthetic model to hold all options for this basket
+        let model_id = Thing { tb: "hardware_model".to_string(), id: surrealdb::sql::Id::rand() };
+        let mut options_model = HardwareModel {
+            id: Some(model_id.clone()),
+            basket_id: basket_id.clone(),
+            vendor_id: vendor_id.clone(),
+            lot_description: "Dell Options and Upgrades Catalog".to_string(),
+            model_name: "Dell Options and Upgrades".to_string(),
+            model_number: None,
+            form_factor: None,
+            category: "component".to_string(),
+            base_specifications: HardwareSpecifications::default(),
+            extensions: Some(Vec::new()),
+            created_at: Utc::now().into(),
+            updated_at: Utc::now().into(),
+            source_sheet: "Dell Options and Upgrades".to_string(),
+            source_section: "Options".to_string(),
+        };
+
         for (row_idx, row) in worksheet.rows().enumerate() {
-            let row_text: Vec<String> = row.iter()
-                .filter_map(|cell| cell.as_string())
-                .collect();
-            
-            // Look for exact Dell header pattern: "Lot Description | Item | Specification"
-            let has_lot_desc = row_text.iter().any(|text| 
-                text.eq_ignore_ascii_case("Lot Description") ||
-                text.eq_ignore_ascii_case("lot description")
-            );
-            
-            let has_item = row_text.iter().any(|text| 
-                text.eq_ignore_ascii_case("Item")
-            );
-            
-            let has_specification = row_text.iter().any(|text| 
-                text.eq_ignore_ascii_case("Specification")
-            );
-            
-            if has_lot_desc && has_item && has_specification {
-                // Found header row, now find exact column positions
-                let mut lot_desc_col = 0;
-                let mut item_type_col = 1;
-                let mut spec_col = 2;
-                
-                for (col_idx, cell_text) in row_text.iter().enumerate() {
-                    if cell_text.eq_ignore_ascii_case("Lot Description") {
-                        lot_desc_col = col_idx;
-                    } else if cell_text.eq_ignore_ascii_case("Item") {
-                        item_type_col = col_idx;
-                    } else if cell_text.eq_ignore_ascii_case("Specification") {
-                        spec_col = col_idx;
-                    }
+            if row_idx <= header_row_idx { continue; }
+
+            let description = row.get(desc_col).and_then(|c| c.as_string()).map(|s| s.trim().to_string());
+            if let Some(desc) = description {
+                if desc.is_empty() { continue; }
+
+                // Create configuration for this option
+                let cfg_id = Thing { tb: "hardware_configuration".to_string(), id: surrealdb::sql::Id::rand() };
+                let item_type = spec_parser.classify_component_for_parser(&desc);
+                configurations.push(HardwareConfiguration {
+                    id: Some(cfg_id.clone()),
+                    model_id: model_id.clone(),
+                    part_number: None,
+                    sku: None,
+                    description: desc.clone(),
+                    item_type,
+                    quantity: 1,
+                    specifications: None,
+                    compatibility_notes: None,
+                    created_at: Utc::now().into(),
+                });
+
+                // Link as extension
+                if let Some(exts) = &mut options_model.extensions { exts.push(cfg_id.clone()); }
+
+                // Pricing per option if available
+                let list_price = list_col.and_then(|c| row.get(c)).and_then(|v| v.as_f64());
+                let net_usd = net_usd_col.and_then(|c| row.get(c)).and_then(|v| v.as_f64());
+                let net_eur = net_eur_col.and_then(|c| row.get(c)).and_then(|v| v.as_f64());
+                if list_price.or(net_usd).is_some() {
+                    let pricing_id = Thing { tb: "hardware_pricing".to_string(), id: surrealdb::sql::Id::rand() };
+                    prices.push(HardwarePricing {
+                        id: Some(pricing_id),
+                        configuration_id: options_model.extensions.as_ref().and_then(|v| v.last()).cloned(),
+                        model_id: None,
+                        list_price: list_price.unwrap_or(net_usd.unwrap_or(0.0)),
+                        net_price_usd: net_usd.unwrap_or(list_price.unwrap_or(0.0)),
+                        net_price_eur: net_eur,
+                        currency: "USD".to_string(),
+                        valid_from: Utc::now().into(),
+                        valid_to: None,
+                        support_options: vec![],
+                        created_at: Utc::now().into(),
+                    });
                 }
-                
-                println!("✅ Found Dell header at row {} with columns: lot_desc={}, item_type={}, spec={}", 
-                        row_idx, lot_desc_col, item_type_col, spec_col);
-                return Ok((row_idx, lot_desc_col, item_type_col, spec_col));
             }
         }
-        
+
+        models.push(options_model);
+        println!("✅ Dell Options parsed: {} configurations", configurations.len());
+        Ok((models, configurations, prices))
+    }
+
+    fn detect_dell_options_columns(&self, worksheet: &Range<DataType>) -> (usize, usize, Option<usize>, Option<usize>, Option<usize>) {
+        // Returns (header_row_idx, desc_col, list_col, net_usd_col, net_eur_col)
+        let mut header_row_idx = 0usize;
+        let mut desc_col = 0usize;
+        let mut list_col: Option<usize> = None;
+        let mut net_usd_col: Option<usize> = None;
+        let mut net_eur_col: Option<usize> = None;
+
+        for (ridx, row) in worksheet.rows().enumerate() {
+            // Preserve real column indices while scanning header cells
+            let mut found_desc: Option<usize> = None;
+            for (cidx, cell) in row.iter().enumerate() {
+                if let Some(t) = cell.as_string() {
+                    let lower = t.to_lowercase();
+                    if (lower.contains("description") || lower.trim() == "description") && found_desc.is_none() {
+                        found_desc = Some(cidx);
+                    }
+                    if lower.contains("list price") { list_col = Some(cidx); }
+                    if (lower.contains("net price") && lower.contains("usd")) || lower.contains("price in $") { net_usd_col = Some(cidx); }
+                    if (lower.contains("net price") && (lower.contains("eur") || lower.contains("€"))) || lower.contains("price in eur") { net_eur_col = Some(cidx); }
+                }
+            }
+            if let Some(dc) = found_desc { header_row_idx = ridx; desc_col = dc; break; }
+        }
+
+        (header_row_idx, desc_col, list_col, net_usd_col, net_eur_col)
+    }
+
+    /// Dynamically detect column positions and header row for Dell worksheets
+    fn detect_dell_columns(&self, worksheet: &Range<DataType>) -> Result<(usize, usize, usize, usize)> {
+        // Look for header row containing key column names with true column indices
+        for (row_idx, row) in worksheet.rows().enumerate() {
+            let mut lot_desc_col: Option<usize> = None;
+            let mut item_type_col: Option<usize> = None;
+            let mut spec_col: Option<usize> = None;
+
+            for (col_idx, cell) in row.iter().enumerate() {
+                if let Some(text) = cell.as_string() {
+                    let t = text.trim();
+                    if t.eq_ignore_ascii_case("Lot Description") || t.eq_ignore_ascii_case("lot description") {
+                        lot_desc_col = Some(col_idx);
+                    } else if t.eq_ignore_ascii_case("Item") {
+                        item_type_col = Some(col_idx);
+                    } else if t.eq_ignore_ascii_case("Specification") {
+                        spec_col = Some(col_idx);
+                    }
+                }
+            }
+
+            if lot_desc_col.is_some() && item_type_col.is_some() && spec_col.is_some() {
+                let lot = lot_desc_col.unwrap();
+                let item = item_type_col.unwrap();
+                let spec = spec_col.unwrap();
+                println!("✅ Found Dell header at row {} with columns: lot_desc={}, item_type={}, spec={}", row_idx, lot, item, spec);
+                return Ok((row_idx, lot, item, spec));
+            }
+        }
+
         // Fallback to original positions if no header found
         println!("⚠️ Using fallback Dell column positions (row 3, cols 0,1,2)");
         Ok((3, 0, 1, 2))
@@ -659,41 +832,33 @@ impl HardwareBasketParser {
     fn detect_lenovo_columns(&self, worksheet: &Range<DataType>) -> Result<(usize, usize, usize, Option<usize>, Option<usize>, Option<usize>)> {
         // Return (header_row_idx, part_col, desc_col, qty_col, price_usd_col, price_eur_col)
         for (row_idx, row) in worksheet.rows().enumerate() {
-            let row_text: Vec<String> = row.iter()
-                .filter_map(|cell| cell.as_string())
-                .collect();
+            // Scan with real column indices
+            let mut part_col: Option<usize> = None;
+            let mut desc_col: Option<usize> = None;
+            let mut qty_col: Option<usize> = None;
+            let mut usd_col: Option<usize> = None;
+            let mut eur_col: Option<usize> = None;
 
-            let has_part = row_text.iter().any(|t| t.to_lowercase().contains("part number") || t.to_lowercase().contains("part"));
-            let has_desc = row_text.iter().any(|t| t.to_lowercase().contains("description"));
-            let has_qty = row_text.iter().any(|t| t.to_lowercase().contains("quantity") || t.to_lowercase().contains("qty"));
-            let has_usd = row_text.iter().any(|t| t.to_lowercase().contains("total price in usd") || t.to_lowercase().contains("price in $ usd") || t.to_lowercase().contains("price in $"));
-            let has_eur = row_text.iter().any(|t| t.to_lowercase().contains("total price in eur") || t.to_lowercase().contains("price in \u{20ac} eur") || t.to_lowercase().contains("price in eur"));
-
-            if has_part && has_desc {
-                // locate indices
-                let mut part_col = 0usize;
-                let mut desc_col = 1usize;
-                let mut qty_col: Option<usize> = None;
-                let mut usd_col: Option<usize> = None;
-                let mut eur_col: Option<usize> = None;
-
-                for (col_idx, cell_text) in row_text.iter().enumerate() {
+            for (col_idx, cell) in row.iter().enumerate() {
+                if let Some(cell_text) = cell.as_string() {
                     let lower = cell_text.to_lowercase();
-                    if lower.contains("part number") || lower == "part" {
-                        part_col = col_idx;
-                    } else if lower.contains("description") {
-                        desc_col = col_idx;
+                    if lower.contains("part number") || lower.trim() == "part" || lower.trim() == "pn" {
+                        part_col = Some(col_idx);
+                    } else if lower.contains("description") || lower.trim() == "description" || lower.trim() == "desc" {
+                        desc_col = Some(col_idx);
                     } else if lower.contains("quantity") || lower.contains("qty") {
                         qty_col = Some(col_idx);
                     } else if lower.contains("total price in usd") || lower.contains("price in $ usd") || lower.contains("price in $") {
                         usd_col = Some(col_idx);
-                    } else if lower.contains("total price in eur") || lower.contains("price in \u{20ac} eur") || lower.contains("price in eur") {
+                    } else if lower.contains("total price in eur") || lower.contains("price in \u{20ac} eur") || lower.contains("price in eur") || lower.contains("price in €") {
                         eur_col = Some(col_idx);
                     }
                 }
+            }
 
-                println!("✅ Found Lenovo header at row {} with cols: part={}, desc={}, qty={:?}, usd={:?}, eur={:?}", row_idx, part_col, desc_col, qty_col, usd_col, eur_col);
-                return Ok((row_idx, part_col, desc_col, qty_col, usd_col, eur_col));
+            if part_col.is_some() && desc_col.is_some() {
+                println!("✅ Found Lenovo header at row {} with cols: part={:?}, desc={:?}, qty={:?}, usd={:?}, eur={:?}", row_idx, part_col, desc_col, qty_col, usd_col, eur_col);
+                return Ok((row_idx, part_col.unwrap(), desc_col.unwrap(), qty_col, usd_col, eur_col));
             }
         }
 
@@ -805,6 +970,24 @@ impl HardwareBasketParser {
         // Final fallback to common positions
         println!("⚠️ Using fallback Lenovo column positions (row 3, cols 1,2,3)");
         Ok((3, 1, 2, Some(3), Some(4), Some(5)))
+    }
+
+    /// Helper: detect Dell pricing columns near the header
+    fn detect_dell_price_columns(&self, worksheet: &Range<DataType>, header_row_idx: usize) -> DellPriceCols {
+        let mut cols = DellPriceCols::default();
+        if let Some(header_row) = worksheet.rows().nth(header_row_idx) {
+            for (idx, cell) in header_row.iter().enumerate() {
+                if let Some(text) = cell.as_string() {
+                    let lower = text.to_lowercase();
+                    if lower.contains("list price") { cols.list_price_col = Some(idx); }
+                    else if lower.contains("net price") && lower.contains("usd") { cols.net_price_usd_col = Some(idx); }
+                    else if lower.contains("net price") && (lower.contains("eur") || lower.contains("€")) { cols.net_price_eur_col = Some(idx); }
+                    else if lower.contains("price in $") && cols.net_price_usd_col.is_none() { cols.net_price_usd_col = Some(idx); }
+                    else if lower.contains("price in eur") && cols.net_price_eur_col.is_none() { cols.net_price_eur_col = Some(idx); }
+                }
+            }
+        }
+        cols
     }
 
     /// Intelligent detection of Dell server models using multiple heuristics
@@ -1023,8 +1206,6 @@ impl HardwareBasketParser {
         }
     }
 
-
-
     /// Extract form factor from description text
     fn extract_form_factor_from_description(&self, description: &str) -> Option<String> {
         let lower = description.to_lowercase();
@@ -1051,6 +1232,13 @@ impl HardwareBasketParser {
         
         None
     }
+}
+
+#[derive(Default, Debug, Clone, Copy)]
+struct DellPriceCols {
+    list_price_col: Option<usize>,
+    net_price_usd_col: Option<usize>,
+    net_price_eur_col: Option<usize>,
 }
 
 #[cfg(test)]
@@ -1107,5 +1295,39 @@ mod tests {
         // Some models should have at least partial processor spec populated
         let has_cpu = models.iter().any(|m| m.base_specifications.processor.is_some());
         assert!(has_cpu, "expected at least one model with parsed processor spec");
+    }
+
+    #[test]
+    fn test_parse_dell_sample_end_to_end() {
+        // Parse the Dell sample workbook end-to-end and validate we get
+        // models and configurations from the Lot Pricing sheet
+        let path = "../docs/X86 Basket Q3 2025 v2 Dell Only.xlsx";
+
+        let basket_id = Thing { tb: "hardware_basket".to_string(), id: surrealdb::sql::Id::rand() };
+        let vendor_id = Thing { tb: "hardware_vendor".to_string(), id: surrealdb::sql::Id::rand() };
+
+        let parser = HardwareBasketParser;
+        let (models, configurations, prices) = parser.parse_file(path, &basket_id, &vendor_id)
+            .expect("parse_file should succeed on sample Dell workbook");
+
+        assert!(!models.is_empty(), "expected at least one parsed Dell model");
+        assert!(configurations.len() > 0 || models.iter().any(|m| m.extensions.as_ref().map(|e| !e.is_empty()).unwrap_or(false)));
+    }
+
+    #[test]
+    fn test_detect_dell_options_columns_on_sample() {
+        // Validate Dell Options header and price columns on the sample workbook
+        let path = "../docs/X86 Basket Q3 2025 v2 Dell Only.xlsx";
+        let mut workbook = open_workbook_auto(path).expect("Failed to open sample workbook");
+        let range = workbook
+            .worksheet_range("Dell Options and Upgrades")
+            .expect("Worksheet read error")
+            .expect("Worksheet not found");
+
+        let parser = HardwareBasketParser;
+        let (_header_row, desc_col, list_col, usd_col, eur_col) = parser.detect_dell_options_columns(&range);
+
+        assert!(desc_col >= 0, "description column should be detected");
+        assert!(list_col.is_some() || usd_col.is_some() || eur_col.is_some(), "At least one price column should be detected");
     }
 }

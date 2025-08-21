@@ -30,6 +30,7 @@ pub struct CreateBasketResponse {
 pub struct UploadResponse {
     pub success: bool,
     pub message: String,
+    pub basket_id: String,
     pub models_count: usize,
     pub configurations_count: usize,
     pub pricing_count: usize,
@@ -532,6 +533,7 @@ async fn upload_new_hardware_basket(
             return Json(UploadResponse {
                 success: true,
                 message: "File uploaded and processed successfully".to_string(),
+                basket_id: basket_inner_id,
                 models_count: models_saved,
                 configurations_count: configs_saved,
                 pricing_count: prices_saved,
@@ -746,6 +748,7 @@ async fn upload_hardware_basket(
             return Json(UploadResponse {
                 success: true,
                 message: "File uploaded and processed successfully".to_string(),
+                basket_id: id.clone(),
                 models_count: models_saved,
                 configurations_count: configs_saved,
                 pricing_count: prices_saved,
