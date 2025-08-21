@@ -467,7 +467,12 @@ const VendorDataCollectionView: React.FC = () => {
 
   // Classification helpers to keep components out of the Servers table
   const isComponentLike = (text: string) => {
-    return /\b(riser|backplane|power\s*supply|psu|heatsink|chassis|retimer|adapter|controller|raid|hba|fan|rail|bezel|cable|riser\s*cage|anybay|nvme|pcie|dimm|memory|processor|cpu|ssd|hdd|drive|ethernet|nic|network|enablement|kit|vmware|esxi|operating|mode|selection|data\s*center|environment|xclarity|year|warranty|none|broadcom|intel\s+xeon|amd\s+epyc|thinksystem\s+(?!sr\d)|flash|gb\s|tb\s|mhz|ghz|installed|factory|config|hybrid|ready|esa|vsan|pro|max|intensive|mixed|use|hot\s+swap)\b/i.test(text);
+    // Don't filter out VSAN Ready Servers or ESA servers - these are legitimate server models
+    if (/vsan.*ready.*server|esa.*server|server.*vsan|server.*esa/i.test(text)) {
+      return false;
+    }
+    
+    return /\b(riser|backplane|power\s*supply|psu|heatsink|chassis|retimer|adapter|controller|raid|hba|fan|rail|bezel|cable|riser\s*cage|anybay|nvme|pcie|dimm|memory|processor|cpu|ssd|hdd|drive|ethernet|nic|network|enablement|kit|vmware|esxi|operating|mode|selection|data\s*center|environment|xclarity|year|warranty|none|broadcom|intel\s+xeon|amd\s+epyc|thinksystem\s+(?!sr\d)|flash|gb\s|tb\s|mhz|ghz|installed|factory|config|hybrid|pro|max|intensive|mixed|use|hot\s+swap)\b/i.test(text);
   };
   
   const isServerLike = (text: string) => {
@@ -477,6 +482,12 @@ const VendorDataCollectionView: React.FC = () => {
   const isActualServerModel = (m: any): boolean => {
     const text = `${m.model_name || ''} ${m.lot_description || ''}`;
     
+    // Determine the actual vendor from context if not set
+    const currentBasket = hardwareBaskets.find(b => 
+      normalizeThingId(b.id) === selectedBasket
+    );
+    const actualVendor = m.vendor || currentBasket?.vendor || 'Unknown';
+    
     // Dell: Check if it has proper server specifications
     const hasSpecs = m.base_specifications && (
       m.base_specifications.processor || 
@@ -485,7 +496,7 @@ const VendorDataCollectionView: React.FC = () => {
     );
     
     // For Dell, must have specifications and not be component-like
-    if (m.vendor === 'Dell' || (m.basket_id && String(m.basket_id).includes('qta7m2amxofkxmo73bp2'))) {
+    if (actualVendor === 'Dell' || (m.basket_id && String(m.basket_id).includes('qta7m2amxofkxmo73bp2'))) {
       return hasSpecs && !isComponentLike(text);
     }
     
