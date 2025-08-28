@@ -2,27 +2,18 @@ import React, { useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
 // Import ONLY Fluent UI 2 Design System
 import './styles/fluent2-design-system.css';
+import './styles/wizard.css';
 import { FluentProvider } from './design-system';
 import NavigationSidebar from './components/NavigationSidebar';
 import HeaderSettings from './components/HeaderSettings';
-import VendorDataCollectionView from './views/VendorDataCollectionView';
 import HardwarePoolView from './views/HardwarePoolView';
 import HardwareBasketView from './views/HardwareBasketView';
-import MigrationPlannerView from './views/MigrationPlannerView';
-import ClusterSizingView from './views/ClusterSizingView';
-import NetworkVisualizerView from './views/NetworkVisualizerView';
-import LifecyclePlannerView from './views/LifecyclePlannerView';
-import DesignDocsView from './views/DesignDocsView';
 import ProjectsView from './views/ProjectsView';
-import EnhancedProjectsView from './views/EnhancedProjectsView';
-import ProjectManagementViewNew from './views/ProjectManagementViewNew';
-import ProjectManagementView from './views/ProjectManagementView';
-import ProjectDetailView from './views/ProjectWorkspaceView';
-import ProjectTimelineView from './views/ProjectTimelineView';
-import MigrationProjects from './views/MigrationProjects';
-import MigrationDashboard from './views/MigrationDashboard';
-import WorkflowsView from './views/WorkflowsView';
-import SettingsView from './views/SettingsView';
+import ProjectDetailView from './views/ProjectWorkspaceViewNew';
+import EmbeddedMigrationWizard from './views/EmbeddedMigrationWizard';
+import EmbeddedLifecycleWizard from './views/EmbeddedLifecycleWizard';
+import GuidesView from './views/GuidesView';
+import DocumentTemplatesView from './views/DocumentTemplatesView';
 
 function App() {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
@@ -77,30 +68,18 @@ function App() {
           maxHeight: '100vh' // Ensure it doesn't exceed viewport height
         }}>
           <Routes>
-            <Route path="/" element={<VendorDataCollectionView />} />
-            <Route path="/data-collection" element={<VendorDataCollectionView />} />
-            <Route path="/hardware-pool" element={<HardwarePoolView />} />
-            <Route path="/hardware-baskets" element={<HardwareBasketView />} />
-            <Route path="/migration-planner" element={<MigrationPlannerView />} />
-            <Route path="/cluster-sizing" element={<ClusterSizingView />} />
-            <Route path="/network-visualizer" element={<NetworkVisualizerView />} />
-            <Route path="/lifecycle-planner" element={<LifecyclePlannerView />} />
-            <Route path="/design-docs" element={<DesignDocsView />} />
-            
-            {/* Project Management System - Unified */}
-            <Route path="/projects" element={<ProjectManagementViewNew />} />
+            {/* Primary navigation routes */}
+            <Route path="/" element={<ProjectsView />} />
+            <Route path="/projects" element={<ProjectsView />} />
             <Route path="/projects/:projectId" element={<ProjectDetailView />} />
-            <Route path="/projects/:projectId/timeline" element={<ProjectTimelineView />} />
+            <Route path="/hardware-pool" element={<HardwarePoolView />} />
+            <Route path="/hardware-basket" element={<HardwareBasketView />} />
+            <Route path="/guides" element={<GuidesView />} />
+            <Route path="/document-templates" element={<DocumentTemplatesView />} />
             
-            {/* Migration & Workflow Management */}
-            <Route path="/migration-dashboard" element={<MigrationDashboard />} />
-            <Route path="/migration-projects" element={<MigrationProjects />} />
-            <Route path="/workflows" element={<WorkflowsView />} />
-            <Route path="/settings" element={<SettingsView />} />
-            
-            {/* Legacy routes for backward compatibility */}
-            <Route path="/projects-enhanced" element={<EnhancedProjectsView />} />
-            <Route path="/projects-classic" element={<ProjectsView />} />
+            {/* Embedded wizards within projects */}
+            <Route path="/projects/:projectId/workflows/:workflowId/migration-wizard" element={<EmbeddedMigrationWizard />} />
+            <Route path="/projects/:projectId/workflows/:workflowId/lifecycle-wizard" element={<EmbeddedLifecycleWizard />} />
           </Routes>
         </main>
       </div>

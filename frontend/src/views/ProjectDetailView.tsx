@@ -265,7 +265,6 @@ const ProjectDetailView: React.FC = () => {
               <EnhancedProgressBar
                 value={stats.overallProgress}
                 color="purple"
-                className="w-32"
               />
             </div>
           </div>

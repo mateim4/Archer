@@ -1,4 +1,3 @@
-use axum::Router;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr, TcpListener as StdTcpListener};
 use tower_http::{cors::CorsLayer, trace::TraceLayer};
 
@@ -7,6 +6,7 @@ mod models;
 mod database;
 mod migration_api;
 mod migration_models;
+mod services;
 // mod hardware_basket_api; // Disabled - using new api/hardware_baskets.rs
 // mod parser; // Disabled - using new parser in core-engine
 
@@ -17,6 +17,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         std::env::set_var("RUST_LOG", "info,tower_http=info,backend=info");
     }
     tracing_subscriber::fmt::init();
+    
+    // Initialize document storage
+    if let Err(e) = services::document_service::DocumentService::init_storage() {
+        tracing::warn!("Failed to initialize document storage: {}", e);
+    } else {
+        tracing::info!("📁 Document storage initialized");
+    }
+    
     // Initialize database
     let db_state = database::init_database().await?;
     

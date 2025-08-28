@@ -1,28 +1,319 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Calendar, User, FolderOpen, Search, Grid, List } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import {
+  Title1,
+  Title2,
+  Title3,
+  Body1,
+  Body2,
+  Caption1,
+  Button,
+  Card,
+  CardHeader,
+  CardPreview,
+  Input,
+  SearchBox,
+  Textarea,
+  Dialog,
+  DialogTrigger,
+  DialogSurface,
+  DialogTitle,
+  DialogContent,
+  DialogBody,
+  DialogActions,
+  Badge,
+  Avatar,
+  Spinner,
+  Text,
+  Divider,
+  Toolbar,
+  ToolbarButton,
+  Skeleton,
+  SkeletonItem,
+  MessageBar,
+  MessageBarBody,
+  MessageBarTitle,
+  tokens,
+  makeStyles,
+  shorthands
+} from '@fluentui/react-components';
+import {
+  AddRegular,
+  SearchRegular,
+  FolderRegular,
+  CalendarRegular,
+  PersonRegular,
+  GridDotsRegular,
+  ListRegular,
+  FilterRegular,
+  MoreHorizontalRegular,
+  EditRegular,
+  DeleteRegular,
+  ShareRegular,
+  RocketRegular,
+  DocumentRegular,
+  ChevronRightRegular
+} from '@fluentui/react-icons';
 import { apiClient, Project, CreateProjectRequest } from '../utils/apiClient';
 
-const ProjectsView: React.FC = () => {
+const useStyles = makeStyles({
+  container: {
+    padding: '40px',
+    maxWidth: '1600px',
+    margin: '0 auto',
+    backgroundColor: tokens.colorNeutralBackground1,
+    minHeight: '100vh'
+  },
+  
+  header: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: '40px',
+    ...shorthands.gap('24px')
+  },
+  
+  headerContent: {
+    flex: 1
+  },
+  
+  headerTitle: {
+    marginBottom: '8px',
+    color: tokens.colorNeutralForeground1
+  },
+  
+  headerSubtitle: {
+    color: tokens.colorNeutralForeground3,
+    fontSize: tokens.fontSizeBase300,
+    lineHeight: tokens.lineHeightBase300
+  },
+  
+  mainContent: {
+    background: 'rgba(255, 255, 255, 0.95)',
+    borderRadius: '12px',
+    backdropFilter: 'blur(20px)',
+    border: '1px solid rgba(255, 255, 255, 0.2)',
+    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+    padding: '32px'
+  },
+  
+  toolbar: {
+    backgroundColor: 'transparent',
+    marginBottom: '32px',
+    padding: '0'
+  },
+  
+  toolbarContent: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    ...shorthands.gap('16px'),
+    width: '100%'
+  },
+  
+  searchContainer: {
+    flex: 1,
+    maxWidth: '400px'
+  },
+  
+  projectGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(420px, 1fr))',
+    ...shorthands.gap('32px')
+  },
+  
+  projectCard: {
+    cursor: 'pointer',
+    transition: 'all 0.2s ease-in-out',
+    ...shorthands.border('1px', 'solid', tokens.colorNeutralStroke2),
+    borderRadius: tokens.borderRadiusXLarge,
+    backgroundColor: tokens.colorNeutralBackground1,
+    boxShadow: tokens.shadow4,
+    overflow: 'hidden',
+    
+    '&:hover': {
+      transform: 'translateY(-3px)',
+      boxShadow: tokens.shadow16,
+      ...shorthands.borderColor(tokens.colorBrandStroke1)
+    }
+  },
+  
+  emptyState: {
+    textAlign: 'center',
+    ...shorthands.padding('80px', '40px'),
+    backgroundColor: 'rgba(248, 250, 252, 0.8)',
+    borderRadius: tokens.borderRadiusXLarge,
+    ...shorthands.border('1px', 'solid', 'rgba(226, 232, 240, 0.8)')
+  },
+  
+  emptyStateIcon: {
+    fontSize: '80px',
+    color: tokens.colorNeutralForeground4,
+    marginBottom: '24px'
+  },
+  
+  emptyStateTitle: {
+    marginBottom: '12px',
+    color: tokens.colorNeutralForeground2
+  },
+  
+  emptyStateDescription: {
+    marginBottom: '32px',
+    color: tokens.colorNeutralForeground3,
+    maxWidth: '500px',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    lineHeight: '1.6'
+  },
+  
+  primaryButton: {
+    background: 'linear-gradient(135deg, rgb(99, 102, 241), rgb(139, 92, 246))',
+    color: 'white',
+    border: 'none',
+    borderRadius: '8px',
+    padding: '12px 24px',
+    fontWeight: '600',
+    fontSize: '14px',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '8px',
+    '&:hover': {
+      transform: 'translateY(-2px)',
+      boxShadow: '0 8px 25px rgba(99, 102, 241, 0.3)'
+    },
+    '&:active': {
+      transform: 'translateY(0)'
+    }
+  },
+  
+  listView: {
+    display: 'flex',
+    flexDirection: 'column',
+    ...shorthands.gap('1px'),
+    backgroundColor: tokens.colorNeutralStroke3,
+    borderRadius: tokens.borderRadiusMedium,
+    overflow: 'hidden'
+  },
+  
+  listHeader: {
+    display: 'grid',
+    gridTemplateColumns: '2fr 3fr 1fr 1fr 1fr 60px',
+    ...shorthands.gap('16px'),
+    ...shorthands.padding('16px', '20px'),
+    backgroundColor: tokens.colorNeutralBackground2,
+    fontWeight: tokens.fontWeightSemibold,
+    fontSize: tokens.fontSizeBase300,
+    color: tokens.colorNeutralForeground2,
+    borderBottom: `1px solid ${tokens.colorNeutralStroke2}`
+  },
+  
+  listRow: {
+    display: 'grid',
+    gridTemplateColumns: '2fr 3fr 1fr 1fr 1fr 60px',
+    ...shorthands.gap('16px'),
+    ...shorthands.padding('20px'),
+    backgroundColor: tokens.colorNeutralBackground1,
+    cursor: 'pointer',
+    transition: 'all 0.2s ease-in-out',
+    alignItems: 'center',
+    
+    '&:hover': {
+      backgroundColor: tokens.colorNeutralBackground2
+    }
+  },
+  
+  listRowName: {
+    display: 'flex',
+    alignItems: 'center',
+    ...shorthands.gap('12px'),
+    fontWeight: tokens.fontWeightSemibold,
+    color: tokens.colorNeutralForeground1
+  },
+  
+  listRowDescription: {
+    color: tokens.colorNeutralForeground2,
+    fontSize: tokens.fontSizeBase300,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap'
+  },
+  
+  listRowMeta: {
+    color: tokens.colorNeutralForeground3,
+    fontSize: tokens.fontSizeBase200
+  },
+  
+  formField: {
+    display: 'flex',
+    flexDirection: 'column',
+    ...shorthands.gap('8px'),
+    marginBottom: '24px'
+  },
+  
+  formLabel: {
+    fontWeight: tokens.fontWeightSemibold,
+    color: tokens.colorNeutralForeground1,
+    fontSize: tokens.fontSizeBase300
+  },
+  
+  dialogContent: {
+    display: 'flex',
+    flexDirection: 'column',
+    ...shorthands.gap('16px')
+  }
+});
+
+export default function ProjectsView() {
+  const navigate = useNavigate();
+  const styles = useStyles();
+  
+  // State management
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showCreateForm, setShowCreateForm] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortBy, setSortBy] = useState<'name' | 'updated_at' | 'created_at'>('updated_at');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [newProject, setNewProject] = useState<CreateProjectRequest>({
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [newProject, setNewProject] = useState({
     name: '',
-    description: '',
-    owner_id: 'user:admin', // Temporary hardcoded user
+    description: ''
   });
 
-  const loadProjects = async () => {
+  // Helper functions
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  const getRelativeTime = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+    
+    if (diffInSeconds < 60) return 'Just now';
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+    if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}d ago`;
+    
+    return formatDate(dateString);
+  };
+
+  // Data operations
+  const fetchProjects = async () => {
     try {
       setLoading(true);
-      const projectsData = await apiClient.getProjects();
-      setProjects(projectsData);
       setError(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load projects');
+      const response = await apiClient.getProjects();
+      setProjects(response);
+    } catch (error) {
+      console.error('Failed to fetch projects:', error);
+      setError('Failed to load projects. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -30,245 +321,421 @@ const ProjectsView: React.FC = () => {
 
   const handleCreateProject = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!newProject.name.trim()) return;
+
     try {
-      await apiClient.createProject(newProject);
-      setNewProject({ name: '', description: '', owner_id: 'user:admin' });
-      setShowCreateForm(false);
-      loadProjects(); // Reload projects
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create project');
+      const projectData: CreateProjectRequest = {
+        ...newProject,
+        owner_id: 'user:current' // Default owner for now
+      };
+      await apiClient.createProject(projectData);
+      // Refresh the projects list
+      await fetchProjects();
+      setNewProject({ name: '', description: '' });
+      setShowCreateDialog(false);
+    } catch (error) {
+      console.error('Failed to create project:', error);
+      setError('Failed to create project. Please try again.');
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
+  const handleProjectClick = (projectId: string) => {
+    navigate(`/project/${projectId}`);
   };
 
-  const filteredProjects = projects.filter(project =>
-    project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    project.description.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Filtering and sorting
+  const filteredAndSortedProjects = projects
+    .filter(project => 
+      project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (project.description && project.description.toLowerCase().includes(searchTerm.toLowerCase()))
+    )
+    .sort((a, b) => {
+      switch (sortBy) {
+        case 'name':
+          return a.name.localeCompare(b.name);
+        case 'created_at':
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        case 'updated_at':
+        default:
+          return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+      }
+    });
 
+  // Effects
   useEffect(() => {
-    loadProjects();
+    fetchProjects();
   }, []);
 
   if (loading) {
     return (
-      <div className="fluent-page-container">
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+      <div className={styles.container}>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
+          <Spinner size="large" label="Loading projects..." />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="fluent-page-container">
-      <div className="lcm-card">
-        {/* Page Header */}
-        <div className="fluent-page-header">
-        <button
-          onClick={() => setShowCreateForm(true)}
-          className="fluent-button fluent-button-primary fluent-button-with-icon"
-        >
-          <Plus className="w-4 h-4" />
-          New Project
-        </button>
+    <div className={styles.container}>
+      {/* Header */}
+      <div className={styles.header}>
+        <div className={styles.headerContent}>
+        </div>
       </div>
 
+      {/* Error Message */}
       {error && (
-        <div className="fluent-alert fluent-alert-error">
-          <p>{error}</p>
-        </div>
+        <MessageBar intent="error" style={{ marginBottom: '24px' }}>
+          <MessageBarBody>
+            <MessageBarTitle>Error</MessageBarTitle>
+            {error}
+          </MessageBarBody>
+        </MessageBar>
       )}
 
-      {/* Search and View Controls */}
-      <div className="mb-6 p-4 border border-purple-500/20 rounded-lg bg-transparent">
-        <div className="flex flex-col sm:flex-row gap-4 items-center">
-          <div className="flex-1">
-            <div className="lcm-input-with-icon">
-              <Search className="lcm-input-icon text-gray-400 w-4 h-4" />
-              <input
-                type="text"
+      {/* Main Content */}
+      <div className={styles.mainContent}>
+        {/* Toolbar */}
+        <div className={styles.toolbar}>
+          <div className={styles.toolbarContent}>
+            <div className={styles.searchContainer}>
+              <SearchBox
                 placeholder="Search projects..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="lcm-input"
+                value={searchTerm}
+                onChange={(_, data) => setSearchTerm(data.value)}
+                size="large"
               />
             </div>
-          </div>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setViewMode('grid')}
-              className={`fluent-button fluent-button-icon ${viewMode === 'grid' ? 'fluent-button-primary' : 'fluent-button-subtle'}`}
-              title="Grid view"
-            >
-              <Grid className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => setViewMode('list')}
-              className={`fluent-button fluent-button-icon ${viewMode === 'list' ? 'fluent-button-primary' : 'fluent-button-subtle'}`}
-              title="List view"
-            >
-              <List className="w-4 h-4" />
-            </button>
+            
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <Button
+                appearance="subtle"
+                icon={viewMode === 'grid' ? <ListRegular /> : <GridDotsRegular />}
+                onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
+                size="medium"
+              >
+                {viewMode === 'grid' ? 'List' : 'Grid'}
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
 
-            {/* Create Project Form */}
-      {showCreateForm && (
-        <div className="fluent-modal-overlay">
-          <div className="fluent-modal">
-            <div className="fluent-modal-header">
-              <h3 className="fluent-modal-title">Create New Project</h3>
-              <button
-                onClick={() => setShowCreateForm(false)}
-                className="fluent-button fluent-button-subtle fluent-button-icon"
-              >
-                <Plus className="w-5 h-5 rotate-45" />
-              </button>
+        {/* Content */}
+        <div>
+          {filteredAndSortedProjects.length === 0 ? (
+            <div className={styles.emptyState}>
+              <div className={styles.emptyStateIcon}>
+                <RocketRegular />
+              </div>
+              <Title3 className={styles.emptyStateTitle}>
+                {projects.length === 0 ? 'No projects yet' : 'No projects match your search'}
+              </Title3>
+              <Body2 className={styles.emptyStateDescription}>
+                {projects.length === 0
+                  ? 'Create your first project to start organizing your infrastructure deployments, configurations, and automation workflows.'
+                  : 'Try adjusting your search terms or create a new project.'
+                }
+              </Body2>
+              {projects.length === 0 && (
+                <div style={{ 
+                  display: 'flex', 
+                  justifyContent: 'center', 
+                  alignItems: 'center',
+                  marginTop: '32px'
+                }}>
+                  <Button
+                    className={styles.primaryButton}
+                    icon={<AddRegular />}
+                    onClick={() => setShowCreateDialog(true)}
+                  >
+                    Create your first project
+                  </Button>
+                </div>
+              )}
             </div>
-            <form onSubmit={handleCreateProject} className="fluent-modal-content">
-              <div className="fluent-form-section">
-                <div className="fluent-form-group">
-                  <label className="fluent-label">Project Name</label>
-                  <input
-                    type="text"
-                    value={newProject.name}
-                    onChange={(e) => setNewProject({ ...newProject, name: e.target.value })}
-                    className="lcm-input"
-                    placeholder="Enter project name"
-                    required
-                  />
-                </div>
-                <div className="fluent-form-group">
-                  <label className="fluent-label">Description</label>
-                  <textarea
-                    value={newProject.description}
-                    onChange={(e) => setNewProject({ ...newProject, description: e.target.value })}
-                    className="lcm-input"
-                    placeholder="Enter project description"
-                    rows={3}
-                    style={{ resize: 'vertical', minHeight: '80px' }}
-                  />
-                </div>
+          ) : viewMode === 'grid' ? (
+            <div className={styles.projectGrid}>
+              {filteredAndSortedProjects.map((project) => (
+                <Card 
+                  key={project.id} 
+                  className={styles.projectCard}
+                  onClick={() => handleProjectClick(project.id)}
+                >
+                  {/* Card Header */}
+                  <div style={{
+                    padding: '24px 24px 16px 24px',
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: '16px'
+                  }}>
+                    <Avatar
+                      shape="square"
+                      color="brand"
+                      icon={<FolderRegular />}
+                      size={48}
+                    />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{
+                        fontSize: tokens.fontSizeBase500,
+                        fontWeight: tokens.fontWeightSemibold,
+                        color: tokens.colorNeutralForeground1,
+                        lineHeight: tokens.lineHeightBase500,
+                        marginBottom: '8px'
+                      }}>
+                        {project.name}
+                      </div>
+                      <div style={{
+                        fontSize: tokens.fontSizeBase300,
+                        color: tokens.colorNeutralForeground2,
+                        lineHeight: tokens.lineHeightBase300,
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden'
+                      }}>
+                        {project.description || 'No description provided'}
+                      </div>
+                    </div>
+                    <Button
+                      appearance="subtle"
+                      icon={<MoreHorizontalRegular />}
+                      size="small"
+                      style={{
+                        minWidth: '32px',
+                        height: '32px',
+                        flexShrink: 0
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        // Handle menu actions
+                      }}
+                    />
+                  </div>
+
+                  {/* Card Content */}
+                  <div style={{
+                    padding: '0 24px 24px 24px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '16px'
+                  }}>
+                    {/* Status and Last Updated */}
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center'
+                    }}>
+                      <Badge appearance="tint" color="success" size="small">
+                        Active
+                      </Badge>
+                      <div style={{
+                        fontSize: tokens.fontSizeBase200,
+                        color: tokens.colorNeutralForeground3
+                      }}>
+                        {getRelativeTime(project.updated_at)}
+                      </div>
+                    </div>
+
+                    {/* Divider */}
+                    <div style={{
+                      height: '1px',
+                      backgroundColor: tokens.colorNeutralStroke3,
+                      margin: '4px 0'
+                    }} />
+
+                    {/* Footer Metadata */}
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center'
+                    }}>
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '16px',
+                        fontSize: tokens.fontSizeBase200,
+                        color: tokens.colorNeutralForeground3
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <PersonRegular style={{ fontSize: '16px' }} />
+                          <span>{project.owner_id.replace('user:', '')}</span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <CalendarRegular style={{ fontSize: '16px' }} />
+                          <span>{formatDate(project.created_at)}</span>
+                        </div>
+                      </div>
+                      <ChevronRightRegular style={{
+                        fontSize: '16px',
+                        color: tokens.colorNeutralForeground4,
+                        opacity: 0.7
+                      }} />
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className={styles.listView}>
+              {/* List Header */}
+              <div className={styles.listHeader}>
+                <div>Name</div>
+                <div>Description</div>
+                <div>Owner</div>
+                <div>Created</div>
+                <div>Updated</div>
+                <div></div>
               </div>
               
-              <div className="fluent-modal-actions">
-                <button
-                  type="button"
-                  onClick={() => setShowCreateForm(false)}
-                  className="fluent-button fluent-button-subtle"
+              {/* List Items */}
+              {filteredAndSortedProjects.map((project) => (
+                <div
+                  key={project.id}
+                  className={styles.listRow}
+                  onClick={() => handleProjectClick(project.id)}
                 >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="fluent-button fluent-button-primary"
-                >
-                  Create Project
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Projects Grid/List */}
-      {viewMode === 'grid' ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredProjects.map((project) => (
-            <div key={project.id} className="p-4 rounded-lg border border-purple-500/20 hover:border-purple-500/40 transition-all duration-200">
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center">
-                  <div className="fluent-icon-container fluent-icon-container-primary mr-3">
-                    <FolderOpen className="w-5 h-5" />
+                  <div className={styles.listRowName}>
+                    <FolderRegular style={{ color: tokens.colorBrandBackground, fontSize: '18px' }} />
+                    <span>{project.name}</span>
+                  </div>
+                  <div className={styles.listRowDescription}>
+                    {project.description || 'No description'}
+                  </div>
+                  <div className={styles.listRowMeta}>
+                    {project.owner_id.replace('user:', '')}
+                  </div>
+                  <div className={styles.listRowMeta}>
+                    {formatDate(project.created_at)}
+                  </div>
+                  <div className={styles.listRowMeta}>
+                    {getRelativeTime(project.updated_at)}
                   </div>
                   <div>
-                    <h3 className="fluent-card-title">{project.name}</h3>
-                    <p className="fluent-card-subtitle">{project.description}</p>
+                    <Button
+                      appearance="subtle"
+                      icon={<MoreHorizontalRegular />}
+                      size="small"
+                      style={{ 
+                        minWidth: '32px',
+                        minHeight: '32px',
+                        border: `1px solid ${tokens.colorNeutralStroke2}`,
+                        backgroundColor: tokens.colorNeutralBackground1
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        // Handle menu actions
+                      }}
+                    />
                   </div>
                 </div>
-              </div>
-              
-              <div className="space-y-2 mt-4">
-                <div className="flex items-center text-sm">
-                  <Calendar className="w-4 h-4 mr-3 text-gray-400" />
-                  <span className="text-gray-600">Created {formatDate(project.created_at)}</span>
-                </div>
-                <div className="flex items-center text-sm">
-                  <User className="w-4 h-4 mr-3 text-gray-400" />
-                  <span className="text-gray-600">{project.owner_id}</span>
-                </div>
-              </div>
+              ))}
             </div>
-          ))}
+          )}
         </div>
-      ) : (
-        <div className="border border-purple-500/20 rounded-lg bg-transparent overflow-hidden">
-          <div className="lcm-table-header">
-            <div>Name</div>
-            <div>Description</div>
-            <div>Owner</div>
-            <div>Created</div>
-            <div>Updated</div>
-          </div>
-          {filteredProjects.map((project) => (
-            <div key={project.id} className="lcm-table-row">
-              <div data-label="Name">
-                <div className="flex items-center">
-                  <FolderOpen className="w-4 h-4 mr-2 text-purple-600" />
-                  <span className="font-medium">{project.name}</span>
-                </div>
-              </div>
-              <div data-label="Description">{project.description}</div>
-              <div data-label="Owner">{project.owner_id}</div>
-              <div data-label="Created">{formatDate(project.created_at)}</div>
-              <div data-label="Updated">{formatDate(project.updated_at)}</div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {filteredProjects.length === 0 && projects.length > 0 && (
-        <div className="fluent-empty-state">
-          <div className="fluent-empty-state-icon">
-            <Search className="w-16 h-16" />
-          </div>
-          <h3 className="fluent-empty-state-title">No matching projects found</h3>
-          <p className="fluent-empty-state-description">
-            Try adjusting your search criteria.
-          </p>
-        </div>
-      )}
-
-      {projects.length === 0 && !loading && (
-        <div className="fluent-empty-state">
-          <div className="fluent-empty-state-icon">
-            <FolderOpen className="w-16 h-16" />
-          </div>
-          <h3 className="fluent-empty-state-title">No projects yet</h3>
-          <p className="fluent-empty-state-description">
-            Get started by creating your first infrastructure project.
-          </p>
-          <button
-            onClick={() => setShowCreateForm(true)}
-            className="fluent-button fluent-button-primary fluent-button-with-icon mt-4"
-          >
-            <Plus className="w-4 h-4" />
-            Create Project
-          </button>
-        </div>
-      )}
       </div>
+
+      {/* Summary Statistics */}
+      {projects.length > 0 && (
+        <div style={{ 
+          marginTop: '24px',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: '16px'
+        }}>
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1))',
+            padding: '16px',
+            borderRadius: '12px',
+            textAlign: 'center',
+            border: '1px solid rgba(16, 185, 129, 0.2)',
+            backdropFilter: 'blur(20px)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+          }}>
+            <div style={{ fontSize: '24px', fontWeight: '600', color: '#10b981' }}>
+              {projects.filter(p => p.name).length}
+            </div>
+            <div style={{ fontSize: '14px', color: '#6b7280', fontFamily: 'Montserrat, sans-serif' }}>Active Projects</div>
+          </div>
+          
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1))',
+            padding: '16px',
+            borderRadius: '12px',
+            textAlign: 'center',
+            border: '1px solid rgba(99, 102, 241, 0.2)',
+            backdropFilter: 'blur(20px)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+          }}>
+            <div style={{ fontSize: '24px', fontWeight: '600', color: '#6366f1' }}>
+              {projects.length}
+            </div>
+            <div style={{ fontSize: '14px', color: '#6b7280', fontFamily: 'Montserrat, sans-serif' }}>Total Projects</div>
+          </div>
+
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.1))',
+            padding: '16px',
+            borderRadius: '12px',
+            textAlign: 'center',
+            border: '1px solid rgba(245, 158, 11, 0.2)',
+            backdropFilter: 'blur(20px)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+          }}>
+            <div style={{ fontSize: '24px', fontWeight: '600', color: '#f59e0b' }}>
+              {filteredAndSortedProjects.length}
+            </div>
+            <div style={{ fontSize: '14px', color: '#6b7280', fontFamily: 'Montserrat, sans-serif' }}>Showing</div>
+          </div>
+        </div>
+      )}
+
+      {/* Create Project Dialog */}
+      <Dialog open={showCreateDialog} onOpenChange={(_, data) => setShowCreateDialog(data.open)}>
+        <DialogSurface>
+          <form onSubmit={handleCreateProject}>
+            <DialogBody>
+              <DialogTitle>Create New Project</DialogTitle>
+              <DialogContent className={styles.dialogContent}>
+                <div className={styles.formField}>
+                  <label className={styles.formLabel}>Project Name</label>
+                  <Input
+                    value={newProject.name}
+                    onChange={(_, data) => setNewProject({ ...newProject, name: data.value })}
+                    placeholder="Enter project name"
+                    required
+                    size="large"
+                  />
+                </div>
+                <div className={styles.formField}>
+                  <label className={styles.formLabel}>Description</label>
+                  <Textarea
+                    value={newProject.description}
+                    onChange={(_, data) => setNewProject({ ...newProject, description: data.value })}
+                    placeholder="Enter project description"
+                    rows={4}
+                  />
+                </div>
+              </DialogContent>
+              <DialogActions>
+                <Button 
+                  appearance="secondary" 
+                  onClick={() => setShowCreateDialog(false)}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  type="submit" 
+                  appearance="primary"
+                  disabled={!newProject.name.trim()}
+                >
+                  Create Project
+                </Button>
+              </DialogActions>
+            </DialogBody>
+          </form>
+        </DialogSurface>
+      </Dialog>
     </div>
   );
-};
-
-export default ProjectsView;
+}

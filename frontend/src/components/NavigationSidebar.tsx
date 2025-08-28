@@ -25,7 +25,9 @@ import {
   SettingsFilled,
   NavigationRegular,
   DataUsageRegular,
-  DataUsageFilled
+  DataUsageFilled,
+  ChartMultipleRegular,
+  ChartMultipleFilled
 } from '@fluentui/react-icons';
 
 interface NavigationSidebarProps {
@@ -54,92 +56,46 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
 
   const mainMenuItems: MenuItem[] = [
     { 
-      id: 'data-collection', 
-      title: 'Data Collection', 
-      icon: <DatabaseRegular />, 
-      iconFilled: <DatabaseFilled />, 
-      path: '/data-collection' 
+      id: 'projects', 
+      title: 'Projects', 
+      icon: <FolderRegular />, 
+      iconFilled: <FolderFilled />, 
+      path: '/projects',
+      badge: 'Primary',
+      badgeType: 'brand'
     },
     { 
       id: 'hardware-pool', 
       title: 'Hardware Pool', 
       icon: <ServerRegular />, 
       iconFilled: <ServerFilled />, 
-      path: '/hardware-pool', 
-      badge: 'New', 
-      badgeType: 'brand' 
+      path: '/hardware-pool' 
     },
     { 
-      id: 'migration-planner', 
-      title: 'Migration Planner', 
-      icon: <ArrowSyncRegular />, 
-      iconFilled: <ArrowSyncFilled />, 
-      path: '/migration-planner' 
+      id: 'hardware-basket', 
+      title: 'Hardware Basket', 
+      icon: <DatabaseRegular />, 
+      iconFilled: <DatabaseFilled />, 
+      path: '/hardware-basket' 
     },
     { 
-      id: 'cluster-sizing', 
-      title: 'Cluster Sizing', 
-      icon: <ResizeRegular />, 
-      iconFilled: <ResizeFilled />, 
-      path: '/cluster-sizing' 
+      id: 'guides', 
+      title: 'Guides', 
+      icon: <NavigationRegular />, 
+      iconFilled: <NavigationRegular />, 
+      path: '/guides' 
     },
     { 
-      id: 'network-visualizer', 
-      title: 'Network Visualizer', 
-      icon: <GlobeRegular />, 
-      iconFilled: <GlobeFilled />, 
-      path: '/network-visualizer' 
-    },
-    { 
-      id: 'lifecycle-planner', 
-      title: 'Lifecycle Planning', 
-      icon: <CalendarRegular />, 
-      iconFilled: <CalendarFilled />, 
-      path: '/lifecycle-planner' 
-    },
-    { 
-      id: 'design-docs', 
-      title: 'Design Documents', 
+      id: 'document-templates', 
+      title: 'Document Templates', 
       icon: <DocumentRegular />, 
       iconFilled: <DocumentFilled />, 
-      path: '/design-docs' 
-    },
-  ];
-
-  const projectMenuItems: MenuItem[] = [
-    { 
-      id: 'projects', 
-      title: 'Project Management', 
-      icon: <FolderRegular />, 
-      iconFilled: <FolderFilled />, 
-      path: '/projects' 
-    },
-    { 
-      id: 'migration-dashboard', 
-      title: 'Migration Dashboard', 
-      icon: <DataUsageRegular />, 
-      iconFilled: <DataUsageFilled />, 
-      path: '/migration-dashboard',
-      badge: 'New',
-      badgeType: 'brand'
-    },
-    { 
-      id: 'migration-projects', 
-      title: 'Migration Projects', 
-      icon: <ArrowSyncRegular />, 
-      iconFilled: <ArrowSyncFilled />, 
-      path: '/migration-projects',
-      badge: 'New',
-      badgeType: 'success'
-    },
-    { 
-      id: 'workflows', 
-      title: 'Workflows', 
-      icon: <FlashRegular />, 
-      iconFilled: <FlashFilled />, 
-      path: '/workflows' 
+      path: '/document-templates' 
     }
   ];
+
+  // Remove redundant project menu items - everything should be handled within the main Projects flow
+  const projectMenuItems: MenuItem[] = [];
 
   const handleItemClick = (path: string) => {
     navigate(path);
@@ -361,94 +317,6 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
           }} />
         )}
 
-        {/* Project Menu */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          {isOpen && (
-            <h3 style={{ 
-              margin: '0 0 12px 20px',
-              fontSize: '11px',
-              fontWeight: '600',
-              textTransform: 'uppercase',
-              letterSpacing: '1.2px',
-              color: 'rgba(44, 44, 44, 0.6)',
-              fontFamily: "'Poppins', system-ui, sans-serif",
-              textShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
-            }}>
-              Project Tools
-            </h3>
-          )}
-          
-          {projectMenuItems.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => handleItemClick(item.path)}
-              style={{
-                width: '100%',
-                padding: isOpen ? '14px 20px' : '14px 10px',
-                borderRadius: '12px',
-                border: 'none',
-                background: isItemActive(item.path) 
-                  ? 'linear-gradient(135deg, rgba(139, 92, 246, 0.9), rgba(99, 102, 241, 0.9))'
-                  : 'transparent',
-                color: isItemActive(item.path) ? '#ffffff' : '#2c2c2c',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px',
-                justifyContent: isOpen ? 'flex-start' : 'center',
-                minHeight: '48px',
-                fontFamily: "'Poppins', system-ui, sans-serif",
-                fontSize: '14px',
-                fontWeight: '500',
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                backdropFilter: isItemActive(item.path) ? 'blur(10px)' : 'none',
-                boxShadow: isItemActive(item.path) 
-                  ? '0 4px 16px rgba(255, 255, 255, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3)' 
-                  : 'none',
-                textShadow: isItemActive(item.path) ? '0 1px 2px rgba(0, 0, 0, 0.1)' : 'none'
-              }}
-              onMouseEnter={(e) => {
-                const target = e.currentTarget as HTMLElement;
-                if (!isItemActive(item.path)) {
-                  target.style.background = 'rgba(255, 255, 255, 0.15)';
-                  target.style.backdropFilter = 'blur(8px)';
-                  target.style.transform = 'translateY(-2px)';
-                  target.style.boxShadow = '0 6px 20px rgba(255, 255, 255, 0.15)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                const target = e.currentTarget as HTMLElement;
-                if (!isItemActive(item.path)) {
-                  target.style.background = 'transparent';
-                  target.style.backdropFilter = 'none';
-                  target.style.transform = 'translateY(0)';
-                  target.style.boxShadow = 'none';
-                }
-              }}
-            >
-              <div style={{ 
-                fontSize: '20px', 
-                flexShrink: 0,
-                filter: isItemActive(item.path) ? 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1))' : 'none',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
-                {isItemActive(item.path) ? item.iconFilled : item.icon}
-              </div>
-              
-              {isOpen && (
-                <span style={{ 
-                  flex: 1, 
-                  textAlign: 'left',
-                  fontWeight: isItemActive(item.path) ? '600' : '500'
-                }}>
-                  {item.title}
-                </span>
-              )}
-            </button>
-          ))}
-        </div>
       </div>
     </nav>
   );

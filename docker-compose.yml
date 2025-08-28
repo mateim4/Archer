@@ -1,6 +1,19 @@
 version: '3.8'
 
 services:
+  surrealdb:
+    image: surrealdb/surrealdb:latest
+    ports:
+      - "8000:8000"
+    command: 
+      - start
+      - --log=trace
+      - --user=root
+      - --pass=root
+      - memory
+    environment:
+      - RUST_LOG=debug
+
   lcm-designer:
     build: .
     ports:
@@ -12,8 +25,11 @@ services:
       - /app/target
     environment:
       - NODE_ENV=development
+      - DATABASE_URL=ws://surrealdb:8000/rpc
     working_dir: /app
     command: npm run dev
+    depends_on:
+      - surrealdb
 
   lcm-designer-server:
     build: .
@@ -24,4 +40,8 @@ services:
     working_dir: /app/server
     command: npm start
     depends_on:
+      - surrealdb
       - lcm-designer
+
+volumes:
+  surrealdb_data:

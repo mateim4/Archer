@@ -1,5 +1,8 @@
 pub mod hardware_baskets;
-pub mod project_management;
+pub mod project_workflow;
+pub mod hardware_pool;
+pub mod rvtools;
+pub mod analytics;
 
 use axum::{
     routing::get,
@@ -12,12 +15,14 @@ use crate::migration_api;
 use crate::database::AppState;
 
 pub fn api_router(state: AppState) -> Router {
+    
     Router::new()
         .route("/health", get(health_check))
-        .nest("/api", hardware_baskets::routes())
-        .nest("/api", migration_api::routes())
-        .nest("/api", project_management::routes())
-        .with_state(state)
+        .merge(hardware_baskets::routes().with_state(state.clone()))
+        .merge(migration_api::routes().with_state(state.clone()))
+        .merge(project_workflow::routes().with_state(state.clone()))
+        .nest("/api/hardware-pool", hardware_pool::create_hardware_pool_router(state.clone()))
+        .nest("/api/rvtools", rvtools::create_rvtools_router(state.clone()))
 }
 
 async fn health_check() -> Json<serde_json::Value> {

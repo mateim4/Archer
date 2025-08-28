@@ -1,5 +1,6 @@
 pub mod hardware_basket;
 pub mod project;
+pub mod workflow;
 
 use serde::{Deserialize, Serialize};
 use chrono::{DateTime, Utc};
