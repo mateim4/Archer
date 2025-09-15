@@ -9,11 +9,16 @@
     "preview": "vite preview",
     "tauri": "tauri",
     "server": "cd server && npm start",
-    "server:dev": "cd server && npm run dev"
+    "server:dev": "cd server && npm run dev",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:debug": "playwright test --debug",
+    "test:e2e:report": "playwright show-report"
   },
   "dependencies": {
     "@fluentui/react-components": "^9.67.0",
     "@fluentui/react-icons": "^2.0.307",
+    "@hello-pangea/dnd": "^18.0.1",
     "@tauri-apps/api": "^1.5.1",
     "echarts": "^5.4.3",
     "echarts-for-react": "^3.0.2",
@@ -25,12 +30,14 @@
     "zustand": "^4.4.7"
   },
   "devDependencies": {
+    "@playwright/test": "^1.55.0",
     "@tauri-apps/cli": "^1.5.6",
     "@types/node": "^24.1.0",
     "@types/react": "^18.2.37",
     "@types/react-dom": "^18.2.15",
     "@vitejs/plugin-react": "^4.7.0",
     "autoprefixer": "^10.4.21",
+    "playwright": "^1.55.0",
     "postcss": "^8.5.6",
     "typescript": "^5.2.2",
     "vite": "^5.4.19"

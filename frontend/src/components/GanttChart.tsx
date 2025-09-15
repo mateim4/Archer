@@ -59,9 +59,6 @@ const GanttChart: React.FC<GanttChartProps> = ({
   const [selectedActivity, setSelectedActivity] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
 
-  // Calculate timeline and positioning
-  const timelineData = useMemo(() => calculateTimeline(activities), [activities]);
-
   const calculateTimeline = (activities: Activity[]): TimelineCalculation => {
     if (activities.length === 0) {
       return {
@@ -122,6 +119,9 @@ const GanttChart: React.FC<GanttChartProps> = ({
 
     return { projectStart, projectEnd, totalDuration, activityBars };
   };
+
+  // Calculate timeline and positioning
+  const timelineData = useMemo(() => calculateTimeline(activities), [activities]);
 
   const getActivityTypeIcon = (type: string) => {
     const icons = {

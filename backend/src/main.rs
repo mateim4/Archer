@@ -4,7 +4,6 @@ use tower_http::{cors::CorsLayer, trace::TraceLayer};
 mod api;
 mod models;
 mod database;
-mod migration_api;
 mod migration_models;
 mod services;
 // mod hardware_basket_api; // Disabled - using new api/hardware_baskets.rs

@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { 
-  HomeRegular,
-  HomeFilled,
   DatabaseRegular,
   DatabaseFilled,
   ServerRegular,
@@ -27,7 +25,9 @@ import {
   DataUsageRegular,
   DataUsageFilled,
   ChartMultipleRegular,
-  ChartMultipleFilled
+  ChartMultipleFilled,
+  TableRegular,
+  TableFilled
 } from '@fluentui/react-icons';
 
 interface NavigationSidebarProps {
@@ -60,7 +60,7 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
       title: 'Projects', 
       icon: <FolderRegular />, 
       iconFilled: <FolderFilled />, 
-      path: '/projects',
+      path: '/app/projects',
       badge: 'Primary',
       badgeType: 'brand'
     },
@@ -69,28 +69,44 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
       title: 'Hardware Pool', 
       icon: <ServerRegular />, 
       iconFilled: <ServerFilled />, 
-      path: '/hardware-pool' 
+      path: '/app/hardware-pool' 
     },
     { 
       id: 'hardware-basket', 
       title: 'Hardware Basket', 
       icon: <DatabaseRegular />, 
       iconFilled: <DatabaseFilled />, 
-      path: '/hardware-basket' 
+      path: '/app/hardware-basket' 
+    },
+    { 
+      id: 'enhanced-rvtools', 
+      title: 'Enhanced RVTools', 
+      icon: <TableRegular />, 
+      iconFilled: <TableFilled />, 
+      path: '/app/enhanced-rvtools',
+      badge: 'New',
+      badgeType: 'success'
     },
     { 
       id: 'guides', 
       title: 'Guides', 
       icon: <NavigationRegular />, 
       iconFilled: <NavigationRegular />, 
-      path: '/guides' 
+      path: '/app/guides' 
     },
     { 
       id: 'document-templates', 
       title: 'Document Templates', 
       icon: <DocumentRegular />, 
       iconFilled: <DocumentFilled />, 
-      path: '/document-templates' 
+      path: '/app/document-templates' 
+    },
+    { 
+      id: 'settings', 
+      title: 'Settings', 
+      icon: <SettingsRegular />, 
+      iconFilled: <SettingsFilled />, 
+      path: '/app/settings' 
     }
   ];
 

@@ -301,17 +301,17 @@ const DashboardView: React.FC = () => {
             // The SimpleFileUpload component now handles the state update.
             // We just need to update the local UI state.
             setIsDataUploaded(true);
-            console.log('VMware environment processed:', result);
+            // VMware environment processed successfully
           }}
           onError={(error: string) => {
             console.error('Failed to process VMware file:', error);
             // Show user-friendly error message
             if (error.includes('Expected VMware environment data, got hardware server data')) {
-              console.log('This appears to be a hardware configuration file. Please upload a VMware environment export (RVTools, vSphere CSV) instead.');
+              // Hardware configuration file detected - need VMware environment export
             } else if (error.includes('Excel files require server processing')) {
-              console.log('Excel file detected. Starting backend server for processing... Or export your RVTools data as CSV for direct processing.');
+              // Excel file requires backend processing
             } else {
-              console.log('Upload failed. Please ensure you are uploading a valid RVTools export or VMware vSphere file.');
+              // Upload failed - invalid file format
             }
           }}
         />

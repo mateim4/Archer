@@ -1,0 +1,133 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e5]:
+  - navigation [ref=e6]:
+    - generic [ref=e8]:
+      - button [ref=e9] [cursor=pointer]:
+        - img [ref=e10] [cursor=pointer]
+      - generic [ref=e12]:
+        - heading "LCM Designer" [level=1] [ref=e13]
+        - paragraph [ref=e14]: Infrastructure Planning
+    - generic [ref=e16]:
+      - button "Projects Primary" [ref=e17] [cursor=pointer]:
+        - img [ref=e19] [cursor=pointer]
+        - generic [ref=e21] [cursor=pointer]: Projects
+        - generic [ref=e22] [cursor=pointer]: Primary
+      - button "Hardware Pool" [ref=e23] [cursor=pointer]:
+        - img [ref=e25] [cursor=pointer]
+        - generic [ref=e27] [cursor=pointer]: Hardware Pool
+      - button "Hardware Basket" [ref=e28] [cursor=pointer]:
+        - img [ref=e30] [cursor=pointer]
+        - generic [ref=e32] [cursor=pointer]: Hardware Basket
+      - button "Guides" [ref=e33] [cursor=pointer]:
+        - img [ref=e35] [cursor=pointer]
+        - generic [ref=e37] [cursor=pointer]: Guides
+      - button "Document Templates" [ref=e38] [cursor=pointer]:
+        - img [ref=e40] [cursor=pointer]
+        - generic [ref=e42] [cursor=pointer]: Document Templates
+      - button "Settings" [ref=e43] [cursor=pointer]:
+        - img [ref=e45] [cursor=pointer]
+        - generic [ref=e47] [cursor=pointer]: Settings
+  - main [ref=e49]:
+    - 'main "Project Details: Demo Infrastructure Project" [ref=e50]':
+      - navigation "breadcrumb" [ref=e51]:
+        - list [ref=e52]:
+          - listitem [ref=e53]:
+            - button "Projects" [ref=e54]:
+              - img [ref=e55]
+              - text: Projects
+          - listitem [ref=e57]:
+            - img [ref=e58]
+          - listitem [ref=e60]:
+            - button "Demo Infrastructure Project" [disabled] [ref=e61]
+      - group [ref=e62]:
+        - generic [ref=e64]:
+          - generic [ref=e65]:
+            - generic [ref=e66]: 55%
+            - generic [ref=e67]: Overall Progress
+          - generic [ref=e68]:
+            - progressbar [ref=e69]
+            - generic [ref=e71]: 1 of 3 activities completed
+      - generic:
+        - group
+        - group
+        - group
+        - group
+      - generic [ref=e72]:
+        - tablist "Project sections" [ref=e73]:
+          - tab "Timeline" [ref=e75] [cursor=pointer]:
+            - img [ref=e77] [cursor=pointer]
+            - generic [ref=e79] [cursor=pointer]: Timeline
+          - tab "Activities" [active] [selected] [ref=e80] [cursor=pointer]:
+            - img [ref=e82] [cursor=pointer]
+            - generic [ref=e84] [cursor=pointer]: Activities
+          - tab "Overview" [ref=e85] [cursor=pointer]:
+            - img [ref=e87] [cursor=pointer]
+            - generic [ref=e89] [cursor=pointer]: Overview
+        - generic [ref=e91]:
+          - generic [ref=e92]:
+            - generic [ref=e94]:
+              - img [ref=e96]
+              - textbox "Search activities" [ref=e98]
+            - combobox "Filter activities by status" [ref=e101] [cursor=pointer]:
+              - text: all
+              - img [ref=e103] [cursor=pointer]
+          - button "Add Activity" [ref=e105]:
+            - img [ref=e107]
+            - text: Add Activity
+      - tabpanel [ref=e109]:
+        - group [ref=e110]:
+          - generic [ref=e112]:
+            - group [ref=e113]:
+              - generic [ref=e114]:
+                - generic [ref=e115]:
+                  - generic [ref=e116]:
+                    - generic [ref=e117]: "Assignee:"
+                    - generic [ref=e118]: john.doe@company.com
+                  - generic [ref=e119]:
+                    - generic [ref=e120]: "Start Date:"
+                    - generic [ref=e121]: 1/15/2024
+                  - generic [ref=e122]:
+                    - generic [ref=e123]: "End Date:"
+                    - generic [ref=e124]: 2/1/2024
+                - generic [ref=e125]:
+                  - generic [ref=e126]:
+                    - generic [ref=e127]: Progress
+                    - generic [ref=e128]: 100%
+                  - 'progressbar "VMware Assessment & Planning progress: 100%" [ref=e129]'
+            - group [ref=e131]:
+              - generic [ref=e132]:
+                - generic [ref=e133]:
+                  - generic [ref=e134]:
+                    - generic [ref=e135]: "Assignee:"
+                    - generic [ref=e136]: sarah.smith@company.com
+                  - generic [ref=e137]:
+                    - generic [ref=e138]: "Start Date:"
+                    - generic [ref=e139]: 1/30/2024
+                  - generic [ref=e140]:
+                    - generic [ref=e141]: "End Date:"
+                    - generic [ref=e142]: 3/15/2024
+                - generic [ref=e143]:
+                  - generic [ref=e144]:
+                    - generic [ref=e145]: Progress
+                    - generic [ref=e146]: 65%
+                  - 'progressbar "Hardware Procurement progress: 65%" [ref=e147]'
+            - group [ref=e149]:
+              - generic [ref=e150]:
+                - generic [ref=e151]:
+                  - generic [ref=e152]:
+                    - generic [ref=e153]: "Assignee:"
+                    - generic [ref=e154]: mike.johnson@company.com
+                  - generic [ref=e155]:
+                    - generic [ref=e156]: "Start Date:"
+                    - generic [ref=e157]: 3/1/2024
+                  - generic [ref=e158]:
+                    - generic [ref=e159]: "End Date:"
+                    - generic [ref=e160]: 3/20/2024
+                - generic [ref=e161]:
+                  - generic [ref=e162]:
+                    - generic [ref=e163]: Progress
+                    - generic [ref=e164]: 0%
+                  - 'progressbar "Hyper-V Environment Setup progress: 0%" [ref=e165]'
+```

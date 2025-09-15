@@ -1,0 +1,179 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - generic [ref=e6]:
+    - navigation [ref=e7]:
+      - generic [ref=e9]:
+        - button [ref=e10] [cursor=pointer]:
+          - img [ref=e11] [cursor=pointer]
+        - generic [ref=e13]:
+          - heading [level=1] [ref=e14]: LCM Designer
+          - paragraph [ref=e15]: Infrastructure Planning
+      - generic [ref=e17]:
+        - button [ref=e18] [cursor=pointer]:
+          - img [ref=e20] [cursor=pointer]
+          - generic [ref=e22] [cursor=pointer]: Projects
+          - generic [ref=e23] [cursor=pointer]: Primary
+        - button [ref=e24] [cursor=pointer]:
+          - img [ref=e26] [cursor=pointer]
+          - generic [ref=e28] [cursor=pointer]: Hardware Pool
+        - button [ref=e29] [cursor=pointer]:
+          - img [ref=e31] [cursor=pointer]
+          - generic [ref=e33] [cursor=pointer]: Hardware Basket
+        - button [ref=e34] [cursor=pointer]:
+          - img [ref=e36] [cursor=pointer]
+          - generic [ref=e38] [cursor=pointer]: Guides
+        - button [ref=e39] [cursor=pointer]:
+          - img [ref=e41] [cursor=pointer]
+          - generic [ref=e43] [cursor=pointer]: Document Templates
+        - button [ref=e44] [cursor=pointer]:
+          - img [ref=e46] [cursor=pointer]
+          - generic [ref=e48] [cursor=pointer]: Settings
+    - main [ref=e50]:
+      - main [ref=e51]:
+        - navigation [ref=e52]:
+          - list [ref=e53]:
+            - listitem [ref=e54]:
+              - button [ref=e55]:
+                - img [ref=e56]
+                - text: Projects
+            - listitem [ref=e58]:
+              - img [ref=e59]
+            - listitem [ref=e61]:
+              - button [disabled] [ref=e62]: Demo Infrastructure Project
+        - group [ref=e63]:
+          - generic [ref=e65]:
+            - generic [ref=e66]:
+              - generic [ref=e67]: 55%
+              - generic [ref=e68]: Overall Progress
+            - generic [ref=e69]:
+              - progressbar [ref=e70]
+              - generic [ref=e72]: 1 of 3 activities completed
+        - generic [ref=e73]:
+          - tablist [ref=e74]:
+            - tab [ref=e76] [cursor=pointer]:
+              - img [ref=e78] [cursor=pointer]
+              - generic [ref=e80] [cursor=pointer]: Timeline
+            - tab [selected] [ref=e81] [cursor=pointer]:
+              - img [ref=e83] [cursor=pointer]
+              - generic [ref=e85] [cursor=pointer]: Activities
+            - tab [ref=e86] [cursor=pointer]:
+              - img [ref=e88] [cursor=pointer]
+              - generic [ref=e90] [cursor=pointer]: Overview
+          - generic [ref=e92]:
+            - generic [ref=e93]:
+              - generic [ref=e95]:
+                - img [ref=e97]
+                - textbox [ref=e99]
+              - combobox [ref=e102] [cursor=pointer]:
+                - text: all
+                - img [ref=e104] [cursor=pointer]
+            - button [ref=e106]:
+              - img [ref=e108]
+              - text: Add Activity
+        - tabpanel [ref=e110]:
+          - group [ref=e111]:
+            - generic [ref=e113]:
+              - group [ref=e114]:
+                - generic [ref=e115]:
+                  - generic [ref=e116]:
+                    - generic [ref=e117]:
+                      - generic [ref=e118]: "Assignee:"
+                      - generic [ref=e119]: john.doe@company.com
+                    - generic [ref=e120]:
+                      - generic [ref=e121]: "Start Date:"
+                      - generic [ref=e122]: 1/15/2024
+                    - generic [ref=e123]:
+                      - generic [ref=e124]: "End Date:"
+                      - generic [ref=e125]: 2/1/2024
+                  - generic [ref=e126]:
+                    - generic [ref=e127]:
+                      - generic [ref=e128]: Progress
+                      - generic [ref=e129]: 100%
+                    - progressbar [ref=e130]
+              - group [ref=e132]:
+                - generic [ref=e133]:
+                  - generic [ref=e134]:
+                    - generic [ref=e135]:
+                      - generic [ref=e136]: "Assignee:"
+                      - generic [ref=e137]: sarah.smith@company.com
+                    - generic [ref=e138]:
+                      - generic [ref=e139]: "Start Date:"
+                      - generic [ref=e140]: 1/30/2024
+                    - generic [ref=e141]:
+                      - generic [ref=e142]: "End Date:"
+                      - generic [ref=e143]: 3/15/2024
+                  - generic [ref=e144]:
+                    - generic [ref=e145]:
+                      - generic [ref=e146]: Progress
+                      - generic [ref=e147]: 65%
+                    - progressbar [ref=e148]
+              - group [ref=e150]:
+                - generic [ref=e151]:
+                  - generic [ref=e152]:
+                    - generic [ref=e153]:
+                      - generic [ref=e154]: "Assignee:"
+                      - generic [ref=e155]: mike.johnson@company.com
+                    - generic [ref=e156]:
+                      - generic [ref=e157]: "Start Date:"
+                      - generic [ref=e158]: 3/1/2024
+                    - generic [ref=e159]:
+                      - generic [ref=e160]: "End Date:"
+                      - generic [ref=e161]: 3/20/2024
+                  - generic [ref=e162]:
+                    - generic [ref=e163]:
+                      - generic [ref=e164]: Progress
+                      - generic [ref=e165]: 0%
+                    - progressbar [ref=e166]
+  - dialog "Create New Activity" [ref=e168]:
+    - generic [ref=e170]:
+      - heading "Create New Activity" [level=2] [ref=e171]
+      - generic [ref=e172]:
+        - generic [ref=e173]: Create a new project activity with all necessary details and validation.
+        - generic [ref=e174]:
+          - generic [ref=e175]:
+            - generic [ref=e176]:
+              - generic [ref=e177]:
+                - text: Activity Name
+                - generic [ref=e178]: "*"
+              - textbox "Activity Name" [ref=e180]: Test Activity
+            - generic [ref=e181]:
+              - generic [ref=e182]: Description (Optional)
+              - textbox "Description (Optional)" [ref=e184]
+            - generic [ref=e185]:
+              - generic [ref=e186]:
+                - generic [ref=e187]:
+                  - text: Activity Type
+                  - generic [ref=e188]: "*"
+                - combobox "Activity Type" [ref=e190] [cursor=pointer]:
+                  - text: custom
+                  - img [ref=e192] [cursor=pointer]
+              - generic [ref=e194]:
+                - generic [ref=e195]:
+                  - text: Assignee
+                  - generic [ref=e196]: "*"
+                - generic [ref=e197]:
+                  - combobox "Assignee" [expanded] [active] [ref=e198] [cursor=pointer]:
+                    - text: Select assignee...
+                    - img [ref=e200] [cursor=pointer]
+                  - listbox "Assignee" [ref=e202]:
+                    - option "john.doe@company.com" [ref=e203] [cursor=pointer]
+                    - option "sarah.smith@company.com" [ref=e204] [cursor=pointer]
+                    - option "mike.johnson@company.com" [ref=e205] [cursor=pointer]
+                    - option "admin@company.com" [ref=e206] [cursor=pointer]
+            - generic [ref=e207]:
+              - generic [ref=e208]:
+                - generic [ref=e209]:
+                  - text: Start Date
+                  - generic [ref=e210]: "*"
+                - textbox "Start Date" [ref=e212]
+              - generic [ref=e213]:
+                - generic [ref=e214]:
+                  - text: End Date
+                  - generic [ref=e215]: "*"
+                - textbox "End Date" [ref=e217]
+          - generic [ref=e218]:
+            - button "Cancel" [ref=e219]
+            - button "Create Activity" [ref=e220]
+```

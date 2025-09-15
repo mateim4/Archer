@@ -239,7 +239,7 @@ const MigrationDashboard: React.FC = () => {
     };
     
     const config = statusConfig[status] || statusConfig.planning;
-    return <Badge color={config.color}>{config.text}</Badge>;
+    return <Badge appearance="outline" color={config.color}>{config.text}</Badge>;
   };
 
   const getProjectTypeIcon = (type: ProjectType) => {
@@ -367,11 +367,11 @@ const MigrationDashboard: React.FC = () => {
                 </Text>
 
                 <div className={classes.projectMeta}>
-                  <Badge color="informative">
+                  <Badge appearance="outline" color="informative">
                     {project.sourceEnvironment.type} → {project.targetEnvironment.type}
                   </Badge>
-                  <Badge color="subtle">Priority: {project.priority}</Badge>
-                  <Badge color="subtle">Risk: {project.riskLevel}</Badge>
+                  <Badge appearance="outline" color="subtle">Priority: {project.priority}</Badge>
+                  <Badge appearance="outline" color="subtle">Risk: {project.riskLevel}</Badge>
                 </div>
 
                 <div className={classes.progressSection}>

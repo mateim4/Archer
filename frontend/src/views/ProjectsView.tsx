@@ -55,51 +55,38 @@ import {
   ChevronRightRegular
 } from '@fluentui/react-icons';
 import { apiClient, Project, CreateProjectRequest } from '../utils/apiClient';
+import GlassmorphicLayout from '../components/GlassmorphicLayout';
+import { DesignTokens, getStatusColor, getPriorityColor } from '../styles/designSystem';
 
 const useStyles = makeStyles({
-  container: {
-    padding: '40px',
-    maxWidth: '1600px',
-    margin: '0 auto',
-    backgroundColor: tokens.colorNeutralBackground1,
-    minHeight: '100vh'
-  },
-  
   header: {
     display: 'flex',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: '40px',
-    ...shorthands.gap('24px')
-  },
-  
-  headerContent: {
-    flex: 1
+    alignItems: 'center',
+    marginBottom: DesignTokens.spacing.xl,
+    borderBottom: `2px solid ${DesignTokens.colors.primary}20`,
+    paddingBottom: DesignTokens.spacing.lg
   },
   
   headerTitle: {
-    marginBottom: '8px',
-    color: tokens.colorNeutralForeground1
+    fontSize: DesignTokens.typography.xxxl,
+    fontWeight: DesignTokens.typography.semibold,
+    color: DesignTokens.colors.primary,
+    margin: '0',
+    fontFamily: DesignTokens.typography.fontFamily
   },
   
-  headerSubtitle: {
-    color: tokens.colorNeutralForeground3,
-    fontSize: tokens.fontSizeBase300,
-    lineHeight: tokens.lineHeightBase300
-  },
-  
-  mainContent: {
-    background: 'rgba(255, 255, 255, 0.95)',
-    borderRadius: '12px',
-    backdropFilter: 'blur(20px)',
-    border: '1px solid rgba(255, 255, 255, 0.2)',
-    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-    padding: '32px'
+  primaryButton: {
+    ...DesignTokens.components.button.primary,
+    '&:hover': {
+      transform: 'translateY(-2px)',
+      boxShadow: '0 6px 16px rgba(99, 102, 241, 0.4)',
+    }
   },
   
   toolbar: {
     backgroundColor: 'transparent',
-    marginBottom: '32px',
+    marginBottom: DesignTokens.spacing.xxl,
     padding: '0'
   },
   
@@ -107,7 +94,7 @@ const useStyles = makeStyles({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    ...shorthands.gap('16px'),
+    gap: DesignTokens.spacing.lg,
     width: '100%'
   },
   
@@ -116,153 +103,279 @@ const useStyles = makeStyles({
     maxWidth: '400px'
   },
   
+  searchBox: {
+    ...DesignTokens.components.input,
+    width: '100%',
+  },
+  
+  viewModeButton: {
+    ...DesignTokens.components.button.secondary,
+    minWidth: '100px',
+    '&:hover': {
+      backgroundColor: `${DesignTokens.colors.primary}10`,
+    }
+  },
+  
   projectGrid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fill, minmax(420px, 1fr))',
-    ...shorthands.gap('32px')
+    gap: DesignTokens.spacing.xxl
   },
   
   projectCard: {
+    ...DesignTokens.components.card,
     cursor: 'pointer',
-    transition: 'all 0.2s ease-in-out',
-    ...shorthands.border('1px', 'solid', tokens.colorNeutralStroke2),
-    borderRadius: tokens.borderRadiusXLarge,
-    backgroundColor: tokens.colorNeutralBackground1,
-    boxShadow: tokens.shadow4,
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    position: 'relative',
     overflow: 'hidden',
     
     '&:hover': {
-      transform: 'translateY(-3px)',
-      boxShadow: tokens.shadow16,
-      ...shorthands.borderColor(tokens.colorBrandStroke1)
+      transform: 'translateY(-4px)',
+      boxShadow: DesignTokens.shadows.xl,
+      '&::before': {
+        opacity: 1,
+      }
+    },
+    
+    '&::before': {
+      content: '""',
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      height: '3px',
+      background: `linear-gradient(90deg, ${DesignTokens.colors.primary}, ${DesignTokens.colors.maintenance})`,
+      opacity: 0,
+      transition: 'opacity 0.3s ease',
     }
+  },
+  
+  cardHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: DesignTokens.spacing.md,
+  },
+  
+  projectTitle: {
+    fontSize: DesignTokens.typography.xl,
+    fontWeight: DesignTokens.typography.semibold,
+    color: DesignTokens.colors.textPrimary,
+    margin: '0 0 8px 0',
+    fontFamily: DesignTokens.typography.fontFamily,
+    lineHeight: '1.3',
+  },
+  
+  projectDescription: {
+    fontSize: DesignTokens.typography.sm,
+    color: DesignTokens.colors.textSecondary,
+    lineHeight: '1.5',
+    marginBottom: DesignTokens.spacing.md,
+    display: '-webkit-box',
+    WebkitLineClamp: 2,
+    WebkitBoxOrient: 'vertical',
+    overflow: 'hidden',
+  },
+  
+  cardMeta: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: DesignTokens.spacing.lg,
+    paddingTop: DesignTokens.spacing.md,
+    borderTop: `1px solid ${DesignTokens.colors.gray200}`,
+  },
+  
+  metaItem: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: DesignTokens.spacing.xs,
+    fontSize: DesignTokens.typography.xs,
+    color: DesignTokens.colors.textMuted,
+  },
+  
+  statusBadge: {
+    ...DesignTokens.components.badge,
+    border: 'none',
+    fontFamily: DesignTokens.typography.fontFamily,
+  },
+  
+  priorityBadge: {
+    ...DesignTokens.components.badge,
+    border: 'none',
+    fontFamily: DesignTokens.typography.fontFamily,
   },
   
   emptyState: {
     textAlign: 'center',
-    ...shorthands.padding('80px', '40px'),
-    backgroundColor: 'rgba(248, 250, 252, 0.8)',
-    borderRadius: tokens.borderRadiusXLarge,
-    ...shorthands.border('1px', 'solid', 'rgba(226, 232, 240, 0.8)')
+    ...DesignTokens.components.card,
+    padding: `${DesignTokens.spacing.xxxl} ${DesignTokens.spacing.xxl}`,
+    marginTop: DesignTokens.spacing.xl,
   },
   
   emptyStateIcon: {
     fontSize: '80px',
-    color: tokens.colorNeutralForeground4,
-    marginBottom: '24px'
+    color: DesignTokens.colors.gray400,
+    marginBottom: DesignTokens.spacing.xl,
   },
   
   emptyStateTitle: {
-    marginBottom: '12px',
-    color: tokens.colorNeutralForeground2
+    fontSize: DesignTokens.typography.xxl,
+    fontWeight: DesignTokens.typography.semibold,
+    color: DesignTokens.colors.textPrimary,
+    marginBottom: DesignTokens.spacing.md,
+    fontFamily: DesignTokens.typography.fontFamily,
   },
   
   emptyStateDescription: {
-    marginBottom: '32px',
-    color: tokens.colorNeutralForeground3,
+    fontSize: DesignTokens.typography.base,
+    color: DesignTokens.colors.textSecondary,
+    marginBottom: DesignTokens.spacing.xxl,
     maxWidth: '500px',
     marginLeft: 'auto',
     marginRight: 'auto',
     lineHeight: '1.6'
   },
   
-  primaryButton: {
-    background: 'linear-gradient(135deg, rgb(99, 102, 241), rgb(139, 92, 246))',
-    color: 'white',
-    border: 'none',
-    borderRadius: '8px',
-    padding: '12px 24px',
-    fontWeight: '600',
-    fontSize: '14px',
-    cursor: 'pointer',
+  summaryStats: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+    gap: DesignTokens.spacing.lg,
+    marginTop: DesignTokens.spacing.xl,
+    ...DesignTokens.components.card,
+    padding: DesignTokens.spacing.xl,
+    background: `linear-gradient(135deg, ${DesignTokens.colors.surface}, rgba(248, 250, 252, 0.9))`,
+  },
+  
+  statCard: {
+    textAlign: 'center',
+    padding: DesignTokens.spacing.lg,
+    borderRadius: DesignTokens.borderRadius.lg,
+    background: 'rgba(255, 255, 255, 0.6)',
+    backdropFilter: 'blur(10px)',
+    border: `1px solid ${DesignTokens.colors.gray200}`,
     transition: 'all 0.2s ease',
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: '8px',
+    
     '&:hover': {
       transform: 'translateY(-2px)',
-      boxShadow: '0 8px 25px rgba(99, 102, 241, 0.3)'
-    },
-    '&:active': {
-      transform: 'translateY(0)'
+      boxShadow: DesignTokens.shadows.md,
+    }
+  },
+  
+  statNumber: {
+    fontSize: DesignTokens.typography.xxxl,
+    fontWeight: DesignTokens.typography.bold,
+    color: DesignTokens.colors.primary,
+    fontFamily: DesignTokens.typography.fontFamily,
+    margin: 0,
+  },
+  
+  statLabel: {
+    fontSize: DesignTokens.typography.sm,
+    color: DesignTokens.colors.textSecondary,
+    fontWeight: DesignTokens.typography.medium,
+    textTransform: 'uppercase',
+    letterSpacing: '0.5px',
+    marginTop: DesignTokens.spacing.xs,
+  },
+  
+  dialogContent: {
+    ...DesignTokens.components.card,
+    border: 'none',
+    boxShadow: DesignTokens.shadows.xl,
+    maxWidth: '500px',
+    width: '90vw',
+  },
+  
+  formField: {
+    marginBottom: DesignTokens.spacing.lg,
+  },
+  
+  formLabel: {
+    display: 'block',
+    fontSize: DesignTokens.typography.sm,
+    fontWeight: DesignTokens.typography.medium,
+    color: DesignTokens.colors.textPrimary,
+    marginBottom: DesignTokens.spacing.xs,
+    fontFamily: DesignTokens.typography.fontFamily,
+  },
+  
+  formInput: {
+    ...DesignTokens.components.input,
+    width: '100%',
+  },
+  
+  actionButton: {
+    ...DesignTokens.components.button.secondary,
+    minWidth: '32px',
+    width: '32px',
+    height: '32px',
+    padding: '0',
+    borderRadius: DesignTokens.borderRadius.md,
+    
+    '&:hover': {
+      backgroundColor: `${DesignTokens.colors.gray300}`,
     }
   },
   
   listView: {
     display: 'flex',
     flexDirection: 'column',
-    ...shorthands.gap('1px'),
-    backgroundColor: tokens.colorNeutralStroke3,
-    borderRadius: tokens.borderRadiusMedium,
+    gap: '1px',
+    backgroundColor: DesignTokens.colors.gray200,
+    borderRadius: DesignTokens.borderRadius.lg,
     overflow: 'hidden'
   },
   
   listHeader: {
     display: 'grid',
     gridTemplateColumns: '2fr 3fr 1fr 1fr 1fr 60px',
-    ...shorthands.gap('16px'),
-    ...shorthands.padding('16px', '20px'),
-    backgroundColor: tokens.colorNeutralBackground2,
-    fontWeight: tokens.fontWeightSemibold,
-    fontSize: tokens.fontSizeBase300,
-    color: tokens.colorNeutralForeground2,
-    borderBottom: `1px solid ${tokens.colorNeutralStroke2}`
+    gap: DesignTokens.spacing.lg,
+    padding: `${DesignTokens.spacing.lg} ${DesignTokens.spacing.xl}`,
+    backgroundColor: DesignTokens.colors.gray100,
+    fontWeight: DesignTokens.typography.semibold,
+    fontSize: DesignTokens.typography.sm,
+    color: DesignTokens.colors.textSecondary,
+    borderBottom: `1px solid ${DesignTokens.colors.gray200}`
   },
   
   listRow: {
     display: 'grid',
     gridTemplateColumns: '2fr 3fr 1fr 1fr 1fr 60px',
-    ...shorthands.gap('16px'),
-    ...shorthands.padding('20px'),
-    backgroundColor: tokens.colorNeutralBackground1,
+    gap: DesignTokens.spacing.lg,
+    padding: DesignTokens.spacing.xl,
+    backgroundColor: DesignTokens.colors.surface,
     cursor: 'pointer',
     transition: 'all 0.2s ease-in-out',
     alignItems: 'center',
     
     '&:hover': {
-      backgroundColor: tokens.colorNeutralBackground2
+      backgroundColor: DesignTokens.colors.surfaceHover,
+      transform: 'translateX(4px)',
     }
   },
   
   listRowName: {
     display: 'flex',
     alignItems: 'center',
-    ...shorthands.gap('12px'),
-    fontWeight: tokens.fontWeightSemibold,
-    color: tokens.colorNeutralForeground1
+    gap: DesignTokens.spacing.md,
+    fontWeight: DesignTokens.typography.semibold,
+    color: DesignTokens.colors.textPrimary,
+    fontFamily: DesignTokens.typography.fontFamily,
   },
   
   listRowDescription: {
-    color: tokens.colorNeutralForeground2,
-    fontSize: tokens.fontSizeBase300,
+    color: DesignTokens.colors.textSecondary,
+    fontSize: DesignTokens.typography.sm,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap'
   },
   
   listRowMeta: {
-    color: tokens.colorNeutralForeground3,
-    fontSize: tokens.fontSizeBase200
+    color: DesignTokens.colors.textMuted,
+    fontSize: DesignTokens.typography.xs
   },
-  
-  formField: {
-    display: 'flex',
-    flexDirection: 'column',
-    ...shorthands.gap('8px'),
-    marginBottom: '24px'
-  },
-  
-  formLabel: {
-    fontWeight: tokens.fontWeightSemibold,
-    color: tokens.colorNeutralForeground1,
-    fontSize: tokens.fontSizeBase300
-  },
-  
-  dialogContent: {
-    display: 'flex',
-    flexDirection: 'column',
-    ...shorthands.gap('16px')
-  }
 });
 
 export default function ProjectsView() {
@@ -279,7 +392,8 @@ export default function ProjectsView() {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [newProject, setNewProject] = useState({
     name: '',
-    description: ''
+    description: '',
+    project_types: [] as ('migration' | 'deployment' | 'upgrade' | 'custom')[]
   });
 
   // Helper functions
@@ -319,28 +433,96 @@ export default function ProjectsView() {
     }
   };
 
+  // Handle project type selection
+  const toggleProjectType = (type: 'migration' | 'deployment' | 'upgrade' | 'custom') => {
+    setNewProject(prev => ({
+      ...prev,
+      project_types: prev.project_types.includes(type)
+        ? prev.project_types.filter(t => t !== type)
+        : [...prev.project_types, type]
+    }));
+  };
+
   const handleCreateProject = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newProject.name.trim()) return;
+    
+    // Comprehensive validation
+    const errors: string[] = [];
+    
+    if (!newProject.name.trim()) {
+      errors.push('Project name is required');
+    } else if (newProject.name.trim().length < 3) {
+      errors.push('Project name must be at least 3 characters');
+    } else if (newProject.name.trim().length > 100) {
+      errors.push('Project name must be less than 100 characters');
+    }
+    
+    if (newProject.description && newProject.description.length > 500) {
+      errors.push('Project description must be less than 500 characters');
+    }
+    
+    if (newProject.project_types.length === 0) {
+      errors.push('Please select at least one project type');
+    }
+    
+    // Check if project name already exists
+    const existingProject = projects.find(
+      p => p.name.toLowerCase() === newProject.name.trim().toLowerCase()
+    );
+    if (existingProject) {
+      errors.push('A project with this name already exists');
+    }
+    
+    if (errors.length > 0) {
+      setError(errors.join('. '));
+      return;
+    }
 
     try {
+      setLoading(true);
+      setError(null);
+      
       const projectData: CreateProjectRequest = {
-        ...newProject,
-        owner_id: 'user:current' // Default owner for now
+        name: newProject.name.trim(),
+        description: newProject.description.trim(),
+        owner_id: 'user:current', // Default owner for now
+        project_type: newProject.project_types[0], // Use first selected type
+        project_types: newProject.project_types
       };
+      
       await apiClient.createProject(projectData);
+      
       // Refresh the projects list
       await fetchProjects();
-      setNewProject({ name: '', description: '' });
+      
+      // Reset form and close dialog
+      setNewProject({ name: '', description: '', project_types: [] });
       setShowCreateDialog(false);
+      
+      // Clear any previous errors
+      setError(null);
     } catch (error) {
       console.error('Failed to create project:', error);
-      setError('Failed to create project. Please try again.');
+      setError(`Failed to create project: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleProjectClick = (projectId: string) => {
-    navigate(`/project/${projectId}`);
+  // Helper function to extract string ID from SurrealDB Thing object
+  const extractProjectId = (id: any): string => {
+    if (typeof id === 'string') {
+      return id;
+    }
+    if (id && typeof id === 'object' && id.id) {
+      return typeof id.id === 'string' ? id.id : id.id.String || id.id;
+    }
+    return String(id);
+  };
+
+  const handleProjectClick = (projectId: any) => {
+    const id = extractProjectId(projectId);
+    navigate(`/app/projects/${id}`);
   };
 
   // Filtering and sorting
@@ -368,20 +550,33 @@ export default function ProjectsView() {
 
   if (loading) {
     return (
-      <div className={styles.container}>
+      <GlassmorphicLayout>
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
           <Spinner size="large" label="Loading projects..." />
         </div>
-      </div>
+      </GlassmorphicLayout>
     );
   }
 
   return (
-    <div className={styles.container}>
+    <GlassmorphicLayout>
       {/* Header */}
       <div className={styles.header}>
-        <div className={styles.headerContent}>
-        </div>
+        <h1 className={styles.headerTitle}>
+          Projects
+        </h1>
+        <Button
+          appearance="primary"
+          style={{
+            ...DesignTokens.components.button.primary,
+            borderRadius: DesignTokens.borderRadius.md
+          }}
+          icon={<AddRegular />}
+          onClick={() => setShowCreateDialog(true)}
+          size="large"
+        >
+          Add New Project
+        </Button>
       </div>
 
       {/* Error Message */}
@@ -393,9 +588,6 @@ export default function ProjectsView() {
           </MessageBarBody>
         </MessageBar>
       )}
-
-      {/* Main Content */}
-      <div className={styles.mainContent}>
         {/* Toolbar */}
         <div className={styles.toolbar}>
           <div className={styles.toolbarContent}>
@@ -442,10 +634,14 @@ export default function ProjectsView() {
                   display: 'flex', 
                   justifyContent: 'center', 
                   alignItems: 'center',
-                  marginTop: '32px'
+                  marginTop: DesignTokens.spacing.xxl
                 }}>
                   <Button
-                    className={styles.primaryButton}
+                    appearance="primary"
+                    style={{
+                      ...DesignTokens.components.button.primary,
+                      borderRadius: DesignTokens.borderRadius.md
+                    }}
                     icon={<AddRegular />}
                     onClick={() => setShowCreateDialog(true)}
                   >
@@ -464,31 +660,26 @@ export default function ProjectsView() {
                 >
                   {/* Card Header */}
                   <div style={{
-                    padding: '24px 24px 16px 24px',
+                    padding: DesignTokens.spacing.xl,
                     display: 'flex',
                     alignItems: 'flex-start',
-                    gap: '16px'
+                    gap: DesignTokens.spacing.lg
                   }}>
                     <Avatar
                       shape="square"
-                      color="brand"
+                      style={{ 
+                        backgroundColor: DesignTokens.colorVariants.indigo.alpha20,
+                        color: DesignTokens.colorVariants.indigo.base
+                      }}
                       icon={<FolderRegular />}
                       size={48}
                     />
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{
-                        fontSize: tokens.fontSizeBase500,
-                        fontWeight: tokens.fontWeightSemibold,
-                        color: tokens.colorNeutralForeground1,
-                        lineHeight: tokens.lineHeightBase500,
-                        marginBottom: '8px'
-                      }}>
+                      <div style={DesignTokens.components.cardTitle}>
                         {project.name}
                       </div>
                       <div style={{
-                        fontSize: tokens.fontSizeBase300,
-                        color: tokens.colorNeutralForeground2,
-                        lineHeight: tokens.lineHeightBase300,
+                        ...DesignTokens.components.cardDescription,
                         display: '-webkit-box',
                         WebkitLineClamp: 2,
                         WebkitBoxOrient: 'vertical',
@@ -504,7 +695,8 @@ export default function ProjectsView() {
                       style={{
                         minWidth: '32px',
                         height: '32px',
-                        flexShrink: 0
+                        flexShrink: 0,
+                        borderRadius: DesignTokens.borderRadius.sm
                       }}
                       onClick={(e) => {
                         e.stopPropagation();
@@ -515,10 +707,10 @@ export default function ProjectsView() {
 
                   {/* Card Content */}
                   <div style={{
-                    padding: '0 24px 24px 24px',
+                    padding: `0 ${DesignTokens.spacing.xl} ${DesignTokens.spacing.xl} ${DesignTokens.spacing.xl}`,
                     display: 'flex',
                     flexDirection: 'column',
-                    gap: '16px'
+                    gap: DesignTokens.spacing.lg
                   }}>
                     {/* Status and Last Updated */}
                     <div style={{
@@ -526,13 +718,14 @@ export default function ProjectsView() {
                       justifyContent: 'space-between',
                       alignItems: 'center'
                     }}>
-                      <Badge appearance="tint" color="success" size="small">
+                      <Badge 
+                        appearance="outline" 
+                        color="success"
+                        size="small"
+                      >
                         Active
                       </Badge>
-                      <div style={{
-                        fontSize: tokens.fontSizeBase200,
-                        color: tokens.colorNeutralForeground3
-                      }}>
+                      <div style={DesignTokens.components.metaText}>
                         {getRelativeTime(project.updated_at)}
                       </div>
                     </div>
@@ -540,8 +733,8 @@ export default function ProjectsView() {
                     {/* Divider */}
                     <div style={{
                       height: '1px',
-                      backgroundColor: tokens.colorNeutralStroke3,
-                      margin: '4px 0'
+                      backgroundColor: DesignTokens.colors.gray200,
+                      margin: `${DesignTokens.spacing.xs} 0`
                     }} />
 
                     {/* Footer Metadata */}
@@ -553,22 +746,21 @@ export default function ProjectsView() {
                       <div style={{
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '16px',
-                        fontSize: tokens.fontSizeBase200,
-                        color: tokens.colorNeutralForeground3
+                        gap: DesignTokens.spacing.lg,
+                        ...DesignTokens.components.metaText
                       }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: DesignTokens.spacing.xs }}>
                           <PersonRegular style={{ fontSize: '16px' }} />
-                          <span>{project.owner_id.replace('user:', '')}</span>
+                          <span>{project.owner_id ? project.owner_id.replace('user:', '') : 'Unknown'}</span>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: DesignTokens.spacing.xs }}>
                           <CalendarRegular style={{ fontSize: '16px' }} />
-                          <span>{formatDate(project.created_at)}</span>
+                          <span>{project.created_at ? formatDate(project.created_at) : 'Unknown'}</span>
                         </div>
                       </div>
                       <ChevronRightRegular style={{
                         fontSize: '16px',
-                        color: tokens.colorNeutralForeground4,
+                        color: DesignTokens.colors.gray400,
                         opacity: 0.7
                       }} />
                     </div>
@@ -596,20 +788,23 @@ export default function ProjectsView() {
                   onClick={() => handleProjectClick(project.id)}
                 >
                   <div className={styles.listRowName}>
-                    <FolderRegular style={{ color: tokens.colorBrandBackground, fontSize: '18px' }} />
+                    <FolderRegular style={{ 
+                      color: DesignTokens.colorVariants.indigo.base, 
+                      fontSize: '18px' 
+                    }} />
                     <span>{project.name}</span>
                   </div>
                   <div className={styles.listRowDescription}>
                     {project.description || 'No description'}
                   </div>
                   <div className={styles.listRowMeta}>
-                    {project.owner_id.replace('user:', '')}
+                    {project.owner_id ? project.owner_id.replace('user:', '') : 'Unknown'}
                   </div>
                   <div className={styles.listRowMeta}>
-                    {formatDate(project.created_at)}
+                    {project.created_at ? formatDate(project.created_at) : 'Unknown'}
                   </div>
                   <div className={styles.listRowMeta}>
-                    {getRelativeTime(project.updated_at)}
+                    {project.updated_at ? getRelativeTime(project.updated_at) : 'Unknown'}
                   </div>
                   <div>
                     <Button
@@ -619,8 +814,9 @@ export default function ProjectsView() {
                       style={{ 
                         minWidth: '32px',
                         minHeight: '32px',
-                        border: `1px solid ${tokens.colorNeutralStroke2}`,
-                        backgroundColor: tokens.colorNeutralBackground1
+                        border: `1px solid ${DesignTokens.colors.gray300}`,
+                        backgroundColor: DesignTokens.colors.surface,
+                        borderRadius: DesignTokens.borderRadius.sm
                       }}
                       onClick={(e) => {
                         e.stopPropagation();
@@ -633,7 +829,6 @@ export default function ProjectsView() {
             </div>
           )}
         </div>
-      </div>
 
       {/* Summary Statistics */}
       {projects.length > 0 && (
@@ -716,6 +911,35 @@ export default function ProjectsView() {
                     rows={4}
                   />
                 </div>
+                <div className={styles.formField}>
+                  <label className={styles.formLabel}>Project Types</label>
+                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '8px' }}>
+                    {(['migration', 'deployment', 'upgrade', 'custom'] as const).map((type) => (
+                      <Button
+                        key={type}
+                        appearance={newProject.project_types.includes(type) ? 'primary' : 'outline'}
+                        size="small"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          toggleProjectType(type);
+                        }}
+                        style={{
+                          textTransform: 'capitalize',
+                          backgroundColor: newProject.project_types.includes(type) 
+                            ? '#8b5cf6' 
+                            : 'transparent',
+                          borderColor: '#8b5cf6',
+                          color: newProject.project_types.includes(type) ? 'white' : '#8b5cf6'
+                        }}
+                      >
+                        {type}
+                      </Button>
+                    ))}
+                  </div>
+                  <Text size={200} style={{ color: '#6b7280', marginTop: '4px' }}>
+                    Select one or more project types that best describe your project
+                  </Text>
+                </div>
               </DialogContent>
               <DialogActions>
                 <Button 
@@ -736,6 +960,6 @@ export default function ProjectsView() {
           </form>
         </DialogSurface>
       </Dialog>
-    </div>
+    </GlassmorphicLayout>
   );
 }

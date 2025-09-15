@@ -278,8 +278,8 @@ export const MigrationProjects: React.FC<MigrationProjectsProps> = ({ className 
                 </div>
                 
                 <div className="flex flex-wrap gap-2 mb-3">
-                  <Badge color={getStatusColor(project.status)}>{project.status}</Badge>
-                  <Badge color={getPriorityColor(project.priority)}>{project.priority}</Badge>
+                  <Badge appearance="outline" color={getStatusColor(project.status)}>{project.status}</Badge>
+                  <Badge appearance="outline" color={getPriorityColor(project.priority)}>{project.priority}</Badge>
                 </div>
               </CardHeader>
               
@@ -379,7 +379,7 @@ export const MigrationProjects: React.FC<MigrationProjectsProps> = ({ className 
                     <CardHeader>
                       <div className="flex justify-between items-start">
                         <h3 className="font-semibold text-lg">{template.name}</h3>
-                        <Badge color={getPriorityColor(template.projectType)}>{template.projectType}</Badge>
+                        <Badge appearance="outline" color={getPriorityColor(template.projectType)}>{template.projectType}</Badge>
                       </div>
                     </CardHeader>
                     <div className="px-4 pb-4">

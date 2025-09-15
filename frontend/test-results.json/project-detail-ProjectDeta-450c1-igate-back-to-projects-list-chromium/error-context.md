@@ -1,0 +1,122 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e5]:
+  - navigation [ref=e6]:
+    - generic [ref=e8]:
+      - button [ref=e9] [cursor=pointer]:
+        - img [ref=e10] [cursor=pointer]
+      - generic [ref=e12]:
+        - heading "LCM Designer" [level=1] [ref=e13]
+        - paragraph [ref=e14]: Infrastructure Planning
+    - generic [ref=e16]:
+      - button "Projects Primary" [ref=e17] [cursor=pointer]:
+        - img [ref=e19] [cursor=pointer]
+        - generic [ref=e21] [cursor=pointer]: Projects
+        - generic [ref=e22] [cursor=pointer]: Primary
+      - button "Hardware Pool" [ref=e23] [cursor=pointer]:
+        - img [ref=e25] [cursor=pointer]
+        - generic [ref=e27] [cursor=pointer]: Hardware Pool
+      - button "Hardware Basket" [ref=e28] [cursor=pointer]:
+        - img [ref=e30] [cursor=pointer]
+        - generic [ref=e32] [cursor=pointer]: Hardware Basket
+      - button "Guides" [ref=e33] [cursor=pointer]:
+        - img [ref=e35] [cursor=pointer]
+        - generic [ref=e37] [cursor=pointer]: Guides
+      - button "Document Templates" [ref=e38] [cursor=pointer]:
+        - img [ref=e40] [cursor=pointer]
+        - generic [ref=e42] [cursor=pointer]: Document Templates
+      - button "Settings" [ref=e43] [cursor=pointer]:
+        - img [ref=e45] [cursor=pointer]
+        - generic [ref=e47] [cursor=pointer]: Settings
+  - main [ref=e49]:
+    - 'main "Project Details: Demo Infrastructure Project" [ref=e50]':
+      - navigation "breadcrumb" [ref=e51]:
+        - list [ref=e52]:
+          - listitem [ref=e53]:
+            - button "Projects" [ref=e54]:
+              - img [ref=e55]
+              - text: Projects
+          - listitem [ref=e57]:
+            - img [ref=e58]
+          - listitem [ref=e60]:
+            - button "Demo Infrastructure Project" [disabled] [ref=e61]
+      - group [ref=e62]:
+        - generic [ref=e64]:
+          - generic [ref=e65]:
+            - generic [ref=e66]: 55%
+            - generic [ref=e67]: Overall Progress
+          - generic [ref=e68]:
+            - progressbar [ref=e69]
+            - generic [ref=e71]: 1 of 3 activities completed
+      - generic:
+        - group
+        - group
+        - group
+        - group
+      - tablist "Project sections" [ref=e73]:
+        - tab "Timeline" [selected] [ref=e75] [cursor=pointer]:
+          - img [ref=e77] [cursor=pointer]
+          - generic [ref=e79] [cursor=pointer]: Timeline
+        - tab "Activities" [ref=e80] [cursor=pointer]:
+          - img [ref=e82] [cursor=pointer]
+          - generic [ref=e84] [cursor=pointer]: Activities
+        - tab "Overview" [ref=e85] [cursor=pointer]:
+          - img [ref=e87] [cursor=pointer]
+          - generic [ref=e89] [cursor=pointer]: Overview
+      - tabpanel [ref=e91]:
+        - generic [ref=e92]:
+          - generic [ref=e93]:
+            - generic [ref=e94]:
+              - generic [ref=e95]: Project Timeline
+              - generic [ref=e96]: Visualize project activities and dependencies
+            - button "Add Activity" [ref=e97]:
+              - img [ref=e99]
+              - text: Add Activity
+          - generic [ref=e102]:
+            - generic [ref=e104]: Project Timeline - 3 Activities
+            - generic [ref=e105]:
+              - generic [ref=e106]:
+                - generic [ref=e107]: Activities
+                - generic [ref=e108]:
+                  - generic [ref=e109]:
+                    - generic [ref=e110]: VMware Assessment & Planning
+                    - generic [ref=e111]: completed
+                  - generic [ref=e112]:
+                    - button "Edit VMware Assessment & Planning" [ref=e113]:
+                      - img [ref=e115]
+                    - button "Delete VMware Assessment & Planning" [ref=e117]:
+                      - img [ref=e119]
+                - generic [ref=e121]:
+                  - generic [ref=e122]:
+                    - generic [ref=e123]: Hardware Procurement
+                    - generic [ref=e124]: in progress
+                  - generic [ref=e125]:
+                    - button "Edit Hardware Procurement" [ref=e126]:
+                      - img [ref=e128]
+                    - button "Delete Hardware Procurement" [ref=e130]:
+                      - img [ref=e132]
+                - generic [ref=e134]:
+                  - generic [ref=e135]:
+                    - generic [ref=e136]: Hyper-V Environment Setup
+                    - generic [ref=e137]: pending
+                  - generic [ref=e138]:
+                    - button "Edit Hyper-V Environment Setup" [ref=e139]:
+                      - img [ref=e141]
+                    - button "Delete Hyper-V Environment Setup" [ref=e143]:
+                      - img [ref=e145]
+              - generic [ref=e147]:
+                - generic [ref=e148]: Jan 2024
+                - generic [ref=e149]: Feb 2024
+                - generic [ref=e150]: Mar 2024
+                - generic [ref=e151]: Apr 2024
+                - generic [ref=e152]: May 2024
+                - generic [ref=e153]: Jun 2024
+                - generic "VMware Assessment & Planning (100% complete)" [ref=e154] [cursor=pointer]:
+                  - generic [ref=e155] [cursor=pointer]: VMware Assessment & Planning
+                  - generic [ref=e156] [cursor=pointer]: 100%
+                - generic "Hardware Procurement (65% complete)" [ref=e157] [cursor=pointer]:
+                  - generic [ref=e158] [cursor=pointer]: Hardware Procurement
+                  - generic [ref=e159] [cursor=pointer]: 65%
+                - generic [ref=e161] [cursor=pointer]: Hyper-V Environment Setup
+```

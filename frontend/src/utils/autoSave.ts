@@ -21,7 +21,7 @@ export class AutoSaveManager {
       this.saveAllPendingChanges();
     }, 30000);
 
-    console.log('Auto-save started - saving every 30 seconds');
+    // Auto-save started - saves every 30 seconds
   }
 
   // Stop auto-save
@@ -29,7 +29,7 @@ export class AutoSaveManager {
     if (this.saveInterval) {
       clearInterval(this.saveInterval);
       this.saveInterval = null;
-      console.log('Auto-save stopped');
+      // Auto-save stopped
     }
   }
 
@@ -50,7 +50,7 @@ export class AutoSaveManager {
       }
     });
 
-    console.log(`Auto-saved ${this.pendingChanges.size} items at:`, new Date().toLocaleTimeString());
+    // Auto-saved pending changes to localStorage
   }
 
   // Load data from localStorage

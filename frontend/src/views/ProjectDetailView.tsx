@@ -1,26 +1,72 @@
-import React, { useState, useEffect } from 'react';
+// Project Detail View — Fluent 2 with border-only (card-in-card) styling
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { 
-  ArrowLeft, Calendar, Clock, Users, Target, BarChart3, 
-  Plus, Edit3, Trash2, Settings, CheckCircle, AlertCircle,
-  Activity, FileText, MessageCircle
-} from 'lucide-react';
-import GanttChart from '../components/GanttChart';
-import { apiClient, Project } from '../utils/apiClient';
+import { DesignTokens } from '../styles/designSystem';
 import {
-  EnhancedButton,
-  EnhancedCard,
-  LoadingSpinner,
-  ToastContainer,
-  EnhancedProgressBar,
-  EnhancedModal
-} from '../components/EnhancedUXComponents';
-import { useEnhancedUX } from '../hooks/useEnhancedUX';
+  ArrowLeftRegular,
+  CalendarRegular,
+  ClockRegular,
+  PeopleRegular,
+  TargetRegular,
+  ChartMultipleRegular,
+  AddRegular,
+  EditRegular,
+  DeleteRegular,
+  ErrorCircleRegular,
+  DocumentRegular,
+  SearchRegular,
+  ArrowDownloadRegular,
+  ShareRegular,
+} from '@fluentui/react-icons';
+import { CheckmarkCircleRegular } from '@fluentui/react-icons';
+
+import {
+  makeStyles,
+  tokens,
+  Card,
+  CardPreview,
+  Button,
+  Text,
+  Title1,
+  Title2,
+  Title3,
+  Caption1,
+  Badge,
+  ProgressBar,
+  Tab,
+  TabList,
+  SelectTabData,
+  SelectTabEvent,
+  Field,
+  Input,
+  Dropdown,
+  Option,
+  Dialog,
+  DialogSurface,
+  DialogBody,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbButton,
+  BreadcrumbDivider,
+} from '@fluentui/react-components';
+
+import GanttChart from '../components/EnhancedGanttChart';
+import { Project } from '../utils/apiClient';
+import ErrorBoundary from '../components/ErrorBoundary';
 
 interface Activity {
   id: string;
   name: string;
-  type: 'migration' | 'lifecycle' | 'decommission' | 'hardware_customization' | 'commissioning' | 'custom';
+  type:
+    | 'migration'
+    | 'lifecycle'
+    | 'decommission'
+    | 'hardware_customization'
+    | 'commissioning'
+    | 'custom';
   status: 'pending' | 'in_progress' | 'completed' | 'blocked';
   start_date: Date;
   end_date: Date;
@@ -38,47 +84,121 @@ interface ProjectStats {
   overallProgress: number;
 }
 
+// Styles: border-only cards for a clean card-in-card look
+const useProjectDetailStyles = makeStyles({
+  container: {
+    padding: DesignTokens.spacing.xxl,
+    margin: DesignTokens.spacing.xl,
+    borderRadius: DesignTokens.borderRadius.xl,
+    background: DesignTokens.colors.surface,
+    border: `1px solid ${DesignTokens.colors.surfaceBorder}`,
+    boxShadow: DesignTokens.shadows.sm,
+    minHeight: 'calc(100vh - 120px)',
+    fontFamily: DesignTokens.typography.fontFamily,
+  },
+  headerCard: {
+    ...DesignTokens.components.borderCard,
+    padding: DesignTokens.spacing.xxxl,
+    marginBottom: DesignTokens.spacing.xl,
+  },
+  cardHeaderReplacement: {
+    padding: 0,
+    backgroundColor: 'transparent',
+    border: 'none',
+  },
+  statsCard: {
+    ...DesignTokens.components.borderCard,
+    padding: DesignTokens.spacing.lg,
+  },
+  progressContainer: {
+    ...DesignTokens.components.borderCard,
+    padding: DesignTokens.spacing.xxl,
+    marginTop: DesignTokens.spacing.xl,
+    marginBottom: DesignTokens.spacing.xxl,
+  },
+  tabContainer: {
+    ...DesignTokens.components.borderCard,
+    padding: DesignTokens.spacing.lg,
+    marginBottom: DesignTokens.spacing.xl,
+  },
+  timelineContainer: {
+    ...DesignTokens.components.borderCard,
+    width: '100%',
+    overflowX: 'auto',
+    overflowY: 'hidden',
+    minHeight: '400px',
+  },
+  timelineContent: {
+    position: 'relative',
+    minWidth: '1000px',
+    height: '100%',
+  },
+  activityCard: {
+    ...DesignTokens.components.borderCard,
+    padding: DesignTokens.spacing.xl,
+  },
+  activityHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    padding: DesignTokens.spacing.lg,
+    borderRadius: DesignTokens.borderRadius.lg,
+    border: `1px solid ${DesignTokens.colors.gray300}`,
+    background: 'transparent',
+    marginBottom: DesignTokens.spacing.md,
+    gap: DesignTokens.spacing.lg,
+  },
+  activityMeta: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+    gap: DesignTokens.spacing.lg,
+    marginBottom: DesignTokens.spacing.md,
+    padding: DesignTokens.spacing.md,
+    borderTop: `1px solid ${DesignTokens.colors.gray300}`,
+    borderRadius: DesignTokens.borderRadius.sm,
+    background: 'transparent',
+  },
+  activitiesContainer: {
+    ...DesignTokens.components.borderCard,
+    padding: tokens.spacingVerticalXL,
+  },
+});
+
 const ProjectDetailView: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
-  const { isLoading, showToast, withLoading } = useEnhancedUX();
-  
+  const styles = useProjectDetailStyles();
+
   const [project, setProject] = useState<Project | null>(null);
   const [activities, setActivities] = useState<Activity[]>([]);
   const [activeTab, setActiveTab] = useState<'timeline' | 'activities' | 'overview'>('timeline');
   const [isCreateActivityModalOpen, setIsCreateActivityModalOpen] = useState(false);
-  
-  // Load project data
-  useEffect(() => {
-    if (projectId) {
-      loadProject();
-      loadActivities();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterStatus, setFilterStatus] = useState<string>('all');
+
+  const loadProject = useCallback(async () => {
+    if (!projectId) return;
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Import apiClient here to avoid dependency issues
+      const { apiClient } = await import('../utils/apiClient');
+      const project = await apiClient.getProject(projectId);
+      setProject(project);
+    } catch (e: any) {
+      console.error('Failed to load project:', e);
+      setError(e?.message ?? 'Failed to load project');
+    } finally {
+      setLoading(false);
     }
   }, [projectId]);
 
-  const loadProject = async () => {
-    await withLoading(async () => {
-      try {
-        // For now, use mock data until backend is fully connected
-        const mockProject: Project = {
-          id: projectId || '',
-          name: 'Infrastructure Modernization',
-          description: 'Complete modernization of legacy infrastructure including VMware to Hyper-V migration, hardware refresh, and network topology optimization.',
-          owner_id: 'user:architect',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        };
-        setProject(mockProject);
-      } catch (err) {
-        showToast('Failed to load project', 'error');
-        navigate('/projects');
-      }
-    });
-  };
-
-  const loadActivities = async () => {
-    // Mock activities data
-    const mockActivities: Activity[] = [
+  const loadActivities = useCallback(() => {
+    // Minimal mock to keep the page functional
+    const mock: Activity[] = [
       {
         id: 'act-001',
         name: 'VMware Assessment & Planning',
@@ -88,7 +208,7 @@ const ProjectDetailView: React.FC = () => {
         end_date: new Date('2024-02-01'),
         assignee: 'john.doe@company.com',
         dependencies: [],
-        progress: 100
+        progress: 100,
       },
       {
         id: 'act-002',
@@ -99,7 +219,7 @@ const ProjectDetailView: React.FC = () => {
         end_date: new Date('2024-03-15'),
         assignee: 'sarah.smith@company.com',
         dependencies: ['act-001'],
-        progress: 65
+        progress: 65,
       },
       {
         id: 'act-003',
@@ -110,48 +230,33 @@ const ProjectDetailView: React.FC = () => {
         end_date: new Date('2024-03-20'),
         assignee: 'mike.johnson@company.com',
         dependencies: ['act-002'],
-        progress: 0
+        progress: 0,
       },
-      {
-        id: 'act-004',
-        name: 'Production Migration',
-        type: 'migration',
-        status: 'pending',
-        start_date: new Date('2024-03-15'),
-        end_date: new Date('2024-04-30'),
-        assignee: 'alice.brown@company.com',
-        dependencies: ['act-003'],
-        progress: 0
-      },
-      {
-        id: 'act-005',
-        name: 'Legacy Infrastructure Decommission',
-        type: 'decommission',
-        status: 'pending',
-        start_date: new Date('2024-04-15'),
-        end_date: new Date('2024-05-15'),
-        assignee: 'bob.wilson@company.com',
-        dependencies: ['act-004'],
-        progress: 0
-      }
     ];
-    setActivities(mockActivities);
-  };
+    setActivities(mock);
+  }, []);
 
-  // Calculate project statistics
-  const calculateStats = (): ProjectStats => {
+  useEffect(() => {
+    loadProject();
+    loadActivities();
+  }, [loadProject, loadActivities]);
+
+  const stats: ProjectStats = useMemo(() => {
     const totalActivities = activities.length;
-    const completedActivities = activities.filter(a => a.status === 'completed').length;
-    const inProgressActivities = activities.filter(a => a.status === 'in_progress').length;
-    const blockedActivities = activities.filter(a => a.status === 'blocked').length;
-    
-    const overallProgress = activities.reduce((sum, activity) => sum + activity.progress, 0) / totalActivities || 0;
-    
-    // Calculate days remaining from latest end date
-    const latestEndDate = activities.reduce((latest, activity) => 
-      activity.end_date > latest ? activity.end_date : latest, new Date()
+    const completedActivities = activities.filter((a) => a.status === 'completed').length;
+    const inProgressActivities = activities.filter((a) => a.status === 'in_progress').length;
+    const blockedActivities = activities.filter((a) => a.status === 'blocked').length;
+    const overallProgress =
+      activities.reduce((sum, a) => sum + a.progress, 0) / (totalActivities || 1);
+
+    const latestEndDate = activities.reduce(
+      (latest, a) => (a.end_date > latest ? a.end_date : latest),
+      new Date(),
     );
-    const daysRemaining = Math.ceil((latestEndDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+    const daysRemaining = Math.max(
+      0,
+      Math.ceil((latestEndDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)),
+    );
 
     return {
       totalActivities,
@@ -159,391 +264,559 @@ const ProjectDetailView: React.FC = () => {
       inProgressActivities,
       blockedActivities,
       daysRemaining,
-      overallProgress: Math.round(overallProgress)
+      overallProgress: Math.round(overallProgress),
     };
-  };
+  }, [activities]);
 
-  // Activity management handlers
-  const handleActivityUpdate = (activityId: string, updates: Partial<Activity>) => {
-    setActivities(prev => prev.map(activity => 
-      activity.id === activityId ? { ...activity, ...updates } : activity
-    ));
-    showToast('Activity updated successfully', 'success');
-  };
+  const filteredActivities = useMemo(() => {
+    return activities.filter(
+      (a) =>
+        (searchQuery === '' || a.name.toLowerCase().includes(searchQuery.toLowerCase())) &&
+        (filterStatus === 'all' || a.status === filterStatus),
+    );
+  }, [activities, searchQuery, filterStatus]);
 
-  const handleActivityCreate = (newActivity: Partial<Activity>) => {
-    const activity: Activity = {
-      id: `act-${Date.now()}`,
-      name: newActivity.name || 'New Activity',
-      type: newActivity.type || 'custom',
-      status: 'pending',
-      start_date: newActivity.start_date || new Date(),
-      end_date: newActivity.end_date || new Date(),
-      assignee: newActivity.assignee || '',
-      dependencies: newActivity.dependencies || [],
-      progress: 0
-    };
-    setActivities(prev => [...prev, activity]);
-    showToast('Activity created successfully', 'success');
-  };
+  const handleTabChange = useCallback((_: SelectTabEvent, data: SelectTabData) => {
+    setActiveTab(data.value as 'timeline' | 'activities' | 'overview');
+  }, []);
 
-  const handleActivityDelete = (activityId: string) => {
-    setActivities(prev => prev.filter(activity => activity.id !== activityId));
-    showToast('Activity deleted successfully', 'success');
-  };
-
-  const handleDependencyChange = (activityId: string, dependencies: string[]) => {
-    handleActivityUpdate(activityId, { dependencies });
-  };
-
-  if (isLoading && !project) {
+  if (loading) {
     return (
-      <div className="fluent-page-container">
-        <LoadingSpinner message="Loading project..." />
-        <ToastContainer />
-      </div>
+      <ErrorBoundary>
+        <main className={styles.container} role="main" aria-label="Project Details">
+          <Title2>Loading project…</Title2>
+        </main>
+      </ErrorBoundary>
     );
   }
 
-  if (!project) {
+  if (error || !project) {
     return (
-      <div className="fluent-page-container">
-        <EnhancedCard className="text-center py-12">
-          <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Project Not Found</h2>
-          <p className="text-gray-600 mb-6">The requested project could not be found.</p>
-          <EnhancedButton onClick={() => navigate('/projects')} variant="primary">
-            Back to Projects
-          </EnhancedButton>
-        </EnhancedCard>
-        <ToastContainer />
-      </div>
+      <main className={styles.container} role="main" aria-label="Project Details">
+        <Card className={styles.statsCard}>
+          <div className={styles.cardHeaderReplacement}>
+            <ErrorCircleRegular style={{ fontSize: '48px', color: tokens.colorPaletteRedForeground1 }} />
+          </div>
+          <CardPreview>
+            <Title2>Project Not Found</Title2>
+            <Text>The requested project could not be found or failed to load.</Text>
+            <Button
+              appearance="primary"
+              icon={<ArrowLeftRegular />}
+              onClick={() => navigate('/projects')}
+              style={{ marginTop: tokens.spacingVerticalM }}
+            >
+              Back to Projects
+            </Button>
+          </CardPreview>
+        </Card>
+      </main>
     );
   }
-
-  const stats = calculateStats();
 
   return (
-    <div className="fluent-page-container">
-      <ToastContainer />
-      
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center space-x-4 mb-6">
-          <EnhancedButton
-            variant="ghost"
-            onClick={() => navigate('/projects')}
-            className="flex items-center space-x-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Back to Projects</span>
-          </EnhancedButton>
-        </div>
-        
-        <EnhancedCard className="bg-gradient-to-r from-purple-50 to-indigo-50 border-purple-200">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">{project.name}</h1>
-              <p className="text-gray-600 text-lg">{project.description}</p>
-              <div className="flex items-center space-x-4 mt-4 text-sm text-gray-500">
-                <div className="flex items-center space-x-1">
-                  <Users className="w-4 h-4" />
-                  <span>Owner: {project.owner_id.replace('user:', '')}</span>
+    <ErrorBoundary>
+      <main className={styles.container} role="main" aria-label={`Project Details: ${project.name}`}>
+        {/* Breadcrumb */}
+        <Breadcrumb style={{ marginBottom: DesignTokens.spacing.lg }}>
+          <BreadcrumbItem>
+            <BreadcrumbButton onClick={() => navigate('/projects')}>
+              <ArrowLeftRegular style={{ marginRight: DesignTokens.spacing.xs }} />
+              Projects
+            </BreadcrumbButton>
+          </BreadcrumbItem>
+          <BreadcrumbDivider />
+          <BreadcrumbItem>
+            <BreadcrumbButton current>{project.name}</BreadcrumbButton>
+          </BreadcrumbItem>
+        </Breadcrumb>
+
+        {/* Header (border-only chips) */}
+        <Card className={styles.headerCard}>
+          <div className={styles.cardHeaderReplacement}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', width: '100%' }}>
+              <div style={{ flex: 1 }}>
+                <Title1 style={DesignTokens.components.sectionTitle}>📋 {project.name}</Title1>
+                <Text size={500} style={DesignTokens.components.cardDescription}>
+                  {project.description || 'No description provided'}
+                </Text>
+                <div
+                  style={{
+                    display: 'flex',
+                    gap: DesignTokens.spacing.xl,
+                    marginTop: DesignTokens.spacing.lg,
+                    flexWrap: 'wrap',
+                  }}
+                >
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: DesignTokens.spacing.xs,
+                      padding: DesignTokens.spacing.sm,
+                      background: 'transparent',
+                      borderRadius: DesignTokens.borderRadius.lg,
+                      border: `1px solid ${DesignTokens.colors.gray300}`,
+                    }}
+                  >
+                    <PeopleRegular style={{ color: '#6366f1', fontSize: '16px' }} />
+                    <Caption1 style={DesignTokens.components.metaText}>
+                      Owner: {project.owner_id ? project.owner_id.replace('user:', '') : 'Unknown'}
+                    </Caption1>
+                  </div>
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: tokens.spacingHorizontalXS,
+                      padding: '8px 16px',
+                      background: 'transparent',
+                      borderRadius: '12px',
+                      border: `1px solid ${DesignTokens.colors.gray300}`,
+                    }}
+                  >
+                    <CalendarRegular style={{ color: DesignTokens.colorVariants.indigo.base, fontSize: '16px' }} />
+                    <Caption1 style={DesignTokens.components.metaText}>
+                      Created: {new Date(project.created_at).toLocaleDateString()}
+                    </Caption1>
+                  </div>
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: DesignTokens.spacing.xs,
+                      padding: DesignTokens.spacing.sm,
+                      background: 'transparent',
+                      borderRadius: DesignTokens.borderRadius.lg,
+                      border: `1px solid ${DesignTokens.colors.gray300}`,
+                    }}
+                  >
+                    <ClockRegular style={{ color: DesignTokens.colorVariants.indigo.base, fontSize: '16px' }} />
+                    <Caption1 style={DesignTokens.components.metaText}>
+                      Updated: {new Date(project.updated_at).toLocaleDateString()}
+                    </Caption1>
+                  </div>
                 </div>
-                <div className="flex items-center space-x-1">
-                  <Calendar className="w-4 h-4" />
-                  <span>Created: {new Date(project.created_at).toLocaleDateString()}</span>
-                </div>
+              </div>
+              <div style={{ display: 'flex', gap: DesignTokens.spacing.md }}>
+                <Button appearance="primary" style={DesignTokens.components.button.primary}>
+                  <ShareRegular style={{ marginRight: DesignTokens.spacing.xs }} />
+                  Share
+                </Button>
+                <Button appearance="secondary" style={DesignTokens.components.button.secondary}>
+                  <ArrowDownloadRegular style={{ marginRight: DesignTokens.spacing.xs }} />
+                  Export
+                </Button>
               </div>
             </div>
-            
-            <div className="flex flex-col items-end space-y-3">
-              <div className="text-right">
-                <div className="text-2xl font-bold text-purple-600">{stats.overallProgress}%</div>
-                <div className="text-sm text-gray-500">Overall Progress</div>
-              </div>
-              <EnhancedProgressBar
-                value={stats.overallProgress}
-                color="purple"
+          </div>
+        </Card>
+
+        {/* Overall Progress (border-only card) */}
+        <Card className={styles.progressContainer}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <Title2 style={{ color: '#1f2937' }}>{stats.overallProgress}%</Title2>
+              <Caption1 style={{ color: '#6b7280' }}>Overall Progress</Caption1>
+            </div>
+            <div style={{ flex: 1, marginLeft: tokens.spacingHorizontalXXL }}>
+              <ProgressBar
+                value={stats.overallProgress / 100}
+                shape="rounded"
+                thickness="large"
+                color="brand"
+                style={{ marginBottom: tokens.spacingVerticalXS }}
               />
+              <Caption1 style={{ color: '#6b7280' }}>
+                {stats.completedActivities} of {stats.totalActivities} activities completed
+              </Caption1>
             </div>
           </div>
-        </EnhancedCard>
-      </div>
+        </Card>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <EnhancedCard>
-          <div className="flex items-center space-x-3">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <Activity className="w-5 h-5 text-blue-600" />
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-gray-900">{stats.totalActivities}</div>
-              <div className="text-sm text-gray-500">Total Activities</div>
-            </div>
-          </div>
-        </EnhancedCard>
-        
-        <EnhancedCard>
-          <div className="flex items-center space-x-3">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <CheckCircle className="w-5 h-5 text-green-600" />
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-gray-900">{stats.completedActivities}</div>
-              <div className="text-sm text-gray-500">Completed</div>
-            </div>
-          </div>
-        </EnhancedCard>
-        
-        <EnhancedCard>
-          <div className="flex items-center space-x-3">
-            <div className="p-2 bg-orange-100 rounded-lg">
-              <Clock className="w-5 h-5 text-orange-600" />
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-gray-900">{stats.inProgressActivities}</div>
-              <div className="text-sm text-gray-500">In Progress</div>
-            </div>
-          </div>
-        </EnhancedCard>
-        
-        <EnhancedCard>
-          <div className="flex items-center space-x-3">
-            <div className="p-2 bg-purple-100 rounded-lg">
-              <Target className="w-5 h-5 text-purple-600" />
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-gray-900">{stats.daysRemaining}</div>
-              <div className="text-sm text-gray-500">Days Remaining</div>
-            </div>
-          </div>
-        </EnhancedCard>
-      </div>
-
-      {/* Tab Navigation */}
-      <div className="mb-6">
-        <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg w-fit">
+        {/* Stats grid (border-only cards) */}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+            gap: tokens.spacingHorizontalXL,
+            marginBottom: tokens.spacingVerticalXXL,
+          }}
+        >
           {[
-            { id: 'timeline', label: 'Timeline', icon: <BarChart3 className="w-4 h-4" /> },
-            { id: 'activities', label: 'Activities', icon: <Activity className="w-4 h-4" /> },
-            { id: 'overview', label: 'Overview', icon: <FileText className="w-4 h-4" /> }
-          ].map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-md transition-all ${
-                activeTab === tab.id 
-                  ? 'bg-white text-purple-600 shadow-sm font-medium'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              {tab.icon}
-              <span>{tab.label}</span>
-            </button>
+            { label: 'Total Activities', value: stats.totalActivities, icon: <ChartMultipleRegular />, color: '#1f2937' },
+            { label: 'Completed', value: stats.completedActivities, icon: <CheckmarkCircleRegular />, color: '#10b981' },
+            { label: 'In Progress', value: stats.inProgressActivities, icon: <ClockRegular />, color: '#f59e0b' },
+            { label: 'Days Remaining', value: stats.daysRemaining, icon: <TargetRegular />, color: '#1f2937' },
+          ].map((stat, index) => (
+            <Card key={index} className={styles.statsCard}>
+              <div className={styles.cardHeaderReplacement}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <Title2 style={{ color: stat.color }}>{stat.value}</Title2>
+                    <Caption1 style={{ color: '#6b7280', marginTop: 4 }}>{stat.label}</Caption1>
+                  </div>
+                  <div
+                    style={{
+                      padding: tokens.spacingVerticalM,
+                      background: 'transparent',
+                      borderRadius: '12px',
+                      color: stat.color,
+                      fontSize: '20px',
+                      border: `1px solid ${DesignTokens.colors.gray300}`,
+                    }}
+                  >
+                    {stat.icon}
+                  </div>
+                </div>
+              </div>
+            </Card>
           ))}
         </div>
-      </div>
 
-      {/* Tab Content */}
-      <div className="space-y-6">
-        {activeTab === 'timeline' && (
-          <EnhancedCard>
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">Project Timeline</h2>
-              <EnhancedButton
-                onClick={() => setIsCreateActivityModalOpen(true)}
-                variant="primary"
-                className="flex items-center space-x-2"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Add Activity</span>
-              </EnhancedButton>
-            </div>
-            
-            <GanttChart
-              activities={activities}
-              onActivityUpdate={handleActivityUpdate}
-              onActivityCreate={handleActivityCreate}
-              onActivityDelete={handleActivityDelete}
-              onDependencyChange={handleDependencyChange}
-            />
-          </EnhancedCard>
-        )}
-        
-        {activeTab === 'activities' && (
-          <EnhancedCard>
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">Activity Management</h2>
-              <EnhancedButton
-                onClick={() => setIsCreateActivityModalOpen(true)}
-                variant="primary"
-                className="flex items-center space-x-2"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Add Activity</span>
-              </EnhancedButton>
-            </div>
-            
-            <div className="space-y-4">
-              {activities.map(activity => (
-                <div key={activity.id} className="p-4 border border-gray-200 rounded-lg hover:border-purple-300 transition-colors">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center space-x-3">
-                      <h3 className="font-semibold text-gray-900">{activity.name}</h3>
-                      <span className={`px-2 py-1 text-xs rounded-full ${
-                        activity.status === 'completed' ? 'bg-green-100 text-green-700' :
-                        activity.status === 'in_progress' ? 'bg-orange-100 text-orange-700' :
-                        activity.status === 'blocked' ? 'bg-red-100 text-red-700' :
-                        'bg-gray-100 text-gray-700'
-                      }`}>
-                        {activity.status.replace('_', ' ').toUpperCase()}
-                      </span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <EnhancedButton variant="ghost" className="p-2">
-                        <Edit3 className="w-4 h-4" />
-                      </EnhancedButton>
-                      <EnhancedButton 
-                        variant="ghost" 
-                        className="p-2 text-red-600"
-                        onClick={() => handleActivityDelete(activity.id)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </EnhancedButton>
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                    <div>
-                      <span className="text-gray-500">Assignee:</span>
-                      <span className="ml-2 text-gray-900">{activity.assignee}</span>
-                    </div>
-                    <div>
-                      <span className="text-gray-500">Start:</span>
-                      <span className="ml-2 text-gray-900">{activity.start_date.toLocaleDateString()}</span>
-                    </div>
-                    <div>
-                      <span className="text-gray-500">End:</span>
-                      <span className="ml-2 text-gray-900">{activity.end_date.toLocaleDateString()}</span>
-                    </div>
-                  </div>
-                  
-                  <div className="mt-3">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm text-gray-500">Progress</span>
-                      <span className="text-sm font-medium text-gray-900">{activity.progress}%</span>
-                    </div>
-                    <EnhancedProgressBar value={activity.progress} color="purple" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </EnhancedCard>
-        )}
-        
-        {activeTab === 'overview' && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <EnhancedCard>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Project Information</h3>
-              <div className="space-y-3">
-                <div>
-                  <span className="text-sm text-gray-500">Project ID:</span>
-                  <span className="ml-2 text-sm text-gray-900">{project.id}</span>
-                </div>
-                <div>
-                  <span className="text-sm text-gray-500">Owner:</span>
-                  <span className="ml-2 text-sm text-gray-900">{project.owner_id.replace('user:', '')}</span>
-                </div>
-                <div>
-                  <span className="text-sm text-gray-500">Created:</span>
-                  <span className="ml-2 text-sm text-gray-900">{new Date(project.created_at).toLocaleString()}</span>
-                </div>
-                <div>
-                  <span className="text-sm text-gray-500">Last Updated:</span>
-                  <span className="ml-2 text-sm text-gray-900">{new Date(project.updated_at).toLocaleString()}</span>
-                </div>
-              </div>
-            </EnhancedCard>
-            
-            <EnhancedCard>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Activity Breakdown</h3>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Migration Activities</span>
-                  <span className="text-sm font-medium text-gray-900">
-                    {activities.filter(a => a.type === 'migration').length}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Hardware Customization</span>
-                  <span className="text-sm font-medium text-gray-900">
-                    {activities.filter(a => a.type === 'hardware_customization').length}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Commissioning</span>
-                  <span className="text-sm font-medium text-gray-900">
-                    {activities.filter(a => a.type === 'commissioning').length}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Decommissioning</span>
-                  <span className="text-sm font-medium text-gray-900">
-                    {activities.filter(a => a.type === 'decommission').length}
-                  </span>
-                </div>
-              </div>
-            </EnhancedCard>
-          </div>
-        )}
-      </div>
+        {/* Tabs container (border-only) */}
+        <div className={styles.tabContainer}>
+          <TabList
+            selectedValue={activeTab}
+            onTabSelect={handleTabChange}
+            appearance="transparent"
+            size="large"
+            role="tablist"
+            aria-label="Project sections"
+            style={{ backgroundColor: 'transparent', padding: 0, borderRadius: 0 }}
+          >
+            <Tab value="timeline" icon={<ChartMultipleRegular />}>
+              Timeline
+            </Tab>
+            <Tab value="activities" icon={<TargetRegular />}>
+              Activities
+            </Tab>
+            <Tab value="overview" icon={<DocumentRegular />}>
+              Overview
+            </Tab>
+          </TabList>
 
-      {/* Create Activity Modal */}
-      <EnhancedModal
-        isOpen={isCreateActivityModalOpen}
-        onClose={() => setIsCreateActivityModalOpen(false)}
-        title="Create New Activity"
-        size="lg"
-      >
-        <div className="space-y-6">
-          <p className="text-gray-600">
-            Add a new activity to your project timeline. You can choose from migration, lifecycle, 
-            hardware customization, commissioning, or custom activities.
-          </p>
-          
-          <div className="grid grid-cols-2 gap-4">
-            {[
-              { type: 'migration', label: 'Migration Activity', icon: '🔄' },
-              { type: 'lifecycle', label: 'Lifecycle Planning', icon: '📊' },
-              { type: 'hardware_customization', label: 'Hardware Customization', icon: '🔧' },
-              { type: 'commissioning', label: 'Commissioning', icon: '⚡' },
-              { type: 'decommission', label: 'Decommissioning', icon: '🗑️' },
-              { type: 'custom', label: 'Custom Activity', icon: '📋' }
-            ].map(activityType => (
-              <button
-                key={activityType.type}
-                onClick={() => {
-                  handleActivityCreate({
-                    name: `New ${activityType.label}`,
-                    type: activityType.type as any,
-                    start_date: new Date(),
-                    end_date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000) // 2 weeks from now
-                  });
-                  setIsCreateActivityModalOpen(false);
-                }}
-                className="p-4 border-2 border-gray-200 rounded-lg hover:border-purple-300 hover:bg-purple-50 transition-all text-left"
+          {activeTab === 'activities' && (
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginTop: tokens.spacingVerticalL,
+                gap: tokens.spacingHorizontalL,
+                padding: `${tokens.spacingVerticalM} 0`,
+              }}
+            >
+              <div style={{ display: 'flex', gap: tokens.spacingHorizontalL }}>
+                <Field>
+                  <Input
+                    appearance="underline"
+                    placeholder="Search activities..."
+                    value={searchQuery}
+                    onChange={(_, data) => setSearchQuery(data.value)}
+                    contentBefore={<SearchRegular />}
+                    aria-label="Search activities"
+                    style={{
+                      fontFamily: DesignTokens.typography.fontFamily,
+                      backgroundColor: 'transparent',
+                      border: `1px solid ${DesignTokens.colors.gray300}`,
+                      borderRadius: DesignTokens.borderRadius.lg,
+                      padding: '12px 16px',
+                      color: '#374151',
+                    }}
+                  />
+                </Field>
+                <Field>
+                  <Dropdown
+                    placeholder="Filter by status"
+                    value={filterStatus}
+                    onOptionSelect={(_, data) => setFilterStatus(data.optionValue as string)}
+                    aria-label="Filter activities by status"
+                    style={{ fontFamily: DesignTokens.typography.fontFamily }}
+                  >
+                    <Option value="all">All Status</Option>
+                    <Option value="pending">Pending</Option>
+                    <Option value="in_progress">In Progress</Option>
+                    <Option value="completed">Completed</Option>
+                    <Option value="blocked">Blocked</Option>
+                  </Dropdown>
+                </Field>
+              </div>
+
+              <Button
+                appearance="primary"
+                icon={<AddRegular />}
+                onClick={() => setIsCreateActivityModalOpen(true)}
+                style={{ ...DesignTokens.components.button.primary, borderRadius: DesignTokens.borderRadius.md }}
               >
-                <div className="text-2xl mb-2">{activityType.icon}</div>
-                <div className="font-medium text-gray-900">{activityType.label}</div>
-                <div className="text-sm text-gray-500">Click to add this activity type</div>
-              </button>
-            ))}
-          </div>
+                Add Activity
+              </Button>
+            </div>
+          )}
         </div>
-      </EnhancedModal>
-    </div>
+
+        {/* Tab panels */}
+        <div role="tabpanel" aria-labelledby={`tab-${activeTab}`}>
+          {activeTab === 'timeline' && (
+            <div className={styles.timelineContainer}>
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: tokens.spacingVerticalL,
+                  paddingBottom: tokens.spacingVerticalM,
+                  borderBottom: `1px solid ${DesignTokens.colors.gray300}`,
+                }}
+              >
+                <div>
+                  <Title2>Project Timeline</Title2>
+                  <Caption1>Visualize project activities and dependencies</Caption1>
+                </div>
+                <Button appearance="primary" icon={<AddRegular />} onClick={() => setIsCreateActivityModalOpen(true)}>
+                  Add Activity
+                </Button>
+              </div>
+              <div className={styles.timelineContent}>
+                {activities.length > 0 ? (
+                  <GanttChart
+                    activities={activities}
+                    onActivityUpdate={(id: string, updates: Partial<Activity>) => {
+                      setActivities((prev) => prev.map((a) => (a.id === id ? { ...a, ...updates } : a)));
+                    }}
+                    onActivityCreate={(partial: Partial<Activity>) => {
+                      const a: Activity = {
+                        id: `act-${Date.now()}`,
+                        name: partial.name || 'New Activity',
+                        type: partial.type || 'custom',
+                        status: 'pending',
+                        start_date: partial.start_date || new Date(),
+                        end_date: partial.end_date || new Date(),
+                        assignee: partial.assignee || '',
+                        dependencies: partial.dependencies || [],
+                        progress: partial.progress ?? 0,
+                      };
+                      setActivities((prev) => [...prev, a]);
+                    }}
+                    onActivityDelete={(id: string) => {
+                      setActivities((prev) => prev.filter((a) => a.id !== id));
+                    }}
+                    onDependencyChange={(activityId: string, dependencies: string[]) =>
+                      setActivities((prev) => prev.map((a) => (a.id === activityId ? { ...a, dependencies } : a)))
+                    }
+                  />
+                ) : (
+                  <div style={{ textAlign: 'center', padding: tokens.spacingVerticalXXL }}>
+                    <ChartMultipleRegular
+                      style={{ fontSize: '64px', color: tokens.colorNeutralForeground3, marginBottom: tokens.spacingVerticalL }}
+                    />
+                    <Title3>No activities yet</Title3>
+                    <Text style={{ marginBottom: tokens.spacingVerticalL }}>
+                      Create your first activity to see the project timeline
+                    </Text>
+                    <Button appearance="primary" icon={<AddRegular />} onClick={() => setIsCreateActivityModalOpen(true)}>
+                      Create First Activity
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'activities' && (
+            <Card className={styles.activitiesContainer}>
+              <div className={styles.cardHeaderReplacement}>
+                <Title2>Activity Management</Title2>
+                <Caption1>Create, edit, and manage project activities</Caption1>
+              </div>
+              <CardPreview>
+                {filteredActivities.length > 0 ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: tokens.spacingVerticalM }}>
+                    {filteredActivities.map((activity) => (
+                      <Card key={activity.id} className={styles.activityCard}>
+                        <div className={styles.cardHeaderReplacement}>
+                          <div style={{ flex: 1 }}>
+                            <Title3 style={{ marginBottom: tokens.spacingVerticalXS }}>{activity.name}</Title3>
+                            <Badge
+                              appearance="outline"
+                              color={
+                                activity.status === 'completed'
+                                  ? 'success'
+                                  : activity.status === 'in_progress'
+                                  ? 'warning'
+                                  : activity.status === 'blocked'
+                                  ? 'danger'
+                                  : 'informative'
+                              }
+                            >
+                              {activity.status.replace('_', ' ').toUpperCase()}
+                            </Badge>
+                          </div>
+                          <div style={{ display: 'flex', gap: tokens.spacingHorizontalXS }}>
+                            <Button appearance="subtle" icon={<EditRegular />} size="small" aria-label={`Edit ${activity.name}`} />
+                            <Button
+                              appearance="subtle"
+                              icon={<DeleteRegular />}
+                              size="small"
+                              onClick={() => setActivities((prev) => prev.filter((a) => a.id !== activity.id))}
+                              aria-label={`Delete ${activity.name}`}
+                            />
+                          </div>
+                        </div>
+                        <CardPreview>
+                          <div className={styles.activityMeta}>
+                            <div>
+                              <Caption1>Assignee:</Caption1>
+                              <Text>{activity.assignee}</Text>
+                            </div>
+                            <div>
+                              <Caption1>Start Date:</Caption1>
+                              <Text>{activity.start_date.toLocaleDateString()}</Text>
+                            </div>
+                            <div>
+                              <Caption1>End Date:</Caption1>
+                              <Text>{activity.end_date.toLocaleDateString()}</Text>
+                            </div>
+                          </div>
+                          <div>
+                            <div
+                              style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                marginBottom: tokens.spacingVerticalXS,
+                              }}
+                            >
+                              <Caption1>Progress</Caption1>
+                              <Caption1>{activity.progress}%</Caption1>
+                            </div>
+                            <ProgressBar
+                              value={activity.progress / 100}
+                              shape="rounded"
+                              color="brand"
+                              aria-label={`${activity.name} progress: ${activity.progress}%`}
+                            />
+                          </div>
+                        </CardPreview>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{ textAlign: 'center', padding: tokens.spacingVerticalXXL }}>
+                    <TargetRegular
+                      style={{ fontSize: '64px', color: tokens.colorNeutralForeground3, marginBottom: tokens.spacingVerticalL }}
+                    />
+                    <Title3>No activities found</Title3>
+                    <Text>
+                      {searchQuery || filterStatus !== 'all'
+                        ? 'No activities match your current filters'
+                        : 'Start by creating your first project activity'}
+                    </Text>
+                  </div>
+                )}
+              </CardPreview>
+            </Card>
+          )}
+
+          {activeTab === 'overview' && (
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+                gap: tokens.spacingHorizontalL,
+              }}
+            >
+              {/* Project Information Card */}
+              <Card className={styles.statsCard}>
+                <div className={styles.cardHeaderReplacement}>
+                  <Title3>Project Information</Title3>
+                </div>
+                <CardPreview>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: tokens.spacingVerticalS }}>
+                    {[
+                      { label: 'Project ID', value: project.id },
+                      { label: 'Owner', value: project.owner_id ? project.owner_id.replace('user:', '') : 'Unknown' },
+                      { label: 'Created', value: new Date(project.created_at).toLocaleString() },
+                      { label: 'Last Updated', value: new Date(project.updated_at).toLocaleString() },
+                    ].map((item, index) => (
+                      <div
+                        key={index}
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          paddingBottom: tokens.spacingVerticalS,
+                          borderBottom:
+                            index < 3 ? `1px solid ${DesignTokens.colors.gray300}` : 'none',
+                        }}
+                      >
+                        <Caption1>{item.label}:</Caption1>
+                        <Text size={300}>{item.value}</Text>
+                      </div>
+                    ))}
+                  </div>
+                </CardPreview>
+              </Card>
+
+              {/* Activity Breakdown Card */}
+              <Card className={styles.statsCard}>
+                <div className={styles.cardHeaderReplacement}>
+                  <Title3>Activity Breakdown</Title3>
+                </div>
+                <CardPreview>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: tokens.spacingVerticalS }}>
+                    {[
+                      { type: 'migration', label: 'Migration Activities', emoji: '🔄' },
+                      { type: 'hardware_customization', label: 'Hardware Customization', emoji: '🔧' },
+                      { type: 'commissioning', label: 'Commissioning', emoji: '⚡' },
+                      { type: 'decommission', label: 'Decommissioning', emoji: '🗑️' },
+                      { type: 'lifecycle', label: 'Lifecycle Planning', emoji: '📊' },
+                      { type: 'custom', label: 'Custom Activities', emoji: '📋' },
+                    ].map((activityType) => {
+                      const count = activities.filter((a) => a.type === activityType.type).length;
+                      return (
+                        <div
+                          key={activityType.type}
+                          style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', gap: tokens.spacingHorizontalS }}>
+                            <span style={{ fontSize: '16px' }}>{activityType.emoji}</span>
+                            <Caption1>{activityType.label}</Caption1>
+                          </div>
+                          <Badge appearance="outline">{count}</Badge>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </CardPreview>
+              </Card>
+            </div>
+          )}
+        </div>
+
+        {/* Create Activity Modal (minimal) */}
+        {isCreateActivityModalOpen && (
+          <Dialog open={isCreateActivityModalOpen} onOpenChange={(_, d) => setIsCreateActivityModalOpen(d.open)}>
+            <DialogSurface aria-describedby="create-activity-description">
+              <DialogBody>
+                <DialogTitle>Create New Activity</DialogTitle>
+                <DialogContent>
+                  <Text id="create-activity-description" style={{ marginBottom: tokens.spacingVerticalL }}>
+                    Add a new activity to your project timeline.
+                  </Text>
+                </DialogContent>
+                <DialogActions>
+                  <Button appearance="secondary" onClick={() => setIsCreateActivityModalOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button appearance="primary" onClick={() => setIsCreateActivityModalOpen(false)}>
+                    Create
+                  </Button>
+                </DialogActions>
+              </DialogBody>
+            </DialogSurface>
+          </Dialog>
+        )}
+      </main>
+    </ErrorBoundary>
   );
 };
 

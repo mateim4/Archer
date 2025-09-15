@@ -228,7 +228,7 @@ pub enum ActivityStatus {
 }
 
 // =============================================================================
-// RVTOOLS DATA MODELS
+// ENHANCED RVTOOLS DATA MODELS WITH SOURCE TRACEABILITY
 // =============================================================================
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -249,6 +249,467 @@ pub struct RvToolsData {
     pub processed_to_pool: bool,
     pub metadata: HashMap<String, serde_json::Value>,
     pub created_at: DateTime<Utc>,
+}
+
+// =============================================================================
+// ENHANCED RVTOOLS MODELS WITH EXCEL SUPPORT AND TRACEABILITY
+// =============================================================================
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RvToolsExcelData {
+    pub id: Option<Thing>,
+    pub upload_id: Thing,
+    pub sheet_name: String,
+    pub row_number: i32,
+    pub column_name: String,
+    pub column_index: i32,
+    pub raw_value: String,
+    pub parsed_value: serde_json::Value,
+    pub data_type: RvToolsDataType,
+    pub metric_category: MetricCategory,
+    pub confidence_score: f32, // 0-100 parsing confidence
+    pub validation_status: ValidationStatus,
+    pub validation_errors: Vec<String>,
+    pub metadata: HashMap<String, serde_json::Value>,
+    pub created_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum RvToolsDataType {
+    #[serde(rename = "string")]
+    String,
+    #[serde(rename = "integer")]
+    Integer,
+    #[serde(rename = "float")]
+    Float,
+    #[serde(rename = "boolean")]
+    Boolean,
+    #[serde(rename = "datetime")]
+    DateTime,
+    #[serde(rename = "capacity")]
+    Capacity,
+    #[serde(rename = "network_address")]
+    NetworkAddress,
+    #[serde(rename = "path")]
+    Path,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum MetricCategory {
+    #[serde(rename = "hardware_config")]
+    HardwareConfig,
+    #[serde(rename = "network_metrics")]
+    NetworkMetrics,
+    #[serde(rename = "storage_metrics")]
+    StorageMetrics,
+    #[serde(rename = "capacity_metrics")]
+    CapacityMetrics,
+    #[serde(rename = "lifecycle_metrics")]
+    LifecycleMetrics,
+    #[serde(rename = "migration_metrics")]
+    MigrationMetrics,
+    #[serde(rename = "cluster_metrics")]
+    ClusterMetrics,
+    #[serde(rename = "vm_metrics")]
+    VmMetrics,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum ValidationStatus {
+    #[serde(rename = "valid")]
+    Valid,
+    #[serde(rename = "warning")]
+    Warning,
+    #[serde(rename = "error")]
+    Error,
+    #[serde(rename = "needs_review")]
+    NeedsReview,
+}
+
+// Storage Architecture Analysis Models
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct StorageArchitectureAnalysis {
+    pub id: Option<Thing>,
+    pub upload_id: Thing,
+    pub cluster_name: String,
+    pub storage_type: StorageType,
+    pub evidence_chain: Vec<StorageEvidence>,
+    pub confidence_level: f32,
+    pub analysis_method: AnalysisMethod,
+    pub recommendations: Vec<String>,
+    pub s2d_compliance: Option<S2dComplianceCheck>,
+    pub metadata: HashMap<String, serde_json::Value>,
+    pub analyzed_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum StorageType {
+    #[serde(rename = "vsan_provider")]
+    VsanProvider,
+    #[serde(rename = "vsan_consumer")]
+    VsanConsumer,
+    #[serde(rename = "iscsi_san")]
+    IscsiSan,
+    #[serde(rename = "fc_san")]
+    FcSan,
+    #[serde(rename = "nfs")]
+    Nfs,
+    #[serde(rename = "local")]
+    Local,
+    #[serde(rename = "unknown")]
+    Unknown,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct StorageEvidence {
+    pub evidence_type: EvidenceType,
+    pub sheet_name: String,
+    pub row_data: HashMap<String, String>,
+    pub supports_conclusion: bool,
+    pub confidence_weight: f32,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum EvidenceType {
+    #[serde(rename = "datastore_name")]
+    DatastoreName,
+    #[serde(rename = "multipath_policy")]
+    MultipathPolicy,
+    #[serde(rename = "hba_type")]
+    HbaType,
+    #[serde(rename = "disk_path")]
+    DiskPath,
+    #[serde(rename = "capacity_pattern")]
+    CapacityPattern,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum AnalysisMethod {
+    #[serde(rename = "systematic")]
+    Systematic, // vDisk → vDatastore → vMultiPath → vHBA
+    #[serde(rename = "pattern_matching")]
+    PatternMatching,
+    #[serde(rename = "confirmed_data")]
+    ConfirmedData, // User-verified clusters
+}
+
+// S2D Compliance Check
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct S2dComplianceCheck {
+    pub overall_status: ComplianceStatus,
+    pub requirements: S2dRequirements,
+    pub risk_level: RiskLevel,
+    pub recommendations: Vec<String>,
+    pub checked_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct S2dRequirements {
+    pub min_hosts: RequirementCheck,
+    pub memory_capacity: RequirementCheck,
+    pub network_adapters: RequirementCheck,
+    pub drive_configuration: RequirementCheck,
+    pub drive_symmetry: RequirementCheck,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RequirementCheck {
+    pub status: ComplianceStatus,
+    pub current_value: Option<String>,
+    pub required_value: String,
+    pub confidence: f32,
+    pub details: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub enum ComplianceStatus {
+    #[serde(rename = "compliant")]
+    Compliant,
+    #[serde(rename = "non_compliant")]
+    NonCompliant,
+    #[serde(rename = "needs_verification")]
+    NeedsVerification,
+    #[serde(rename = "unknown")]
+    Unknown,
+}
+
+// =============================================================================
+// REPORT GENERATION MODELS
+// =============================================================================
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct GeneratedReport {
+    pub id: Option<Thing>,
+    pub project_id: Thing,
+    pub upload_id: Thing,
+    pub report_type: ReportType,
+    pub report_name: String,
+    pub template_id: Option<Thing>,
+    pub generation_config: ReportConfig,
+    pub data_variables: HashMap<String, DataVariable>,
+    pub sections: Vec<ReportSection>,
+    pub export_formats: Vec<ExportFormat>,
+    pub branding: Option<BrandingConfig>,
+    pub cache_key: String,
+    pub status: ReportStatus,
+    pub error_message: Option<String>,
+    pub metadata: HashMap<String, serde_json::Value>,
+    pub generated_at: DateTime<Utc>,
+    pub expires_at: Option<DateTime<Utc>>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum ReportType {
+    #[serde(rename = "cluster_analysis")]
+    ClusterAnalysis,
+    #[serde(rename = "migration_timeline")]
+    MigrationTimeline,
+    #[serde(rename = "storage_architecture")]
+    StorageArchitecture,
+    #[serde(rename = "hardware_analysis")]
+    HardwareAnalysis,
+    #[serde(rename = "network_architecture")]
+    NetworkArchitecture,
+    #[serde(rename = "migration_hld")]
+    MigrationHLD,
+    #[serde(rename = "custom")]
+    Custom,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ReportConfig {
+    pub include_percentages: bool,
+    pub show_source_traceability: bool,
+    pub confidence_threshold: f32,
+    pub timeline_weeks: Option<u8>,
+    pub overcommit_ratios: Option<OvercommitRatios>,
+    pub filters: HashMap<String, serde_json::Value>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct OvercommitRatios {
+    pub cpu_ratio: f32,    // e.g., 3.0 for 3:1
+    pub memory_ratio: f32, // e.g., 1.5 for 1.5:1
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DataVariable {
+    pub id: String,
+    pub name: String,
+    pub value: serde_json::Value,
+    pub category: MetricCategory,
+    pub source: SourceTraceability,
+    pub validation: ValidationResult,
+    pub display_format: DisplayFormat,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SourceTraceability {
+    pub sheet: String,
+    pub row: i32,
+    pub column: String,
+    pub raw_value: String,
+    pub transformed_value: serde_json::Value,
+    pub confidence: f32,
+    pub validation_notes: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ValidationResult {
+    pub is_valid: bool,
+    pub warnings: Vec<String>,
+    pub errors: Vec<String>,
+    pub confidence_score: f32,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum DisplayFormat {
+    #[serde(rename = "number")]
+    Number,
+    #[serde(rename = "percentage")]
+    Percentage,
+    #[serde(rename = "bytes")]
+    Bytes,
+    #[serde(rename = "currency")]
+    Currency,
+    #[serde(rename = "date")]
+    Date,
+    #[serde(rename = "duration")]
+    Duration,
+    #[serde(rename = "text")]
+    Text,
+    #[serde(rename = "boolean")]
+    Boolean,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ReportSection {
+    pub id: String,
+    pub title: String,
+    pub section_type: SectionType,
+    pub order: i32,
+    pub variables: Vec<String>, // DataVariable IDs
+    pub layout: SectionLayout,
+    pub styling: HashMap<String, String>,
+    pub is_customizable: bool,
+    pub is_removable: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum SectionType {
+    #[serde(rename = "header")]
+    Header,
+    #[serde(rename = "summary")]
+    Summary,
+    #[serde(rename = "metrics_grid")]
+    MetricsGrid,
+    #[serde(rename = "capacity_chart")]
+    CapacityChart,
+    #[serde(rename = "compliance_table")]
+    ComplianceTable,
+    #[serde(rename = "timeline")]
+    Timeline,
+    #[serde(rename = "recommendations")]
+    Recommendations,
+    #[serde(rename = "custom")]
+    Custom,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum SectionLayout {
+    #[serde(rename = "single_column")]
+    SingleColumn,
+    #[serde(rename = "two_column")]
+    TwoColumn,
+    #[serde(rename = "three_column")]
+    ThreeColumn,
+    #[serde(rename = "grid")]
+    Grid,
+    #[serde(rename = "chart")]
+    Chart,
+    #[serde(rename = "table")]
+    Table,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum ExportFormat {
+    #[serde(rename = "html")]
+    Html,
+    #[serde(rename = "pdf")]
+    Pdf,
+    #[serde(rename = "json")]
+    Json,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct BrandingConfig {
+    pub company_name: String,
+    pub logo_url: Option<String>,
+    pub primary_color: String,
+    pub secondary_color: String,
+    pub accent_color: String,
+    pub custom_css: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum ReportStatus {
+    #[serde(rename = "generating")]
+    Generating,
+    #[serde(rename = "completed")]
+    Completed,
+    #[serde(rename = "failed")]
+    Failed,
+    #[serde(rename = "cached")]
+    Cached,
+}
+
+// Report Templates and Customization
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ReportTemplate {
+    pub id: Option<Thing>,
+    pub name: String,
+    pub description: Option<String>,
+    pub report_type: ReportType,
+    pub is_standard: bool,
+    pub is_public: bool,
+    pub sections: Vec<ReportSection>,
+    pub default_config: ReportConfig,
+    pub required_data_categories: Vec<MetricCategory>,
+    pub created_by: String,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ReportCustomization {
+    pub id: Option<Thing>,
+    pub report_id: Thing,
+    pub customized_sections: Vec<ReportSection>,
+    pub hidden_sections: Vec<String>,
+    pub added_sections: Vec<ReportSection>,
+    pub layout_changes: HashMap<String, serde_json::Value>,
+    pub created_by: String,
+    pub created_at: DateTime<Utc>,
+}
+
+// Metric Templates for Custom Reports
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct MetricTemplate {
+    pub id: Option<Thing>,
+    pub name: String,
+    pub description: String,
+    pub category: MetricCategory,
+    pub variables: Vec<TemplateVariable>,
+    pub default_layout: SectionLayout,
+    pub visualization_type: VisualizationType,
+    pub is_standard: bool,
+    pub created_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TemplateVariable {
+    pub id: String,
+    pub name: String,
+    pub description: String,
+    pub data_type: RvToolsDataType,
+    pub is_required: bool,
+    pub default_value: Option<serde_json::Value>,
+    pub validation_rules: Vec<ValidationRule>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ValidationRule {
+    pub rule_type: ValidationRuleType,
+    pub parameters: HashMap<String, serde_json::Value>,
+    pub error_message: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum ValidationRuleType {
+    #[serde(rename = "required")]
+    Required,
+    #[serde(rename = "range")]
+    Range,
+    #[serde(rename = "pattern")]
+    Pattern,
+    #[serde(rename = "custom")]
+    Custom,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum VisualizationType {
+    #[serde(rename = "card")]
+    Card,
+    #[serde(rename = "chart")]
+    Chart,
+    #[serde(rename = "table")]
+    Table,
+    #[serde(rename = "gauge")]
+    Gauge,
+    #[serde(rename = "progress")]
+    Progress,
+    #[serde(rename = "timeline")]
+    Timeline,
 }
 
 // =============================================================================

@@ -297,7 +297,7 @@ const WorkflowsView: React.FC = () => {
                     {workflow.category}
                   </span>
                   <span className={`px-3 py-1 text-xs font-medium rounded-full ${getStatusColor(workflow.status)}`}>
-                    {workflow.status.replace('_', ' ')}
+                    {workflow.status ? workflow.status.replace('_', ' ') : 'Unknown'}
                   </span>
                 </div>
               </div>

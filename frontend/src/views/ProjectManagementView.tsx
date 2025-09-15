@@ -234,7 +234,7 @@ const ProjectCard: React.FC<{
           </div>
           <div className="flex items-center space-x-2 text-gray-600">
             <User className="w-4 h-4" />
-            <span>{project.owner_id.replace('user:', '')}</span>
+            <span>{project.owner_id ? project.owner_id.replace('user:', '') : 'Unknown'}</span>
           </div>
         </div>
 
@@ -328,26 +328,26 @@ const ProjectManagementView: React.FC = () => {
       setFilteredProjects(projects);
     } else {
       const filtered = projects.filter(project =>
-        project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        project.description.toLowerCase().includes(searchTerm.toLowerCase())
+        (project.name && project.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (project.description && project.description.toLowerCase().includes(searchTerm.toLowerCase()))
       );
       setFilteredProjects(filtered);
     }
   }, [searchTerm, projects]);
 
   const handleViewProject = (project: Project) => {
-    console.log('Viewing project:', project.name);
     // Navigate to project details
+    // Implementation pending
   };
 
   const handleEditProject = (project: Project) => {
-    console.log('Editing project:', project.name);
     // Open edit modal
+    // Implementation pending
   };
 
   const handleDeleteProject = (project: Project) => {
-    console.log('Deleting project:', project.name);
     // Open delete confirmation
+    // Implementation pending
   };
 
   const handleSort = (field: keyof Project) => {

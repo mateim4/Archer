@@ -154,7 +154,7 @@ const EnhancedProjectsView: React.FC = () => {
               </div>
               <div className="flex items-center space-x-1">
                 <User className="w-4 h-4" />
-                <span>{project.owner_id.replace('user:', '')}</span>
+                <span>{project.owner_id ? project.owner_id.replace('user:', '') : 'Unknown'}</span>
               </div>
             </div>
           </div>
@@ -195,7 +195,7 @@ const EnhancedProjectsView: React.FC = () => {
               </div>
               <div className="flex items-center space-x-1 mt-1">
                 <User className="w-4 h-4" />
-                <span>{project.owner_id.replace('user:', '')}</span>
+                <span>{project.owner_id ? project.owner_id.replace('user:', '') : 'Unknown'}</span>
               </div>
             </div>
           </div>

@@ -17,7 +17,7 @@ class ServerFileProcessor {
 
   constructor() {
     // Try to detect if server is running locally
-    this.serverUrl = 'http://localhost:3001';
+    this.serverUrl = 'http://localhost:3002';
   }
 
   /**

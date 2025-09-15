@@ -6,20 +6,25 @@ pub mod api;
 pub mod services;
 pub mod utils;
 pub mod models;
+pub mod database;
 
 // Re-export main services
-pub use services::analytics_service::AdvancedAnalyticsService;
-pub use services::reporting_service::ComprehensiveReportingService;
-pub use services::hardware_pool_service::HardwarePoolService;
+// pub use services::enhanced_rvtools_service::EnhancedRvToolsService; // TODO: Fix compilation errors
+// TODO: Re-enable when implemented
+// pub use services::analytics_service::AdvancedAnalyticsService;
+// pub use services::reporting_service::ComprehensiveReportingService;
+// pub use services::hardware_pool_service::HardwarePoolService;
 
 // Re-export API handlers
-pub use api::analytics_api::AnalyticsAPI;
+// TODO: Re-enable when analytics_api module is created
+// pub use api::analytics_api::AnalyticsAPI;
 
 // Common types used across the backend
-pub use models::{
-    analytics::{AnalyticsMetric, SystemHealth, DashboardAlert, HardwareAnalytics},
-    hardware_pool::{HardwareServer, HardwarePool, AllocationRequest}
-};
+// TODO: Re-enable when analytics and hardware_pool models are created
+// pub use models::{
+//     analytics::{AnalyticsMetric, SystemHealth, DashboardAlert, HardwareAnalytics},
+//     hardware_pool::{HardwareServer, HardwarePool, AllocationRequest}
+// };
 
 #[cfg(test)]
 mod tests {

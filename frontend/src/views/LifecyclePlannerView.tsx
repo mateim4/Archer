@@ -437,7 +437,7 @@ const LifecyclePlannerView: React.FC = () => {
               overflow: 'hidden',
               textOverflow: 'ellipsis'
             }}>
-              {osItem.os.replace(/Windows Server /, 'Win ')} ({osItem.count})
+              {osItem.os ? osItem.os.replace(/Windows Server /, 'Win ') : 'Unknown OS'} ({osItem.count})
             </span>
           </div>
         ))}
@@ -915,7 +915,7 @@ const LifecyclePlannerView: React.FC = () => {
                           </div>
                           <div className="flex items-start gap-3">
                             <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" className="text-purple-500 flex-shrink-0 mt-0.5"><path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" /></svg>
-                            <span className="text-gray-600 text-sm">vSphere: <span className="font-semibold text-gray-700">{cluster.vmwareVersion ? cluster.vmwareVersion.split(' ')[1] : 'Unknown'}</span></span>
+                            <span className="text-gray-600 text-sm">vSphere: <span className="font-semibold text-gray-700">{cluster.vmwareVersion ? (cluster.vmwareVersion.split(' ')[1] || cluster.vmwareVersion) : 'Unknown'}</span></span>
                           </div>
                           <div className="flex items-start gap-3">
                             <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" className={`${cluster.vSAN ? "text-yellow-500" : "text-gray-400"} flex-shrink-0 mt-0.5`}><path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" /></svg>

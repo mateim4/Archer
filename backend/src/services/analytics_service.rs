@@ -2,6 +2,7 @@ use crate::database::Database;
 use crate::models::project_models::*;
 use anyhow::{Context, Result};
 use chrono::{DateTime, Utc, Duration};
+use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use std::collections::HashMap;
 use surrealdb::sql::Thing;
@@ -935,7 +936,7 @@ impl Default for ApiPerformanceMetrics {
         Self {
             response_time_p50: 100.0,
             response_time_p95: 250.0,
-            request_rate: 500.0,
+            requests_per_second: 500.0,
             error_rate: 0.1,
         }
     }
@@ -944,10 +945,10 @@ impl Default for ApiPerformanceMetrics {
 impl Default for ResourceUtilizationMetrics {
     fn default() -> Self {
         Self {
-            cpu_usage_percentage: 45.0,
-            memory_usage_percentage: 65.0,
-            disk_usage_percentage: 30.0,
-            network_throughput: 1000.0,
+            cpu_usage: 45.0,
+            memory_usage: 65.0,
+            disk_usage: 30.0,
+            network_io: 1000.0,
         }
     }
 }
@@ -956,10 +957,9 @@ impl Default for ErrorRateMetrics {
     fn default() -> Self {
         Self {
             total_errors: 5,
-            error_rate_percentage: 0.1,
+            error_rate: 0.1,
             critical_errors: 0,
-            warning_errors: 3,
-            info_errors: 2,
+            warning_count: 3,
         }
     }
 }

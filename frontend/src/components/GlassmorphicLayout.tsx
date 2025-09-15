@@ -15,11 +15,11 @@ const GlassmorphicLayout: React.FC<GlassmorphicLayoutProps> = ({
   children,
   className,
   style,
-  padding = '24px',
-  margin = '20px',
-  blur = '20px',
-  opacity = '0.15',
-  borderRadius = '20px',
+  padding = '32px',
+  margin = '24px',
+  blur = '24px',
+  opacity = '0.12',
+  borderRadius = '24px',
   ...props
 }) => {
   const defaultStyle: React.CSSProperties = {
@@ -29,12 +29,12 @@ const GlassmorphicLayout: React.FC<GlassmorphicLayoutProps> = ({
     background: `rgba(255, 255, 255, ${opacity})`,
     backdropFilter: `blur(${blur}) saturate(180%)`,
     WebkitBackdropFilter: `blur(${blur}) saturate(180%)`,
-    border: '1px solid rgba(255, 255, 255, 0.25)',
-    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+    border: '1px solid rgba(255, 255, 255, 0.2)',
+    boxShadow: '0 16px 64px rgba(0, 0, 0, 0.08), 0 8px 32px rgba(99, 102, 241, 0.05)',
     minHeight: 'calc(100vh - 120px)',
     fontFamily: "'Poppins', system-ui, sans-serif",
-    overflowY: 'auto', // Allow vertical scrolling
-    overflowX: 'hidden', // Prevent horizontal scrolling
+    overflowY: 'auto',
+    overflowX: 'hidden',
     position: 'relative',
     ...style
   };

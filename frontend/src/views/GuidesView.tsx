@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  Title1,
   Title2,
   Body1,
   Card,
@@ -16,6 +15,7 @@ import {
   DocumentRegular,
   ChevronRightRegular
 } from '@fluentui/react-icons';
+import GlassmorphicLayout from '../components/GlassmorphicLayout';
 
 interface Guide {
   id: string;
@@ -114,80 +114,183 @@ const GuidesView: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
-      <div style={{ marginBottom: '32px' }}>
-        <Title1>Guides & Documentation</Title1>
-        <Body1 style={{ marginTop: '8px', color: '#6b7280' }}>
+    <GlassmorphicLayout>
+      {/* Header Card */}
+      <div style={{
+        background: 'rgba(255, 255, 255, 0.85)',
+        backdropFilter: 'blur(18px) saturate(180%)',
+        borderRadius: '20px',
+        padding: '32px',
+        marginBottom: '32px',
+        border: '1px solid rgba(255, 255, 255, 0.2)',
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+      }}>
+        <h1 style={{
+          fontSize: '42px',
+          fontWeight: '800',
+          color: '#1f2937',
+          margin: '0 0 8px 0',
+          fontFamily: 'Montserrat, sans-serif'
+        }}>
+          📚 Guides & Documentation
+        </h1>
+        <p style={{
+          fontSize: '18px',
+          color: '#64748b',
+          margin: 0,
+          fontFamily: 'Montserrat, sans-serif'
+        }}>
           Comprehensive guides and tutorials to help you get the most out of LCMDesigner
-        </Body1>
+        </p>
       </div>
 
+      {/* Guides Grid */}
       <div style={{ 
         display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))', 
-        gap: '24px' 
+        gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))', 
+        gap: '24px',
+        marginBottom: '32px'
       }}>
         {guides.map((guide) => (
-          <Card key={guide.id} style={{ cursor: 'pointer' }}>
-            <CardHeader
-              image={getTypeIcon(guide.type)}
-              header={
-                <div>
-                  <Title2 style={{ fontSize: '16px', marginBottom: '4px' }}>
-                    {guide.title}
-                  </Title2>
-                  <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
-                    <Badge color={getCategoryColor(guide.category)} size="small">
-                      {guide.category}
-                    </Badge>
-                    <Badge color={getDifficultyColor(guide.difficulty)} size="small">
-                      {guide.difficulty}
-                    </Badge>
-                    {guide.duration && (
-                      <Badge color="subtle" size="small">
-                        {guide.duration}
-                      </Badge>
-                    )}
-                  </div>
+          <div key={guide.id} style={{
+            background: 'rgba(255, 255, 255, 0.85)',
+            backdropFilter: 'blur(18px) saturate(180%)',
+            borderRadius: '20px',
+            padding: '24px',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+          }}
+          onMouseOver={(e) => {
+            e.currentTarget.style.transform = 'translateY(-4px)';
+            e.currentTarget.style.boxShadow = '0 12px 40px rgba(0, 0, 0, 0.15)';
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.1)';
+          }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', marginBottom: '16px' }}>
+              <div style={{ fontSize: '24px' }}>
+                {getTypeIcon(guide.type)}
+              </div>
+              <div style={{ flex: 1 }}>
+                <h3 style={{
+                  fontSize: '18px',
+                  fontWeight: '600',
+                  color: '#1f2937',
+                  margin: '0 0 8px 0',
+                  fontFamily: 'Montserrat, sans-serif'
+                }}>
+                  {guide.title}
+                </h3>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  <span style={{
+                    fontSize: '12px',
+                    padding: '4px 8px',
+                    borderRadius: '12px',
+                    background: 'rgba(99, 102, 241, 0.1)',
+                    color: '#4f46e5',
+                    fontFamily: 'Montserrat, sans-serif'
+                  }}>
+                    {guide.category}
+                  </span>
+                  <span style={{
+                    fontSize: '12px',
+                    padding: '4px 8px',
+                    borderRadius: '12px',
+                    background: 'rgba(16, 185, 129, 0.1)',
+                    color: '#047857',
+                    fontFamily: 'Montserrat, sans-serif'
+                  }}>
+                    {guide.difficulty}
+                  </span>
+                  {guide.duration && (
+                    <span style={{
+                      fontSize: '12px',
+                      padding: '4px 8px',
+                      borderRadius: '12px',
+                      background: 'rgba(107, 114, 128, 0.1)',
+                      color: '#374151',
+                      fontFamily: 'Montserrat, sans-serif'
+                    }}>
+                      {guide.duration}
+                    </span>
+                  )}
                 </div>
-              }
-              action={
-                <Button
-                  appearance="subtle"
-                  icon={<ChevronRightRegular />}
-                  size="small"
-                />
-              }
-            />
-            <CardPreview>
-              <Body1 style={{ padding: '16px', paddingTop: '0' }}>
-                {guide.description}
-              </Body1>
-            </CardPreview>
-          </Card>
+              </div>
+            </div>
+            <p style={{
+              fontSize: '14px',
+              color: '#64748b',
+              margin: 0,
+              lineHeight: '1.6',
+              fontFamily: 'Montserrat, sans-serif'
+            }}>
+              {guide.description}
+            </p>
+          </div>
         ))}
       </div>
 
-      <Divider style={{ margin: '40px 0' }} />
-      
-      <div>
-        <Title2 style={{ marginBottom: '16px' }}>Additional Resources</Title2>
+      {/* Additional Resources */}
+      <div style={{
+        background: 'rgba(255, 255, 255, 0.85)',
+        backdropFilter: 'blur(18px) saturate(180%)',
+        borderRadius: '20px',
+        padding: '32px',
+        border: '1px solid rgba(255, 255, 255, 0.2)',
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+      }}>
+        <h2 style={{
+          fontSize: '24px',
+          fontWeight: '600',
+          color: '#1f2937',
+          margin: '0 0 24px 0',
+          fontFamily: 'Montserrat, sans-serif'
+        }}>
+          📖 Additional Resources
+        </h2>
         <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-          <Button appearance="primary">
-            API Documentation
-          </Button>
-          <Button appearance="secondary">
-            Video Library
-          </Button>
-          <Button appearance="secondary">
-            Community Forum
-          </Button>
-          <Button appearance="secondary">
-            Release Notes
-          </Button>
+          {[
+            { name: 'API Documentation', icon: '📋' },
+            { name: 'Video Library', icon: '🎥' },
+            { name: 'Community Forum', icon: '💬' },
+            { name: 'Release Notes', icon: '📝' }
+          ].map((resource, index) => (
+            <button
+              key={index}
+              style={{
+                background: 'transparent',
+                color: '#6366f1',
+                border: '2px solid rgba(99, 102, 241, 0.3)',
+                padding: '12px 24px',
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontWeight: '600',
+                fontFamily: 'Montserrat, sans-serif',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.background = 'rgba(99, 102, 241, 0.1)';
+                e.currentTarget.style.transform = 'translateY(-2px)';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+            >
+              <span>{resource.icon}</span>
+              {resource.name}
+            </button>
+          ))}
         </div>
       </div>
-    </div>
+    </GlassmorphicLayout>
   );
 };
 

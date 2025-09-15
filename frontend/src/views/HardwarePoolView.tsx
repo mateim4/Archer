@@ -32,10 +32,10 @@ const HardwarePoolView: React.FC = () => {
     // Search filter
     if (searchTerm) {
       filtered = filtered.filter(asset =>
-        asset.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        asset.manufacturer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        asset.model.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        asset.location.toLowerCase().includes(searchTerm.toLowerCase())
+        (asset.name && asset.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (asset.manufacturer && asset.manufacturer.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (asset.model && asset.model.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (asset.location && asset.location.toLowerCase().includes(searchTerm.toLowerCase()))
       );
     }
 

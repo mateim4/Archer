@@ -1,419 +1,1156 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import {
-  Badge,
-  Button,
-  Card,
-  CardHeader,
-  DataGrid,
-  DataGridBody,
-  DataGridCell,
-  DataGridHeader,
-  DataGridHeaderCell,
-  DataGridRow,
-  Dialog,
-  DialogActions,
-  DialogBody,
-  DialogContent,
-  DialogSurface,
-  DialogTitle,
-  Dropdown,
-  MessageBar,
-  Option,
-  ProgressBar,
-  Spinner,
-  Subtitle2,
-  TableColumnDefinition,
-  Text,
-  Title3,
-  Tooltip,
-  createTableColumn,
-} from '@fluentui/react-components';
-import { CloudArrowUpRegular, DeleteRegular } from '@fluentui/react-icons';
+import React, { useEffect, useState, useMemo } from 'react';
 import GlassmorphicLayout from '../components/GlassmorphicLayout';
-import type { HardwareBasket, HardwareExtension, HardwareModel } from '../types/hardwareBasketTypes';
+import { apiClient } from '../utils/apiClient';
 
-const API_URL = '/api';
+interface HardwareBasket {
+  id: string;
+  name: string;
+  vendor: string;
+  quarter: string;
+  year: number;
+  filename: string;
+  quotation_date: string;
+  created_at: string;
+  total_models: number;
+  total_configurations: number;
+}
 
-interface UploadProgress { stage: string; progress: number; message: string }
+interface HardwareModel {
+  id: string;
+  basket_id: string;
+  lot_description: string;
+  model_name: string;
+  model_number: string;
+  category: string;
+  form_factor: string;
+  vendor: string;
+  processor_info: string;
+  ram_info: string;
+  network_info: string;
+  quotation_date: string;
+  created_at?: string;
+  updated_at?: string;
+  base_specifications?: any;
+}
+
+interface CreateHardwareBasketRequest {
+  name: string;
+  vendor: string;
+  quarter: string;
+  year: number;
+}
+
+interface UploadProgress { 
+  stage: string; 
+  progress: number; 
+  message: string; 
+}
 
 const HardwareBasketView: React.FC = () => {
   const [hardwareBaskets, setHardwareBaskets] = useState<HardwareBasket[]>([]);
   const [selectedBasket, setSelectedBasket] = useState<HardwareBasket | null>(null);
   const [hardwareModels, setHardwareModels] = useState<HardwareModel[]>([]);
-  const [extensions, setExtensions] = useState<HardwareExtension[]>([]);
-  const [selectedTab, setSelectedTab] = useState<'servers' | 'extensions'>('servers');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<UploadProgress | null>(null);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showUploadDialog, setShowUploadDialog] = useState(false);
-  const [vendorFilter, setVendorFilter] = useState<string>('Display All');
-  const [quarterFilter, setQuarterFilter] = useState<string>('All');
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [vendorFilter, setVendorFilter] = useState<string>('All');
+  const [yearFilter, setYearFilter] = useState<string>('All');
+  
+  // Form state
+  const [newBasket, setNewBasket] = useState<CreateHardwareBasketRequest>({
+    name: '',
+    vendor: '',
+    quarter: 'Q1',
+    year: new Date().getFullYear()
+  });
 
-  const fetchHardwareBaskets = useCallback(async () => {
-    setLoading(true);
-    setError(null);
+  useEffect(() => {
+    fetchHardwareBaskets();
+  }, []);
+
+  const fetchHardwareBaskets = async () => {
     try {
-      const res = await fetch(`${API_URL}/hardware-baskets`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      setHardwareBaskets(await res.json());
-    } catch (e: any) {
-      setError(`Failed to fetch hardware baskets: ${e.message}`);
+      setLoading(true);
+      setError(null);
+      
+      const baskets = await apiClient.getHardwareBaskets();
+      setHardwareBaskets(baskets);
+      
+      if (apiClient.isUsingMockData()) {
+        setSuccess('Using demo data - backend not connected');
+      } else if (baskets.length === 0) {
+        setSuccess('No hardware baskets found in database');
+      }
+    } catch (error) {
+      console.error('Failed to fetch hardware baskets:', error);
+      setError('Failed to load hardware baskets. Please check your connection and try again.');
+      setHardwareBaskets([]);
     } finally {
       setLoading(false);
     }
-  }, []);
+  };
 
-  useEffect(() => { fetchHardwareBaskets(); }, [fetchHardwareBaskets]);
+  const handleUploadFile = (basketId: string) => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.xlsx,.xls';
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+      
+      setIsUploading(true);
+      setUploadProgress({
+        stage: 'Uploading',
+        progress: 0,
+        message: 'Preparing file upload...'
+      });
+      
+      try {
+        const response = await apiClient.uploadHardwareBasketFile(basketId, file);
+        setSuccess(`File uploaded successfully: ${file.name}`);
+        fetchHardwareBaskets();
+      } catch (error) {
+        setError(`Upload failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      } finally {
+        setIsUploading(false);
+        setUploadProgress(null);
+      }
+    };
+    input.click();
+  };
 
-  const handleFileUpload = async (ev: React.ChangeEvent<HTMLInputElement>) => {
-    const file = ev.target.files?.[0];
-    if (!file) return;
-    setIsUploading(true);
-    setShowUploadDialog(true);
-    setUploadProgress({ stage: 'Uploading', progress: 0, message: 'Starting upload...' });
-    setError(null);
-    setSuccess(null);
-    const form = new FormData();
-    form.append('file', file);
+  const handleCreateBasket = async () => {
+    if (!newBasket.name || !newBasket.vendor) {
+      setError('Please fill in all required fields');
+      return;
+    }
+
     try {
-      const res = await fetch(`${API_URL}/hardware-baskets/upload`, { method: 'POST', body: form });
-      setUploadProgress({ stage: 'Processing', progress: 50, message: 'Processing file...' });
-      if (!res.ok) { const err = await res.json(); throw new Error(err.error || `HTTP ${res.status}`); }
-      const json = await res.json();
-      setUploadProgress({ stage: 'Complete', progress: 100, message: 'Done' });
-      setSuccess(`Uploaded ${file.name}. ${json.models_count ?? json.models_created ?? 0} models created.`);
-      fetchHardwareBaskets();
-    } catch (e: any) {
-      setError(`Upload failed: ${e.message}`);
+      setLoading(true);
+      setError(null);
+      
+      await apiClient.createHardwareBasket(newBasket);
+      
+      // Refresh the list
+      await fetchHardwareBaskets();
+      
+      // Reset form and close dialog
+      setShowCreateDialog(false);
+      setNewBasket({ name: '', vendor: '', quarter: 'Q1', year: new Date().getFullYear() });
+      setSuccess('Hardware basket created successfully');
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => setSuccess(null), 3000);
+    } catch (error) {
+      console.error('Failed to create hardware basket:', error);
+      setError('Failed to create hardware basket. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFileUpload = async (basketId: string, file: File) => {
+    // Validate file type
+    const allowedTypes = ['.xlsx', '.xls'];
+    const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
+    
+    if (!allowedTypes.includes(fileExtension)) {
+      setError('Please select a valid Excel file (.xlsx or .xls)');
+      return;
+    }
+    
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      setError('File size must be less than 10MB');
+      return;
+    }
+
+    try {
+      setIsUploading(true);
+      setError(null);
+      setUploadProgress({ stage: 'Uploading file...', progress: 10, message: 'Preparing upload' });
+      
+      setUploadProgress({ stage: 'Processing...', progress: 50, message: 'Uploading and parsing file' });
+      
+      await apiClient.uploadHardwareBasketFile(basketId, file);
+      
+      setUploadProgress({ stage: 'Complete', progress: 100, message: 'File uploaded successfully' });
+      
+      // Refresh the baskets list
+      await fetchHardwareBaskets();
+      
+      setSuccess('File uploaded and processed successfully');
+      setShowUploadDialog(false);
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => setSuccess(null), 3000);
+    } catch (error) {
+      console.error('Failed to upload file:', error);
+      setError(`Failed to upload file: ${error instanceof Error ? error.message : 'Unknown error'}`);
       setUploadProgress(null);
     } finally {
       setIsUploading(false);
+      setTimeout(() => setUploadProgress(null), 2000);
     }
   };
 
-  const handleDeleteBasket = async (id: string) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await fetch(`${API_URL}/hardware-baskets/${id}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      setSuccess('Basket deleted.');
-      fetchHardwareBaskets();
-      if (selectedBasket?.id === id) { setSelectedBasket(null); setHardwareModels([]); setExtensions([]); }
-    } catch (e: any) {
-      setError(`Failed to delete basket: ${e.message}`);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleBasketSelection = async (basket: HardwareBasket) => {
-    setSelectedBasket(basket);
-    setSelectedTab('servers');
-    setLoading(true);
-    setError(null);
-    try {
-      const m = await fetch(`${API_URL}/hardware-baskets/${basket.id}/models`);
-      if (!m.ok) throw new Error(`HTTP ${m.status}`);
-      setHardwareModels(await m.json());
-      const e = await fetch(`${API_URL}/hardware-baskets/${basket.id}/extensions`);
-      setExtensions(e.ok ? await e.json() : []);
-    } catch (e: any) {
-      setError(`Failed to fetch basket details: ${e.message}`);
-      setHardwareModels([]);
-      setExtensions([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const displayedModels = useMemo(() => {
-    if (!selectedBasket) return [] as HardwareModel[];
-    return hardwareModels.filter(m => m.basket_id === selectedBasket.id);
-  }, [hardwareModels, selectedBasket]);
-
-  const isComponentLike = (text: string) => /riser|backplane|power\s*supply|heatsink|chassis|retimer|adapter|controller|fan|rail|cable/i.test(text);
-  const isServerLike = (text: string) => /\bserver\b|\bnode\b|\bsr\d{3,}\b|thinksystem\s+sr\d+/i.test(text);
-  const serverModels = useMemo(() => {
-    return displayedModels.filter(m => {
-      const name = `${(m as any).model_name || ''} ${(m as any).lot_description || ''}`;
-      if (isComponentLike(name)) return false;
-      if ((m as any).category && ((m as any).category as string).toLowerCase() === 'server') return true;
-      return isServerLike(name);
-    });
-  }, [displayedModels]);
-
-  const extensionRows = extensions;
-
-  const getExtensionRowId = (item: HardwareExtension) => {
-    const id: any = (item as any).id;
-    if (typeof id === 'string') return id;
-    if (id && typeof id === 'object' && 'tb' in id && 'id' in id) return `${(id as any).tb}:${(id as any).id}`;
-    return item.part_number || item.name;
-  };
-
+  // Filter and search logic
   const filteredBaskets = useMemo(() => {
-    const map = new Map<string, HardwareBasket>();
-    for (const b of hardwareBaskets) {
-      if ((vendorFilter !== 'Display All' && b.vendor !== vendorFilter) || (quarterFilter !== 'All' && b.quarter !== quarterFilter)) continue;
-      const key = `${b.vendor}|${b.quarter}|${b.year}`;
-      const existing = map.get(key);
-      if (!existing) map.set(key, b);
-      else if (new Date(b.created_at).getTime() > new Date(existing.created_at).getTime()) map.set(key, b);
+    let filtered = hardwareBaskets;
+
+    // Search filter
+    if (searchTerm) {
+      filtered = filtered.filter(basket =>
+        (basket.name && basket.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (basket.vendor && basket.vendor.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (basket.filename && basket.filename.toLowerCase().includes(searchTerm.toLowerCase()))
+      );
     }
-    return Array.from(map.values()).sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-  }, [hardwareBaskets, vendorFilter, quarterFilter]);
 
-  const uniqueVendors = useMemo(() => ['Display All', ...new Set(hardwareBaskets.map(b => b.vendor))], [hardwareBaskets]);
-  const uniqueQuarters = useMemo(() => ['All', ...new Set(hardwareBaskets.map(b => b.quarter))], [hardwareBaskets]);
+    // Vendor filter
+    if (vendorFilter !== 'All') {
+      filtered = filtered.filter(basket => basket.vendor === vendorFilter);
+    }
 
-  const serverColumns: TableColumnDefinition<HardwareModel>[] = [
-    createTableColumn<HardwareModel>({
-      columnId: 'lotDescription',
-      compare: (a, b) => a.lot_description.localeCompare(b.lot_description),
-      renderHeaderCell: () => 'Lot Description',
-      renderCell: (item) => (
-        <Tooltip content={item.lot_description} relationship="description">
-          <Text wrap={false}>{item.lot_description}</Text>
-        </Tooltip>
-      ),
-    }),
-    createTableColumn<HardwareModel>({
-      columnId: 'cpu',
-      renderHeaderCell: () => 'CPU',
-      renderCell: (item) => {
-  const s: any = (item as any).base_specifications || (item as any).specifications || {};
-  const p: any = s.processor || {};
-  const parts: string[] = [];
-  if (p.model) parts.push(p.model);
-  if (p.core_count || p.cores) parts.push(`${p.core_count || p.cores}C`);
-  if (p.thread_count || p.threads) parts.push(`${p.thread_count || p.threads}T`);
-  if (p.frequency_ghz) parts.push(`${p.frequency_ghz}GHz`);
-  if (parts.length) return parts.join(' / ');
-  const text = `${(item as any).model_name || ''} ${(item as any).lot_description || ''}`;
-  const m = text.match(/(\b\d{1,2})C.*?(\d+(?:\.\d+)?)\s*GHz/i);
-  const modelMatch = text.match(/(Xeon|EPYC)[^,\n]*/i);
-  const segs: string[] = [];
-  if (modelMatch) segs.push(modelMatch[0].trim());
-  if (m && m[1]) segs.push(`${m[1]}C`);
-  if (m && m[2]) segs.push(`${m[2]}GHz`);
-  return segs.length ? segs.join(' / ') : 'N/A';
-      },
-    }),
-    createTableColumn<HardwareModel>({
-      columnId: 'memory',
-      renderHeaderCell: () => 'Memory',
-      renderCell: (item) => {
-        const s: any = (item as any).base_specifications || (item as any).specifications || {};
-        const m: any = s.memory || {};
-        return m.total_capacity || m.module_count ? `${m.total_capacity || ''} ${m.module_count ? `(${m.module_count} modules)` : ''}`.trim() : 'N/A';
-      },
-    }),
-    createTableColumn<HardwareModel>({
-      columnId: 'partNumber',
-      compare: (a, b) => (a.part_number || '').localeCompare(b.part_number || ''),
-      renderHeaderCell: () => 'Part Number',
-      renderCell: (item) => item.part_number || '—',
-    }),
-    createTableColumn<HardwareModel>({
-      columnId: 'price',
-      compare: (a, b) => ((a as any).price?.amount ?? 0) - ((b as any).price?.amount ?? 0),
-      renderHeaderCell: () => 'Price',
-      renderCell: (item) => (item as any).price ? `${(item as any).price.amount.toFixed(2)} ${(item as any).price.currency}` : 'N/A',
-    }),
-    createTableColumn<HardwareModel>({
-      columnId: 'category',
-      compare: (a, b) => a.category.localeCompare(b.category),
-      renderHeaderCell: () => 'Category',
-      renderCell: (item) => <Badge color="brand">{item.category}</Badge>,
-    }),
-  ];
+    // Year filter
+    if (yearFilter !== 'All') {
+      filtered = filtered.filter(basket => basket.year.toString() === yearFilter);
+    }
 
-  const extensionColumns: TableColumnDefinition<HardwareExtension>[] = [
-    createTableColumn<HardwareExtension>({
-      columnId: 'name',
-      compare: (a, b) => a.name.localeCompare(b.name),
-      renderHeaderCell: () => 'Name',
-      renderCell: (item) => (
-        <Tooltip content={item.name} relationship="description">
-          <Text wrap={false}>{item.name}</Text>
-        </Tooltip>
-      ),
-    }),
-    createTableColumn<HardwareExtension>({
-      columnId: 'category',
-      compare: (a, b) => a.category.localeCompare(b.category),
-      renderHeaderCell: () => 'Category',
-      renderCell: (item) => <Badge>{item.category}</Badge>,
-    }),
-    createTableColumn<HardwareExtension>({
-      columnId: 'type',
-      compare: (a, b) => a.type.localeCompare(b.type),
-      renderHeaderCell: () => 'Type',
-      renderCell: (item) => item.type,
-    }),
-    createTableColumn<HardwareExtension>({
-      columnId: 'size',
-      renderHeaderCell: () => 'Size',
-      renderCell: (item) => item.size || '—',
-    }),
-    createTableColumn<HardwareExtension>({
-      columnId: 'speed',
-      renderHeaderCell: () => 'Speed',
-      renderCell: (item) => item.speed || '—',
-    }),
-    createTableColumn<HardwareExtension>({
-      columnId: 'partNumber',
-      renderHeaderCell: () => 'Part Number',
-      renderCell: (item) => item.part_number || '—',
-    }),
-    createTableColumn<HardwareExtension>({
-      columnId: 'price',
-      compare: (a, b) => ((a as any).price?.amount ?? 0) - ((b as any).price?.amount ?? 0),
-      renderHeaderCell: () => 'Price',
-      renderCell: (item) => (item as any).price ? `${(item as any).price.amount.toFixed(2)} ${(item as any).price.currency}` : '—',
-    }),
-  ];
+    return filtered;
+  }, [hardwareBaskets, searchTerm, vendorFilter, yearFilter]);
+
+  // Get unique vendors and years for filters
+  const uniqueVendors = useMemo(() => {
+    const vendors = Array.from(new Set(hardwareBaskets.map(basket => basket.vendor)));
+    return vendors.sort();
+  }, [hardwareBaskets]);
+
+  const uniqueYears = useMemo(() => {
+    const years = Array.from(new Set(hardwareBaskets.map(basket => basket.year.toString())));
+    return years.sort((a, b) => parseInt(b) - parseInt(a));
+  }, [hardwareBaskets]);
+
+  const getVendorColor = (vendor: string) => {
+    switch (vendor.toLowerCase()) {
+      case 'dell': return '#007db8';
+      case 'hpe': return '#01a982';
+      case 'lenovo': return '#e2231a';
+      case 'cisco': return '#1ba0d7';
+      default: return '#6366f1';
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString();
+  };
+
+  if (loading && hardwareBaskets.length === 0) {
+    return (
+      <div style={{ 
+        padding: '40px',
+        textAlign: 'center',
+        background: 'rgba(255, 255, 255, 0.95)',
+        borderRadius: '12px',
+        margin: '20px',
+        backdropFilter: 'blur(20px)',
+        border: '1px solid rgba(255, 255, 255, 0.2)',
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+      }}>
+        <div style={{ 
+          fontSize: '18px',
+          color: '#6366f1',
+          fontFamily: 'Montserrat, sans-serif'
+        }}>
+          🔄 Loading hardware baskets...
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div style={{ 
+        padding: '24px',
+        background: 'rgba(255, 255, 255, 0.95)',
+        borderRadius: '12px',
+        margin: '20px',
+        backdropFilter: 'blur(20px)',
+        border: '1px solid rgba(255, 255, 255, 0.2)',
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+      }}>
+        <div style={{ 
+          color: '#ef4444',
+          fontSize: '16px',
+          fontFamily: 'Montserrat, sans-serif'
+        }}>
+          ❌ Error: {error}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <GlassmorphicLayout>
-      <div className="p-4 sm:p-6 md:p-8 space-y-6">
-        <Card className="bg-white/50 backdrop-blur-sm">
-          <CardHeader
-            header={<Title3>Hardware Basket Management</Title3>}
-            action={
-              <div className="flex items-center space-x-2">
-                <Button icon={<CloudArrowUpRegular />} onClick={() => fileInputRef.current?.click()} disabled={isUploading}>
-                  {isUploading ? 'Uploading...' : 'Upload New Basket'}
-                </Button>
-                <input type="file" ref={fileInputRef} onChange={handleFileUpload} style={{ display: 'none' }} accept=".xlsx, .xls" />
-              </div>
-            }
+      {/* Header */}
+      <div style={{ 
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '24px',
+        borderBottom: '2px solid rgba(99, 102, 241, 0.1)',
+        paddingBottom: '16px'
+      }}>
+        <h1 style={{ 
+          fontSize: '28px',
+          fontWeight: '600',
+          color: '#6366f1',
+          margin: 0,
+          fontFamily: 'Montserrat, sans-serif'
+        }}>
+          📦 Hardware Basket Management
+        </h1>
+        
+        <button
+          onClick={() => setShowCreateDialog(true)}
+          style={{
+            background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            padding: '12px 24px',
+            fontSize: '14px',
+            fontWeight: '500',
+            cursor: 'pointer',
+            transition: 'all 0.3s ease',
+            fontFamily: 'Montserrat, sans-serif'
+          }}
+          onMouseOver={(e) => {
+            e.currentTarget.style.transform = 'translateY(-2px)';
+            e.currentTarget.style.boxShadow = '0 8px 25px rgba(99, 102, 241, 0.3)';
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = 'none';
+          }}
+        >
+          <span style={{ color: 'white' }}>+</span> Create Hardware Basket
+        </button>
+      </div>
+
+      {/* Search and Filter Controls */}
+      <div style={{
+        display: 'flex',
+        gap: '16px',
+        marginBottom: '24px',
+        flexWrap: 'wrap',
+        alignItems: 'center'
+      }}>
+        {/* Search Input */}
+        <div style={{ flex: '1', minWidth: '280px' }}>
+          <input
+            type="text"
+            placeholder="🔍 Search baskets by name, vendor, or filename..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '12px 16px',
+              border: '2px solid rgba(99, 102, 241, 0.2)',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontFamily: 'Montserrat, sans-serif',
+              background: 'rgba(255, 255, 255, 0.8)',
+              transition: 'border-color 0.3s ease'
+            }}
+            onFocus={(e) => e.target.style.borderColor = '#6366f1'}
+            onBlur={(e) => e.target.style.borderColor = 'rgba(99, 102, 241, 0.2)'}
           />
-        </Card>
+        </div>
 
-        {error && <MessageBar intent="error">{error}</MessageBar>}
-        {success && <MessageBar intent="success">{success}</MessageBar>}
+        {/* Vendor Filter */}
+        <div style={{ minWidth: '140px' }}>
+          <select
+            value={vendorFilter}
+            onChange={(e) => setVendorFilter(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '12px 16px',
+              border: '2px solid rgba(99, 102, 241, 0.2)',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontFamily: 'Montserrat, sans-serif',
+              background: 'rgba(255, 255, 255, 0.8)',
+              cursor: 'pointer'
+            }}
+          >
+            <option value="All">All Vendors</option>
+            {uniqueVendors.map(vendor => (
+              <option key={vendor} value={vendor}>{vendor}</option>
+            ))}
+          </select>
+        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-1 space-y-4">
-            <Card className="bg-white/50 backdrop-blur-sm">
-              <CardHeader header={<Subtitle2>Available Baskets</Subtitle2>} />
-              <div className="p-4 space-y-4">
-                <div className="flex space-x-2">
-                  <Dropdown value={vendorFilter} onOptionSelect={(_, d) => setVendorFilter(d.optionValue || 'Display All')}>
-                    {uniqueVendors.map(v => <Option key={v} value={v}>{v}</Option>)}
-                  </Dropdown>
-                  <Dropdown value={quarterFilter} onOptionSelect={(_, d) => setQuarterFilter(d.optionValue || 'All')}>
-                    {uniqueQuarters.map(q => <Option key={q} value={q}>{q}</Option>)}
-                  </Dropdown>
-                </div>
-                {loading && hardwareBaskets.length === 0 ? (
-                  <Spinner label="Loading baskets..." />
-                ) : (
-                  <ul className="space-y-2 max-h-96 overflow-y-auto">
-                    {filteredBaskets.map(basket => (
-                      <li key={basket.id}>
-                        <Card className={`cursor-pointer hover:bg-blue-100/50 ${selectedBasket?.id === basket.id ? 'bg-blue-200/70' : ''}`} onClick={() => handleBasketSelection(basket)}>
-                          <div className="p-2 flex justify-between items-center">
-                            <div>
-                              <Text block weight="semibold">{basket.vendor} - {basket.quarter}</Text>
-                              <Text block size={200}>Models: {basket.total_models ?? 'N/A'}</Text>
-                              <Text block size={200}>Created: {new Date(basket.created_at).toLocaleDateString()}</Text>
-                            </div>
-                            <Button icon={<DeleteRegular />} aria-label="Delete basket" onClick={(e) => { e.stopPropagation(); handleDeleteBasket(basket.id); }} />
-                          </div>
-                        </Card>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            </Card>
+        {/* Year Filter */}
+        <div style={{ minWidth: '120px' }}>
+          <select
+            value={yearFilter}
+            onChange={(e) => setYearFilter(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '12px 16px',
+              border: '2px solid rgba(99, 102, 241, 0.2)',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontFamily: 'Montserrat, sans-serif',
+              background: 'rgba(255, 255, 255, 0.8)',
+              cursor: 'pointer'
+            }}
+          >
+            <option value="All">All Years</option>
+            {uniqueYears.map(year => (
+              <option key={year} value={year}>{year}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Clear Filters Button */}
+        {(searchTerm || vendorFilter !== 'All' || yearFilter !== 'All') && (
+          <button
+            onClick={() => {
+              setSearchTerm('');
+              setVendorFilter('All');
+              setYearFilter('All');
+            }}
+            style={{
+              padding: '12px 16px',
+              border: '2px solid rgba(99, 102, 241, 0.3)',
+              borderRadius: '8px',
+              background: 'transparent',
+              color: '#6366f1',
+              fontSize: '14px',
+              fontWeight: '500',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease',
+              fontFamily: 'Montserrat, sans-serif'
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.background = 'rgba(99, 102, 241, 0.1)';
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.background = 'transparent';
+            }}
+          >
+            🧹 Clear Filters
+          </button>
+        )}
+      </div>
+
+      {/* Results Summary */}
+      <div style={{
+        marginBottom: '20px',
+        padding: '16px',
+        background: 'rgba(99, 102, 241, 0.05)',
+        borderRadius: '8px',
+        border: '2px solid rgba(99, 102, 241, 0.1)'
+      }}>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '12px'
+        }}>
+          <div style={{
+            fontSize: '14px',
+            fontWeight: '500',
+            color: '#6366f1',
+            fontFamily: 'Montserrat, sans-serif'
+          }}>
+            📊 Showing {filteredBaskets.length} of {hardwareBaskets.length} baskets
+            {(searchTerm || vendorFilter !== 'All' || yearFilter !== 'All') && (
+              <span style={{ color: '#8b5cf6', marginLeft: '8px' }}>
+                (filtered)
+              </span>
+            )}
           </div>
-
-          <div className="lg:col-span-2">
-            <Card className="bg-white/50 backdrop-blur-sm h-full">
-              {selectedBasket ? (
-                <>
-                  <CardHeader
-                    header={<Subtitle2>Details for {selectedBasket.vendor} {selectedBasket.quarter}</Subtitle2>}
-                    action={
-                      <div className="flex space-x-2">
-                        <div className="inline-flex rounded-full overflow-hidden border border-gray-200 bg-white/70">
-                          <Button appearance={selectedTab === 'servers' ? 'primary' : 'transparent'} onClick={() => setSelectedTab('servers')}>Servers ({serverModels.length})</Button>
-                          <Button appearance={selectedTab === 'extensions' ? 'primary' : 'transparent'} onClick={() => setSelectedTab('extensions')}>Extensions ({extensionRows.length})</Button>
-                        </div>
-                      </div>
-                    }
-                  />
-                  <div className="p-4">
-                    {loading ? (
-                      <Spinner label="Loading models..." />
-                    ) : selectedTab === 'servers' ? (
-                      <DataGrid items={serverModels} columns={serverColumns} getRowId={item => (item as any).id}>
-                        <DataGridHeader>
-                          <DataGridRow>
-                            {({ renderHeaderCell }) => (<DataGridHeaderCell>{renderHeaderCell()}</DataGridHeaderCell>)}
-                          </DataGridRow>
-                        </DataGridHeader>
-                        <DataGridBody<HardwareModel>>
-                          {({ item, rowId }) => (
-                            <DataGridRow<HardwareModel> key={rowId}>
-                              {({ renderCell }) => (<DataGridCell>{renderCell(item)}</DataGridCell>)}
-                            </DataGridRow>
-                          )}
-                        </DataGridBody>
-                      </DataGrid>
-                    ) : (
-                      <DataGrid items={extensionRows} columns={extensionColumns} getRowId={item => getExtensionRowId(item)}>
-                        <DataGridHeader>
-                          <DataGridRow>
-                            {({ renderHeaderCell }) => (<DataGridHeaderCell>{renderHeaderCell()}</DataGridHeaderCell>)}
-                          </DataGridRow>
-                        </DataGridHeader>
-                        <DataGridBody<HardwareExtension>>
-                          {({ item, rowId }) => (
-                            <DataGridRow<HardwareExtension> key={rowId}>
-                              {({ renderCell }) => (<DataGridCell>{renderCell(item)}</DataGridCell>)}
-                            </DataGridRow>
-                          )}
-                        </DataGridBody>
-                      </DataGrid>
-                    )}
-                  </div>
-                </>
-              ) : (
-                <div className="flex items-center justify-center h-full"><Text>Select a basket to view its contents</Text></div>
-              )}
-            </Card>
+          
+          <div style={{
+            display: 'flex',
+            gap: '16px',
+            fontSize: '12px',
+            fontFamily: 'Montserrat, sans-serif'
+          }}>
+            <span style={{ color: '#007db8' }}>
+              🔷 Dell: {filteredBaskets.filter(b => b.vendor === 'Dell').length}
+            </span>
+            <span style={{ color: '#01a982' }}>
+              🟢 HPE: {filteredBaskets.filter(b => b.vendor === 'HPE').length}
+            </span>
+            <span style={{ color: '#e2231a' }}>
+              🔴 Lenovo: {filteredBaskets.filter(b => b.vendor === 'Lenovo').length}
+            </span>
           </div>
         </div>
       </div>
 
-      <Dialog open={showUploadDialog} onOpenChange={(_, d) => setShowUploadDialog(d.open)}>
-        <DialogSurface>
-          <DialogBody>
-            <DialogTitle>Upload Status</DialogTitle>
-            <DialogContent>
-              {isUploading && uploadProgress && (
-                <div className="space-y-2">
-                  <Text>{uploadProgress.stage}: {uploadProgress.message}</Text>
-                  <ProgressBar value={uploadProgress.progress / 100} />
+      {/* Hardware Baskets Grid */}
+      {hardwareBaskets.length === 0 ? (
+        <div style={{
+          textAlign: 'center',
+          padding: '60px 20px',
+          background: 'rgba(255, 255, 255, 0.6)',
+          borderRadius: '12px',
+          border: '2px dashed rgba(99, 102, 241, 0.3)'
+        }}>
+          <div style={{
+            fontSize: '48px',
+            marginBottom: '16px'
+          }}>
+            📦
+          </div>
+          <div style={{
+            fontSize: '18px',
+            fontWeight: '500',
+            color: '#6366f1',
+            marginBottom: '8px',
+            fontFamily: 'Montserrat, sans-serif'
+          }}>
+            No Hardware Baskets Found
+          </div>
+          <div style={{
+            fontSize: '14px',
+            color: '#64748b',
+            marginBottom: '24px',
+            fontFamily: 'Montserrat, sans-serif'
+          }}>
+            Create your first hardware basket to get started with vendor data management.
+          </div>
+          <button
+            onClick={() => setShowCreateDialog(true)}
+            style={{
+              background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              padding: '12px 24px',
+              fontSize: '14px',
+              fontWeight: '500',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease',
+              fontFamily: 'Montserrat, sans-serif'
+            }}
+          >
+            <span style={{ color: 'white' }}>+</span> Create Your First Basket
+          </button>
+        </div>
+      ) : (
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))',
+          gap: '20px'
+        }}>
+          {filteredBaskets.map((basket) => (
+            <div
+              key={basket.id}
+              style={{
+                background: 'rgba(255, 255, 255, 0.8)',
+                borderRadius: '12px',
+                padding: '20px',
+                border: '1px solid rgba(255, 255, 255, 0.3)',
+                boxShadow: '0 4px 16px rgba(0, 0, 0, 0.1)',
+                backdropFilter: 'blur(10px)',
+                transition: 'all 0.3s ease',
+                cursor: 'pointer'
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.transform = 'translateY(-4px)';
+                e.currentTarget.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.15)';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.1)';
+              }}
+              onClick={() => setSelectedBasket(basket)}
+            >
+              {/* Header */}
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'flex-start',
+                marginBottom: '12px'
+              }}>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}>
+                  <span style={{
+                    background: getVendorColor(basket.vendor),
+                    color: 'white',
+                    padding: '4px 8px',
+                    borderRadius: '6px',
+                    fontSize: '10px',
+                    fontWeight: '600',
+                    textTransform: 'uppercase'
+                  }}>
+                    {basket.vendor}
+                  </span>
+                  <span style={{
+                    background: 'rgba(99, 102, 241, 0.1)',
+                    color: '#6366f1',
+                    padding: '4px 8px',
+                    borderRadius: '6px',
+                    fontSize: '10px',
+                    fontWeight: '500'
+                  }}>
+                    {basket.quarter} {basket.year}
+                  </span>
                 </div>
-              )}
-              {error && <MessageBar intent="error">{error}</MessageBar>}
-              {success && <MessageBar intent="success">{success}</MessageBar>}
-            </DialogContent>
-            <DialogActions>
-              <Button appearance="secondary" disabled={isUploading} onClick={() => setShowUploadDialog(false)}>Close</Button>
-            </DialogActions>
-          </DialogBody>
-        </DialogSurface>
-      </Dialog>
+                <button
+                  onClick={() => handleUploadFile(basket.id)}
+                  style={{
+                    background: 'transparent',
+                    border: '1px solid rgba(99, 102, 241, 0.3)',
+                    borderRadius: '6px',
+                    padding: '6px 12px',
+                    fontSize: '12px',
+                    color: '#6366f1',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseOver={(e) => {
+                    e.currentTarget.style.background = 'rgba(99, 102, 241, 0.1)';
+                  }}
+                  onMouseOut={(e) => {
+                    e.currentTarget.style.background = 'transparent';
+                  }}
+                >
+                  📤 Upload
+                </button>
+              </div>
+
+              {/* Basket Name */}
+              <div style={{
+                fontSize: '16px',
+                fontWeight: '600',
+                color: '#1f2937',
+                marginBottom: '8px',
+                fontFamily: 'Montserrat, sans-serif',
+                lineHeight: '1.4'
+              }}>
+                {basket.name}
+              </div>
+
+              {/* File Info */}
+              <div style={{
+                fontSize: '13px',
+                color: '#64748b',
+                marginBottom: '12px',
+                fontFamily: 'Montserrat, sans-serif',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}>
+                📄 {basket.filename}
+              </div>
+
+              {/* Stats */}
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                marginBottom: '12px'
+              }}>
+                <div style={{
+                  textAlign: 'center',
+                  flex: 1
+                }}>
+                  <div style={{
+                    fontSize: '20px',
+                    fontWeight: '600',
+                    color: '#6366f1'
+                  }}>
+                    {basket.total_models}
+                  </div>
+                  <div style={{
+                    fontSize: '11px',
+                    color: '#64748b',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px'
+                  }}>
+                    Models
+                  </div>
+                </div>
+                <div style={{
+                  textAlign: 'center',
+                  flex: 1
+                }}>
+                  <div style={{
+                    fontSize: '20px',
+                    fontWeight: '600',
+                    color: '#8b5cf6'
+                  }}>
+                    {basket.total_configurations}
+                  </div>
+                  <div style={{
+                    fontSize: '11px',
+                    color: '#64748b',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px'
+                  }}>
+                    Configs
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div style={{
+                fontSize: '12px',
+                color: '#64748b',
+                fontFamily: 'Montserrat, sans-serif',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                paddingTop: '12px',
+                borderTop: '1px solid rgba(99, 102, 241, 0.1)'
+              }}>
+                <span>📅 {formatDate(basket.quotation_date)}</span>
+                <span>⏰ {formatDate(basket.created_at)}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Create Basket Dialog */}
+      {showCreateDialog && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{
+            background: 'rgba(255, 255, 255, 0.95)',
+            borderRadius: '12px',
+            padding: '24px',
+            width: '400px',
+            backdropFilter: 'blur(20px)',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+          }}>
+            <h2 style={{
+              fontSize: '20px',
+              fontWeight: '600',
+              color: '#6366f1',
+              marginBottom: '20px',
+              fontFamily: 'Montserrat, sans-serif'
+            }}>
+              📦 Create Hardware Basket
+            </h2>
+
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{
+                display: 'block',
+                fontSize: '14px',
+                fontWeight: '500',
+                color: '#374151',
+                marginBottom: '6px'
+              }}>
+                Basket Name *
+              </label>
+              <input
+                type="text"
+                value={newBasket.name}
+                onChange={(e) => setNewBasket({ ...newBasket, name: e.target.value })}
+                placeholder="e.g., Dell PowerEdge R750 Q2 2024"
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  border: '2px solid rgba(99, 102, 241, 0.2)',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  background: 'rgba(255, 255, 255, 0.8)'
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{
+                display: 'block',
+                fontSize: '14px',
+                fontWeight: '500',
+                color: '#374151',
+                marginBottom: '6px'
+              }}>
+                Vendor *
+              </label>
+              <select
+                value={newBasket.vendor}
+                onChange={(e) => setNewBasket({ ...newBasket, vendor: e.target.value })}
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  border: '2px solid rgba(99, 102, 241, 0.2)',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  background: 'rgba(255, 255, 255, 0.8)'
+                }}
+              >
+                <option value="">Select Vendor</option>
+                <option value="Dell">Dell</option>
+                <option value="HPE">HPE</option>
+                <option value="Lenovo">Lenovo</option>
+                <option value="Cisco">Cisco</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px', marginBottom: '20px' }}>
+              <div style={{ flex: 1 }}>
+                <label style={{
+                  display: 'block',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  color: '#374151',
+                  marginBottom: '6px'
+                }}>
+                  Quarter
+                </label>
+                <select
+                  value={newBasket.quarter}
+                  onChange={(e) => setNewBasket({ ...newBasket, quarter: e.target.value })}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    border: '2px solid rgba(99, 102, 241, 0.2)',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    background: 'rgba(255, 255, 255, 0.8)'
+                  }}
+                >
+                  <option value="Q1">Q1</option>
+                  <option value="Q2">Q2</option>
+                  <option value="Q3">Q3</option>
+                  <option value="Q4">Q4</option>
+                </select>
+              </div>
+              <div style={{ flex: 1 }}>
+                <label style={{
+                  display: 'block',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  color: '#374151',
+                  marginBottom: '6px'
+                }}>
+                  Year
+                </label>
+                <input
+                  type="number"
+                  value={newBasket.year}
+                  onChange={(e) => setNewBasket({ ...newBasket, year: parseInt(e.target.value) })}
+                  min="2020"
+                  max="2030"
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    border: '2px solid rgba(99, 102, 241, 0.2)',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    background: 'rgba(255, 255, 255, 0.8)'
+                  }}
+                />
+              </div>
+            </div>
+
+            <div style={{
+              display: 'flex',
+              gap: '12px',
+              justifyContent: 'flex-end'
+            }}>
+              <button
+                onClick={() => setShowCreateDialog(false)}
+                style={{
+                  padding: '10px 20px',
+                  border: '2px solid rgba(99, 102, 241, 0.3)',
+                  borderRadius: '6px',
+                  background: 'transparent',
+                  color: '#6366f1',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCreateBasket}
+                disabled={loading || !newBasket.name || !newBasket.vendor}
+                style={{
+                  padding: '10px 20px',
+                  border: 'none',
+                  borderRadius: '6px',
+                  background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                  color: 'white',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  opacity: (loading || !newBasket.name || !newBasket.vendor) ? 0.6 : 1
+                }}
+              >
+                {loading ? 'Creating...' : 'Create Basket'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Upload Dialog */}
+      {showUploadDialog && selectedBasket && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{
+            background: 'rgba(255, 255, 255, 0.95)',
+            borderRadius: '12px',
+            padding: '24px',
+            width: '400px',
+            backdropFilter: 'blur(20px)',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+          }}>
+            <h2 style={{
+              fontSize: '20px',
+              fontWeight: '600',
+              color: '#6366f1',
+              marginBottom: '20px',
+              fontFamily: 'Montserrat, sans-serif'
+            }}>
+              📤 Upload File to {selectedBasket.name}
+            </h2>
+
+            <div style={{
+              border: '2px dashed rgba(99, 102, 241, 0.3)',
+              borderRadius: '8px',
+              padding: '40px 20px',
+              textAlign: 'center',
+              marginBottom: '20px'
+            }}>
+              <div style={{ fontSize: '48px', marginBottom: '12px' }}>📄</div>
+              <div style={{
+                fontSize: '14px',
+                color: '#64748b',
+                marginBottom: '16px'
+              }}>
+                Drag and drop your Excel file here, or click to browse
+              </div>
+              <input
+                type="file"
+                accept=".xlsx,.xls"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    handleFileUpload(selectedBasket.id, file);
+                  }
+                }}
+                style={{ display: 'none' }}
+                id="file-input"
+              />
+              <label
+                htmlFor="file-input"
+                style={{
+                  display: 'inline-block',
+                  padding: '10px 20px',
+                  background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                  color: 'white',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '500'
+                }}
+              >
+                Select File
+              </label>
+            </div>
+
+            {uploadProgress && (
+              <div style={{ marginBottom: '20px' }}>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  marginBottom: '8px'
+                }}>
+                  <span style={{ fontSize: '14px', color: '#374151' }}>
+                    {uploadProgress.stage}
+                  </span>
+                  <span style={{ fontSize: '14px', color: '#6366f1' }}>
+                    {uploadProgress.progress}%
+                  </span>
+                </div>
+                <div style={{
+                  height: '8px',
+                  background: 'rgba(99, 102, 241, 0.1)',
+                  borderRadius: '4px',
+                  overflow: 'hidden'
+                }}>
+                  <div
+                    style={{
+                      height: '100%',
+                      background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                      width: `${uploadProgress.progress}%`,
+                      transition: 'width 0.3s ease'
+                    }}
+                  />
+                </div>
+                <div style={{
+                  fontSize: '12px',
+                  color: '#64748b',
+                  marginTop: '4px'
+                }}>
+                  {uploadProgress.message}
+                </div>
+              </div>
+            )}
+
+            <div style={{
+              display: 'flex',
+              gap: '12px',
+              justifyContent: 'flex-end'
+            }}>
+              <button
+                onClick={() => {
+                  setShowUploadDialog(false);
+                  setUploadProgress(null);
+                }}
+                disabled={isUploading}
+                style={{
+                  padding: '10px 20px',
+                  border: '2px solid rgba(99, 102, 241, 0.3)',
+                  borderRadius: '6px',
+                  background: 'transparent',
+                  color: '#6366f1',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  opacity: isUploading ? 0.6 : 1
+                }}
+              >
+                {isUploading ? 'Uploading...' : 'Close'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Success Message */}
+      {success && (
+        <div style={{
+          position: 'fixed',
+          bottom: '20px',
+          right: '20px',
+          background: 'linear-gradient(135deg, #10b981, #059669)',
+          color: 'white',
+          padding: '12px 20px',
+          borderRadius: '8px',
+          fontSize: '14px',
+          fontWeight: '500',
+          boxShadow: '0 4px 16px rgba(16, 185, 129, 0.3)',
+          zIndex: 1001
+        }}>
+          ✅ {success}
+        </div>
+      )}
+
+      {/* Summary Stats */}
+      <div style={{ 
+        marginTop: '24px',
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+        gap: '16px'
+      }}>
+        <div style={{
+          background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1))',
+          padding: '16px',
+          borderRadius: '8px',
+          textAlign: 'center',
+          border: '1px solid rgba(16, 185, 129, 0.2)'
+        }}>
+          <div style={{ fontSize: '24px', fontWeight: '600', color: '#10b981' }}>
+            {hardwareBaskets.reduce((sum, basket) => sum + basket.total_models, 0)}
+          </div>
+          <div style={{ fontSize: '12px', color: '#64748b', textTransform: 'uppercase' }}>
+            Total Models
+          </div>
+        </div>
+
+        <div style={{
+          background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(124, 58, 237, 0.1))',
+          padding: '16px',
+          borderRadius: '8px',
+          textAlign: 'center',
+          border: '1px solid rgba(139, 92, 246, 0.2)'
+        }}>
+          <div style={{ fontSize: '24px', fontWeight: '600', color: '#8b5cf6' }}>
+            {hardwareBaskets.reduce((sum, basket) => sum + basket.total_configurations, 0)}
+          </div>
+          <div style={{ fontSize: '12px', color: '#64748b', textTransform: 'uppercase' }}>
+            Total Configurations
+          </div>
+        </div>
+
+        <div style={{
+          background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(79, 70, 229, 0.1))',
+          padding: '16px',
+          borderRadius: '8px',
+          textAlign: 'center',
+          border: '1px solid rgba(99, 102, 241, 0.2)'
+        }}>
+          <div style={{ fontSize: '24px', fontWeight: '600', color: '#6366f1' }}>
+            {hardwareBaskets.length}
+          </div>
+          <div style={{ fontSize: '12px', color: '#64748b', textTransform: 'uppercase' }}>
+            Total Baskets
+          </div>
+        </div>
+
+        <div style={{
+          background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.1))',
+          padding: '16px',
+          borderRadius: '8px',
+          textAlign: 'center',
+          border: '1px solid rgba(245, 158, 11, 0.2)'
+        }}>
+          <div style={{ fontSize: '24px', fontWeight: '600', color: '#f59e0b' }}>
+            {uniqueVendors.length}
+          </div>
+          <div style={{ fontSize: '12px', color: '#64748b', textTransform: 'uppercase' }}>
+            Unique Vendors
+          </div>
+        </div>
+      </div>
     </GlassmorphicLayout>
   );
 };
