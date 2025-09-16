@@ -421,6 +421,92 @@ export class ApiClient {
   async getModelConfigurations(modelId: string): Promise<HardwareConfiguration[]> {
     return this.request(`/hardware-models/${modelId}/configurations`);
   }
+
+  // ===== Activities (Stage 1) =====
+  async getActivities(projectId: string): Promise<any[]> {
+    return this.request(`/api/projects/${projectId}/activities`);
+  }
+
+  async createActivity(projectId: string, data: {
+    name: string;
+    description?: string;
+    activity_type?: string;
+    status?: string;
+    start_date?: string;
+    end_date?: string;
+    due_date?: string;
+    assignee_id?: string;
+    dependencies?: string[];
+    progress_percentage?: number;
+  }): Promise<any> {
+    return this.request(`/api/projects/${projectId}/activities`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateActivity(activityId: string, updates: Partial<{ [k: string]: any }>): Promise<any> {
+    return this.request(`/api/activities/${activityId}`, {
+      method: 'PUT',
+      body: JSON.stringify(updates),
+    });
+  }
+
+  async deleteActivity(activityId: string): Promise<void> {
+    return this.request(`/api/activities/${activityId}`, { method: 'DELETE' });
+  }
+
+  // ===== Hardware Allocations (Stage 1) =====
+  async getAllocationsByProject(projectId: string): Promise<any[]> {
+    return this.request(`/api/projects/${projectId}/allocations`);
+  }
+
+  async getAllocationsByActivity(activityId: string): Promise<any[]> {
+    return this.request(`/api/activities/${activityId}/allocations`);
+  }
+
+  async createAllocation(projectId: string, data: {
+    activity_id?: string;
+    server_id: string;
+    allocation_type?: string;
+    allocation_start?: string;
+    allocation_end?: string | null;
+    purpose?: string;
+    configuration_notes?: string;
+  }): Promise<any> {
+    return this.request(`/api/projects/${projectId}/allocations`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateAllocation(allocationId: string, updates: Partial<{ [k: string]: any }>): Promise<any> {
+    return this.request(`/api/allocations/${allocationId}`, {
+      method: 'PUT',
+      body: JSON.stringify(updates),
+    });
+  }
+
+  async deleteAllocation(allocationId: string): Promise<void> {
+    return this.request(`/api/allocations/${allocationId}`, { method: 'DELETE' });
+  }
+
+  // ===== Local Users (Stage 1) =====
+  async getUsers(): Promise<any[]> {
+    return this.request('/api/users');
+  }
+
+  async createUser(data: { email: string; roles?: string[]; active?: boolean }): Promise<any> {
+    return this.request('/api/users', { method: 'POST', body: JSON.stringify(data) });
+  }
+
+  async updateUser(userId: string, updates: Partial<{ roles: string[]; active: boolean }>): Promise<any> {
+    return this.request(`/api/users/${userId}`, { method: 'PUT', body: JSON.stringify(updates) });
+  }
+
+  async deleteUser(userId: string): Promise<void> {
+    return this.request(`/api/users/${userId}`, { method: 'DELETE' });
+  }
 }
 
 export const apiClient = new ApiClient();

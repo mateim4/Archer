@@ -196,45 +196,63 @@ const ProjectDetailView: React.FC = () => {
     }
   }, [projectId]);
 
-  const loadActivities = useCallback(() => {
-    // Minimal mock to keep the page functional
-    const mock: Activity[] = [
-      {
-        id: 'act-001',
-        name: 'VMware Assessment & Planning',
-        type: 'migration',
-        status: 'completed',
-        start_date: new Date('2024-01-15'),
-        end_date: new Date('2024-02-01'),
-        assignee: 'john.doe@company.com',
-        dependencies: [],
-        progress: 100,
-      },
-      {
-        id: 'act-002',
-        name: 'Hardware Procurement',
-        type: 'hardware_customization',
-        status: 'in_progress',
-        start_date: new Date('2024-01-30'),
-        end_date: new Date('2024-03-15'),
-        assignee: 'sarah.smith@company.com',
-        dependencies: ['act-001'],
-        progress: 65,
-      },
-      {
-        id: 'act-003',
-        name: 'Hyper-V Environment Setup',
-        type: 'commissioning',
-        status: 'pending',
-        start_date: new Date('2024-03-01'),
-        end_date: new Date('2024-03-20'),
-        assignee: 'mike.johnson@company.com',
-        dependencies: ['act-002'],
-        progress: 0,
-      },
-    ];
-    setActivities(mock);
-  }, []);
+  const loadActivities = useCallback(async () => {
+    if (!projectId) return;
+    try {
+      const { apiClient } = await import('../utils/apiClient');
+      const raw = await apiClient.getActivities(projectId);
+      const mapped: Activity[] = (raw || []).map((a: any) => ({
+        id: typeof a.id === 'string' ? a.id.replace('project_activity:', '') : `${a.id}`,
+        name: a.name || 'Untitled Activity',
+        type: (a.activity_type || 'custom') as Activity['type'],
+        status: (a.status || 'pending') as Activity['status'],
+        start_date: a.start_date ? new Date(a.start_date) : new Date(),
+        end_date: a.end_date ? new Date(a.end_date) : new Date(),
+        assignee: a.assignee_id || '',
+        dependencies: Array.isArray(a.dependencies) ? a.dependencies : [],
+        progress: typeof a.progress_percentage === 'number' ? a.progress_percentage : 0,
+      }));
+      setActivities(mapped);
+    } catch (e) {
+      console.warn('Falling back to local mock activities:', e);
+      const mock: Activity[] = [
+        {
+          id: 'act-001',
+          name: 'VMware Assessment & Planning',
+          type: 'migration',
+          status: 'completed',
+          start_date: new Date('2024-01-15'),
+          end_date: new Date('2024-02-01'),
+          assignee: 'john.doe@company.com',
+          dependencies: [],
+          progress: 100,
+        },
+        {
+          id: 'act-002',
+          name: 'Hardware Procurement',
+          type: 'hardware_customization',
+          status: 'in_progress',
+          start_date: new Date('2024-01-30'),
+          end_date: new Date('2024-03-15'),
+          assignee: 'sarah.smith@company.com',
+          dependencies: ['act-001'],
+          progress: 65,
+        },
+        {
+          id: 'act-003',
+          name: 'Hyper-V Environment Setup',
+          type: 'commissioning',
+          status: 'pending',
+          start_date: new Date('2024-03-01'),
+          end_date: new Date('2024-03-20'),
+          assignee: 'mike.johnson@company.com',
+          dependencies: ['act-002'],
+          progress: 0,
+        },
+      ];
+      setActivities(mock);
+    }
+  }, [projectId]);
 
   useEffect(() => {
     loadProject();
