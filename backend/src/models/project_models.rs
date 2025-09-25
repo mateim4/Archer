@@ -69,7 +69,7 @@ pub enum ProjectPriority {
     Critical,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum RiskLevel {
     #[serde(rename = "low")]
     Low,

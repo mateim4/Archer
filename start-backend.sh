@@ -7,7 +7,7 @@ set -e
 
 # Get the directory where this script is located
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-BACKEND_DIR="$SCRIPT_DIR/legacy-server"
+BACKEND_DIR="$SCRIPT_DIR/server"
 SERVER_FILE="$BACKEND_DIR/server.js"
 
 echo "🚀 Starting LCM Designer Backend..."

@@ -27,6 +27,8 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 1200, height: 600 });
+  const [focusedNode, setFocusedNode] = useState<any>(null);
+  const [breadcrumbs, setBreadcrumbs] = useState<any[]>([]);
 
   // Canvas setup and resize handling
   useEffect(() => {
@@ -42,7 +44,7 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // D3 Zoomable Icicle Layout (Rotated 90° Clockwise)
+  // Zoomable Icicle Layout with Click-to-Zoom and Breadcrumbs
   useEffect(() => {
     if (!svgRef.current) return;
 
@@ -65,8 +67,10 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
 
     // Layout constants
     const margin = 20;
-    const clusterHeight = 300; // Increased height per cluster for better visibility
-    const spacing = 40;
+    const clusterWidth = 120; // Width for cluster label on left
+    const clusterHeight = 400; // Height per cluster
+    const spacing = 50;
+    const breadcrumbHeight = 40;
     
     let currentY = margin;
 
@@ -159,10 +163,11 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
         .sum(d => d.value)
         .sort((a, b) => b.value - a.value);
 
-      // Create partition layout (rotated 90° - width becomes height)
+      // Create partition layout for hosts/VMs (cluster on left side)
+      const contentWidth = dimensions.width - clusterWidth - 3 * margin;
       const partition = d3.partition()
-        .size([dimensions.width - 2 * margin, clusterHeight])
-        .padding(4); // Increased padding for better separation
+        .size([clusterHeight, contentWidth])
+        .padding(3);
 
       partition(root);
 
@@ -170,48 +175,162 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
       const clusterGroup = svg.append('g')
         .attr('transform', `translate(${margin}, ${currentY})`);
 
-      // Cluster header
-      clusterGroup.append('text')
+      // Breadcrumb area for this cluster
+      const breadcrumbGroup = clusterGroup.append('g')
+        .attr('class', 'breadcrumbs')
+        .attr('transform', `translate(${clusterWidth + margin}, 0)`);
+
+      // Cluster label rectangle (tall, on the left)
+      clusterGroup.append('rect')
         .attr('x', 0)
-        .attr('y', -10)
+        .attr('y', breadcrumbHeight)
+        .attr('width', clusterWidth)
+        .attr('height', clusterHeight)
+        .attr('fill', 'rgba(139, 92, 246, 0.15)')
+        .attr('stroke', DesignTokens.colors.primary)
+        .attr('stroke-width', 3)
+        .attr('rx', 8)
+        .style('cursor', 'pointer')
+        .on('click', function() {
+          // Zoom back to cluster level
+          setFocusedNode(null);
+          setBreadcrumbs([]);
+        });
+
+      // Cluster label text (rotated vertically)
+      clusterGroup.append('text')
+        .attr('x', clusterWidth / 2)
+        .attr('y', breadcrumbHeight + clusterHeight / 2)
+        .attr('text-anchor', 'middle')
+        .attr('dominant-baseline', 'middle')
+        .attr('transform', `rotate(-90, ${clusterWidth / 2}, ${breadcrumbHeight + clusterHeight / 2})`)
         .attr('font-family', DesignTokens.typography.fontFamily)
         .attr('font-size', '16px')
+        .attr('font-weight', '700')
+        .attr('fill', DesignTokens.colors.primary)
+        .text(`${cluster.name}`);
+
+      // Utilization text
+      clusterGroup.append('text')
+        .attr('x', clusterWidth / 2)
+        .attr('y', breadcrumbHeight + clusterHeight / 2 + 40)
+        .attr('text-anchor', 'middle')
+        .attr('dominant-baseline', 'middle')
+        .attr('transform', `rotate(-90, ${clusterWidth / 2}, ${breadcrumbHeight + clusterHeight / 2 + 40})`)
+        .attr('font-family', DesignTokens.typography.fontFamily)
+        .attr('font-size', '12px')
         .attr('font-weight', '600')
         .attr('fill', DesignTokens.colors.primary)
-        .text(`${cluster.name} - ${utilizationPercent.toFixed(1)}% Used`);
+        .text(`${utilizationPercent.toFixed(1)}% Used`);
 
-      // Render icicle rectangles (rotated 90°)
-      const cells = clusterGroup.selectAll('g')
+      // Content container (to the right of cluster label)
+      const contentGroup = clusterGroup.append('g')
+        .attr('class', 'content')
+        .attr('transform', `translate(${clusterWidth + margin}, ${breadcrumbHeight})`);
+
+      // Render icicle rectangles in content group
+      const cells = contentGroup.selectAll('g.cell')
         .data(root.descendants().filter(d => d.depth > 0))
         .enter()
         .append('g')
-        .attr('class', d => `level-${d.depth}`);
+        .attr('class', d => `cell level-${d.depth}`);
 
-      // Add rectangles (x/y swapped for 90° rotation)
-      cells.append('rect')
-        .attr('y', d => d.x0) // Swapped: x becomes y
-        .attr('x', d => d.y0) // Swapped: y becomes x  
-        .attr('height', d => d.x1 - d.x0) // Swapped: width becomes height
-        .attr('width', d => d.y1 - d.y0) // Swapped: height becomes width
+      // Add rectangles first
+      const rects = cells.append('rect')
+        .attr('y', d => d.x0)
+        .attr('x', d => d.y0)
+        .attr('height', d => d.x1 - d.x0)
+        .attr('width', d => d.y1 - d.y0)
         .attr('fill', d => {
           if (d.data.type === 'free') return 'rgba(200, 200, 200, 0.2)';
           if (d.data.type === 'vm') {
             const isSelected = state.selectedVMs.includes(d.data.vmData?.id);
             return isSelected ? 'rgba(139, 92, 246, 0.8)' : 'rgba(99, 102, 241, 0.6)';
           }
-          return d.depth === 1 ? 'rgba(139, 92, 246, 0.2)' : 'rgba(99, 102, 241, 0.3)';
+          return d.depth === 1 ? 'rgba(139, 92, 246, 0.25)' : 'rgba(99, 102, 241, 0.4)';
         })
         .attr('stroke', d => {
           if (d.data.type === 'free') return 'rgba(150, 150, 150, 0.5)';
           return DesignTokens.colors.primary;
         })
         .attr('stroke-width', d => d.depth === 1 ? 2 : 1)
-        .attr('rx', 4)
-        .style('cursor', d => d.data.vmData || d.data.hostData ? 'pointer' : 'default')
+        .attr('rx', 4);
+
+      // Add labels
+      const labels = cells.append('text')
+        .attr('y', d => (d.x0 + d.x1) / 2)
+        .attr('x', d => (d.y0 + d.y1) / 2)
+        .attr('text-anchor', 'middle')
+        .attr('dominant-baseline', 'middle')
+        .attr('font-family', DesignTokens.typography.fontFamily)
+        .attr('font-size', d => {
+          const rectHeight = d.x1 - d.x0;
+          const rectWidth = d.y1 - d.y0;
+          if (rectWidth < 40 || rectHeight < 16) return '0px';
+          if (rectWidth < 80 || rectHeight < 20) return '9px';
+          return d.depth === 1 ? '13px' : '11px';
+        })
+        .attr('font-weight', d => d.depth === 1 ? '600' : '400')
+        .attr('fill', d => d.data.type === 'free' ? '#666' : DesignTokens.colors.textPrimary)
+        .text(d => {
+          const rectWidth = d.y1 - d.y0;
+          const rectHeight = d.x1 - d.x0;
+          if (rectWidth < 60 || rectHeight < 16) return '';
+          
+          if (d.data.type === 'free') return 'Free';
+          const name = d.data.name;
+          const maxLength = Math.floor(rectWidth / 8);
+          return name.length > maxLength ? name.substring(0, maxLength) + '...' : name;
+        });
+
+      // Zoom function (defined after labels)
+      const zoom = (p: any) => {
+        setFocusedNode(p);
+        
+        // Build breadcrumb trail
+        const path: any[] = [];
+        let current = p;
+        while (current) {
+          path.unshift(current);
+          current = current.parent;
+        }
+        setBreadcrumbs(path);
+
+        // Animate zoom transition
+        const t = contentGroup.transition().duration(750);
+        
+        // Rescale focused node to fill space
+        cells.transition(t as any)
+          .attr('y', d => d.x0 - p.x0)
+          .attr('x', d => d.y0 - p.y0)
+          .attr('height', d => (d.x1 - d.x0) * (clusterHeight / (p.x1 - p.x0)))
+          .attr('width', d => (d.y1 - d.y0) * (contentWidth / (p.y1 - p.y0)));
+
+        labels.transition(t as any)
+          .attr('y', d => (d.x0 + d.x1) / 2 - p.x0)
+          .attr('x', d => (d.y0 + d.y1) / 2 - p.y0)
+          .style('opacity', d => {
+            const rectWidth = (d.y1 - d.y0) * (contentWidth / (p.y1 - p.y0));
+            const rectHeight = (d.x1 - d.x0) * (clusterHeight / (p.x1 - p.x0));
+            return rectWidth > 50 && rectHeight > 20 ? 1 : 0;
+          });
+      };
+
+      // Add interaction handlers to rectangles
+      rects
+        .style('cursor', d => {
+          if (d.data.vmData) return 'pointer';
+          if (d.data.hostData && d.children) return 'zoom-in';
+          return 'default';
+        })
         .on('click', function(event, d) {
+          event.stopPropagation();
           if (d.data.vmData) {
             const isMultiSelect = event.ctrlKey || event.metaKey;
             onVMSelect([d.data.vmData.id], isMultiSelect);
+          } else if (d.data.hostData && d.children) {
+            // Zoom into host
+            zoom(d);
           }
         })
         .on('mouseover', function(event, d) {
@@ -245,32 +364,21 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
         })
         .on('mouseout', () => onTooltipUpdate(null));
 
-      // Add labels (only for larger rectangles)
-      cells.append('text')
-        .attr('y', d => (d.x0 + d.x1) / 2) // Swapped for rotation
-        .attr('x', d => (d.y0 + d.y1) / 2) // Swapped for rotation
-        .attr('text-anchor', 'middle')
-        .attr('dominant-baseline', 'middle')
-        .attr('font-family', DesignTokens.typography.fontFamily)
-        .attr('font-size', d => {
-          const rectHeight = d.x1 - d.x0; // Swapped
-          const rectWidth = d.y1 - d.y0; // Swapped
-          if (rectWidth < 40 || rectHeight < 16) return '0px';
-          if (rectWidth < 80 || rectHeight < 20) return '9px';
-          return d.depth === 1 ? '13px' : '11px';
-        })
-        .attr('font-weight', d => d.depth === 1 ? '600' : '400')
-        .attr('fill', d => d.data.type === 'free' ? '#666' : DesignTokens.colors.textPrimary)
-        .text(d => {
-          const rectWidth = d.y1 - d.y0; // Swapped for rotation
-          const rectHeight = d.x1 - d.x0; // Swapped for rotation
-          if (rectWidth < 60 || rectHeight < 16) return '';
-          
-          if (d.data.type === 'free') return 'Free';
-          const name = d.data.name;
-          const maxLength = Math.floor(rectWidth / 8);
-          return name.length > maxLength ? name.substring(0, maxLength) + '...' : name;
-        });
+      // Render breadcrumbs for this cluster
+      if (breadcrumbs.length > 0) {
+        breadcrumbGroup.selectAll('text')
+          .data(breadcrumbs)
+          .enter()
+          .append('text')
+          .attr('x', (d, i) => i * 120)
+          .attr('y', 20)
+          .attr('font-family', DesignTokens.typography.fontFamily)
+          .attr('font-size', '12px')
+          .attr('fill', DesignTokens.colors.primary)
+          .style('cursor', 'pointer')
+          .text(d => d.data.name)
+          .on('click', (event, d) => zoom(d));
+      }
 
       currentY += clusterHeight + spacing;
     });

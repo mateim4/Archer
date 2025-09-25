@@ -1,5 +1,6 @@
 pub mod hardware_baskets;
 pub mod project_workflow;
+pub mod project_lifecycle;
 pub mod hardware_pool;
 pub mod rvtools;
 // pub mod analytics; // TODO: Convert from actix_web to axum
@@ -25,6 +26,7 @@ pub fn api_router(state: AppState) -> Router {
         .nest("/api/hardware-pool", hardware_pool::create_hardware_pool_router(state.clone()))
         .nest("/api/rvtools", rvtools::create_rvtools_router(state.clone()))
         .nest("/api/enhanced-rvtools", enhanced_rvtools::create_enhanced_rvtools_router(state.clone())) // TODO: Fix compilation errors
+        .nest("/api/project-lifecycle", project_lifecycle::create_project_lifecycle_router(state.clone()))
 }
 
 async fn health_check() -> Json<serde_json::Value> {
