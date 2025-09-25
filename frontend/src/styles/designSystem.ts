@@ -31,10 +31,11 @@ export const DesignTokens = {
     gray800: '#1f2937',
     gray900: '#111827',
     
-    // Surface Colors
-    surface: 'rgba(255, 255, 255, 0.95)',
-    surfaceHover: 'rgba(255, 255, 255, 0.98)',
-    surfaceBorder: 'rgba(255, 255, 255, 0.2)',
+    // Surface Colors - Glassmorphic
+    surface: 'rgba(255, 255, 255, 0.8)',
+    surfaceHover: 'rgba(255, 255, 255, 0.9)',
+    surfaceBorder: 'rgba(255, 255, 255, 0.3)',
+    surfaceGradient: 'linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(139, 92, 246, 0.1) 100%)',
     
     // Text Colors
     textPrimary: '#1f2937',   // Dark gray
@@ -76,7 +77,7 @@ export const DesignTokens = {
   
   // Typography
   typography: {
-    fontFamily: 'Montserrat, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+    fontFamily: "'Poppins', system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
     
     // Font Sizes
     xs: '12px',
@@ -97,36 +98,74 @@ export const DesignTokens = {
   
   // Component Styles
   components: {
-    // Card Component
+    // Card Component - Fluent UI 2 Acrylic with Gradient Tint
     card: {
-      background: 'rgba(255, 255, 255, 0.95)',
-      border: '1px solid rgba(255, 255, 255, 0.2)',
+      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(139, 92, 246, 0.1) 100%)',
+      backdropFilter: 'blur(30px) saturate(150%)',
+      border: '1px solid rgba(255, 255, 255, 0.3)',
       borderRadius: '12px',
-      backdropFilter: 'blur(20px)',
-      boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
       padding: '24px',
+      boxShadow: '0 8px 32px rgba(139, 92, 246, 0.15)',
     },
     
-    // Border-Only Card (for card-in-card layouts)
+    // Border-Only Card (for card-in-card layouts) - Acrylic Glass
     borderCard: {
-      background: 'transparent',
-      border: '1px solid #d1d5db',
+      background: 'rgba(255, 255, 255, 0.6)',
+      backdropFilter: 'blur(20px) saturate(120%)',
+      border: '1px solid rgba(255, 255, 255, 0.3)',
       borderRadius: '12px',
       padding: '24px',
       transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+      boxShadow: '0 4px 16px rgba(0, 0, 0, 0.05)',
     },
     
-    // Border-Only Card with Hover
+    // Border-Only Card with Hover - Enhanced Acrylic
     borderCardHover: {
-      background: 'transparent',
-      border: '1px solid #d1d5db',
+      background: 'rgba(255, 255, 255, 0.6)',
+      backdropFilter: 'blur(20px) saturate(120%)',
+      border: '1px solid rgba(255, 255, 255, 0.3)',
       borderRadius: '12px',
       padding: '24px',
       transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-      '&:hover': {
-        borderColor: '#6366f1',
-        boxShadow: '0 0 0 1px rgba(99, 102, 241, 0.2)',
-      }
+      boxShadow: '0 4px 16px rgba(0, 0, 0, 0.05)',
+    },
+
+    // Standard Project Card - Glassmorphic Design System Default
+    standardCard: {
+      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.65))',
+      backdropFilter: 'blur(60px) saturate(220%) brightness(145%) contrast(105%)',
+      WebkitBackdropFilter: 'blur(60px) saturate(220%) brightness(145%) contrast(105%)',
+      border: '1px solid rgba(255, 255, 255, 0.4)',
+      borderRadius: '20px',
+      padding: '16px',
+      transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+      overflow: 'visible',
+      cursor: 'pointer',
+      boxShadow: 'inset 0 0 15px rgba(255, 255, 255, 0.15), 0 0 30px rgba(255, 255, 255, 0.08)',
+    },
+
+    // Standard Card Hover State
+    standardCardHover: {
+      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.76))',
+      backdropFilter: 'blur(70px) saturate(240%) brightness(140%) contrast(110%)',
+      WebkitBackdropFilter: 'blur(70px) saturate(240%) brightness(140%) contrast(110%)',
+      border: '1px solid rgba(255, 255, 255, 0.6)',
+      transform: 'translateY(-8px) scale(1.02)',
+      boxShadow: 'inset 0 0 25px rgba(255, 255, 255, 0.2), 0 0 50px rgba(255, 255, 255, 0.12), 0 20px 40px rgba(0, 0, 0, 0.1)',
+    },
+
+    // Standard Content Card (non-interactive)
+    standardContentCard: {
+      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.40), rgba(255, 255, 255, 0.40))',
+      backdropFilter: 'blur(30px) saturate(35%) brightness(145%) contrast(85%)',
+      WebkitBackdropFilter: 'blur(30px) saturate(35%) brightness(145%) contrast(85%)',
+      border: '1px solid rgba(255, 255, 255, 0.3)',
+      borderRadius: '20px',
+      padding: '32px',
+      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+      overflow: 'hidden',
+      cursor: 'default',
+      boxShadow: 'inset 0 0 20px rgba(255, 255, 255, 0.1), 0 0 40px rgba(255, 255, 255, 0.05)',
     },
     
     // Button Variants
@@ -136,20 +175,43 @@ export const DesignTokens = {
         color: '#ffffff',
         border: 'none',
         borderRadius: '8px',
-        padding: '12px 24px',
+        padding: '9px 18px',
         fontWeight: '600',
+        fontSize: '14px',
+        fontFamily: "'Poppins', system-ui, sans-serif",
         transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-        boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)',
+        boxShadow: '0 2px 8px rgba(99, 102, 241, 0.25)',
+        cursor: 'pointer',
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '6px',
+        height: '42px',
+        minWidth: '80px',
+        whiteSpace: 'nowrap',
+        textAlign: 'center',
       },
       secondary: {
         background: 'rgba(255, 255, 255, 0.9)',
         color: '#6366f1',
         border: '1px solid rgba(99, 102, 241, 0.2)',
         borderRadius: '8px',
-        padding: '12px 24px',
+        padding: '9px 18px',
         fontWeight: '600',
+        fontSize: '14px',
+        fontFamily: "'Poppins', system-ui, sans-serif",
         transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
         backdropFilter: 'blur(10px)',
+        cursor: 'pointer',
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '6px',
+        height: '42px',
+        minWidth: '80px',
+        whiteSpace: 'nowrap',
+        textAlign: 'center',
+        boxShadow: '0 1px 4px rgba(99, 102, 241, 0.15)',
       },
       success: {
         background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
@@ -180,9 +242,43 @@ export const DesignTokens = {
       borderRadius: '8px',
       padding: '12px 16px',
       fontSize: '16px',
-      fontFamily: 'Montserrat, sans-serif',
+      fontFamily: "'Poppins', system-ui, sans-serif",
       backdropFilter: 'blur(10px)',
       transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+    },
+
+    // Glassmorphic Search Bar (based on Guides & Documentation section)
+    searchBar: {
+      background: 'transparent',
+      backdropFilter: 'blur(60px) saturate(220%) brightness(115%) contrast(105%)',
+      WebkitBackdropFilter: 'blur(60px) saturate(220%) brightness(115%) contrast(105%)',
+      border: '1px solid rgba(255, 255, 255, 0.3)',
+      borderRadius: '30px',
+      padding: '14px 20px 14px 68px', // Left padding for icon
+      fontSize: '16px',
+      fontFamily: "'Poppins', system-ui, sans-serif",
+      transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+      width: '440px',
+      maxWidth: '100%',
+      outline: 'none',
+      color: '#1a202c',
+      position: 'relative',
+    },
+
+    // Main Page Container (based on landing page large cards)
+    pageContainer: {
+      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.40), rgba(255, 255, 255, 0.40))',
+      backdropFilter: 'blur(30px) saturate(35%) brightness(145%) contrast(85%)',
+      WebkitBackdropFilter: 'blur(30px) saturate(35%) brightness(145%) contrast(85%)',
+      border: '1px solid rgba(255, 255, 255, 0.3)',
+      borderRadius: '20px',
+      padding: '40px',
+      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+      overflow: 'hidden',
+      cursor: 'default',
+      boxShadow: 'inset 0 0 20px rgba(255, 255, 255, 0.1), 0 0 40px rgba(255, 255, 255, 0.05)',
+      minHeight: 'calc(100vh - 120px)',
+      margin: '20px',
     },
     
     // Status Badge
@@ -202,14 +298,14 @@ export const DesignTokens = {
       color: '#1f2937',
       lineHeight: '24px',
       marginBottom: '8px',
-      fontFamily: 'Montserrat, sans-serif',
+      fontFamily: "'Poppins', system-ui, sans-serif",
     },
     
     cardDescription: {
       fontSize: '14px',
-      color: '#6b7280',
+      color: '#000000',
       lineHeight: '20px',
-      fontFamily: 'Montserrat, sans-serif',
+      fontFamily: "'Poppins', system-ui, sans-serif",
     },
     
     sectionTitle: {
@@ -218,14 +314,32 @@ export const DesignTokens = {
       color: '#1f2937',
       lineHeight: '32px',
       marginBottom: '16px',
-      fontFamily: 'Montserrat, sans-serif',
+      fontFamily: "'Poppins', system-ui, sans-serif",
     },
     
     metaText: {
       fontSize: '12px',
-      color: '#9ca3af',
+      color: '#000000',
       lineHeight: '16px',
-      fontFamily: 'Montserrat, sans-serif',
+      fontFamily: "'Poppins', system-ui, sans-serif",
+    },
+
+    // Standard Title/Subtitle Pattern (based on main project title)
+    standardTitle: {
+      fontSize: '24px',
+      fontWeight: '700',
+      color: '#8b5cf6',
+      lineHeight: '32px',
+      fontFamily: "'Poppins', system-ui, sans-serif",
+    },
+
+    standardSubtitle: {
+      fontSize: '16px',
+      fontWeight: '400',
+      color: '#000000',
+      lineHeight: '24px',
+      marginTop: '8px',
+      fontFamily: "'Poppins', system-ui, sans-serif",
     },
   },
   
@@ -271,6 +385,27 @@ export const DesignTokens = {
       alpha20: 'rgba(139, 92, 246, 0.2)',
       alpha30: 'rgba(139, 92, 246, 0.3)',
     },
+  },
+
+  // Custom Color Palette for Statistics and Charts
+  customPalette: {
+    eerieBlack: '#1e1e1e',
+    melon: '#fab3a9',
+    aquamarine: '#7cf0bd',
+    celadon: '#aff9c9',
+    lightSkyBlue: '#a3d5ff',
+    lightSkyBlue2: '#83c9f4',
+    savoyBlue: '#6467ce',
+    amethyst: '#8367c7',
+    glaucous: '#7681b3',
+    
+    // Blue-to-green gradient for statistics (bright with good contrast on glassmorphic background)
+    statisticsColors: {
+      primary: '#7c3aed',    // Violet-600 (bright purple)
+      secondary: '#2563eb',  // Blue-600 (bright blue)
+      tertiary: '#10b981',   // Emerald-500 (bright emerald)  
+      quaternary: '#22c55e', // Green-500 (bright green)
+    }
   },
 };
 

@@ -17,14 +17,20 @@ import {
   SearchRegular,
   ArrowDownloadRegular,
   ShareRegular,
+  TaskListLtr24Regular,
+  DataBarHorizontal24Regular,
+  ArrowTrending24Regular,
+  ArrowSync24Regular,
+  Flash24Regular,
+  WrenchRegular,
+  FolderRegular,
+  ServerRegular,
 } from '@fluentui/react-icons';
 import { CheckmarkCircleRegular } from '@fluentui/react-icons';
 
 import {
   makeStyles,
   tokens,
-  Card,
-  CardPreview,
   Button,
   Text,
   Title1,
@@ -56,6 +62,7 @@ import {
 import GanttChart from '../components/EnhancedGanttChart';
 import { Project } from '../utils/apiClient';
 import ErrorBoundary from '../components/ErrorBoundary';
+import { CapacityVisualizerView } from './CapacityVisualizerView';
 
 interface Activity {
   id: string;
@@ -67,7 +74,7 @@ interface Activity {
     | 'hardware_customization'
     | 'commissioning'
     | 'custom';
-  status: 'pending' | 'in_progress' | 'completed' | 'blocked';
+  status: 'pending' | 'pending_assignment' | 'in_progress' | 'completed' | 'blocked' | 'delayed' | 'canceled';
   start_date: Date;
   end_date: Date;
   assignee: string;
@@ -86,19 +93,7 @@ interface ProjectStats {
 
 // Styles: border-only cards for a clean card-in-card look
 const useProjectDetailStyles = makeStyles({
-  container: {
-    padding: DesignTokens.spacing.xxl,
-    margin: DesignTokens.spacing.xl,
-    borderRadius: DesignTokens.borderRadius.xl,
-    background: DesignTokens.colors.surface,
-    border: `1px solid ${DesignTokens.colors.surfaceBorder}`,
-    boxShadow: DesignTokens.shadows.sm,
-    minHeight: 'calc(100vh - 120px)',
-    fontFamily: DesignTokens.typography.fontFamily,
-  },
   headerCard: {
-    ...DesignTokens.components.borderCard,
-    padding: DesignTokens.spacing.xxxl,
     marginBottom: DesignTokens.spacing.xl,
   },
   cardHeaderReplacement: {
@@ -107,22 +102,21 @@ const useProjectDetailStyles = makeStyles({
     border: 'none',
   },
   statsCard: {
-    ...DesignTokens.components.borderCard,
     padding: DesignTokens.spacing.lg,
   },
   progressContainer: {
-    ...DesignTokens.components.borderCard,
-    padding: DesignTokens.spacing.xxl,
     marginTop: DesignTokens.spacing.xl,
     marginBottom: DesignTokens.spacing.xxl,
   },
   tabContainer: {
-    ...DesignTokens.components.borderCard,
+    background: 'transparent',
+    border: 'none',
     padding: DesignTokens.spacing.lg,
     marginBottom: DesignTokens.spacing.xl,
+    boxShadow: 'none',
   },
   timelineContainer: {
-    ...DesignTokens.components.borderCard,
+    ...DesignTokens.components.standardContentCard,
     width: '100%',
     overflowX: 'auto',
     overflowY: 'hidden',
@@ -134,7 +128,7 @@ const useProjectDetailStyles = makeStyles({
     height: '100%',
   },
   activityCard: {
-    ...DesignTokens.components.borderCard,
+    ...DesignTokens.components.standardContentCard,
     padding: DesignTokens.spacing.xl,
   },
   activityHeader: {
@@ -159,7 +153,7 @@ const useProjectDetailStyles = makeStyles({
     background: 'transparent',
   },
   activitiesContainer: {
-    ...DesignTokens.components.borderCard,
+    ...DesignTokens.components.standardContentCard,
     padding: tokens.spacingVerticalXL,
   },
 });
@@ -171,7 +165,7 @@ const ProjectDetailView: React.FC = () => {
 
   const [project, setProject] = useState<Project | null>(null);
   const [activities, setActivities] = useState<Activity[]>([]);
-  const [activeTab, setActiveTab] = useState<'timeline' | 'activities' | 'overview'>('timeline');
+  const [activeTab, setActiveTab] = useState<'timeline' | 'activities' | 'overview' | 'capacity'>('timeline');
   const [isCreateActivityModalOpen, setIsCreateActivityModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -295,46 +289,49 @@ const ProjectDetailView: React.FC = () => {
   }, [activities, searchQuery, filterStatus]);
 
   const handleTabChange = useCallback((_: SelectTabEvent, data: SelectTabData) => {
-    setActiveTab(data.value as 'timeline' | 'activities' | 'overview');
+    setActiveTab(data.value as 'timeline' | 'activities' | 'overview' | 'capacity');
   }, []);
 
   if (loading) {
     return (
       <ErrorBoundary>
-        <main className={styles.container} role="main" aria-label="Project Details">
+        <div>
           <Title2>Loading project…</Title2>
-        </main>
+        </div>
       </ErrorBoundary>
     );
   }
 
   if (error || !project) {
     return (
-      <main className={styles.container} role="main" aria-label="Project Details">
-        <Card className={styles.statsCard}>
-          <div className={styles.cardHeaderReplacement}>
-            <ErrorCircleRegular style={{ fontSize: '48px', color: tokens.colorPaletteRedForeground1 }} />
+      <ErrorBoundary>
+        <div>
+          <div className={styles.statsCard}>
+            <div className={styles.cardHeaderReplacement}>
+              <ErrorCircleRegular style={{ fontSize: '48px', color: tokens.colorPaletteRedForeground1 }} />
+            </div>
+            <div>
+              <Title2>Project Not Found</Title2>
+              <Text>The requested project could not be found or failed to load.</Text>
+              <Button
+                appearance="primary"
+                icon={<ArrowLeftRegular />}
+                onClick={() => navigate('/projects')}
+                style={{ marginTop: tokens.spacingVerticalM }}
+              >
+                Back to Projects
+              </Button>
+            </div>
           </div>
-          <CardPreview>
-            <Title2>Project Not Found</Title2>
-            <Text>The requested project could not be found or failed to load.</Text>
-            <Button
-              appearance="primary"
-              icon={<ArrowLeftRegular />}
-              onClick={() => navigate('/projects')}
-              style={{ marginTop: tokens.spacingVerticalM }}
-            >
-              Back to Projects
-            </Button>
-          </CardPreview>
-        </Card>
-      </main>
+        </div>
+      </ErrorBoundary>
     );
   }
 
   return (
     <ErrorBoundary>
-      <main className={styles.container} role="main" aria-label={`Project Details: ${project.name}`}>
+      <div>
+        <main role="main" aria-label={`Project Details: ${project.name}`}>
         {/* Breadcrumb */}
         <Breadcrumb style={{ marginBottom: DesignTokens.spacing.lg }}>
           <BreadcrumbItem>
@@ -349,15 +346,28 @@ const ProjectDetailView: React.FC = () => {
           </BreadcrumbItem>
         </Breadcrumb>
 
-        {/* Header (border-only chips) */}
-        <Card className={styles.headerCard}>
+        {/* Single large integrated card */}
+        <div style={{
+          ...DesignTokens.components.standardContentCard,
+          padding: 0,
+          minHeight: activeTab === 'capacity' ? '800px' : '600px'
+        }}>
+        {/* Header section with padding */}
+        <div className={styles.headerCard} style={{
+          padding: DesignTokens.spacing.lg
+        }}>
           <div className={styles.cardHeaderReplacement}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', width: '100%' }}>
               <div style={{ flex: 1 }}>
-                <Title1 style={DesignTokens.components.sectionTitle}>📋 {project.name}</Title1>
-                <Text size={500} style={DesignTokens.components.cardDescription}>
-                  {project.description || 'No description provided'}
-                </Text>
+                <div style={{ display: 'flex', alignItems: 'center', gap: DesignTokens.spacing.sm }}>
+                  <FolderRegular style={{ color: '#000000', fontSize: '32px' }} />
+                  <Title1 style={{ ...DesignTokens.components.sectionTitle, color: '#8b5cf6' }}>{project.name}</Title1>
+                </div>
+                <div style={{ marginTop: '8px' }}>
+                  <Text size={500} style={DesignTokens.components.cardDescription}>
+                    {project.description || 'No description provided'}
+                  </Text>
+                </div>
                 <div
                   style={{
                     display: 'flex',
@@ -428,29 +438,7 @@ const ProjectDetailView: React.FC = () => {
               </div>
             </div>
           </div>
-        </Card>
-
-        {/* Overall Progress (border-only card) */}
-        <Card className={styles.progressContainer}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div>
-              <Title2 style={{ color: '#1f2937' }}>{stats.overallProgress}%</Title2>
-              <Caption1 style={{ color: '#6b7280' }}>Overall Progress</Caption1>
-            </div>
-            <div style={{ flex: 1, marginLeft: tokens.spacingHorizontalXXL }}>
-              <ProgressBar
-                value={stats.overallProgress / 100}
-                shape="rounded"
-                thickness="large"
-                color="brand"
-                style={{ marginBottom: tokens.spacingVerticalXS }}
-              />
-              <Caption1 style={{ color: '#6b7280' }}>
-                {stats.completedActivities} of {stats.totalActivities} activities completed
-              </Caption1>
-            </div>
-          </div>
-        </Card>
+        </div>
 
         {/* Stats grid (border-only cards) */}
         <div
@@ -462,17 +450,19 @@ const ProjectDetailView: React.FC = () => {
           }}
         >
           {[
-            { label: 'Total Activities', value: stats.totalActivities, icon: <ChartMultipleRegular />, color: '#1f2937' },
+            { label: 'Total Activities', value: stats.totalActivities, icon: <ChartMultipleRegular />, color: '#000000' },
             { label: 'Completed', value: stats.completedActivities, icon: <CheckmarkCircleRegular />, color: '#10b981' },
             { label: 'In Progress', value: stats.inProgressActivities, icon: <ClockRegular />, color: '#f59e0b' },
-            { label: 'Days Remaining', value: stats.daysRemaining, icon: <TargetRegular />, color: '#1f2937' },
+            { label: 'Days Remaining', value: stats.daysRemaining, icon: <TargetRegular />, color: '#000000' },
           ].map((stat, index) => (
-            <Card key={index} className={styles.statsCard}>
+            <div key={index} className={styles.statsCard}>
               <div className={styles.cardHeaderReplacement}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
                     <Title2 style={{ color: stat.color }}>{stat.value}</Title2>
-                    <Caption1 style={{ color: '#6b7280', marginTop: 4 }}>{stat.label}</Caption1>
+                    <div style={{ marginTop: '4px' }}>
+                      <Caption1 style={{ color: '#000000' }}>{stat.label}</Caption1>
+                    </div>
                   </div>
                   <div
                     style={{
@@ -482,101 +472,81 @@ const ProjectDetailView: React.FC = () => {
                       color: stat.color,
                       fontSize: '20px',
                       border: `1px solid ${DesignTokens.colors.gray300}`,
+                      boxShadow: 'none',
                     }}
                   >
                     {stat.icon}
                   </div>
                 </div>
               </div>
-            </Card>
+            </div>
           ))}
         </div>
 
-        {/* Tabs container (border-only) */}
-        <div className={styles.tabContainer}>
-          <TabList
-            selectedValue={activeTab}
-            onTabSelect={handleTabChange}
-            appearance="transparent"
-            size="large"
-            role="tablist"
-            aria-label="Project sections"
-            style={{ backgroundColor: 'transparent', padding: 0, borderRadius: 0 }}
-          >
-            <Tab value="timeline" icon={<ChartMultipleRegular />}>
-              Timeline
-            </Tab>
-            <Tab value="activities" icon={<TargetRegular />}>
-              Activities
-            </Tab>
-            <Tab value="overview" icon={<DocumentRegular />}>
-              Overview
-            </Tab>
-          </TabList>
-
-          {activeTab === 'activities' && (
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginTop: tokens.spacingVerticalL,
-                gap: tokens.spacingHorizontalL,
-                padding: `${tokens.spacingVerticalM} 0`,
-              }}
-            >
-              <div style={{ display: 'flex', gap: tokens.spacingHorizontalL }}>
-                <Field>
-                  <Input
-                    appearance="underline"
-                    placeholder="Search activities..."
-                    value={searchQuery}
-                    onChange={(_, data) => setSearchQuery(data.value)}
-                    contentBefore={<SearchRegular />}
-                    aria-label="Search activities"
-                    style={{
-                      fontFamily: DesignTokens.typography.fontFamily,
-                      backgroundColor: 'transparent',
-                      border: `1px solid ${DesignTokens.colors.gray300}`,
-                      borderRadius: DesignTokens.borderRadius.lg,
-                      padding: '12px 16px',
-                      color: '#374151',
-                    }}
-                  />
-                </Field>
-                <Field>
-                  <Dropdown
-                    placeholder="Filter by status"
-                    value={filterStatus}
-                    onOptionSelect={(_, data) => setFilterStatus(data.optionValue as string)}
-                    aria-label="Filter activities by status"
-                    style={{ fontFamily: DesignTokens.typography.fontFamily }}
-                  >
-                    <Option value="all">All Status</Option>
-                    <Option value="pending">Pending</Option>
-                    <Option value="in_progress">In Progress</Option>
-                    <Option value="completed">Completed</Option>
-                    <Option value="blocked">Blocked</Option>
-                  </Dropdown>
-                </Field>
+        {/* Overall Progress (border-only card) */}
+        <div className={styles.progressContainer}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <Title2 style={{ color: DesignTokens.colors.primary }}>{stats.overallProgress}%</Title2>
+              <div style={{ marginTop: '4px' }}>
+                <Caption1 style={{ color: '#000000' }}>Overall Progress</Caption1>
               </div>
-
-              <Button
-                appearance="primary"
-                icon={<AddRegular />}
-                onClick={() => setIsCreateActivityModalOpen(true)}
-                style={{ ...DesignTokens.components.button.primary, borderRadius: DesignTokens.borderRadius.md }}
-              >
-                Add Activity
-              </Button>
             </div>
-          )}
-        </div>
+            <div style={{ flex: 1, marginLeft: tokens.spacingHorizontalXXL }}>
+              <ProgressBar
+                value={stats.overallProgress / 100}
+                shape="rounded"
+                thickness="large"
+                color="brand"
+                style={{ marginBottom: tokens.spacingVerticalXS }}
+              />
+              <Caption1 style={{ color: '#000000' }}>
+                {stats.completedActivities} of {stats.totalActivities} activities completed
+              </Caption1>
+            </div>
+          </div>
+          
+          {/* Tab header integrated with main header */}
+          <div style={{
+            padding: `${DesignTokens.spacing.md} ${DesignTokens.spacing.lg}`,
+            borderBottom: `1px solid ${DesignTokens.colors.gray200}`,
+            marginTop: DesignTokens.spacing.lg
+          }}>
+            <TabList
+              selectedValue={activeTab}
+              onTabSelect={handleTabChange}
+              appearance="transparent"
+              size="large"
+              role="tablist"
+              aria-label="Project sections"
+              style={{ backgroundColor: 'transparent', padding: 0, borderRadius: 0 }}
+            >
+              <Tab value="timeline" icon={<ChartMultipleRegular />}>
+                Timeline
+              </Tab>
+              <Tab value="activities" icon={<TargetRegular />}>
+                Activities
+              </Tab>
+              <Tab value="overview" icon={<DocumentRegular />}>
+                Overview
+              </Tab>
+              <Tab value="capacity" icon={<ServerRegular />}>
+                Capacity Visualizer
+              </Tab>
+            </TabList>
+          </div>
 
-        {/* Tab panels */}
-        <div role="tabpanel" aria-labelledby={`tab-${activeTab}`}>
+          {/* Tab content */}
+          <div 
+            role="tabpanel" 
+            aria-labelledby={`tab-${activeTab}`}
+            style={{
+              padding: DesignTokens.spacing.lg,
+              minHeight: 'calc(100% - 80px)'
+            }}
+          >
           {activeTab === 'timeline' && (
-            <div className={styles.timelineContainer}>
+            <div style={{ minHeight: '400px' }}>
               <div
                 style={{
                   display: 'flex',
@@ -584,18 +554,27 @@ const ProjectDetailView: React.FC = () => {
                   alignItems: 'center',
                   marginBottom: tokens.spacingVerticalL,
                   paddingBottom: tokens.spacingVerticalM,
-                  borderBottom: `1px solid ${DesignTokens.colors.gray300}`,
                 }}
               >
                 <div>
-                  <Title2>Project Timeline</Title2>
-                  <Caption1>Visualize project activities and dependencies</Caption1>
+                  <div style={DesignTokens.components.standardTitle}>Project Timeline</div>
+                  <div style={DesignTokens.components.standardSubtitle}>
+                    Visualize project activities and dependencies
+                  </div>
                 </div>
-                <Button appearance="primary" icon={<AddRegular />} onClick={() => setIsCreateActivityModalOpen(true)}>
+                <Button 
+                  appearance="primary" 
+                  icon={<AddRegular />} 
+                  onClick={() => setIsCreateActivityModalOpen(true)}
+                  style={{
+                    ...DesignTokens.components.button.primary,
+                    borderRadius: DesignTokens.borderRadius.md
+                  }}
+                >
                   Add Activity
                 </Button>
               </div>
-              <div className={styles.timelineContent}>
+              <div style={{ position: 'relative', minWidth: '1000px', height: '100%' }}>
                 {activities.length > 0 ? (
                   <GanttChart
                     activities={activities}
@@ -632,7 +611,15 @@ const ProjectDetailView: React.FC = () => {
                     <Text style={{ marginBottom: tokens.spacingVerticalL }}>
                       Create your first activity to see the project timeline
                     </Text>
-                    <Button appearance="primary" icon={<AddRegular />} onClick={() => setIsCreateActivityModalOpen(true)}>
+                    <Button 
+                      appearance="primary" 
+                      icon={<AddRegular />} 
+                      onClick={() => setIsCreateActivityModalOpen(true)}
+                      style={{
+                        ...DesignTokens.components.button.primary,
+                        borderRadius: DesignTokens.borderRadius.md
+                      }}
+                    >
                       Create First Activity
                     </Button>
                   </div>
@@ -642,46 +629,150 @@ const ProjectDetailView: React.FC = () => {
           )}
 
           {activeTab === 'activities' && (
-            <Card className={styles.activitiesContainer}>
-              <div className={styles.cardHeaderReplacement}>
-                <Title2>Activity Management</Title2>
-                <Caption1>Create, edit, and manage project activities</Caption1>
+            <div style={{ minHeight: '400px' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: tokens.spacingVerticalL,
+                  paddingBottom: tokens.spacingVerticalM,
+                }}
+              >
+                <div>
+                  <div style={DesignTokens.components.standardTitle}>Activity Management</div>
+                  <div style={DesignTokens.components.standardSubtitle}>
+                    Create, edit, and manage project activities
+                  </div>
+                </div>
+                <Button 
+                  appearance="primary" 
+                  icon={<AddRegular />} 
+                  onClick={() => setIsCreateActivityModalOpen(true)}
+                  style={{
+                    ...DesignTokens.components.button.primary,
+                    borderRadius: DesignTokens.borderRadius.md
+                  }}
+                >
+                  Add Activity
+                </Button>
               </div>
-              <CardPreview>
+              
+              {/* Search and filter controls */}
+              <div
+                style={{
+                  display: 'flex',
+                  gap: tokens.spacingHorizontalL,
+                  marginBottom: tokens.spacingVerticalL,
+                }}
+              >
+                <Field style={{ flex: 1 }}>
+                  <Input
+                    placeholder="Search activities..."
+                    value={searchQuery}
+                    onChange={(_, data) => setSearchQuery(data.value)}
+                    contentBefore={<SearchRegular />}
+                    aria-label="Search activities"
+                    className="lcm-search"
+                    style={{
+                      fontFamily: DesignTokens.typography.fontFamily,
+                      border: `1px solid ${DesignTokens.colors.gray300}`,
+                      borderRadius: DesignTokens.borderRadius.lg,
+                      padding: '12px 16px',
+                      color: '#374151',
+                      width: '100%'
+                    }}
+                  />
+                </Field>
+                <Field>
+                  <Dropdown
+                    placeholder="Filter by status"
+                    value={filterStatus}
+                    onOptionSelect={(_, data) => setFilterStatus(data.optionValue as string)}
+                    aria-label="Filter activities by status"
+                    style={{ fontFamily: DesignTokens.typography.fontFamily, minWidth: '200px' }}
+                  >
+                    <Option value="all">All Status</Option>
+                    <Option value="pending">Pending</Option>
+                    <Option value="pending_assignment">Pending Assignment</Option>
+                    <Option value="in_progress">In Progress</Option>
+                    <Option value="completed">Completed</Option>
+                    <Option value="blocked">Blocked</Option>
+                    <Option value="delayed">Delayed</Option>
+                    <Option value="canceled">Canceled</Option>
+                  </Dropdown>
+                </Field>
+              </div>
+              
+              <div>
                 {filteredActivities.length > 0 ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: tokens.spacingVerticalM }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: tokens.spacingVerticalL }}>
                     {filteredActivities.map((activity) => (
-                      <Card key={activity.id} className={styles.activityCard}>
+                      <div key={activity.id} style={{
+                        ...DesignTokens.components.standardContentCard,
+                        padding: DesignTokens.spacing.xl,
+                        transition: 'all 0.3s ease',
+                        ':hover': {
+                          transform: 'translateY(-2px)',
+                        }
+                      }}>
                         <div className={styles.cardHeaderReplacement}>
                           <div style={{ flex: 1 }}>
-                            <Title3 style={{ marginBottom: tokens.spacingVerticalXS }}>{activity.name}</Title3>
+                            <Title3 style={{ 
+                              marginBottom: tokens.spacingVerticalXS,
+                              color: DesignTokens.colors.primary,
+                              fontWeight: '600'
+                            }}>{activity.name}</Title3>
                             <Badge
                               appearance="outline"
-                              color={
-                                activity.status === 'completed'
-                                  ? 'success'
-                                  : activity.status === 'in_progress'
-                                  ? 'warning'
-                                  : activity.status === 'blocked'
-                                  ? 'danger'
-                                  : 'informative'
-                              }
+                              style={{
+                                color: activity.status === 'completed' ? '#10b981' :
+                                  activity.status === 'in_progress' ? '#8b5cf6' :
+                                  activity.status === 'blocked' ? '#ef4444' :
+                                  '#6b7280',
+                                border: `1px solid ${activity.status === 'completed' ? 'rgba(16, 185, 129, 0.3)' :
+                                  activity.status === 'in_progress' ? 'rgba(139, 92, 246, 0.3)' :
+                                  activity.status === 'blocked' ? 'rgba(239, 68, 68, 0.3)' :
+                                  'rgba(107, 114, 128, 0.3)'}`,
+                                fontWeight: '500'
+                              }}
                             >
                               {activity.status.replace('_', ' ').toUpperCase()}
                             </Badge>
                           </div>
                           <div style={{ display: 'flex', gap: tokens.spacingHorizontalXS }}>
-                            <Button appearance="subtle" icon={<EditRegular />} size="small" aria-label={`Edit ${activity.name}`} />
+                            <Button 
+                              appearance="subtle" 
+                              icon={<EditRegular />} 
+                              size="small" 
+                              aria-label={`Edit ${activity.name}`}
+                              style={{
+                                border: '1px solid rgba(139, 92, 246, 0.2)',
+                                borderRadius: '8px',
+                                color: DesignTokens.colors.primary,
+                                ':hover': {
+                                  background: 'rgba(139, 92, 246, 0.1)',
+                                }
+                              }}
+                            />
                             <Button
                               appearance="subtle"
                               icon={<DeleteRegular />}
                               size="small"
                               onClick={() => setActivities((prev) => prev.filter((a) => a.id !== activity.id))}
                               aria-label={`Delete ${activity.name}`}
+                              style={{
+                                border: '1px solid rgba(239, 68, 68, 0.2)',
+                                borderRadius: '8px',
+                                color: '#ef4444',
+                                ':hover': {
+                                  background: 'rgba(239, 68, 68, 0.1)',
+                                }
+                              }}
                             />
                           </div>
                         </div>
-                        <CardPreview>
+                        <div>
                           <div className={styles.activityMeta}>
                             <div>
                               <Caption1>Assignee:</Caption1>
@@ -714,8 +805,8 @@ const ProjectDetailView: React.FC = () => {
                               aria-label={`${activity.name} progress: ${activity.progress}%`}
                             />
                           </div>
-                        </CardPreview>
-                      </Card>
+                        </div>
+                      </div>
                     ))}
                   </div>
                 ) : (
@@ -731,24 +822,48 @@ const ProjectDetailView: React.FC = () => {
                     </Text>
                   </div>
                 )}
-              </CardPreview>
-            </Card>
+              </div>
+            </div>
           )}
 
           {activeTab === 'overview' && (
-            <div
-              style={{
-                display: 'grid',
+            <div style={{ minHeight: '400px' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: tokens.spacingVerticalL,
+                  paddingBottom: tokens.spacingVerticalM,
+                }}
+              >
+                <div>
+                  <div style={DesignTokens.components.standardTitle}>Project Overview</div>
+                  <div style={DesignTokens.components.standardSubtitle}>
+                    Comprehensive project information and analytics
+                  </div>
+                </div>
+              </div>
+              <div
+                style={{
+                  display: 'grid',
                 gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
                 gap: tokens.spacingHorizontalL,
               }}
             >
               {/* Project Information Card */}
-              <Card className={styles.statsCard}>
+              <div style={{
+                ...DesignTokens.components.standardContentCard,
+                padding: DesignTokens.spacing.lg,
+                transition: 'all 0.3s ease'
+              }}>
                 <div className={styles.cardHeaderReplacement}>
-                  <Title3>Project Information</Title3>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: DesignTokens.spacing.sm }}>
+                    <DataBarHorizontal24Regular style={{ color: DesignTokens.colors.primary, fontSize: '20px' }} />
+                    <div style={DesignTokens.components.standardTitle}>Project Information</div>
+                  </div>
                 </div>
-                <CardPreview>
+                <div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: tokens.spacingVerticalS }}>
                     {[
                       { label: 'Project ID', value: project.id },
@@ -771,43 +886,84 @@ const ProjectDetailView: React.FC = () => {
                       </div>
                     ))}
                   </div>
-                </CardPreview>
-              </Card>
+                </div>
+              </div>
 
               {/* Activity Breakdown Card */}
-              <Card className={styles.statsCard}>
+              <div style={{
+                ...DesignTokens.components.standardContentCard,
+                padding: DesignTokens.spacing.lg,
+                transition: 'all 0.3s ease'
+              }}>
                 <div className={styles.cardHeaderReplacement}>
-                  <Title3>Activity Breakdown</Title3>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: DesignTokens.spacing.sm }}>
+                    <ArrowTrending24Regular style={{ color: DesignTokens.colors.primary, fontSize: '20px' }} />
+                    <div style={DesignTokens.components.standardTitle}>Activity Breakdown</div>
+                  </div>
                 </div>
-                <CardPreview>
+                <div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: tokens.spacingVerticalS }}>
                     {[
-                      { type: 'migration', label: 'Migration Activities', emoji: '🔄' },
-                      { type: 'hardware_customization', label: 'Hardware Customization', emoji: '🔧' },
-                      { type: 'commissioning', label: 'Commissioning', emoji: '⚡' },
-                      { type: 'decommission', label: 'Decommissioning', emoji: '🗑️' },
-                      { type: 'lifecycle', label: 'Lifecycle Planning', emoji: '📊' },
-                      { type: 'custom', label: 'Custom Activities', emoji: '📋' },
+                      { type: 'migration', label: 'Migration Activities', icon: <ArrowSync24Regular /> },
+                      { type: 'hardware_customization', label: 'Hardware Customization', icon: <WrenchRegular /> },
+                      { type: 'commissioning', label: 'Commissioning', icon: <Flash24Regular /> },
+                      { type: 'decommission', label: 'Decommissioning', icon: <DeleteRegular /> },
+                      { type: 'lifecycle', label: 'Lifecycle Planning', icon: <DataBarHorizontal24Regular /> },
+                      { type: 'custom', label: 'Custom Activities', icon: <TaskListLtr24Regular /> },
                     ].map((activityType) => {
                       const count = activities.filter((a) => a.type === activityType.type).length;
                       return (
                         <div
                           key={activityType.type}
-                          style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                          style={{ 
+                            display: 'flex', 
+                            justifyContent: 'space-between', 
+                            alignItems: 'center',
+                            padding: '12px',
+                            borderRadius: '8px',
+                            background: 'rgba(139, 92, 246, 0.03)',
+                            border: '1px solid rgba(139, 92, 246, 0.1)',
+                            transition: 'all 0.2s ease',
+                            ':hover': {
+                              background: 'rgba(139, 92, 246, 0.06)',
+                              border: '1px solid rgba(139, 92, 246, 0.15)',
+                            }
+                          }}
                         >
                           <div style={{ display: 'flex', alignItems: 'center', gap: tokens.spacingHorizontalS }}>
-                            <span style={{ fontSize: '16px' }}>{activityType.emoji}</span>
-                            <Caption1>{activityType.label}</Caption1>
+                            <div style={{ fontSize: '18px', color: DesignTokens.colors.primary }}>{activityType.icon}</div>
+                            <Caption1 style={{ fontWeight: '500', color: DesignTokens.colors.textPrimary }}>
+                              {activityType.label}
+                            </Caption1>
                           </div>
-                          <Badge appearance="outline">{count}</Badge>
+                          <Badge 
+                            appearance="outline"
+                            style={{
+                              backgroundColor: count > 0 ? 'rgba(139, 92, 246, 0.1)' : 'rgba(107, 114, 128, 0.1)',
+                              color: count > 0 ? DesignTokens.colors.primary : '#6b7280',
+                              border: `1px solid ${count > 0 ? 'rgba(139, 92, 246, 0.3)' : 'rgba(107, 114, 128, 0.3)'}`,
+                              fontWeight: '600'
+                            }}
+                          >
+                            {count}
+                          </Badge>
                         </div>
                       );
                     })}
                   </div>
-                </CardPreview>
-              </Card>
+                </div>
+              </div>
+              </div>
             </div>
           )}
+
+          {activeTab === 'capacity' && (
+            <div style={{ minHeight: '600px' }}>
+              <CapacityVisualizerView />
+            </div>
+          )}
+          </div>
+        </div>
         </div>
 
         {/* Create Activity Modal (minimal) */}
@@ -833,7 +989,8 @@ const ProjectDetailView: React.FC = () => {
             </DialogSurface>
           </Dialog>
         )}
-      </main>
+        </main>
+      </div>
     </ErrorBoundary>
   );
 };

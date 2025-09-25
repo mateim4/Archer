@@ -59,7 +59,7 @@ export interface CreateProjectRequest {
   name: string;
   description: string;
   owner_id: string;
-  project_type: 'migration' | 'deployment' | 'upgrade' | 'custom';
+  project_type?: 'migration' | 'deployment' | 'upgrade' | 'custom';
   project_types?: ('migration' | 'deployment' | 'upgrade' | 'custom')[];
   priority?: 'Low' | 'Medium' | 'High' | 'Critical';
   start_date?: string;
@@ -144,6 +144,17 @@ export interface CreateHardwareBasketRequest {
   year: number;
 }
 
+export class ApiError extends Error {
+  status: number;
+  data?: any;
+  constructor(status: number, message: string, data?: any) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+    this.data = data;
+  }
+}
+
 export class ApiClient {
   private baseUrl: string;
   private usingMockData: boolean = false;
@@ -172,7 +183,12 @@ export class ApiClient {
       });
 
       if (!response.ok) {
-        throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+        let data: any = undefined;
+        try {
+          data = await response.json();
+        } catch (_) {}
+        const message = data?.message || data?.error || `${response.status} ${response.statusText}`;
+        throw new ApiError(response.status, message, data);
       }
 
       this.usingMockData = false;

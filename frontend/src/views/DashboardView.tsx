@@ -19,7 +19,6 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import SimpleFileUpload from '../components/SimpleFileUpload';
 import ServerFileProcessor from '../utils/serverFileProcessor';
 import { openFileDialog, getFileName, isFileTypeSupported, isTauriEnvironment } from '../utils/fileUpload';
-import GlassmorphicLayout from '../components/GlassmorphicLayout';
 
 // Global table row selection state
 const useTableSelection = () => {
@@ -1436,7 +1435,7 @@ const DashboardView: React.FC = () => {
   }
 
   return (
-    <GlassmorphicLayout>
+    <div>
       {!isDataUploaded ? (
         <FileUploadComponent />
       ) : (
@@ -1493,7 +1492,7 @@ const DashboardView: React.FC = () => {
           </div>
         </>
       )}
-    </GlassmorphicLayout>
+    </div>
   );
 };
 

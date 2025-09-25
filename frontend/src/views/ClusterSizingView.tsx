@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Calculator, Cpu, HardDrive, Network, Zap, TrendingUp, AlertCircle } from 'lucide-react';
 import { apiClient, HardwareItem } from '../utils/apiClient';
-import GlassmorphicLayout from '../components/GlassmorphicLayout';
 
 interface ClusterSpec {
   workloadType: string;
@@ -127,18 +126,18 @@ const ClusterSizingView: React.FC = () => {
 
   if (loading) {
     return (
-      <GlassmorphicLayout>
+      <div>
         <div className="fluent-page-container">
           <div className="flex items-center justify-center min-h-96">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
           </div>
         </div>
-      </GlassmorphicLayout>
+      </div>
     );
   }
 
   return (
-    <GlassmorphicLayout>
+    <div>
       <div className="fluent-page-container">
 
         {error && (
@@ -330,7 +329,7 @@ const ClusterSizingView: React.FC = () => {
         </div>
       </div>
       </div>
-    </GlassmorphicLayout>
+    </div>
   );
 };
 

@@ -1,6 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { Spinner } from '@fluentui/react-components';
-import GlassmorphicLayout from '../components/GlassmorphicLayout';
+import { DesignTokens } from '../styles/designSystem';
+import {
+  DataBarHorizontalRegular,
+  FolderRegular,
+  ArrowUploadRegular,
+  HourglassRegular,
+  ErrorCircleRegular,
+  DesktopRegular,
+  DocumentRegular,
+  SettingsRegular,
+  SaveRegular,
+  TaskListRegular,
+  TimelineRegular,
+  CheckmarkCircleRegular,
+  DocumentPdfRegular,
+  DocumentTextRegular,
+  TableRegular
+} from '@fluentui/react-icons';
 
 interface RVToolsUpload {
   id: string;
@@ -221,33 +238,48 @@ export const EnhancedRVToolsReportView: React.FC = () => {
   const selectedUploadData = uploads.find(u => u.id === selectedUpload);
 
   return (
-    <GlassmorphicLayout>
+    <div style={{...DesignTokens.components.pageContainer, overflow: 'visible'}}>
       {/* Header */}
-      <div style={{ 
+      <div style={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: '24px',
-        borderBottom: '2px solid rgba(99, 102, 241, 0.1)',
-        paddingBottom: '16px'
+        marginBottom: DesignTokens.spacing.xl,
+        borderBottom: `2px solid ${DesignTokens.colors.primary}20`,
+        paddingBottom: DesignTokens.spacing.lg
       }}>
         <h1 style={{ 
-          fontSize: '28px',
-          fontWeight: '600',
-          color: '#6366f1',
-          margin: 0,
-          fontFamily: 'Montserrat, sans-serif'
+          fontSize: DesignTokens.typography.xxxl,
+          fontWeight: DesignTokens.typography.semibold,
+          color: '#8b5cf6',
+          margin: '0',
+          fontFamily: DesignTokens.typography.fontFamily,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px'
         }}>
-          📊 Enhanced RVTools Reports
+          <TableRegular style={{ fontSize: '32px', color: '#000000' }} />
+          RVTools Reports
         </h1>
-        
         <div style={{
-          fontSize: '14px',
+          fontSize: '18px',
           color: '#64748b',
-          fontFamily: 'Montserrat, sans-serif'
+          margin: 0,
+          fontFamily: DesignTokens.typography.fontFamily
         }}>
-          Generate comprehensive migration analysis reports from your RVTools data
+          VMware environment analysis and reporting
         </div>
+      </div>
+
+      {/* Description */}
+      <div style={{
+        fontSize: '14px',
+        color: '#64748b',
+        fontFamily: DesignTokens.typography.fontFamily,
+        marginBottom: '24px',
+        padding: '16px 0'
+      }}>
+        Generate comprehensive migration analysis reports from your RVTools data
       </div>
 
       {/* Configuration Controls */}
@@ -266,7 +298,7 @@ export const EnhancedRVToolsReportView: React.FC = () => {
             margin: '0 0 16px 0',
             fontFamily: 'Montserrat, sans-serif'
           }}>
-            📁 RVTools Upload Selection
+            <FolderRegular style={{ marginRight: '8px' }} />RVTools Upload Selection
           </h3>
           
           <div>
@@ -291,7 +323,6 @@ export const EnhancedRVToolsReportView: React.FC = () => {
                 borderRadius: '8px',
                 fontSize: '14px',
                 fontFamily: 'Montserrat, sans-serif',
-                background: 'rgba(255, 255, 255, 0.8)',
                 cursor: 'pointer',
                 marginBottom: '12px'
               }}
@@ -333,7 +364,7 @@ export const EnhancedRVToolsReportView: React.FC = () => {
                   userSelect: 'none'
                 }}
               >
-                {isUploading ? '⏳' : '📤'} {isUploading ? 'Uploading...' : 'Upload New File'}
+                {isUploading ? <HourglassRegular style={{ marginRight: '8px' }} /> : <ArrowUploadRegular style={{ marginRight: '8px' }} />}{isUploading ? 'Uploading...' : 'Upload New File'}
               </label>
               
               {isUploading && (
@@ -341,7 +372,7 @@ export const EnhancedRVToolsReportView: React.FC = () => {
                   <div style={{
                     width: '100%',
                     height: '4px',
-                    background: 'rgba(99, 102, 241, 0.2)',
+                    borderLeft: '3px solid rgba(99, 102, 241, 0.4)',
                     borderRadius: '2px',
                     overflow: 'hidden'
                   }}>
@@ -367,13 +398,13 @@ export const EnhancedRVToolsReportView: React.FC = () => {
                 <div style={{
                   marginTop: '8px',
                   padding: '8px 12px',
-                  background: 'rgba(239, 68, 68, 0.1)',
+                  borderLeft: '3px solid rgba(239, 68, 68, 0.4)',
                   borderRadius: '6px',
                   fontSize: '12px',
                   color: '#dc2626',
                   fontFamily: 'Montserrat, sans-serif'
                 }}>
-                  ❌ {error}
+                  <ErrorCircleRegular style={{ marginRight: '8px' }} />{error}
                 </div>
               )}
             </div>
@@ -381,14 +412,13 @@ export const EnhancedRVToolsReportView: React.FC = () => {
             {selectedUploadData && (
               <div style={{
                 padding: '8px 12px',
-                background: 'rgba(99, 102, 241, 0.1)',
                 borderRadius: '6px',
                 fontSize: '12px',
                 color: '#4f46e5',
                 fontFamily: 'Montserrat, sans-serif'
               }}>
-                📊 {selectedUploadData.total_vms} VMs • 
-                🖥️ {selectedUploadData.total_hosts} Hosts • 
+                <DataBarHorizontalRegular style={{ marginRight: '4px' }} />{selectedUploadData.total_vms} VMs • 
+                <DesktopRegular style={{ marginRight: '4px' }} />{selectedUploadData.total_hosts} Hosts • 
                 🏢 {selectedUploadData.total_clusters} Clusters
               </div>
             )}
@@ -404,7 +434,7 @@ export const EnhancedRVToolsReportView: React.FC = () => {
             margin: '0 0 16px 0',
             fontFamily: 'Montserrat, sans-serif'
           }}>
-            📋 Report Template
+            <DocumentRegular style={{ marginRight: '8px' }} />Report Template
           </h3>
 
           <div>
@@ -429,7 +459,6 @@ export const EnhancedRVToolsReportView: React.FC = () => {
                 borderRadius: '8px',
                 fontSize: '14px',
                 fontFamily: 'Montserrat, sans-serif',
-                background: 'rgba(255, 255, 255, 0.8)',
                 cursor: 'pointer',
                 marginBottom: '12px'
               }}
@@ -449,7 +478,7 @@ export const EnhancedRVToolsReportView: React.FC = () => {
               color: '#4f46e5',
               fontFamily: 'Montserrat, sans-serif'
             }}>
-              📄 Comprehensive analysis with migration recommendations
+              <DocumentRegular style={{ marginRight: '8px' }} />Comprehensive analysis with migration recommendations
             </div>
           </div>
         </div>
@@ -503,7 +532,7 @@ export const EnhancedRVToolsReportView: React.FC = () => {
             </>
           ) : (
             <>
-              📊 Generate Report
+              <DataBarHorizontalRegular style={{ marginRight: '8px' }} />Generate Report
             </>
           )}
         </button>
@@ -538,12 +567,8 @@ export const EnhancedRVToolsReportView: React.FC = () => {
       {/* Report Results */}
       {reportGenerated && (
         <div style={{
-          background: 'rgba(255, 255, 255, 0.85)',
-          backdropFilter: 'blur(18px) saturate(180%)',
-          borderRadius: '20px',
-          padding: '32px',
-          border: '1px solid rgba(255, 255, 255, 0.2)',
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+          ...DesignTokens.components.standardContentCard,
+          padding: '32px'
         }}>
           <h2 style={{
             fontSize: '24px',
@@ -552,7 +577,7 @@ export const EnhancedRVToolsReportView: React.FC = () => {
             margin: '0 0 24px 0',
             fontFamily: 'Montserrat, sans-serif'
           }}>
-            📈 Migration Analysis Results
+            <TimelineRegular style={{ marginRight: '8px' }} />Migration Analysis Results
           </h2>
 
           {/* Summary Stats */}
@@ -573,9 +598,9 @@ export const EnhancedRVToolsReportView: React.FC = () => {
               const readinessPercent = Math.round((poweredOnVMs / (selectedData?.total_vms || 1)) * 100);
               
               return [
-                { label: 'Migration Readiness', value: `${readinessPercent}%`, icon: '✅' },
-                { label: 'Total CPU Cores', value: `${totalCPUs} cores`, icon: '⚙️' },
-                { label: 'Total Memory', value: `${Math.round(totalMemoryGB)} GB`, icon: '💾' },
+                { label: 'Migration Readiness', value: `${readinessPercent}%`, icon: <CheckmarkCircleRegular /> },
+                { label: 'Total CPU Cores', value: `${totalCPUs} cores`, icon: <SettingsRegular /> },
+                { label: 'Total Memory', value: `${Math.round(totalMemoryGB)} GB`, icon: <SaveRegular /> },
                 { label: 'Powered On VMs', value: `${poweredOnVMs}/${selectedData?.total_vms || 0}`, icon: '🟢' }
               ];
             })().map((stat, index) => (
@@ -628,7 +653,7 @@ export const EnhancedRVToolsReportView: React.FC = () => {
                 fontFamily: 'Montserrat, sans-serif'
               }}
             >
-              📄 Export HTML
+              <DocumentTextRegular style={{ marginRight: '8px' }} />Export HTML
             </button>
             <button
               onClick={() => handleExport('pdf')}
@@ -644,12 +669,12 @@ export const EnhancedRVToolsReportView: React.FC = () => {
                 fontFamily: 'Montserrat, sans-serif'
               }}
             >
-              📋 Export PDF
+              <DocumentPdfRegular style={{ marginRight: '8px' }} />Export PDF
             </button>
           </div>
         </div>
       )}
-    </GlassmorphicLayout>
+    </div>
   );
 };
 

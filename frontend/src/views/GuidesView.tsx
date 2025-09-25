@@ -1,21 +1,31 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Title2,
+  Title3,
   Body1,
-  Card,
-  CardHeader,
-  CardPreview,
+  Body2,
   Button,
   Badge,
-  Divider
+  SearchBox,
+  Dropdown,
+  Option,
+  makeStyles
 } from '@fluentui/react-components';
+import GlassmorphicSearchBar from '../components/GlassmorphicSearchBar';
 import {
   BookRegular,
   VideoRegular,
   DocumentRegular,
-  ChevronRightRegular
+  ChevronRightRegular,
+  SearchRegular,
+  FilterRegular,
+  BookOpenRegular,
+  PlayCircleRegular,
+  DocumentTextRegular,
+  ClockRegular,
+  NavigationRegular
 } from '@fluentui/react-icons';
-import GlassmorphicLayout from '../components/GlassmorphicLayout';
+import { DesignTokens } from '../styles/designSystem';
 
 interface Guide {
   id: string;
@@ -27,7 +37,42 @@ interface Guide {
   difficulty: 'beginner' | 'intermediate' | 'advanced';
 }
 
+const useStyles = makeStyles({
+  guidesGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))',
+    gap: DesignTokens.spacing.xl,
+    marginBottom: DesignTokens.spacing.xxl
+  },
+  statisticsCard: {
+    ...DesignTokens.components.borderCard,
+    padding: DesignTokens.spacing.xl,
+    marginBottom: DesignTokens.spacing.xxl,
+    background: 'rgba(255, 255, 255, 0.40)',
+    backdropFilter: 'blur(30px) saturate(35%) brightness(145%) contrast(85%)',
+    border: '1px solid rgba(255, 255, 255, 0.35)',
+  },
+  toolbar: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: DesignTokens.spacing.xl,
+    gap: DesignTokens.spacing.lg,
+    flexWrap: 'wrap'
+  },
+  searchContainer: {
+    flex: 1,
+    minWidth: '280px',
+    maxWidth: '400px'
+  }
+});
+
 const GuidesView: React.FC = () => {
+  const styles = useStyles();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all');
+
   const guides: Guide[] = [
     {
       id: 'getting-started',
@@ -85,212 +130,510 @@ const GuidesView: React.FC = () => {
     }
   ];
 
+  // Filter guides based on search and filters
+  const filteredGuides = guides.filter(guide => {
+    const matchesSearch = searchTerm === '' || 
+      guide.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      guide.description.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesCategory = selectedCategory === 'all' || guide.category === selectedCategory;
+    const matchesDifficulty = selectedDifficulty === 'all' || guide.difficulty === selectedDifficulty;
+    
+    return matchesSearch && matchesCategory && matchesDifficulty;
+  });
+
+  // Statistics calculations
+  const stats = {
+    total: guides.length,
+    byCategory: {
+      migration: guides.filter(g => g.category === 'migration').length,
+      lifecycle: guides.filter(g => g.category === 'lifecycle').length,
+      hardware: guides.filter(g => g.category === 'hardware').length,
+      general: guides.filter(g => g.category === 'general').length,
+    },
+    byType: {
+      documentation: guides.filter(g => g.type === 'documentation').length,
+      video: guides.filter(g => g.type === 'video').length,
+      tutorial: guides.filter(g => g.type === 'tutorial').length,
+    },
+    byDifficulty: {
+      beginner: guides.filter(g => g.difficulty === 'beginner').length,
+      intermediate: guides.filter(g => g.difficulty === 'intermediate').length,
+      advanced: guides.filter(g => g.difficulty === 'advanced').length,
+    }
+  };
+
   const getCategoryColor = (category: string) => {
     switch (category) {
-      case 'migration': return 'brand';
-      case 'lifecycle': return 'success';
-      case 'hardware': return 'warning';
-      case 'general': return 'subtle';
-      default: return 'subtle';
+      case 'migration': return DesignTokens.colorVariants.indigo.base;
+      case 'lifecycle': return DesignTokens.colorVariants.emerald.base;
+      case 'hardware': return DesignTokens.colorVariants.amber.base;
+      case 'general': return DesignTokens.colors.textSecondary;
+      default: return DesignTokens.colors.textSecondary;
     }
   };
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
-      case 'beginner': return 'success';
-      case 'intermediate': return 'warning';
-      case 'advanced': return 'danger';
-      default: return 'subtle';
+      case 'beginner': return DesignTokens.colorVariants.emerald.base;
+      case 'intermediate': return DesignTokens.colorVariants.amber.base;
+      case 'advanced': return DesignTokens.colorVariants.red.base;
+      default: return DesignTokens.colors.textSecondary;
     }
   };
 
   const getTypeIcon = (type: string) => {
     switch (type) {
-      case 'video': return <VideoRegular />;
-      case 'tutorial': return <BookRegular />;
-      case 'documentation': return <DocumentRegular />;
-      default: return <DocumentRegular />;
+      case 'video': return <PlayCircleRegular />;
+      case 'tutorial': return <BookOpenRegular />;
+      case 'documentation': return <DocumentTextRegular />;
+      default: return <DocumentTextRegular />;
     }
   };
 
   return (
-    <GlassmorphicLayout>
-      {/* Header Card */}
+    <div style={{
+      background: 'rgba(255, 255, 255, 0.40)',
+      backdropFilter: 'blur(30px) saturate(35%) brightness(145%) contrast(85%)',
+      borderRadius: '16px',
+      padding: '24px',
+      minHeight: '100%',
+      border: '1px solid rgba(139, 92, 246, 0.2)',
+      boxShadow: '0 8px 32px rgba(139, 92, 246, 0.1)'
+    }}>
+      {/* Header */}
       <div style={{
-        background: 'rgba(255, 255, 255, 0.85)',
-        backdropFilter: 'blur(18px) saturate(180%)',
-        borderRadius: '20px',
-        padding: '32px',
-        marginBottom: '32px',
-        border: '1px solid rgba(255, 255, 255, 0.2)',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: DesignTokens.spacing.xl,
+        borderBottom: `2px solid ${DesignTokens.colors.primary}20`,
+        paddingBottom: DesignTokens.spacing.lg
       }}>
-        <h1 style={{
-          fontSize: '42px',
-          fontWeight: '800',
-          color: '#1f2937',
-          margin: '0 0 8px 0',
-          fontFamily: 'Montserrat, sans-serif'
+        <div>
+          <h1 style={{
+            fontSize: DesignTokens.typography.xxxl,
+            fontWeight: DesignTokens.typography.semibold,
+            color: '#8b5cf6',
+            margin: '0',
+            fontFamily: DesignTokens.typography.fontFamily,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px'
+          }}>
+            <NavigationRegular style={{ fontSize: '32px', color: '#000000' }} />
+            Guides & Documentation
+          </h1>
+          <p style={{
+            fontSize: '18px',
+            color: '#64748b',
+            fontFamily: DesignTokens.typography.fontFamily,
+            margin: 0
+          }}>
+            Comprehensive guides and tutorials to help you get the most out of LCMDesigner
+          </p>
+        </div>
+      </div>
+
+      {/* Statistics Cards */}
+      <div style={{
+        border: '1px solid rgba(139, 92, 246, 0.3)',
+        borderRadius: '16px',
+        padding: '24px',
+        marginBottom: '32px',
+        background: 'rgba(255, 255, 255, 0.40)',
+        backdropFilter: 'blur(30px) saturate(35%) brightness(145%) contrast(85%)'
+      }}>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+          gap: '16px',
+          alignItems: 'center'
         }}>
-          📚 Guides & Documentation
-        </h1>
-        <p style={{
-          fontSize: '18px',
-          color: '#64748b',
-          margin: 0,
-          fontFamily: 'Montserrat, sans-serif'
-        }}>
-          Comprehensive guides and tutorials to help you get the most out of LCMDesigner
-        </p>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{
+              fontSize: DesignTokens.typography.xxxl,
+              fontWeight: DesignTokens.typography.bold,
+              color: DesignTokens.colors.primary,
+              fontFamily: DesignTokens.typography.fontFamily,
+              margin: 0,
+            }}>
+              {stats.total}
+            </div>
+            <div style={{
+              fontSize: DesignTokens.typography.sm,
+              color: DesignTokens.colors.textSecondary,
+              fontWeight: DesignTokens.typography.medium,
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px',
+              marginTop: DesignTokens.spacing.xs,
+            }}>
+              Total Guides
+            </div>
+          </div>
+
+          <div style={{ textAlign: 'center' }}>
+            <div style={{
+              fontSize: DesignTokens.typography.xxxl,
+              fontWeight: DesignTokens.typography.bold,
+              color: DesignTokens.colorVariants.emerald.base,
+              fontFamily: DesignTokens.typography.fontFamily,
+              margin: 0,
+            }}>
+              {stats.byDifficulty.beginner}
+            </div>
+            <div style={{
+              fontSize: DesignTokens.typography.sm,
+              color: DesignTokens.colors.textSecondary,
+              fontWeight: DesignTokens.typography.medium,
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px',
+              marginTop: DesignTokens.spacing.xs,
+            }}>
+              Beginner
+            </div>
+          </div>
+
+          <div style={{ textAlign: 'center' }}>
+            <div style={{
+              fontSize: DesignTokens.typography.xxxl,
+              fontWeight: DesignTokens.typography.bold,
+              color: DesignTokens.colorVariants.indigo.base,
+              fontFamily: DesignTokens.typography.fontFamily,
+              margin: 0,
+            }}>
+              {stats.byType.video}
+            </div>
+            <div style={{
+              fontSize: DesignTokens.typography.sm,
+              color: DesignTokens.colors.textSecondary,
+              fontWeight: DesignTokens.typography.medium,
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px',
+              marginTop: DesignTokens.spacing.xs,
+            }}>
+              Video Guides
+            </div>
+          </div>
+
+          <div style={{ textAlign: 'center' }}>
+            <div style={{
+              fontSize: DesignTokens.typography.xxxl,
+              fontWeight: DesignTokens.typography.bold,
+              color: DesignTokens.colorVariants.amber.base,
+              fontFamily: DesignTokens.typography.fontFamily,
+              margin: 0,
+            }}>
+              {filteredGuides.length}
+            </div>
+            <div style={{
+              fontSize: DesignTokens.typography.sm,
+              color: DesignTokens.colors.textSecondary,
+              fontWeight: DesignTokens.typography.medium,
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px',
+              marginTop: DesignTokens.spacing.xs,
+            }}>
+              Showing
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Search and Filter Toolbar */}
+      <div className={styles.toolbar}>
+        <div className={styles.searchContainer}>
+          <GlassmorphicSearchBar
+            value={searchTerm}
+            onChange={(value) => setSearchTerm(value)}
+            placeholder="Search guides and documentation..."
+            width="100%"
+          />
+        </div>
+        
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <Dropdown
+            placeholder="Category"
+            value={selectedCategory}
+            onOptionSelect={(_, data) => setSelectedCategory(data.optionValue || 'all')}
+            style={{ minWidth: '140px' }}
+          >
+            <Option key="all" value="all">All Categories</Option>
+            <Option key="migration" value="migration">Migration</Option>
+            <Option key="lifecycle" value="lifecycle">Lifecycle</Option>
+            <Option key="hardware" value="hardware">Hardware</Option>
+            <Option key="general" value="general">General</Option>
+          </Dropdown>
+
+          <Dropdown
+            placeholder="Difficulty"
+            value={selectedDifficulty}
+            onOptionSelect={(_, data) => setSelectedDifficulty(data.optionValue || 'all')}
+            style={{ minWidth: '140px' }}
+          >
+            <Option key="all" value="all">All Levels</Option>
+            <Option key="beginner" value="beginner">Beginner</Option>
+            <Option key="intermediate" value="intermediate">Intermediate</Option>
+            <Option key="advanced" value="advanced">Advanced</Option>
+          </Dropdown>
+        </div>
       </div>
 
       {/* Guides Grid */}
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))', 
-        gap: '24px',
-        marginBottom: '32px'
-      }}>
-        {guides.map((guide) => (
-          <div key={guide.id} style={{
-            background: 'rgba(255, 255, 255, 0.85)',
-            backdropFilter: 'blur(18px) saturate(180%)',
-            borderRadius: '20px',
-            padding: '24px',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease',
-          }}
-          onMouseOver={(e) => {
-            e.currentTarget.style.transform = 'translateY(-4px)';
-            e.currentTarget.style.boxShadow = '0 12px 40px rgba(0, 0, 0, 0.15)';
-          }}
-          onMouseOut={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.1)';
+      {filteredGuides.length === 0 ? (
+        <div style={{
+          border: '1px solid rgba(139, 92, 246, 0.3)',
+          borderRadius: '16px',
+          padding: '32px',
+          textAlign: 'center',
+          margin: '32px 0'
+        }}>
+          <div style={{
+            fontSize: '64px',
+            marginBottom: '16px',
+            color: '#64748b'
           }}>
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', marginBottom: '16px' }}>
-              <div style={{ fontSize: '24px' }}>
-                {getTypeIcon(guide.type)}
-              </div>
-              <div style={{ flex: 1 }}>
-                <h3 style={{
-                  fontSize: '18px',
-                  fontWeight: '600',
-                  color: '#1f2937',
-                  margin: '0 0 8px 0',
-                  fontFamily: 'Montserrat, sans-serif'
+            <BookRegular />
+          </div>
+          <h3 style={{
+            fontSize: '24px',
+            fontWeight: '600',
+            color: '#1f2937',
+            marginBottom: '12px',
+            fontFamily: 'Montserrat, sans-serif',
+            margin: '0 0 12px 0'
+          }}>
+            No guides found
+          </h3>
+          <p style={{
+            fontSize: '16px',
+            color: '#64748b',
+            marginBottom: '32px',
+            maxWidth: '500px',
+            marginLeft: 'auto',
+            marginRight: 'auto',
+            lineHeight: '1.6',
+            fontFamily: 'Montserrat, sans-serif'
+          }}>
+            Try adjusting your search terms or filters to find the guides you're looking for.
+          </p>
+          <button
+            style={{
+              background: 'transparent',
+              color: '#8b5cf6',
+              border: '2px solid rgba(139, 92, 246, 0.3)',
+              padding: '12px 24px',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: '600',
+              fontFamily: 'Montserrat, sans-serif',
+              cursor: 'pointer'
+            }}
+            onClick={() => {
+              setSearchTerm('');
+              setSelectedCategory('all');
+              setSelectedDifficulty('all');
+            }}
+          >
+            Clear all filters
+          </button>
+        </div>
+      ) : (
+        <div className={styles.guidesGrid}>
+          {filteredGuides.map((guide) => (
+            <div 
+              key={guide.id} 
+              style={{
+                border: '1px solid rgba(139, 92, 246, 0.3)',
+                borderRadius: '16px',
+                padding: '24px',
+                cursor: 'pointer',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                background: 'transparent',
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.transform = 'translateY(-4px)';
+                e.currentTarget.style.borderColor = '#8b5cf6';
+                e.currentTarget.style.boxShadow = '0 8px 32px rgba(139, 92, 246, 0.2)';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.borderColor = 'rgba(139, 92, 246, 0.3)';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
+          >
+            <div style={{
+              padding: '24px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '16px',
+              height: '100%'
+            }}>
+              {/* Header */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '16px'
+              }}>
+                <div style={{
+                  width: '48px',
+                  height: '48px',
+                  borderRadius: '12px',
+                  border: `2px solid ${getCategoryColor(guide.category)}40`,
+                  background: 'transparent',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '20px',
+                  color: getCategoryColor(guide.category),
+                  flexShrink: 0
                 }}>
-                  {guide.title}
-                </h3>
-                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                  <span style={{
-                    fontSize: '12px',
-                    padding: '4px 8px',
-                    borderRadius: '12px',
-                    background: 'rgba(99, 102, 241, 0.1)',
-                    color: '#4f46e5',
-                    fontFamily: 'Montserrat, sans-serif'
+                  {getTypeIcon(guide.type)}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <h3 style={{
+                    fontSize: '18px',
+                    fontWeight: '600',
+                    color: '#1f2937',
+                    marginBottom: '8px',
+                    fontFamily: 'Montserrat, sans-serif',
+                    lineHeight: '1.4',
+                    margin: '0 0 8px 0'
                   }}>
-                    {guide.category}
-                  </span>
-                  <span style={{
-                    fontSize: '12px',
-                    padding: '4px 8px',
-                    borderRadius: '12px',
-                    background: 'rgba(16, 185, 129, 0.1)',
-                    color: '#047857',
-                    fontFamily: 'Montserrat, sans-serif'
+                    {guide.title}
+                  </h3>
+                  <p style={{
+                    fontSize: '14px',
+                    color: '#64748b',
+                    fontFamily: 'Montserrat, sans-serif',
+                    lineHeight: '1.5',
+                    margin: 0
                   }}>
-                    {guide.difficulty}
-                  </span>
-                  {guide.duration && (
-                    <span style={{
-                      fontSize: '12px',
-                      padding: '4px 8px',
-                      borderRadius: '12px',
-                      background: 'rgba(107, 114, 128, 0.1)',
-                      color: '#374151',
-                      fontFamily: 'Montserrat, sans-serif'
-                    }}>
-                      {guide.duration}
-                    </span>
-                  )}
+                    {guide.description}
+                  </p>
                 </div>
               </div>
+
+              {/* Badges */}
+              <div style={{
+                display: 'flex',
+                gap: '8px',
+                flexWrap: 'wrap',
+                marginTop: 'auto'
+              }}>
+                <span style={{
+                  fontSize: '12px',
+                  padding: '4px 8px',
+                  borderRadius: '12px',
+                  background: 'rgba(99, 102, 241, 0.1)',
+                  color: '#4f46e5',
+                  fontFamily: 'Montserrat, sans-serif',
+                  textTransform: 'capitalize'
+                }}>
+                  {guide.category}
+                </span>
+                <span style={{
+                  fontSize: '12px',
+                  padding: '4px 8px',
+                  borderRadius: '12px',
+                  background: 'rgba(16, 185, 129, 0.1)',
+                  color: '#047857',
+                  fontFamily: 'Montserrat, sans-serif',
+                  textTransform: 'capitalize'
+                }}>
+                  {guide.difficulty}
+                </span>
+                {guide.duration && (
+                  <span style={{
+                    fontSize: '12px',
+                    padding: '4px 8px',
+                    borderRadius: '12px',
+                    background: 'rgba(107, 114, 128, 0.1)',
+                    color: '#374151',
+                    fontFamily: 'Montserrat, sans-serif',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}>
+                    <ClockRegular style={{ fontSize: '12px' }} />
+                    {guide.duration}
+                  </span>
+                )}
+              </div>
             </div>
-            <p style={{
-              fontSize: '14px',
-              color: '#64748b',
-              margin: 0,
-              lineHeight: '1.6',
-              fontFamily: 'Montserrat, sans-serif'
-            }}>
-              {guide.description}
-            </p>
-          </div>
-        ))}
-      </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Additional Resources */}
       <div style={{
-        background: 'rgba(255, 255, 255, 0.85)',
-        backdropFilter: 'blur(18px) saturate(180%)',
-        borderRadius: '20px',
-        padding: '32px',
-        border: '1px solid rgba(255, 255, 255, 0.2)',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+        ...DesignTokens.components.borderCard,
+        padding: DesignTokens.spacing.xxl,
+        marginTop: DesignTokens.spacing.xxl
       }}>
-        <h2 style={{
-          fontSize: '24px',
-          fontWeight: '600',
-          color: '#1f2937',
-          margin: '0 0 24px 0',
-          fontFamily: 'Montserrat, sans-serif'
+        <Title3 style={{
+          fontSize: DesignTokens.typography.xxl,
+          fontWeight: DesignTokens.typography.semibold,
+          color: DesignTokens.colors.textPrimary,
+          marginBottom: DesignTokens.spacing.xl,
+          fontFamily: DesignTokens.typography.fontFamily,
+          display: 'flex',
+          alignItems: 'center',
+          gap: DesignTokens.spacing.md
         }}>
-          📖 Additional Resources
-        </h2>
-        <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+          <BookRegular style={{ fontSize: '24px', color: DesignTokens.colors.primary }} />
+          Additional Resources
+        </Title3>
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+          gap: DesignTokens.spacing.lg 
+        }}>
           {[
-            { name: 'API Documentation', icon: '📋' },
-            { name: 'Video Library', icon: '🎥' },
-            { name: 'Community Forum', icon: '💬' },
-            { name: 'Release Notes', icon: '📝' }
+            { name: 'API Documentation', icon: <DocumentTextRegular />, color: DesignTokens.colorVariants.indigo.base },
+            { name: 'Video Library', icon: <PlayCircleRegular />, color: DesignTokens.colorVariants.emerald.base },
+            { name: 'Community Forum', icon: <BookOpenRegular />, color: DesignTokens.colorVariants.amber.base },
+            { name: 'Release Notes', icon: <DocumentRegular />, color: DesignTokens.colors.textSecondary }
           ].map((resource, index) => (
-            <button
+            <Button
               key={index}
+              appearance="outline"
               style={{
+                ...DesignTokens.components.button.secondary,
+                borderColor: `${resource.color}40`,
+                color: resource.color,
                 background: 'transparent',
-                color: '#6366f1',
-                border: '2px solid rgba(99, 102, 241, 0.3)',
-                padding: '12px 24px',
-                borderRadius: '8px',
-                fontSize: '14px',
-                fontWeight: '600',
-                fontFamily: 'Montserrat, sans-serif',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
+                height: '64px',
+                fontSize: DesignTokens.typography.sm,
+                fontWeight: DesignTokens.typography.medium,
+                fontFamily: DesignTokens.typography.fontFamily,
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px'
+                justifyContent: 'center',
+                gap: DesignTokens.spacing.sm
               }}
               onMouseOver={(e) => {
-                e.currentTarget.style.background = 'rgba(99, 102, 241, 0.1)';
+                e.currentTarget.style.background = `${resource.color}10`;
+                e.currentTarget.style.borderColor = resource.color;
                 e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = `0 4px 16px ${resource.color}20`;
               }}
               onMouseOut={(e) => {
                 e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.borderColor = `${resource.color}40`;
                 e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = 'none';
               }}
+              icon={resource.icon}
             >
-              <span>{resource.icon}</span>
               {resource.name}
-            </button>
+            </Button>
           ))}
         </div>
       </div>
-    </GlassmorphicLayout>
+    </div>
   );
 };
 

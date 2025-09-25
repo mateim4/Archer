@@ -5,6 +5,12 @@ import {
   Settings, Check, AlertCircle, Download, RefreshCw
 } from 'lucide-react';
 import {
+  DesktopRegular,
+  WrenchRegular,
+  FlashRegular,
+  SaveRegular
+} from '@fluentui/react-icons';
+import {
   EnhancedButton,
   EnhancedCard,
   LoadingSpinner,
@@ -193,7 +199,6 @@ const EmbeddedMigrationWizard: React.FC = () => {
                 border: '2px dashed var(--colorNeutralStroke2)',
                 borderRadius: '12px',
                 padding: '40px',
-                background: 'rgba(255, 255, 255, 0.5)',
                 marginBottom: '24px'
               }}>
                 <Upload size={48} style={{ 
@@ -229,9 +234,9 @@ const EmbeddedMigrationWizard: React.FC = () => {
                       fontSize: '14px'
                     }}>
                       <div>🏢 {rvtoolsData.clusterCount} Clusters</div>
-                      <div>🖥️ {rvtoolsData.vmCount} VMs</div>
-                      <div>🔧 {rvtoolsData.hostCount} Hosts</div>
-                      <div>⚡ {rvtoolsData.totalCPU} GHz Total CPU</div>
+                      <div><DesktopRegular style={{ marginRight: '4px' }} />{rvtoolsData.vmCount} VMs</div>
+                      <div><WrenchRegular style={{ marginRight: '4px' }} />{rvtoolsData.hostCount} Hosts</div>
+                      <div><FlashRegular style={{ marginRight: '4px' }} />{rvtoolsData.totalCPU} GHz Total CPU</div>
                     </div>
                   </div>
                 </div>
@@ -280,10 +285,10 @@ const EmbeddedMigrationWizard: React.FC = () => {
                         color: 'var(--colorNeutralForeground2)',
                         fontSize: '14px'
                       }}>
-                        <span>🖥️ {20 + index * 15} VMs</span>
-                        <span>🔧 {2 + index * 2} Hosts</span>
-                        <span>⚡ {120 + index * 80} GHz</span>
-                        <span>💾 {400 + index * 300} GB RAM</span>
+                        <span><DesktopRegular style={{ marginRight: '4px' }} />{20 + index * 15} VMs</span>
+                        <span><WrenchRegular style={{ marginRight: '4px' }} />{2 + index * 2} Hosts</span>
+                        <span><FlashRegular style={{ marginRight: '4px' }} />{120 + index * 80} GHz</span>
+                        <span><SaveRegular style={{ marginRight: '4px' }} />{400 + index * 300} GB RAM</span>
                       </div>
                     </div>
                     {migrationConfig.selectedClusters.includes(cluster) && (

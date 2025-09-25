@@ -22,7 +22,7 @@ import {
   DropResult,
 } from '@hello-pangea/dnd';
 import { standardCardStyle, standardButtonStyle, StandardDropdown, DESIGN_TOKENS } from '../DesignSystem';
-import { ReportSection, ReportTemplate } from './ReportFramework';
+import { ReportSection, ReportTemplate, DragDropSection } from './ReportFramework';
 
 // =============================================================================
 // REPORT CUSTOMIZER COMPONENT
@@ -35,9 +35,7 @@ interface ReportCustomizerProps {
   className?: string;
 }
 
-interface DragDropSection extends ReportSection {
-  dragId: string;
-}
+// Using DragDropSection from ReportFramework
 
 export const ReportCustomizer: React.FC<ReportCustomizerProps> = ({
   template,
@@ -45,12 +43,12 @@ export const ReportCustomizer: React.FC<ReportCustomizerProps> = ({
   onCancel,
   className = ""
 }) => {
-  const [editingTemplate, setEditingTemplate] = useState<ReportTemplate>({
+  const [editingTemplate, setEditingTemplate] = useState<ReportTemplate & { sections: DragDropSection[] }>({
     ...template,
     sections: template.sections.map((section, index) => ({
       ...section,
       dragId: `section-${index}`,
-    } as DragDropSection))
+    })) as DragDropSection[]
   });
   
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
@@ -61,12 +59,12 @@ export const ReportCustomizer: React.FC<ReportCustomizerProps> = ({
   const onDragEnd = useCallback((result: DropResult) => {
     if (!result.destination) return;
 
-    const items = Array.from(editingTemplate.sections);
+  const items: DragDropSection[] = Array.from(editingTemplate.sections);
     const [reorderedItem] = items.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, reorderedItem);
 
     // Update order values
-    const reorderedSections = items.map((section, index) => ({
+  const reorderedSections: DragDropSection[] = items.map((section, index) => ({
       ...section,
       order: index + 1,
     }));
@@ -93,9 +91,9 @@ export const ReportCustomizer: React.FC<ReportCustomizerProps> = ({
       ...prev,
       sections: prev.sections.map(section =>
         section.id === sectionId
-          ? { ...section, ...updates }
+          ? ({ ...section, ...updates } as DragDropSection)
           : section
-      )
+      ) as DragDropSection[]
     }));
     setIsDirty(true);
   };
@@ -104,7 +102,7 @@ export const ReportCustomizer: React.FC<ReportCustomizerProps> = ({
   const removeSection = (sectionId: string) => {
     setEditingTemplate(prev => ({
       ...prev,
-      sections: prev.sections.filter(section => section.id !== sectionId)
+      sections: prev.sections.filter(section => section.id !== sectionId) as DragDropSection[]
     }));
     setIsDirty(true);
     if (selectedSectionId === sectionId) {
@@ -170,14 +168,14 @@ export const ReportCustomizer: React.FC<ReportCustomizerProps> = ({
     if (validateTemplate()) {
       const cleanedTemplate: ReportTemplate = {
         ...editingTemplate,
-        sections: editingTemplate.sections.map(({ dragId, ...section }) => section)
+        sections: (editingTemplate.sections as DragDropSection[]).map(({ dragId, ...section }) => ({ ...section }))
       };
       onSave(cleanedTemplate);
     }
   };
 
   const getSelectedSection = (): DragDropSection | null => {
-    return editingTemplate.sections.find(s => s.id === selectedSectionId) || null;
+    return (editingTemplate.sections.find(s => s.id === selectedSectionId) as DragDropSection) || null;
   };
 
   const getDisplayFormatOptions = () => [
@@ -306,7 +304,7 @@ export const ReportCustomizer: React.FC<ReportCustomizerProps> = ({
                   ref={provided.innerRef}
                   style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}
                 >
-                  {editingTemplate.sections.map((section, index) => (
+                  {(editingTemplate.sections as DragDropSection[]).map((section, index) => (
                     <Draggable
                       key={section.dragId}
                       draggableId={section.dragId}

@@ -18,7 +18,7 @@ interface Activity {
   id: string;
   name: string;
   type: 'migration' | 'lifecycle' | 'decommission' | 'hardware_customization' | 'commissioning' | 'custom';
-  status: 'pending' | 'in_progress' | 'completed' | 'blocked';
+  status: 'pending' | 'pending_assignment' | 'in_progress' | 'completed' | 'blocked' | 'delayed' | 'canceled';
   start_date: Date;
   end_date: Date;
   assignee: string;
@@ -42,26 +42,35 @@ const useGanttStyles = makeStyles({
     overflowX: 'auto',
     overflowY: 'hidden',
     position: 'relative',
-    backgroundColor: tokens.colorNeutralBackground1,
-    border: `1px solid ${tokens.colorNeutralStroke2}`,
-    borderRadius: tokens.borderRadiusMedium
+    background: 'rgba(255, 255, 255, 0.7)',
+    backdropFilter: 'blur(12px) saturate(150%)',
+    border: '1px solid rgba(139, 92, 246, 0.1)',
+    borderRadius: '8px',
+    boxShadow: 'none',
+    fontFamily: "'Poppins', system-ui, sans-serif",
+    outline: '1px solid rgba(255, 255, 255, 0.3)',
+    outlineOffset: '-1px',
   },
 
   timelineHeader: {
     display: 'flex',
     alignItems: 'center',
     padding: tokens.spacingVerticalM,
-    borderBottom: `1px solid ${tokens.colorNeutralStroke2}`,
-    backgroundColor: tokens.colorNeutralBackground2,
+    borderBottom: '1px solid rgba(139, 92, 246, 0.15)',
+    background: 'rgba(255, 255, 255, 0.8)',
+    backdropFilter: 'blur(8px)',
     position: 'sticky',
     top: 0,
-    zIndex: 2
+    zIndex: 2,
+    borderTopLeftRadius: '8px',
+    borderTopRightRadius: '8px',
+    fontFamily: "'Poppins', system-ui, sans-serif",
   },
 
   timelineGrid: {
     position: 'relative',
     minWidth: '1000px',
-    height: '300px',
+    height: '400px',
     padding: tokens.spacingVerticalL
   },
 
@@ -69,65 +78,108 @@ const useGanttStyles = makeStyles({
     position: 'absolute',
     top: 0,
     height: '30px',
-    backgroundColor: tokens.colorNeutralBackground3,
-    border: `1px solid ${tokens.colorNeutralStroke2}`,
+    background: 'rgba(255, 255, 255, 0.7)',
+    backdropFilter: 'blur(8px) saturate(150%)',
+    border: '1px solid rgba(139, 92, 246, 0.2)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     fontSize: tokens.fontSizeBase200,
     fontWeight: tokens.fontWeightSemibold,
-    color: tokens.colorNeutralForeground2
+    fontFamily: "'Poppins', system-ui, sans-serif",
+    color: '#4a5568',
+    borderRadius: '4px',
+    margin: '2px',
+    outline: '1px solid rgba(255, 255, 255, 0.3)',
+    outlineOffset: '-1px',
   },
 
   activityRow: {
     position: 'relative',
-    height: '40px',
-    marginBottom: tokens.spacingVerticalS,
-    backgroundColor: tokens.colorNeutralBackground1,
+    height: '65px',
+    marginBottom: tokens.spacingVerticalM,
+    backgroundColor: 'transparent',
     borderRadius: tokens.borderRadiusSmall
   },
 
   activityBar: {
     position: 'absolute',
-    height: '30px',
+    height: '52px',
     top: '5px',
-    borderRadius: tokens.borderRadiusSmall,
+    borderRadius: '8px',
     display: 'flex',
     alignItems: 'center',
-    padding: `0 ${tokens.spacingHorizontalS}`,
-    fontSize: tokens.fontSizeBase200,
-    fontWeight: tokens.fontWeightMedium,
+    justifyContent: 'center',
+    padding: `0 ${tokens.spacingHorizontalM}`,
+    fontSize: '14px',
+    fontWeight: '700',
+    fontFamily: "'Poppins', system-ui, sans-serif",
     color: tokens.colorNeutralForegroundOnBrand,
     cursor: 'pointer',
     transition: 'all 0.2s ease',
-    boxShadow: tokens.shadow2,
-    maxWidth: '250px', // FIX: Constrain activity bar width
-    minWidth: '80px',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15), 0 2px 6px rgba(0, 0, 0, 0.1)',
+    maxWidth: '500px',
+    minWidth: '180px',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
+    textAlign: 'center',
+    outline: '1px solid rgba(255, 255, 255, 0.4)',
+    outlineOffset: '-1px',
 
     ':hover': {
-      boxShadow: tokens.shadow4,
-      transform: 'translateY(-1px)'
+      boxShadow: '0 6px 16px rgba(0, 0, 0, 0.2), 0 4px 8px rgba(0, 0, 0, 0.15)',
+      transform: 'translateY(-2px)',
+      outline: '1px solid rgba(255, 255, 255, 0.6)',
     }
   },
 
   activityCompleted: {
-    backgroundColor: tokens.colorPaletteGreenBackground3,
+    background: 'rgba(97, 255, 181, 0.8)',
+    backdropFilter: 'blur(12px) saturate(180%)',
+    color: '#1E1E1E',
+    border: '1px solid rgba(97, 255, 181, 0.4)',
+    fontWeight: '600',
   },
 
   activityInProgress: {
-    backgroundColor: tokens.colorPaletteDarkOrangeBackground3,
+    background: 'rgba(255, 97, 171, 0.8)',
+    backdropFilter: 'blur(12px) saturate(180%)',
+    color: '#1E1E1E',
+    border: '1px solid rgba(255, 97, 171, 0.4)',
+    fontWeight: '600',
   },
 
   activityPending: {
-    backgroundColor: tokens.colorNeutralBackground4,
-    color: tokens.colorNeutralForeground1
+    background: 'rgba(255, 234, 98, 0.8)',
+    backdropFilter: 'blur(12px) saturate(180%)',
+    color: '#1E1E1E',
+    border: '1px solid rgba(255, 234, 98, 0.4)',
+    fontWeight: '600',
   },
 
   activityBlocked: {
-    backgroundColor: tokens.colorPaletteRedBackground3,
+    background: 'rgba(255, 97, 118, 0.8)',
+    backdropFilter: 'blur(12px) saturate(180%)',
+    color: '#1E1E1E',
+    border: '1px solid rgba(255, 97, 118, 0.4)',
+    fontWeight: '600',
+  },
+
+  activityDelayed: {
+    background: 'rgba(255, 181, 97, 0.8)',
+    backdropFilter: 'blur(12px) saturate(180%)',
+    color: '#1E1E1E',
+    border: '1px solid rgba(255, 181, 97, 0.4)',
+    fontWeight: '600',
+  },
+
+  activityCanceled: {
+    background: 'rgba(223, 255, 97, 0.8)',
+    backdropFilter: 'blur(12px) saturate(180%)',
+    color: '#1E1E1E',
+    border: '1px solid rgba(223, 255, 97, 0.4)',
+    fontWeight: '600',
   },
 
   activityList: {
@@ -135,20 +187,34 @@ const useGanttStyles = makeStyles({
     left: 0,
     top: '40px',
     width: '250px',
-    backgroundColor: tokens.colorNeutralBackground2,
-    borderRight: `1px solid ${tokens.colorNeutralStroke2}`,
-    padding: tokens.spacingVerticalS
+    background: 'rgba(255, 255, 255, 0.6)',
+    backdropFilter: 'blur(8px) saturate(120%)',
+    borderRight: '1px solid rgba(139, 92, 246, 0.2)',
+    padding: tokens.spacingVerticalS,
+    borderBottomLeftRadius: '8px',
+    fontFamily: "'Poppins', system-ui, sans-serif",
   },
 
   activityItem: {
     padding: tokens.spacingVerticalS,
     marginBottom: tokens.spacingVerticalXS,
-    backgroundColor: tokens.colorNeutralBackground1,
-    borderRadius: tokens.borderRadiusSmall,
-    border: `1px solid ${tokens.colorNeutralStroke2}`,
+    background: 'rgba(255, 255, 255, 0.7)',
+    backdropFilter: 'blur(6px) saturate(150%)',
+    borderRadius: '6px',
+    border: '1px solid rgba(139, 92, 246, 0.15)',
     display: 'flex',
     justifyContent: 'space-between',
-    alignItems: 'center'
+    alignItems: 'center',
+    transition: 'all 0.2s ease',
+    fontFamily: "'Poppins', system-ui, sans-serif",
+    outline: '1px solid rgba(255, 255, 255, 0.2)',
+    outlineOffset: '-1px',
+    ':hover': {
+      background: 'rgba(255, 255, 255, 0.9)',
+      border: '1px solid rgba(139, 92, 246, 0.25)',
+      transform: 'translateX(2px)',
+      outline: '1px solid rgba(255, 255, 255, 0.4)',
+    }
   },
 
   timelineContent: {
@@ -197,15 +263,15 @@ const GanttChart: React.FC<GanttChartProps> = ({
       const leftPercent = ((activityStart - timelineStart) / totalDuration) * 100;
       const widthPercent = ((activityEnd - activityStart) / totalDuration) * 100;
       
-      // Constrain values to reasonable bounds
-      const safeLeft = Math.max(0, Math.min(85, leftPercent));
-      const safeWidth = Math.max(10, Math.min(50, widthPercent));
+      // Constrain values to reasonable bounds with wider bars
+      const safeLeft = Math.max(0, Math.min(75, leftPercent));
+      const safeWidth = Math.max(15, Math.min(70, widthPercent * 1.75));
       
       return {
         ...activity,
         leftPercent: safeLeft,
         widthPercent: safeWidth,
-        topPosition: 40 + (index * 45) // Fixed vertical spacing
+        topPosition: 40 + (index * 75) // Fixed vertical spacing for rectangular elements
       };
     });
 
@@ -217,6 +283,8 @@ const GanttChart: React.FC<GanttChartProps> = ({
       case 'completed': return styles.activityCompleted;
       case 'in_progress': return styles.activityInProgress; 
       case 'blocked': return styles.activityBlocked;
+  case 'delayed': return styles.activityDelayed;
+  case 'canceled': return styles.activityCanceled;
       default: return styles.activityPending;
     }
   };
@@ -248,11 +316,23 @@ const GanttChart: React.FC<GanttChartProps> = ({
                 <Badge 
                   size="small"
                   appearance="outline"
-                  color={
-                    activity.status === 'completed' ? 'success' :
-                    activity.status === 'in_progress' ? 'warning' :
-                    activity.status === 'blocked' ? 'danger' : 'informative'
-                  }
+                  style={{
+                    background: activity.status === 'completed' ? 'rgba(97, 255, 181, 0.3)' :
+                      activity.status === 'in_progress' ? 'rgba(255, 97, 171, 0.3)' :
+                      activity.status === 'blocked' ? 'rgba(255, 97, 118, 0.3)' :
+                      activity.status === 'delayed' ? 'rgba(255, 181, 97, 0.3)' :
+                      activity.status === 'canceled' ? 'rgba(223, 255, 97, 0.3)' :
+                      'rgba(255, 234, 98, 0.3)',
+                    color: '#1E1E1E',
+                    border: `1px solid ${activity.status === 'completed' ? 'rgba(97, 255, 181, 0.5)' :
+                      activity.status === 'in_progress' ? 'rgba(255, 97, 171, 0.5)' :
+                      activity.status === 'blocked' ? 'rgba(255, 97, 118, 0.5)' :
+                      activity.status === 'delayed' ? 'rgba(255, 181, 97, 0.5)' :
+                      activity.status === 'canceled' ? 'rgba(223, 255, 97, 0.5)' :
+                      'rgba(255, 234, 98, 0.5)'}`,
+                    fontWeight: '500',
+                    backdropFilter: 'blur(4px)',
+                  }}
                 >
                   {activity.status.replace('_', ' ')}
                 </Badge>
@@ -302,24 +382,18 @@ const GanttChart: React.FC<GanttChartProps> = ({
                 width: `${activity.widthPercent}%`,
                 top: `${activity.topPosition}px`
               }}
-              title={`${activity.name} (${activity.progress}% complete)`}
+              title={`${activity.name} - ${activity.status.replace('_', ' ')}`}
             >
               <span style={{ 
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
                 whiteSpace: 'nowrap',
-                flex: 1
+                width: '100%',
+                textAlign: 'center',
+                display: 'block'
               }}>
                 {activity.name}
               </span>
-              {activity.progress > 0 && (
-                <span style={{ 
-                  marginLeft: tokens.spacingHorizontalXS,
-                  fontSize: tokens.fontSizeBase100
-                }}>
-                  {activity.progress}%
-                </span>
-              )}
             </div>
           ))}
         </div>

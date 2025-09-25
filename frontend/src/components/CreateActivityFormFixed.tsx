@@ -18,7 +18,7 @@ import { ErrorCircleRegular } from '@fluentui/react-icons';
 interface Activity {
   id: string;
   name: string;
-  type: 'migration' | 'lifecycle' | 'decommission' | 'hardware_customization' | 'commissioning' | 'custom';
+  type: 'migration' | 'lifecycle' | 'decommission' | 'hardware_customization' | 'commissioning' | 'hardware_refresh' | 'custom';
   status: 'pending' | 'in_progress' | 'completed' | 'blocked';
   start_date: Date;
   end_date: Date;
@@ -237,6 +237,7 @@ export const CreateActivityForm: React.FC<CreateActivityFormProps> = ({
               <Option text="Lifecycle Planning" value="lifecycle">Lifecycle Planning</Option>
               <Option text="Decommissioning" value="decommission">Decommissioning</Option>
               <Option text="Hardware Customization" value="hardware_customization">Hardware Customization</Option>
+              <Option text="Hardware Refresh" value="hardware_refresh">Hardware Refresh</Option>
               <Option text="Commissioning" value="commissioning">Commissioning</Option>
               <Option text="Custom" value="custom">Custom</Option>
             </Dropdown>

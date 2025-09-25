@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Plus, FileText, Edit3, Trash2, Save, X, Download, Upload } from 'lucide-react';
 import { apiClient, DesignDocument, CreateDesignDocRequest } from '../utils/apiClient';
 import { useAppStore } from '../store/useAppStore';
-import GlassmorphicLayout from '../components/GlassmorphicLayout';
 
 interface DocFormData {
   name: string;
@@ -152,7 +151,7 @@ const DesignDocsView: React.FC = () => {
   }
 
   return (
-    <GlassmorphicLayout>
+    <div>
       <div className="fluent-page-container">
         <div className="lcm-card">
           <div className="fluent-page-header">
@@ -314,7 +313,7 @@ const DesignDocsView: React.FC = () => {
         )}
       </div>
       </div>
-    </GlassmorphicLayout>
+    </div>
   );
 };
 

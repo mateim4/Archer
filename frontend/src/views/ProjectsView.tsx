@@ -12,7 +12,6 @@ import {
   CardHeader,
   CardPreview,
   Input,
-  SearchBox,
   Textarea,
   Dialog,
   DialogTrigger,
@@ -41,22 +40,27 @@ import {
   AddRegular,
   SearchRegular,
   FolderRegular,
+  FolderFilled,
   CalendarRegular,
   PersonRegular,
   GridDotsRegular,
   ListRegular,
   FilterRegular,
   MoreHorizontalRegular,
+  MoreVerticalRegular,
   EditRegular,
   DeleteRegular,
   ShareRegular,
   RocketRegular,
   DocumentRegular,
-  ChevronRightRegular
+  ChevronRightRegular,
+  CheckmarkCircleRegular,
+  PeopleRegular
 } from '@fluentui/react-icons';
 import { apiClient, Project, CreateProjectRequest } from '../utils/apiClient';
-import GlassmorphicLayout from '../components/GlassmorphicLayout';
+import { DESIGN_TOKENS } from '../components/DesignSystem';
 import { DesignTokens, getStatusColor, getPriorityColor } from '../styles/designSystem';
+import GlassmorphicSearchBar from '../components/GlassmorphicSearchBar';
 
 const useStyles = makeStyles({
   header: {
@@ -71,17 +75,16 @@ const useStyles = makeStyles({
   headerTitle: {
     fontSize: DesignTokens.typography.xxxl,
     fontWeight: DesignTokens.typography.semibold,
-    color: DesignTokens.colors.primary,
+    color: '#8b5cf6',
     margin: '0',
-    fontFamily: DesignTokens.typography.fontFamily
+    fontFamily: DesignTokens.typography.fontFamily,
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px'
   },
   
   primaryButton: {
     ...DesignTokens.components.button.primary,
-    '&:hover': {
-      transform: 'translateY(-2px)',
-      boxShadow: '0 6px 16px rgba(99, 102, 241, 0.4)',
-    }
   },
   
   toolbar: {
@@ -111,30 +114,31 @@ const useStyles = makeStyles({
   viewModeButton: {
     ...DesignTokens.components.button.secondary,
     minWidth: '100px',
-    '&:hover': {
-      backgroundColor: `${DesignTokens.colors.primary}10`,
-    }
   },
   
   projectGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(420px, 1fr))',
-    gap: DesignTokens.spacing.xxl
+    gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
+    gridAutoRows: '1fr',
+    gap: DesignTokens.spacing.xxl,
+    alignItems: 'stretch',
+    justifyItems: 'stretch',
+    overflow: 'visible',
+    position: 'relative',
+    zIndex: 1
   },
   
   projectCard: {
-    ...DesignTokens.components.card,
     cursor: 'pointer',
     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
     position: 'relative',
-    overflow: 'hidden',
+    padding: DesignTokens.spacing.lg,
+    border: `1px solid ${DesignTokens.colors.border}`,
+    borderRadius: '8px',
     
     '&:hover': {
-      transform: 'translateY(-4px)',
-      boxShadow: DesignTokens.shadows.xl,
-      '&::before': {
-        opacity: 1,
-      }
+      borderColor: DesignTokens.colors.primary,
+      boxShadow: `0 0 0 1px ${DesignTokens.colors.primary}`,
     },
     
     '&::before': {
@@ -207,7 +211,7 @@ const useStyles = makeStyles({
   },
   
   emptyState: {
-    textAlign: 'center',
+    textAlign: 'center' as const,
     ...DesignTokens.components.card,
     padding: `${DesignTokens.spacing.xxxl} ${DesignTokens.spacing.xxl}`,
     marginTop: DesignTokens.spacing.xl,
@@ -215,7 +219,7 @@ const useStyles = makeStyles({
   
   emptyStateIcon: {
     fontSize: '80px',
-    color: DesignTokens.colors.gray400,
+    color: DesignTokens.colors.primaryLight,
     marginBottom: DesignTokens.spacing.xl,
   },
   
@@ -248,18 +252,14 @@ const useStyles = makeStyles({
   },
   
   statCard: {
-    textAlign: 'center',
+    textAlign: 'center' as const,
     padding: DesignTokens.spacing.lg,
     borderRadius: DesignTokens.borderRadius.lg,
-    background: 'rgba(255, 255, 255, 0.6)',
-    backdropFilter: 'blur(10px)',
-    border: `1px solid ${DesignTokens.colors.gray200}`,
+    background: 'rgba(255, 255, 255, 0.7)',
+    backdropFilter: 'blur(25px) saturate(135%)',
+    border: '1px solid rgba(255, 255, 255, 0.3)',
     transition: 'all 0.2s ease',
     
-    '&:hover': {
-      transform: 'translateY(-2px)',
-      boxShadow: DesignTokens.shadows.md,
-    }
   },
   
   statNumber: {
@@ -313,9 +313,6 @@ const useStyles = makeStyles({
     padding: '0',
     borderRadius: DesignTokens.borderRadius.md,
     
-    '&:hover': {
-      backgroundColor: `${DesignTokens.colors.gray300}`,
-    }
   },
   
   listView: {
@@ -349,10 +346,6 @@ const useStyles = makeStyles({
     transition: 'all 0.2s ease-in-out',
     alignItems: 'center',
     
-    '&:hover': {
-      backgroundColor: DesignTokens.colors.surfaceHover,
-      transform: 'translateX(4px)',
-    }
   },
   
   listRowName: {
@@ -390,6 +383,7 @@ export default function ProjectsView() {
   const [sortBy, setSortBy] = useState<'name' | 'updated_at' | 'created_at'>('updated_at');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [newProject, setNewProject] = useState({
     name: '',
     description: '',
@@ -525,6 +519,52 @@ export default function ProjectsView() {
     navigate(`/app/projects/${id}`);
   };
 
+  // Project menu actions
+  const handleMenuToggle = (projectId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setOpenMenuId(openMenuId === projectId ? null : projectId);
+  };
+
+  const handleDeleteProject = async (projectId: string) => {
+    if (window.confirm('Are you sure you want to delete this project? This action cannot be undone.')) {
+      try {
+        // Add your delete API call here
+        // await apiClient.deleteProject(projectId);
+        setProjects(projects.filter(p => extractProjectId(p.id) !== projectId));
+        setOpenMenuId(null);
+        console.log(`Deleting project: ${projectId}`);
+      } catch (error) {
+        console.error('Failed to delete project:', error);
+        setError('Failed to delete project');
+      }
+    }
+  };
+
+  const handleMarkComplete = async (projectId: string) => {
+    try {
+      // Add your API call here to mark project as complete
+      // await apiClient.updateProject(projectId, { status: 'completed' });
+      console.log(`Marking project as complete: ${projectId}`);
+      setOpenMenuId(null);
+    } catch (error) {
+      console.error('Failed to mark project as complete:', error);
+      setError('Failed to update project status');
+    }
+  };
+
+  const handleEditUsers = (projectId: string) => {
+    // Navigate to user management page or open modal
+    console.log(`Editing users for project: ${projectId}`);
+    setOpenMenuId(null);
+    // You could navigate to a user management page or open a modal
+    // navigate(`/app/projects/${projectId}/users`);
+  };
+
+  // Close menu when clicking outside
+  const handleClickOutside = () => {
+    setOpenMenuId(null);
+  };
+
   // Filtering and sorting
   const filteredAndSortedProjects = projects
     .filter(project => 
@@ -548,32 +588,58 @@ export default function ProjectsView() {
     fetchProjects();
   }, []);
 
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutsideMenu = (event: MouseEvent) => {
+      if (openMenuId && !(event.target as Element).closest('.project-menu')) {
+        setOpenMenuId(null);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutsideMenu);
+    return () => document.removeEventListener('click', handleClickOutsideMenu);
+  }, [openMenuId]);
+
   if (loading) {
     return (
-      <GlassmorphicLayout>
+      <div style={DesignTokens.components.pageContainer}>
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
           <Spinner size="large" label="Loading projects..." />
         </div>
-      </GlassmorphicLayout>
+      </div>
     );
   }
 
   return (
-    <GlassmorphicLayout>
+    <div style={{...DesignTokens.components.pageContainer, overflow: 'visible'}}>
       {/* Header */}
       <div className={styles.header}>
         <h1 className={styles.headerTitle}>
+          <FolderRegular style={{ fontSize: '32px', color: '#000000' }} />
           Projects
         </h1>
         <Button
           appearance="primary"
           style={{
             ...DesignTokens.components.button.primary,
-            borderRadius: DesignTokens.borderRadius.md
+            borderRadius: DesignTokens.borderRadius.md,
+            transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
           }}
           icon={<AddRegular />}
           onClick={() => setShowCreateDialog(true)}
           size="large"
+          onMouseEnter={(e) => {
+            const target = e.currentTarget as HTMLElement;
+            target.style.transform = 'translateY(-3px) scale(1.05)';
+            target.style.background = 'linear-gradient(135deg, #7c3aed 0%, #9333ea 100%)';
+            target.style.boxShadow = '0 12px 24px rgba(99, 102, 241, 0.4), 0 6px 16px rgba(0, 0, 0, 0.2)';
+          }}
+          onMouseLeave={(e) => {
+            const target = e.currentTarget as HTMLElement;
+            target.style.transform = 'translateY(0) scale(1)';
+            target.style.background = 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)';
+            target.style.boxShadow = '0 2px 8px rgba(99, 102, 241, 0.25)';
+          }}
         >
           Add New Project
         </Button>
@@ -581,309 +647,446 @@ export default function ProjectsView() {
 
       {/* Error Message */}
       {error && (
-        <MessageBar intent="error" style={{ marginBottom: '24px' }}>
+        <MessageBar intent="error" style={{ marginBottom: '16px' }}>
           <MessageBarBody>
             <MessageBarTitle>Error</MessageBarTitle>
             {error}
           </MessageBarBody>
         </MessageBar>
       )}
-        {/* Toolbar */}
-        <div className={styles.toolbar}>
-          <div className={styles.toolbarContent}>
-            <div className={styles.searchContainer}>
-              <SearchBox
-                placeholder="Search projects..."
-                value={searchTerm}
-                onChange={(_, data) => setSearchTerm(data.value)}
-                size="large"
-              />
-            </div>
-            
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <Button
-                appearance="subtle"
-                icon={viewMode === 'grid' ? <ListRegular /> : <GridDotsRegular />}
-                onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
-                size="medium"
-              >
-                {viewMode === 'grid' ? 'List' : 'Grid'}
-              </Button>
-            </div>
+
+      {/* Search Bar and Toolbar with Statistics */}
+      <div style={{ 
+        marginBottom: '24px',
+        display: 'flex', 
+        alignItems: 'center', 
+        gap: '24px',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between'
+      }}>
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: '16px',
+          flex: 1,
+          minWidth: '300px'
+        }}>
+          <div style={{ flex: 1, maxWidth: '440px' }}>
+            <GlassmorphicSearchBar
+              value={searchTerm}
+              onChange={(value) => setSearchTerm(value)}
+              placeholder="Search projects..."
+              width="100%"
+            />
           </div>
+          
         </div>
 
-        {/* Content */}
-        <div>
+        {/* Summary Statistics - Inline */}
+        {projects.length > 0 && (
+          <div style={{
+            display: 'flex',
+            gap: '32px',
+            alignItems: 'center'
+          }}>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{
+                fontSize: DesignTokens.typography.xxl,
+                fontWeight: DesignTokens.typography.bold,
+                color: DesignTokens.customPalette.statisticsColors.primary,
+                fontFamily: DesignTokens.typography.fontFamily,
+                margin: 0,
+                lineHeight: '1'
+              }}>
+                {projects.filter(p => p.name).length}
+              </div>
+              <div style={{
+                fontSize: DesignTokens.typography.xs,
+                color: DesignTokens.colors.textPrimary,
+                fontWeight: DesignTokens.typography.medium,
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+                marginTop: '4px',
+                whiteSpace: 'nowrap'
+              }}>
+                Active Projects
+              </div>
+            </div>
+            
+            <div style={{ textAlign: 'center' }}>
+              <div style={{
+                fontSize: DesignTokens.typography.xxl,
+                fontWeight: DesignTokens.typography.bold,
+                color: DesignTokens.customPalette.statisticsColors.secondary,
+                fontFamily: DesignTokens.typography.fontFamily,
+                margin: 0,
+                lineHeight: '1'
+              }}>
+                {projects.length}
+              </div>
+              <div style={{
+                fontSize: DesignTokens.typography.xs,
+                color: DesignTokens.colors.textPrimary,
+                fontWeight: DesignTokens.typography.medium,
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+                marginTop: '4px',
+                whiteSpace: 'nowrap'
+              }}>
+                Total Projects
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Content */}
+      <div style={{ marginBottom: '80px', overflow: 'visible' }}>
           {filteredAndSortedProjects.length === 0 ? (
-            <div className={styles.emptyState}>
-              <div className={styles.emptyStateIcon}>
+            <Card style={{
+              ...DesignTokens.components.standardCard,
+              textAlign: 'center' as const,
+              padding: DesignTokens.spacing.xxxl,
+              cursor: 'default'
+            }}>
+              <div style={{
+                fontSize: '80px',
+                color: DesignTokens.colors.primaryLight,
+                marginBottom: DesignTokens.spacing.xl
+              }}>
                 <RocketRegular />
               </div>
-              <Title3 className={styles.emptyStateTitle}>
+              <Title3 style={{
+                fontSize: DesignTokens.typography.xxl,
+                fontWeight: DesignTokens.typography.semibold,
+                color: DesignTokens.colors.textPrimary,
+                marginBottom: DesignTokens.spacing.md,
+                fontFamily: DesignTokens.typography.fontFamily,
+              }}>
                 {projects.length === 0 ? 'No projects yet' : 'No projects match your search'}
               </Title3>
-              <Body2 className={styles.emptyStateDescription}>
+              <Body2 style={{
+                fontSize: DesignTokens.typography.base,
+                color: DesignTokens.colors.textSecondary,
+                marginBottom: DesignTokens.spacing.xxl,
+                maxWidth: '500px',
+                marginLeft: 'auto',
+                marginRight: 'auto',
+                lineHeight: '1.6'
+              }}>
                 {projects.length === 0
                   ? 'Create your first project to start organizing your infrastructure deployments, configurations, and automation workflows.'
                   : 'Try adjusting your search terms or create a new project.'
                 }
               </Body2>
               {projects.length === 0 && (
-                <div style={{ 
-                  display: 'flex', 
-                  justifyContent: 'center', 
-                  alignItems: 'center',
-                  marginTop: DesignTokens.spacing.xxl
-                }}>
-                  <Button
-                    appearance="primary"
-                    style={{
-                      ...DesignTokens.components.button.primary,
-                      borderRadius: DesignTokens.borderRadius.md
-                    }}
-                    icon={<AddRegular />}
-                    onClick={() => setShowCreateDialog(true)}
-                  >
-                    Create your first project
-                  </Button>
-                </div>
+                <Button
+                  appearance="primary"
+                  style={{
+                    ...DesignTokens.components.button.primary,
+                    borderRadius: DesignTokens.borderRadius.md
+                  }}
+                  icon={<AddRegular />}
+                  onClick={() => setShowCreateDialog(true)}
+                >
+                  Create your first project
+                </Button>
               )}
-            </div>
-          ) : viewMode === 'grid' ? (
-            <div className={styles.projectGrid}>
+            </Card>
+          ) : (
+            <div className={styles.projectGrid} style={{ overflow: 'visible' }}>
               {filteredAndSortedProjects.map((project) => (
                 <Card 
                   key={project.id} 
-                  className={styles.projectCard}
+                  style={{
+                    ...DesignTokens.components.standardCard,
+                    overflow: 'visible',
+                    position: 'relative',
+                    zIndex: 2
+                  }}
                   onClick={() => handleProjectClick(project.id)}
+                  onMouseEnter={(e) => {
+                    const target = e.currentTarget as HTMLElement;
+                    Object.assign(target.style, DesignTokens.components.standardCardHover);
+                  }}
+                  onMouseLeave={(e) => {
+                    const target = e.currentTarget as HTMLElement;
+                    target.style.transform = 'translateY(0) scale(1)';
+                    Object.assign(target.style, DesignTokens.components.standardCard);
+                  }}
                 >
-                  {/* Card Header */}
                   <div style={{
-                    padding: DesignTokens.spacing.xl,
-                    display: 'flex',
-                    alignItems: 'flex-start',
-                    gap: DesignTokens.spacing.lg
-                  }}>
-                    <Avatar
-                      shape="square"
-                      style={{ 
-                        backgroundColor: DesignTokens.colorVariants.indigo.alpha20,
-                        color: DesignTokens.colorVariants.indigo.base
-                      }}
-                      icon={<FolderRegular />}
-                      size={48}
-                    />
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={DesignTokens.components.cardTitle}>
-                        {project.name}
-                      </div>
-                      <div style={{
-                        ...DesignTokens.components.cardDescription,
-                        display: '-webkit-box',
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: 'vertical',
-                        overflow: 'hidden'
-                      }}>
-                        {project.description || 'No description provided'}
-                      </div>
-                    </div>
-                    <Button
-                      appearance="subtle"
-                      icon={<MoreHorizontalRegular />}
-                      size="small"
-                      style={{
-                        minWidth: '32px',
-                        height: '32px',
-                        flexShrink: 0,
-                        borderRadius: DesignTokens.borderRadius.sm
-                      }}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        // Handle menu actions
-                      }}
-                    />
-                  </div>
-
-                  {/* Card Content */}
-                  <div style={{
-                    padding: `0 ${DesignTokens.spacing.xl} ${DesignTokens.spacing.xl} ${DesignTokens.spacing.xl}`,
+                    position: 'relative',
+                    padding: DesignTokens.spacing.md,
                     display: 'flex',
                     flexDirection: 'column',
-                    gap: DesignTokens.spacing.lg
+                    height: '100%',
+                    overflow: 'visible'
                   }}>
-                    {/* Status and Last Updated */}
-                    <div style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center'
-                    }}>
-                      <Badge 
-                        appearance="outline" 
-                        color="success"
-                        size="small"
-                      >
-                        Active
-                      </Badge>
-                      <div style={DesignTokens.components.metaText}>
-                        {getRelativeTime(project.updated_at)}
-                      </div>
+                    {/* Three dots button with dropdown menu */}
+                    <div 
+                      className="project-menu"
+                      style={{ 
+                        position: 'absolute', 
+                        top: DesignTokens.spacing.sm, 
+                        right: DesignTokens.spacing.sm,
+                        zIndex: 1000
+                      }}
+                    >
+                      <Button
+                        appearance="subtle"
+                        icon={<MoreVerticalRegular />}
+                        size="large"
+                        style={{
+                          minWidth: '52px',
+                          height: '52px',
+                          padding: '0',
+                          background: 'transparent',
+                          border: 'none',
+                          borderRadius: '12px',
+                          color: '#0f172a',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '48px'
+                        }}
+                        onClick={(e) => handleMenuToggle(extractProjectId(project.id), e)}
+                      />
+
+                      {/* Dropdown Menu */}
+                      {openMenuId === extractProjectId(project.id) && (
+                        <div style={{
+                          position: 'absolute',
+                          top: '100%',
+                          right: '0',
+                          zIndex: 10000,
+                          background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.90))',
+                          backdropFilter: 'blur(60px) saturate(220%) brightness(145%) contrast(105%)',
+                          WebkitBackdropFilter: 'blur(60px) saturate(220%) brightness(145%) contrast(105%)',
+                          borderRadius: '12px',
+                          border: '1px solid rgba(255, 255, 255, 0.4)',
+                          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12), inset 0 0 20px rgba(255, 255, 255, 0.15)',
+                          padding: '8px',
+                          minWidth: '180px',
+                          marginTop: '4px'
+                        }}>
+                          <div
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '12px',
+                              padding: '12px 16px',
+                              borderRadius: '8px',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s ease',
+                              fontFamily: DesignTokens.typography.fontFamily,
+                              fontSize: '14px',
+                              color: '#0f172a',
+                              fontWeight: '500'
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteProject(extractProjectId(project.id));
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
+                              e.currentTarget.style.color = '#ef4444';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background = 'transparent';
+                              e.currentTarget.style.color = '#0f172a';
+                            }}
+                          >
+                            <DeleteRegular style={{ fontSize: '16px' }} />
+                            <span>Delete Project</span>
+                          </div>
+
+                          <div
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '12px',
+                              padding: '12px 16px',
+                              borderRadius: '8px',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s ease',
+                              fontFamily: DesignTokens.typography.fontFamily,
+                              fontSize: '14px',
+                              color: '#0f172a',
+                              fontWeight: '500'
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleMarkComplete(extractProjectId(project.id));
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background = 'rgba(16, 185, 129, 0.1)';
+                              e.currentTarget.style.color = '#10b981';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background = 'transparent';
+                              e.currentTarget.style.color = '#0f172a';
+                            }}
+                          >
+                            <CheckmarkCircleRegular style={{ fontSize: '16px' }} />
+                            <span>Mark Complete</span>
+                          </div>
+
+                          <div
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '12px',
+                              padding: '12px 16px',
+                              borderRadius: '8px',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s ease',
+                              fontFamily: DesignTokens.typography.fontFamily,
+                              fontSize: '14px',
+                              color: '#0f172a',
+                              fontWeight: '500'
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEditUsers(extractProjectId(project.id));
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background = 'rgba(99, 102, 241, 0.1)';
+                              e.currentTarget.style.color = '#6366f1';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background = 'transparent';
+                              e.currentTarget.style.color = '#0f172a';
+                            }}
+                          >
+                            <PeopleRegular style={{ fontSize: '16px' }} />
+                            <span>Edit Users</span>
+                          </div>
+                        </div>
+                      )}
                     </div>
 
-                    {/* Divider */}
+                    {/* Project Icon and Title */}
                     <div style={{
-                      height: '1px',
-                      backgroundColor: DesignTokens.colors.gray200,
-                      margin: `${DesignTokens.spacing.xs} 0`
-                    }} />
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'flex-start',
+                      gap: DesignTokens.spacing.md,
+                      marginBottom: DesignTokens.spacing.lg
+                    }}>
+                      <div style={{
+                        width: '42px',
+                        height: '42px',
+                        borderRadius: '12px',
+                        background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: '#ffffff',
+                        fontSize: '20px',
+                        flexShrink: 0,
+                        boxShadow: '0 3px 12px rgba(99, 102, 241, 0.3)'
+                      }}>
+                        <FolderFilled />
+                      </div>
+                      <Title3 style={{
+                        margin: 0,
+                        fontFamily: DesignTokens.typography.fontFamily,
+                        color: '#0f172a',
+                        fontSize: DesignTokens.typography.lg,
+                        fontWeight: DesignTokens.typography.semibold,
+                        lineHeight: '1.2',
+                        textAlign: 'left'
+                      }}>
+                        {project.name}
+                      </Title3>
+                    </div>
 
-                    {/* Footer Metadata */}
+                    {/* Description */}
+                    <Body2 style={{
+                      color: DesignTokens.colors.textPrimary,
+                      fontSize: DesignTokens.typography.sm,
+                      lineHeight: '1.5',
+                      display: '-webkit-box',
+                      WebkitLineClamp: 3,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden',
+                      marginBottom: DesignTokens.spacing.lg,
+                      flex: 1
+                    }}>
+                      {project.description || 'No description provided'}
+                    </Body2>
+
+                    {/* Compact Footer with Status and Metadata */}
                     <div style={{
                       display: 'flex',
                       justifyContent: 'space-between',
-                      alignItems: 'center'
+                      alignItems: 'flex-end',
+                      paddingTop: DesignTokens.spacing.sm,
+                      borderTop: `1px solid rgba(0, 0, 0, 0.05)`,
+                      marginTop: 'auto'
                     }}>
+                      {/* Left side - Owner and Status */}
                       <div style={{
                         display: 'flex',
-                        alignItems: 'center',
-                        gap: DesignTokens.spacing.lg,
-                        ...DesignTokens.components.metaText
+                        flexDirection: 'column',
+                        gap: '4px'
                       }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: DesignTokens.spacing.xs }}>
-                          <PersonRegular style={{ fontSize: '16px' }} />
-                          <span>{project.owner_id ? project.owner_id.replace('user:', '') : 'Unknown'}</span>
+                          <Badge 
+                            appearance="tint" 
+                            color="success"
+                            size="small"
+                            style={{
+                              background: 'rgba(16, 185, 129, 0.1)',
+                              color: '#10b981',
+                              border: 'none'
+                            }}
+                          >
+                            Active
+                          </Badge>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: DesignTokens.spacing.xs }}>
-                          <CalendarRegular style={{ fontSize: '16px' }} />
+                        <div style={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          gap: '6px',
+                          color: DesignTokens.colors.textMuted,
+                          fontSize: '11px'
+                        }}>
+                          <PersonRegular style={{ fontSize: '12px' }} />
+                          <span>{project.owner_id ? project.owner_id.replace('user:', '').split('@')[0] : 'Unknown'}</span>
+                        </div>
+                      </div>
+                      
+                      {/* Right side - Dates */}
+                      <div style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'flex-end',
+                        gap: '4px',
+                        fontSize: '11px',
+                        color: DesignTokens.colors.textMuted
+                      }}>
+                        <div style={{ fontWeight: '500' }}>
+                          Updated {getRelativeTime(project.updated_at)}
+                        </div>
+                        <div style={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          gap: '4px' 
+                        }}>
+                          <CalendarRegular style={{ fontSize: '11px' }} />
                           <span>{project.created_at ? formatDate(project.created_at) : 'Unknown'}</span>
                         </div>
                       </div>
-                      <ChevronRightRegular style={{
-                        fontSize: '16px',
-                        color: DesignTokens.colors.gray400,
-                        opacity: 0.7
-                      }} />
                     </div>
                   </div>
                 </Card>
               ))}
             </div>
-          ) : (
-            <div className={styles.listView}>
-              {/* List Header */}
-              <div className={styles.listHeader}>
-                <div>Name</div>
-                <div>Description</div>
-                <div>Owner</div>
-                <div>Created</div>
-                <div>Updated</div>
-                <div></div>
-              </div>
-              
-              {/* List Items */}
-              {filteredAndSortedProjects.map((project) => (
-                <div
-                  key={project.id}
-                  className={styles.listRow}
-                  onClick={() => handleProjectClick(project.id)}
-                >
-                  <div className={styles.listRowName}>
-                    <FolderRegular style={{ 
-                      color: DesignTokens.colorVariants.indigo.base, 
-                      fontSize: '18px' 
-                    }} />
-                    <span>{project.name}</span>
-                  </div>
-                  <div className={styles.listRowDescription}>
-                    {project.description || 'No description'}
-                  </div>
-                  <div className={styles.listRowMeta}>
-                    {project.owner_id ? project.owner_id.replace('user:', '') : 'Unknown'}
-                  </div>
-                  <div className={styles.listRowMeta}>
-                    {project.created_at ? formatDate(project.created_at) : 'Unknown'}
-                  </div>
-                  <div className={styles.listRowMeta}>
-                    {project.updated_at ? getRelativeTime(project.updated_at) : 'Unknown'}
-                  </div>
-                  <div>
-                    <Button
-                      appearance="subtle"
-                      icon={<MoreHorizontalRegular />}
-                      size="small"
-                      style={{ 
-                        minWidth: '32px',
-                        minHeight: '32px',
-                        border: `1px solid ${DesignTokens.colors.gray300}`,
-                        backgroundColor: DesignTokens.colors.surface,
-                        borderRadius: DesignTokens.borderRadius.sm
-                      }}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        // Handle menu actions
-                      }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
           )}
         </div>
 
-      {/* Summary Statistics */}
-      {projects.length > 0 && (
-        <div style={{ 
-          marginTop: '24px',
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: '16px'
-        }}>
-          <div style={{
-            background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1))',
-            padding: '16px',
-            borderRadius: '12px',
-            textAlign: 'center',
-            border: '1px solid rgba(16, 185, 129, 0.2)',
-            backdropFilter: 'blur(20px)',
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
-          }}>
-            <div style={{ fontSize: '24px', fontWeight: '600', color: '#10b981' }}>
-              {projects.filter(p => p.name).length}
-            </div>
-            <div style={{ fontSize: '14px', color: '#6b7280', fontFamily: 'Montserrat, sans-serif' }}>Active Projects</div>
-          </div>
-          
-          <div style={{
-            background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1))',
-            padding: '16px',
-            borderRadius: '12px',
-            textAlign: 'center',
-            border: '1px solid rgba(99, 102, 241, 0.2)',
-            backdropFilter: 'blur(20px)',
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
-          }}>
-            <div style={{ fontSize: '24px', fontWeight: '600', color: '#6366f1' }}>
-              {projects.length}
-            </div>
-            <div style={{ fontSize: '14px', color: '#6b7280', fontFamily: 'Montserrat, sans-serif' }}>Total Projects</div>
-          </div>
-
-          <div style={{
-            background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.1))',
-            padding: '16px',
-            borderRadius: '12px',
-            textAlign: 'center',
-            border: '1px solid rgba(245, 158, 11, 0.2)',
-            backdropFilter: 'blur(20px)',
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
-          }}>
-            <div style={{ fontSize: '24px', fontWeight: '600', color: '#f59e0b' }}>
-              {filteredAndSortedProjects.length}
-            </div>
-            <div style={{ fontSize: '14px', color: '#6b7280', fontFamily: 'Montserrat, sans-serif' }}>Showing</div>
-          </div>
-        </div>
-      )}
 
       {/* Create Project Dialog */}
       <Dialog open={showCreateDialog} onOpenChange={(_, data) => setShowCreateDialog(data.open)}>
@@ -945,6 +1148,10 @@ export default function ProjectsView() {
                 <Button 
                   appearance="secondary" 
                   onClick={() => setShowCreateDialog(false)}
+                  style={{
+                    ...DesignTokens.components.button.secondary,
+                    borderRadius: DesignTokens.borderRadius.md
+                  }}
                 >
                   Cancel
                 </Button>
@@ -952,6 +1159,10 @@ export default function ProjectsView() {
                   type="submit" 
                   appearance="primary"
                   disabled={!newProject.name.trim()}
+                  style={{
+                    ...DesignTokens.components.button.primary,
+                    borderRadius: DesignTokens.borderRadius.md
+                  }}
                 >
                   Create Project
                 </Button>
@@ -960,6 +1171,6 @@ export default function ProjectsView() {
           </form>
         </DialogSurface>
       </Dialog>
-    </GlassmorphicLayout>
+    </div>
   );
 }

@@ -7,7 +7,6 @@ import {
   Dropdown,
   Option,
   Spinner,
-  Alert,
   MessageBar,
   MessageBarBody,
 } from '@fluentui/react-components';
@@ -147,21 +146,19 @@ export const EnhancedRVToolsReportView: React.FC<EnhancedRVToolsReportViewProps>
       // Generate mock report data when backend is unavailable
       console.warn('RVTools report generation backend unavailable, using mock data');
       const mockReportData: ReportData = {
-        title: 'VMware Migration Analysis Report',
-        summary: {
+        variables: {
           total_vms: selectedUpload === 'demo-upload-1' ? 45 : 128,
           total_hosts: selectedUpload === 'demo-upload-1' ? 8 : 16,
           total_clusters: selectedUpload === 'demo-upload-1' ? 3 : 6,
-          migration_readiness: 85
+          migration_readiness: 0.85,
+          summary_text: 'Demo VMware environment with mixed workloads ready for migration assessment.'
         },
-        sections: [
-          {
-            title: 'Infrastructure Overview',
-            content: 'Demo VMware environment with mixed workloads ready for migration assessment.',
-            charts: [],
-            tables: []
-          }
-        ]
+        metadata: {
+          generated_at: new Date().toISOString(),
+          data_source: 'mock',
+          total_records: 1,
+          confidence_level: 0.9
+        }
       };
       setReportData(mockReportData);
     } finally {

@@ -24,7 +24,6 @@ import {
   Database
 } from 'lucide-react';
 import ReactECharts from 'echarts-for-react';
-import GlassmorphicLayout from '../components/GlassmorphicLayout';
 import LoadingSpinner from '../components/LoadingSpinner';
 
 // Types for analytics data
@@ -291,17 +290,17 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
 
   if (loading) {
     return (
-      <GlassmorphicLayout>
+      <div>
         <div className="flex-1 flex items-center justify-center">
           <LoadingSpinner size="lg" />
         </div>
-      </GlassmorphicLayout>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <GlassmorphicLayout>
+      <div>
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center p-8">
             <AlertTriangle size={48} className="mx-auto mb-4 text-orange-500" />
@@ -316,7 +315,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
             </button>
           </div>
         </div>
-      </GlassmorphicLayout>
+      </div>
     );
   }
 
@@ -435,7 +434,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
   };
 
   return (
-    <GlassmorphicLayout>
+    <div>
       <div className="p-6 space-y-6">
         {/* Header */}
         <div className="flex justify-between items-center">
@@ -638,7 +637,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
           </div>
         )}
       </div>
-    </GlassmorphicLayout>
+    </div>
   );
 };
 

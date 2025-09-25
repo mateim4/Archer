@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { DESIGN_TOKENS } from './DesignSystem';
 import { 
   DatabaseRegular,
   DatabaseFilled,
@@ -80,7 +81,7 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
     },
     { 
       id: 'enhanced-rvtools', 
-      title: 'Enhanced RVTools', 
+      title: 'RVTools', 
       icon: <TableRegular />, 
       iconFilled: <TableFilled />, 
       path: '/app/enhanced-rvtools',
@@ -129,15 +130,15 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
         left: 0,
         width: isOpen ? '280px' : '60px',
         height: '100vh',
-        background: 'rgba(255, 255, 255, 0.25)',
-        backdropFilter: 'blur(40px) saturate(200%)',
-        WebkitBackdropFilter: 'blur(40px) saturate(200%)',
-        borderRight: '1px solid rgba(255, 255, 255, 0.3)',
+        background: 'rgba(255, 255, 255, 0.40)',
+        backdropFilter: 'blur(30px) saturate(35%) brightness(145%) contrast(85%)',
+        WebkitBackdropFilter: 'blur(30px) saturate(35%) brightness(145%) contrast(85%)',
+        borderRight: '1px solid rgba(139, 92, 246, 0.2)',
         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         zIndex: 1000,
         display: 'flex',
         flexDirection: 'column',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+        boxShadow: '0 8px 32px rgba(139, 92, 246, 0.1)',
         overflow: 'hidden'
       }}
     >
@@ -146,7 +147,7 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
       <div style={{ 
         padding: '20px 16px',
         borderBottom: '1px solid rgba(255, 255, 255, 0.2)',
-        background: 'rgba(255, 255, 255, 0.1)',
+        background: 'rgba(255, 255, 255, 0.3)',
         backdropFilter: 'blur(10px)'
       }}>
         <div style={{ 

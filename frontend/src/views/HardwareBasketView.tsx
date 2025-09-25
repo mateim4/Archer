@@ -1,6 +1,17 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import GlassmorphicLayout from '../components/GlassmorphicLayout';
 import { apiClient } from '../utils/apiClient';
+import GlassmorphicSearchBar from '../components/GlassmorphicSearchBar';
+import { DESIGN_TOKENS } from '../components/DesignSystem';
+import { DesignTokens } from '../styles/designSystem';
+import {
+  ErrorCircleRegular,
+  SearchRegular,
+  DataBarHorizontalRegular,
+  ArrowUploadRegular,
+  DocumentRegular,
+  CheckmarkCircleRegular,
+  DatabaseRegular
+} from '@fluentui/react-icons';
 
 interface HardwareBasket {
   id: string;
@@ -252,20 +263,12 @@ const HardwareBasketView: React.FC = () => {
 
   if (loading && hardwareBaskets.length === 0) {
     return (
-      <div style={{ 
-        padding: '40px',
-        textAlign: 'center',
-        background: 'rgba(255, 255, 255, 0.95)',
-        borderRadius: '12px',
-        margin: '20px',
-        backdropFilter: 'blur(20px)',
-        border: '1px solid rgba(255, 255, 255, 0.2)',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
-      }}>
+      <div style={DesignTokens.components.pageContainer}>
         <div style={{ 
           fontSize: '18px',
           color: '#6366f1',
-          fontFamily: 'Montserrat, sans-serif'
+          fontFamily: 'Montserrat, sans-serif',
+          textAlign: 'center'
         }}>
           🔄 Loading hardware baskets...
         </div>
@@ -275,45 +278,41 @@ const HardwareBasketView: React.FC = () => {
 
   if (error) {
     return (
-      <div style={{ 
-        padding: '24px',
-        background: 'rgba(255, 255, 255, 0.95)',
-        borderRadius: '12px',
-        margin: '20px',
-        backdropFilter: 'blur(20px)',
-        border: '1px solid rgba(255, 255, 255, 0.2)',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
-      }}>
+      <div style={DesignTokens.components.pageContainer}>
         <div style={{ 
           color: '#ef4444',
           fontSize: '16px',
           fontFamily: 'Montserrat, sans-serif'
         }}>
-          ❌ Error: {error}
+          <ErrorCircleRegular style={{ marginRight: '8px' }} />Error: {error}
         </div>
       </div>
     );
   }
 
   return (
-    <GlassmorphicLayout>
+    <div style={DesignTokens.components.pageContainer}>
       {/* Header */}
       <div style={{ 
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: '24px',
-        borderBottom: '2px solid rgba(99, 102, 241, 0.1)',
-        paddingBottom: '16px'
+        marginBottom: DesignTokens.spacing.xl,
+        borderBottom: `2px solid ${DesignTokens.colors.primary}20`,
+        paddingBottom: DesignTokens.spacing.lg
       }}>
         <h1 style={{ 
-          fontSize: '28px',
-          fontWeight: '600',
-          color: '#6366f1',
-          margin: 0,
-          fontFamily: 'Montserrat, sans-serif'
+          fontSize: DesignTokens.typography.xxxl,
+          fontWeight: DesignTokens.typography.semibold,
+          color: '#8b5cf6',
+          margin: '0',
+          fontFamily: DesignTokens.typography.fontFamily,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px'
         }}>
-          📦 Hardware Basket Management
+          <DatabaseRegular style={{ fontSize: '32px', color: '#000000' }} />
+          Hardware Basket Management
         </h1>
         
         <button
@@ -351,25 +350,13 @@ const HardwareBasketView: React.FC = () => {
         flexWrap: 'wrap',
         alignItems: 'center'
       }}>
-        {/* Search Input */}
-        <div style={{ flex: '1', minWidth: '280px' }}>
-          <input
-            type="text"
-            placeholder="🔍 Search baskets by name, vendor, or filename..."
+        {/* Glassmorphic Search Input */}
+        <div style={{ flex: '1', minWidth: '320px' }}>
+          <GlassmorphicSearchBar
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            style={{
-              width: '100%',
-              padding: '12px 16px',
-              border: '2px solid rgba(99, 102, 241, 0.2)',
-              borderRadius: '8px',
-              fontSize: '14px',
-              fontFamily: 'Montserrat, sans-serif',
-              background: 'rgba(255, 255, 255, 0.8)',
-              transition: 'border-color 0.3s ease'
-            }}
-            onFocus={(e) => e.target.style.borderColor = '#6366f1'}
-            onBlur={(e) => e.target.style.borderColor = 'rgba(99, 102, 241, 0.2)'}
+            onChange={(value) => setSearchTerm(value)}
+            placeholder="Search baskets by name, vendor, or filename..."
+            width="100%"
           />
         </div>
 
@@ -379,14 +366,14 @@ const HardwareBasketView: React.FC = () => {
             value={vendorFilter}
             onChange={(e) => setVendorFilter(e.target.value)}
             style={{
-              width: '100%',
-              padding: '12px 16px',
-              border: '2px solid rgba(99, 102, 241, 0.2)',
-              borderRadius: '8px',
+              ...DesignTokens.components.standardCard,
+              padding: '14px 20px',
               fontSize: '14px',
               fontFamily: 'Montserrat, sans-serif',
-              background: 'rgba(255, 255, 255, 0.8)',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              outline: 'none',
+              color: '#1f2937',
+              width: '100%'
             }}
           >
             <option value="All">All Vendors</option>
@@ -402,14 +389,14 @@ const HardwareBasketView: React.FC = () => {
             value={yearFilter}
             onChange={(e) => setYearFilter(e.target.value)}
             style={{
-              width: '100%',
-              padding: '12px 16px',
-              border: '2px solid rgba(99, 102, 241, 0.2)',
-              borderRadius: '8px',
+              ...DesignTokens.components.standardCard,
+              padding: '14px 20px',
               fontSize: '14px',
               fontFamily: 'Montserrat, sans-serif',
-              background: 'rgba(255, 255, 255, 0.8)',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              outline: 'none',
+              color: '#1f2937',
+              width: '100%'
             }}
           >
             <option value="All">All Years</option>
@@ -428,22 +415,29 @@ const HardwareBasketView: React.FC = () => {
               setYearFilter('All');
             }}
             style={{
-              padding: '12px 16px',
-              border: '2px solid rgba(99, 102, 241, 0.3)',
-              borderRadius: '8px',
-              background: 'transparent',
+              ...DesignTokens.components.standardCard,
+              padding: '14px 20px',
               color: '#6366f1',
               fontSize: '14px',
               fontWeight: '500',
               cursor: 'pointer',
-              transition: 'all 0.3s ease',
               fontFamily: 'Montserrat, sans-serif'
             }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.background = 'rgba(99, 102, 241, 0.1)';
+            onMouseEnter={(e) => {
+              const target = e.currentTarget as HTMLElement;
+              Object.assign(target.style, DesignTokens.components.standardCardHover);
             }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.background = 'transparent';
+            onMouseLeave={(e) => {
+              const target = e.currentTarget as HTMLElement;
+              Object.assign(target.style, {
+                ...DesignTokens.components.standardCard,
+                padding: '14px 20px',
+                color: '#6366f1',
+                fontSize: '14px',
+                fontWeight: '500',
+                cursor: 'pointer',
+                fontFamily: 'Montserrat, sans-serif'
+              });
             }}
           >
             🧹 Clear Filters
@@ -453,11 +447,9 @@ const HardwareBasketView: React.FC = () => {
 
       {/* Results Summary */}
       <div style={{
+        ...DesignTokens.components.standardCard,
         marginBottom: '20px',
-        padding: '16px',
-        background: 'rgba(99, 102, 241, 0.05)',
-        borderRadius: '8px',
-        border: '2px solid rgba(99, 102, 241, 0.1)'
+        cursor: 'default'
       }}>
         <div style={{
           display: 'flex',
@@ -472,7 +464,7 @@ const HardwareBasketView: React.FC = () => {
             color: '#6366f1',
             fontFamily: 'Montserrat, sans-serif'
           }}>
-            📊 Showing {filteredBaskets.length} of {hardwareBaskets.length} baskets
+            <DataBarHorizontalRegular style={{ marginRight: '8px' }} />Showing {filteredBaskets.length} of {hardwareBaskets.length} baskets
             {(searchTerm || vendorFilter !== 'All' || yearFilter !== 'All') && (
               <span style={{ color: '#8b5cf6', marginLeft: '8px' }}>
                 (filtered)
@@ -502,11 +494,11 @@ const HardwareBasketView: React.FC = () => {
       {/* Hardware Baskets Grid */}
       {hardwareBaskets.length === 0 ? (
         <div style={{
+          ...DESIGN_TOKENS.components.standardContentCard,
           textAlign: 'center',
           padding: '60px 20px',
-          background: 'rgba(255, 255, 255, 0.6)',
-          borderRadius: '12px',
-          border: '2px dashed rgba(99, 102, 241, 0.3)'
+          border: '2px dashed rgba(255, 255, 255, 0.4)',
+          cursor: 'default'
         }}>
           <div style={{
             fontSize: '48px',
@@ -559,22 +551,15 @@ const HardwareBasketView: React.FC = () => {
             <div
               key={basket.id}
               style={{
-                background: 'rgba(255, 255, 255, 0.8)',
-                borderRadius: '12px',
-                padding: '20px',
-                border: '1px solid rgba(255, 255, 255, 0.3)',
-                boxShadow: '0 4px 16px rgba(0, 0, 0, 0.1)',
-                backdropFilter: 'blur(10px)',
-                transition: 'all 0.3s ease',
-                cursor: 'pointer'
+                ...DESIGN_TOKENS.components.standardCard,
+                padding: '20px'
               }}
               onMouseOver={(e) => {
-                e.currentTarget.style.transform = 'translateY(-4px)';
-                e.currentTarget.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.15)';
+                Object.assign(e.currentTarget.style, DESIGN_TOKENS.components.standardCardHover);
               }}
               onMouseOut={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.1)';
+                Object.assign(e.currentTarget.style, DESIGN_TOKENS.components.standardCard);
+                e.currentTarget.style.padding = '20px';
               }}
               onClick={() => setSelectedBasket(basket)}
             >
@@ -631,7 +616,7 @@ const HardwareBasketView: React.FC = () => {
                     e.currentTarget.style.background = 'transparent';
                   }}
                 >
-                  📤 Upload
+                  <ArrowUploadRegular style={{ marginRight: '8px' }} />Upload
                 </button>
               </div>
 
@@ -657,7 +642,7 @@ const HardwareBasketView: React.FC = () => {
                 alignItems: 'center',
                 gap: '6px'
               }}>
-                📄 {basket.filename}
+                <DocumentRegular style={{ marginRight: '8px' }} />{basket.filename}
               </div>
 
               {/* Stats */}
@@ -742,13 +727,9 @@ const HardwareBasketView: React.FC = () => {
           zIndex: 1000
         }}>
           <div style={{
-            background: 'rgba(255, 255, 255, 0.95)',
-            borderRadius: '12px',
-            padding: '24px',
+            ...DESIGN_TOKENS.components.standardContentCard,
             width: '400px',
-            backdropFilter: 'blur(20px)',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+            cursor: 'default'
           }}>
             <h2 style={{
               fontSize: '20px',
@@ -933,13 +914,9 @@ const HardwareBasketView: React.FC = () => {
           zIndex: 1000
         }}>
           <div style={{
-            background: 'rgba(255, 255, 255, 0.95)',
-            borderRadius: '12px',
-            padding: '24px',
+            ...DESIGN_TOKENS.components.standardContentCard,
             width: '400px',
-            backdropFilter: 'blur(20px)',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+            cursor: 'default'
           }}>
             <h2 style={{
               fontSize: '20px',
@@ -948,7 +925,7 @@ const HardwareBasketView: React.FC = () => {
               marginBottom: '20px',
               fontFamily: 'Montserrat, sans-serif'
             }}>
-              📤 Upload File to {selectedBasket.name}
+              <ArrowUploadRegular style={{ marginRight: '8px' }} />Upload File to {selectedBasket.name}
             </h2>
 
             <div style={{
@@ -958,7 +935,7 @@ const HardwareBasketView: React.FC = () => {
               textAlign: 'center',
               marginBottom: '20px'
             }}>
-              <div style={{ fontSize: '48px', marginBottom: '12px' }}>📄</div>
+              <div style={{ fontSize: '48px', marginBottom: '12px' }}><DocumentRegular /></div>
               <div style={{
                 fontSize: '14px',
                 color: '#64748b',
@@ -1080,7 +1057,7 @@ const HardwareBasketView: React.FC = () => {
           boxShadow: '0 4px 16px rgba(16, 185, 129, 0.3)',
           zIndex: 1001
         }}>
-          ✅ {success}
+          <CheckmarkCircleRegular style={{ marginRight: '8px' }} />{success}
         </div>
       )}
 
@@ -1092,11 +1069,10 @@ const HardwareBasketView: React.FC = () => {
         gap: '16px'
       }}>
         <div style={{
+          ...DESIGN_TOKENS.components.standardContentCard,
           background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1))',
-          padding: '16px',
-          borderRadius: '8px',
           textAlign: 'center',
-          border: '1px solid rgba(16, 185, 129, 0.2)'
+          cursor: 'default'
         }}>
           <div style={{ fontSize: '24px', fontWeight: '600', color: '#10b981' }}>
             {hardwareBaskets.reduce((sum, basket) => sum + basket.total_models, 0)}
@@ -1107,11 +1083,10 @@ const HardwareBasketView: React.FC = () => {
         </div>
 
         <div style={{
+          ...DESIGN_TOKENS.components.standardContentCard,
           background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(124, 58, 237, 0.1))',
-          padding: '16px',
-          borderRadius: '8px',
           textAlign: 'center',
-          border: '1px solid rgba(139, 92, 246, 0.2)'
+          cursor: 'default'
         }}>
           <div style={{ fontSize: '24px', fontWeight: '600', color: '#8b5cf6' }}>
             {hardwareBaskets.reduce((sum, basket) => sum + basket.total_configurations, 0)}
@@ -1122,11 +1097,10 @@ const HardwareBasketView: React.FC = () => {
         </div>
 
         <div style={{
+          ...DESIGN_TOKENS.components.standardContentCard,
           background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(79, 70, 229, 0.1))',
-          padding: '16px',
-          borderRadius: '8px',
           textAlign: 'center',
-          border: '1px solid rgba(99, 102, 241, 0.2)'
+          cursor: 'default'
         }}>
           <div style={{ fontSize: '24px', fontWeight: '600', color: '#6366f1' }}>
             {hardwareBaskets.length}
@@ -1137,11 +1111,10 @@ const HardwareBasketView: React.FC = () => {
         </div>
 
         <div style={{
+          ...DESIGN_TOKENS.components.standardContentCard,
           background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.1))',
-          padding: '16px',
-          borderRadius: '8px',
           textAlign: 'center',
-          border: '1px solid rgba(245, 158, 11, 0.2)'
+          cursor: 'default'
         }}>
           <div style={{ fontSize: '24px', fontWeight: '600', color: '#f59e0b' }}>
             {uniqueVendors.length}
@@ -1151,7 +1124,7 @@ const HardwareBasketView: React.FC = () => {
           </div>
         </div>
       </div>
-    </GlassmorphicLayout>
+    </div>
   );
 };
 

@@ -9,7 +9,11 @@ import {
   PlayRegular,
   PauseRegular,
   CheckmarkCircleRegular,
-  ErrorCircleRegular
+  ErrorCircleRegular,
+  DataBarHorizontalRegular,
+  FlashRegular,
+  WrenchRegular,
+  TaskListRegular
 } from '@fluentui/react-icons';
 
 interface Activity {
@@ -126,13 +130,13 @@ const GanttChart: React.FC<GanttChartProps> = ({
   const getActivityTypeIcon = (type: string) => {
     const icons = {
       migration: '🔄',
-      lifecycle: '📊',
-      decommission: '🗑️',
-      hardware_customization: '🔧',
-      commissioning: '⚡',
-      custom: '📋'
+      lifecycle: <DataBarHorizontalRegular />,
+      decommission: <DeleteRegular />,
+      hardware_customization: <WrenchRegular />,
+      commissioning: <FlashRegular />,
+      custom: <TaskListRegular />
     };
-    return icons[type as keyof typeof icons] || '📋';
+    return icons[type as keyof typeof icons] || <TaskListRegular />;
   };
 
   const getStatusColor = (status: string) => {

@@ -11,7 +11,6 @@ import mermaid from 'mermaid';
 import { generateVirtualDiagram, generateHyperVDiagram, generatePhysicalDiagram } from '../utils/mermaidGenerator';
 import { generateVMwareNetworkTopology, generateHyperVNetworkTopology, generatePhysicalNetworkTopology } from '../utils/networkTopologyGenerator';
 import { useAppStore } from '../store/useAppStore';
-import GlassmorphicLayout from '../components/GlassmorphicLayout';
 import NetworkComponentGuide from '../components/NetworkComponentGuide';
 import VisualNetworkDiagram from '../components/VisualNetworkDiagram';
 
@@ -307,7 +306,7 @@ const NetworkVisualizerView = () => {
       }
     } catch (error) {
       console.error('Error generating diagram definition:', error);
-      return `graph TD\n  ERROR["⚠️ Error generating diagram"]`;
+      return `graph TD\n  ERROR["[ERROR] Error generating diagram"]`;
     }
   };
 
@@ -438,15 +437,12 @@ const NetworkVisualizerView = () => {
               <div
                 key={index}
                 style={{
-                  background: 'rgba(255, 255, 255, 0.7)',
-                  backdropFilter: 'blur(20px) saturate(180%)',
                   WebkitBackdropFilter: 'blur(20px) saturate(180%)',
                   border: '1px solid rgba(139, 92, 246, 0.2)',
                   borderRadius: '16px',
                   padding: '24px',
                   textAlign: 'center' as const,
                   transition: 'all 0.3s ease',
-                  boxShadow: '0 8px 32px rgba(139, 92, 246, 0.1)'
                 }}
               >
                 <div style={{ color: stat.color, fontSize: '24px', marginBottom: '12px' }}>
@@ -461,7 +457,7 @@ const NetworkVisualizerView = () => {
                 <div style={{ 
                   marginTop: '12px', 
                   padding: '8px 12px', 
-                  background: 'rgba(59, 130, 246, 0.1)', 
+                  border: '1px solid rgba(59, 130, 246, 0.3)', 
                   borderRadius: '6px',
                   fontSize: '12px',
                   color: '#374151'
@@ -519,7 +515,7 @@ const NetworkVisualizerView = () => {
                 marginBottom: '16px', 
                 padding: '12px', 
                 borderRadius: '8px', 
-                background: 'rgba(168, 85, 247, 0.1)',
+                border: '1px solid rgba(168, 85, 247, 0.3)',
                 border: '1px solid rgba(168, 85, 247, 0.2)'
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -536,8 +532,6 @@ const NetworkVisualizerView = () => {
               marginBottom: '16px',
               padding: '16px',
               borderRadius: '12px',
-              background: 'rgba(255, 255, 255, 0.7)',
-              backdropFilter: 'blur(20px) saturate(180%)',
               border: '1px solid rgba(139, 92, 246, 0.2)'
             }}>
               <h3 style={{ 
@@ -603,8 +597,6 @@ const NetworkVisualizerView = () => {
             {/* Visual Network Diagram */}
             <div style={{
               borderRadius: '12px',
-              background: 'rgba(255, 255, 255, 0.5)',
-              backdropFilter: 'blur(16px) saturate(150%)',
               WebkitBackdropFilter: 'blur(16px) saturate(150%)',
               border: '1px solid rgba(139, 92, 246, 0.1)',
               overflow: 'hidden'
@@ -628,14 +620,14 @@ const NetworkVisualizerView = () => {
   };
 
   return (
-    <GlassmorphicLayout>
+    <div>
       <div className="fluent-page-container">
         {/* Error Display */}
         {error && (
           <div style={{
             marginBottom: '24px',
             padding: '12px',
-            background: 'rgba(239, 68, 68, 0.05)',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
             border: '1px solid rgba(239, 68, 68, 0.2)',
             borderRadius: '8px',
             color: '#dc2626'
@@ -691,7 +683,7 @@ const NetworkVisualizerView = () => {
         {/* Tab Content */}
         {renderTabContent()}
       </div>
-    </GlassmorphicLayout>
+    </div>
   );
 };
 

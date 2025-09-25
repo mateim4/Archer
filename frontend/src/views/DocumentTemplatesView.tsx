@@ -14,7 +14,6 @@ import {
   SelectTabData,
   SelectTabEvent,
   Input,
-  SearchBox,
   Dialog,
   DialogTrigger,
   DialogSurface,
@@ -27,7 +26,9 @@ import {
   Select,
   Spinner
 } from '@fluentui/react-components';
-import GlassmorphicLayout from '../components/GlassmorphicLayout';
+import { DESIGN_TOKENS } from '../components/DesignSystem';
+import GlassmorphicSearchBar from '../components/GlassmorphicSearchBar';
+import { DesignTokens } from '../styles/designSystem';
 import {
   DocumentRegular,
   ArrowDownloadRegular,
@@ -37,7 +38,13 @@ import {
   FilterRegular,
   EyeRegular,
   SaveRegular,
-  DismissRegular
+  DismissRegular,
+  SearchRegular,
+  CheckmarkCircleRegular,
+  TaskListRegular,
+  WarningRegular,
+  ErrorCircleRegular,
+  ArrowUploadRegular
 } from '@fluentui/react-icons';
 
 interface DocumentTemplate {
@@ -71,7 +78,7 @@ const DocumentTemplatesView: React.FC = () => {
   const [editForm, setEditForm] = useState({
     name: '',
     description: '',
-    category: 'hld' as const,
+    category: 'hld' as DocumentTemplate['category'],
     content: ''
   });
 
@@ -85,7 +92,7 @@ const DocumentTemplatesView: React.FC = () => {
   const loadRealTemplates = async () => {
     try {
       setLoading(true);
-      console.log('🔍 Attempting to load templates from:', 'http://localhost:3002/api/enhanced-rvtools/reports/templates');
+      console.log('Attempting to load templates from:', 'http://localhost:3002/api/enhanced-rvtools/reports/templates');
       
       const response = await fetch('http://localhost:3002/api/enhanced-rvtools/reports/templates');
       console.log('📡 Response status:', response.status, response.statusText);
@@ -93,12 +100,12 @@ const DocumentTemplatesView: React.FC = () => {
       if (response.ok) {
         const backendResponse = await response.json();
         const backendTemplates = backendResponse.templates || backendResponse;
-        console.log('✅ Backend templates loaded:', backendTemplates.length, 'templates');
-        console.log('📋 Template data:', backendTemplates);
+        console.log('Backend templates loaded:', backendTemplates.length, 'templates');
+        console.log('Template data:', backendTemplates);
         
         // If backend returns empty templates, show empty state (no fallbacks)
         if (!backendTemplates || backendTemplates.length === 0) {
-          console.log('📋 Backend returned empty templates');
+          console.log('Backend returned empty templates');
           setTemplates([]);
           return;
         }
@@ -123,11 +130,11 @@ const DocumentTemplatesView: React.FC = () => {
         console.log('🔄 Transformed templates:', transformedTemplates.length, 'templates');
         setTemplates(transformedTemplates);
       } else {
-        console.warn('⚠️ Backend responded with error:', response.status);
+        console.warn('Backend responded with error:', response.status);
         setTemplates([]);
       }
     } catch (error) {
-      console.error('❌ Error loading templates:', error);
+      console.error('Error loading templates:', error);
       setTemplates([]);
     } finally {
       setLoading(false);
@@ -343,7 +350,7 @@ const DocumentTemplatesView: React.FC = () => {
 
   if (loading) {
     return (
-      <GlassmorphicLayout>
+      <div style={DesignTokens.components.pageContainer}>
         <div style={{
           display: 'flex',
           justifyContent: 'center',
@@ -361,36 +368,39 @@ const DocumentTemplatesView: React.FC = () => {
             Loading document templates...
           </div>
         </div>
-      </GlassmorphicLayout>
+      </div>
     );
   }
 
   return (
-    <GlassmorphicLayout>
-      {/* Header Card */}
+    <div style={DesignTokens.components.pageContainer}>
+      {/* Header */}
       <div style={{
-        background: 'rgba(255, 255, 255, 0.85)',
-        backdropFilter: 'blur(18px) saturate(180%)',
-        borderRadius: '20px',
-        padding: '32px',
-        marginBottom: '32px',
-        border: '1px solid rgba(255, 255, 255, 0.2)',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: DesignTokens.spacing.xl,
+        borderBottom: `2px solid ${DesignTokens.colors.primary}20`,
+        paddingBottom: DesignTokens.spacing.lg
       }}>
         <h1 style={{
-          fontSize: '42px',
-          fontWeight: '800',
-          color: '#1f2937',
-          margin: '0 0 8px 0',
-          fontFamily: 'Montserrat, sans-serif'
+          fontSize: DesignTokens.typography.xxxl,
+          fontWeight: DesignTokens.typography.semibold,
+          color: '#8b5cf6',
+          margin: '0',
+          fontFamily: DesignTokens.typography.fontFamily,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px'
         }}>
-          📄 Document Templates
+          <DocumentRegular style={{ fontSize: '32px', color: '#000000' }} />
+          Document Templates
         </h1>
         <p style={{
           fontSize: '18px',
           color: '#64748b',
           margin: 0,
-          fontFamily: 'Montserrat, sans-serif'
+          fontFamily: DesignTokens.typography.fontFamily
         }}>
           Pre-built templates for HLD, LLD, BoM, and other project documents
         </p>
@@ -398,13 +408,10 @@ const DocumentTemplatesView: React.FC = () => {
 
       {/* Controls */}
       <div style={{
-        background: 'rgba(255, 255, 255, 0.85)',
-        backdropFilter: 'blur(18px) saturate(180%)',
-        borderRadius: '20px',
+        ...DesignTokens.components.standardCard,
         padding: '24px',
         marginBottom: '32px',
-        border: '1px solid rgba(255, 255, 255, 0.2)',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+        cursor: 'default'
       }}>
         <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
@@ -441,21 +448,14 @@ const DocumentTemplatesView: React.FC = () => {
           </div>
           
           <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-            <input
-              type="text"
-              placeholder="Search templates..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              style={{
-                padding: '10px 16px',
-                border: '2px solid rgba(99, 102, 241, 0.2)',
-                borderRadius: '8px',
-                fontSize: '14px',
-                fontFamily: 'Montserrat, sans-serif',
-                background: 'rgba(255, 255, 255, 0.8)',
-                minWidth: '200px'
-              }}
-            />
+            <div style={{ width: '300px' }}>
+              <GlassmorphicSearchBar
+                value={searchQuery}
+                onChange={(value) => setSearchQuery(value)}
+                placeholder="Search templates..."
+                width="100%"
+              />
+            </div>
             <button
               style={{
                 background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
@@ -481,7 +481,7 @@ const DocumentTemplatesView: React.FC = () => {
                 e.currentTarget.style.boxShadow = 'none';
               }}
             >
-              ➕ Upload Template
+              <ArrowUploadRegular style={{ marginRight: '8px' }} />Upload Template
             </button>
           </div>
         </div>
@@ -495,25 +495,20 @@ const DocumentTemplatesView: React.FC = () => {
         marginBottom: '32px'
       }}>
         {filteredTemplates.map((template) => (
-          <div key={template.id} style={{
-            border: '2px solid rgba(99, 102, 241, 0.2)',
-            borderRadius: '12px',
-            padding: '24px',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease',
-            background: 'transparent'
-          }}
-          onMouseOver={(e) => {
-            e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.4)';
-            e.currentTarget.style.background = 'rgba(99, 102, 241, 0.05)';
-          }}
-          onMouseOut={(e) => {
-            e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.2)';
-            e.currentTarget.style.background = 'transparent';
-          }}>
+          <div key={template.id} 
+            style={DesignTokens.components.standardCard}
+            onMouseEnter={(e) => {
+              const target = e.currentTarget as HTMLElement;
+              Object.assign(target.style, DesignTokens.components.standardCardHover);
+            }}
+            onMouseLeave={(e) => {
+              const target = e.currentTarget as HTMLElement;
+              Object.assign(target.style, DesignTokens.components.standardCard);
+            }}
+          >
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', marginBottom: '16px' }}>
               <div style={{ fontSize: '32px' }}>
-                📄
+                <DocumentRegular />
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
@@ -603,7 +598,7 @@ const DocumentTemplatesView: React.FC = () => {
                 }}
                 title="Preview Template"
               >
-                👁️ Preview
+                <EyeRegular style={{ marginRight: '4px' }} />Preview
               </button>
               <button
                 onClick={() => handleEditTemplate(template)}
@@ -619,7 +614,7 @@ const DocumentTemplatesView: React.FC = () => {
                 }}
                 title="Edit Template"
               >
-                ✏️ Edit
+                <EditRegular style={{ marginRight: '4px' }} />Edit
               </button>
               <button
                 style={{
@@ -634,7 +629,7 @@ const DocumentTemplatesView: React.FC = () => {
                 }}
                 title="Download"
               >
-                📥 Download
+                <ArrowDownloadRegular style={{ marginRight: '4px' }} />Download
               </button>
             </div>
           </div>
@@ -643,13 +638,12 @@ const DocumentTemplatesView: React.FC = () => {
 
       {filteredTemplates.length === 0 && (
         <div style={{
+          ...DESIGN_TOKENS.components.standardContentCard,
           padding: '60px 20px',
           textAlign: 'center',
-          border: '2px solid rgba(99, 102, 241, 0.2)',
-          borderRadius: '12px',
           marginBottom: '32px'
         }}>
-          <div style={{ fontSize: '48px', marginBottom: '16px' }}>📄</div>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}><DocumentRegular /></div>
           <h2 style={{
             fontSize: '24px',
             fontWeight: '600',
@@ -788,7 +782,7 @@ const DocumentTemplatesView: React.FC = () => {
                   <Label htmlFor="template-category">Category</Label>
                   <Select
                     value={editForm.category}
-                    onSelectionChange={(_, data) => setEditForm({ ...editForm, category: data.selectedOptions[0] as any })}
+                    onChange={(e) => setEditForm({ ...editForm, category: (e.target as HTMLSelectElement).value as any })}
                     style={{ marginTop: '4px' }}
                   >
                     <option value="hld">High-Level Design</option>
@@ -879,7 +873,7 @@ const DocumentTemplatesView: React.FC = () => {
           </DialogActions>
         </DialogSurface>
       </Dialog>
-    </GlassmorphicLayout>
+    </div>
   );
 };
 

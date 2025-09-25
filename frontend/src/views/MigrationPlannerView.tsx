@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import CustomSlider from '../components/CustomSlider';
 import { useAppStore } from '../store/useAppStore';
-import GlassmorphicLayout from '../components/GlassmorphicLayout';
 import { 
   Database, 
   Settings, 
@@ -1352,7 +1351,7 @@ const MigrationPlannerView: React.FC = () => {
   };
 
   return (
-    <GlassmorphicLayout>
+    <div>
       <div className="fluent-page-container">
         {/* Tab Navigation */}
         <div style={{ 
@@ -1398,7 +1397,7 @@ const MigrationPlannerView: React.FC = () => {
         {/* Tab Content */}
         {renderTabContent()}
       </div>
-    </GlassmorphicLayout>
+    </div>
   );
 };
 

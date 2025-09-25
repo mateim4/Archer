@@ -4,7 +4,6 @@ import {
   Eye, Settings, MoreVertical, Search, Filter, ArrowUpDown, Clock, Building,
   Target, Users, TrendingUp, Activity
 } from 'lucide-react';
-import GlassmorphicLayout from '../components/GlassmorphicLayout';
 import { apiClient, Project, CreateProjectRequest } from '../utils/apiClient';
 
 interface ProjectWithActions extends Project {
@@ -374,7 +373,7 @@ const ProjectManagementView: React.FC = () => {
   };
 
   return (
-    <GlassmorphicLayout>
+    <div>
       <div className="fluent-page-container">
         {/* Enhanced Header Section */}
         <div
@@ -444,16 +443,10 @@ const ProjectManagementView: React.FC = () => {
                 placeholder="Search projects..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
+                className="lcm-search"
                 style={{
-                  background: 'rgba(255, 255, 255, 0.8)',
-                  border: '1px solid rgba(255, 255, 255, 0.3)',
-                  borderRadius: '12px',
-                  padding: '12px 16px 12px 44px',
-                  fontSize: '14px',
-                  width: '100%',
-                  backdropFilter: 'blur(10px)'
+                  paddingLeft: '44px'
                 }}
-                className="focus:outline-none focus:ring-2 focus:ring-purple-500/50"
               />
             </div>
 
@@ -592,7 +585,7 @@ const ProjectManagementView: React.FC = () => {
           </div>
         )}
       </div>
-    </GlassmorphicLayout>
+    </div>
   );
 };
 

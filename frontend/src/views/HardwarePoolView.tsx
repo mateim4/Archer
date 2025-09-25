@@ -2,7 +2,20 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useAppStore } from '../store/useAppStore';
 import type { HardwareAsset, AssetStatus } from '../store/useAppStore';
 import HardwareAssetForm from '../components/HardwareAssetForm';
-import GlassmorphicLayout from '../components/GlassmorphicLayout';
+import GlassmorphicSearchBar from '../components/GlassmorphicSearchBar';
+import { DESIGN_TOKENS } from '../components/DesignSystem';
+import { DesignTokens } from '../styles/designSystem';
+import {
+  ArrowClockwiseRegular,
+  ErrorCircleRegular,
+  WrenchRegular,
+  ServerRegular,
+  SearchRegular,
+  BroomRegular,
+  DataBarHorizontalRegular,
+  CircleRegular,
+  AddRegular
+} from '@fluentui/react-icons';
 
 const HardwarePoolView: React.FC = () => {
   const {
@@ -87,22 +100,14 @@ const HardwarePoolView: React.FC = () => {
 
   if (loading && hardwarePoolAssets.length === 0) {
     return (
-      <div style={{ 
-        padding: '40px',
-        textAlign: 'center',
-        background: 'rgba(255, 255, 255, 0.95)',
-        borderRadius: '12px',
-        margin: '20px',
-        backdropFilter: 'blur(20px)',
-        border: '1px solid rgba(255, 255, 255, 0.2)',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
-      }}>
+      <div style={DesignTokens.components.pageContainer}>
         <div style={{ 
           fontSize: '18px',
           color: '#6366f1',
-          fontFamily: 'Montserrat, sans-serif'
+          fontFamily: 'Montserrat, sans-serif',
+          textAlign: 'center'
         }}>
-          🔄 Loading hardware assets...
+          <ArrowClockwiseRegular style={{ marginRight: '8px' }} />Loading hardware assets...
         </div>
       </div>
     );
@@ -110,28 +115,20 @@ const HardwarePoolView: React.FC = () => {
 
   if (error) {
     return (
-      <div style={{ 
-        padding: '24px',
-        background: 'rgba(255, 255, 255, 0.95)',
-        borderRadius: '12px',
-        margin: '20px',
-        backdropFilter: 'blur(20px)',
-        border: '1px solid rgba(255, 255, 255, 0.2)',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
-      }}>
+      <div style={DesignTokens.components.pageContainer}>
         <div style={{ 
           color: '#ef4444',
           fontSize: '16px',
           fontFamily: 'Montserrat, sans-serif'
         }}>
-          ❌ Error: {error}
+          <ErrorCircleRegular style={{ marginRight: '8px' }} />Error: {error}
         </div>
       </div>
     );
   }
 
   return (
-    <GlassmorphicLayout>
+    <div style={DesignTokens.components.pageContainer}>
       {/* Header */}
       <div style={{ 
         display: 'flex',
@@ -142,15 +139,35 @@ const HardwarePoolView: React.FC = () => {
         paddingBottom: '16px'
       }}>
         <h1 style={{ 
-          fontSize: '28px',
-          fontWeight: '600',
-          color: '#6366f1',
-          margin: 0,
-          fontFamily: 'Montserrat, sans-serif'
+          fontSize: DesignTokens.typography.xxxl,
+          fontWeight: DesignTokens.typography.semibold,
+          color: '#8b5cf6',
+          margin: '0',
+          fontFamily: DesignTokens.typography.fontFamily,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px'
         }}>
-          🔧 Hardware Pool
+          <ServerRegular style={{ fontSize: '32px', color: '#000000' }} />
+          Hardware Pool
         </h1>
-        
+        <p style={{
+          fontSize: '18px',
+          color: '#64748b',
+          margin: 0,
+          fontFamily: DesignTokens.typography.fontFamily
+        }}>
+          Track and allocate hardware assets
+        </p>
+      </div>
+      
+      <div style={{ 
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: DesignTokens.spacing.xl
+      }}>
+        <div></div>
         <button
           onClick={handleCreate}
           style={{
@@ -174,7 +191,7 @@ const HardwarePoolView: React.FC = () => {
             e.currentTarget.style.boxShadow = 'none';
           }}
         >
-          <span style={{ color: 'white' }}>+</span> Add Hardware Asset
+          <AddRegular style={{ marginRight: '8px' }} />Add Hardware Asset
         </button>
       </div>
 
@@ -188,27 +205,11 @@ const HardwarePoolView: React.FC = () => {
       }}>
         {/* Search Input */}
         <div style={{ flex: '1', minWidth: '280px' }}>
-          <input
-            type="text"
-            placeholder="🔍 Search assets by name, manufacturer, model, or location..."
+          <GlassmorphicSearchBar
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            style={{
-              width: '100%',
-              padding: '12px 16px',
-              border: '2px solid rgba(99, 102, 241, 0.2)',
-              borderRadius: '8px',
-              fontSize: '14px',
-              fontFamily: 'Montserrat, sans-serif',
-              background: 'rgba(255, 255, 255, 0.8)',
-              transition: 'border-color 0.3s ease'
-            }}
-            onFocus={(e) => {
-              e.currentTarget.style.borderColor = '#6366f1';
-            }}
-            onBlur={(e) => {
-              e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.2)';
-            }}
+            onChange={(value) => setSearchTerm(value)}
+            placeholder="Search assets by name, manufacturer, model, or location..."
+            width="100%"
           />
         </div>
 
@@ -218,14 +219,14 @@ const HardwarePoolView: React.FC = () => {
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as AssetStatus | 'All')}
             style={{
-              width: '100%',
-              padding: '12px',
-              border: '2px solid rgba(99, 102, 241, 0.2)',
-              borderRadius: '8px',
+              ...DesignTokens.components.standardCard,
+              padding: '14px 20px',
               fontSize: '14px',
               fontFamily: 'Montserrat, sans-serif',
-              background: 'rgba(255, 255, 255, 0.8)',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              outline: 'none',
+              color: '#1f2937',
+              width: '100%'
             }}
           >
             <option value="All">All Status</option>
@@ -243,14 +244,14 @@ const HardwarePoolView: React.FC = () => {
             value={manufacturerFilter}
             onChange={(e) => setManufacturerFilter(e.target.value)}
             style={{
-              width: '100%',
-              padding: '12px',
-              border: '2px solid rgba(99, 102, 241, 0.2)',
-              borderRadius: '8px',
+              ...DesignTokens.components.standardCard,
+              padding: '14px 20px',
               fontSize: '14px',
               fontFamily: 'Montserrat, sans-serif',
-              background: 'rgba(255, 255, 255, 0.8)',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              outline: 'none',
+              color: '#1f2937',
+              width: '100%'
             }}
           >
             <option value="All">All Manufacturers</option>
@@ -269,36 +270,41 @@ const HardwarePoolView: React.FC = () => {
               setManufacturerFilter('All');
             }}
             style={{
-              padding: '12px 16px',
-              border: '2px solid rgba(99, 102, 241, 0.3)',
-              borderRadius: '8px',
-              background: 'transparent',
+              ...DesignTokens.components.standardCard,
+              padding: '14px 20px',
               color: '#6366f1',
               fontSize: '14px',
               fontWeight: '500',
               cursor: 'pointer',
-              transition: 'all 0.3s ease',
               fontFamily: 'Montserrat, sans-serif'
             }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.background = 'rgba(99, 102, 241, 0.1)';
+            onMouseEnter={(e) => {
+              const target = e.currentTarget as HTMLElement;
+              Object.assign(target.style, DesignTokens.components.standardCardHover);
             }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.background = 'transparent';
+            onMouseLeave={(e) => {
+              const target = e.currentTarget as HTMLElement;
+              Object.assign(target.style, {
+                ...DesignTokens.components.standardCard,
+                padding: '14px 20px',
+                color: '#6366f1',
+                fontSize: '14px',
+                fontWeight: '500',
+                cursor: 'pointer',
+                fontFamily: 'Montserrat, sans-serif'
+              });
             }}
           >
-            🧹 Clear Filters
+            <BroomRegular style={{ marginRight: '8px' }} />Clear Filters
           </button>
         )}
       </div>
 
       {/* Results Summary */}
       <div style={{
+        ...DesignTokens.components.standardCard,
         marginBottom: '20px',
-        padding: '16px',
-        background: 'rgba(99, 102, 241, 0.05)',
-        borderRadius: '8px',
-        border: '2px solid rgba(99, 102, 241, 0.1)'
+        cursor: 'default'
       }}>
         <div style={{
           display: 'flex',
@@ -313,7 +319,7 @@ const HardwarePoolView: React.FC = () => {
             color: '#6366f1',
             fontFamily: 'Montserrat, sans-serif'
           }}>
-            📊 Showing {filteredAssets.length} of {hardwarePoolAssets.length} assets
+            <DataBarHorizontalRegular style={{ marginRight: '8px' }} />Showing {filteredAssets.length} of {hardwarePoolAssets.length} assets
             {(searchTerm || statusFilter !== 'All' || manufacturerFilter !== 'All') && (
               <span style={{ color: '#8b5cf6', marginLeft: '8px' }}>
                 (filtered)
@@ -328,16 +334,16 @@ const HardwarePoolView: React.FC = () => {
             fontFamily: 'Montserrat, sans-serif'
           }}>
             <span style={{ color: '#10b981' }}>
-              🟢 Available: {filteredAssets.filter(a => a.status === 'Available').length}
+              <CircleRegular style={{ marginRight: '4px', color: '#10b981' }} />Available: {filteredAssets.filter(a => a.status === 'Available').length}
             </span>
             <span style={{ color: '#f59e0b' }}>
-              🟡 In Use: {filteredAssets.filter(a => a.status === 'InUse').length}
+              <CircleRegular style={{ marginRight: '4px', color: '#f59e0b' }} />In Use: {filteredAssets.filter(a => a.status === 'InUse').length}
             </span>
             <span style={{ color: '#ef4444' }}>
-              🔴 Locked: {filteredAssets.filter(a => a.status === 'Locked').length}
+              <CircleRegular style={{ marginRight: '4px', color: '#ef4444' }} />Locked: {filteredAssets.filter(a => a.status === 'Locked').length}
             </span>
             <span style={{ color: '#8b5cf6' }}>
-              🔧 Maintenance: {filteredAssets.filter(a => a.status === 'Maintenance').length}
+              <WrenchRegular style={{ marginRight: '4px', color: '#8b5cf6' }} />Maintenance: {filteredAssets.filter(a => a.status === 'Maintenance').length}
             </span>
           </div>
         </div>
@@ -357,9 +363,10 @@ const HardwarePoolView: React.FC = () => {
         </div>
       ) : (
         <div style={{ 
+          ...DesignTokens.components.standardCard,
           overflowX: 'auto',
-          borderRadius: '8px',
-          border: '1px solid rgba(99, 102, 241, 0.2)'
+          cursor: 'default',
+          padding: 0
         }}>
           <table style={{ 
             width: '100%',
@@ -368,7 +375,7 @@ const HardwarePoolView: React.FC = () => {
           }}>
             <thead>
               <tr style={{ 
-                background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1))'
+                borderBottom: '2px solid rgba(99, 102, 241, 0.3)'
               }}>
                 <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', color: '#6366f1' }}>Name</th>
                 <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', color: '#6366f1' }}>Manufacturer</th>
@@ -384,8 +391,7 @@ const HardwarePoolView: React.FC = () => {
             <tbody>
               {filteredAssets.map((asset, index) => (
                 <tr key={asset.id} style={{ 
-                  borderBottom: '1px solid rgba(99, 102, 241, 0.1)',
-                  background: index % 2 === 0 ? 'rgba(255, 255, 255, 0.5)' : 'rgba(99, 102, 241, 0.02)'
+                  borderBottom: '1px solid rgba(99, 102, 241, 0.1)'
                 }}>
                   <td style={{ padding: '12px', fontWeight: '500' }}>{asset.name}</td>
                   <td style={{ padding: '12px' }}>{asset.manufacturer}</td>
@@ -459,11 +465,9 @@ const HardwarePoolView: React.FC = () => {
         gap: '16px'
       }}>
         <div style={{
-          background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1))',
-          padding: '16px',
-          borderRadius: '8px',
+          ...DesignTokens.components.standardCard,
           textAlign: 'center',
-          border: '1px solid rgba(16, 185, 129, 0.2)'
+          cursor: 'default'
         }}>
           <div style={{ fontSize: '24px', fontWeight: '600', color: '#10b981' }}>
             {hardwarePoolAssets.filter(a => a.status === 'Available').length}
@@ -472,11 +476,9 @@ const HardwarePoolView: React.FC = () => {
         </div>
         
         <div style={{
-          background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.1))',
-          padding: '16px',
-          borderRadius: '8px',
+          ...DesignTokens.components.standardCard,
           textAlign: 'center',
-          border: '1px solid rgba(245, 158, 11, 0.2)'
+          cursor: 'default'
         }}>
           <div style={{ fontSize: '24px', fontWeight: '600', color: '#f59e0b' }}>
             {hardwarePoolAssets.filter(a => a.status === 'InUse').length}
@@ -485,11 +487,9 @@ const HardwarePoolView: React.FC = () => {
         </div>
         
         <div style={{
-          background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1))',
-          padding: '16px',
-          borderRadius: '8px',
+          ...DesignTokens.components.standardCard,
           textAlign: 'center',
-          border: '1px solid rgba(99, 102, 241, 0.2)'
+          cursor: 'default'
         }}>
           <div style={{ fontSize: '24px', fontWeight: '600', color: '#6366f1' }}>
             {hardwarePoolAssets.length}
@@ -529,7 +529,7 @@ const HardwarePoolView: React.FC = () => {
           }
         }}
       />
-    </GlassmorphicLayout>
+    </div>
   );
 };
 

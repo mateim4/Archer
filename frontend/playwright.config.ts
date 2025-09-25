@@ -29,7 +29,7 @@ export default defineConfig({
   /* Shared settings for all the projects below. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: 'http://localhost:1420',
+    baseURL: 'http://localhost:1421',
     
     /* Collect trace when retrying the failed test. */
     trace: 'on-first-retry',
@@ -69,8 +69,8 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: 'npm run dev',
-    url: 'http://localhost:1420',
+    command: 'npx vite --port 1421',
+    url: 'http://localhost:1421',
     reuseExistingServer: !process.env.CI,
     timeout: 120000,
   },

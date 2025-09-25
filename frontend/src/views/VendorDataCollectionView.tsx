@@ -11,9 +11,9 @@ import {
   ErrorCircleRegular,
   InfoRegular,
   EyeRegular,
-  DeleteRegular
+  DeleteRegular,
+  DataBarHorizontal24Regular
 } from '@fluentui/react-icons';
-import GlassmorphicLayout from '../components/GlassmorphicLayout';
 import ConsistentCard from '../components/ConsistentCard';
 import ConsistentButton from '../components/ConsistentButton';
 import SimpleFileUpload from '../components/SimpleFileUpload';
@@ -1028,7 +1028,7 @@ const VendorDataCollectionView: React.FC = () => {
   const fetchHardwareModels = async (basketId: string) => {
     try {
       setLoading(true);
-      console.log('📥 Fetching models for basket ID:', basketId);
+      console.log('Fetching models for basket ID:', basketId);
       
       // Extract the actual ID from the frontend format 
       // (hardware_basket-{id} -> {id} OR hardware_basket:{id} -> {id})
@@ -1039,7 +1039,7 @@ const VendorDataCollectionView: React.FC = () => {
         actualBasketId = basketId.replace('hardware_basket:', '');
       }
       
-      console.log('🔧 Converted basket ID for API:', actualBasketId);
+      console.log('Converted basket ID for API:', actualBasketId);
       
       // Try the models endpoint first
       let response = await fetch(`${API_URL}/hardware-baskets/${actualBasketId}/models`);
@@ -1047,7 +1047,7 @@ const VendorDataCollectionView: React.FC = () => {
       
       if (response.ok) {
         data = await response.json();
-        console.log('📊 Models endpoint returned:', data.length, 'models');
+        console.log('Models endpoint returned:', data.length, 'models');
       }
       
       // If no models from /models endpoint, try /servers endpoint
@@ -1056,7 +1056,7 @@ const VendorDataCollectionView: React.FC = () => {
         response = await fetch(`${API_URL}/hardware-baskets/${actualBasketId}/servers`);
         if (response.ok) {
           const serversData = await response.json();
-          console.log('🖥️ Servers endpoint returned:', serversData.length, 'servers');
+          console.log('Servers endpoint returned:', serversData.length, 'servers');
           
           // Transform server data to match frontend model format
           data = serversData.map((server: any, index: number) => ({
@@ -1072,7 +1072,7 @@ const VendorDataCollectionView: React.FC = () => {
         }
       }
       
-  console.log('✅ Final models to display:', data.length);
+  console.log('Final models to display:', data.length);
       setHardwareModels(data);
 
       // Also fetch extensions for the selected basket
@@ -1111,11 +1111,11 @@ const VendorDataCollectionView: React.FC = () => {
         
         if (dellExtensions.length > 0) {
           setExtensions(dellExtensions);
-          console.log(`🔧 Created ${dellExtensions.length} Dell extension components`);
+          console.log(`Created ${dellExtensions.length} Dell extension components`);
         }
       }
     } catch (error) {
-      console.error('❌ Failed to fetch hardware models:', error);
+      console.error('Failed to fetch hardware models:', error);
       setHardwareModels([]);
       setExtensions([]);
     } finally {
@@ -1148,7 +1148,7 @@ const VendorDataCollectionView: React.FC = () => {
 
       if (response.ok) {
         const result = await response.json();
-        console.log('📊 Upload result:', result);
+        console.log('Upload result:', result);
         // Refresh basket list after upload
         fetchHardwareBaskets();
         // Process the servers and components from the simple upload response
@@ -1511,10 +1511,9 @@ const VendorDataCollectionView: React.FC = () => {
                   style={{
                     width: '100%',
                     padding: '8px 12px',
-                    border: '1px solid rgba(0, 0, 0, 0.1)',
+                    border: '1px solid rgba(139, 92, 246, 0.3)',
                     borderRadius: '6px',
-                    fontSize: '14px',
-                    background: 'rgba(255, 255, 255, 0.8)'
+                    fontSize: '14px'
                   }}
                 >
                   <option value="General">General Purpose</option>
@@ -1548,10 +1547,9 @@ const VendorDataCollectionView: React.FC = () => {
                   style={{
                     width: '100%',
                     padding: '8px 12px',
-                    border: '1px solid rgba(0, 0, 0, 0.1)',
+                    border: '1px solid rgba(139, 92, 246, 0.3)',
                     borderRadius: '6px',
-                    fontSize: '14px',
-                    background: 'rgba(255, 255, 255, 0.8)'
+                    fontSize: '14px'
                   }}
                 />
               </div>
@@ -1576,10 +1574,9 @@ const VendorDataCollectionView: React.FC = () => {
                   style={{
                     width: '100%',
                     padding: '8px 12px',
-                    border: '1px solid rgba(0, 0, 0, 0.1)',
+                    border: '1px solid rgba(139, 92, 246, 0.3)',
                     borderRadius: '6px',
-                    fontSize: '14px',
-                    background: 'rgba(255, 255, 255, 0.8)'
+                    fontSize: '14px'
                   }}
                 />
               </div>
@@ -1621,9 +1618,8 @@ const VendorDataCollectionView: React.FC = () => {
                         alignItems: 'center',
                         justifyContent: 'space-between',
                         padding: '16px',
-                        border: '1px solid rgba(0, 0, 0, 0.1)',
-                        borderRadius: '8px',
-                        background: 'rgba(255, 255, 255, 0.5)'
+                        border: '1px solid rgba(139, 92, 246, 0.3)',
+                        borderRadius: '8px'
                       }}
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -1703,7 +1699,7 @@ const VendorDataCollectionView: React.FC = () => {
                       fontSize: '14px',
                       flexShrink: 0
                     }}>
-                      📊
+                      <DataBarHorizontal24Regular />
                     </div>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontWeight: '500', color: '#111827' }}>Hardware Basket Files</div>
@@ -1746,10 +1742,9 @@ const VendorDataCollectionView: React.FC = () => {
                     onChange={(e) => setSelectedBasket(e.target.value)}
                     style={{
                       padding: '6px 12px',
-                      border: '1px solid rgba(0, 0, 0, 0.1)',
+                      border: '1px solid rgba(139, 92, 246, 0.3)',
                       borderRadius: '6px',
-                      fontSize: '12px',
-                      background: 'rgba(255, 255, 255, 0.8)'
+                      fontSize: '12px'
                     }}
                   >
                     <option value="">Select Hardware Basket</option>
@@ -1799,9 +1794,8 @@ const VendorDataCollectionView: React.FC = () => {
                 gap: '16px', 
                 marginBottom: '24px',
                 padding: '16px',
-                background: 'rgba(255, 255, 255, 0.5)',
-                borderRadius: '12px',
-                border: '1px solid rgba(0, 0, 0, 0.05)'
+                    border: '1px solid rgba(139, 92, 246, 0.3)',
+                borderRadius: '12px'
               }}>
                 <div style={{ flex: 1, position: 'relative' }}>
                   <SearchRegular style={{
@@ -1817,14 +1811,9 @@ const VendorDataCollectionView: React.FC = () => {
                     placeholder="Search hardware models..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
+                    className="lcm-search"
                     style={{
-                      width: '100%',
-                      padding: '12px 12px 12px 40px',
-                      border: '1px solid rgba(0, 0, 0, 0.1)',
-                      borderRadius: '8px',
-                      fontSize: '14px',
-                      background: 'rgba(255, 255, 255, 0.8)',
-                      outline: 'none'
+                      paddingLeft: '40px'
                     }}
                   />
                 </div>
@@ -1839,7 +1828,8 @@ const VendorDataCollectionView: React.FC = () => {
                       padding: '8px 12px',
                       borderRadius: '8px',
                       border: '1px solid rgba(0,0,0,0.1)',
-                      background: basketSubTab === 'servers' ? 'rgba(255,255,255,0.9)' : 'transparent',
+                      background: basketSubTab === 'servers' ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(139, 92, 246, 0.15) 100%)' : 'transparent',
+                      backdropFilter: basketSubTab === 'servers' ? 'blur(20px) saturate(130%)' : 'none',
                       color: basketSubTab === 'servers' ? '#111827' : '#6b7280',
                       cursor: 'pointer'
                     }}
@@ -1852,7 +1842,8 @@ const VendorDataCollectionView: React.FC = () => {
                       padding: '8px 12px',
                       borderRadius: '8px',
                       border: '1px solid rgba(0,0,0,0.1)',
-                      background: basketSubTab === 'extensions' ? 'rgba(255,255,255,0.9)' : 'transparent',
+                      background: basketSubTab === 'extensions' ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(139, 92, 246, 0.15) 100%)' : 'transparent',
+                      backdropFilter: basketSubTab === 'extensions' ? 'blur(20px) saturate(130%)' : 'none',
                       color: basketSubTab === 'extensions' ? '#111827' : '#6b7280',
                       cursor: 'pointer'
                     }}
@@ -2089,7 +2080,7 @@ const VendorDataCollectionView: React.FC = () => {
   };
 
   return (
-    <GlassmorphicLayout>
+    <div>
       {/* Header */}
       <div style={{ 
         display: 'flex', 
@@ -2182,7 +2173,9 @@ const VendorDataCollectionView: React.FC = () => {
         gap: '4px', 
         marginBottom: '24px',
         padding: '4px',
-        background: 'rgba(255, 255, 255, 0.3)',
+        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.85) 0%, rgba(139, 92, 246, 0.12) 100%)',
+                    backdropFilter: 'blur(25px) saturate(140%)',
+                    border: '1px solid rgba(255, 255, 255, 0.3)',
         borderRadius: '12px',
         border: '1px solid rgba(0, 0, 0, 0.05)'
       }}>
@@ -2208,7 +2201,8 @@ const VendorDataCollectionView: React.FC = () => {
               fontWeight: '500',
               cursor: 'pointer',
               transition: 'all 0.2s ease',
-              background: activeTab === tab.id ? 'rgba(255, 255, 255, 0.9)' : 'transparent',
+              background: activeTab === tab.id ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(139, 92, 246, 0.15) 100%)' : 'transparent',
+              backdropFilter: activeTab === tab.id ? 'blur(20px) saturate(130%)' : 'none',
               color: activeTab === tab.id ? '#111827' : '#6b7280',
               boxShadow: activeTab === tab.id ? '0 2px 4px rgba(0, 0, 0, 0.1)' : 'none'
             }}
@@ -2350,7 +2344,7 @@ const VendorDataCollectionView: React.FC = () => {
           </div>
         </div>
       )}
-    </GlassmorphicLayout>
+    </div>
   );
 };
 

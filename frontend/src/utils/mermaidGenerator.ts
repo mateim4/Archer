@@ -173,7 +173,7 @@ export function generateVirtualDiagram(topology: NetworkTopology): string {
   let styleClasses: string[] = [];
 
   // Add vCenter as the central management point
-  diagram += '  VCENTER["⚙️ vCenter Server<br/>Management & Orchestration"]\n';
+  diagram += '  VCENTER["[MGMT] vCenter Server<br/>Management & Orchestration"]\n';
 
   // Add Distributed Virtual Switches (DVS)
   const dvsCount = Math.ceil(topology.networks.length / 4); // Group networks into DVS
@@ -195,13 +195,13 @@ export function generateVirtualDiagram(topology: NetworkTopology): string {
     let networkLabel = networkName;
     
     if (networkType === 'management') {
-      networkIcon = '⚙️';
+      networkIcon = '[MGMT]';
       networkLabel += '<br/>Management Network';
     } else if (networkType === 'vmotion') {
       networkIcon = '🔄';
       networkLabel += '<br/>vMotion Network';
     } else if (networkType === 'cluster_network') {
-      networkIcon = '🌐';
+      networkIcon = '[NET]';
       networkLabel += '<br/>VM Production Network';
     }
     
@@ -210,7 +210,7 @@ export function generateVirtualDiagram(topology: NetworkTopology): string {
 
     // Add Port Groups for each network
     const pgId = `PG${index}`;
-    diagram += `  ${pgId}["🔌 Port Group: ${networkName}<br/>Traffic Policies & Security"]\n`;
+    diagram += `  ${pgId}["[PG] Port Group: ${networkName}<br/>Traffic Policies & Security"]\n`;
     connections.push(`  ${netId} --> ${pgId}`);
   });
 
@@ -228,7 +228,7 @@ export function generateVirtualDiagram(topology: NetworkTopology): string {
       const vmkMgmt = `VMK_MGMT_${hostIndex}`;
       const vmkVMotion = `VMK_VMOTION_${hostIndex}`;
       
-      diagram += `  ${vmkMgmt}["⚙️ vmk0: Management<br/>IP: 192.168.100.${10 + hostIndex}"]\n`;
+      diagram += `  ${vmkMgmt}["[MGMT] vmk0: Management<br/>IP: 192.168.100.${10 + hostIndex}"]\n`;
       diagram += `  ${vmkVMotion}["🔄 vmk1: vMotion<br/>IP: 192.168.200.${10 + hostIndex}"]\n`;
       
       connections.push(`  ${hostId} --> ${vmkMgmt}`);
@@ -250,8 +250,8 @@ export function generateVirtualDiagram(topology: NetworkTopology): string {
       // Add physical NICs (vmnic)
       const vmnic1 = `VMNIC1_${hostIndex}`;
       const vmnic2 = `VMNIC2_${hostIndex}`;
-      diagram += `  ${vmnic1}["🔗 vmnic0: 10GbE<br/>Primary Uplink"]\n`;
-      diagram += `  ${vmnic2}["🔗 vmnic1: 10GbE<br/>Redundant Uplink"]\n`;
+      diagram += `  ${vmnic1}["[NIC] vmnic0: 10GbE<br/>Primary Uplink"]\n`;
+      diagram += `  ${vmnic2}["[NIC] vmnic1: 10GbE<br/>Redundant Uplink"]\n`;
       
       connections.push(`  ${hostId} --> ${vmnic1}`);
       connections.push(`  ${hostId} --> ${vmnic2}`);
@@ -268,7 +268,7 @@ export function generateVirtualDiagram(topology: NetworkTopology): string {
       const vmId = `VM${vmIndex}`;
       const vmName = vm.name || `VM ${vmIndex + 1}`;
       const powerState = vm.power_state || vm.powerState || 'unknown';
-      const vmIcon = powerState === 'poweredOn' ? '💻' : '⏸️';
+      const vmIcon = powerState === 'poweredOn' ? '[ON]' : '[OFF]';
       const guestOS = vm.guest_os ? vm.guest_os.split(' ')[0] : 'OS';
       
       diagram += `  ${vmId}["${vmIcon} ${vmName}<br/>${guestOS} | ${vm.vcpus || 2}vCPU, ${vm.memory_gb || 4}GB"]\n`;
@@ -288,7 +288,7 @@ export function generateVirtualDiagram(topology: NetworkTopology): string {
     });
     
     if (topology.vms.length > 12) {
-      diagram += `  MORE_VMS["⚡ ${topology.vms.length - 12} more VMs..."]\n`;
+      diagram += `  MORE_VMS["[+] ${topology.vms.length - 12} more VMs..."]\n`;
       connections.push(`  ESX0 --> MORE_VMS`);
     }
   }
@@ -318,7 +318,7 @@ export function generateHyperVDiagram(topology: NetworkTopology): string {
   let connections: string[] = [];
   
   // Add System Center Virtual Machine Manager (SCVMM) as management
-  diagram += '  SCVMM["⚙️ System Center VMM<br/>Hyper-V Management & Orchestration"]\n';
+  diagram += '  SCVMM["[MGMT] System Center VMM<br/>Hyper-V Management & Orchestration"]\n';
   
   // Add Failover Cluster Manager
   diagram += '  FAILOVER["🔄 Failover Cluster Manager<br/>High Availability & Live Migration"]\n';
@@ -362,9 +362,9 @@ export function generateHyperVDiagram(topology: NetworkTopology): string {
     const vSwitchInt = `VSWITCH_INT_${hostIndex}`;
     const vSwitchPriv = `VSWITCH_PRIV_${hostIndex}`;
     
-    diagram += `  ${vSwitchExt}["🌐 External vSwitch<br/>Production Network<br/>NAT & Internet Access"]\n`;
-    diagram += `  ${vSwitchInt}["🏠 Internal vSwitch<br/>Host-VM Communication<br/>Internal Routing"]\n`;
-    diagram += `  ${vSwitchPriv}["🔒 Private vSwitch<br/>VM-to-VM Only<br/>Isolated Network"]\n`;
+    diagram += `  ${vSwitchExt}["[EXT] External vSwitch<br/>Production Network<br/>NAT & Internet Access"]\n`;
+    diagram += `  ${vSwitchInt}["[INT] Internal vSwitch<br/>Host-VM Communication<br/>Internal Routing"]\n`;
+    diagram += `  ${vSwitchPriv}["[PRIV] Private vSwitch<br/>VM-to-VM Only<br/>Isolated Network"]\n`;
     
     connections.push(`  ${hostId} --> ${vSwitchExt}`);
     connections.push(`  ${hostId} --> ${vSwitchInt}`);
@@ -373,8 +373,8 @@ export function generateHyperVDiagram(topology: NetworkTopology): string {
     // Add physical network adapters
     const pnic1 = `PNIC1_${hostIndex}`;
     const pnic2 = `PNIC2_${hostIndex}`;
-    diagram += `  ${pnic1}["🔗 Physical NIC 1<br/>1GbE/10GbE<br/>Primary Connection"]\n`;
-    diagram += `  ${pnic2}["🔗 Physical NIC 2<br/>1GbE/10GbE<br/>NIC Teaming/Redundancy"]\n`;
+    diagram += `  ${pnic1}["[NIC1] Physical NIC 1<br/>1GbE/10GbE<br/>Primary Connection"]\n`;
+    diagram += `  ${pnic2}["[NIC2] Physical NIC 2<br/>1GbE/10GbE<br/>NIC Teaming/Redundancy"]\n`;
     
     connections.push(`  ${hostId} --> ${pnic1}`);
     connections.push(`  ${hostId} --> ${pnic2}`);
@@ -383,7 +383,7 @@ export function generateHyperVDiagram(topology: NetworkTopology): string {
   });
   
   if (topology.hosts.length > 10) {
-    diagram += `  MORE_HOSTS["⚡ ${topology.hosts.length - 10} more Hyper-V hosts..."]\n`;
+    diagram += `  MORE_HOSTS["[+] ${topology.hosts.length - 10} more Hyper-V hosts..."]\n`;
     connections.push(`  CL0 --> MORE_HOSTS`);
   }
   
@@ -394,7 +394,7 @@ export function generateHyperVDiagram(topology: NetworkTopology): string {
       const vmId = `VM${vmIndex}`;
       const vmName = vm.name || `VM ${vmIndex + 1}`;
       const powerState = vm.power_state || vm.powerState || 'unknown';
-      const vmIcon = powerState === 'poweredOn' ? '💻' : '⏸️';
+      const vmIcon = powerState === 'poweredOn' ? '[ON]' : '[OFF]';
       const generation = vmIndex % 2 === 0 ? 'Gen 2' : 'Gen 1'; // Simulate Hyper-V generations
       const guestOS = vm.guest_os ? vm.guest_os.split(' ')[0] : 'Windows';
       
@@ -415,13 +415,13 @@ export function generateHyperVDiagram(topology: NetworkTopology): string {
     });
     
     if (topology.vms.length > maxVMsToShow) {
-      diagram += `  MORE_VMS["⚡ ${topology.vms.length - maxVMsToShow} more VMs..."]\n`;
+      diagram += `  MORE_VMS["[+] ${topology.vms.length - maxVMsToShow} more VMs..."]\n`;
       connections.push(`  HV0 --> MORE_VMS`);
     }
   }
 
   // Add shared storage components
-  diagram += '  CSV["💾 Cluster Shared Volumes<br/>Shared VHDX Storage<br/>Live Migration Support"]\n';
+  diagram += '  CSV["[STORAGE] Cluster Shared Volumes<br/>Shared VHDX Storage<br/>Live Migration Support"]\n';
   if (topology.clusters && topology.clusters.length > 0) {
     topology.clusters.forEach((_, clusterIndex) => {
       connections.push(`  CL${clusterIndex} -.-> CSV`);
@@ -467,9 +467,9 @@ export function generatePhysicalDiagram(topology: NetworkTopology): string {
   diagram += '  DC["🏢 Enterprise Data Center<br/>Primary Site<br/>Tier III Certified"]\n';
   
   // Add network infrastructure layer
-  diagram += '  CORE_NETWORK["🌐 Core Network Infrastructure<br/>Cisco Nexus 9000 Series<br/>100GbE Backbone"]\n';
-  diagram += '  FIREWALL["🔥 Perimeter Firewall<br/>Next-Gen Security<br/>Intrusion Prevention"]\n';
-  diagram += '  LOADBALANCER["⚖️ Load Balancer Farm<br/>F5 BIG-IP<br/>SSL Offloading & Health Checks"]\n';
+  diagram += '  CORE_NETWORK["[NET] Core Network Infrastructure<br/>Cisco Nexus 9000 Series<br/>100GbE Backbone"]\n';
+  diagram += '  FIREWALL["[FIREWALL] Perimeter Firewall<br/>Next-Gen Security<br/>Intrusion Prevention"]\n';
+  diagram += '  LOADBALANCER["[LB] Load Balancer Farm<br/>F5 BIG-IP<br/>SSL Offloading & Health Checks"]\n';
   
   connections.push('  DC --> CORE_NETWORK');
   connections.push('  DC --> FIREWALL');
@@ -477,17 +477,17 @@ export function generatePhysicalDiagram(topology: NetworkTopology): string {
   connections.push('  FIREWALL --> CORE_NETWORK');
   
   // Add security zones
-  diagram += '  DMZ["🛡️ DMZ Network<br/>Demilitarized Zone<br/>Public-Facing Services"]\n';
-  diagram += '  INTERNAL_ZONE["🔒 Internal Security Zone<br/>Private Network Segment<br/>Corporate Applications"]\n';
-  diagram += '  MGMT_ZONE["⚙️ Management Zone<br/>Out-of-Band Management<br/>Infrastructure Control"]\n';
+  diagram += '  DMZ["[DMZ] DMZ Network<br/>Demilitarized Zone<br/>Public-Facing Services"]\n';
+  diagram += '  INTERNAL_ZONE["[SEC] Internal Security Zone<br/>Private Network Segment<br/>Corporate Applications"]\n';
+  diagram += '  MGMT_ZONE["[MGMT] Management Zone<br/>Out-of-Band Management<br/>Infrastructure Control"]\n';
   
   connections.push('  FIREWALL --> DMZ');
   connections.push('  CORE_NETWORK --> INTERNAL_ZONE');
   connections.push('  CORE_NETWORK --> MGMT_ZONE');
   
   // Add storage infrastructure
-  diagram += '  PRIMARY_STORAGE["💾 Primary Storage Array<br/>NetApp FAS Series<br/>100TB+ Capacity<br/>Deduplication & Compression"]\n';
-  diagram += '  BACKUP_STORAGE["📦 Backup Storage<br/>Tape Library & Disk<br/>Long-term Retention<br/>Disaster Recovery"]\n';
+  diagram += '  PRIMARY_STORAGE["[STORAGE] Primary Storage Array<br/>NetApp FAS Series<br/>100TB+ Capacity<br/>Deduplication & Compression"]\n';
+  diagram += '  BACKUP_STORAGE["[BACKUP] Backup Storage<br/>Tape Library & Disk<br/>Long-term Retention<br/>Disaster Recovery"]\n';
   
   connections.push('  DC --> PRIMARY_STORAGE');
   connections.push('  DC --> BACKUP_STORAGE');
@@ -513,7 +513,7 @@ export function generatePhysicalDiagram(topology: NetworkTopology): string {
       const hostId = `PH${hostIndex}`;
       const hostName = host.name || `Physical Server ${hostIndex + 1}`;
       const status = host.status || 'unknown';
-      const statusIcon = status === 'connected' ? '🖥️' : status === 'disconnected' ? '❌' : '⚠️';
+      const statusIcon = status === 'connected' ? '[ONLINE]' : status === 'disconnected' ? '[OFFLINE]' : '[WARNING]';
       
       // Enhanced server specifications
       const cpuCores = host.cpu_cores || (24 + (hostIndex % 12) * 4); // Simulate varied configs
@@ -540,7 +540,7 @@ export function generatePhysicalDiagram(topology: NetworkTopology): string {
     });
     
     if (topology.hosts.length > maxHostsToShow) {
-      diagram += `  MORE_HOSTS["⚡ ${topology.hosts.length - maxHostsToShow} more physical servers<br/>Rack-mounted & Blade servers<br/>Various configurations..."]\n`;
+      diagram += `  MORE_HOSTS["[+] ${topology.hosts.length - maxHostsToShow} more physical servers<br/>Rack-mounted & Blade servers<br/>Various configurations..."]\n`;
       connections.push(`  CL0 --> MORE_HOSTS`);
     }
   }
@@ -564,8 +564,8 @@ export function generatePhysicalDiagram(topology: NetworkTopology): string {
   }
 
   // Add power and cooling infrastructure
-  diagram += '  UPS["⚡ UPS Systems<br/>Uninterruptible Power<br/>Battery Backup<br/>Generator Integration"]\n';
-  diagram += '  COOLING["❄️ Cooling Systems<br/>Precision Air Conditioning<br/>Hot Aisle Containment<br/>Environmental Monitoring"]\n';
+  diagram += '  UPS["[PWR] UPS Systems<br/>Uninterruptible Power<br/>Battery Backup<br/>Generator Integration"]\n';
+  diagram += '  COOLING["[COOLING] Cooling Systems<br/>Precision Air Conditioning<br/>Hot Aisle Containment<br/>Environmental Monitoring"]\n';
   
   connections.push('  DC --> UPS');
   connections.push('  DC --> COOLING');
@@ -577,7 +577,7 @@ export function generatePhysicalDiagram(topology: NetworkTopology): string {
     const totalCPU = topology.vms.reduce((sum: number, vm: any) => sum + (vm.vcpus || 0), 0);
     const totalMemory = topology.vms.reduce((sum: number, vm: any) => sum + (vm.memory_gb || 0), 0);
     
-    diagram += `  CAPACITY["📊 Infrastructure Capacity<br/>${totalVMs} Virtual Machines<br/>${totalCPU} vCPUs allocated<br/>${Math.round(totalMemory / 1024)} TB RAM<br/>${Math.round(totalStorage / 1024)} TB Storage"]`;
+    diagram += `  CAPACITY["[STATS] Infrastructure Capacity<br/>${totalVMs} Virtual Machines<br/>${totalCPU} vCPUs allocated<br/>${Math.round(totalMemory / 1024)} TB RAM<br/>${Math.round(totalStorage / 1024)} TB Storage"]`;
     diagram += '\n';
     connections.push('  DC --> CAPACITY');
   }

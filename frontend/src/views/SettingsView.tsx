@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { Settings } from 'lucide-react';
+import { SettingsRegular } from '@fluentui/react-icons';
 import { InfoTooltip } from '../components/Tooltip';
 import { autoSave } from '../utils/autoSave';
+import { DESIGN_TOKENS } from '../components/DesignSystem';
+import { DesignTokens } from '../styles/designSystem';
 
 const SettingsView: React.FC = () => {
   // Add style to override table header background
@@ -37,58 +40,11 @@ const SettingsView: React.FC = () => {
     autoSave.addToSave('calculationSettings', calculationSettings);
   }, [calculationSettings]);
 
-  const TabButton = ({ id, label, icon, isActive, onClick }: any) => (
-    <div 
-      className="relative flex flex-col items-center justify-center transition-all duration-300 flex-1 cursor-pointer hover:scale-105"
-      style={{ padding: '12px 16px 20px' }}
-      onClick={() => onClick(id)}
-    >
-      <div 
-        className="flex items-center justify-center w-12 h-12 rounded-xl transition-all duration-300"
-        style={{
-          backgroundColor: isActive 
-            ? 'rgba(139, 92, 246, 0.15)' 
-            : 'rgba(139, 92, 246, 0.05)',
-          border: isActive 
-            ? '2px solid rgba(139, 92, 246, 0.3)' 
-            : '1px solid rgba(139, 92, 246, 0.1)',
-          boxShadow: isActive 
-            ? '0 4px 16px rgba(139, 92, 246, 0.2)' 
-            : '0 2px 8px rgba(139, 92, 246, 0.1)'
-        }}
-      >
-        <div style={{ color: isActive ? '#8b5cf6' : '#6b7280' }}>
-          {icon}
-        </div>
-      </div>
-      <span 
-        className="mt-2 text-sm font-medium transition-colors duration-300"
-        style={{ 
-          color: isActive ? '#8b5cf6' : '#6b7280',
-          fontWeight: isActive ? 600 : 500
-        }}
-      >
-        {label}
-      </span>
-      {isActive && (
-        <div 
-          className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-8 h-1 rounded-full transition-all duration-300"
-          style={{ backgroundColor: '#8b5cf6' }}
-        />
-      )}
-    </div>
-  );
 
   const renderCalculationTab = () => (
-    <div className="space-y-6">
-      <div className="grid grid-cols-2 gap-8">
-        <div 
-          className="p-6 border rounded-xl space-y-4"
-          style={{ 
-            borderColor: 'rgba(139, 92, 246, 0.2)',
-            background: 'transparent'
-          }}
-        >
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
+        <div>
           <h4 className="font-medium"
             style={{
               fontSize: '16px',
@@ -105,7 +61,7 @@ const SettingsView: React.FC = () => {
                 <label className="text-sm font-medium" style={{ color: '#4b5563' }}>
                   Forecast Period (months)
                 </label>
-                <InfoTooltip text="Time horizon for capacity planning calculations" />
+                <InfoTooltip content="Time horizon for capacity planning calculations" />
               </div>
               <input 
                 type="number" 
@@ -122,7 +78,7 @@ const SettingsView: React.FC = () => {
                 <label className="text-sm font-medium" style={{ color: '#4b5563' }}>
                   Planning Horizon (years)
                 </label>
-                <InfoTooltip text="Strategic planning timeframe for hardware lifecycle" />
+                <InfoTooltip content="Strategic planning timeframe for hardware lifecycle" />
               </div>
               <input 
                 type="number" 
@@ -139,7 +95,7 @@ const SettingsView: React.FC = () => {
                 <label className="text-sm font-medium" style={{ color: '#4b5563' }}>
                   Optimization Strategy
                 </label>
-                <InfoTooltip text="Balance between cost, performance, and efficiency" />
+                <InfoTooltip content="Balance between cost, performance, and efficiency" />
               </div>
               <select 
                 className="lcm-dropdown w-full"
@@ -155,13 +111,7 @@ const SettingsView: React.FC = () => {
           </div>
         </div>
 
-        <div 
-          className="p-6 border rounded-xl space-y-4"
-          style={{ 
-            borderColor: 'rgba(139, 92, 246, 0.2)',
-            background: 'transparent'
-          }}
-        >
+        <div>
           <h4 className="font-medium"
             style={{
               fontSize: '16px',
@@ -178,7 +128,7 @@ const SettingsView: React.FC = () => {
                 <label className="text-sm font-medium" style={{ color: '#4b5563' }}>
                   CPU Overcommit Ratio
                 </label>
-                <InfoTooltip text="Virtual CPUs to physical CPU cores ratio (e.g., 4:1)" />
+                <InfoTooltip content="Virtual CPUs to physical CPU cores ratio (e.g., 4:1)" />
               </div>
               <input 
                 type="number" 
@@ -196,7 +146,7 @@ const SettingsView: React.FC = () => {
                 <label className="text-sm font-medium" style={{ color: '#4b5563' }}>
                   Memory Overcommit Ratio
                 </label>
-                <InfoTooltip text="Virtual memory to physical memory ratio" />
+                <InfoTooltip content="Virtual memory to physical memory ratio" />
               </div>
               <input 
                 type="number" 
@@ -214,7 +164,7 @@ const SettingsView: React.FC = () => {
                 <label className="text-sm font-medium" style={{ color: '#4b5563' }}>
                   Storage Efficiency Factor
                 </label>
-                <InfoTooltip text="Expected storage efficiency from compression and deduplication" />
+                <InfoTooltip content="Expected storage efficiency from compression and deduplication" />
               </div>
               <input 
                 type="number" 
@@ -230,113 +180,42 @@ const SettingsView: React.FC = () => {
         </div>
       </div>
 
-      <div 
-        className="p-6 border rounded-xl"
-        style={{ 
-          borderColor: 'rgba(139, 92, 246, 0.2)',
-          background: 'transparent'
-        }}
-      >
-        <h4 className="font-medium mb-4"
-          style={{
-            fontSize: '16px',
-            fontWeight: 600,
-            color: '#2c2c2c'
-          }}>
-          Calculation Guidelines
-        </h4>
-        
-        <div className="grid grid-cols-2 gap-6">
-          <div className="space-y-3">
-            <div className="flex items-start gap-3">
-              <div 
-                className="w-2 h-2 rounded-full mt-2"
-                style={{ backgroundColor: '#10b981' }}
-              />
-              <div>
-                <h5 className="font-medium text-sm mb-1" style={{ color: '#2c2c2c' }}>
-                  CPU Overcommit
-                </h5>
-                <p className="text-xs" style={{ color: '#6b7280', lineHeight: '1.4' }}>
-                  Conservative: 2:1 | Balanced: 4:1 | Aggressive: 8:1
-                </p>
-              </div>
-            </div>
-            
-            <div className="flex items-start gap-3">
-              <div 
-                className="w-2 h-2 rounded-full mt-2"
-                style={{ backgroundColor: '#f59e0b' }}
-              />
-              <div>
-                <h5 className="font-medium text-sm mb-1" style={{ color: '#2c2c2c' }}>
-                  Memory Overcommit
-                </h5>
-                <p className="text-xs" style={{ color: '#6b7280', lineHeight: '1.4' }}>
-                  Conservative: 1.2:1 | Balanced: 1.5:1 | Aggressive: 2:1
-                </p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="space-y-3">
-            <div className="flex items-start gap-3">
-              <div 
-                className="w-2 h-2 rounded-full mt-2"
-                style={{ backgroundColor: '#8b5cf6' }}
-              />
-              <div>
-                <h5 className="font-medium text-sm mb-1" style={{ color: '#2c2c2c' }}>
-                  Storage Efficiency
-                </h5>
-                <p className="text-xs" style={{ color: '#6b7280', lineHeight: '1.4' }}>
-                  No compression: 1.0 | Standard: 2.0 | High: 3.5+
-                </p>
-              </div>
-            </div>
-            
-            <div className="flex items-start gap-3">
-              <div 
-                className="w-2 h-2 rounded-full mt-2"
-                style={{ backgroundColor: '#ef4444' }}
-              />
-              <div>
-                <h5 className="font-medium text-sm mb-1" style={{ color: '#2c2c2c' }}>
-                  Planning Horizon
-                </h5>
-                <p className="text-xs" style={{ color: '#6b7280', lineHeight: '1.4' }}>
-                  Short term: 1-2 years | Long term: 3-5 years
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   );
 
   return (
-    <div className="fluent-page-container">
-      {/* Tab Navigation Header */}
-      <div className="lcm-card mb-6 flex-shrink-0">
-        <div className="flex" style={{ background: 'transparent' }}>
-          <TabButton
-            id="calculation"
-            label="Calculations"
-            icon={<Settings size={16} />}
-            isActive={true}
-            onClick={() => {}}
-          />
-        </div>
+    <div style={{...DesignTokens.components.pageContainer, overflow: 'visible'}}>
+      {/* Header */}
+      <div style={{ 
+        marginBottom: '32px',
+        borderBottom: '2px solid #8b5cf620',
+        paddingBottom: '16px'
+      }}>
+        <h1 style={{
+          fontSize: DesignTokens.typography.xxxl,
+          fontWeight: DesignTokens.typography.semibold,
+          color: '#8b5cf6',
+          margin: '0',
+          fontFamily: DesignTokens.typography.fontFamily,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px'
+        }}>
+          <SettingsRegular style={{ fontSize: '32px', color: '#000000' }} />
+          Settings
+        </h1>
+        <p style={{
+          fontSize: '18px',
+          color: '#64748b',
+          margin: 0,
+          fontFamily: DesignTokens.typography.fontFamily
+        }}>
+          Configure calculation parameters and system preferences
+        </p>
       </div>
-      
-      {/* Main Content Card */}
-      <div className="lcm-card flex-1 overflow-hidden flex flex-col">
-        {/* Scrollable content area */}
-        <div className="flex-1 overflow-auto p-6">
-          {renderCalculationTab()}
-        </div>
-      </div>
+
+      {/* Settings Content */}
+      {renderCalculationTab()}
     </div>
   );
 };

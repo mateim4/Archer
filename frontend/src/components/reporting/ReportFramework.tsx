@@ -9,12 +9,12 @@ import {
   Divider,
   Spinner,
   Badge,
-  DataGrid,
-  DataGridHeader,
-  DataGridHeaderCell,
-  DataGridBody,
-  DataGridRow,
-  DataGridCell,
+  Table,
+  TableHeader,
+  TableHeaderCell,
+  TableBody,
+  TableRow,
+  TableCell,
   createTableColumn,
   TableColumnDefinition,
 } from '@fluentui/react-components';
@@ -33,6 +33,11 @@ export interface ReportSection {
   order: number;
   is_required: boolean;
   subsections?: ReportSection[];
+}
+
+// Extended type used by the customizer for drag-and-drop
+export interface DragDropSection extends ReportSection {
+  dragId: string;
 }
 
 export interface ReportData {
@@ -351,35 +356,27 @@ const TableRenderer: React.FC<{ data: { [key: string]: any } }> = ({ data }) => 
   }));
 
   return (
-    <DataGrid
-      items={items}
-      columns={columns}
-      sortable
+    <Table
       style={{
         border: `1px solid ${DESIGN_TOKENS.colors.primaryBorder}`,
         borderRadius: DESIGN_TOKENS.borderRadius.md,
       }}
     >
-      <DataGridHeader>
-        <DataGridRow>
-          {columns.map((column) => (
-            <DataGridHeaderCell key={column.columnId}>
-              {typeof column.renderHeaderCell === 'function' 
-                ? column.renderHeaderCell() 
-                : column.columnId}
-            </DataGridHeaderCell>
-          ))}
-        </DataGridRow>
-      </DataGridHeader>
-      <DataGridBody>
+      <TableHeader>
+        <TableRow>
+          <TableHeaderCell>Property</TableHeaderCell>
+          <TableHeaderCell>Value</TableHeaderCell>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
         {items.map((item, index) => (
-          <DataGridRow key={index}>
-            <DataGridCell>{item.property}</DataGridCell>
-            <DataGridCell>{item.value}</DataGridCell>
-          </DataGridRow>
+          <TableRow key={index}>
+            <TableCell>{item.property}</TableCell>
+            <TableCell>{String(item.value ?? 'N/A')}</TableCell>
+          </TableRow>
         ))}
-      </DataGridBody>
-    </DataGrid>
+      </TableBody>
+    </Table>
   );
 };
 

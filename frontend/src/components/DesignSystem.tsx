@@ -77,6 +77,44 @@ export const DESIGN_TOKENS = {
   backdropFilter: {
     standard: 'blur(18px) saturate(180%)',
     intense: 'blur(30px) saturate(225%)',
+  },
+
+  // Glass-Edge Components
+  components: {
+    standardCard: {
+      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.5))',
+      backdropFilter: 'blur(60px) saturate(220%) brightness(135%) contrast(105%)',
+      WebkitBackdropFilter: 'blur(60px) saturate(220%) brightness(135%) contrast(105%)',
+      border: '1px solid rgba(255, 255, 255, 0.4)',
+      borderRadius: '20px',
+      padding: '24px',
+      transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+      overflow: 'hidden',
+      cursor: 'pointer',
+      boxShadow: 'inset 0 0 15px rgba(255, 255, 255, 0.15), 0 0 30px rgba(255, 255, 255, 0.08)',
+    },
+
+    standardCardHover: {
+      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.6))',
+      backdropFilter: 'blur(70px) saturate(240%) brightness(140%) contrast(110%)',
+      WebkitBackdropFilter: 'blur(70px) saturate(240%) brightness(140%) contrast(110%)',
+      border: '1px solid rgba(255, 255, 255, 0.6)',
+      transform: 'translateY(-8px) scale(1.02)',
+      boxShadow: 'inset 0 0 25px rgba(255, 255, 255, 0.2), 0 0 50px rgba(255, 255, 255, 0.12), 0 20px 40px rgba(0, 0, 0, 0.1)',
+    },
+
+    standardContentCard: {
+      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.40), rgba(255, 255, 255, 0.40))',
+      backdropFilter: 'blur(30px) saturate(35%) brightness(145%) contrast(85%)',
+      WebkitBackdropFilter: 'blur(30px) saturate(35%) brightness(145%) contrast(85%)',
+      border: '1px solid rgba(255, 255, 255, 0.3)',
+      borderRadius: '20px',
+      padding: '32px',
+      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+      overflow: 'hidden',
+      cursor: 'default',
+      boxShadow: 'inset 0 0 20px rgba(255, 255, 255, 0.1), 0 0 40px rgba(255, 255, 255, 0.05)',
+    },
   }
 };
 

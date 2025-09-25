@@ -7,6 +7,9 @@
 /* Import Fluent UI 2 Design System First */
 @import './styles/fluent2-design-system.css';
 
+/* Import Fluent Enhancements - IMPORTANT: This contains the glassmorphic search bar styles */
+@import './fluent-enhancements.css';
+
 /* Import Poppins Font */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
 
@@ -15,21 +18,109 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Poppins', 'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif;
+  font-family: 'Poppins', system-ui, sans-serif !important;
 }
 
 html, body {
   height: 100%;
-  font-family: 'Poppins', 'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif;
+  font-family: 'Poppins', system-ui, sans-serif !important;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden; /* Prevent horizontal scrolling */
   overflow-y: auto; /* Allow vertical scrolling */
+  background: url('/images/rianne-zuur-aeGLb-6DPp8-unsplash.jpg?v=14') center center / cover no-repeat fixed !important;
+  background-attachment: fixed !important;
+}
+
+html::before, body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.1);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Force Poppins on ALL Fluent UI components and elements */
+*,
+*::before,
+*::after,
+[class*="fui-"], 
+[class*="ms-"],
+.fui-FluentProvider,
+.ms-Button,
+.ms-Text,
+.ms-Label,
+.ms-Dropdown,
+.ms-TextField,
+.ms-ComboBox,
+.ms-Pivot,
+.ms-Nav,
+.ms-CommandBar,
+.ms-DetailsList,
+.ms-MessageBar,
+.ms-Dialog,
+.ms-Panel,
+.ms-Callout,
+div, span, p, h1, h2, h3, h4, h5, h6,
+button, input, textarea, select, label,
+[data-fluent-react*=""],
+[role="button"],
+[role="tab"],
+[role="tabpanel"],
+[role="dialog"],
+[role="listbox"],
+[role="option"],
+[role="menuitem"],
+[aria-label],
+.fluent2-text,
+.fluent2-button,
+.fluent2-input,
+.fluent2-nav,
+.fluent2-badge,
+.fluent2-toast {
+  font-family: 'Poppins', system-ui, sans-serif !important;
+}
+
+/* Override any inherited font families */
+.fui-FluentProvider * {
+  font-family: 'Poppins', system-ui, sans-serif !important;
 }
 
 #root {
   min-height: 100vh; /* Allow content to expand beyond viewport */
   width: 100vw;
+  background: url('/images/rianne-zuur-aeGLb-6DPp8-unsplash.jpg?v=14') center center / cover no-repeat fixed !important;
+  background-attachment: fixed !important;
+  position: relative;
+}
+
+#root::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.1);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Apply wallpaper to FluentProvider */
+.fui-FluentProvider > div {
+  background: url('/images/rianne-zuur-aeGLb-6DPp8-unsplash.jpg?v=14') center center / cover no-repeat fixed !important;
+  background-attachment: fixed !important;
+  min-height: 100vh;
+}
+
+/* Ensure FluentProvider itself has transparent background */
+.fui-FluentProvider {
+  background: transparent !important;
+  min-height: 100vh;
 }
 
 /* Glassmorphic Background Animation */
