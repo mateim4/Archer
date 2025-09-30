@@ -515,7 +515,6 @@ const NetworkVisualizerView = () => {
                 marginBottom: '16px', 
                 padding: '12px', 
                 borderRadius: '8px', 
-                border: '1px solid rgba(168, 85, 247, 0.3)',
                 border: '1px solid rgba(168, 85, 247, 0.2)'
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -627,7 +626,6 @@ const NetworkVisualizerView = () => {
           <div style={{
             marginBottom: '24px',
             padding: '12px',
-            border: '1px solid rgba(239, 68, 68, 0.3)',
             border: '1px solid rgba(239, 68, 68, 0.2)',
             borderRadius: '8px',
             color: '#dc2626'

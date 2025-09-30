@@ -133,11 +133,11 @@ const useStyles = makeStyles({
     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
     position: 'relative',
     padding: DesignTokens.spacing.lg,
-    border: `1px solid ${DesignTokens.colors.border}`,
+    border: `1px solid ${DesignTokens.colors.gray300}`,
     borderRadius: '8px',
     
     '&:hover': {
-      borderColor: DesignTokens.colors.primary,
+      border: `1px solid ${DesignTokens.colors.primary}`,
       boxShadow: `0 0 0 1px ${DesignTokens.colors.primary}`,
     },
     

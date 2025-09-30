@@ -11,7 +11,7 @@ import {
   DocumentRegular,
   SettingsRegular,
   SaveRegular,
-  TaskListRegular,
+  TaskListAddRegular,
   TimelineRegular,
   CheckmarkCircleRegular,
   DocumentPdfRegular,

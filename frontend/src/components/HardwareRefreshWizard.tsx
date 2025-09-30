@@ -143,12 +143,12 @@ const useWizardStyles = makeStyles({
     transition: 'all 0.2s ease',
     cursor: 'pointer',
     '&:hover': {
-      borderColor: tokens.colorBrandStroke1,
+      border: `2px solid ${tokens.colorBrandStroke1}`,
       transform: 'translateY(-2px)',
       boxShadow: tokens.shadow8,
     },
     '&.selected': {
-      borderColor: tokens.colorBrandStroke1,
+      border: `2px solid ${tokens.colorBrandStroke1}`,
       backgroundColor: tokens.colorBrandBackground2,
     },
   },
@@ -532,11 +532,11 @@ export const HardwareRefreshWizard: React.FC<HardwareRefreshWizardProps> = ({
                       </div>
                     }
                     action={
-                      cluster.eolHostCount > 0 && (
+                      cluster.eolHostCount > 0 ? (
                         <Badge appearance="filled" color="warning">
                           {cluster.eolHostCount} EOL hosts
                         </Badge>
-                      )
+                      ) : undefined
                     }
                   />
                   <CardPreview>

@@ -238,12 +238,12 @@ const useWizardStyles = makeStyles({
   },
   stepDotActive: {
     background: tokens.colorBrandBackground,
-    borderColor: tokens.colorBrandBackground,
+    border: `2px solid ${tokens.colorBrandBackground}`,
     color: tokens.colorNeutralForegroundOnBrand,
   },
   stepDotCompleted: {
     background: tokens.colorPaletteGreenBackground3,
-    borderColor: tokens.colorPaletteGreenBackground3,
+    border: `2px solid ${tokens.colorPaletteGreenBackground3}`,
     color: tokens.colorNeutralForegroundOnBrand,
   },
   stepConnector: {
@@ -264,11 +264,11 @@ const useWizardStyles = makeStyles({
     ':hover': {
       transform: 'translateY(-2px)',
       boxShadow: tokens.shadow8,
-      borderColor: tokens.colorBrandStroke1,
+      border: `1px solid ${tokens.colorBrandStroke1}`,
     },
   },
   presetCardSelected: {
-    borderColor: tokens.colorBrandStroke1,
+    border: `1px solid ${tokens.colorBrandStroke1}`,
     boxShadow: tokens.shadow4,
     background: tokens.colorBrandBackground2,
   },

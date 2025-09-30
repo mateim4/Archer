@@ -171,7 +171,7 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
       // Create D3 hierarchy
       const root = d3.hierarchy(hierarchyData)
         .sum(d => d.value)
-        .sort((a, b) => b.value - a.value);
+        .sort((a, b) => (b.value || 0) - (a.value || 0));
 
       // Standard horizontal partition layout
       const partition = d3.partition()

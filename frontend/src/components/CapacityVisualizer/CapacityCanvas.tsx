@@ -5,6 +5,7 @@ import { PremiumColor } from '@fluentui/react-icons';
 import { DesignTokens } from '../../styles/designSystem';
 import SearchWithDropdown from '../SearchWithDropdown';
 import SimpleVisualizer from './SimpleVisualizer';
+import { ClusterData, HostData, VMData } from '../../types/capacityVisualizer';
 
 interface CapacityCanvasProps {
   state: any; // Simplified for now
@@ -199,7 +200,12 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
 
     if (state.clusters.length > 0) {
       state.clusters.forEach((cluster: any) => {
-        const transformedCluster = {
+        const transformedCluster: {
+          id: string;
+          name: string;
+          overcommitRatio: any;
+          hosts: HostData[];
+        } = {
           id: cluster.id || cluster.name,
           name: cluster.name,
           overcommitRatio: ocRatios,
@@ -209,23 +215,31 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
         // Handle direct hosts array (new structure)
         if (cluster.hosts && Array.isArray(cluster.hosts)) {
           cluster.hosts.forEach((host: any) => {
-            const transformedHost = {
+            const transformedHost: HostData = {
               id: host.id || host.name || `host-${Math.random()}`,
               name: host.name || 'Unknown Host',
+              clusterId: cluster.id || cluster.name,
               totalCores: host.totalCores || 32,
-              totalMemory: host.totalRAMGB ? host.totalRAMGB * 1024 : (host.totalMemory || 128) * 1024, // Convert GB to MB
-              totalStorage: host.totalStorageGB || host.totalStorage || 2048, // Already in GB
-              vms: (host.vms || []).map((vm: any) => ({
+              totalRAMGB: host.totalRAMGB || (host.totalMemory || 128),
+              totalStorageGB: host.totalStorageGB || host.totalStorage || 2048,
+              vms: (host.vms || []).map((vm: any): VMData => ({
                 id: vm.id || `vm-${Math.random()}`,
                 name: vm.name || 'Unknown VM',
-                cores: vm.cores || 1,
-                cpus: vm.cpus || 1,
                 allocatedVCPUs: vm.allocatedVCPUs || ((vm.cores || 1) * (vm.cpus || 1)),
-                memory: vm.allocatedRAMGB ? vm.allocatedRAMGB * 1024 : (vm.memory || 16) * 1024, // Convert GB to MB
-                storage: vm.provisonedStorageGB || vm.storage || 100, // Already in GB
-                host: host.name,
-                cluster: cluster.name
-              }))
+                allocatedRAMGB: vm.allocatedRAMGB || (vm.memory || 16),
+                provisonedStorageGB: vm.provisonedStorageGB || vm.storage || 100,
+                hostId: host.id || host.name || '',
+                clusterId: cluster.id || cluster.name,
+                isLocked: vm.isLocked || false,
+                groupId: vm.groupId
+              })),
+              hardwareDetails: {
+                cpuModel: host.cpuModel || 'Unknown CPU',
+                socketCount: host.socketCount || 2,
+                coresPerSocket: host.coresPerSocket || 16,
+                ramType: host.ramType || 'DDR4',
+                storageType: host.storageType || 'SSD'
+              }
             };
             transformedCluster.hosts.push(transformedHost);
           });
@@ -234,23 +248,31 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
           ['leftSide', 'rightSide'].forEach(side => {
             const hosts = cluster[side]?.hosts || [];
             hosts.forEach((host: any) => {
-              const transformedHost = {
+              const transformedHost: HostData = {
                 id: host.host?.id || host.host?.name || `host-${Math.random()}`,
                 name: host.host?.name || 'Unknown Host',
+                clusterId: cluster.id || cluster.name,
                 totalCores: host.host?.totalCores || 32,
-                totalMemory: (host.host?.totalMemory || 128) * 1024, // Convert to MB
-                totalStorage: (host.host?.totalStorage || 2) * 1024, // Convert to GB
-                vms: (host.vms || []).map((vm: any) => ({
+                totalRAMGB: host.host?.totalMemory || 128,
+                totalStorageGB: host.host?.totalStorage || 2048,
+                vms: (host.vms || []).map((vm: any): VMData => ({
                   id: vm.id || `vm-${Math.random()}`,
                   name: vm.name || 'Unknown VM',
-                  cores: vm.cores || 1,
-                  cpus: vm.cpus || 1,
                   allocatedVCPUs: vm.allocatedVCPUs || ((vm.cores || 1) * (vm.cpus || 1)),
-                  memory: (vm.memory || 16) * 1024, // Convert to MB
-                  storage: (vm.storage || 100), // Already in GB
-                  host: host.host?.name,
-                  cluster: cluster.name
-                }))
+                  allocatedRAMGB: vm.memory || 16,
+                  provisonedStorageGB: vm.storage || 100,
+                  hostId: host.host?.id || host.host?.name || '',
+                  clusterId: cluster.id || cluster.name,
+                  isLocked: vm.isLocked || false,
+                  groupId: vm.groupId
+                })),
+                hardwareDetails: {
+                  cpuModel: host.host?.cpuModel || 'Unknown CPU',
+                  socketCount: host.host?.socketCount || 2,
+                  coresPerSocket: host.host?.coresPerSocket || 16,
+                  ramType: host.host?.ramType || 'DDR4',
+                  storageType: host.host?.storageType || 'SSD'
+                }
               };
               transformedCluster.hosts.push(transformedHost);
             });
@@ -357,8 +379,8 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
         id: cluster.id,
         name: cluster.name,
         hostsCount: cluster.hosts?.length || 0,
-        totalVMs: cluster.hosts?.reduce((total, host) => total + (host.vms?.length || 0), 0) || 0,
-        hosts: cluster.hosts?.map(h => ({ 
+        totalVMs: cluster.hosts?.reduce((total: number, host: any) => total + (host.vms?.length || 0), 0) || 0,
+        hosts: cluster.hosts?.map((h: any) => ({ 
           id: h.id, 
           name: h.name, 
           vmCount: h.vms?.length || 0
@@ -1198,8 +1220,8 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
         if (!dragGroup) return;
         
         // Find drop target
-        let dropTarget = null;
-        let dropTargetType = null;
+        let dropTarget: any = null;
+        let dropTargetType: string | null = null;
         
         mainGroup.selectAll('.host-rect, .cluster-rect').each(function(d: any) {
           const rect = d3.select(this);
@@ -1250,11 +1272,16 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
     
     // Center Column: Clusters (vertical rectangles stacked)
     let clusterY = 30 + headerHeight + 10; // Start below headers (headers now at Y=30)
-    clusterData.forEach(({ cluster, clusterIndex, clusterHeight, hosts }) => {
+    clusterData.forEach(({ cluster, clusterIndex, clusterHeight, hosts }: {
+      cluster: any;
+      clusterIndex: number;
+      clusterHeight: number;
+      hosts: any[];
+    }) => {
       // Calculate actual cluster height for mirrored layout
       // Since hosts are split left/right, we need the height of the taller side
-      const leftSideHosts = hosts.filter((_, index) => index % 2 === 0);
-      const rightSideHosts = hosts.filter((_, index) => index % 2 === 1);
+      const leftSideHosts = hosts.filter((_: any, index: number) => index % 2 === 0);
+      const rightSideHosts = hosts.filter((_: any, index: number) => index % 2 === 1);
       
       // When free space is enabled, we need to ensure cluster height accounts for full host capacity
       let leftSideHeight, rightSideHeight;
@@ -1471,7 +1498,12 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
       let leftHostY = clusterY; // Track Y position for left side hosts
       let rightHostY = clusterY; // Track Y position for right side hosts
       
-      hosts.forEach(({ host, hostIndex, height, vms }) => {
+      hosts.forEach(({ host, hostIndex, height, vms }: {
+        host: any;
+        hostIndex: number;
+        height: number;
+        vms: any[];
+      }) => {
         // Use the already-scaled height from cluster data calculation
         // But when free space is enabled, ensure host height matches full capacity
         let scaledHostHeight;
@@ -2189,8 +2221,8 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
             console.log(`Cluster summary ${index}:`, {
               name: cluster.name,
               hosts: cluster.hosts?.length || 0,
-              vms: cluster.hosts?.reduce((total, host) => total + (host.vms?.length || 0), 0) || 0,
-              hostDetails: cluster.hosts?.map(h => ({ name: h.name, vmCount: h.vms?.length || 0 }))
+              vms: cluster.hosts?.reduce((total: number, host: any) => total + (host.vms?.length || 0), 0) || 0,
+              hostDetails: cluster.hosts?.map((h: any) => ({ name: h.name, vmCount: h.vms?.length || 0 }))
             });
             return (
               <div key={cluster.id} style={{
@@ -2224,7 +2256,7 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
                 fontWeight: '600',
                 fontSize: '11px'
               }}>
-                {cluster.hosts?.reduce((total, host) => total + (host.vms?.length || 0), 0) || 0} VMs
+                {cluster.hosts?.reduce((total: number, host: any) => total + (host.vms?.length || 0), 0) || 0} VMs
               </span>
               </div>
             )
@@ -2555,8 +2587,8 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
                 color: '#8b5cf6',
                 fontFamily: 'Poppins, Segoe UI, system-ui, sans-serif'
               }}>
-                {state.clusters.reduce((total, cluster) => 
-                  total + cluster.hosts.reduce((hostTotal, host) => 
+                {state.clusters.reduce((total: number, cluster: any) => 
+                  total + cluster.hosts.reduce((hostTotal: number, host: any) => 
                     hostTotal + (host.vms ? host.vms.length : 0), 0), 0)}
               </span>
               <span style={{
@@ -2578,7 +2610,7 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
                 color: '#8b5cf6',
                 fontFamily: 'Poppins, Segoe UI, system-ui, sans-serif'
               }}>
-                {state.clusters.reduce((total, cluster) => total + cluster.hosts.length, 0)}
+                {state.clusters.reduce((total: number, cluster: any) => total + cluster.hosts.length, 0)}
               </span>
               <span style={{
                 fontSize: '11px',

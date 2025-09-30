@@ -643,10 +643,7 @@ const SimpleVisualizer: React.FC<SimpleVisualizerProps> = ({
                           borderLeft: localSelectedVMs.has(vm.id) 
                             ? `3px solid ${colors.primary}` 
                             : '3px solid transparent',
-                          transition: 'all 0.2s',
-                          ':hover': {
-                            backgroundColor: `${colors.primary}10`
-                          }
+                          transition: 'all 0.2s'
                         }}
                         onMouseEnter={(e) => {
                           if (!localSelectedVMs.has(vm.id)) {

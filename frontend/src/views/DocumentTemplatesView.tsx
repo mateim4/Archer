@@ -41,7 +41,7 @@ import {
   DismissRegular,
   SearchRegular,
   CheckmarkCircleRegular,
-  TaskListRegular,
+  TaskListAddRegular,
   WarningRegular,
   ErrorCircleRegular,
   ArrowUploadRegular

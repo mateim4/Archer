@@ -189,7 +189,7 @@ export const DesignTokens = {
         height: '42px',
         minWidth: '80px',
         whiteSpace: 'nowrap',
-        textAlign: 'center',
+        textAlign: 'center' as const,
       },
       secondary: {
         background: 'rgba(255, 255, 255, 0.9)',
@@ -210,7 +210,7 @@ export const DesignTokens = {
         height: '42px',
         minWidth: '80px',
         whiteSpace: 'nowrap',
-        textAlign: 'center',
+        textAlign: 'center' as const,
         boxShadow: '0 1px 4px rgba(99, 102, 241, 0.15)',
       },
       success: {

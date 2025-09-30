@@ -28,8 +28,9 @@
       "@/*": ["src/*"]
     },
     
-    "types": ["node"]
+    "types": ["node", "vite/client"]
   },
   "include": ["src/**/*"],
+  "exclude": ["src/components/CapacityVisualizer/CapacityCanvas-OLD.tsx"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

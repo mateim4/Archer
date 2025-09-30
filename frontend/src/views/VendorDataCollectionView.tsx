@@ -2176,8 +2176,7 @@ const VendorDataCollectionView: React.FC = () => {
         background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.85) 0%, rgba(139, 92, 246, 0.12) 100%)',
                     backdropFilter: 'blur(25px) saturate(140%)',
                     border: '1px solid rgba(255, 255, 255, 0.3)',
-        borderRadius: '12px',
-        border: '1px solid rgba(0, 0, 0, 0.05)'
+        borderRadius: '12px'
       }}>
         {[
           { id: 'overview', label: 'Overview', icon: <DatabaseRegular /> },

@@ -68,7 +68,7 @@ const useStyles = makeStyles({
     gap: '12px',
     minWidth: '180px',
     flex: '0 1 auto',
-    background: DesignTokens.colors.surfaceSecondary,
+    background: DesignTokens.colors.surface,
     borderRadius: DesignTokens.borderRadius.md,
     padding: '12px'
   },

@@ -115,7 +115,7 @@ const useStyles = makeStyles({
     cursor: 'pointer',
     ':hover': {
       background: tokens.colorNeutralBackground3,
-      borderColor: tokens.colorBrandStroke1,
+      border: `1px solid ${tokens.colorBrandStroke1}`,
     },
   },
   eolBadge: {
@@ -560,11 +560,11 @@ export const HardwareLifecycleView: React.FC = () => {
                       header={<Text weight="semibold">{cluster.name}</Text>}
                       description={`${cluster.hostCount} hosts, ${cluster.vmCount} VMs`}
                       action={
-                        cluster.eolHostCount > 0 && (
+                        cluster.eolHostCount > 0 ? (
                           <Badge appearance="filled" className={styles.nearEolBadge}>
                             {cluster.eolHostCount} EOL hosts
                           </Badge>
-                        )
+                        ) : undefined
                       }
                     />
                     <CardPreview>

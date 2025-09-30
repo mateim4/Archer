@@ -10,20 +10,20 @@ interface CapacityTooltipProps {
 
 const useStyles = makeStyles({
   tooltip: {
-    position: 'fixed !important',
-    zIndex: '9999 !important',
-    maxWidth: '280px !important',
-    padding: '12px !important',
-    background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.95)) !important',
-    backdropFilter: 'blur(20px) saturate(180%) !important',
-    WebkitBackdropFilter: 'blur(20px) saturate(180%) !important',
-    border: `1px solid ${DesignTokens.colors.gray300} !important`,
-    borderRadius: DesignTokens.borderRadius.lg + ' !important',
-    boxShadow: DesignTokens.shadows.lg + ' !important',
-    pointerEvents: 'none !important',
-    fontFamily: DesignTokens.typography.fontFamily + ' !important',
-    display: 'block !important',
-    visibility: 'visible !important'
+    position: 'fixed' as const,
+    zIndex: 9999,
+    maxWidth: '280px',
+    padding: '12px',
+    background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.95))',
+    backdropFilter: 'blur(20px) saturate(180%)',
+    WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+    border: `1px solid ${DesignTokens.colors.gray300}`,
+    borderRadius: DesignTokens.borderRadius.lg,
+    boxShadow: DesignTokens.shadows.lg,
+    pointerEvents: 'none' as const,
+    fontFamily: DesignTokens.typography.fontFamily,
+    display: 'block',
+    visibility: 'visible' as const
   },
   title: {
     fontSize: '14px',

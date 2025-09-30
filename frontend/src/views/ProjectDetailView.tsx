@@ -715,10 +715,7 @@ const ProjectDetailView: React.FC = () => {
                       <div key={activity.id} style={{
                         ...DesignTokens.components.standardContentCard,
                         padding: DesignTokens.spacing.xl,
-                        transition: 'all 0.3s ease',
-                        ':hover': {
-                          transform: 'translateY(-2px)',
-                        }
+                        transition: 'all 0.3s ease'
                       }}>
                         <div className={styles.cardHeaderReplacement}>
                           <div style={{ flex: 1 }}>
@@ -753,10 +750,7 @@ const ProjectDetailView: React.FC = () => {
                               style={{
                                 border: '1px solid rgba(139, 92, 246, 0.2)',
                                 borderRadius: '8px',
-                                color: DesignTokens.colors.primary,
-                                ':hover': {
-                                  background: 'rgba(139, 92, 246, 0.1)',
-                                }
+                                color: DesignTokens.colors.primary
                               }}
                             />
                             <Button
@@ -768,10 +762,7 @@ const ProjectDetailView: React.FC = () => {
                               style={{
                                 border: '1px solid rgba(239, 68, 68, 0.2)',
                                 borderRadius: '8px',
-                                color: '#ef4444',
-                                ':hover': {
-                                  background: 'rgba(239, 68, 68, 0.1)',
-                                }
+                                color: '#ef4444'
                               }}
                             />
                           </div>
@@ -927,11 +918,7 @@ const ProjectDetailView: React.FC = () => {
                             borderRadius: '8px',
                             background: 'rgba(139, 92, 246, 0.03)',
                             border: '1px solid rgba(139, 92, 246, 0.1)',
-                            transition: 'all 0.2s ease',
-                            ':hover': {
-                              background: 'rgba(139, 92, 246, 0.06)',
-                              border: '1px solid rgba(139, 92, 246, 0.15)',
-                            }
+                            transition: 'all 0.2s ease'
                           }}
                         >
                           <div style={{ display: 'flex', alignItems: 'center', gap: tokens.spacingHorizontalS }}>

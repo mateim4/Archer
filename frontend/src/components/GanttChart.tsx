@@ -13,7 +13,7 @@ import {
   DataBarHorizontalRegular,
   FlashRegular,
   WrenchRegular,
-  TaskListRegular
+  TaskListAddRegular
 } from '@fluentui/react-icons';
 
 interface Activity {
@@ -134,9 +134,9 @@ const GanttChart: React.FC<GanttChartProps> = ({
       decommission: <DeleteRegular />,
       hardware_customization: <WrenchRegular />,
       commissioning: <FlashRegular />,
-      custom: <TaskListRegular />
+      custom: <TaskListAddRegular />
     };
-    return icons[type as keyof typeof icons] || <TaskListRegular />;
+    return icons[type as keyof typeof icons] || <TaskListAddRegular />;
   };
 
   const getStatusColor = (status: string) => {
