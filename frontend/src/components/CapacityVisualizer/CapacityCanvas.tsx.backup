@@ -1,0 +1,832 @@
+import React, { useRef, useEffect, useState } from 'react';
+import * as d3 from 'd3';
+import { renderToString } from 'react-dom/server';
+import { PremiumColor } from '@fluentui/react-icons';
+import { DesignTokens } from '../../styles/designSystem';
+import { 
+  VisualizerState, 
+  TooltipData 
+} from '../../types/capacityVisualizer';
+
+interface CapacityCanvasProps {
+  state: VisualizerState;
+  onVMMove: (vmIds: string[], targetHostId: string) => void;
+  onVMSelect: (vmIds: string[], isMultiSelect: boolean) => void;
+  onTooltipUpdate: (data: TooltipData | null) => void;
+}
+
+export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
+  state,
+  onVMMove,
+  onVMSelect,
+  onTooltipUpdate
+}) => {
+  const svgRef = useRef<SVGSVGElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [dimensions, setDimensions] = useState({ width: 1200, height: 600 });
+  const mousePositionRef = useRef({ x: 0, y: 0 });
+
+  // Mouse position tracking
+  useEffect(() => {
+    const handleMouseMove = (event: MouseEvent) => {
+      mousePositionRef.current = { x: event.clientX, y: event.clientY };
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    return () => document.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
+  // Canvas setup and resize handling
+  useEffect(() => {
+    const handleResize = () => {
+      if (containerRef.current) {
+        const { width, height } = containerRef.current.getBoundingClientRect();
+        
+        // Detect browser zoom level
+        const browserZoom = window.devicePixelRatio || 1;
+        const zoomFactor = window.outerWidth / window.innerWidth;
+        
+        // Adjust dimensions based on browser zoom for consistent rendering
+        const adjustedWidth = Math.max(400, width);
+        const adjustedHeight = Math.max(300, height);
+        
+        const newDimensions = { 
+          width: adjustedWidth, 
+          height: adjustedHeight 
+        };
+        
+        console.log('CapacityCanvas - Container dimensions:', { width, height });
+        console.log('CapacityCanvas - Browser zoom info:', { browserZoom, zoomFactor });
+        console.log('CapacityCanvas - Setting dimensions to:', newDimensions);
+        setDimensions(newDimensions);
+      }
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Standard Horizontal Zoomable Icicle
+  useEffect(() => {
+    if (!svgRef.current) return;
+
+    const visibleClusters = state.clusters.filter(cluster => cluster.isVisible);
+
+    const svg = d3.select(svgRef.current);
+    svg.selectAll('*').remove();
+
+    // Track zoom state per cluster
+    const clusterZoomState = new Map<string, any>();
+
+    // Color palette for usage percentage (green to red) - brightened by 25%
+    const getUsageColor = (percentage: number): string => {
+      const brightenColor = (hex: string, factor: number): string => {
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
+        
+        const brightR = Math.min(255, Math.round(r + (255 - r) * factor));
+        const brightG = Math.min(255, Math.round(g + (255 - g) * factor));
+        const brightB = Math.min(255, Math.round(b + (255 - b) * factor));
+        
+        return `#${brightR.toString(16).padStart(2, '0')}${brightG.toString(16).padStart(2, '0')}${brightB.toString(16).padStart(2, '0')}`;
+      };
+
+      const originalColors = [
+        '#61ffb5', // 0% - Green
+        '#61ff81',
+        '#76ff61', 
+        '#abff61',
+        '#dfff61',
+        '#ffea62', // 50% - Yellow
+        '#ffb561',
+        '#ff8161',
+        '#ff6176', 
+        '#ff61ab'  // 100% - Red
+      ];
+      
+      // Brighten colors by 25%
+      const colors = originalColors.map(color => brightenColor(color, 0.25));
+      
+      const clampedPercent = Math.max(0, Math.min(100, percentage));
+      const index = Math.floor(clampedPercent / 10);
+      const nextIndex = Math.min(index + 1, colors.length - 1);
+      
+      if (index === nextIndex) return colors[index];
+      
+      // Simple interpolation between colors
+      const t = (clampedPercent % 10) / 10;
+      const color1 = colors[index];
+      const color2 = colors[nextIndex];
+      
+      // For simplicity, return the nearest color
+      return t < 0.5 ? color1 : color2;
+    };
+
+    // Generate different hues for cluster icons
+    const getClusterIconColor = (clusterIndex: number) => {
+      const hues = [220, 280, 340, 30, 120, 180]; // Blue, Purple, Pink, Orange, Green, Cyan
+      const hue = hues[clusterIndex % hues.length];
+      return `hsl(${hue}, 70%, 60%)`;
+    };
+
+    // Use the official Fluent UI PremiumColor icon
+    const createClusterIcon = (size: number = 60) => {
+      // Render the PremiumColor icon without filter (filter applied at container level)
+      const iconHTML = renderToString(
+        React.createElement(PremiumColor, {
+          style: {
+            width: size,
+            height: size
+          }
+        })
+      );
+      
+      return iconHTML;
+    };
+
+    if (visibleClusters.length === 0) {
+      svg.append('text')
+        .attr('x', dimensions.width / 2)
+        .attr('y', dimensions.height / 2)
+        .attr('text-anchor', 'middle')
+        .attr('font-family', DesignTokens.typography.fontFamily)
+        .attr('font-size', '18px')
+        .attr('fill', DesignTokens.colors.textPrimary)
+        .text('No clusters visible. Use the control panel to add clusters.');
+      return;
+    }
+
+    // Use container's actual width for responsive behavior
+    const width = dimensions.width;
+    
+    // Define proper height scaling hierarchy
+    const clusterHeight = 90; // Cluster height
+    const hostHeight = 67; // 84 reduced by 20% (84 * 0.8 = 67.2, rounded to 67)
+    const vmHeight = 140; // VM height for rotated 10-char text at font-size 14px
+    
+    const spacing = 300;
+    let yOffset = 20;
+
+    // Process each cluster
+    visibleClusters.forEach((cluster, clusterIndex) => {
+      // Calculate capacity once and reuse for consistency
+      const hostCapacityData = cluster.hosts.map(host => {
+        let hostCapacity = 0;
+        let hostAllocated = 0;
+        
+        switch (state.activeView) {
+          case 'cpu':
+            hostCapacity = host.totalCores * state.overcommitmentRatios.cpu;
+            hostAllocated = host.vms.reduce((sum, vm) => sum + vm.allocatedVCPUs, 0);
+            break;
+          case 'memory':
+            hostCapacity = host.totalRAMGB * state.overcommitmentRatios.memory;
+            hostAllocated = host.vms.reduce((sum, vm) => sum + vm.allocatedRAMGB, 0);
+            break;
+          case 'storage':
+            hostCapacity = host.totalStorageGB;
+            hostAllocated = host.vms.reduce((sum, vm) => sum + vm.provisonedStorageGB, 0);
+            break;
+        }
+        
+        return { host, hostCapacity, hostAllocated };
+      });
+
+      const totalClusterCapacity = hostCapacityData.reduce((sum, data) => sum + data.hostCapacity, 0);
+      const totalAllocated = hostCapacityData.reduce((sum, data) => sum + data.hostAllocated, 0);
+      const utilizationPercent = Math.min(100, (totalAllocated / totalClusterCapacity) * 100);
+
+      // Create hierarchical data with actual capacity values for proper proportional scaling
+      const hierarchyData = {
+        name: cluster.name,
+        value: totalClusterCapacity, // Use total capacity for proportional host sizing
+        utilizationPercent: utilizationPercent,
+        children: hostCapacityData.map(({ host, hostCapacity, hostAllocated }) => {
+
+          // Split VMs into two rows for better interaction and display
+          const vmCount = host.vms.length;
+          const row1Count = Math.ceil(vmCount / 2);
+          const row1VMs = host.vms.slice(0, row1Count);
+          const row2VMs = host.vms.slice(row1Count);
+          
+          const createVMRow = (vms: any[], rowName: string) => {
+            const rowVMs = vms.map(vm => {
+              let vmValue = 0;
+              switch (state.activeView) {
+                case 'cpu': vmValue = vm.allocatedVCPUs; break;
+                case 'memory': vmValue = vm.allocatedRAMGB; break;
+                case 'storage': vmValue = vm.provisonedStorageGB; break;
+              }
+              return {
+                name: vm.name,
+                value: vmValue,
+                vmData: vm,
+                type: 'vm'
+              };
+            });
+            
+            // Calculate total allocated for this row
+            const rowAllocated = vms.reduce((sum, vm) => {
+              switch (state.activeView) {
+                case 'cpu': return sum + vm.allocatedVCPUs;
+                case 'memory': return sum + vm.allocatedRAMGB;
+                case 'storage': return sum + vm.provisonedStorageGB;
+                default: return sum;
+              }
+            }, 0);
+            
+            // Add free space for this row (half of total free space per row)
+            const totalFreeSpace = hostCapacity - hostAllocated;
+            const rowFreeSpace = totalFreeSpace / 2;
+            
+            return {
+              name: rowName,
+              value: rowAllocated + rowFreeSpace, // Total capacity for this row
+              type: 'vmrow',
+              children: [
+                ...rowVMs,
+                ...(rowFreeSpace > 0 ? [{
+                  name: 'Free Space',
+                  value: rowFreeSpace,
+                  type: 'free'
+                }] : [])
+              ]
+            };
+          };
+          
+          return {
+            name: host.name,
+            value: hostCapacity, // Use actual host capacity so VMs scale proportionally within host
+            hostData: host,
+            children: [
+              createVMRow(row1VMs, 'VM Row 1'),
+              createVMRow(row2VMs, 'VM Row 2')
+            ]
+          };
+        })
+      };
+
+      // Create cluster group with unique identifier
+      const clusterGroup = svg.append('g')
+        .attr('class', `cluster-${cluster.id}`)
+        .attr('data-cluster-id', cluster.id)
+        .attr('transform', `translate(0, ${yOffset})`);
+
+      // Cluster title removed to prevent text overlapping
+
+      // Create hierarchy and partition
+      const root = d3.hierarchy(hierarchyData)
+        .sum(d => d.value || 0)
+        .sort((a, b) => (b.value || 0) - (a.value || 0));
+
+      // Calculate total height: cluster + host + VM rows
+      const totalPartitionHeight = clusterHeight + hostHeight + (vmHeight * 2); // 2 VM rows: 90 + 67 + (140 * 2) = 437px
+      
+      const partition = d3.partition<any>()
+        .size([width, totalPartitionHeight])
+        .padding(0); // Remove padding so hosts fill cluster width and VMs scale proportionally
+
+      partition(root);
+
+      // Icicle group - no additional transform needed since clusterGroup handles positioning
+      const icicleGroup = clusterGroup.append('g');
+
+      // Scales - use actual partition coordinates
+      const x = d3.scaleLinear().range([0, width]);
+      const y = d3.scaleLinear().range([0, totalPartitionHeight]);
+      
+      // Initialize scales with root bounds
+      x.domain([root.x0 || 0, root.x1 || 1]);
+      y.domain([root.y0 || 0, root.y1 || 1]);
+
+      // Store current focused node for toggle functionality
+      let currentFocus = root;
+
+      // Simplified zoom function for fixed height system
+      const zoom = (d: any, clusterId: string) => {
+        currentFocus = d;
+        clusterZoomState.set(clusterId, d);
+        
+        // Only update x domain for horizontal zoom
+        if (d.depth === 1) {
+          x.domain([d.x0, d.x1]);
+        } else {
+          // Reset to original domain
+          x.domain([root.x0 || 0, root.x1 || 1]);
+        }
+
+        // Get this cluster's group for targeted transitions
+        const thisClusterGroup = svg.select(`[data-cluster-id="${clusterId}"]`);
+        const transition = thisClusterGroup.transition().duration(750);
+        
+        // Hide cluster text and icons only within THIS cluster when zooming on a host
+        thisClusterGroup.selectAll('.cluster-name-text, .cluster-percentage-text, .cluster-icon')
+          .transition()
+          .duration(750)
+          .style('opacity', d.depth === 1 ? 0 : 1);
+        
+        // Hide host names only within THIS cluster except the focused one
+        // AND move the focused host name to center
+        thisClusterGroup.selectAll('.host-name-text')
+          .transition()
+          .duration(750)
+          .attr('x', function() {
+            const node = d3.select(this).datum() as any;
+            const textElement = d3.select(this);
+            
+            // Find the parent SVG to get actual rendered width
+            const parentSvg = textElement.node()?.closest('svg');
+            const actualWidth = parentSvg ? parentSvg.getBoundingClientRect().width : width;
+            
+            // If this is the focused host in this cluster, center it at full width
+            // Use the same coordinate system as the rectangles
+            const currentZoomedNode = clusterZoomState.get(clusterId);
+            if (currentZoomedNode && node === currentZoomedNode) {
+              return width / 2;  // Use logical width, same as rectangle coordinates
+            }
+            
+            // Otherwise, keep normal position (centered within its own width)
+            if (node.parent && node.parent.children) {
+              const hostsSameLevel = node.parent.children.filter((child: any) => child.depth === 1);
+              const hostIndex = hostsSameLevel.indexOf(node);
+              const numHosts = hostsSameLevel.length;
+              const exactHostWidth = actualWidth / numHosts;
+              return hostIndex * exactHostWidth + exactHostWidth / 2;
+            }
+            
+            return actualWidth / 2;
+          })
+          .attr('y', function() {
+            const node = d3.select(this).datum() as any;
+            
+            // If this is the focused host in this cluster, center it vertically in the zoomed rectangle
+            const currentZoomedNode = clusterZoomState.get(clusterId);
+            if (currentZoomedNode && node === currentZoomedNode) {
+              const rectHeight = y(node.y1) - y(node.y0);
+              return y(node.y0) + rectHeight / 2;
+            }
+            
+            // Otherwise, use normal vertical centering
+            if (node.depth === 1) {
+              const rectHeight = y(node.y1) - y(node.y0);
+              return y(node.y0) + rectHeight / 2;
+            }
+            return y(node.y0) + 16;
+          })
+          .style('opacity', function() {
+            const node = d3.select(this).datum() as any;
+            
+            // If zoomed on a host in this cluster, only show that host's name
+            const currentZoomedNode = clusterZoomState.get(clusterId);
+            if (currentZoomedNode && currentZoomedNode.depth === 1) {
+              return node === currentZoomedNode ? 1 : 0;
+            }
+            
+            // Normal state - show all
+            return 1;
+          });
+
+        // Simplified rectangle updates with fixed positioning
+        transition.selectAll('rect')
+          .attr('x', (node: any) => {
+            // Clusters and hosts always start at x=0 for full width spanning
+            if (node.depth === 0 || node.depth === 1) {
+              return 0;
+            }
+            // VMs use scaled positioning within their containers
+            return x(node.x0);
+          })
+          .attr('width', (node: any) => {
+            // Force clusters and hosts to match full width
+            if (node.depth === 0 || node.depth === 1) {
+              return width;
+            }
+            // VMs use scaled width
+            return x(node.x1) - x(node.x0);
+          });
+          // Keep y and height unchanged since we use fixed heights
+        
+        // Simplified host name text positioning
+        transition.selectAll('.host-name-text')
+          .attr('x', width / 2) // Always center in full width
+          .style('opacity', (node: any) => {
+            // Show all hosts in normal state, hide others when zoomed
+            if (currentFocus.depth === 1 && node !== currentFocus) {
+              return 0;
+            }
+            return 1;
+          });
+        
+        // Simplified VM text updates
+        transition.selectAll('.vm-text')
+          .attr('x', (node: any) => x(node.x0) + (x(node.x1) - x(node.x0)) / 2)
+          .style('opacity', (node: any) => {
+            if (node.data.type === 'vm') {
+              const rectWidth = x(node.x1) - x(node.x0);
+              return rectWidth > 25 ? 1 : 0; // Lower threshold for VM text
+            }
+            return 1;
+          });
+      };
+
+      // Reset zoom function for this cluster
+      const resetZoom = (clusterId: string) => {
+        currentFocus = root;
+        clusterZoomState.delete(clusterId);
+        
+        // Restore original scale domains
+        x.domain([root.x0 || 0, root.x1 || 1]);
+        y.domain([root.y0 || 0, root.y1 || 1]);
+        
+        // Reset elements to normal state without calling zoom function
+        const thisClusterGroup = svg.select(`[data-cluster-id="${clusterId}"]`);
+        const transition = thisClusterGroup.transition().duration(750);
+        
+        // Show all elements
+        thisClusterGroup.selectAll('.cluster-name-text, .cluster-percentage-text, .cluster-icon')
+          .transition().duration(750).style('opacity', 1);
+        
+        thisClusterGroup.selectAll('.host-name-text')
+          .transition().duration(750).style('opacity', 1);
+        
+        // Reset rectangle positions to normal state
+        transition.selectAll('rect')
+          .attr('x', (node: any) => {
+            if (node.depth === 0 || node.depth === 1) return 0;
+            return x(node.x0);
+          })
+          .attr('width', (node: any) => {
+            if (node.depth === 0 || node.depth === 1) return width;
+            return x(node.x1) - x(node.x0);
+          });
+          
+        transition.selectAll('.host-name-text').attr('x', width / 2);
+        transition.selectAll('.vm-text')
+          .attr('x', (node: any) => x(node.x0) + (x(node.x1) - x(node.x0)) / 2)
+          .style('opacity', (node: any) => {
+            if (node.data.type === 'vm') {
+              const rectWidth = x(node.x1) - x(node.x0);
+              return rectWidth > 25 ? 1 : 0;
+            }
+            return 1;
+          });
+      };
+
+      // Render cells
+      const cells = icicleGroup.selectAll('g')
+        .data(root.descendants())
+        .join('g');
+
+      // Debug logging for rectangles
+      console.log('🔍 VISUALIZER DEBUG:');
+      console.log('  visibleClusters:', visibleClusters.length);
+      console.log('  width:', width);
+      console.log('  heights:', { clusterHeight, hostHeight, vmHeight });
+      console.log('  cells count:', cells.size());
+      
+      // Rectangles
+      cells.append('rect')
+        .attr('x', (d: any) => {
+          // Clusters start at x=0 for full width spanning
+          if (d.depth === 0) {
+            return 0;
+          }
+          // Hosts use proportional positioning to show distinct rectangles
+          if (d.depth === 1) {
+            return x(d.x0); // Use D3 partition positioning for distinct hosts
+          }
+          // VMs use proportional positioning within their containers
+          return x(d.x0);
+        })
+        .attr('y', (d: any) => {
+          // Use fixed positioning to stack elements properly
+          if (d.depth === 0) {
+            return 0; // Cluster starts at top
+          }
+          if (d.depth === 1) {
+            return clusterHeight; // Hosts start after cluster
+          }
+          if (d.depth === 2) {
+            // VM row containers - position row 1 and row 2
+            const vmRowStartY = clusterHeight + hostHeight;
+            if (d.data.name === 'VM Row 1') {
+              return vmRowStartY;
+            } else if (d.data.name === 'VM Row 2') {
+              return vmRowStartY + vmHeight;
+            }
+            return vmRowStartY;
+          }
+          if (d.depth === 3) {
+            // Individual VMs within rows
+            const vmRowStartY = clusterHeight + hostHeight;
+            if (d.parent.data.name === 'VM Row 1') {
+              return vmRowStartY;
+            } else if (d.parent.data.name === 'VM Row 2') {
+              return vmRowStartY + vmHeight;
+            }
+            return vmRowStartY;
+          }
+          // Fallback
+          return clusterHeight + hostHeight;
+        })
+        .attr('width', (d: any) => {
+          // Clusters span full width
+          if (d.depth === 0) {
+            return width; // Full width for clusters
+          }
+          // Hosts and VMs use proportional D3 partition width
+          return x(d.x1) - x(d.x0);
+        })
+        .attr('height', (d: any) => {
+          // Use fixed heights instead of partition calculations
+          if (d.depth === 0) {
+            return clusterHeight; // 30px
+          }
+          if (d.depth === 1) {
+            return hostHeight; // 15px
+          }
+          // VM rectangles and VM rows
+          return vmHeight; // 140px
+        })
+        .attr('fill', (d: any) => {
+          if (d.data.type === 'free') return 'rgba(200, 200, 200, 0.3)';
+          if (d.data.type === 'vm') {
+            const isSelected = state.selectedVMs.includes(d.data.vmData?.id);
+            return isSelected ? 'rgba(139, 92, 246, 0.8)' : 'rgba(99, 102, 241, 0.6)';
+          }
+          if (d.data.type === 'vmrow') {
+            return 'rgba(139, 92, 246, 0.15)'; // Light purple for VM row containers
+          }
+          return d.depth === 0 ? '#36404a' : d.depth === 1 ? 'rgba(139, 92, 246, 0.3)' : 'rgba(99, 102, 241, 0.5)';
+        })
+        .attr('stroke', '#fff')
+        .attr('stroke-width', (d: any) => {
+          // No stroke for clusters to ensure perfect width alignment
+          if (d.depth === 0) return 0;
+          // Minimal stroke for VMs to maintain proportional scaling
+          if (d.depth === 2) return 0.5;
+          // Thin stroke for hosts
+          return 0.5;
+        })
+        .style('cursor', (d: any) => {
+          // Only hosts (depth 1) should be zoomable
+          if (d.depth === 1 && d.children && d.data.hostData) return 'pointer';
+          // VMs should be selectable
+          if (d.data.vmData) return 'pointer';
+          // VM row containers should not be interactive
+          if (d.data.type === 'vmrow') return 'default';
+          // Clusters should not be clickable for zoom
+          return 'default';
+        })
+        .on('click', function(event, d: any) {
+          event.stopPropagation();
+          
+          // VM selection
+          if (d.data.vmData) {
+            const isMultiSelect = event.ctrlKey || event.metaKey;
+            onVMSelect([d.data.vmData.id], isMultiSelect);
+            return;
+          }
+          
+          // Host zoom functionality - RESTORED
+          if (d.depth === 1 && d.children && d.data.hostData) {
+            const currentZoomedNode = clusterZoomState.get(clusterId);
+            if (currentZoomedNode === d) {
+              // Already zoomed on this host, reset zoom
+              resetZoom(clusterId);
+            } else {
+              // Zoom on this host
+              zoom(d, clusterId);
+            }
+          }
+        })
+        .on('mouseover', function(event, d: any) {
+          // Use clientX/clientY directly for absolute positioning
+          const mouseX = event.clientX || 0;
+          const mouseY = event.clientY || 0;
+          
+          console.log('Mouse coordinates:', { 
+            clientX: event.clientX, 
+            clientY: event.clientY,
+            finalX: mouseX,
+            finalY: mouseY
+          });
+          
+          if (d.data.vmData) {
+            onTooltipUpdate({
+              x: mouseX,
+              y: mouseY,
+              content: {
+                title: d.data.vmData.name,
+                metrics: [
+                  { label: 'vCPUs', value: `${d.data.vmData.allocatedVCPUs}` },
+                  { label: 'Memory', value: `${d.data.vmData.allocatedRAMGB} GB` },
+                  { label: 'Storage', value: `${d.data.vmData.provisonedStorageGB} GB` }
+                ]
+              }
+            });
+          } else if (d.data.hostData) {
+            onTooltipUpdate({
+              x: mouseX,
+              y: mouseY,
+              content: {
+                title: d.data.hostData.name,
+                metrics: [
+                  { label: 'CPU Cores', value: `${d.data.hostData.totalCores}` },
+                  { label: 'Memory', value: `${d.data.hostData.totalRAMGB} GB` },
+                  { label: 'VMs', value: `${d.data.hostData.vms.length}` }
+                ]
+              }
+            });
+          }
+        })
+        .on('mouseout', () => onTooltipUpdate(null));
+
+      // Cluster name at top center
+      cells.filter((d: any) => d.depth === 0 && d.data.utilizationPercent !== undefined)
+        .append('text')
+        .attr('class', 'cluster-name-text')
+        .attr('x', (d: any) => x(d.x0) + (x(d.x1) - x(d.x0)) / 2)
+        .attr('y', 30)
+        .attr('font-family', DesignTokens.typography.fontFamily)
+        .attr('font-size', '18px')
+        .attr('font-weight', '600')
+        .attr('fill', '#ffffff')
+        .attr('pointer-events', 'none')
+        .attr('text-anchor', 'middle')
+        .text((d: any) => d.data.name);
+
+      // Cluster icons (left-aligned within each cluster)
+      cells.filter((d: any) => d.depth === 0 && d.data.utilizationPercent !== undefined)
+        .append('foreignObject')
+        .attr('class', 'cluster-icon')
+        .attr('x', (d: any) => x(d.x0) + 20) // 20px from left edge
+        .attr('y', (clusterHeight - 60) / 2) // Center vertically in cluster rectangle
+        .attr('width', 60)
+        .attr('height', 60)
+        .attr('pointer-events', 'none')
+        .style('filter', `hue-rotate(${clusterIndex * 120}deg) drop-shadow(0 2px 4px rgba(0,0,0,0.3))`)
+        .html(() => createClusterIcon(60));
+
+      // Large centered usage percentage for clusters
+      cells.filter((d: any) => d.depth === 0 && d.data.utilizationPercent !== undefined)
+        .append('text')
+        .attr('class', 'cluster-percentage-text')
+        .attr('x', (d: any) => x(d.x0) + (x(d.x1) - x(d.x0)) / 2)
+        .attr('y', clusterHeight / 2 + 18)
+        .attr('font-family', DesignTokens.typography.fontFamily)
+        .attr('font-size', '44px')
+        .attr('font-weight', '700')
+        .attr('fill', (d: any) => getUsageColor(d.data.utilizationPercent))
+        .attr('pointer-events', 'none')
+        .attr('text-anchor', 'middle')
+        .attr('dominant-baseline', 'middle')
+        .text((d: any) => `${d.data.utilizationPercent.toFixed(1)}%`);
+
+      // Regular labels for non-cluster elements
+      cells.filter((d: any) => !(d.depth === 0 && d.data.utilizationPercent !== undefined))
+        .append('text')
+        .attr('class', (d: any) => d.depth === 1 ? 'host-name-text' : 'vm-text')
+        .attr('x', (d: any) => {
+          // Center host names horizontally within their proportional rectangles
+          if (d.depth === 1) {
+            const rectCenter = x(d.x0) + (x(d.x1) - x(d.x0)) / 2;
+            // Removed debug logging
+            return rectCenter; // Center within each host rectangle
+          }
+          // Center VMs horizontally within their rectangles  
+          if (d.data.type === 'vm') {
+            return x(d.x0) + (x(d.x1) - x(d.x0)) / 2;
+          }
+          return x(d.x0) + 5;
+        })
+        .attr('y', (d: any) => {
+          if (d.depth === 1) {
+            // Center host names vertically within their fixed height rectangle
+            return clusterHeight + hostHeight / 2;
+          }
+          if (d.data.type === 'vm') {
+            // Center VMs vertically within their rectangles using fixed positioning
+            const vmRowStartY = clusterHeight + hostHeight;
+            if (d.parent.data.name === 'VM Row 1') {
+              return vmRowStartY + vmHeight / 2;
+            } else if (d.parent.data.name === 'VM Row 2') {
+              return vmRowStartY + vmHeight + vmHeight / 2;
+            }
+            return vmRowStartY + vmHeight / 2;
+          }
+          return clusterHeight + hostHeight + 16;
+        })
+        .attr('font-family', DesignTokens.typography.fontFamily)
+        .attr('font-size', (d: any) => {
+          // Host names: 14px, VM names: 14px as requested, others: 10px  
+          if (d.depth === 1) return '14px'; // Host names
+          if (d.data.type === 'vm') return '14px'; // VM names - 14px as requested
+          return '10px'; // Other elements
+        })
+        .attr('font-weight', '500')
+        .attr('fill', (d: any) => {
+          // Force high contrast colors for better visibility
+          if (d.depth === 1) return '#FFFFFF'; // White for host names
+          if (d.data.type === 'vm') return '#FFFFFF'; // White for VM names  
+          if (d.data.type === 'free') return '#999999';
+          return '#FFFFFF'; // Default to white for visibility
+        })
+        .attr('pointer-events', 'none')
+        .attr('text-anchor', (d: any) => d.depth === 1 ? 'middle' : 'start')
+        .attr('dominant-baseline', (d: any) => d.depth === 1 ? 'central' : 'auto')
+        .style('opacity', (d: any) => {
+          // Force show host names - NO CONDITIONS
+          if (d.depth === 1) {
+            return 1;
+          }
+          // Force show VM names if they exist
+          if (d.data.type === 'vm') {
+            return 1; // Always show VM names
+          }
+          // For other elements, show if reasonable width
+          const rectWidth = x(d.x1) - x(d.x0);
+          return rectWidth > 30 ? 1 : 0;
+        })
+        .text((d: any) => {
+          if (d.data.type === 'free') return 'Free';
+          if (d.data.type === 'vmrow') return ''; // Don't show text for VM row containers
+          
+          const name = d.data.name || '';
+          
+          // For VMs, show full name since it will be rotated (more vertical space)
+          if (d.data.type === 'vm') {
+            // Removed debug logging
+            return name;
+          }
+          
+          // For hosts, show full name (they have full width now)
+          if (d.depth === 1) {
+            // Removed debug logging
+            return name;
+          }
+          
+          // For other elements, use truncation based on width
+          const rectWidth = x(d.x1) - x(d.x0);
+          const maxLength = Math.floor(rectWidth / 8);
+          return name.length > maxLength ? name.substring(0, Math.max(3, maxLength - 3)) + '...' : name;
+        })
+        .attr('transform', (d: any) => {
+          // VM text rotation: 90 degrees counter-clockwise as requested
+          if (d.data.type === 'vm') {
+            // Get current text position
+            const textX = x(d.x0) + (x(d.x1) - x(d.x0)) / 2;
+            const textY = d.parent.data.name === 'VM Row 1' ? 
+              clusterHeight + hostHeight + vmHeight / 2 : 
+              clusterHeight + hostHeight + vmHeight + vmHeight / 2;
+            // Removed debug logging
+            // +90 = counter-clockwise rotation as requested by user
+            return `rotate(90, ${textX}, ${textY})`;
+          }
+          return '';
+        })
+        .attr('text-anchor', (d: any) => {
+          // Center rotated VM text
+          if (d.data.type === 'vm') return 'middle';
+          return d.depth === 1 ? 'middle' : 'start';
+        });
+
+      // Calculate actual cluster content height (cluster bg: 100px + hosts: 150px = 250px)
+      const clusterContentHeight = 300;
+      yOffset += clusterContentHeight + spacing;
+    });
+
+    // Update SVG viewBox to encompass all content with proper responsive dimensions
+    const totalHeight = yOffset + 50; // Add some padding at bottom
+    svg.attr('viewBox', `0 0 ${width} ${Math.max(400, totalHeight)}`);
+
+  }, [dimensions, state, onVMSelect, onTooltipUpdate]);
+
+  return (
+    <div 
+      ref={containerRef}
+      style={{
+        width: '100%',
+        height: '100%',
+        position: 'relative',
+        overflow: 'auto'
+      }}
+    >
+      <svg
+        ref={svgRef}
+        width="100%"
+        height="100%"
+        style={{
+          display: 'block',
+          fontFamily: DesignTokens.typography.fontFamily,
+          minWidth: '100%',
+          minHeight: '100%'
+        }}
+      />
+    </div>
+  );
+};
+
+export default CapacityCanvas;

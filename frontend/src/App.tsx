@@ -17,6 +17,8 @@ import SettingsView from './views/SettingsView';
 import LandingView from './views/LandingView';
 import { EnhancedRVToolsReportView } from './views/EnhancedRVToolsReportView';
 import { HardwareLifecycleView } from './views/HardwareLifecycleView';
+import { ZoomTestPage } from './components/CapacityVisualizer/ZoomTestPage';
+import { CapacityVisualizerView } from './views/CapacityVisualizerView';
 
 function App() {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
@@ -31,6 +33,9 @@ function App() {
       <Routes>
         {/* Landing page - full screen without sidebar */}
         <Route path="/" element={<LandingView />} />
+        
+        {/* Direct zoom test - full screen without sidebar */}
+        <Route path="/zoom-test" element={<ZoomTestPage />} />
         
         {/* App routes with sidebar navigation */}
         <Route path="/app/*" element={
@@ -72,8 +77,10 @@ function App() {
                 <Route path="enhanced-rvtools" element={<EnhancedRVToolsReportView />} />
                 <Route path="enhanced-rvtools/:uploadId" element={<EnhancedRVToolsReportView />} />
                 <Route path="settings" element={<SettingsView />} />
+                <Route path="capacity-visualizer" element={<CapacityVisualizerView />} />
                 <Route path="projects/:projectId/workflows/:workflowId/migration-wizard" element={<EmbeddedMigrationWizard />} />
                 <Route path="projects/:projectId/workflows/:workflowId/lifecycle-wizard" element={<EmbeddedLifecycleWizard />} />
+                <Route path="zoom-test" element={<ZoomTestPage />} />
                 </Routes>
               </div>
             </main>

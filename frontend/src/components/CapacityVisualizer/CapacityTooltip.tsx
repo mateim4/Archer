@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { Text, Caption1, makeStyles } from '@fluentui/react-components';
 import { DesignTokens } from '../../styles/designSystem';
 import { TooltipData } from '../../types/capacityVisualizer';
@@ -9,17 +10,20 @@ interface CapacityTooltipProps {
 
 const useStyles = makeStyles({
   tooltip: {
-    position: 'fixed',
-    zIndex: 1000,
-    maxWidth: '280px',
-    padding: '12px',
-    background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.95))',
-    backdropFilter: 'blur(20px) saturate(180%)',
-    border: `1px solid ${DesignTokens.colors.gray300}`,
-    borderRadius: DesignTokens.borderRadius.lg,
-    boxShadow: DesignTokens.shadows.lg,
-    pointerEvents: 'none',
-    fontFamily: DesignTokens.typography.fontFamily
+    position: 'fixed !important',
+    zIndex: '9999 !important',
+    maxWidth: '280px !important',
+    padding: '12px !important',
+    background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.95)) !important',
+    backdropFilter: 'blur(20px) saturate(180%) !important',
+    WebkitBackdropFilter: 'blur(20px) saturate(180%) !important',
+    border: `1px solid ${DesignTokens.colors.gray300} !important`,
+    borderRadius: DesignTokens.borderRadius.lg + ' !important',
+    boxShadow: DesignTokens.shadows.lg + ' !important',
+    pointerEvents: 'none !important',
+    fontFamily: DesignTokens.typography.fontFamily + ' !important',
+    display: 'block !important',
+    visibility: 'visible !important'
   },
   title: {
     fontSize: '14px',
@@ -51,15 +55,34 @@ const useStyles = makeStyles({
 export const CapacityTooltip: React.FC<CapacityTooltipProps> = ({ data }) => {
   const styles = useStyles();
 
-  if (!data) return null;
+  if (!data || !data.content) return null;
 
-  return (
+  // Debug logging
+  console.log('Tooltip rendering with data:', {
+    x: data.x,
+    y: data.y,
+    calculatedLeft: data.x + 10,
+    calculatedTop: data.y - 10
+  });
+
+  const tooltipElement = (
     <div
-      className={styles.tooltip}
+      data-testid="capacity-tooltip"
       style={{
-        left: data.x + 10,
-        top: data.y - 10,
-        transform: data.x > window.innerWidth - 300 ? 'translateX(-100%)' : 'none'
+        position: 'fixed',
+        zIndex: 9999,
+        maxWidth: '280px',
+        padding: '12px',
+        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.95))',
+        backdropFilter: 'blur(20px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+        border: `1px solid ${DesignTokens.colors.gray300}`,
+        borderRadius: DesignTokens.borderRadius.lg,
+        boxShadow: DesignTokens.shadows.lg,
+        pointerEvents: 'none',
+        fontFamily: DesignTokens.typography.fontFamily,
+        left: `${data.x + 10}px`,
+        top: `${data.y - 10}px`
       }}
     >
       <div className={styles.title}>
@@ -82,6 +105,9 @@ export const CapacityTooltip: React.FC<CapacityTooltipProps> = ({ data }) => {
       </div>
     </div>
   );
+
+  // Render tooltip as a portal to document body to avoid CSS stacking context issues
+  return createPortal(tooltipElement, document.body);
 };
 
 export default CapacityTooltip;

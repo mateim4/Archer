@@ -91,6 +91,7 @@ export interface VisualizerState {
   dragState: DragState;
   undoStack: VisualizerAction[];
   redoStack: VisualizerAction[];
+  migrationState: MigrationState;
 }
 
 export interface TreeMapNode {
@@ -120,4 +121,26 @@ export interface TooltipData {
       color?: string;
     }>;
   };
+}
+
+export interface VMMigration {
+  id: string;
+  vmId: string;
+  vmName: string;
+  sourceClusterId: string;
+  sourceClusterName: string;
+  sourceHostId: string;
+  sourceHostName: string;
+  destinationClusterId: string;
+  destinationClusterName: string;
+  destinationHostId: string;
+  destinationHostName: string;
+  timestamp: number;
+  status: 'planned' | 'in_progress' | 'completed' | 'failed';
+}
+
+export interface MigrationState {
+  migrations: VMMigration[];
+  isModified: boolean;
+  lastSaved: number;
 }

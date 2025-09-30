@@ -379,6 +379,22 @@
   color: rgba(139, 92, 246, 0.7);
 }
 
+/* Fix for number input clipping */
+input[type="number"] {
+  padding-right: 32px !important;
+  min-width: 80px;
+}
+
+/* Fluent UI Input component number fields */
+.fui-Input[type="number"] {
+  padding-right: 36px !important;
+}
+
+/* Fluent UI Input with contentAfter */
+.fui-Input__contentAfter {
+  margin-right: 8px;
+}
+
 /* ===================
    GLASSMORPHIC FORM INPUTS
    =================== */
@@ -533,6 +549,7 @@
 
 /* ===================
    GLASSMORPHIC SEARCH BAR SYSTEM
+   DEFAULT SEARCH COMPONENT
    =================== */
 
 .glassmorphic-search-container {

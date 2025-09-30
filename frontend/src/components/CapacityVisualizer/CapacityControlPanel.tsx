@@ -55,17 +55,22 @@ interface CapacityControlPanelProps {
 const useStyles = makeStyles({
   panel: {
     width: '100%',
-    height: '100%',
     padding: '0px',
     display: 'flex',
-    flexDirection: 'column',
-    gap: '24px',
-    overflowY: 'auto'
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: '16px',
+    alignItems: 'flex-start'
   },
   section: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '12px'
+    gap: '12px',
+    minWidth: '180px',
+    flex: '0 1 auto',
+    background: DesignTokens.colors.surfaceSecondary,
+    borderRadius: DesignTokens.borderRadius.md,
+    padding: '12px'
   },
   sectionHeader: {
     display: 'flex',
@@ -241,7 +246,10 @@ export const CapacityControlPanel: React.FC<CapacityControlPanelProps> = ({
                   cpu: parseFloat(data.value) || 1
                 })
               }
-              contentAfter={<Text size={200}>x</Text>}
+              contentAfter={<Text size={200} style={{ marginRight: '4px' }}>x</Text>}
+              style={{
+                paddingRight: '32px' // Prevent number clipping
+              }}
             />
           </Field>
           <Field>
@@ -258,7 +266,10 @@ export const CapacityControlPanel: React.FC<CapacityControlPanelProps> = ({
                   memory: parseFloat(data.value) || 1
                 })
               }
-              contentAfter={<Text size={200}>x</Text>}
+              contentAfter={<Text size={200} style={{ marginRight: '4px' }}>x</Text>}
+              style={{
+                paddingRight: '32px' // Prevent number clipping
+              }}
             />
           </Field>
         </div>

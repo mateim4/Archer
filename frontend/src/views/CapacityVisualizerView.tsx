@@ -12,12 +12,27 @@ import {
   Button,
   Field,
   Input,
-  Label
+  Label,
+  Caption1,
+  Badge,
+  Dropdown,
+  Option
 } from '@fluentui/react-components';
+import {
+  ArrowUndoRegular,
+  ArrowRedoRegular,
+  LockClosedRegular,
+  LockOpenRegular,
+  DismissRegular,
+  EyeRegular,
+  EyeOffRegular,
+  AddRegular
+} from '@fluentui/react-icons';
 import { DesignTokens } from '../styles/designSystem';
 import { CapacityCanvas } from '../components/CapacityVisualizer/CapacityCanvas';
-import { CapacityControlPanel } from '../components/CapacityVisualizer/CapacityControlPanel';
+// import { CapacityControlPanel } from '../components/CapacityVisualizer/CapacityControlPanel'; // Removed - OC ratios now in search bar
 import { CapacityTooltip } from '../components/CapacityVisualizer/CapacityTooltip';
+import { MigrationPanel } from '../components/CapacityVisualizer/MigrationPanel';
 import {
   VisualizerState,
   CapacityView,
@@ -26,7 +41,8 @@ import {
   HostData,
   ClusterData,
   VisualizerAction,
-  TooltipData
+  TooltipData,
+  VMMigration
 } from '../types/capacityVisualizer';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -49,26 +65,31 @@ const useStyles = makeStyles({
   contentArea: {
     flex: 1,
     display: 'flex',
-    flexDirection: 'row',
-    gap: '24px',
+    flexDirection: 'column',
+    gap: '16px',
     minHeight: 0
   },
-  controlPanel: {
-    width: '280px',
-    flexShrink: 0,
+  controlPanelRow: {
     display: 'flex',
-    flexDirection: 'column'
+    flexDirection: 'row',
+    gap: '16px',
+    flexWrap: 'wrap',
+    alignItems: 'flex-start',
+    marginBottom: '16px'
   },
   canvasSection: {
     flex: 1,
     display: 'flex',
     flexDirection: 'column',
-    minHeight: '600px'
+    minHeight: '400px',
+    width: '100%'
   },
   canvasContainer: {
     flex: 1,
     position: 'relative',
-    minHeight: '600px'
+    minHeight: '400px',
+    maxHeight: 'none',
+    overflow: 'auto'
   },
   clusterPopup: {
     position: 'fixed',
@@ -112,19 +133,33 @@ const useStyles = makeStyles({
 const createMockData = (): ClusterData[] => {
   const clusters: ClusterData[] = [];
   
-  // Production Cluster - 6 hosts with ~17 VMs each (100 total VMs)
+  // Production Cluster - 6 hosts with 100 total vCores allocated across VMs
   const productionHosts = [];
   const vmsPerProductionHost = [17, 17, 17, 17, 16, 16]; // Total = 100 VMs
+  const vCoresPerHost = [17, 16, 18, 15, 17, 17]; // Total = 100 vCores
   
   for (let i = 0; i < 6; i++) {
     const hostVms = [];
     const vmCount = vmsPerProductionHost[i];
+    const totalHostVCores = vCoresPerHost[i];
+    
+    // Distribute vCores across VMs for this host
+    const vCoreAllocations = [];
+    let remainingVCores = totalHostVCores;
+    
+    for (let j = 0; j < vmCount - 1; j++) {
+      const maxCores = Math.min(4, remainingVCores - (vmCount - j - 1)); // Leave at least 1 for each remaining VM
+      const cores = Math.max(1, Math.floor(Math.random() * maxCores) + 1);
+      vCoreAllocations.push(cores);
+      remainingVCores -= cores;
+    }
+    vCoreAllocations.push(remainingVCores); // Last VM gets remaining cores
     
     for (let j = 0; j < vmCount; j++) {
       hostVms.push({
         id: `vm-prod-${i}-${j}`,
         name: `PROD-VM-${String(i + 1).padStart(2, '0')}-${String(j + 1).padStart(2, '0')}`,
-        allocatedVCPUs: Math.floor(Math.random() * 8) + 2, // 2-9 vCPUs
+        allocatedVCPUs: vCoreAllocations[j],
         allocatedRAMGB: Math.floor(Math.random() * 32) + 8, // 8-40 GB RAM
         provisonedStorageGB: Math.floor(Math.random() * 500) + 100, // 100-600 GB storage
         hostId: `host-prod-${i + 1}`,
@@ -158,16 +193,36 @@ const createMockData = (): ClusterData[] => {
     hosts: productionHosts
   });
   
-  // Development Cluster - 2 hosts with 5 VMs each (10 total VMs)
+  // Development Cluster - 2 hosts with 24 total vCores allocated across VMs
   const devHosts = [];
+  const devVCoresPerHost = [12, 12]; // Total = 24 vCores
+  
   for (let i = 0; i < 2; i++) {
     const hostVms = [];
+    const vmCount = 5;
+    const totalHostVCores = devVCoresPerHost[i];
+    
+    // Distribute vCores across VMs for this host
+    const vCoreAllocations = [];
+    let remainingVCores = totalHostVCores;
+    
+    for (let j = 0; j < vmCount - 1; j++) {
+      const maxCores = Math.min(4, remainingVCores - (vmCount - j - 1)); // Leave at least 1 for each remaining VM
+      const cores = Math.max(1, Math.floor(Math.random() * maxCores) + 1);
+      vCoreAllocations.push(cores);
+      remainingVCores -= cores;
+    }
+    vCoreAllocations.push(remainingVCores); // Last VM gets remaining cores
     
     for (let j = 0; j < 5; j++) {
+      // For DEV-VM-01-04, set cores=3 and cpus=3 for total of 9 vCores as mentioned
+      const isSpecialVM = i === 0 && j === 3; // Fourth VM of first host
       hostVms.push({
         id: `vm-dev-${i}-${j}`,
         name: `DEV-VM-${String(i + 1).padStart(2, '0')}-${String(j + 1).padStart(2, '0')}`,
-        allocatedVCPUs: Math.floor(Math.random() * 4) + 1, // 1-4 vCPUs
+        cores: isSpecialVM ? 3 : (j === 4 ? 1 : 2), // DEV-VM-01-04 gets 3 cores, last VM gets 1, others get 2
+        cpus: isSpecialVM ? 3 : (j === 4 ? 1 : 2), // DEV-VM-01-04 gets 3 CPUs, last VM gets 1x1, others get 2x2
+        allocatedVCPUs: isSpecialVM ? 9 : vCoreAllocations[j], // Override for special VM
         allocatedRAMGB: Math.floor(Math.random() * 16) + 4, // 4-20 GB RAM
         provisonedStorageGB: Math.floor(Math.random() * 200) + 50, // 50-250 GB storage
         hostId: `host-dev-${i + 1}`,
@@ -207,20 +262,82 @@ const createMockData = (): ClusterData[] => {
 export const CapacityVisualizerView: React.FC = () => {
   const styles = useStyles();
 
+  // Load persisted state from localStorage or use defaults
+  const loadPersistedState = (): VisualizerState => {
+    try {
+      const saved = localStorage.getItem('capacityVisualizer_migrationState');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return {
+          clusters: createMockData(),
+          overcommitmentRatios: { cpu: 3.0, memory: 1.5 },
+          activeView: 'cpu',
+          selectedVMs: [],
+          dragState: {
+            isDragging: false,
+            draggedVMs: [],
+            dragStartPosition: { x: 0, y: 0 }
+          },
+          undoStack: [],
+          redoStack: [],
+          migrationState: parsed.migrationState || {
+            migrations: [],
+            isModified: false,
+            lastSaved: Date.now()
+          }
+        };
+      }
+    } catch (error) {
+      console.error('Failed to load persisted migration state:', error);
+    }
+    
+    return {
+      clusters: createMockData(),
+      overcommitmentRatios: { cpu: 3.0, memory: 1.5 },
+      activeView: 'cpu',
+      selectedVMs: [],
+      dragState: {
+        isDragging: false,
+        draggedVMs: [],
+        dragStartPosition: { x: 0, y: 0 }
+      },
+      undoStack: [],
+      redoStack: [],
+      migrationState: {
+        migrations: [],
+        isModified: false,
+        lastSaved: Date.now()
+      }
+    };
+  };
+
   // Main state
-  const [state, setState] = useState<VisualizerState>({
-    clusters: createMockData(),
-    overcommitmentRatios: { cpu: 3.0, memory: 1.5 },
-    activeView: 'cpu',
-    selectedVMs: [],
-    dragState: {
-      isDragging: false,
-      draggedVMs: [],
-      dragStartPosition: { x: 0, y: 0 }
-    },
-    undoStack: [],
-    redoStack: []
-  });
+  const [state, setState] = useState<VisualizerState>(loadPersistedState());
+
+  // Auto-save migration state to localStorage
+  useEffect(() => {
+    if (state.migrationState.isModified) {
+      try {
+        localStorage.setItem('capacityVisualizer_migrationState', JSON.stringify({
+          migrationState: {
+            ...state.migrationState,
+            lastSaved: Date.now(),
+            isModified: false
+          }
+        }));
+        setState(prev => ({
+          ...prev,
+          migrationState: {
+            ...prev.migrationState,
+            lastSaved: Date.now(),
+            isModified: false
+          }
+        }));
+      } catch (error) {
+        console.error('Failed to persist migration state:', error);
+      }
+    }
+  }, [state.migrationState]);
 
   // UI state
   const [tooltip, setTooltip] = useState<TooltipData | null>(null);
@@ -284,11 +401,50 @@ export const CapacityVisualizerView: React.FC = () => {
       switch (action.type) {
         case 'MOVE_VMS':
           const { vmIds, targetHostId } = action.payload;
+          
+          // Find target host and cluster info
+          let targetCluster: ClusterData | null = null;
+          let targetHost: HostData | null = null;
+          for (const cluster of prevState.clusters) {
+            const host = cluster.hosts.find(h => h.id === targetHostId);
+            if (host) {
+              targetCluster = cluster;
+              targetHost = host;
+              break;
+            }
+          }
+          
+          // Track migrations
+          const newMigrations: VMMigration[] = [];
+          
           newState.clusters = newState.clusters.map(cluster => ({
             ...cluster,
             hosts: cluster.hosts.map(host => {
-              // Remove VMs from source hosts
+              // Remove VMs from source hosts and create migration records
               if (host.vms.some(vm => vmIds.includes(vm.id))) {
+                const movingVMs = host.vms.filter(vm => vmIds.includes(vm.id));
+                
+                // Create migration records for each VM being moved
+                movingVMs.forEach(vm => {
+                  if (targetHost && targetCluster) {
+                    newMigrations.push({
+                      id: uuidv4(),
+                      vmId: vm.id,
+                      vmName: vm.name,
+                      sourceClusterId: cluster.id,
+                      sourceClusterName: cluster.name,
+                      sourceHostId: host.id,
+                      sourceHostName: host.name,
+                      destinationClusterId: targetCluster.id,
+                      destinationClusterName: targetCluster.name,
+                      destinationHostId: targetHost.id,
+                      destinationHostName: targetHost.name,
+                      timestamp: Date.now(),
+                      status: 'planned'
+                    });
+                  }
+                });
+                
                 return {
                   ...host,
                   vms: host.vms.filter(vm => !vmIds.includes(vm.id))
@@ -313,6 +469,15 @@ export const CapacityVisualizerView: React.FC = () => {
               return host;
             })
           }));
+          
+          // Add new migrations to the state
+          if (newMigrations.length > 0) {
+            newState.migrationState = {
+              migrations: [...prevState.migrationState.migrations, ...newMigrations],
+              isModified: true,
+              lastSaved: prevState.migrationState.lastSaved
+            };
+          }
           break;
 
         case 'UPDATE_OC_RATIOS':
@@ -449,6 +614,63 @@ export const CapacityVisualizerView: React.FC = () => {
     setState(prev => ({ ...prev, selectedVMs: [] }));
   }, []);
 
+  // Migration handlers
+  const handleExportMigrationPlan = useCallback(() => {
+    const exportData = {
+      exportDate: new Date().toISOString(),
+      totalMigrations: state.migrationState.migrations.length,
+      migrations: state.migrationState.migrations.map(m => ({
+        vmName: m.vmName,
+        sourceCluster: m.sourceClusterName,
+        sourceHost: m.sourceHostName,
+        destinationCluster: m.destinationClusterName,
+        destinationHost: m.destinationHostName,
+        status: m.status,
+        timestamp: new Date(m.timestamp).toISOString()
+      })),
+      summary: {
+        byCluster: state.migrationState.migrations.reduce((acc, m) => {
+          const key = `${m.sourceClusterName} → ${m.destinationClusterName}`;
+          acc[key] = (acc[key] || 0) + 1;
+          return acc;
+        }, {} as Record<string, number>)
+      }
+    };
+
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `migration-plan-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }, [state.migrationState]);
+
+  const handleResetMigrations = useCallback(() => {
+    setState(prev => ({
+      ...prev,
+      clusters: createMockData(),
+      migrationState: {
+        migrations: [],
+        isModified: true,
+        lastSaved: prev.migrationState.lastSaved
+      }
+    }));
+  }, []);
+
+  const handleClearAllMigrations = useCallback(() => {
+    setState(prev => ({
+      ...prev,
+      migrationState: {
+        migrations: [],
+        isModified: true,
+        lastSaved: prev.migrationState.lastSaved
+      }
+    }));
+  }, []);
+
   return (
     <div className={styles.container}>
       {/* Header */}
@@ -461,37 +683,70 @@ export const CapacityVisualizerView: React.FC = () => {
         </Text>
       </div>
 
-      {/* Content Area - Canvas on left, Controls on right */}
-      <div className={styles.contentArea}>
-        {/* Canvas Section - takes most space on the left */}
-        <div className={styles.canvasSection}>
-          <div className={styles.canvasContainer}>
-            <CapacityCanvas
-              state={state}
-              onVMMove={handleVMMove}
-              onVMSelect={handleVMSelect}
-              onTooltipUpdate={setTooltip}
-            />
-          </div>
-        </div>
 
-        {/* Control Panel - compact sidebar on the right */}
-        <div className={styles.controlPanel}>
-          <CapacityControlPanel
+      {/* Secondary Control Bar - Clusters */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '16px',
+        padding: '12px 20px',
+        background: 'transparent',
+        border: '1px solid rgba(255, 255, 255, 0.15)',
+        borderRadius: '8px',
+        marginBottom: '16px'
+      }}>
+        <Caption1 style={{ fontSize: '11px', fontWeight: '600', color: '#666', textTransform: 'uppercase' }}>
+          Clusters
+        </Caption1>
+        {state.clusters.map((cluster) => (
+          <div key={cluster.id} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Button
+              size="small"
+              appearance="subtle"
+              icon={cluster.isVisible ? <EyeRegular /> : <EyeOffRegular />}
+              onClick={() => handleClusterToggle(cluster.id)}
+              style={{
+                opacity: cluster.isVisible ? 1 : 0.5,
+                fontSize: '12px'
+              }}
+            >
+              {cluster.name}
+            </Button>
+            <Badge size="small" appearance="outline">
+              {cluster.hosts.length} hosts
+            </Badge>
+          </div>
+        ))}
+        <Button 
+          size="small"
+          appearance="primary"
+          icon={<AddRegular />}
+          onClick={() => setIsAddClusterDialogOpen(true)}
+        >
+          Add New Cluster
+        </Button>
+      </div>
+
+
+      {/* Canvas Section - takes full width below controls */}
+      <div className={styles.canvasSection}>
+        <div className={styles.canvasContainer}>
+          <CapacityCanvas
             state={state}
-            onViewChange={handleViewChange}
-            onOCRatioChange={handleOCRatioChange}
-            onClusterToggle={handleClusterToggle}
-            onUndo={handleUndo}
-            onRedo={handleRedo}
-            onAddCluster={() => setIsAddClusterDialogOpen(true)}
-            onVMLock={handleVMLock}
-            onVMUnlock={handleVMUnlock}
-            onClearSelection={handleClearSelection}
-            totalStats={totalStats}
+            onVMMove={handleVMMove}
+            onVMSelect={handleVMSelect}
+            onTooltipUpdate={setTooltip}
           />
         </div>
       </div>
+
+      {/* Migration Panel */}
+      <MigrationPanel
+        migrations={state.migrationState.migrations}
+        onExport={handleExportMigrationPlan}
+        onReset={handleResetMigrations}
+        onClearAll={handleClearAllMigrations}
+      />
 
       {/* Tooltip */}
       <CapacityTooltip data={tooltip} />

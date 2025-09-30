@@ -3,7 +3,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { DesignTokens } from '../styles/designSystem';
 import {
-  ArrowLeftRegular,
+  ArrowLeftFilled,
   CalendarRegular,
   ClockRegular,
   PeopleRegular,
@@ -53,10 +53,6 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbButton,
-  BreadcrumbDivider,
 } from '@fluentui/react-components';
 
 import GanttChart from '../components/EnhancedGanttChart';
@@ -315,8 +311,8 @@ const ProjectDetailView: React.FC = () => {
               <Text>The requested project could not be found or failed to load.</Text>
               <Button
                 appearance="primary"
-                icon={<ArrowLeftRegular />}
-                onClick={() => navigate('/projects')}
+                icon={<ArrowLeftFilled />}
+                onClick={() => navigate('/app/projects')}
                 style={{ marginTop: tokens.spacingVerticalM }}
               >
                 Back to Projects
@@ -330,28 +326,36 @@ const ProjectDetailView: React.FC = () => {
 
   return (
     <ErrorBoundary>
-      <div>
-        <main role="main" aria-label={`Project Details: ${project.name}`}>
-        {/* Breadcrumb */}
-        <Breadcrumb style={{ marginBottom: DesignTokens.spacing.lg }}>
-          <BreadcrumbItem>
-            <BreadcrumbButton onClick={() => navigate('/projects')}>
-              <ArrowLeftRegular style={{ marginRight: DesignTokens.spacing.xs }} />
-              Projects
-            </BreadcrumbButton>
-          </BreadcrumbItem>
-          <BreadcrumbDivider />
-          <BreadcrumbItem>
-            <BreadcrumbButton current>{project.name}</BreadcrumbButton>
-          </BreadcrumbItem>
-        </Breadcrumb>
+      <div style={{...DesignTokens.components.pageContainer, overflow: 'visible'}}>
+        {/* Back Button */}
+        <Button 
+          appearance="subtle" 
+          icon={<ArrowLeftFilled style={{ fontSize: '20px', fontWeight: 'bold', color: '#000000' }} />} 
+          onClick={() => navigate('/app/projects')}
+          style={{ 
+            marginBottom: DesignTokens.spacing.xl,
+            color: '#000000',
+            fontSize: '16px',
+            fontWeight: '600',
+            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+            backdropFilter: 'blur(18px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(18px) saturate(180%)',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            borderRadius: '12px',
+            padding: '12px 20px',
+            boxShadow: '0 8px 32px rgba(139, 92, 246, 0.15)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            transition: 'all 0.3s ease'
+          }}
+        >
+          <span style={{ color: '#000000' }}>Back</span>
+        </Button>
 
-        {/* Single large integrated card */}
-        <div style={{
-          ...DesignTokens.components.standardContentCard,
-          padding: 0,
-          minHeight: activeTab === 'capacity' ? '800px' : '600px'
-        }}>
+        {/* Content */}
+        <div style={{ marginBottom: '80px', overflow: 'visible' }}>
+        <main role="main" aria-label={`Project Details: ${project.name}`}>
         {/* Header section with padding */}
         <div className={styles.headerCard} style={{
           padding: DesignTokens.spacing.lg
@@ -964,7 +968,6 @@ const ProjectDetailView: React.FC = () => {
           )}
           </div>
         </div>
-        </div>
 
         {/* Create Activity Modal (minimal) */}
         {isCreateActivityModalOpen && (
@@ -990,6 +993,7 @@ const ProjectDetailView: React.FC = () => {
           </Dialog>
         )}
         </main>
+        </div>
       </div>
     </ErrorBoundary>
   );
