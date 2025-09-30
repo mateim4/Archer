@@ -3,7 +3,7 @@ const cors = require('cors');
 const { Surreal } = require('surrealdb');
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.LEGACY_PROJECT_PORT || process.env.PORT || 3003;
 
 // SurrealDB connection handle and state flags
 let db;

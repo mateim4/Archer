@@ -7,6 +7,8 @@ pub mod services;
 pub mod utils;
 pub mod models;
 pub mod database;
+pub mod migration_models;
+pub mod middleware;
 
 // Re-export main services
 // pub use services::enhanced_rvtools_service::EnhancedRvToolsService; // TODO: Fix compilation errors
@@ -18,6 +20,9 @@ pub mod database;
 // Re-export API handlers
 // TODO: Re-enable when analytics_api module is created
 // pub use api::analytics_api::AnalyticsAPI;
+
+// Re-export common utilities
+pub use utils::api_response::{ApiResponse, helpers};
 
 // Common types used across the backend
 // TODO: Re-enable when analytics and hardware_pool models are created

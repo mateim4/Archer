@@ -1,11 +1,14 @@
 use std::net::{IpAddr, Ipv4Addr, SocketAddr, TcpListener as StdTcpListener};
 use tower_http::{cors::CorsLayer, trace::TraceLayer};
+use axum::middleware::from_fn;
 
 mod api;
 mod models;
 mod database;
 mod migration_models;
 mod services;
+mod utils;
+mod middleware;
 // mod hardware_basket_api; // Disabled - using new api/hardware_baskets.rs
 // mod parser; // Disabled - using new parser in core-engine
 
@@ -24,20 +27,35 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         tracing::info!("📁 Document storage initialized");
     }
     
-    // Initialize database
-    let db_state = database::init_database().await?;
+    // Initialize database with enhanced error handling
+    let db_state = match database::init_database().await {
+        Ok(state) => {
+            tracing::info!("📊 Database initialized successfully");
+            state
+        }
+        Err(e) => {
+            tracing::error!("Failed to initialize database: {}", e);
+            return Err(e.into());
+        }
+    };
     
-    // build our application with the API router
+    // build our application with the API router and middleware
     let app = api::api_router(db_state)
+        .layer(from_fn(middleware::error_handler))
+        .layer(from_fn(middleware::request_logger))
+        .layer(from_fn(middleware::validate_json_content_type))
+        .layer(from_fn(middleware::validate_request_size))
         .layer(CorsLayer::permissive()) // Add CORS for frontend
         .layer(TraceLayer::new_for_http());
 
-    // Determine bind host/port from env, default to 127.0.0.1:3001
-    let host: IpAddr = std::env::var("BACKEND_HOST")
+    // Determine bind host/port from env, prioritize Rust backend on 3001
+    let host: IpAddr = std::env::var("RUST_BACKEND_HOST")
+        .or_else(|_| std::env::var("BACKEND_HOST"))
         .ok()
         .and_then(|s| s.parse::<IpAddr>().ok())
         .unwrap_or(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)));
-    let base_port: u16 = std::env::var("BACKEND_PORT")
+    let base_port: u16 = std::env::var("RUST_BACKEND_PORT")
+        .or_else(|_| std::env::var("BACKEND_PORT"))
         .ok()
         .and_then(|s| s.parse::<u16>().ok())
         .unwrap_or(3001);
@@ -63,8 +81,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     })?;
 
     let addr = SocketAddr::new(host, chosen_port);
-    println!("🚀 InfraAID backend listening on {}", addr);
+    println!("🚀 LCMDesigner Rust Backend listening on {}", addr);
     println!("📊 Database initialized and ready");
+    println!("🔧 API endpoints:");
+    println!("   • Health check: http://{}:{}/health", host, chosen_port);
+    println!("   • API v1: http://{}:{}/api/v1", host, chosen_port);
+    println!("   • Hardware baskets: http://{}:{}/api/v1/hardware-baskets", host, chosen_port);
+    println!("   • Projects: http://{}:{}/api/v1/projects", host, chosen_port);
 
     axum::Server::from_tcp(std_listener)?
         .serve(app.into_make_service())

@@ -13,26 +13,35 @@ use axum::{
 };
 use std::sync::Arc;
 use crate::database::Database;
-
 use crate::database::AppState;
+use crate::utils::api_response::{ApiResponse, helpers};
 
 pub fn api_router(state: AppState) -> Router {
+    // API v1 routes with proper versioning
+    let v1_routes = Router::new()
+        .merge(hardware_baskets::routes().with_state(state.clone()))
+        .merge(project_workflow::routes().with_state(state.clone()))
+        .nest("/hardware-pool", hardware_pool::create_hardware_pool_router(state.clone()))
+        .nest("/rvtools", rvtools::create_rvtools_router(state.clone()))
+        .nest("/enhanced-rvtools", enhanced_rvtools::create_enhanced_rvtools_router(state.clone()))
+        .nest("/project-lifecycle", project_lifecycle::create_project_lifecycle_router(state.clone()));
     
     Router::new()
         .route("/health", get(health_check))
+        .nest("/api/v1", v1_routes)
+        // Legacy API routes for backward compatibility
         .merge(hardware_baskets::routes().with_state(state.clone()))
-        // .merge(migration::routes().with_state(state.clone())) // TODO: Fix migration_models imports
-        .merge(project_workflow::routes().with_state(state.clone()))
         .nest("/api/hardware-pool", hardware_pool::create_hardware_pool_router(state.clone()))
         .nest("/api/rvtools", rvtools::create_rvtools_router(state.clone()))
-        .nest("/api/enhanced-rvtools", enhanced_rvtools::create_enhanced_rvtools_router(state.clone())) // TODO: Fix compilation errors
+        .nest("/api/enhanced-rvtools", enhanced_rvtools::create_enhanced_rvtools_router(state.clone()))
         .nest("/api/project-lifecycle", project_lifecycle::create_project_lifecycle_router(state.clone()))
 }
 
-async fn health_check() -> Json<serde_json::Value> {
-    Json(serde_json::json!({
+async fn health_check() -> ApiResponse<serde_json::Value> {
+    helpers::ok(serde_json::json!({
         "status": "OK",
         "message": "InfraAID backend is running",
-        "version": "1.0.0"
+        "version": "1.0.0",
+        "api_version": "v1"
     }))
 }

@@ -7,7 +7,7 @@ const fs = require('fs');
 const { spawn } = require('child_process');
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.LEGACY_FILE_PORT || process.env.PORT || 3002;
 
 // Path to the Rust CLI parser
 const RVTOOLS_CLI_PATH = path.join(__dirname, '..', 'target', 'debug', 'rvtools_cli');
