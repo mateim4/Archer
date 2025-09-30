@@ -20,7 +20,15 @@ export default defineConfig({
           lines: 80,
           statements: 80
         }
-      }
+      },
+      include: ['src/**/*.{ts,tsx}'],
+      exclude: [
+        'src/**/*.d.ts',
+        'src/main.tsx',
+        'src/vite-env.d.ts',
+        'src/**/*.test.{ts,tsx}',
+        'src/**/*.spec.{ts,tsx}'
+      ]
     },
     include: [
       'src/**/*.{test,spec}.{js,ts,tsx}',
@@ -36,6 +44,8 @@ export default defineConfig({
       '@/components': path.resolve(__dirname, './src/components'),
       '@/views': path.resolve(__dirname, './src/views'),
       '@/store': path.resolve(__dirname, './src/store'),
+      '@/utils': path.resolve(__dirname, './src/utils'),
+      '@/types': path.resolve(__dirname, './src/types'),
     },
   },
 });
