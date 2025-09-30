@@ -6,11 +6,30 @@ A comprehensive lifecycle management and infrastructure planning tool built with
 
 New to the project? Start here:
 
-**📋 [Quick Start Guide](QUICK_START.md)** - Get up and running in minutes
+**📋 [Developer Onboarding Guide](docs/development/onboarding.md)** - Complete setup in 5 minutes
 
-**🔧 [Dependencies Guide](DEPENDENCIES.md)** - Detailed system requirements
+**📖 [API Documentation](docs/api/openapi.yml)** - Comprehensive API reference
 
-**✅ Project Status**: Development environment stabilized, security vulnerabilities resolved, ready for active development!
+**🏗️ [Architecture Overview](docs/development/architecture.md)** - System design and patterns
+
+**✅ Project Status**: Development environment stabilized, comprehensive documentation added, ready for active development!
+
+### Quick Setup Commands
+```bash
+# Automated setup (recommended)
+npm run setup
+
+# Manual setup
+git clone https://github.com/mateim4/LCMDesigner.git
+cd LCMDesigner
+npm run install-all
+npm start  # Starts both frontend and backend
+```
+
+**Access Points:**
+- Frontend: http://localhost:1420
+- Backend API: http://localhost:3001
+- Health Check: http://localhost:3001/health
 
 ## Features
 
@@ -86,25 +105,57 @@ docker-compose up --build
 
 See [DEPENDENCIES.md](DEPENDENCIES.md) for detailed system requirements and [QUICK_START.md](QUICK_START.md) for step-by-step instructions.
 
+## Documentation
+
+### 📚 Developer Documentation
+- **[Developer Onboarding](docs/development/onboarding.md)** - Complete setup guide for new developers
+- **[Architecture Overview](docs/development/architecture.md)** - System design, patterns, and technology stack
+- **[Component Documentation](docs/development/components.md)** - React component library with examples
+- **[Troubleshooting Guide](docs/development/troubleshooting.md)** - Solutions for common development issues
+
+### 🔌 API Documentation
+- **[OpenAPI Specification](docs/api/openapi.yml)** - Complete REST API documentation
+- **[Authentication Guide](docs/api/authentication.md)** - Security implementation and best practices
+
+### 🎨 Design Documentation
+- **[Design System](docs/design/)** - UI components and styling guidelines
+- **[Quick Start Guide](docs/design/QUICK_START.md)** - Fast setup for contributors
+
+### 🧪 Testing Documentation
+- **[Testing Strategy](docs/testing/)** - Unit, integration, and E2E testing approaches
+
 ## Scripts
 
 ```bash
 # Development
-npm run dev          # Start frontend dev server (port 1420)
-npm run server       # Start legacy Express API server (port 3001)
-cargo run --bin backend  # Start Rust backend (port 3001) - for hardware baskets
-npm run tauri dev    # Start Tauri desktop app
+npm run dev               # Start frontend dev server (port 1420)
+npm run dev:backend       # Start Rust backend with hot reload
+npm run dev:full          # Start both frontend and backend together
+npm start                 # Start both frontend and backend (concurrently)
 
 # Building
-npm run build        # Build frontend for production
-cargo build --release   # Build Rust backend for production
-npm run tauri build  # Build desktop application
+npm run build             # Build frontend for production
+npm run build:backend     # Build Rust backend for production
+npm run build:all         # Build both frontend and backend
 
-# Utilities
-npm run clean        # Clean build artifacts
-npm run lint         # Run ESLint
-npm run type-check   # Run TypeScript type checking
-cargo test           # Run Rust backend tests
+# Testing
+npm run test              # Run frontend tests
+npm run test:rust         # Run Rust backend tests
+npm run test:e2e          # Run Playwright E2E tests
+npm run test:all          # Run all tests
+
+# Development Tools
+npm run setup             # Automated environment setup
+npm run install-all       # Install all dependencies (frontend + backend)
+npm run clean             # Clean build artifacts
+npm run lint              # Run ESLint
+npm run lint:fix          # Fix ESLint issues automatically
+npm run type-check        # Run TypeScript type checking
+npm run format            # Format code with Prettier
+
+# Documentation
+npm run docs:api          # Serve API documentation (when available)
+npm run docs:components   # Start Storybook for component docs (when available)
 ```
 
 ## Project Structure

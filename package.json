@@ -5,19 +5,38 @@
   "main": "index.js",
   "scripts": {
     "dev": "npm --prefix frontend run dev",
+    "dev:backend": "cargo run --bin backend",
+    "dev:full": "concurrently \"npm run dev\" \"npm run dev:backend\"",
     "build": "npm --prefix frontend run build",
+    "build:backend": "cargo build --release",
+    "build:all": "npm run build && npm run build:backend",
     "preview": "npm --prefix frontend run preview",
     "backend": "./start-backend.sh",
     "start": "concurrently \"npm run backend\" \"npm run dev\"",
     "install-all": "npm install && npm --prefix frontend install && npm --prefix legacy-server install",
+    "clean": "npm --prefix frontend run clean || true && cargo clean || true && rm -rf node_modules frontend/node_modules legacy-server/node_modules",
+    "test": "npm --prefix frontend run test",
     "test:ui": "npx playwright test tests/ui-analysis.spec.ts",
     "test:ux": "npx playwright test tests/ux-improvements.spec.ts",
+    "test:e2e": "npm --prefix frontend run test:e2e",
+    "test:rust": "cargo test",
+    "test:all": "npm run test && npm run test:rust && npm run test:e2e",
+    "lint": "npm --prefix frontend run lint",
+    "lint:fix": "npm --prefix frontend run lint -- --fix",
+    "type-check": "npm --prefix frontend run type-check",
+    "format": "npm --prefix frontend run format",
+    "docs:api": "redoc-cli serve docs/api/openapi.yml --watch",
+    "docs:components": "storybook dev -p 6006",
+    "setup": "node scripts/setup.js",
     "check-colors": "./check-colors.sh"
   },
   "keywords": [
     "infrastructure",
     "planning",
-    "vmware"
+    "vmware",
+    "migration",
+    "capacity-planning",
+    "hardware-lifecycle"
   ],
   "author": "InfraAID Team",
   "license": "MIT",
@@ -25,10 +44,23 @@
     "@playwright/test": "^1.54.2",
     "@tailwindcss/postcss": "^4.1.11",
     "@types/node": "^24.2.0",
-    "concurrently": "^9.2.1"
+    "concurrently": "^9.2.1",
+    "redoc-cli": "^0.13.21"
   },
   "dependencies": {
     "form-data": "^4.0.4",
     "node-fetch": "^3.3.2"
-  }
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=7.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mateim4/LCMDesigner.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mateim4/LCMDesigner/issues"
+  },
+  "homepage": "https://github.com/mateim4/LCMDesigner#readme"
 }

@@ -46,6 +46,39 @@ import {
 } from '../types/capacityVisualizer';
 import { v4 as uuidv4 } from 'uuid';
 
+/**
+ * CapacityVisualizerView - Interactive visualization component for infrastructure capacity planning
+ * 
+ * A comprehensive visualization tool that displays clusters, hosts, and VMs with multiple 
+ * visualization modes and interactive features. This component is central to the capacity
+ * planning workflow in LCM Designer.
+ * 
+ * Features:
+ * - Multiple visualization modes (CPU, Memory, Storage)
+ * - Interactive VM selection and migration planning
+ * - Real-time capacity calculations with overcommit ratios
+ * - Drag-and-drop VM migration between hosts
+ * - Cluster-level resource aggregation and analysis
+ * - Responsive design with glassmorphic UI elements
+ * 
+ * @example
+ * ```tsx
+ * <CapacityVisualizerView
+ *   clusters={clusterData}
+ *   selectedVMs={selectedVMSet}
+ *   onVMSelect={(vmId, selected) => handleVMSelection(vmId, selected)}
+ *   visualizationMode="cpu"
+ *   isMigrationView={false}
+ * />
+ * ```
+ * 
+ * @param clusters - Array of cluster data with hosts and VMs
+ * @param selectedVMs - Set of currently selected VM IDs
+ * @param onVMSelect - Callback for VM selection changes
+ * @param visualizationMode - Current visualization mode (cpu/memory/storage)
+ * @param isMigrationView - Whether to show migration-specific UI
+ */
+
 const useStyles = makeStyles({
   container: {
     display: 'flex',

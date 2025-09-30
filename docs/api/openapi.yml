@@ -1,0 +1,599 @@
+openapi: 3.0.0
+info:
+  title: LCM Designer API
+  version: 1.0.0
+  description: |
+    Infrastructure Lifecycle Management Designer API
+    
+    This API provides comprehensive infrastructure planning and management capabilities including:
+    - Hardware basket management and vendor data processing
+    - Project lifecycle management and workflow orchestration
+    - RVTools data processing and analysis
+    - Migration planning and capacity sizing
+    - Network topology generation and visualization
+    
+    ## Authentication
+    Currently, the API does not require authentication for development environments.
+    Production deployments should implement proper authentication mechanisms.
+    
+    ## Rate Limiting
+    No rate limiting is currently implemented. Production deployments should consider
+    implementing rate limiting based on usage patterns.
+    
+  contact:
+    name: LCM Designer Team
+    url: https://github.com/mateim4/LCMDesigner
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:3001
+    description: Local development server
+  - url: http://localhost:3001/api
+    description: Local development API base
+
+paths:
+  /health:
+    get:
+      summary: Health check endpoint
+      description: Returns the current status of the API server
+      tags:
+        - System
+      responses:
+        '200':
+          description: Server is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "InfraAID backend is running"
+                  version:
+                    type: string
+                    example: "1.0.0"
+              example:
+                status: "OK"
+                message: "InfraAID backend is running"
+                version: "1.0.0"
+
+  /hardware-baskets:
+    get:
+      summary: List hardware baskets
+      description: Retrieve a list of all hardware baskets with optional filtering
+      tags:
+        - Hardware Baskets
+      parameters:
+        - name: vendor
+          in: query
+          description: Filter baskets by vendor
+          required: false
+          schema:
+            type: string
+            enum: [dell, lenovo, hpe]
+        - name: year
+          in: query
+          description: Filter baskets by year
+          required: false
+          schema:
+            type: integer
+            minimum: 2020
+            maximum: 2030
+        - name: quarter
+          in: query
+          description: Filter baskets by quarter
+          required: false
+          schema:
+            type: string
+            enum: [Q1, Q2, Q3, Q4]
+      responses:
+        '200':
+          description: List of hardware baskets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/HardwareBasket'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    
+    post:
+      summary: Create new hardware basket
+      description: Create a new hardware basket entry without uploading files
+      tags:
+        - Hardware Baskets
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateHardwareBasketRequest'
+      responses:
+        '201':
+          description: Hardware basket created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateBasketResponse'
+        '400':
+          description: Invalid request data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /hardware-baskets/upload:
+    post:
+      summary: Upload and process hardware basket file
+      description: Upload an Excel file containing hardware catalog data for processing
+      tags:
+        - Hardware Baskets
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Excel file containing hardware catalog data
+                vendor:
+                  type: string
+                  enum: [dell, lenovo, hpe]
+                  description: Hardware vendor for the catalog
+                name:
+                  type: string
+                  description: Custom name for the hardware basket
+                quarter:
+                  type: string
+                  enum: [Q1, Q2, Q3, Q4]
+                  description: Quarter for pricing data
+                year:
+                  type: integer
+                  minimum: 2020
+                  maximum: 2030
+                  description: Year for pricing data
+              required:
+                - file
+                - vendor
+      responses:
+        '201':
+          description: File uploaded and processed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadResponse'
+        '400':
+          description: Invalid file or missing parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /hardware-baskets/{id}:
+    delete:
+      summary: Delete hardware basket
+      description: Remove a hardware basket and all associated data
+      tags:
+        - Hardware Baskets
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Hardware basket ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Basket deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Basket deleted successfully"
+        '404':
+          description: Basket not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /hardware-baskets/{id}/models:
+    get:
+      summary: Get hardware models for basket
+      description: Retrieve all hardware models associated with a specific basket
+      tags:
+        - Hardware Baskets
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Hardware basket ID
+          schema:
+            type: string
+        - name: model_type
+          in: query
+          description: Filter by model type (server, storage, network)
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: Maximum number of models to return
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1000
+            default: 100
+      responses:
+        '200':
+          description: List of hardware models
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/HardwareModel'
+        '404':
+          description: Basket not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /hardware-baskets/{id}/recount:
+    post:
+      summary: Recount basket totals
+      description: Recalculate the total number of models and configurations in a basket
+      tags:
+        - Hardware Baskets
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Hardware basket ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Totals recalculated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  basket_id:
+                    type: string
+                  total_models:
+                    type: integer
+                  total_configurations:
+                    type: integer
+                  updated_at:
+                    type: string
+                    format: date-time
+
+  /api/projects:
+    get:
+      summary: List projects
+      description: Retrieve all infrastructure projects
+      tags:
+        - Projects
+      responses:
+        '200':
+          description: List of projects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Project'
+    
+    post:
+      summary: Create new project
+      description: Create a new infrastructure project
+      tags:
+        - Projects
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProjectRequest'
+      responses:
+        '201':
+          description: Project created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+
+  /api/rvtools:
+    post:
+      summary: Process RVTools data
+      description: Upload and process RVTools Excel export for environment analysis
+      tags:
+        - RVTools
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: RVTools Excel export file
+              required:
+                - file
+      responses:
+        '200':
+          description: RVTools data processed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RVToolsProcessResult'
+
+components:
+  schemas:
+    HardwareBasket:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the hardware basket
+          example: "hardware_basket:01HXAMPLE"
+        name:
+          type: string
+          description: Human-readable name for the basket
+          example: "Dell PowerEdge R750 Portfolio Q3 2024"
+        vendor:
+          type: string
+          enum: [dell, lenovo, hpe]
+          description: Hardware vendor
+          example: "dell"
+        quarter:
+          type: string
+          enum: [Q1, Q2, Q3, Q4]
+          description: Pricing quarter
+          example: "Q3"
+        year:
+          type: integer
+          description: Pricing year
+          example: 2024
+        filename:
+          type: string
+          description: Original uploaded filename
+          example: "dell-poweredge-r750-pricing.xlsx"
+        quotation_date:
+          type: string
+          format: date
+          description: Date of the price quotation
+          example: "2024-07-15"
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when basket was created
+          example: "2024-07-15T10:30:00Z"
+        total_models:
+          type: integer
+          description: Total number of unique hardware models
+          example: 25
+        total_configurations:
+          type: integer
+          description: Total number of hardware configurations
+          example: 150
+      required:
+        - id
+        - name
+        - vendor
+        - created_at
+
+    HardwareModel:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the hardware model
+        model_name:
+          type: string
+          description: Manufacturer model name
+          example: "PowerEdge R750"
+        model_number:
+          type: string
+          description: Specific model number/SKU
+          example: "R750-001"
+        category:
+          type: string
+          description: Hardware category
+          example: "server"
+        specifications:
+          type: object
+          description: Technical specifications
+          properties:
+            cpu:
+              type: string
+              example: "Intel Xeon Gold 6226R"
+            memory:
+              type: string
+              example: "64GB DDR4"
+            storage:
+              type: string
+              example: "2x 1TB NVMe SSD"
+        pricing:
+          type: object
+          properties:
+            list_price:
+              type: number
+              format: float
+              example: 12999.99
+            currency:
+              type: string
+              example: "USD"
+        basket_id:
+          type: string
+          description: Associated hardware basket ID
+
+    CreateHardwareBasketRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name for the hardware basket
+          example: "Q4 2024 Server Refresh"
+        vendor:
+          type: string
+          enum: [dell, lenovo, hpe]
+          description: Hardware vendor
+        quarter:
+          type: string
+          enum: [Q1, Q2, Q3, Q4]
+          description: Pricing quarter
+        year:
+          type: integer
+          minimum: 2020
+          maximum: 2030
+          description: Pricing year
+      required:
+        - name
+        - vendor
+
+    CreateBasketResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: ID of the created basket
+        message:
+          type: string
+          example: "Hardware basket created successfully"
+
+    UploadResponse:
+      type: object
+      properties:
+        basket_id:
+          type: string
+          description: ID of the created/updated basket
+        models_parsed:
+          type: integer
+          description: Number of hardware models parsed
+        configurations_parsed:
+          type: integer
+          description: Number of configurations parsed
+        message:
+          type: string
+          example: "File processed successfully"
+
+    Project:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique project identifier
+        name:
+          type: string
+          description: Project name
+          example: "Data Center Modernization"
+        description:
+          type: string
+          description: Project description
+          example: "Complete refresh of legacy infrastructure"
+        owner_id:
+          type: string
+          description: Project owner identifier
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - owner_id
+
+    CreateProjectRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Project name
+        description:
+          type: string
+          description: Project description
+        owner_id:
+          type: string
+          description: Project owner identifier
+      required:
+        - name
+        - owner_id
+
+    RVToolsProcessResult:
+      type: object
+      properties:
+        environment_summary:
+          type: object
+          description: Summary of the VMware environment
+        hosts_count:
+          type: integer
+          description: Number of ESXi hosts
+        vms_count:
+          type: integer
+          description: Number of virtual machines
+        total_cpu_cores:
+          type: integer
+          description: Total CPU cores across all hosts
+        total_memory_gb:
+          type: number
+          description: Total memory in GB
+        message:
+          type: string
+          example: "RVTools data processed successfully"
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error type or category
+          example: "Validation Error"
+        message:
+          type: string
+          description: Human-readable error message
+          example: "Invalid file format. Please upload an Excel file."
+        details:
+          type: string
+          description: Additional error details (optional)
+      required:
+        - error
+        - message
+
+tags:
+  - name: System
+    description: System health and status endpoints
+  - name: Hardware Baskets
+    description: Hardware catalog management and vendor data processing
+  - name: Projects
+    description: Infrastructure project management
+  - name: RVTools
+    description: VMware RVTools data processing and analysis
+
+externalDocs:
+  description: LCM Designer GitHub Repository
+  url: https://github.com/mateim4/LCMDesigner

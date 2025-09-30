@@ -1,14 +1,43 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import '../custom-slider.css';
 
+/**
+ * CustomSlider - Enhanced slider component with rainbow track and frosted glass thumb
+ * 
+ * A specialized slider component that follows the LCM Designer design system with:
+ * - Rainbow gradient track for visual appeal
+ * - Frosted glass thumb with glassmorphic effects
+ * - Smooth animations and interactive feedback
+ * - Click-to-edit value functionality
+ * - Customizable units and range
+ * 
+ * @example
+ * ```tsx
+ * <CustomSlider
+ *   min={0}
+ *   max={100}
+ *   value={overcommitRatio}
+ *   onChange={(value) => setOvercommitRatio(value)}
+ *   unit="%"
+ *   className="capacity-slider"
+ * />
+ * ```
+ */
 interface CustomSliderProps {
+  /** Minimum value for the slider */
   min: number;
+  /** Maximum value for the slider */
   max: number;
+  /** Current value of the slider */
   value: number;
+  /** Callback function called when slider value changes */
   onChange: (value: number) => void;
+  /** Additional CSS class names to apply */
   className?: string;
+  /** Inline styles to apply to the slider container */
   style?: React.CSSProperties;
-  unit?: string; // Unit to display (e.g., "mo", "%", "VMs")
+  /** Unit to display next to the value (e.g., "mo", "%", "VMs") */
+  unit?: string;
 }
 
 const CustomSlider: React.FC<CustomSliderProps> = ({
