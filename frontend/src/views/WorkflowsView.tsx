@@ -255,12 +255,12 @@ const WorkflowsView: React.FC = () => {
   };
 
   return (
-    <div className="fluent-page-container">
+    <div className="lcm-page-container">
       <div className="lcm-card">
-        <div className="fluent-page-header">
+        <div className="lcm-page-header">
           <div>
-            <h1 className="fluent-page-title">Workflows</h1>
-            <p className="fluent-page-subtitle">Execute guided workflows for assessment, sizing, migration, and validation</p>
+            <h1 className="lcm-page-title">Workflows</h1>
+            <p className="lcm-page-subtitle">Execute guided workflows for assessment, sizing, migration, and validation</p>
           </div>
           <div className="flex gap-4">
             <select
@@ -376,25 +376,25 @@ const WorkflowsView: React.FC = () => {
 
         {/* Add Workflow Button */}
         <div className="flex justify-center">
-          <button className="fluent-button fluent-button-primary">
+          <button className="lcm-button lcm-button-primary">
             Add New Workflow
           </button>
         </div>
 
         {/* Workflow Details Modal/Panel */}
         {activeWorkflow && (
-          <div className="fluent-modal-overlay">
-            <div className="fluent-modal">
-              <div className="fluent-modal-header">
-                <h2 className="fluent-modal-title">{activeWorkflow.name}</h2>
+          <div className="lcm-modal-overlay">
+            <div className="lcm-modal">
+              <div className="lcm-modal-header">
+                <h2 className="lcm-modal-title">{activeWorkflow.name}</h2>
                 <button 
                   onClick={() => setActiveWorkflow(null)}
-                  className="fluent-button fluent-button-subtle fluent-button-icon"
+                  className="lcm-button lcm-button-subtle lcm-button-icon"
                 >
                   ×
                 </button>
               </div>
-              <div className="fluent-modal-content">
+              <div className="lcm-modal-content">
                 <p className="text-gray-600 mb-6">{activeWorkflow.description}</p>
                 
                 <div className="grid grid-cols-2 gap-4 mb-6">

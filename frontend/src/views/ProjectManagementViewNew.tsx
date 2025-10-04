@@ -520,7 +520,7 @@ const ProjectManagementView: React.FC = () => {
 
   if (isLoading && projects.length === 0) {
     return (
-      <div className="fluent-page-container">
+      <div className="lcm-page-container">
         <LoadingSpinner message="Loading projects..." />
         <ToastContainer />
       </div>
@@ -528,12 +528,12 @@ const ProjectManagementView: React.FC = () => {
   }
 
   return (
-    <div className="fluent-page-container">
+    <div className="lcm-page-container">
       <ToastContainer />
       
       <div className="lcm-card">
         {/* Enhanced Page Header */}
-        <div className="fluent-page-header">
+        <div className="lcm-page-header">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">Project Management</h1>

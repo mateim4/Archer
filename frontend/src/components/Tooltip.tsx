@@ -128,7 +128,7 @@ const Tooltip: React.FC<TooltipProps> = ({
       {isVisible && (
         <div
           ref={tooltipRef}
-          className="fluent-tooltip fixed z-50"
+          className="lcm-tooltip fixed z-50"
           style={{
             left: tooltipPosition.x,
             top: tooltipPosition.y,

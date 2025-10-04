@@ -198,7 +198,7 @@ const ProjectWorkspaceView: React.FC = () => {
 
   if (isLoading && !project) {
     return (
-      <div className="fluent-page-container">
+      <div className="lcm-page-container">
         <LoadingSpinner message="Loading project..." />
         <ToastContainer />
       </div>
@@ -207,7 +207,7 @@ const ProjectWorkspaceView: React.FC = () => {
 
   if (!project) {
     return (
-      <div className="fluent-page-container">
+      <div className="lcm-page-container">
         <EnhancedCard className="text-center py-12">
           <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
           <h2 className="text-xl font-semibold text-gray-900 mb-2">Project Not Found</h2>
@@ -224,7 +224,7 @@ const ProjectWorkspaceView: React.FC = () => {
   const stats = calculateStats();
 
   return (
-    <div className="fluent-page-container">
+    <div className="lcm-page-container">
       <ToastContainer />
       
       {/* Header */}

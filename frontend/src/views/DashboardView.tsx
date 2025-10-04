@@ -774,7 +774,7 @@ const DashboardView: React.FC = () => {
                 </p>
               </div>
               <button 
-                className="fluent-button fluent-button-secondary"
+                className="lcm-button fluent-button-secondary"
               >
                 {rec.action}
               </button>

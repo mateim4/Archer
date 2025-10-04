@@ -163,7 +163,7 @@ export const HardwareFileUpload: React.FC = () => {
 
   const renderServerInfo = (server: UniversalServer) => {
     return (
-      <div className="fluent-card">
+      <div className="lcm-card">
         <h3 style={{ marginBottom: 'var(--fluent-spacing-horizontal-m)' }}>
           Hardware Configuration Summary
         </h3>

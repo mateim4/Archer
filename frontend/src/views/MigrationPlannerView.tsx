@@ -1339,7 +1339,7 @@ const MigrationPlannerView: React.FC = () => {
               <div className="mb-6">
                 <p className="text-gray-600">Ready to generate your migration roadmap</p>
               </div>
-              <button className="fluent-button fluent-button-primary px-8 py-3">
+              <button className="lcm-button lcm-button-primary px-8 py-3">
                 Generate Migration Plan
               </button>
             </div>
@@ -1352,7 +1352,7 @@ const MigrationPlannerView: React.FC = () => {
 
   return (
     <div>
-      <div className="fluent-page-container">
+      <div className="lcm-page-container">
         {/* Tab Navigation */}
         <div style={{ 
           display: 'flex', 

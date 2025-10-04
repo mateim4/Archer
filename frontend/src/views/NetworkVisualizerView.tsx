@@ -620,7 +620,7 @@ const NetworkVisualizerView = () => {
 
   return (
     <div>
-      <div className="fluent-page-container">
+      <div className="lcm-page-container">
         {/* Error Display */}
         {error && (
           <div style={{

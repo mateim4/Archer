@@ -127,7 +127,7 @@ const ClusterSizingView: React.FC = () => {
   if (loading) {
     return (
       <div>
-        <div className="fluent-page-container">
+        <div className="lcm-page-container">
           <div className="flex items-center justify-center min-h-96">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
           </div>
@@ -138,10 +138,10 @@ const ClusterSizingView: React.FC = () => {
 
   return (
     <div>
-      <div className="fluent-page-container">
+      <div className="lcm-page-container">
 
         {error && (
-          <div className="fluent-alert fluent-alert-error mb-6">
+          <div className="lcm-alert fluent-alert-error mb-6">
             <p>{error}</p>
           </div>
         )}
@@ -150,13 +150,13 @@ const ClusterSizingView: React.FC = () => {
           {/* Input Section */}
           <div className="space-y-6">
             <div className="lcm-card">
-            <h2 className="fluent-card-title flex items-center mb-4">
+            <h2 className="lcm-card-title flex items-center mb-4">
               <Calculator className="w-5 h-5 mr-2" />
               Workload Requirements
             </h2>
             <div className="space-y-4">
-              <div className="fluent-form-group">
-                <label className="fluent-label">Workload Type</label>
+              <div className="lcm-form-group">
+                <label className="lcm-label">Workload Type</label>
                 <select
                   value={clusterSpec.workloadType}
                   onChange={(e) => setClusterSpec({ ...clusterSpec, workloadType: e.target.value })}
@@ -170,8 +170,8 @@ const ClusterSizingView: React.FC = () => {
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="fluent-form-group">
-                  <label className="fluent-label">Expected VMs</label>
+                <div className="lcm-form-group">
+                  <label className="lcm-label">Expected VMs</label>
                   <input
                     type="number"
                     value={clusterSpec.expectedVMs}
@@ -179,8 +179,8 @@ const ClusterSizingView: React.FC = () => {
                     className="lcm-input"
                   />
                 </div>
-                <div className="fluent-form-group">
-                  <label className="fluent-label">CPU per VM</label>
+                <div className="lcm-form-group">
+                  <label className="lcm-label">CPU per VM</label>
                   <input
                     type="number"
                     value={clusterSpec.avgCpuPerVM}
@@ -191,8 +191,8 @@ const ClusterSizingView: React.FC = () => {
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="fluent-form-group">
-                  <label className="fluent-label">Memory per VM (GB)</label>
+                <div className="lcm-form-group">
+                  <label className="lcm-label">Memory per VM (GB)</label>
                   <input
                     type="number"
                     value={clusterSpec.avgMemoryPerVM}
@@ -200,8 +200,8 @@ const ClusterSizingView: React.FC = () => {
                     className="lcm-input"
                   />
                 </div>
-                <div className="fluent-form-group">
-                  <label className="fluent-label">Storage per VM (GB)</label>
+                <div className="lcm-form-group">
+                  <label className="lcm-label">Storage per VM (GB)</label>
                   <input
                     type="number"
                     value={clusterSpec.avgStoragePerVM}
@@ -212,8 +212,8 @@ const ClusterSizingView: React.FC = () => {
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="fluent-form-group">
-                  <label className="fluent-label">Redundancy Factor</label>
+                <div className="lcm-form-group">
+                  <label className="lcm-label">Redundancy Factor</label>
                   <input
                     type="number"
                     step="0.1"
@@ -222,8 +222,8 @@ const ClusterSizingView: React.FC = () => {
                     className="lcm-input"
                   />
                 </div>
-                <div className="fluent-form-group">
-                  <label className="fluent-label">Oversubscription Ratio</label>
+                <div className="lcm-form-group">
+                  <label className="lcm-label">Oversubscription Ratio</label>
                   <input
                     type="number"
                     step="0.1"
@@ -242,7 +242,7 @@ const ClusterSizingView: React.FC = () => {
           {sizingResult && (
             <>
               <div className="p-4 rounded-lg border border-purple-500/20">
-                <h2 className="fluent-card-title flex items-center mb-4">
+                <h2 className="lcm-card-title flex items-center mb-4">
                   <TrendingUp className="w-5 h-5 mr-2" />
                   Sizing Results
                 </h2>
@@ -293,7 +293,7 @@ const ClusterSizingView: React.FC = () => {
               </div>
 
               <div className="p-4 rounded-lg border border-purple-500/20">
-                <h3 className="fluent-card-title mb-4">Recommended Hardware</h3>
+                <h3 className="lcm-card-title mb-4">Recommended Hardware</h3>
                 <div className="space-y-3">
                   {sizingResult.recommendedHardware.map((hardware, index) => (
                     <div key={hardware.id} className="flex items-center justify-between p-3 rounded-lg border border-gray-500/20">
@@ -318,12 +318,12 @@ const ClusterSizingView: React.FC = () => {
           )}
 
           {availableHardware.length === 0 && (
-            <div className="fluent-empty-state">
-              <div className="fluent-empty-state-icon">
+            <div className="lcm-empty-state">
+              <div className="lcm-empty-state-icon">
                 <AlertCircle className="w-12 h-12" />
               </div>
-              <h3 className="fluent-empty-state-title">No Hardware Available</h3>
-              <p className="fluent-empty-state-description">Add hardware items to the hardware pool to enable cluster sizing calculations.</p>
+              <h3 className="lcm-empty-state-title">No Hardware Available</h3>
+              <p className="lcm-empty-state-description">Add hardware items to the hardware pool to enable cluster sizing calculations.</p>
             </div>
           )}
         </div>

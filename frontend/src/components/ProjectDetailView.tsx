@@ -365,7 +365,7 @@ const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({ projectId, onBack
 
   if (loading) {
     return (
-      <div className="fluent-page-container">
+      <div className="lcm-page-container">
         <ProjectDetailViewSkeleton />
       </div>
     );
@@ -373,9 +373,9 @@ const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({ projectId, onBack
 
   if (loadError || !project) {
     return (
-      <div className="fluent-page-container p-6">
+      <div className="lcm-page-container p-6">
         <div className="mb-6">
-          <button onClick={onBack} className="fluent-button fluent-button-subtle fluent-button-with-icon">
+          <button onClick={onBack} className="lcm-button lcm-button-subtle lcm-button-with-icon">
             <ArrowLeft className="w-4 h-4" />
             Back to Projects
           </button>
@@ -389,12 +389,12 @@ const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({ projectId, onBack
   }
 
   return (
-    <div className="fluent-page-container">
+    <div className="lcm-page-container">
       {/* Back Button */}
       <div className="mb-6">
         <button
           onClick={onBack}
-          className="fluent-button fluent-button-subtle fluent-button-with-icon"
+          className="lcm-button lcm-button-subtle lcm-button-with-icon"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Projects

@@ -374,7 +374,7 @@ const ProjectManagementView: React.FC = () => {
 
   return (
     <div>
-      <div className="fluent-page-container">
+      <div className="lcm-page-container">
         {/* Enhanced Header Section */}
         <div
           style={{

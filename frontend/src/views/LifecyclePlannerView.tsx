@@ -1341,7 +1341,7 @@ const LifecyclePlannerView: React.FC = () => {
                 <h4 className="text-lg font-semibold mb-2">Configuration Summary</h4>
                 <p className="text-gray-600">Ready to generate your lifecycle plan</p>
               </div>
-              <button className="fluent-button fluent-button-primary px-8 py-3">
+              <button className="lcm-button lcm-button-primary px-8 py-3">
                 Generate Lifecycle Plan
               </button>
             </div>
@@ -1354,7 +1354,7 @@ const LifecyclePlannerView: React.FC = () => {
 
   return (
     <div>
-      <div className="fluent-page-container">
+      <div className="lcm-page-container">
         {/* Tab Navigation */}
         <div style={{ 
           display: 'flex', 

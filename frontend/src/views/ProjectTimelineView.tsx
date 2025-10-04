@@ -223,7 +223,7 @@ const ProjectTimelineView: React.FC = () => {
 
   if (isLoading && !project) {
     return (
-      <div className="fluent-page-container">
+      <div className="lcm-page-container">
         <LoadingSpinner message="Loading project timeline..." />
         <ToastContainer />
       </div>
@@ -232,7 +232,7 @@ const ProjectTimelineView: React.FC = () => {
 
   if (!project) {
     return (
-      <div className="fluent-page-container">
+      <div className="lcm-page-container">
         <EnhancedCard className="text-center py-12">
           <h2 className="text-xl font-semibold text-gray-900 mb-2">Project Not Found</h2>
           <p className="text-gray-600 mb-6">The requested project timeline could not be loaded.</p>
@@ -261,7 +261,7 @@ const ProjectTimelineView: React.FC = () => {
   };
 
   return (
-    <div className="fluent-page-container min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
+    <div className="lcm-page-container min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
       <ToastContainer />
       
       {/* Header */}

@@ -137,7 +137,7 @@ const DesignDocsView: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="fluent-page-container">
+      <div className="lcm-page-container">
         <div className="animate-pulse">
           <div className="h-8 border border-gray-500/30 rounded w-1/4 mb-6"></div>
           <div className="space-y-4">
@@ -152,12 +152,12 @@ const DesignDocsView: React.FC = () => {
 
   return (
     <div>
-      <div className="fluent-page-container">
+      <div className="lcm-page-container">
         <div className="lcm-card">
-          <div className="fluent-page-header">
+          <div className="lcm-page-header">
           <button
             onClick={() => setShowCreateForm(true)}
-            className="fluent-button fluent-button-primary fluent-button-with-icon"
+            className="lcm-button fluent-button-primary lcm-button-with-icon"
           >
             <Plus className="w-4 h-4" />
             New Document
@@ -165,7 +165,7 @@ const DesignDocsView: React.FC = () => {
         </div>
 
         {error && (
-          <div className="fluent-alert fluent-alert-error mb-6">
+          <div className="lcm-alert fluent-alert-error mb-6">
             <p>{error}</p>
           </div>
       )}
@@ -173,12 +173,12 @@ const DesignDocsView: React.FC = () => {
       {/* Create/Edit Form */}
       {(showCreateForm || editingDoc) && (
         <div className="lcm-card mb-6">
-          <h2 className="fluent-card-title mb-4">
+          <h2 className="lcm-card-title mb-4">
             {editingDoc ? 'Edit Document' : 'Create New Document'}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div className="fluent-form-group">
-              <label className="fluent-label">
+            <div className="lcm-form-group">
+              <label className="lcm-label">
                 Document Name
               </label>
               <input
@@ -189,8 +189,8 @@ const DesignDocsView: React.FC = () => {
                 placeholder="e.g., System Architecture Document"
               />
             </div>
-            <div className="fluent-form-group">
-              <label className="fluent-label">
+            <div className="lcm-form-group">
+              <label className="lcm-label">
                 Document Type
               </label>
               <select
@@ -207,8 +207,8 @@ const DesignDocsView: React.FC = () => {
               </select>
             </div>
           </div>
-          <div className="fluent-form-group mb-4">
-            <label className="fluent-label">
+          <div className="lcm-form-group mb-4">
+            <label className="lcm-label">
               Content (Markdown)
             </label>
             <textarea
@@ -222,14 +222,14 @@ const DesignDocsView: React.FC = () => {
           <div className="flex gap-2">
             <button
               onClick={editingDoc ? handleUpdateDoc : handleCreateDoc}
-              className="fluent-button fluent-button-primary fluent-button-with-icon"
+              className="lcm-button fluent-button-primary lcm-button-with-icon"
             >
               <Save className="w-4 h-4" />
               {editingDoc ? 'Update' : 'Create'}
             </button>
             <button
               onClick={cancelEdit}
-              className="fluent-button fluent-button-subtle fluent-button-with-icon"
+              className="lcm-button fluent-button-subtle lcm-button-with-icon"
             >
               <X className="w-4 h-4" />
               Cancel
@@ -245,7 +245,7 @@ const DesignDocsView: React.FC = () => {
             <div className="flex items-start justify-between mb-3">
               <div className="flex items-center gap-2">
                 <FileText size={20} className="text-purple-600" />
-                <h3 className="fluent-card-title truncate">{doc.name}</h3>
+                <h3 className="lcm-card-title truncate">{doc.name}</h3>
               </div>
               <span className={`px-2 py-1 text-xs font-medium rounded-full ${getDocTypeColor(doc.doc_type)}`}>
                 {doc.doc_type}
@@ -268,21 +268,21 @@ const DesignDocsView: React.FC = () => {
               <div className="flex gap-1">
                 <button
                   onClick={() => startEdit(doc)}
-                  className="fluent-button fluent-button-subtle fluent-button-icon"
+                  className="lcm-button fluent-button-subtle lcm-button-icon"
                   title="Edit document"
                 >
                   <Edit3 className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => exportDoc(doc)}
-                  className="fluent-button fluent-button-subtle fluent-button-icon"
+                  className="lcm-button fluent-button-subtle lcm-button-icon"
                   title="Export document"
                 >
                   <Download className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => handleDeleteDoc(doc.id)}
-                  className="fluent-button fluent-button-subtle fluent-button-icon"
+                  className="lcm-button fluent-button-subtle lcm-button-icon"
                   title="Delete document"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -294,17 +294,17 @@ const DesignDocsView: React.FC = () => {
       </div>
 
       {docs.length === 0 && !loading && (
-          <div className="fluent-empty-state">
-            <div className="fluent-empty-state-icon">
+          <div className="lcm-empty-state">
+            <div className="lcm-empty-state-icon">
               <FileText className="w-16 h-16" />
             </div>
-            <h3 className="fluent-empty-state-title">No design documents yet</h3>
-            <p className="fluent-empty-state-description">
+            <h3 className="lcm-empty-state-title">No design documents yet</h3>
+            <p className="lcm-empty-state-description">
               Create your first design document to start documenting your system architecture.
             </p>
             <button
               onClick={() => setShowCreateForm(true)}
-              className="fluent-button fluent-button-primary fluent-button-with-icon mt-4"
+              className="lcm-button fluent-button-primary lcm-button-with-icon mt-4"
             >
               <Plus className="w-4 h-4" />
               Create First Document

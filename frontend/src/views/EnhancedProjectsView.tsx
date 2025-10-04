@@ -206,7 +206,7 @@ const EnhancedProjectsView: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="fluent-page-container">
+      <div className="lcm-page-container">
         <LoadingSpinner message="Loading projects..." />
         <ToastContainer />
       </div>
@@ -214,12 +214,12 @@ const EnhancedProjectsView: React.FC = () => {
   }
 
   return (
-    <div className="fluent-page-container">
+    <div className="lcm-page-container">
       <ToastContainer />
       
       <div className="lcm-card">
         {/* Enhanced Page Header */}
-        <div className="fluent-page-header">
+        <div className="lcm-page-header">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Projects</h1>
