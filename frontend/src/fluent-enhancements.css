@@ -1103,17 +1103,19 @@ input[type="number"] {
    STANDARDIZED TAB SYSTEM
    =================== */
 
+.lcm-tabs-container,
 .fluent-tabs-container {
   background: transparent;
   border-radius: var(--lcm-radius-xl) var(--lcm-radius-xl) 0 0;
-  border: 1px solid rgba(139, 92, 246, 0.1);
-  border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+  border: 1px solid var(--lcm-primary-border);
+  border-bottom: 1px solid var(--lcm-primary-border);
   backdrop-filter: var(--lcm-backdrop-filter);
   -webkit-backdrop-filter: var(--lcm-backdrop-filter);
   display: flex;
   margin-bottom: var(--lcm-spacing-xl);
 }
 
+.lcm-tab-button,
 .fluent-tab-button {
   position: relative;
   display: flex;
@@ -1126,10 +1128,12 @@ input[type="number"] {
   padding: var(--lcm-spacing-md) var(--lcm-spacing-lg) var(--lcm-spacing-xl);
 }
 
+.lcm-tab-button:hover,
 .fluent-tab-button:hover {
   transform: scale(1.05);
 }
 
+.lcm-tab-button-content,
 .fluent-tab-button-content {
   display: flex;
   align-items: center;
@@ -1137,12 +1141,14 @@ input[type="number"] {
   margin-bottom: var(--lcm-spacing-sm);
 }
 
+.lcm-tab-button-icon,
 .fluent-tab-button-icon {
   width: 18px;
   height: 18px;
   transition: color 0.2s ease;
 }
 
+.lcm-tab-button-label,
 .fluent-tab-button-label {
   font-family: var(--fluent-font-family-base);
   font-size: 0.875rem;
@@ -1150,24 +1156,29 @@ input[type="number"] {
   transition: all 0.2s ease;
 }
 
+.lcm-tab-button-active .lcm-tab-button-icon,
 .fluent-tab-button-active .fluent-tab-button-icon {
   color: var(--lcm-primary);
 }
 
+.lcm-tab-button-active .lcm-tab-button-label,
 .fluent-tab-button-active .fluent-tab-button-label {
   font-weight: 600;
   color: var(--lcm-primary);
 }
 
+.lcm-tab-button-inactive .lcm-tab-button-icon,
 .fluent-tab-button-inactive .fluent-tab-button-icon {
   color: var(--lcm-text-secondary);
 }
 
+.lcm-tab-button-inactive .lcm-tab-button-label,
 .fluent-tab-button-inactive .fluent-tab-button-label {
   font-weight: 400;
   color: var(--lcm-text-secondary);
 }
 
+.lcm-tab-button-indicator,
 .fluent-tab-button-indicator {
   position: absolute;
   bottom: 4px;
