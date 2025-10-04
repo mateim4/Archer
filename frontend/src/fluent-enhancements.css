@@ -78,6 +78,7 @@
    PAGE LAYOUT SYSTEM
    =================== */
 
+.lcm-page-container,
 .fluent-page-container {
   width: 100%;
   height: 100vh;
@@ -90,6 +91,7 @@
   overflow: auto;
 }
 
+.lcm-page-header,
 .fluent-page-header {
   display: flex;
   justify-content: space-between;
@@ -99,6 +101,7 @@
   flex-wrap: wrap;
 }
 
+.lcm-page-title,
 .fluent-page-title {
   font-size: 2rem;
   font-weight: 700;
@@ -107,6 +110,7 @@
   line-height: 1.2;
 }
 
+.lcm-page-subtitle,
 .fluent-page-subtitle {
   font-size: 1rem;
   color: var(--lcm-text-secondary);
@@ -153,6 +157,7 @@
    STANDARDIZED BUTTON SYSTEM
    =================== */
 
+.lcm-button,
 .fluent-button {
   display: inline-flex;
   align-items: center;
@@ -174,6 +179,7 @@
   outline: none;
 }
 
+.lcm-button:disabled,
 .fluent-button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
@@ -181,24 +187,28 @@
 }
 
 /* Primary Button */
+.lcm-button-primary,
 .fluent-button-primary {
   background: linear-gradient(135deg, var(--lcm-primary), #ec4899);
   color: white;
   border-color: transparent;
 }
 
+.lcm-button-primary:hover:not(:disabled),
 .fluent-button-primary:hover:not(:disabled) {
   transform: translateY(-1px);
   box-shadow: var(--lcm-shadow-card-hover);
 }
 
 /* Subtle Button */
+.lcm-button-subtle,
 .fluent-button-subtle {
   background: transparent;
   color: var(--lcm-text-secondary);
   border-color: var(--lcm-primary-border);
 }
 
+.lcm-button-subtle:hover:not(:disabled),
 .fluent-button-subtle:hover:not(:disabled) {
   background: var(--lcm-primary-light);
   border-color: var(--lcm-primary-border);
@@ -206,6 +216,7 @@
 }
 
 /* Icon-only button */
+.lcm-button-icon,
 .fluent-button-icon {
   padding: var(--lcm-spacing-sm);
   min-width: 36px;
@@ -213,11 +224,13 @@
 }
 
 /* Button with icon */
+.lcm-button-with-icon,
 .fluent-button-with-icon {
   padding-left: var(--lcm-spacing-md);
 }
 
 /* Standardized icon sizes in buttons */
+.lcm-button svg,
 .fluent-button svg {
   width: var(--lcm-icon-size-sm);
   height: var(--lcm-icon-size-sm);
@@ -225,6 +238,7 @@
 }
 
 /* Danger button variant */
+.lcm-button-danger:hover:not(:disabled),
 .fluent-button-danger:hover:not(:disabled) {
   background: transparent;
   border-color: #fecaca;
@@ -235,14 +249,17 @@
    STANDARDIZED FORM SYSTEM
    =================== */
 
+.lcm-form-section,
 .fluent-form-section {
   margin-bottom: var(--lcm-spacing-xxl);
 }
 
+.lcm-form-group,
 .fluent-form-group {
   margin-bottom: var(--lcm-spacing-lg);
 }
 
+.lcm-label,
 .fluent-label {
   display: block;
   font-size: 0.875rem;
@@ -252,7 +269,9 @@
   line-height: 1.4;
 }
 
+.lcm-input,
 .fluent-input,
+.lcm-select,
 .fluent-select {
   width: 100%;
   padding: 16px 20px;
@@ -267,7 +286,9 @@
   box-sizing: border-box;
 }
 
+.lcm-input:focus,
 .fluent-input:focus,
+.lcm-select:focus,
 .fluent-select:focus {
   outline: none;
   border-color: var(--lcm-primary);
@@ -275,6 +296,7 @@
   box-shadow: 0 0 0 3px var(--lcm-primary-light);
 }
 
+.lcm-input::placeholder,
 .fluent-input::placeholder {
   color: var(--lcm-text-muted);
 }
@@ -698,6 +720,7 @@ input[type="number"] {
   }
 }
 
+.lcm-section-title,
 .fluent-section-title {
   font-size: 1rem;
   font-weight: 600;
@@ -718,120 +741,21 @@ input[type="number"] {
   transform: translateY(-2px);
 }
 
-/* ===================
-   PAGE LAYOUT SYSTEM
-   =================== */
-
-/* Main page container */
-.fluent-page-container {
+/* Additional page container variant with max-width */
+.lcm-page-container-constrained,
+.fluent-page-container-constrained {
   padding: 32px;
   max-width: 1400px;
   margin: 0 auto;
   min-height: 100vh;
 }
 
-/* Page header with title and actions */
-.fluent-page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 32px;
-  gap: 24px;
-}
-
 @media (max-width: 768px) {
+  .lcm-page-header,
   .fluent-page-header {
     flex-direction: column;
     align-items: stretch;
   }
-}
-
-.fluent-page-title {
-  font-size: 2rem;
-  font-weight: 700;
-  color: var(--lcm-text-primary);
-  margin: 0 0 8px 0;
-  line-height: 1.2;
-}
-
-.fluent-page-subtitle {
-  font-size: 1rem;
-  color: var(--lcm-text-secondary);
-  margin: 0;
-  line-height: 1.5;
-}
-
-/* ===================
-   BUTTON SYSTEM
-   =================== */
-
-.fluent-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px 16px;
-  border-radius: 8px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  line-height: 1.2;
-  transition: all 0.2s ease;
-  border: 1px solid transparent;
-  cursor: pointer;
-  text-decoration: none;
-  white-space: nowrap;
-  gap: 8px;
-  font-family: var(--fluent-font-family-base);
-}
-
-.fluent-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-/* Primary button */
-.fluent-button-primary {
-  background: var(--lcm-primary);
-  color: white;
-  border-color: var(--lcm-primary);
-}
-
-.fluent-button-primary:hover:not(:disabled) {
-  background: #7c3aed;
-  border-color: #7c3aed;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
-}
-
-/* Subtle button */
-.fluent-button-subtle {
-  background: transparent;
-  color: var(--lcm-text-secondary);
-  border-color: var(--lcm-primary-border);
-}
-
-.fluent-button-subtle:hover:not(:disabled) {
-  background: var(--lcm-primary-light);
-  border-color: var(--lcm-primary-border);
-  color: var(--lcm-primary);
-}
-
-/* Icon-only button */
-.fluent-button-icon {
-  padding: 8px;
-  min-width: 36px;
-  min-height: 36px;
-}
-
-/* Button with icon */
-.fluent-button-with-icon {
-  padding-left: 12px;
-}
-
-/* Danger button variant */
-.fluent-button-danger:hover:not(:disabled) {
-  background: transparent;
-  border-color: #fecaca;
-  color: #dc2626;
 }
 
 /* ===================
@@ -842,6 +766,7 @@ input[type="number"] {
    STANDARDIZED MODAL SYSTEM
    =================== */
 
+.lcm-modal-overlay,
 .fluent-modal-overlay {
   position: fixed;
   inset: 0;
@@ -854,6 +779,7 @@ input[type="number"] {
   padding: var(--lcm-spacing-lg);
 }
 
+.lcm-modal,
 .fluent-modal {
   background: var(--lcm-bg-card);
   border: 1px solid var(--lcm-primary-border);
@@ -869,6 +795,7 @@ input[type="number"] {
   flex-direction: column;
 }
 
+.lcm-modal-header,
 .fluent-modal-header {
   display: flex;
   justify-content: space-between;
@@ -877,6 +804,7 @@ input[type="number"] {
   border-bottom: 1px solid var(--lcm-primary-border);
 }
 
+.lcm-modal-title,
 .fluent-modal-title {
   font-size: 1.25rem;
   font-weight: 600;
@@ -884,12 +812,14 @@ input[type="number"] {
   margin: 0;
 }
 
+.lcm-modal-content,
 .fluent-modal-content {
   padding: var(--lcm-spacing-xxl);
   overflow-y: auto;
   flex: 1;
 }
 
+.lcm-modal-actions,
 .fluent-modal-actions {
   display: flex;
   justify-content: flex-end;
@@ -903,6 +833,7 @@ input[type="number"] {
    STANDARDIZED ALERT SYSTEM
    =================== */
 
+.lcm-alert,
 .fluent-alert {
   padding: var(--lcm-spacing-lg);
   border-radius: var(--lcm-radius-lg);
@@ -915,24 +846,28 @@ input[type="number"] {
   gap: var(--lcm-spacing-md);
 }
 
+.lcm-alert-error,
 .fluent-alert-error {
   background: rgba(239, 68, 68, 0.1);
   border-color: rgba(239, 68, 68, 0.2);
   color: #dc2626;
 }
 
+.lcm-alert-success,
 .fluent-alert-success {
   background: rgba(34, 197, 94, 0.1);
   border-color: rgba(34, 197, 94, 0.2);
   color: #16a34a;
 }
 
+.lcm-alert-info,
 .fluent-alert-info {
   background: rgba(59, 130, 246, 0.1);
   border-color: rgba(59, 130, 246, 0.2);
   color: #2563eb;
 }
 
+.lcm-alert-warning,
 .fluent-alert-warning {
   background: rgba(245, 158, 11, 0.1);
   border-color: rgba(245, 158, 11, 0.2);
@@ -943,6 +878,7 @@ input[type="number"] {
    STANDARDIZED ICON SYSTEM
    =================== */
 
+.lcm-icon-container,
 .fluent-icon-container {
   display: flex;
   align-items: center;
@@ -954,11 +890,13 @@ input[type="number"] {
   flex-shrink: 0;
 }
 
+.lcm-icon-container-primary,
 .fluent-icon-container-primary {
   background: var(--lcm-primary-light);
   color: var(--lcm-primary);
 }
 
+.lcm-icon-container svg,
 .fluent-icon-container svg {
   width: var(--lcm-icon-size-md);
   height: var(--lcm-icon-size-md);
@@ -968,6 +906,7 @@ input[type="number"] {
    STANDARDIZED CARD CONTENT
    =================== */
 
+.lcm-card-title,
 .fluent-card-title {
   font-size: 1rem;
   font-weight: 600;
@@ -976,6 +915,7 @@ input[type="number"] {
   line-height: 1.4;
 }
 
+.lcm-card-subtitle,
 .fluent-card-subtitle {
   font-size: 0.875rem;
   color: var(--lcm-text-secondary);
@@ -987,6 +927,7 @@ input[type="number"] {
    STANDARDIZED EMPTY STATES
    =================== */
 
+.lcm-empty-state,
 .fluent-empty-state {
   display: flex;
   flex-direction: column;
@@ -997,17 +938,20 @@ input[type="number"] {
   margin: var(--lcm-spacing-xxl) 0;
 }
 
+.lcm-empty-state-icon,
 .fluent-empty-state-icon {
   margin-bottom: var(--lcm-spacing-lg);
   color: var(--lcm-text-muted);
   opacity: 0.7;
 }
 
+.lcm-empty-state-icon svg,
 .fluent-empty-state-icon svg {
   width: 64px;
   height: 64px;
 }
 
+.lcm-empty-state-title,
 .fluent-empty-state-title {
   font-size: 1.25rem;
   font-weight: 600;
@@ -1015,6 +959,7 @@ input[type="number"] {
   margin: 0 0 var(--lcm-spacing-md) 0;
 }
 
+.lcm-empty-state-description,
 .fluent-empty-state-description {
   font-size: 0.875rem;
   color: var(--lcm-text-secondary);
