@@ -141,12 +141,12 @@ const GanttChart: React.FC<GanttChartProps> = ({
 
   const getStatusColor = (status: string) => {
     const colors = {
-      pending: '#6b7280',
+      pending: 'var(--lcm-text-muted)',
       in_progress: '#3b82f6',
       completed: '#10b981',
       blocked: '#ef4444'
     };
-    return colors[status as keyof typeof colors] || '#6b7280';
+    return colors[status as keyof typeof colors] || 'var(--lcm-text-muted)';
   };
 
   const getStatusIcon = (status: string) => {
@@ -182,21 +182,21 @@ const GanttChart: React.FC<GanttChartProps> = ({
     <div className="lcm-card" style={{ 
       width: '100%', 
       overflow: 'hidden',
-      background: 'rgba(255, 255, 255, 0.95)',
-      backdropFilter: 'blur(18px) saturate(180%)'
+      background: 'var(--lcm-bg-card)',
+      backdropFilter: 'var(--lcm-backdrop-filter)'
     }}>
       {/* Timeline Header */}
       <div style={{ 
         padding: '20px 24px', 
-        borderBottom: '1px solid rgba(139, 92, 246, 0.1)',
-        background: 'rgba(139, 92, 246, 0.05)'
+        borderBottom: '1px solid var(--lcm-primary-border)',
+        background: 'var(--lcm-primary-light)'
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
-            <h3 style={{ margin: '0 0 4px 0', fontSize: '20px', fontWeight: '600', color: '#111827' }}>
+            <h3 style={{ margin: '0 0 4px 0', fontSize: '20px', fontWeight: '600', color: 'var(--lcm-text-primary)' }}>
               Project Timeline
             </h3>
-            <p style={{ margin: '0', fontSize: '14px', color: '#6b7280' }}>
+            <p style={{ margin: '0', fontSize: '14px', color: 'var(--lcm-text-secondary)' }}>
               {activities.length} activities • {timelineData.projectStart.toLocaleDateString()} - {timelineData.projectEnd.toLocaleDateString()}
             </p>
           </div>
@@ -209,7 +209,7 @@ const GanttChart: React.FC<GanttChartProps> = ({
                 alignItems: 'center',
                 gap: '8px',
                 padding: '10px 16px',
-                background: 'linear-gradient(135deg, #8b5cf6, #a855f7)',
+                background: 'linear-gradient(135deg, var(--lcm-primary), #a855f7)',
                 color: 'white',
                 border: 'none',
                 borderRadius: '8px',
@@ -228,7 +228,7 @@ const GanttChart: React.FC<GanttChartProps> = ({
       {/* Timeline Scale */}
       <div style={{ 
         height: '48px', 
-        borderBottom: '1px solid rgba(139, 92, 246, 0.1)',
+        borderBottom: '1px solid var(--lcm-primary-border)',
         position: 'relative',
         background: 'rgba(248, 250, 252, 0.8)'
       }}>
@@ -246,7 +246,7 @@ const GanttChart: React.FC<GanttChartProps> = ({
               paddingLeft: '12px',
               fontSize: '12px',
               fontWeight: '500',
-              color: '#8b5cf6'
+              color: 'var(--lcm-primary)'
             }}
           >
             {marker.label}
@@ -269,11 +269,11 @@ const GanttChart: React.FC<GanttChartProps> = ({
             alignItems: 'center',
             justifyContent: 'center',
             height: '300px',
-            color: '#6b7280',
+            color: 'var(--lcm-text-muted)',
             textAlign: 'center'
           }}>
             <div style={{ fontSize: '48px', marginBottom: '16px', opacity: 0.5 }}>📅</div>
-            <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', color: '#374151' }}>No Activities Yet</h3>
+            <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', color: 'var(--lcm-text-secondary)' }}>No Activities Yet</h3>
             <p style={{ margin: '0 0 24px 0', fontSize: '14px' }}>Add your first activity to start planning your project timeline</p>
             {!readonly && (
               <button
@@ -284,7 +284,7 @@ const GanttChart: React.FC<GanttChartProps> = ({
                   alignItems: 'center',
                   gap: '8px',
                   padding: '12px 20px',
-                  background: 'linear-gradient(135deg, #8b5cf6, #a855f7)',
+                  background: 'linear-gradient(135deg, var(--lcm-primary), #a855f7)',
                   color: 'white',
                   border: 'none',
                   borderRadius: '8px',
@@ -373,7 +373,7 @@ const GanttChart: React.FC<GanttChartProps> = ({
                         <div style={{ 
                           fontSize: '15px', 
                           fontWeight: '600', 
-                          color: '#111827',
+                          color: 'var(--lcm-text-primary)',
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',
                           whiteSpace: 'nowrap',
@@ -383,7 +383,7 @@ const GanttChart: React.FC<GanttChartProps> = ({
                         </div>
                         <div style={{ 
                           fontSize: '12px', 
-                          color: '#6b7280',
+                          color: 'var(--lcm-text-muted)',
                           display: 'flex',
                           alignItems: 'center',
                           gap: '12px'
@@ -406,11 +406,11 @@ const GanttChart: React.FC<GanttChartProps> = ({
                           alignItems: 'center',
                           gap: '4px',
                           padding: '4px 8px',
-                          background: 'rgba(139, 92, 246, 0.1)',
+                          background: 'var(--lcm-primary-border)',
                           borderRadius: '12px',
                           fontSize: '10px',
                           fontWeight: '600',
-                          color: '#8b5cf6',
+                          color: 'var(--lcm-primary)',
                           flexShrink: 0
                         }}>
                           <LinkRegular style={{ fontSize: '10px' }} />
@@ -455,13 +455,13 @@ const GanttChart: React.FC<GanttChartProps> = ({
                           >
                             <polygon
                               points="0 0, 8 3, 0 6"
-                              fill="#8b5cf6"
+                              fill="var(--lcm-primary)"
                             />
                           </marker>
                         </defs>
                         <path
                           d={`M ${startX}% ${startY}px Q ${(startX + endX) / 2}% ${Math.min(startY, endY) - 20}px ${endX}% ${endY}px`}
-                          stroke="#8b5cf6"
+                          stroke="var(--lcm-primary)"
                           strokeWidth="2"
                           fill="none"
                           strokeDasharray="4,4"
@@ -501,7 +501,7 @@ const GanttChart: React.FC<GanttChartProps> = ({
               <>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
                   <div>
-                    <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: '600', color: '#111827' }}>
+                    <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: '600', color: 'var(--lcm-text-primary)' }}>
                       {activity.name}
                     </h3>
                     <div style={{ 
@@ -525,7 +525,7 @@ const GanttChart: React.FC<GanttChartProps> = ({
                     style={{
                       background: 'none',
                       border: 'none',
-                      color: '#6b7280',
+                      color: 'var(--lcm-text-muted)',
                       cursor: 'pointer',
                       padding: '4px',
                       borderRadius: '4px',
@@ -538,46 +538,46 @@ const GanttChart: React.FC<GanttChartProps> = ({
 
                 <div style={{ display: 'grid', gap: '16px' }}>
                   <div>
-                    <label style={{ fontSize: '12px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase' }}>
+                    <label style={{ fontSize: '12px', fontWeight: '600', color: 'var(--lcm-text-muted)', textTransform: 'uppercase' }}>
                       Type
                     </label>
-                    <div style={{ fontSize: '14px', color: '#111827', marginTop: '4px', textTransform: 'capitalize' }}>
+                    <div style={{ fontSize: '14px', color: 'var(--lcm-text-primary)', marginTop: '4px', textTransform: 'capitalize' }}>
                       {getActivityTypeIcon(activity.type)} {activity.type.replace('_', ' ')}
                     </div>
                   </div>
 
                   <div>
-                    <label style={{ fontSize: '12px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase' }}>
+                    <label style={{ fontSize: '12px', fontWeight: '600', color: 'var(--lcm-text-muted)', textTransform: 'uppercase' }}>
                       Assignee
                     </label>
-                    <div style={{ fontSize: '14px', color: '#111827', marginTop: '4px' }}>
-                      <PersonRegular style={{ fontSize: '14px', marginRight: '6px', color: '#6b7280' }} />
+                    <div style={{ fontSize: '14px', color: 'var(--lcm-text-primary)', marginTop: '4px' }}>
+                      <PersonRegular style={{ fontSize: '14px', marginRight: '6px', color: 'var(--lcm-text-muted)' }} />
                       {activity.assignee || 'Unassigned'}
                     </div>
                   </div>
 
                   <div>
-                    <label style={{ fontSize: '12px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase' }}>
+                    <label style={{ fontSize: '12px', fontWeight: '600', color: 'var(--lcm-text-muted)', textTransform: 'uppercase' }}>
                       Timeline
                     </label>
-                    <div style={{ fontSize: '14px', color: '#111827', marginTop: '4px' }}>
-                      <CalendarRegular style={{ fontSize: '14px', marginRight: '6px', color: '#6b7280' }} />
+                    <div style={{ fontSize: '14px', color: 'var(--lcm-text-primary)', marginTop: '4px' }}>
+                      <CalendarRegular style={{ fontSize: '14px', marginRight: '6px', color: 'var(--lcm-text-muted)' }} />
                       {activity.start_date.toLocaleDateString()} - {activity.end_date.toLocaleDateString()}
                     </div>
                   </div>
 
                   <div>
-                    <label style={{ fontSize: '12px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase' }}>
+                    <label style={{ fontSize: '12px', fontWeight: '600', color: 'var(--lcm-text-muted)', textTransform: 'uppercase' }}>
                       Progress
                     </label>
                     <div style={{ marginTop: '8px' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                        <span style={{ fontSize: '14px', color: '#111827' }}>{activity.progress}%</span>
+                        <span style={{ fontSize: '14px', color: 'var(--lcm-text-primary)' }}>{activity.progress}%</span>
                       </div>
                       <div style={{
                         width: '100%',
                         height: '8px',
-                        background: 'rgba(139, 92, 246, 0.1)',
+                        background: 'var(--lcm-primary-border)',
                         borderRadius: '4px',
                         overflow: 'hidden'
                       }}>
@@ -594,7 +594,7 @@ const GanttChart: React.FC<GanttChartProps> = ({
 
                   {activity.dependencies.length > 0 && (
                     <div>
-                      <label style={{ fontSize: '12px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase' }}>
+                      <label style={{ fontSize: '12px', fontWeight: '600', color: 'var(--lcm-text-muted)', textTransform: 'uppercase' }}>
                         Dependencies
                       </label>
                       <div style={{ marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
@@ -603,10 +603,10 @@ const GanttChart: React.FC<GanttChartProps> = ({
                           return dep ? (
                             <div key={depId} style={{
                               padding: '6px 8px',
-                              background: 'rgba(139, 92, 246, 0.05)',
+                              background: 'var(--lcm-primary-light)',
                               borderRadius: '6px',
                               fontSize: '12px',
-                              color: '#6b7280'
+                              color: 'var(--lcm-text-muted)'
                             }}>
                               <LinkRegular style={{ fontSize: '11px', marginRight: '4px' }} />
                               {dep.name}
@@ -632,8 +632,8 @@ const GanttChart: React.FC<GanttChartProps> = ({
                       style={{
                         flex: 1,
                         padding: '8px 12px',
-                        background: 'rgba(139, 92, 246, 0.1)',
-                        color: '#8b5cf6',
+                        background: 'var(--lcm-primary-border)',
+                        color: 'var(--lcm-primary)',
                         border: '1px solid rgba(139, 92, 246, 0.3)',
                         borderRadius: '6px',
                         fontSize: '12px',
