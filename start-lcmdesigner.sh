@@ -40,7 +40,7 @@ check_port() {
 kill_port() {
     local port=$1
     local service_name=$2
-    local pid=$(lsof -ti:$port 2>/dev/null)
+    local pid=$(lsof -ti:$port 2>/dev/null | head -1)
     
     if [ ! -z "$pid" ]; then
         # Get the process name/command
