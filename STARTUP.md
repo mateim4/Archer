@@ -51,7 +51,9 @@ The `lcmdesigner` command starts all three components of the application:
 
 ### Smart Startup
 - ✅ Automatically installs missing dependencies
-- ✅ Checks and kills existing processes on required ports
+- ✅ Checks and safely kills existing LCMDesigner processes on required ports
+- ✅ **PID verification**: Only kills processes that match known LCMDesigner services
+- ✅ Protects against accidentally killing unrelated processes
 - ✅ Waits for each service to be ready before starting the next
 - ✅ Opens browser automatically when ready
 - ✅ Creates log files for debugging
@@ -72,7 +74,31 @@ All service logs are saved to `logs/`:
 ## Troubleshooting
 
 ### Port Already in Use
-The script automatically kills existing processes on required ports (8000, 3003, 1420).
+
+The script includes **smart PID checking** to safely handle port conflicts:
+
+1. **LCMDesigner Process Detected**: Automatically killed and restarted
+   - Checks process name against known patterns (surreal, node, vite, etc.)
+   - Safe to kill because it's your own LCMDesigner instance
+
+2. **Non-LCMDesigner Process Detected**: Script stops with error
+   ```
+   ⚠️  Port 8000 is in use by another process (PID: 12345)
+       Process: /usr/local/bin/some-other-app
+       This doesn't appear to be LCMDesigner. Please stop it manually.
+       To force kill: kill -9 12345
+   ```
+
+**Manual Resolution**:
+```bash
+# Check what's using the port
+lsof -i :8000
+
+# Kill specific PID if you're sure it's safe
+kill -9 <PID>
+
+# Or use a different port (requires code changes)
+```
 
 ### Service Won't Start
 Check the respective log file in `logs/` for detailed error messages:

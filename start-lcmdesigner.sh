@@ -36,14 +36,49 @@ check_port() {
     fi
 }
 
-# Function to kill process on port
+# Function to kill process on port (with safety check)
 kill_port() {
     local port=$1
-    local pid=$(lsof -ti:$port)
+    local service_name=$2
+    local pid=$(lsof -ti:$port 2>/dev/null)
+    
     if [ ! -z "$pid" ]; then
-        echo -e "${YELLOW}  → Killing existing process on port $port (PID: $pid)${NC}"
-        kill -9 $pid 2>/dev/null
-        sleep 1
+        # Get the process name/command
+        local process_name=$(ps -p $pid -o comm= 2>/dev/null)
+        local process_cmd=$(ps -p $pid -o args= 2>/dev/null)
+        
+        # Check if this is a known LCMDesigner process
+        local is_lcm_process=false
+        case "$service_name" in
+            "SurrealDB")
+                if [[ "$process_name" == *"surreal"* ]] || [[ "$process_cmd" == *"surreal"* ]]; then
+                    is_lcm_process=true
+                fi
+                ;;
+            "Backend")
+                if [[ "$process_cmd" == *"server.js"* ]] || [[ "$process_cmd" == *"lcm-designer-server"* ]] || [[ "$process_name" == "node"* ]]; then
+                    is_lcm_process=true
+                fi
+                ;;
+            "Frontend")
+                if [[ "$process_cmd" == *"vite"* ]] || [[ "$process_cmd" == *"infra-planner"* ]] || [[ "$process_name" == "node"* ]]; then
+                    is_lcm_process=true
+                fi
+                ;;
+        esac
+        
+        if [ "$is_lcm_process" = true ]; then
+            echo -e "${YELLOW}  → Killing existing $service_name process on port $port (PID: $pid)${NC}"
+            echo -e "${BLUE}     Process: $process_name${NC}"
+            kill -9 $pid 2>/dev/null
+            sleep 1
+        else
+            echo -e "${RED}  ⚠️  Port $port is in use by another process (PID: $pid)${NC}"
+            echo -e "${RED}     Process: $process_cmd${NC}"
+            echo -e "${RED}     This doesn't appear to be LCMDesigner. Please stop it manually.${NC}"
+            echo -e "${YELLOW}     To force kill: kill -9 $pid${NC}"
+            return 1
+        fi
     fi
 }
 
@@ -76,10 +111,10 @@ cleanup() {
     # Kill all background jobs
     jobs -p | xargs -r kill 2>/dev/null
     
-    # Kill specific ports if still running
-    kill_port 8000
-    kill_port 3003
-    kill_port 1420
+    # Kill specific ports if still running (ignore errors in cleanup)
+    kill_port 8000 "SurrealDB" 2>/dev/null || true
+    kill_port 3003 "Backend" 2>/dev/null || true
+    kill_port 1420 "Frontend" 2>/dev/null || true
     
     echo -e "${GREEN}✅ All services stopped${NC}"
     exit 0
@@ -97,7 +132,10 @@ if ! command -v surreal &> /dev/null; then
 fi
 
 # Kill existing SurrealDB if running
-kill_port 8000
+if ! kill_port 8000 "SurrealDB"; then
+    echo -e "${RED}Cannot start: Port 8000 occupied by non-LCMDesigner process${NC}"
+    exit 1
+fi
 
 # Start SurrealDB in background
 surreal start \
@@ -120,7 +158,10 @@ fi
 echo -e "\n${BLUE}[2/3]${NC} ${CYAN}Starting Backend Server...${NC}"
 
 # Kill existing backend if running
-kill_port 3003
+if ! kill_port 3003 "Backend"; then
+    echo -e "${RED}Cannot start: Port 3003 occupied by non-LCMDesigner process${NC}"
+    exit 1
+fi
 
 # Check if node_modules exists
 if [ ! -d "$PROJECT_ROOT/server/node_modules" ]; then
@@ -148,7 +189,10 @@ fi
 echo -e "\n${BLUE}[3/3]${NC} ${CYAN}Starting Frontend...${NC}"
 
 # Kill existing frontend if running
-kill_port 1420
+if ! kill_port 1420 "Frontend"; then
+    echo -e "${RED}Cannot start: Port 1420 occupied by non-LCMDesigner process${NC}"
+    exit 1
+fi
 
 # Check if node_modules exists
 if [ ! -d "$PROJECT_ROOT/frontend/node_modules" ]; then
