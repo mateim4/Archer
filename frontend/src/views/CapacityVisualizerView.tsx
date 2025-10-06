@@ -726,51 +726,6 @@ export const CapacityVisualizerView: React.FC = () => {
         </Text>
       </div>
 
-
-      {/* Secondary Control Bar - Clusters */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '16px',
-        padding: '12px 20px',
-        background: 'transparent',
-        border: '1px solid rgba(255, 255, 255, 0.15)',
-        borderRadius: '8px',
-        marginBottom: '16px'
-      }}>
-        <Caption1 style={{ fontSize: '11px', fontWeight: '600', color: '#666', textTransform: 'uppercase' }}>
-          Clusters
-        </Caption1>
-        {state.clusters.map((cluster) => (
-          <div key={cluster.id} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Button
-              size="small"
-              appearance="subtle"
-              icon={cluster.isVisible ? <EyeRegular /> : <EyeOffRegular />}
-              onClick={() => handleClusterToggle(cluster.id)}
-              style={{
-                opacity: cluster.isVisible ? 1 : 0.5,
-                fontSize: '12px'
-              }}
-            >
-              {cluster.name}
-            </Button>
-            <Badge size="small" appearance="outline">
-              {cluster.hosts.length} hosts
-            </Badge>
-          </div>
-        ))}
-        <Button 
-          size="small"
-          appearance="primary"
-          icon={<AddRegular />}
-          onClick={() => setIsAddClusterDialogOpen(true)}
-        >
-          Add New Cluster
-        </Button>
-      </div>
-
-
       {/* Canvas Section - takes full width below controls */}
       <div className={styles.canvasSection}>
         <div className={styles.canvasContainer}>
@@ -779,6 +734,8 @@ export const CapacityVisualizerView: React.FC = () => {
             onVMMove={handleVMMove}
             onVMSelect={handleVMSelect}
             onTooltipUpdate={setTooltip}
+            onClusterToggle={handleClusterToggle}
+            onAddCluster={() => setIsAddClusterDialogOpen(true)}
           />
         </div>
       </div>

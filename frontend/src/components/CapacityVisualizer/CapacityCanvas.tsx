@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState, useMemo } from 'react';
 import * as d3 from 'd3';
 import { renderToString } from 'react-dom/server';
-import { PremiumColor } from '@fluentui/react-icons';
+import { PremiumColor, EyeRegular, EyeOffRegular, AddRegular } from '@fluentui/react-icons';
 import { DesignTokens } from '../../styles/designSystem';
 import SearchWithDropdown from '../SearchWithDropdown';
 import SimpleVisualizer from './SimpleVisualizer';
@@ -13,6 +13,8 @@ interface CapacityCanvasProps {
   onVMSelect?: (vmIds: string[], isMultiSelect: boolean) => void;
   onTooltipUpdate?: (data: any) => void;
   onStateUpdate?: (newState: any) => void; // Callback to update parent state
+  onClusterToggle?: (clusterId: string) => void;
+  onAddCluster?: () => void;
 }
 
 export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
@@ -20,7 +22,9 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
   onVMMove = () => {},
   onVMSelect = () => {},
   onTooltipUpdate = () => {},
-  onStateUpdate = () => {}
+  onStateUpdate = () => {},
+  onClusterToggle = () => {},
+  onAddCluster = () => {}
 }) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -2237,8 +2241,17 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
               WebkitBackdropFilter: 'blur(10px)',
               fontSize: '12px',
               fontWeight: '500',
-              color: '#6b7280'
-            }}>
+              color: '#6b7280',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              opacity: cluster.isVisible !== false ? 1 : 0.5
+            }}
+            onClick={() => onClusterToggle(cluster.id)}
+            >
+              {cluster.isVisible !== false ? 
+                <EyeRegular style={{ width: '16px', height: '16px', color: '#8b5cf6' }} /> : 
+                <EyeOffRegular style={{ width: '16px', height: '16px', color: '#9ca3af' }} />
+              }
               <div style={{
                 width: '8px',
                 height: '8px',
@@ -2261,6 +2274,37 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
               </div>
             )
           })}
+          
+          {/* Add Cluster Button */}
+          <div 
+            onClick={onAddCluster}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              background: 'linear-gradient(135deg, #7c3aed 0%, #a855f7 45%, #38bdf8 100%)',
+              padding: '8px 14px',
+              borderRadius: '12px',
+              border: 'none',
+              fontSize: '12px',
+              fontWeight: '600',
+              color: '#ffffff',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              boxShadow: '0 4px 12px rgba(124, 58, 237, 0.25)',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-1px)';
+              e.currentTarget.style.boxShadow = '0 6px 16px rgba(124, 58, 237, 0.35)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(124, 58, 237, 0.25)';
+            }}
+          >
+            <AddRegular style={{ width: '14px', height: '14px' }} />
+            <span>Add Cluster</span>
+          </div>
         </div>
         
         {/* Free Space Toggle with Settings */}
