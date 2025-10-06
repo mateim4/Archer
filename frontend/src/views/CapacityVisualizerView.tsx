@@ -159,6 +159,16 @@ const useStyles = makeStyles({
     gap: '12px',
     justifyContent: 'flex-end',
     marginTop: '8px'
+  },
+  selectionCount: {
+    fontSize: '13px',
+    fontWeight: 600,
+    color: DesignTokens.colors.primary,
+    letterSpacing: '0.02em'
+  },
+  selectionActions: {
+    display: 'flex',
+    gap: '8px'
   }
 });
 

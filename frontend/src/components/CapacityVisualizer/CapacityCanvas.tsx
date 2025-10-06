@@ -2487,10 +2487,10 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
                   min="1"
                   max="10"
                   style={{
-                    width: '40px',
-                    height: '20px',
-                    padding: '2px 4px',
-                    fontSize: '10px',
+                    width: '58px',
+                    height: '32px',
+                    padding: '4px 8px',
+                    fontSize: '13px',
                     fontWeight: 600,
                     color: '#8b5cf6',
                     border: '1px solid rgba(139, 92, 246, 0.3)',
@@ -2519,10 +2519,10 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
                   min="1"
                   max="10"
                   style={{
-                    width: '40px',
-                    height: '20px',
-                    padding: '2px 4px',
-                    fontSize: '10px',
+                    width: '58px',
+                    height: '32px',
+                    padding: '4px 8px',
+                    fontSize: '13px',
                     fontWeight: 600,
                     color: '#8b5cf6',
                     border: '1px solid rgba(139, 92, 246, 0.3)',
@@ -2551,10 +2551,10 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
                   min="1"
                   max="10"
                   style={{
-                    width: '40px',
-                    height: '20px',
-                    padding: '2px 4px',
-                    fontSize: '10px',
+                    width: '58px',
+                    height: '32px',
+                    padding: '4px 8px',
+                    fontSize: '13px',
                     fontWeight: 600,
                     color: '#8b5cf6',
                     border: '1px solid rgba(139, 92, 246, 0.3)',
