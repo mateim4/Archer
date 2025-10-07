@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, Calendar, Clock, Users, Target, BarChart3, 
   Plus, Edit3, Trash2, Settings, CheckCircle, AlertCircle,
-  Activity, FileText, MessageCircle
+  Activity, FileText, MessageCircle, Server, Filter, SortAsc, X
 } from 'lucide-react';
 import GanttChart from '../components/GanttChart';
+import { CapacityVisualizerView } from './CapacityVisualizerView';
 import { apiClient, Project } from '../utils/apiClient';
 import {
   EnhancedButton,
@@ -45,8 +46,15 @@ const ProjectWorkspaceView: React.FC = () => {
   
   const [project, setProject] = useState<Project | null>(null);
   const [activities, setActivities] = useState<Activity[]>([]);
-  const [activeTab, setActiveTab] = useState<'timeline' | 'activities' | 'overview'>('timeline');
+  const [activeTab, setActiveTab] = useState<'timeline' | 'activities' | 'overview' | 'capacity'>('timeline');
   const [isCreateActivityModalOpen, setIsCreateActivityModalOpen] = useState(false);
+  
+  // Filtering and sorting state
+  const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [filterAssignee, setFilterAssignee] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<'date' | 'name' | 'completion'>('date');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [showFilters, setShowFilters] = useState(false);
   
   // Load project data
   useEffect(() => {
@@ -196,6 +204,59 @@ const ProjectWorkspaceView: React.FC = () => {
     handleActivityUpdate(activityId, { dependencies });
   };
 
+  // Get unique assignees for filter dropdown
+  const uniqueAssignees = useMemo(() => {
+    const assignees = new Set(activities.map(a => a.assignee).filter(Boolean));
+    return Array.from(assignees).sort();
+  }, [activities]);
+
+  // Filter and sort activities
+  const filteredAndSortedActivities = useMemo(() => {
+    let filtered = [...activities];
+
+    // Apply status filter
+    if (filterStatus !== 'all') {
+      filtered = filtered.filter(a => a.status === filterStatus);
+    }
+
+    // Apply assignee filter
+    if (filterAssignee !== 'all') {
+      filtered = filtered.filter(a => a.assignee === filterAssignee);
+    }
+
+    // Apply sorting
+    filtered.sort((a, b) => {
+      let comparison = 0;
+      
+      switch (sortBy) {
+        case 'name':
+          comparison = a.name.localeCompare(b.name);
+          break;
+        case 'date':
+          comparison = a.start_date.getTime() - b.start_date.getTime();
+          break;
+        case 'completion':
+          comparison = a.progress - b.progress;
+          break;
+      }
+
+      return sortOrder === 'asc' ? comparison : -comparison;
+    });
+
+    return filtered;
+  }, [activities, filterStatus, filterAssignee, sortBy, sortOrder]);
+
+  // Check if any filters are active
+  const hasActiveFilters = filterStatus !== 'all' || filterAssignee !== 'all';
+
+  // Reset all filters
+  const resetFilters = () => {
+    setFilterStatus('all');
+    setFilterAssignee('all');
+    setSortBy('date');
+    setSortOrder('asc');
+  };
+
   if (isLoading && !project) {
     return (
       <div className="lcm-page-container">
@@ -271,56 +332,176 @@ const ProjectWorkspaceView: React.FC = () => {
         </EnhancedCard>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <EnhancedCard>
-          <div className="flex items-center space-x-3">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <Activity className="w-5 h-5 text-blue-600" />
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-gray-900">{stats.totalActivities}</div>
-              <div className="text-sm text-gray-500">Total Activities</div>
-            </div>
-          </div>
-        </EnhancedCard>
-        
-        <EnhancedCard>
-          <div className="flex items-center space-x-3">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <CheckCircle className="w-5 h-5 text-green-600" />
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-gray-900">{stats.completedActivities}</div>
-              <div className="text-sm text-gray-500">Completed</div>
-            </div>
-          </div>
-        </EnhancedCard>
-        
-        <EnhancedCard>
-          <div className="flex items-center space-x-3">
-            <div className="p-2 bg-orange-100 rounded-lg">
-              <Clock className="w-5 h-5 text-orange-600" />
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-gray-900">{stats.inProgressActivities}</div>
-              <div className="text-sm text-gray-500">In Progress</div>
+      {/* Filtering and Sorting Controls */}
+      <EnhancedCard className="mb-8">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          {/* Left side: Filter toggle and active filters */}
+          <div className="flex items-center space-x-4">
+            <EnhancedButton
+              variant={showFilters ? 'primary' : 'secondary'}
+              onClick={() => setShowFilters(!showFilters)}
+              className="flex items-center space-x-2"
+            >
+              <Filter className="w-4 h-4" />
+              <span>Filters & Sorting</span>
+              {hasActiveFilters && (
+                <span className="ml-1 px-2 py-0.5 bg-purple-600 text-white text-xs rounded-full">
+                  Active
+                </span>
+              )}
+            </EnhancedButton>
+
+            {hasActiveFilters && (
+              <EnhancedButton
+                variant="ghost"
+                onClick={resetFilters}
+                className="flex items-center space-x-1 text-gray-600 hover:text-gray-900"
+              >
+                <X className="w-4 h-4" />
+                <span className="text-sm">Clear Filters</span>
+              </EnhancedButton>
+            )}
+
+            <div className="text-sm text-gray-600">
+              Showing <span className="font-semibold text-purple-600">{filteredAndSortedActivities.length}</span> of {activities.length} activities
             </div>
           </div>
-        </EnhancedCard>
-        
-        <EnhancedCard>
-          <div className="flex items-center space-x-3">
-            <div className="p-2 bg-purple-100 rounded-lg">
-              <Target className="w-5 h-5 text-purple-600" />
+
+          {/* Right side: Quick stats */}
+          <div className="flex items-center space-x-6 text-sm">
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+              <span className="text-gray-600">Completed: {activities.filter(a => a.status === 'completed').length}</span>
             </div>
-            <div>
-              <div className="text-2xl font-bold text-gray-900">{stats.daysRemaining}</div>
-              <div className="text-sm text-gray-500">Days Remaining</div>
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
+              <span className="text-gray-600">In Progress: {activities.filter(a => a.status === 'in_progress').length}</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
+              <span className="text-gray-600">Pending: {activities.filter(a => a.status === 'pending').length}</span>
             </div>
           </div>
-        </EnhancedCard>
-      </div>
+        </div>
+
+        {/* Expandable Filter Panel */}
+        {showFilters && (
+          <div className="mt-6 pt-6 border-t border-gray-200">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* Status Filter */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Filter by Status
+                </label>
+                <select
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                >
+                  <option value="all">All Statuses</option>
+                  <option value="pending">Pending</option>
+                  <option value="in_progress">In Progress</option>
+                  <option value="completed">Completed</option>
+                  <option value="blocked">Blocked</option>
+                </select>
+              </div>
+
+              {/* Assignee Filter */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Filter by Assignee
+                </label>
+                <select
+                  value={filterAssignee}
+                  onChange={(e) => setFilterAssignee(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                >
+                  <option value="all">All Assignees</option>
+                  {uniqueAssignees.map(assignee => (
+                    <option key={assignee} value={assignee}>
+                      {assignee}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Sort By */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Sort By
+                </label>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as 'date' | 'name' | 'completion')}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                >
+                  <option value="date">Start Date</option>
+                  <option value="name">Activity Name</option>
+                  <option value="completion">Completion %</option>
+                </select>
+              </div>
+
+              {/* Sort Order */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Sort Order
+                </label>
+                <div className="flex space-x-2">
+                  <button
+                    onClick={() => setSortOrder('asc')}
+                    className={`flex-1 px-3 py-2 rounded-lg border transition-all ${
+                      sortOrder === 'asc'
+                        ? 'bg-purple-600 text-white border-purple-600'
+                        : 'bg-white text-gray-700 border-gray-300 hover:border-purple-300'
+                    }`}
+                  >
+                    Ascending
+                  </button>
+                  <button
+                    onClick={() => setSortOrder('desc')}
+                    className={`flex-1 px-3 py-2 rounded-lg border transition-all ${
+                      sortOrder === 'desc'
+                        ? 'bg-purple-600 text-white border-purple-600'
+                        : 'bg-white text-gray-700 border-gray-300 hover:border-purple-300'
+                    }`}
+                  >
+                    Descending
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Active Filters Summary */}
+            {hasActiveFilters && (
+              <div className="mt-4 flex flex-wrap items-center gap-2">
+                <span className="text-sm font-medium text-gray-700">Active Filters:</span>
+                {filterStatus !== 'all' && (
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-purple-100 text-purple-800">
+                    Status: {filterStatus.replace('_', ' ')}
+                    <button
+                      onClick={() => setFilterStatus('all')}
+                      className="ml-2 hover:text-purple-900"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                )}
+                {filterAssignee !== 'all' && (
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-indigo-100 text-indigo-800">
+                    Assignee: {filterAssignee}
+                    <button
+                      onClick={() => setFilterAssignee('all')}
+                      className="ml-2 hover:text-indigo-900"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+      </EnhancedCard>
 
       {/* Tab Navigation */}
       <div className="mb-6">
@@ -328,7 +509,8 @@ const ProjectWorkspaceView: React.FC = () => {
           {[
             { id: 'timeline', label: 'Timeline', icon: <BarChart3 className="w-4 h-4" /> },
             { id: 'activities', label: 'Activities', icon: <Activity className="w-4 h-4" /> },
-            { id: 'overview', label: 'Overview', icon: <FileText className="w-4 h-4" /> }
+            { id: 'overview', label: 'Overview', icon: <FileText className="w-4 h-4" /> },
+            { id: 'capacity', label: 'Capacity', icon: <Server className="w-4 h-4" /> }
           ].map(tab => (
             <button
               key={tab.id}
@@ -363,7 +545,7 @@ const ProjectWorkspaceView: React.FC = () => {
             </div>
             
             <GanttChart
-              activities={activities}
+              activities={filteredAndSortedActivities}
               onActivityUpdate={handleActivityUpdate}
               onActivityCreate={handleActivityCreate}
               onActivityDelete={handleActivityDelete}
@@ -387,7 +569,23 @@ const ProjectWorkspaceView: React.FC = () => {
             </div>
             
             <div className="space-y-4">
-              {activities.map(activity => (
+              {filteredAndSortedActivities.length === 0 ? (
+                <div className="text-center py-12">
+                  <Activity className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No Activities Found</h3>
+                  <p className="text-gray-600 mb-4">
+                    {hasActiveFilters 
+                      ? 'No activities match your current filters. Try adjusting or clearing them.'
+                      : 'Get started by creating your first activity.'}
+                  </p>
+                  {hasActiveFilters && (
+                    <EnhancedButton variant="secondary" onClick={resetFilters}>
+                      Clear Filters
+                    </EnhancedButton>
+                  )}
+                </div>
+              ) : (
+                filteredAndSortedActivities.map(activity => (
                 <div key={activity.id} className="p-4 border border-gray-200 rounded-lg hover:border-purple-300 transition-colors">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center space-x-3">
@@ -438,7 +636,8 @@ const ProjectWorkspaceView: React.FC = () => {
                     <EnhancedProgressBar value={activity.progress} color="purple" />
                   </div>
                 </div>
-              ))}
+              ))
+              )}
             </div>
           </EnhancedCard>
         )}
@@ -497,6 +696,14 @@ const ProjectWorkspaceView: React.FC = () => {
               </div>
             </EnhancedCard>
           </div>
+        )}
+
+        {activeTab === 'capacity' && (
+          <EnhancedCard className="p-0 overflow-hidden">
+            <div className="min-h-[600px]">
+              <CapacityVisualizerView />
+            </div>
+          </EnhancedCard>
         )}
       </div>
 
