@@ -34,6 +34,7 @@ interface GanttChartProps {
   onActivityCreate: (newActivity: Partial<Activity>) => void;
   onActivityDelete: (activityId: string) => void;
   onDependencyChange: (activityId: string, dependencies: string[]) => void;
+  onActivityClick?: (activityId: string) => void;
   readonly?: boolean;
 }
 
@@ -58,6 +59,7 @@ const GanttChart: React.FC<GanttChartProps> = ({
   onActivityCreate,
   onActivityDelete,
   onDependencyChange,
+  onActivityClick,
   readonly = false
 }) => {
   const [selectedActivity, setSelectedActivity] = useState<string | null>(null);
@@ -318,23 +320,25 @@ const GanttChart: React.FC<GanttChartProps> = ({
                       background: `linear-gradient(135deg, ${getStatusColor(activity.status)}15, ${getStatusColor(activity.status)}25)`,
                       border: `2px solid ${getStatusColor(activity.status)}`,
                       borderRadius: '12px',
-                      cursor: readonly ? 'default' : 'pointer',
+                      cursor: 'pointer',
                       transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                       zIndex: selectedActivity === bar.id ? 10 : 1,
                       boxShadow: selectedActivity === bar.id ? `0 8px 32px ${getStatusColor(activity.status)}40` : 'none'
                     }}
-                    onClick={() => setSelectedActivity(selectedActivity === bar.id ? null : bar.id)}
-                    onMouseEnter={(e) => {
-                      if (!readonly) {
-                        e.currentTarget.style.transform = 'translateY(-2px)';
-                        e.currentTarget.style.boxShadow = `0 8px 24px ${getStatusColor(activity.status)}30`;
+                    onClick={() => {
+                      if (onActivityClick) {
+                        onActivityClick(bar.id);
+                      } else {
+                        setSelectedActivity(selectedActivity === bar.id ? null : bar.id);
                       }
                     }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                      e.currentTarget.style.boxShadow = `0 8px 24px ${getStatusColor(activity.status)}30`;
+                    }}
                     onMouseLeave={(e) => {
-                      if (!readonly) {
-                        e.currentTarget.style.transform = 'translateY(0)';
-                        e.currentTarget.style.boxShadow = selectedActivity === bar.id ? `0 8px 32px ${getStatusColor(activity.status)}40` : 'none';
-                      }
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = selectedActivity === bar.id ? `0 8px 32px ${getStatusColor(activity.status)}40` : 'none';
                     }}
                   >
                     {/* Progress Fill */}

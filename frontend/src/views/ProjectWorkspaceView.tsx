@@ -48,6 +48,7 @@ const ProjectWorkspaceView: React.FC = () => {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [activeTab, setActiveTab] = useState<'timeline' | 'activities' | 'overview' | 'capacity'>('timeline');
   const [isCreateActivityModalOpen, setIsCreateActivityModalOpen] = useState(false);
+  const [selectedActivity, setSelectedActivity] = useState<string | null>(null);
   
   // Filtering and sorting state
   const [filterStatus, setFilterStatus] = useState<string>('all');
@@ -642,26 +643,31 @@ const ProjectWorkspaceView: React.FC = () => {
 
       {/* Tab Navigation */}
       <div className="mb-6">
-        <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg w-fit">
-          {[
-            { id: 'timeline', label: 'Timeline', icon: <BarChart3 className="w-4 h-4" /> },
-            { id: 'activities', label: 'Activities', icon: <Activity className="w-4 h-4" /> },
-            { id: 'overview', label: 'Overview', icon: <FileText className="w-4 h-4" /> },
-            { id: 'capacity', label: 'Capacity', icon: <Server className="w-4 h-4" /> }
-          ].map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-md transition-all ${
-                activeTab === tab.id 
-                  ? 'bg-white text-purple-600 shadow-sm font-medium'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              {tab.icon}
-              <span>{tab.label}</span>
-            </button>
-          ))}
+        <div className="border-b border-gray-200">
+          <div className="flex space-x-1">
+            {[
+              { id: 'timeline', label: 'Timeline', icon: <BarChart3 className="w-4 h-4" /> },
+              { id: 'activities', label: `Activities (${filteredAndSortedActivities.length})`, icon: <Activity className="w-4 h-4" /> },
+              { id: 'overview', label: 'Overview', icon: <FileText className="w-4 h-4" /> },
+              { id: 'capacity', label: 'Capacity', icon: <Server className="w-4 h-4" /> }
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as any)}
+                className={`
+                  flex items-center space-x-2 px-4 py-2 pr-4
+                  border-b-4 transition-all
+                  ${activeTab === tab.id 
+                    ? 'border-purple-600 text-purple-600 font-medium bg-purple-50/50'
+                    : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300 hover:bg-gray-50'
+                  }
+                `}
+              >
+                {tab.icon}
+                <span>{tab.label}</span>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -670,7 +676,12 @@ const ProjectWorkspaceView: React.FC = () => {
         {activeTab === 'timeline' && (
           <EnhancedCard>
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">Project Timeline</h2>
+              <div>
+                <h2 className="text-base font-medium text-gray-600">Project timeline</h2>
+                <p className="text-sm text-gray-500 mt-1">
+                  Visual timeline of all project activities
+                </p>
+              </div>
               <EnhancedButton
                 onClick={() => setIsCreateActivityModalOpen(true)}
                 variant="primary"
@@ -687,6 +698,10 @@ const ProjectWorkspaceView: React.FC = () => {
               onActivityCreate={handleActivityCreate}
               onActivityDelete={handleActivityDelete}
               onDependencyChange={handleDependencyChange}
+              onActivityClick={(activityId) => {
+                setActiveTab('activities');
+                setSelectedActivity(activityId);
+              }}
             />
           </EnhancedCard>
         )}
@@ -723,7 +738,15 @@ const ProjectWorkspaceView: React.FC = () => {
                 </div>
               ) : (
                 filteredAndSortedActivities.map(activity => (
-                <div key={activity.id} className="p-4 border border-gray-200 rounded-lg hover:border-purple-300 transition-colors">
+                <div 
+                  key={activity.id} 
+                  className={`p-4 border rounded-lg transition-all ${
+                    selectedActivity === activity.id 
+                      ? 'border-purple-500 bg-purple-50 shadow-md' 
+                      : 'border-gray-200 hover:border-purple-300'
+                  }`}
+                  ref={selectedActivity === activity.id ? (el) => el?.scrollIntoView({ behavior: 'smooth', block: 'center' }) : null}
+                >
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center space-x-3">
                       <h3 className="font-semibold text-gray-900">{activity.name}</h3>
