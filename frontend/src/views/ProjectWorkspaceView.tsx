@@ -56,6 +56,21 @@ const ProjectWorkspaceView: React.FC = () => {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [showFilters, setShowFilters] = useState(false);
   
+  // Activity form state
+  const [activityForm, setActivityForm] = useState({
+    name: '',
+    type: 'custom' as Activity['type'],
+    startDate: new Date().toISOString().split('T')[0],
+    endDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    assignee: '',
+    description: '',
+    status: 'pending' as Activity['status'],
+    priority: 'medium' as 'low' | 'medium' | 'high'
+  });
+  
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
   // Load project data
   useEffect(() => {
     if (projectId) {
@@ -177,6 +192,80 @@ const ProjectWorkspaceView: React.FC = () => {
       activity.id === activityId ? { ...activity, ...updates } : activity
     ));
     showToast('Activity updated successfully', 'success');
+  };
+
+  const validateActivityForm = (): boolean => {
+    const errors: Record<string, string> = {};
+    
+    if (!activityForm.name || activityForm.name.trim().length < 3) {
+      errors.name = 'Activity name must be at least 3 characters';
+    }
+    
+    if (!activityForm.type) {
+      errors.type = 'Activity type is required';
+    }
+    
+    if (!activityForm.startDate) {
+      errors.startDate = 'Start date is required';
+    }
+    
+    if (!activityForm.endDate) {
+      errors.endDate = 'End date is required';
+    } else if (new Date(activityForm.endDate) <= new Date(activityForm.startDate)) {
+      errors.endDate = 'End date must be after start date';
+    }
+    
+    if (!activityForm.assignee || activityForm.assignee.trim().length === 0) {
+      errors.assignee = 'Assignee is required';
+    } else if (!activityForm.assignee.includes('@')) {
+      errors.assignee = 'Please enter a valid email address';
+    }
+    
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleCreateActivitySubmit = async () => {
+    if (!validateActivityForm()) {
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    try {
+      const newActivity: Activity = {
+        id: `act-${Date.now()}`,
+        name: activityForm.name.trim(),
+        type: activityForm.type,
+        status: activityForm.status,
+        start_date: new Date(activityForm.startDate),
+        end_date: new Date(activityForm.endDate),
+        assignee: activityForm.assignee.trim(),
+        dependencies: [],
+        progress: 0
+      };
+      
+      setActivities(prev => [...prev, newActivity]);
+      showToast('Activity created successfully', 'success');
+      
+      // Reset form
+      setActivityForm({
+        name: '',
+        type: 'custom',
+        startDate: new Date().toISOString().split('T')[0],
+        endDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        assignee: '',
+        description: '',
+        status: 'pending',
+        priority: 'medium'
+      });
+      setFormErrors({});
+      setIsCreateActivityModalOpen(false);
+    } catch (error) {
+      showToast('Failed to create activity', 'error');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleActivityCreate = (newActivity: Partial<Activity>) => {
@@ -758,44 +847,200 @@ const ProjectWorkspaceView: React.FC = () => {
       {/* Create Activity Modal */}
       <EnhancedModal
         isOpen={isCreateActivityModalOpen}
-        onClose={() => setIsCreateActivityModalOpen(false)}
+        onClose={() => {
+          setIsCreateActivityModalOpen(false);
+          setFormErrors({});
+        }}
         title="Create New Activity"
         size="lg"
       >
         <div className="space-y-6">
           <p className="text-gray-600">
-            Add a new activity to your project timeline. You can choose from migration, lifecycle, 
-            hardware customization, commissioning, or custom activities.
+            Create a new activity with all the necessary details. All fields marked with * are required.
           </p>
           
-          <div className="grid grid-cols-2 gap-4">
-            {[
-              { type: 'migration', label: 'Migration Activity', icon: '🔄' },
-              { type: 'lifecycle', label: 'Lifecycle Planning', icon: '📊' },
-              { type: 'hardware_customization', label: 'Hardware Customization', icon: '🔧' },
-              { type: 'commissioning', label: 'Commissioning', icon: '⚡' },
-              { type: 'decommission', label: 'Decommissioning', icon: '🗑️' },
-              { type: 'custom', label: 'Custom Activity', icon: '📋' }
-            ].map(activityType => (
-              <button
-                key={activityType.type}
-                onClick={() => {
-                  handleActivityCreate({
-                    name: `New ${activityType.label}`,
-                    type: activityType.type as any,
-                    start_date: new Date(),
-                    end_date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000) // 2 weeks from now
-                  });
-                  setIsCreateActivityModalOpen(false);
-                }}
-                className="p-4 border-2 border-gray-200 rounded-lg hover:border-purple-300 hover:bg-purple-50 transition-all text-left"
+          <form onSubmit={(e) => { e.preventDefault(); handleCreateActivitySubmit(); }} className="space-y-4">
+            {/* Activity Name */}
+            <div>
+              <label htmlFor="activity-name" className="block text-sm font-medium text-gray-700 mb-2">
+                Activity Name *
+              </label>
+              <input
+                id="activity-name"
+                type="text"
+                value={activityForm.name}
+                onChange={(e) => setActivityForm({ ...activityForm, name: e.target.value })}
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                  formErrors.name ? 'border-red-500' : 'border-gray-300'
+                }`}
+                placeholder="Enter activity name"
+              />
+              {formErrors.name && (
+                <p className="mt-1 text-sm text-red-600">{formErrors.name}</p>
+              )}
+            </div>
+
+            {/* Activity Type */}
+            <div>
+              <label htmlFor="activity-type" className="block text-sm font-medium text-gray-700 mb-2">
+                Activity Type *
+              </label>
+              <select
+                id="activity-type"
+                value={activityForm.type}
+                onChange={(e) => setActivityForm({ ...activityForm, type: e.target.value as Activity['type'] })}
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                  formErrors.type ? 'border-red-500' : 'border-gray-300'
+                }`}
               >
-                <div className="text-2xl mb-2">{activityType.icon}</div>
-                <div className="font-medium text-gray-900">{activityType.label}</div>
-                <div className="text-sm text-gray-500">Click to add this activity type</div>
-              </button>
-            ))}
-          </div>
+                <option value="custom">Custom Activity</option>
+                <option value="migration">Migration</option>
+                <option value="lifecycle">Lifecycle Planning</option>
+                <option value="hardware_customization">Hardware Customization</option>
+                <option value="commissioning">Commissioning</option>
+                <option value="decommission">Decommissioning</option>
+              </select>
+              {formErrors.type && (
+                <p className="mt-1 text-sm text-red-600">{formErrors.type}</p>
+              )}
+            </div>
+
+            {/* Date Range */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="start-date" className="block text-sm font-medium text-gray-700 mb-2">
+                  Start Date *
+                </label>
+                <input
+                  id="start-date"
+                  type="date"
+                  value={activityForm.startDate}
+                  onChange={(e) => setActivityForm({ ...activityForm, startDate: e.target.value })}
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                    formErrors.startDate ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                />
+                {formErrors.startDate && (
+                  <p className="mt-1 text-sm text-red-600">{formErrors.startDate}</p>
+                )}
+              </div>
+
+              <div>
+                <label htmlFor="end-date" className="block text-sm font-medium text-gray-700 mb-2">
+                  End Date *
+                </label>
+                <input
+                  id="end-date"
+                  type="date"
+                  value={activityForm.endDate}
+                  onChange={(e) => setActivityForm({ ...activityForm, endDate: e.target.value })}
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                    formErrors.endDate ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                />
+                {formErrors.endDate && (
+                  <p className="mt-1 text-sm text-red-600">{formErrors.endDate}</p>
+                )}
+              </div>
+            </div>
+
+            {/* Assignee */}
+            <div>
+              <label htmlFor="assignee" className="block text-sm font-medium text-gray-700 mb-2">
+                Assignee (Email) *
+              </label>
+              <input
+                id="assignee"
+                type="email"
+                value={activityForm.assignee}
+                onChange={(e) => setActivityForm({ ...activityForm, assignee: e.target.value })}
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                  formErrors.assignee ? 'border-red-500' : 'border-gray-300'
+                }`}
+                placeholder="assignee@example.com"
+              />
+              {formErrors.assignee && (
+                <p className="mt-1 text-sm text-red-600">{formErrors.assignee}</p>
+              )}
+            </div>
+
+            {/* Status and Priority */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-2">
+                  Initial Status
+                </label>
+                <select
+                  id="status"
+                  value={activityForm.status}
+                  onChange={(e) => setActivityForm({ ...activityForm, status: e.target.value as Activity['status'] })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                >
+                  <option value="pending">Pending</option>
+                  <option value="in_progress">In Progress</option>
+                  <option value="completed">Completed</option>
+                  <option value="blocked">Blocked</option>
+                </select>
+              </div>
+
+              <div>
+                <label htmlFor="priority" className="block text-sm font-medium text-gray-700 mb-2">
+                  Priority
+                </label>
+                <select
+                  id="priority"
+                  value={activityForm.priority}
+                  onChange={(e) => setActivityForm({ ...activityForm, priority: e.target.value as any })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                >
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Description */}
+            <div>
+              <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+                Description (Optional)
+              </label>
+              <textarea
+                id="description"
+                value={activityForm.description}
+                onChange={(e) => setActivityForm({ ...activityForm, description: e.target.value })}
+                rows={3}
+                maxLength={500}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                placeholder="Add any additional details..."
+              />
+              <p className="mt-1 text-xs text-gray-500">
+                {activityForm.description.length}/500 characters
+              </p>
+            </div>
+
+            {/* Form Actions */}
+            <div className="flex items-center justify-end space-x-3 pt-4 border-t">
+              <EnhancedButton
+                type="button"
+                variant="secondary"
+                onClick={() => {
+                  setIsCreateActivityModalOpen(false);
+                  setFormErrors({});
+                }}
+                disabled={isSubmitting}
+              >
+                Cancel
+              </EnhancedButton>
+              <EnhancedButton
+                type="submit"
+                variant="primary"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? 'Creating...' : 'Create Activity'}
+              </EnhancedButton>
+            </div>
+          </form>
         </div>
       </EnhancedModal>
     </div>
