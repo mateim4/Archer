@@ -301,32 +301,80 @@ const ProjectWorkspaceView: React.FC = () => {
           </EnhancedButton>
         </div>
         
-        <EnhancedCard className="bg-gradient-to-r from-purple-50 to-indigo-50 border-purple-200">
+        <EnhancedCard className="bg-gradient-to-r from-purple-50 to-indigo-50 border-purple-200 !p-4">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">{project.name}</h1>
-              <p className="text-gray-600 text-lg">{project.description}</p>
-              <div className="flex items-center space-x-4 mt-4 text-sm text-gray-500">
-                <div className="flex items-center space-x-1">
+            <div className="flex-1">
+              <div className="flex items-center justify-center lg:justify-start space-x-3 mb-2">
+                <Target className="w-8 h-8 text-purple-600" />
+                <h1 className="text-3xl font-bold text-gray-900">{project.name}</h1>
+              </div>
+              <p className="text-gray-600 text-lg text-center lg:text-left">{project.description}</p>
+              <div className="flex items-center justify-center lg:justify-start space-x-4 mt-4 text-sm text-gray-500">
+                <div className="flex items-center space-x-2">
                   <Users className="w-4 h-4" />
                   <span>Owner: {project.owner_id.replace('user:', '')}</span>
                 </div>
-                <div className="flex items-center space-x-1">
+                <div className="flex items-center space-x-2">
                   <Calendar className="w-4 h-4" />
                   <span>Created: {new Date(project.created_at).toLocaleDateString()}</span>
                 </div>
               </div>
             </div>
             
-            <div className="flex flex-col items-end space-y-3">
-              <div className="text-right">
+            <div className="flex flex-col items-end space-y-3" style={{ minWidth: '250px' }}>
+              <div className="text-right w-full">
                 <div className="text-2xl font-bold text-purple-600">{stats.overallProgress}%</div>
                 <div className="text-sm text-gray-500">Overall Progress</div>
               </div>
-              <EnhancedProgressBar
-                value={stats.overallProgress}
-                color="purple"
-              />
+              <div className="w-full">
+                <EnhancedProgressBar
+                  value={stats.overallProgress}
+                  color="purple"
+                />
+              </div>
+            </div>
+          </div>
+        </EnhancedCard>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <EnhancedCard className="!p-4">
+          <div className="flex items-center space-x-3">
+            <Activity className="w-5 h-5 text-purple-600" />
+            <div>
+              <div className="text-2xl font-bold text-gray-900">{stats.totalActivities}</div>
+              <div className="text-sm text-gray-500">Total Activities</div>
+            </div>
+          </div>
+        </EnhancedCard>
+
+        <EnhancedCard className="!p-4">
+          <div className="flex items-center space-x-3">
+            <CheckCircle className="w-5 h-5 text-green-600" />
+            <div>
+              <div className="text-2xl font-bold text-gray-900">{stats.completedActivities}</div>
+              <div className="text-sm text-gray-500">Completed</div>
+            </div>
+          </div>
+        </EnhancedCard>
+
+        <EnhancedCard className="!p-4">
+          <div className="flex items-center space-x-3">
+            <Clock className="w-5 h-5 text-orange-600" />
+            <div>
+              <div className="text-2xl font-bold text-gray-900">{stats.inProgressActivities}</div>
+              <div className="text-sm text-gray-500">In Progress</div>
+            </div>
+          </div>
+        </EnhancedCard>
+
+        <EnhancedCard className="!p-4">
+          <div className="flex items-center space-x-3">
+            <Target className="w-5 h-5 text-blue-600" />
+            <div>
+              <div className="text-2xl font-bold text-gray-900">{stats.daysRemaining}</div>
+              <div className="text-sm text-gray-500">Days Remaining</div>
             </div>
           </div>
         </EnhancedCard>
