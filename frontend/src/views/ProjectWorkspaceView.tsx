@@ -72,6 +72,17 @@ const ProjectWorkspaceView: React.FC = () => {
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   
+  // Inline editing state
+  const [editingAssigneeId, setEditingAssigneeId] = useState<string | null>(null);
+  const [assigneeHoverId, setAssigneeHoverId] = useState<string | null>(null);
+  const [teamMembers] = useState<string[]>([
+    'john.doe@company.com',
+    'sarah.smith@company.com',
+    'mike.johnson@company.com',
+    'bob.wilson@company.com',
+    'alice.brown@company.com'
+  ]);
+  
   // Load project data
   useEffect(() => {
     if (projectId) {
@@ -288,6 +299,29 @@ const ProjectWorkspaceView: React.FC = () => {
   const handleActivityDelete = (activityId: string) => {
     setActivities(prev => prev.filter(activity => activity.id !== activityId));
     showToast('Activity deleted successfully', 'success');
+  };
+
+  const handleAssigneeChange = async (activityId: string, newAssignee: string) => {
+    const previousAssignee = activities.find(a => a.id === activityId)?.assignee || '';
+    
+    // Optimistic update
+    setActivities(prev => prev.map(a => 
+      a.id === activityId ? { ...a, assignee: newAssignee } : a
+    ));
+    
+    try {
+      // In a real app, this would be an API call
+      // await apiClient.updateActivity(projectId, activityId, { assignee: newAssignee });
+      showToast('Assignee updated successfully', 'success');
+    } catch (error) {
+      // Revert on error
+      setActivities(prev => prev.map(a => 
+        a.id === activityId ? { ...a, assignee: previousAssignee } : a
+      ));
+      showToast('Failed to update assignee', 'error');
+    } finally {
+      setEditingAssigneeId(null);
+    }
   };
 
   const handleDependencyChange = (activityId: string, dependencies: string[]) => {
@@ -747,53 +781,94 @@ const ProjectWorkspaceView: React.FC = () => {
                   }`}
                   ref={selectedActivity === activity.id ? (el) => el?.scrollIntoView({ behavior: 'smooth', block: 'center' }) : null}
                 >
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center space-x-3">
-                      <h3 className="font-semibold text-gray-900">{activity.name}</h3>
-                      <span className={`px-2 py-1 text-xs rounded-full ${
-                        activity.status === 'completed' ? 'bg-green-100 text-green-700' :
-                        activity.status === 'in_progress' ? 'bg-orange-100 text-orange-700' :
-                        activity.status === 'blocked' ? 'bg-red-100 text-red-700' :
-                        'bg-gray-100 text-gray-700'
-                      }`}>
-                        {activity.status.replace('_', ' ').toUpperCase()}
-                      </span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <EnhancedButton variant="ghost" className="p-2">
-                        <Edit3 className="w-4 h-4" />
-                      </EnhancedButton>
-                      <EnhancedButton 
-                        variant="ghost" 
-                        className="p-2 text-red-600"
-                        onClick={() => handleActivityDelete(activity.id)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </EnhancedButton>
-                    </div>
+                  {/* Activity Header - Title, Status, and Action Buttons */}
+                  <div className="flex items-center gap-4 mb-4">
+                    <h3 className="font-semibold text-gray-900 text-base">{activity.name}</h3>
+                    <span className={`px-2 py-1 text-xs rounded-full ${
+                      activity.status === 'completed' ? 'bg-green-100 text-green-700' :
+                      activity.status === 'in_progress' ? 'bg-orange-100 text-orange-700' :
+                      activity.status === 'blocked' ? 'bg-red-100 text-red-700' :
+                      'bg-gray-100 text-gray-700'
+                    }`}>
+                      {activity.status.replace('_', ' ').toUpperCase()}
+                    </span>
+                    <button
+                      className="p-1.5 rounded hover:bg-gray-100 transition-colors"
+                      title="Edit Activity"
+                    >
+                      <Edit3 className="w-4 h-4 text-gray-600" />
+                    </button>
+                    <button
+                      className="p-1.5 rounded hover:bg-red-50 transition-colors"
+                      onClick={() => handleActivityDelete(activity.id)}
+                      title="Delete Activity"
+                    >
+                      <Trash2 className="w-4 h-4 text-red-600" />
+                    </button>
                   </div>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                    <div>
-                      <span className="text-gray-500">Assignee:</span>
-                      <span className="ml-2 text-gray-900">{activity.assignee}</span>
+                  {/* Single Column Metainformation */}
+                  <div className="space-y-3">
+                    {/* Assignee with Inline Editing */}
+                    <div className="flex items-center">
+                      <span className="text-sm font-medium text-gray-600 w-32">Assignee:</span>
+                      {editingAssigneeId === activity.id ? (
+                        <select
+                          className="text-sm text-gray-900 border border-purple-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                          value={activity.assignee}
+                          onChange={(e) => handleAssigneeChange(activity.id, e.target.value)}
+                          onBlur={() => setEditingAssigneeId(null)}
+                          autoFocus
+                        >
+                          {teamMembers.map(member => (
+                            <option key={member} value={member}>{member}</option>
+                          ))}
+                        </select>
+                      ) : (
+                        <div
+                          className={`flex items-center gap-2 px-2 py-1 rounded cursor-pointer transition-colors ${
+                            assigneeHoverId === activity.id ? 'bg-purple-100' : ''
+                          }`}
+                          onMouseEnter={() => setAssigneeHoverId(activity.id)}
+                          onMouseLeave={() => setAssigneeHoverId(null)}
+                          onClick={() => setEditingAssigneeId(activity.id)}
+                        >
+                          <span className="text-sm text-gray-900">{activity.assignee}</span>
+                          {assigneeHoverId === activity.id && (
+                            <Edit3 className="w-3 h-3 text-purple-600" />
+                          )}
+                        </div>
+                      )}
                     </div>
-                    <div>
-                      <span className="text-gray-500">Start:</span>
-                      <span className="ml-2 text-gray-900">{activity.start_date.toLocaleDateString()}</span>
+
+                    {/* Start Date */}
+                    <div className="flex items-center">
+                      <span className="text-sm font-medium text-gray-600 w-32">Start Date:</span>
+                      <span className="text-sm text-gray-900">{activity.start_date.toLocaleDateString()}</span>
                     </div>
-                    <div>
-                      <span className="text-gray-500">End:</span>
-                      <span className="ml-2 text-gray-900">{activity.end_date.toLocaleDateString()}</span>
+
+                    {/* End Date */}
+                    <div className="flex items-center">
+                      <span className="text-sm font-medium text-gray-600 w-32">End Date:</span>
+                      <span className="text-sm text-gray-900">{activity.end_date.toLocaleDateString()}</span>
                     </div>
-                  </div>
-                  
-                  <div className="mt-3">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm text-gray-500">Progress</span>
-                      <span className="text-sm font-medium text-gray-900">{activity.progress}%</span>
+
+                    {/* Status */}
+                    <div className="flex items-center">
+                      <span className="text-sm font-medium text-gray-600 w-32">Status:</span>
+                      <span className="text-sm text-gray-900">{activity.status.replace('_', ' ')}</span>
                     </div>
-                    <EnhancedProgressBar value={activity.progress} color="purple" />
+
+                    {/* Progress Bar - 50% width */}
+                    <div className="flex items-center">
+                      <span className="text-sm font-medium text-gray-600 w-32">Progress:</span>
+                      <div className="flex-1 max-w-xs">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-sm font-medium text-gray-900">{activity.progress}%</span>
+                        </div>
+                        <EnhancedProgressBar value={activity.progress} color="purple" />
+                      </div>
+                    </div>
                   </div>
                 </div>
               ))
