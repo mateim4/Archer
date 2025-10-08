@@ -75,6 +75,9 @@ const ProjectWorkspaceView: React.FC = () => {
   // Inline editing state
   const [editingAssigneeId, setEditingAssigneeId] = useState<string | null>(null);
   const [assigneeHoverId, setAssigneeHoverId] = useState<string | null>(null);
+  const [editingStartDateId, setEditingStartDateId] = useState<string | null>(null);
+  const [editingEndDateId, setEditingEndDateId] = useState<string | null>(null);
+  const [dateHoverId, setDateHoverId] = useState<string | null>(null);
   const [teamMembers] = useState<string[]>([
     'john.doe@company.com',
     'sarah.smith@company.com',
@@ -324,6 +327,72 @@ const ProjectWorkspaceView: React.FC = () => {
     }
   };
 
+  const handleStartDateChange = async (activityId: string, newDate: string) => {
+    const activity = activities.find(a => a.id === activityId);
+    if (!activity) return;
+    
+    const previousStartDate = activity.start_date;
+    const newStartDate = new Date(newDate);
+    
+    // Validate: start date must be before end date
+    if (newStartDate >= activity.end_date) {
+      showToast('Start date must be before end date', 'error');
+      setEditingStartDateId(null);
+      return;
+    }
+    
+    // Optimistic update
+    setActivities(prev => prev.map(a =>
+      a.id === activityId ? { ...a, start_date: newStartDate } : a
+    ));
+    
+    try {
+      // In a real app, this would be an API call
+      showToast('Start date updated successfully', 'success');
+    } catch (error) {
+      // Revert on error
+      setActivities(prev => prev.map(a =>
+        a.id === activityId ? { ...a, start_date: previousStartDate } : a
+      ));
+      showToast('Failed to update start date', 'error');
+    } finally {
+      setEditingStartDateId(null);
+    }
+  };
+
+  const handleEndDateChange = async (activityId: string, newDate: string) => {
+    const activity = activities.find(a => a.id === activityId);
+    if (!activity) return;
+    
+    const previousEndDate = activity.end_date;
+    const newEndDate = new Date(newDate);
+    
+    // Validate: end date must be after start date
+    if (newEndDate <= activity.start_date) {
+      showToast('End date must be after start date', 'error');
+      setEditingEndDateId(null);
+      return;
+    }
+    
+    // Optimistic update
+    setActivities(prev => prev.map(a =>
+      a.id === activityId ? { ...a, end_date: newEndDate } : a
+    ));
+    
+    try {
+      // In a real app, this would be an API call
+      showToast('End date updated successfully', 'success');
+    } catch (error) {
+      // Revert on error
+      setActivities(prev => prev.map(a =>
+        a.id === activityId ? { ...a, end_date: previousEndDate } : a
+      ));
+      showToast('Failed to update end date', 'error');
+    } finally {
+      setEditingEndDateId(null);
+    }
+  };
+
   const handleDependencyChange = (activityId: string, dependencies: string[]) => {
     handleActivityUpdate(activityId, { dependencies });
   };
@@ -429,8 +498,8 @@ const ProjectWorkspaceView: React.FC = () => {
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <div className="flex-1">
               <div className="flex items-center justify-center lg:justify-start space-x-3 mb-2">
-                <Target className="w-8 h-8 text-purple-600" />
-                <h1 className="text-3xl font-bold text-gray-900">{project.name}</h1>
+                <Target className="w-8 h-8 text-purple-600 flex-shrink-0" />
+                <h1 className="text-3xl font-bold text-gray-900 leading-none">{project.name}</h1>
               </div>
               <p className="text-gray-600 text-lg text-center lg:text-left">{project.description}</p>
               <div className="flex items-center justify-center lg:justify-start space-x-4 mt-4 text-sm text-gray-500">
@@ -841,16 +910,62 @@ const ProjectWorkspaceView: React.FC = () => {
                       )}
                     </div>
 
-                    {/* Start Date */}
+                    {/* Start Date with Inline Editing */}
                     <div className="flex items-center">
                       <span className="text-sm font-medium text-gray-600 w-32">Start Date:</span>
-                      <span className="text-sm text-gray-900">{activity.start_date.toLocaleDateString()}</span>
+                      {editingStartDateId === activity.id ? (
+                        <input
+                          type="date"
+                          className="text-sm text-gray-900 border border-purple-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                          value={activity.start_date.toISOString().split('T')[0]}
+                          onChange={(e) => handleStartDateChange(activity.id, e.target.value)}
+                          onBlur={() => setEditingStartDateId(null)}
+                          autoFocus
+                        />
+                      ) : (
+                        <div
+                          className={`flex items-center gap-2 px-2 py-1 rounded cursor-pointer transition-colors ${
+                            dateHoverId === `start-${activity.id}` ? 'bg-purple-100' : ''
+                          }`}
+                          onMouseEnter={() => setDateHoverId(`start-${activity.id}`)}
+                          onMouseLeave={() => setDateHoverId(null)}
+                          onClick={() => setEditingStartDateId(activity.id)}
+                        >
+                          <span className="text-sm text-gray-900">{activity.start_date.toLocaleDateString()}</span>
+                          {dateHoverId === `start-${activity.id}` && (
+                            <Edit3 className="w-3 h-3 text-purple-600" />
+                          )}
+                        </div>
+                      )}
                     </div>
 
-                    {/* End Date */}
+                    {/* End Date with Inline Editing */}
                     <div className="flex items-center">
                       <span className="text-sm font-medium text-gray-600 w-32">End Date:</span>
-                      <span className="text-sm text-gray-900">{activity.end_date.toLocaleDateString()}</span>
+                      {editingEndDateId === activity.id ? (
+                        <input
+                          type="date"
+                          className="text-sm text-gray-900 border border-purple-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                          value={activity.end_date.toISOString().split('T')[0]}
+                          onChange={(e) => handleEndDateChange(activity.id, e.target.value)}
+                          onBlur={() => setEditingEndDateId(null)}
+                          autoFocus
+                        />
+                      ) : (
+                        <div
+                          className={`flex items-center gap-2 px-2 py-1 rounded cursor-pointer transition-colors ${
+                            dateHoverId === `end-${activity.id}` ? 'bg-purple-100' : ''
+                          }`}
+                          onMouseEnter={() => setDateHoverId(`end-${activity.id}`)}
+                          onMouseLeave={() => setDateHoverId(null)}
+                          onClick={() => setEditingEndDateId(activity.id)}
+                        >
+                          <span className="text-sm text-gray-900">{activity.end_date.toLocaleDateString()}</span>
+                          {dateHoverId === `end-${activity.id}` && (
+                            <Edit3 className="w-3 h-3 text-purple-600" />
+                          )}
+                        </div>
+                      )}
                     </div>
 
                     {/* Status */}
