@@ -19,6 +19,7 @@
     "test:ui": "npx playwright test tests/ui-analysis.spec.ts",
     "test:ux": "npx playwright test tests/ux-improvements.spec.ts",
     "test:e2e": "npm --prefix frontend run test:e2e",
+  "verify:ui": "node scripts/run-visual-verification.mjs",
     "test:rust": "cargo test",
     "test:all": "npm run test && npm run test:rust && npm run test:e2e",
     "lint": "npm --prefix frontend run lint",
@@ -41,10 +42,11 @@
   "author": "InfraAID Team",
   "license": "MIT",
   "devDependencies": {
-    "@playwright/test": "^1.54.2",
+    "@playwright/test": "^1.56.0",
     "@tailwindcss/postcss": "^4.1.11",
     "@types/node": "^24.2.0",
     "concurrently": "^9.2.1",
+    "playwright": "^1.56.0",
     "redoc-cli": "^0.13.21"
   },
   "dependencies": {

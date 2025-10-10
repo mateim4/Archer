@@ -96,7 +96,7 @@ const ProjectWorkspaceView: React.FC = () => {
 
   const loadProject = async () => {
     await withLoading(async () => {
-      try {
+      try {                                                         
         // For now, use mock data until backend is fully connected
         const mockProject: Project = {
           id: projectId || '',
@@ -108,8 +108,8 @@ const ProjectWorkspaceView: React.FC = () => {
         };
         setProject(mockProject);
       } catch (err) {
-        showToast('Failed to load project', 'error');
-        navigate('/projects');
+  showToast('Failed to load project', 'error');
+  navigate('/app/projects');
       }
     });
   };
@@ -466,7 +466,7 @@ const ProjectWorkspaceView: React.FC = () => {
           <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
           <h2 className="text-xl font-semibold text-gray-900 mb-2">Project Not Found</h2>
           <p className="text-gray-600 mb-6">The requested project could not be found.</p>
-          <EnhancedButton onClick={() => navigate('/projects')} variant="primary">
+          <EnhancedButton onClick={() => navigate('/app/projects')} variant="primary">
             Back to Projects
           </EnhancedButton>
         </EnhancedCard>
@@ -483,10 +483,10 @@ const ProjectWorkspaceView: React.FC = () => {
       
       {/* Header */}
       <div className="mb-8">
-        <div className="flex items-center space-x-4 mb-6">
+          <div className="flex items-center space-x-4 mb-6">
           <EnhancedButton
             variant="ghost"
-            onClick={() => navigate('/projects')}
+            onClick={() => navigate('/app/projects')}
             className="flex items-center space-x-2"
           >
             <ArrowLeft className="w-4 h-4" />

@@ -8,7 +8,7 @@ import NavigationSidebar from './components/NavigationSidebar';
 import HardwarePoolView from './views/HardwarePoolView';
 import HardwareBasketView from './views/HardwareBasketView';
 import ProjectsView from './views/ProjectsView';
-import ProjectDetailView from './views/ProjectDetailView';
+import ProjectWorkspaceView from './views/ProjectWorkspaceView';
 import EmbeddedMigrationWizard from './views/EmbeddedMigrationWizard';
 import EmbeddedLifecycleWizard from './views/EmbeddedLifecycleWizard';
 import GuidesView from './views/GuidesView';
@@ -69,7 +69,7 @@ function App() {
               }}>
                 <Routes>
                 <Route path="projects" element={<ProjectsView />} />
-                <Route path="projects/:projectId" element={<ProjectDetailView />} />
+                <Route path="projects/:projectId" element={<ProjectWorkspaceView />} />
                 <Route path="hardware-pool" element={<HardwarePoolView />} />
                 <Route path="hardware-basket" element={<HardwareBasketView />} />
                 <Route path="guides" element={<GuidesView />} />

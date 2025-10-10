@@ -125,10 +125,25 @@ trap cleanup SIGINT SIGTERM EXIT
 # Step 1: Start SurrealDB
 echo -e "${BLUE}[1/3]${NC} ${CYAN}Starting SurrealDB...${NC}"
 
-# Check if surreal is installed
-if ! command -v surreal &> /dev/null; then
+# Check if surreal is installed and set SURREAL_CMD
+SURREAL_CMD=""
+if command -v surreal &> /dev/null; then
+    SURREAL_CMD="surreal"
+elif [ -f "$HOME/.surrealdb/surreal" ]; then
+    SURREAL_CMD="$HOME/.surrealdb/surreal"
+    echo -e "${YELLOW}  ℹ Using SurrealDB from: $HOME/.surrealdb/surreal${NC}"
+else
     echo -e "${RED}  ✗ SurrealDB not found. Installing...${NC}"
     curl -sSf https://install.surrealdb.com | sh
+    
+    # After installation, set the path
+    if [ -f "$HOME/.surrealdb/surreal" ]; then
+        SURREAL_CMD="$HOME/.surrealdb/surreal"
+        echo -e "${GREEN}  ✓ SurrealDB installed successfully${NC}"
+    else
+        echo -e "${RED}  ✗ SurrealDB installation failed${NC}"
+        exit 1
+    fi
 fi
 
 # Kill existing SurrealDB if running
@@ -138,7 +153,7 @@ if ! kill_port 8000 "SurrealDB"; then
 fi
 
 # Start SurrealDB in background
-surreal start \
+$SURREAL_CMD start \
     --log debug \
     --user root \
     --pass root \
