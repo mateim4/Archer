@@ -887,7 +887,16 @@ export const ProjectDocumentsView: React.FC<ProjectDocumentsViewProps> = ({
                         <ChartMultiple24Regular />
                         Document Preview
                       </Title3>
-                      <DocumentPreview activity={selectedActivity} templateId={selectedTemplate} />
+                      {(() => {
+                        const activity = activities.find(a => a.id === selectedActivity);
+                        return activity ? (
+                          <DocumentPreview activity={activity} templateId={selectedTemplate} />
+                        ) : (
+                          <MessageBar intent="warning">
+                            <MessageBarBody>Please select an activity to preview</MessageBarBody>
+                          </MessageBar>
+                        );
+                      })()}
                     </div>
                     
                     <MessageBar style={{ marginTop: tokens.spacingVerticalM }}>

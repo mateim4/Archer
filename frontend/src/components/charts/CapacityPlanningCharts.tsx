@@ -258,7 +258,7 @@ export const ResourceUtilizationChart: React.FC<ResourceUtilizationProps> = ({
                     fill={tokens.colorNeutralForeground2}
                     fontWeight="500"
                   >
-                    {d.utilization_percentage.toFixed(0)}%
+                    {`${d.utilization_percentage.toFixed(0)}%`}
                   </Text>
                   
                   <Text
@@ -269,7 +269,7 @@ export const ResourceUtilizationChart: React.FC<ResourceUtilizationProps> = ({
                     fill={tokens.colorNeutralForeground3}
                     fontWeight="500"
                   >
-                    {projectedPercentage.toFixed(0)}%
+                    {`${projectedPercentage.toFixed(0)}%`}
                   </Text>
                 </Group>
               );
@@ -469,7 +469,7 @@ export const CapacityProjectionChart: React.FC<CapacityTimelineProps> = ({
               stroke={tokens.colorNeutralForeground3}
               tickStroke={tokens.colorNeutralForeground3}
               tickFormat={(value) => {
-                const date = new Date(value);
+                const date = value instanceof Date ? value : new Date(Number(value));
                 return `${date.getMonth() + 1}/${date.getFullYear()}`;
               }}
               tickLabelProps={{
@@ -645,7 +645,7 @@ export const CostAnalysisChart: React.FC<CostAnalysisProps> = ({
               scale={yScale}
               stroke={tokens.colorNeutralForeground3}
               tickStroke={tokens.colorNeutralForeground3}
-              tickFormat={(value) => `$${(value / 1000).toFixed(0)}K`}
+              tickFormat={(value) => `$${(Number(value) / 1000).toFixed(0)}K`}
               tickLabelProps={{
                 fill: tokens.colorNeutralForeground2,
                 fontSize: 12,

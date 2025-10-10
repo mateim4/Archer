@@ -49,7 +49,6 @@ const useChartStyles = makeStyles({
     marginTop: tokens.spacingVerticalL,
   },
   tooltipContainer: {
-    ...defaultStyles,
     background: tokens.colorNeutralBackground1,
     border: `1px solid ${tokens.colorNeutralStroke2}`,
     borderRadius: tokens.borderRadiusSmall,

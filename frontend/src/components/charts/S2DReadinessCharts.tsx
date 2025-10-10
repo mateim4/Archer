@@ -553,7 +553,7 @@ export const MigrationTimelineChart: React.FC<MigrationTimelineProps> = ({
                   fill={tokens.colorNeutralForeground2}
                   fontWeight="500"
                 >
-                  {cluster.estimated_migration_time} days
+                  {`${cluster.estimated_migration_time} days`}
                 </Text>
               );
             })}
