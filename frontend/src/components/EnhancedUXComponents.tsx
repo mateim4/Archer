@@ -111,11 +111,9 @@ export const EnhancedCard: React.FC<EnhancedCardProps> = ({
   return (
     <div
       className={`
-        ${hoverable ? 'interactive-card' : ''}
+        lcm-card
+        ${hoverable && onClick ? 'lcm-card-interactive' : ''}
         ${isMobile ? 'mobile-card' : ''}
-        ${onClick ? 'cursor-pointer' : ''}
-        bg-white/80 backdrop-blur-sm rounded-xl p-6
-        border border-white/20 shadow-lg
         ${className}
       `}
       onClick={onClick}
