@@ -481,28 +481,30 @@ const ProjectWorkspaceView: React.FC = () => {
     <div className="lcm-page-container">
       <ToastContainer />
       
-      {/* Header */}
-      <div className="mb-8">
-          <div className="flex items-center space-x-4 mb-6">
-          <EnhancedButton
-            variant="ghost"
-            onClick={() => navigate('/app/projects')}
-            className="flex items-center space-x-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Back to Projects</span>
-          </EnhancedButton>
-        </div>
-        
-        <EnhancedCard className="bg-gradient-to-r from-purple-50 to-indigo-50 border-purple-200 !p-4">
+      {/* Back Button - Outside Main Card */}
+      <div className="mb-6">
+        <EnhancedButton
+          variant="ghost"
+          onClick={() => navigate('/app/projects')}
+          className="flex items-center space-x-2"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Back to Projects</span>
+        </EnhancedButton>
+      </div>
+
+      {/* Main Unified Card */}
+      <EnhancedCard className="overflow-hidden">
+        {/* Project Header Section */}
+        <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border-b border-purple-200 p-6 mb-6">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <div className="flex-1">
-              <div className="flex items-center justify-center lg:justify-start space-x-3 mb-2">
+              <div className="flex items-center space-x-3 mb-3">
                 <Target className="w-8 h-8 text-purple-600 flex-shrink-0" />
-                <h1 className="text-3xl font-bold text-gray-900 leading-none">{project.name}</h1>
+                <h1 className="text-3xl font-bold text-gray-900">{project.name}</h1>
               </div>
-              <p className="text-gray-600 text-lg text-center lg:text-left">{project.description}</p>
-              <div className="flex items-center justify-center lg:justify-start space-x-4 mt-4 text-sm text-gray-500">
+              <p className="text-gray-600 text-base mb-4">{project.description}</p>
+              <div className="flex items-center space-x-6 text-sm text-gray-600">
                 <div className="flex items-center space-x-2">
                   <Users className="w-4 h-4" />
                   <span>Owner: {project.owner_id.replace('user:', '')}</span>
@@ -527,17 +529,16 @@ const ProjectWorkspaceView: React.FC = () => {
               </div>
             </div>
           </div>
-        </EnhancedCard>
-      </div>
+        </div>
 
-      {/* Stats Summary - Single Card */}
-      <EnhancedCard className="mb-8">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-          {/* Overall Progress */}
-          <div className="flex flex-col items-center text-center">
-            <div className="text-3xl font-bold text-purple-600 mb-1">{stats.overallProgress}%</div>
-            <div className="text-sm text-gray-500">Overall Progress</div>
-          </div>
+        {/* Stats Summary Section */}
+        <div className="px-6 mb-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 p-4 bg-white border border-gray-200 rounded-lg">
+            {/* Overall Progress */}
+            <div className="flex flex-col items-center text-center">
+              <div className="text-3xl font-bold text-purple-600 mb-1">{stats.overallProgress}%</div>
+              <div className="text-sm text-gray-500">Overall Progress</div>
+            </div>
           
           {/* Total Activities */}
           <div className="flex flex-col items-center text-center">
@@ -575,13 +576,13 @@ const ProjectWorkspaceView: React.FC = () => {
             <div className="text-sm text-gray-500">Days Remaining</div>
           </div>
         </div>
-      </EnhancedCard>
+        </div>
 
-      {/* Filtering and Sorting Controls */}
-      <EnhancedCard className="mb-8">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-          {/* Left side: Filter toggle and active filters */}
-          <div className="flex items-center space-x-4">
+        {/* Filtering and Sorting Controls */}
+        <div className="px-6 mb-6">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+            {/* Left side: Filter toggle and active filters */}
+            <div className="flex items-center space-x-4">
             <EnhancedButton
               variant={showFilters ? 'primary' : 'secondary'}
               onClick={() => setShowFilters(!showFilters)}
@@ -746,80 +747,151 @@ const ProjectWorkspaceView: React.FC = () => {
             )}
           </div>
         )}
-      </EnhancedCard>
-
-      {/* Tab Navigation */}
-      <div className="mb-6">
-        <div className="border-b border-gray-200">
-          <div className="flex space-x-1">
-            {[
-              { id: 'timeline', label: 'Timeline', icon: <BarChart3 className="w-4 h-4" /> },
-              { id: 'activities', label: `Activities (${filteredAndSortedActivities.length})`, icon: <Activity className="w-4 h-4" /> },
-              { id: 'overview', label: 'Overview', icon: <FileText className="w-4 h-4" /> },
-              { id: 'capacity', label: 'Capacity', icon: <Server className="w-4 h-4" /> }
-            ].map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
-                className={`
-                  flex items-center space-x-2 px-4 py-2 pr-4
-                  border-b-4 transition-all
-                  ${activeTab === tab.id 
-                    ? 'border-purple-600 text-purple-600 font-medium bg-purple-50/50'
-                    : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300 hover:bg-gray-50'
-                  }
-                `}
-              >
-                {tab.icon}
-                <span>{tab.label}</span>
-              </button>
-            ))}
-          </div>
         </div>
-      </div>
 
-      {/* Tab Content */}
-      <div className="space-y-6">
-        {activeTab === 'timeline' && (
-          <EnhancedCard>
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h2 className="text-base font-medium text-gray-600">Project timeline</h2>
-                <p className="text-sm text-gray-500 mt-1">
-                  Visual timeline of all project activities
-                </p>
-              </div>
-              <EnhancedButton
-                onClick={() => setIsCreateActivityModalOpen(true)}
-                variant="primary"
-                className="flex items-center space-x-2"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Add Activity</span>
-              </EnhancedButton>
+        {/* Tab Navigation - Fluent UI 2 Compliant */}
+        <div className="lcm-tabs-container" style={{ margin: 0, borderRadius: 0, borderLeft: 0, borderRight: 0 }}>
+          {[
+            { id: 'timeline', label: 'Timeline', icon: <BarChart3 className="w-5 h-5" /> },
+            { id: 'activities', label: 'Activities', count: filteredAndSortedActivities.length, icon: <Activity className="w-5 h-5" /> },
+            { id: 'overview', label: 'Overview', icon: <FileText className="w-5 h-5" /> },
+            { id: 'capacity', label: 'Capacity', icon: <Server className="w-5 h-5" /> }
+          ].map(tab => (
+            <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id as any)}
+            className={`lcm-tab-button ${
+              activeTab === tab.id ? 'lcm-tab-button-active' : 'lcm-tab-button-inactive'
+            }`}
+            aria-selected={activeTab === tab.id}
+            role="tab"
+          >
+            <div className="lcm-tab-button-content">
+              <div className="lcm-tab-button-icon">{tab.icon}</div>
+              <span className="lcm-tab-button-label">
+                {tab.label}
+                {'count' in tab && tab.count !== undefined && ` (${tab.count})`}
+              </span>
             </div>
-            
-            <GanttChart
-              activities={filteredAndSortedActivities}
-              onActivityUpdate={handleActivityUpdate}
-              onActivityCreate={handleActivityCreate}
-              onActivityDelete={handleActivityDelete}
-              onDependencyChange={handleDependencyChange}
-              onActivityClick={(activityId) => {
-                setActiveTab('activities');
-                setSelectedActivity(activityId);
-              }}
-            />
-          </EnhancedCard>
-        )}
-        
-        {activeTab === 'activities' && (
-          <EnhancedCard>
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">Activity Management</h2>
-              <EnhancedButton
-                onClick={() => setIsCreateActivityModalOpen(true)}
-                variant="primary"
+          </button>
+        ))}
+        </div>
+
+        {/* Tab Content */}
+        <div className="px-6 pb-6">
+          {activeTab === 'timeline' && (
+            <div className="space-y-6">
+              {/* Section Header */}
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <h2 className="text-xl font-semibold text-gray-900 mb-2">Project Timeline</h2>
+                  <p className="text-sm text-gray-600">
+                    Interactive Gantt chart showing all project activities, dependencies, and progress.
+                    Click on any activity bar to view details or drag to adjust dates.
+                  </p>
+                </div>
+                <EnhancedButton
+                  onClick={() => setIsCreateActivityModalOpen(true)}
+                  variant="primary"
+                  className="flex items-center space-x-2 flex-shrink-0"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Add Activity</span>
+                </EnhancedButton>
+              </div>
+
+              {/* Timeline Stats Bar */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-purple-50/50 rounded-lg border border-purple-100">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-purple-600">{filteredAndSortedActivities.length}</div>
+                  <div className="text-xs text-gray-600">Activities Shown</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-green-600">
+                    {filteredAndSortedActivities.filter(a => a.status === 'completed').length}
+                  </div>
+                  <div className="text-xs text-gray-600">Completed</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-orange-600">
+                    {filteredAndSortedActivities.filter(a => a.status === 'in_progress').length}
+                  </div>
+                  <div className="text-xs text-gray-600">In Progress</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-gray-600">
+                    {filteredAndSortedActivities.filter(a => a.status === 'pending').length}
+                  </div>
+                  <div className="text-xs text-gray-600">Pending</div>
+                </div>
+              </div>
+
+              {/* Gantt Chart */}
+              {filteredAndSortedActivities.length > 0 ? (
+                <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
+                  <GanttChart
+                    activities={filteredAndSortedActivities}
+                    onActivityUpdate={handleActivityUpdate}
+                    onActivityCreate={handleActivityCreate}
+                    onActivityDelete={handleActivityDelete}
+                    onDependencyChange={handleDependencyChange}
+                    onActivityClick={(activityId) => {
+                      setActiveTab('activities');
+                      setSelectedActivity(activityId);
+                    }}
+                  />
+                </div>
+              ) : (
+                <div className="text-center py-16 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                  <BarChart3 className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No Activities to Display</h3>
+                  <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                    {hasActiveFilters 
+                      ? 'No activities match your current filters. Try adjusting or clearing the filters above.'
+                      : 'Create your first activity to start building your project timeline.'}
+                  </p>
+                  {hasActiveFilters ? (
+                    <EnhancedButton variant="secondary" onClick={resetFilters}>
+                      Clear Filters
+                    </EnhancedButton>
+                  ) : (
+                    <EnhancedButton variant="primary" onClick={() => setIsCreateActivityModalOpen(true)}>
+                      <Plus className="w-4 h-4 mr-2" />
+                      Create First Activity
+                    </EnhancedButton>
+                  )}
+                </div>
+              )}
+
+              {/* Timeline Legend */}
+              <div className="flex items-center justify-center gap-6 text-sm text-gray-600 pt-4 border-t border-gray-200">
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 bg-green-500 rounded"></div>
+                  <span>Completed</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 bg-orange-500 rounded"></div>
+                  <span>In Progress</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 bg-gray-400 rounded"></div>
+                  <span>Pending</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 bg-red-500 rounded"></div>
+                  <span>Blocked</span>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {activeTab === 'activities' && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-semibold text-gray-900">Activity Management</h2>
+                <EnhancedButton
+                  onClick={() => setIsCreateActivityModalOpen(true)}
+                  variant="primary"
                 className="flex items-center space-x-2"
               >
                 <Plus className="w-4 h-4" />
@@ -993,14 +1065,14 @@ const ProjectWorkspaceView: React.FC = () => {
               ))
               )}
             </div>
-          </EnhancedCard>
-        )}
-        
-        {activeTab === 'overview' && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <EnhancedCard>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Project Information</h3>
-              <div className="space-y-3">
+            </div>
+          )}
+          
+          {activeTab === 'overview' && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="p-6 bg-white border border-gray-200 rounded-lg">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Project Information</h3>
+                <div className="space-y-3">
                 <div>
                   <span className="text-sm text-gray-500">Project ID:</span>
                   <span className="ml-2 text-sm text-gray-900">{project.id}</span>
@@ -1018,19 +1090,19 @@ const ProjectWorkspaceView: React.FC = () => {
                   <span className="ml-2 text-sm text-gray-900">{new Date(project.updated_at).toLocaleString()}</span>
                 </div>
               </div>
-            </EnhancedCard>
-            
-            <EnhancedCard>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Activity Breakdown</h3>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Migration Activities</span>
-                  <span className="text-sm font-medium text-gray-900">
-                    {activities.filter(a => a.type === 'migration').length}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Hardware Customization</span>
+              </div>
+              
+              <div className="p-6 bg-white border border-gray-200 rounded-lg">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Activity Breakdown</h3>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">Migration Activities</span>
+                    <span className="text-sm font-medium text-gray-900">
+                      {activities.filter(a => a.type === 'migration').length}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">Hardware Customization</span>
                   <span className="text-sm font-medium text-gray-900">
                     {activities.filter(a => a.type === 'hardware_customization').length}
                   </span>
@@ -1048,18 +1120,19 @@ const ProjectWorkspaceView: React.FC = () => {
                   </span>
                 </div>
               </div>
-            </EnhancedCard>
-          </div>
-        )}
-
-        {activeTab === 'capacity' && (
-          <EnhancedCard className="p-0 overflow-hidden">
-            <div className="min-h-[600px]">
-              <CapacityVisualizerView />
+              </div>
             </div>
-          </EnhancedCard>
-        )}
-      </div>
+          )}
+
+          {activeTab === 'capacity' && (
+            <div className="overflow-hidden rounded-lg border border-gray-200">
+              <div className="min-h-[600px] bg-white">
+                <CapacityVisualizerView />
+              </div>
+            </div>
+          )}
+        </div>
+      </EnhancedCard>
 
       {/* Create Activity Modal */}
       <EnhancedModal
