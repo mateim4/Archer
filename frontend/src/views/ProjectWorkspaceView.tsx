@@ -778,9 +778,9 @@ const ProjectWorkspaceView: React.FC = () => {
         </div>
 
         {/* Tab Content */}
-        <div className="px-6 pb-6">
+        <div className="p-6" style={{ minHeight: '400px' }}>
           {activeTab === 'timeline' && (
-            <div className="space-y-6">
+            <div className="space-y-6" style={{ display: 'block' }}>
               {/* Section Header */}
               <div className="flex items-start justify-between">
                 <div className="flex-1">
@@ -886,18 +886,18 @@ const ProjectWorkspaceView: React.FC = () => {
           )}
           
           {activeTab === 'activities' && (
-            <div className="space-y-6">
+            <div className="space-y-6" style={{ display: 'block' }}>
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-semibold text-gray-900">Activity Management</h2>
                 <EnhancedButton
                   onClick={() => setIsCreateActivityModalOpen(true)}
                   variant="primary"
-                className="flex items-center space-x-2"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Add Activity</span>
-              </EnhancedButton>
-            </div>
+                  className="flex items-center space-x-2"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Add Activity</span>
+                </EnhancedButton>
+              </div>
             
             <div className="space-y-4">
               {filteredAndSortedActivities.length === 0 ? (
@@ -1069,7 +1069,7 @@ const ProjectWorkspaceView: React.FC = () => {
           )}
           
           {activeTab === 'overview' && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6" style={{ display: 'grid' }}>
               <div className="p-6 bg-white border border-gray-200 rounded-lg">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Project Information</h3>
                 <div className="space-y-3">
@@ -1125,7 +1125,7 @@ const ProjectWorkspaceView: React.FC = () => {
           )}
 
           {activeTab === 'capacity' && (
-            <div className="overflow-hidden rounded-lg border border-gray-200">
+            <div className="overflow-hidden rounded-lg border border-gray-200" style={{ display: 'block' }}>
               <div className="min-h-[600px] bg-white">
                 <CapacityVisualizerView />
               </div>
