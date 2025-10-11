@@ -530,48 +530,52 @@ const ProjectWorkspaceView: React.FC = () => {
         </EnhancedCard>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <EnhancedCard className="!p-4">
-          <div className="flex items-center space-x-3">
-            <Activity className="w-5 h-5 text-purple-600" />
-            <div>
-              <div className="text-2xl font-bold text-gray-900">{stats.totalActivities}</div>
-              <div className="text-sm text-gray-500">Total Activities</div>
-            </div>
+      {/* Stats Summary - Single Card */}
+      <EnhancedCard className="mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+          {/* Overall Progress */}
+          <div className="flex flex-col items-center text-center">
+            <div className="text-3xl font-bold text-purple-600 mb-1">{stats.overallProgress}%</div>
+            <div className="text-sm text-gray-500">Overall Progress</div>
           </div>
-        </EnhancedCard>
+          
+          {/* Total Activities */}
+          <div className="flex flex-col items-center text-center">
+            <div className="flex items-center justify-center mb-2">
+              <Activity className="w-5 h-5 text-purple-600" />
+            </div>
+            <div className="text-3xl font-bold text-gray-900 mb-1">{stats.totalActivities}</div>
+            <div className="text-sm text-gray-500">Total Activities</div>
+          </div>
 
-        <EnhancedCard className="!p-4">
-          <div className="flex items-center space-x-3">
-            <CheckCircle className="w-5 h-5 text-green-600" />
-            <div>
-              <div className="text-2xl font-bold text-gray-900">{stats.completedActivities}</div>
-              <div className="text-sm text-gray-500">Completed</div>
+          {/* Completed */}
+          <div className="flex flex-col items-center text-center">
+            <div className="flex items-center justify-center mb-2">
+              <CheckCircle className="w-5 h-5 text-green-600" />
             </div>
+            <div className="text-3xl font-bold text-gray-900 mb-1">{stats.completedActivities}</div>
+            <div className="text-sm text-gray-500">Completed</div>
           </div>
-        </EnhancedCard>
 
-        <EnhancedCard className="!p-4">
-          <div className="flex items-center space-x-3">
-            <Clock className="w-5 h-5 text-orange-600" />
-            <div>
-              <div className="text-2xl font-bold text-gray-900">{stats.inProgressActivities}</div>
-              <div className="text-sm text-gray-500">In Progress</div>
+          {/* In Progress */}
+          <div className="flex flex-col items-center text-center">
+            <div className="flex items-center justify-center mb-2">
+              <Clock className="w-5 h-5 text-orange-600" />
             </div>
+            <div className="text-3xl font-bold text-gray-900 mb-1">{stats.inProgressActivities}</div>
+            <div className="text-sm text-gray-500">In Progress</div>
           </div>
-        </EnhancedCard>
 
-        <EnhancedCard className="!p-4">
-          <div className="flex items-center space-x-3">
-            <Target className="w-5 h-5 text-blue-600" />
-            <div>
-              <div className="text-2xl font-bold text-gray-900">{stats.daysRemaining}</div>
-              <div className="text-sm text-gray-500">Days Remaining</div>
+          {/* Days Remaining */}
+          <div className="flex flex-col items-center text-center">
+            <div className="flex items-center justify-center mb-2">
+              <Target className="w-5 h-5 text-blue-600" />
             </div>
+            <div className="text-3xl font-bold text-gray-900 mb-1">{stats.daysRemaining}</div>
+            <div className="text-sm text-gray-500">Days Remaining</div>
           </div>
-        </EnhancedCard>
-      </div>
+        </div>
+      </EnhancedCard>
 
       {/* Filtering and Sorting Controls */}
       <EnhancedCard className="mb-8">
