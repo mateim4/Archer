@@ -836,23 +836,12 @@ const ProjectWorkspaceView: React.FC = () => {
                           }
                         }}
                       />
-                      {/* Add Activity + Slider Row for Timeline (non-empty) */}
-                      <div className="flex items-center justify-end gap-4 p-4 border-t bg-white">
+                      {/* Slider Row for Timeline (non-empty) */}
+                      <div className="flex items-center justify-end p-4 border-t bg-white">
                         <ViewToggleSlider
                           value={timelineView}
                           onChange={setTimelineView}
                         />
-
-                        <button
-                          onClick={() => setIsCreateActivityModalOpen(true)}
-                          className="flex items-center space-x-2"
-                          style={{
-                            ...DesignTokens.components.button.primary
-                          }}
-                        >
-                          <Plus className="w-4 h-4" />
-                          <span>Add Activity</span>
-                        </button>
                       </div>
                     </div>
                   ) : (
