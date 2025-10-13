@@ -1,5 +1,6 @@
 import React from 'react';
 import { useEnhancedUX, useFormValidation, useEnhancedSearch, useModal, useA11y, useResponsive } from '../hooks/useEnhancedUX';
+import { DesignTokens } from '../styles/designSystem';
 import '../ux-enhancements.css';
 
 // Enhanced Toast Component
@@ -297,6 +298,20 @@ export const EnhancedModal: React.FC<EnhancedModalProps> = ({
   const modalId = React.useMemo(() => generateId('modal'), [generateId]);
   const titleId = React.useMemo(() => generateId('modal-title'), [generateId]);
 
+  // Handle Escape key press
+  React.useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('keydown', handleEscape);
+      return () => document.removeEventListener('keydown', handleEscape);
+    }
+  }, [isOpen, onClose]);
+
   const sizeClasses = {
     sm: 'max-w-md',
     md: 'max-w-lg',
@@ -314,27 +329,54 @@ export const EnhancedModal: React.FC<EnhancedModalProps> = ({
         aria-modal="true"
         aria-labelledby={titleId}
         id={modalId}
+        style={{
+          maxHeight: '90vh',
+          display: 'flex',
+          flexDirection: 'column'
+        }}
       >
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-6" style={{ flexShrink: 0 }}>
           {title && (
-            <h2 id={titleId} className="text-xl font-semibold text-gray-900">
+            <h2 id={titleId} className="text-xl font-semibold text-gray-900" style={{ fontFamily: "'Poppins', sans-serif" }}>
               {title}
             </h2>
           )}
           <button
             onClick={onClose}
-            className="
-              p-2 rounded-lg transition-colors duration-200
-              hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-500
-            "
-            aria-label="Close modal"
+            className="transition-all duration-200"
+            style={{
+              ...DesignTokens.components.button.close
+            }}
+            onMouseEnter={(e) => {
+              const target = e.currentTarget as HTMLElement;
+              Object.assign(target.style, DesignTokens.components.button.closeHover);
+            }}
+            onMouseLeave={(e) => {
+              const target = e.currentTarget as HTMLElement;
+              Object.assign(target.style, DesignTokens.components.button.close);
+            }}
+            onFocus={(e) => {
+              const target = e.currentTarget as HTMLElement;
+              target.style.boxShadow = DesignTokens.components.button.closeFocus.boxShadow;
+            }}
+            onBlur={(e) => {
+              const target = e.currentTarget as HTMLElement;
+              target.style.boxShadow = DesignTokens.components.button.close.boxShadow as string;
+            }}
+            aria-label="Close modal (Press Escape)"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
-        {children}
+        <div style={{ 
+          flex: 1, 
+          overflowY: 'auto',
+          overflowX: 'hidden'
+        }}>
+          {children}
+        </div>
       </div>
     </div>
   );

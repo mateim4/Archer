@@ -16,6 +16,7 @@ import {
   EnhancedProgressBar,
   EnhancedModal
 } from '../components/EnhancedUXComponents';
+import { ViewToggleSlider } from '../components/ViewToggleSlider';
 import { useEnhancedUX } from '../hooks/useEnhancedUX';
 import { DesignTokens } from '../styles/designSystem';
 
@@ -136,83 +137,101 @@ const ProjectWorkspaceView: React.FC = () => {
       }
     });
   };
-
   const loadActivities = async () => {
-    // Mock activities data
+    // Expanded mock activities for demonstration in the workspace view
     const mockActivities: Activity[] = [
       {
         id: 'act-001',
-        name: 'VMware Assessment & Planning',
+        name: 'Infrastructure Assessment',
         type: 'migration',
         status: 'completed',
         start_date: new Date('2024-01-15'),
         end_date: new Date('2024-02-01'),
         assignee: 'john.doe@company.com',
+        assignees: ['john.doe@company.com'],
         dependencies: [],
         progress: 100
       },
       {
         id: 'act-002',
-        name: 'Hardware Procurement',
+        name: 'Hardware Requirements Planning',
         type: 'hardware_customization',
         status: 'in_progress',
-        start_date: new Date('2024-01-30'),
-        end_date: new Date('2024-03-15'),
-        assignee: 'sarah.smith@company.com',
+        start_date: new Date('2024-02-05'),
+        end_date: new Date('2024-02-20'),
+        assignee: 'mike.johnson@company.com',
+        assignees: ['mike.johnson@company.com'],
         dependencies: ['act-001'],
         progress: 65
       },
       {
         id: 'act-003',
-        name: 'Hyper-V Environment Setup',
+        name: 'Network Infrastructure Setup',
         type: 'commissioning',
         status: 'pending',
         start_date: new Date('2024-03-01'),
-        end_date: new Date('2024-03-20'),
-        assignee: 'mike.johnson@company.com',
+        end_date: new Date('2024-03-25'),
+        assignee: 'david.wilson@company.com',
+        assignees: ['david.wilson@company.com'],
         dependencies: ['act-002'],
-        progress: 0
-      },
-      {
-        id: 'act-004',
-        name: 'Production Migration',
-        type: 'migration',
-        status: 'pending',
-        start_date: new Date('2024-03-15'),
-        end_date: new Date('2024-04-30'),
-        assignee: 'alice.brown@company.com',
-        dependencies: ['act-003'],
-        progress: 0
-      },
-      {
-        id: 'act-005',
-        name: 'Legacy Infrastructure Decommission',
-        type: 'decommission',
-        status: 'pending',
-        start_date: new Date('2024-04-15'),
-        end_date: new Date('2024-05-15'),
-        assignee: 'bob.wilson@company.com',
-        dependencies: ['act-004'],
         progress: 0
       }
     ];
+
     setActivities(mockActivities);
   };
 
-  // Calculate project statistics
-  const calculateStats = (): ProjectStats => {
+  // Validate the create/edit activity form and set form errors
+  const validateActivityForm = (): boolean => {
+    const errors: Record<string, string> = {};
+
+    if (!activityForm.name || activityForm.name.trim().length < 3) {
+      errors.name = 'Activity name must be at least 3 characters';
+    }
+
+    if (!activityForm.type) {
+      errors.type = 'Activity type is required';
+    }
+
+    if (!activityForm.startDate) {
+      errors.startDate = 'Start date is required';
+    }
+
+    if (!activityForm.endDate) {
+      errors.endDate = 'End date is required';
+    } else if (new Date(activityForm.endDate) <= new Date(activityForm.startDate)) {
+      errors.endDate = 'End date must be after start date';
+    }
+
+    if (!activityForm.assignees || activityForm.assignees.length === 0) {
+      errors.assignee = 'At least one assignee is required';
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  // Update an activity in-place (used by timeline/list/Gantt interactions)
+  const handleActivityUpdate = (activityId: string, updates: Partial<Activity>) => {
+    setActivities(prev => prev.map(a => a.id === activityId ? { ...a, ...updates } : a));
+    showToast('Activity updated successfully', 'success');
+  };
+
+  // Compute project stats used in the header summary
+  function calculateStats(): ProjectStats {
     const totalActivities = activities.length;
     const completedActivities = activities.filter(a => a.status === 'completed').length;
     const inProgressActivities = activities.filter(a => a.status === 'in_progress').length;
     const blockedActivities = activities.filter(a => a.status === 'blocked').length;
-    
-    const overallProgress = activities.reduce((sum, activity) => sum + activity.progress, 0) / totalActivities || 0;
-    
-    // Calculate days remaining from latest end date
-    const latestEndDate = activities.reduce((latest, activity) => 
-      activity.end_date > latest ? activity.end_date : latest, new Date()
-    );
-    const daysRemaining = Math.ceil((latestEndDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+    const overallProgress = totalActivities === 0 ? 0 : Math.round(activities.reduce((s, a) => s + (a.progress || 0), 0) / totalActivities);
+
+    let daysRemaining = 0;
+    if (activities.length > 0) {
+      const maxEnd = new Date(Math.max(...activities.map(a => a.end_date.getTime())));
+      const today = new Date();
+      const ms = Math.max(0, maxEnd.getTime() - today.getTime());
+      daysRemaining = Math.ceil(ms / (1000 * 60 * 60 * 24));
+    }
 
     return {
       totalActivities,
@@ -220,46 +239,9 @@ const ProjectWorkspaceView: React.FC = () => {
       inProgressActivities,
       blockedActivities,
       daysRemaining,
-      overallProgress: Math.round(overallProgress)
+      overallProgress
     };
-  };
-
-  // Activity management handlers
-  const handleActivityUpdate = (activityId: string, updates: Partial<Activity>) => {
-    setActivities(prev => prev.map(activity => 
-      activity.id === activityId ? { ...activity, ...updates } : activity
-    ));
-    showToast('Activity updated successfully', 'success');
-  };
-
-  const validateActivityForm = (): boolean => {
-    const errors: Record<string, string> = {};
-    
-    if (!activityForm.name || activityForm.name.trim().length < 3) {
-      errors.name = 'Activity name must be at least 3 characters';
-    }
-    
-    if (!activityForm.type) {
-      errors.type = 'Activity type is required';
-    }
-    
-    if (!activityForm.startDate) {
-      errors.startDate = 'Start date is required';
-    }
-    
-    if (!activityForm.endDate) {
-      errors.endDate = 'End date is required';
-    } else if (new Date(activityForm.endDate) <= new Date(activityForm.startDate)) {
-      errors.endDate = 'End date must be after start date';
-    }
-    
-    if (activityForm.assignees.length === 0) {
-      errors.assignee = 'At least one assignee is required';
-    }
-    
-    setFormErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
+  }
 
   const handleCreateActivitySubmit = async () => {
     if (!validateActivityForm()) {
@@ -743,29 +725,6 @@ const ProjectWorkspaceView: React.FC = () => {
                       List
                     </button>
                   </div>
-                  
-                  <button
-                    onClick={() => setIsCreateActivityModalOpen(true)}
-                    className="flex items-center space-x-2"
-                    style={{
-                      ...DesignTokens.components.button.primary
-                    }}
-                    onMouseEnter={(e) => {
-                      const target = e.currentTarget as HTMLElement;
-                      target.style.transform = 'translateY(-3px) scale(1.05)';
-                      target.style.background = 'linear-gradient(135deg, #7c3aed 0%, #9333ea 100%)';
-                      target.style.boxShadow = '0 12px 24px rgba(99, 102, 241, 0.4), 0 6px 16px rgba(0, 0, 0, 0.2)';
-                    }}
-                    onMouseLeave={(e) => {
-                      const target = e.currentTarget as HTMLElement;
-                      target.style.transform = 'translateY(0) scale(1)';
-                      target.style.background = 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)';
-                      target.style.boxShadow = '0 2px 8px rgba(99, 102, 241, 0.25)';
-                    }}
-                  >
-                    <Plus className="w-4 h-4" />
-                    <span>Add Activity</span>
-                  </button>
                 </div>
               </div>
 
@@ -949,6 +908,24 @@ const ProjectWorkspaceView: React.FC = () => {
                           }
                         }}
                       />
+                      {/* Add Activity + Slider Row for Timeline (non-empty) */}
+                      <div className="flex items-center justify-end gap-4 p-4 border-t bg-white">
+                        <ViewToggleSlider
+                          value={timelineView}
+                          onChange={setTimelineView}
+                        />
+
+                        <button
+                          onClick={() => setIsCreateActivityModalOpen(true)}
+                          className="flex items-center space-x-2"
+                          style={{
+                            ...DesignTokens.components.button.primary
+                          }}
+                        >
+                          <Plus className="w-4 h-4" />
+                          <span>Add Activity</span>
+                        </button>
+                      </div>
                     </div>
                   ) : (
                     <div className="text-center py-16 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
@@ -964,28 +941,23 @@ const ProjectWorkspaceView: React.FC = () => {
                           Clear Filters
                         </EnhancedButton>
                       ) : (
-                        <button
-                          onClick={() => setIsCreateActivityModalOpen(true)}
-                          className="flex items-center space-x-2 mx-auto"
-                          style={{
-                            ...DesignTokens.components.button.primary
-                          }}
-                          onMouseEnter={(e) => {
-                            const target = e.currentTarget as HTMLElement;
-                            target.style.transform = 'translateY(-3px) scale(1.05)';
-                            target.style.background = 'linear-gradient(135deg, #7c3aed 0%, #9333ea 100%)';
-                            target.style.boxShadow = '0 12px 24px rgba(99, 102, 241, 0.4), 0 6px 16px rgba(0, 0, 0, 0.2)';
-                          }}
-                          onMouseLeave={(e) => {
-                            const target = e.currentTarget as HTMLElement;
-                            target.style.transform = 'translateY(0) scale(1)';
-                            target.style.background = 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)';
-                            target.style.boxShadow = '0 2px 8px rgba(99, 102, 241, 0.25)';
-                          }}
-                        >
-                          <Plus className="w-4 h-4" />
-                          <span>Create First Activity</span>
-                        </button>
+                        <div className="flex items-center justify-center gap-4">
+                          <ViewToggleSlider
+                            value={timelineView}
+                            onChange={setTimelineView}
+                          />
+
+                          <button
+                            onClick={() => setIsCreateActivityModalOpen(true)}
+                            className="flex items-center space-x-2"
+                            style={{
+                              ...DesignTokens.components.button.primary
+                            }}
+                          >
+                            <Plus className="w-4 h-4" />
+                            <span>Create First Activity</span>
+                          </button>
+                        </div>
                       )}
                     </div>
                   )}
@@ -1029,28 +1001,35 @@ const ProjectWorkspaceView: React.FC = () => {
                           Clear Filters
                         </EnhancedButton>
                       ) : (
-                        <button
-                          onClick={() => setIsCreateActivityModalOpen(true)}
-                          className="flex items-center space-x-2 mx-auto"
-                          style={{
-                            ...DesignTokens.components.button.primary
-                          }}
-                          onMouseEnter={(e) => {
-                            const target = e.currentTarget as HTMLElement;
-                            target.style.transform = 'translateY(-3px) scale(1.05)';
-                            target.style.background = 'linear-gradient(135deg, #7c3aed 0%, #9333ea 100%)';
-                            target.style.boxShadow = '0 12px 24px rgba(99, 102, 241, 0.4), 0 6px 16px rgba(0, 0, 0, 0.2)';
-                          }}
-                          onMouseLeave={(e) => {
-                            const target = e.currentTarget as HTMLElement;
-                            target.style.transform = 'translateY(0) scale(1)';
-                            target.style.background = 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)';
-                            target.style.boxShadow = '0 2px 8px rgba(99, 102, 241, 0.25)';
-                          }}
-                        >
-                          <Plus className="w-4 h-4" />
-                          <span>Create First Activity</span>
-                        </button>
+                        <div className="flex items-center justify-center gap-4">
+                          <ViewToggleSlider
+                            value={timelineView}
+                            onChange={setTimelineView}
+                          />
+
+                          <button
+                            onClick={() => setIsCreateActivityModalOpen(true)}
+                            className="flex items-center space-x-2"
+                            style={{
+                              ...DesignTokens.components.button.primary
+                            }}
+                            onMouseEnter={(e) => {
+                              const target = e.currentTarget as HTMLElement;
+                              target.style.transform = 'translateY(-3px) scale(1.05)';
+                              target.style.background = 'linear-gradient(135deg, #7c3aed 0%, #9333ea 100%)';
+                              target.style.boxShadow = '0 12px 24px rgba(99, 102, 241, 0.4), 0 6px 16px rgba(0, 0, 0, 0.2)';
+                            }}
+                            onMouseLeave={(e) => {
+                              const target = e.currentTarget as HTMLElement;
+                              target.style.transform = 'translateY(0) scale(1)';
+                              target.style.background = 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)';
+                              target.style.boxShadow = '0 2px 8px rgba(99, 102, 241, 0.25)';
+                            }}
+                          >
+                            <Plus className="w-4 h-4" />
+                            <span>Create First Activity</span>
+                          </button>
+                        </div>
                       )}
                     </div>
                   ) : (
@@ -1162,6 +1141,41 @@ const ProjectWorkspaceView: React.FC = () => {
                         )}
                       </div>
                     ))
+                  )}
+                  
+                  {/* Add Activity Button for List View */}
+                  {filteredAndSortedActivities.length > 0 && (
+                    <div className="flex justify-center pt-4">
+                      <div className="flex items-center gap-4">
+                        <ViewToggleSlider
+                          value={timelineView}
+                          onChange={setTimelineView}
+                        />
+
+                        <button
+                          onClick={() => setIsCreateActivityModalOpen(true)}
+                          className="flex items-center space-x-2"
+                          style={{
+                            ...DesignTokens.components.button.primary
+                          }}
+                          onMouseEnter={(e) => {
+                            const target = e.currentTarget as HTMLElement;
+                            target.style.transform = 'translateY(-3px) scale(1.05)';
+                            target.style.background = 'linear-gradient(135deg, #7c3aed 0%, #9333ea 100%)';
+                            target.style.boxShadow = '0 12px 24px rgba(99, 102, 241, 0.4), 0 6px 16px rgba(0, 0, 0, 0.2)';
+                          }}
+                          onMouseLeave={(e) => {
+                            const target = e.currentTarget as HTMLElement;
+                            target.style.transform = 'translateY(0) scale(1)';
+                            target.style.background = 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)';
+                            target.style.boxShadow = '0 2px 8px rgba(99, 102, 241, 0.25)';
+                          }}
+                        >
+                          <Plus className="w-4 h-4" />
+                          <span>Add Activity</span>
+                        </button>
+                      </div>
+                    </div>
                   )}
                 </div>
               )}
@@ -1762,7 +1776,13 @@ const ProjectWorkspaceView: React.FC = () => {
               </div>
 
               {/* Form Actions */}
-              <div className="flex items-center justify-end space-x-3 pt-4 border-t">
+              <div 
+                className="flex items-center justify-end gap-3 pt-4 border-t mt-6"
+                style={{
+                  borderTopColor: 'rgba(209, 213, 219, 0.5)',
+                  flexShrink: 0
+                }}
+              >
                 <button
                   type="button"
                   onClick={() => {
@@ -1771,7 +1791,21 @@ const ProjectWorkspaceView: React.FC = () => {
                     setFormErrors({});
                   }}
                   disabled={isSubmitting}
-                  style={DesignTokens.components.button.secondary}
+                  style={{
+                    ...DesignTokens.components.button.secondary
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isSubmitting) {
+                      const target = e.currentTarget as HTMLElement;
+                      target.style.background = 'rgba(99, 102, 241, 0.1)';
+                      target.style.borderColor = 'rgba(99, 102, 241, 0.4)';
+                      target.style.transform = 'translateY(-2px)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    const target = e.currentTarget as HTMLElement;
+                    Object.assign(target.style, DesignTokens.components.button.secondary);
+                  }}
                 >
                   Cancel
                 </button>

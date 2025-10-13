@@ -238,6 +238,34 @@ export const DesignTokens = {
         transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
         boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
       },
+      // Close/X Button - Glassmorphic with red hover
+      close: {
+        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.7) 0%, rgba(248, 250, 252, 0.8) 100%)',
+        color: '#64748b',
+        border: '1px solid rgba(203, 213, 225, 0.4)',
+        borderRadius: '8px',
+        padding: '8px',
+        cursor: 'pointer',
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backdropFilter: 'blur(12px)',
+        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.08), inset 0 1px 1px rgba(255, 255, 255, 0.6)',
+        outline: 'none',
+        width: '36px',
+        height: '36px',
+      },
+      closeHover: {
+        background: 'linear-gradient(135deg, rgba(254, 226, 226, 0.9) 0%, rgba(254, 202, 202, 0.95) 100%)',
+        color: '#dc2626',
+        borderColor: 'rgba(248, 113, 113, 0.5)',
+        transform: 'scale(1.08)',
+        boxShadow: '0 4px 12px rgba(239, 68, 68, 0.2), inset 0 1px 2px rgba(255, 255, 255, 0.8)',
+      },
+      closeFocus: {
+        boxShadow: '0 0 0 3px rgba(99, 102, 241, 0.15), 0 1px 3px rgba(0, 0, 0, 0.08)',
+      },
     },
     
     // Input Fields
