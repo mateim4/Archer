@@ -684,7 +684,7 @@ const ProjectWorkspaceView: React.FC = () => {
                       border: '1px solid rgba(99, 102, 241, 0.2)',
                       boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.06), 0 2px 8px rgba(0, 0, 0, 0.05)',
                       width: '280px',
-                      height: '48px'
+                      height: '42px'
                     }}
                   >
                     {/* Sliding Background Indicator */}
