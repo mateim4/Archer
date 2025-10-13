@@ -819,76 +819,57 @@ const ProjectWorkspaceView: React.FC = () => {
               {/* Timeline View */}
               {timelineView === 'timeline' && (
                 <>
-                  {/* Gantt Chart */}
-                  {filteredAndSortedActivities.length > 0 ? (
-                    <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
-                      <GanttChart
-                        activities={filteredAndSortedActivities}
-                        onActivityUpdate={handleActivityUpdate}
-                        onActivityCreate={handleActivityCreate}
-                        onActivityDelete={handleActivityDelete}
-                        onDependencyChange={handleDependencyChange}
-                        onActivityClick={(activityId) => {
-                          const activity = activities.find(a => a.id === activityId);
-                          if (activity) {
-                            setSelectedActivity(activity);
-                            setIsEditActivityModalOpen(true);
-                          }
-                        }}
-                      />
-                      {/* Add Activity + Slider Row for Timeline (non-empty) */}
-                      <div className="flex items-center justify-end gap-4 p-4 border-t bg-white">
-                        <ViewToggleSlider
-                          value={timelineView}
-                          onChange={setTimelineView}
-                        />
-
-                        <button
-                          onClick={() => setIsCreateActivityModalOpen(true)}
-                          className="flex items-center space-x-2"
-                          style={{
-                            ...DesignTokens.components.button.primary
+                  {/* Shared container for Timeline and List so footer and placement remain identical */}
+                  <div className="border border-gray-200 rounded-lg overflow-hidden bg-white flex flex-col" style={{ height: '520px' }}>
+                    {/* Content area (Gantt chart or empty state) - scrollable */}
+                    <div className="flex-1 overflow-auto p-4">
+                      {filteredAndSortedActivities.length > 0 ? (
+                        <GanttChart
+                          activities={filteredAndSortedActivities}
+                          onActivityUpdate={handleActivityUpdate}
+                          onActivityCreate={handleActivityCreate}
+                          onActivityDelete={handleActivityDelete}
+                          onDependencyChange={handleDependencyChange}
+                          onActivityClick={(activityId) => {
+                            const activity = activities.find(a => a.id === activityId);
+                            if (activity) {
+                              setSelectedActivity(activity);
+                              setIsEditActivityModalOpen(true);
+                            }
                           }}
-                        >
-                          <Plus className="w-4 h-4" />
-                          <span>Add Activity</span>
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="text-center py-16 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-                      <BarChart3 className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">No Activities to Display</h3>
-                      <p className="text-gray-600 mb-6 max-w-md mx-auto">
-                        {hasActiveFilters 
-                          ? 'No activities match your current filters. Try adjusting or clearing the filters above.'
-                          : 'Create your first activity to start building your project timeline.'}
-                      </p>
-                      {hasActiveFilters ? (
-                        <EnhancedButton variant="secondary" onClick={resetFilters}>
-                          Clear Filters
-                        </EnhancedButton>
+                        />
                       ) : (
-                        <div className="flex items-center justify-center gap-4">
-                          <ViewToggleSlider
-                            value={timelineView}
-                            onChange={setTimelineView}
-                          />
-
-                          <button
-                            onClick={() => setIsCreateActivityModalOpen(true)}
-                            className="flex items-center space-x-2"
-                            style={{
-                              ...DesignTokens.components.button.primary
-                            }}
-                          >
-                            <Plus className="w-4 h-4" />
-                            <span>Create First Activity</span>
-                          </button>
+                        <div className="text-center py-16 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 h-full flex flex-col items-center justify-center">
+                          <BarChart3 className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                          <h3 className="text-lg font-semibold text-gray-900 mb-2">No Activities to Display</h3>
+                          <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                            {hasActiveFilters 
+                              ? 'No activities match your current filters. Try adjusting or clearing the filters above.'
+                              : 'Create your first activity to start building your project timeline.'}
+                          </p>
                         </div>
                       )}
                     </div>
-                  )}
+
+                    {/* Footer: keep slider + Add button placement identical for both views */}
+                    <div className="flex items-center justify-end gap-4 p-4 border-t bg-white">
+                      <ViewToggleSlider
+                        value={timelineView}
+                        onChange={setTimelineView}
+                      />
+
+                      <button
+                        onClick={() => setIsCreateActivityModalOpen(true)}
+                        className="flex items-center space-x-2"
+                        style={{
+                          ...DesignTokens.components.button.primary
+                        }}
+                      >
+                        <Plus className="w-4 h-4" />
+                        <span>Add Activity</span>
+                      </button>
+                    </div>
+                  </div>
 
                   {/* Timeline Legend */}
                   <div className="flex items-center justify-center gap-6 text-sm text-gray-600 pt-4 border-t border-gray-200">
@@ -914,27 +895,23 @@ const ProjectWorkspaceView: React.FC = () => {
 
               {/* List View */}
               {timelineView === 'list' && (
-                <div className="space-y-4">
-                  {filteredAndSortedActivities.length === 0 ? (
-                    <div className="text-center py-16 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-                      <Activity className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">No Activities Found</h3>
-                      <p className="text-gray-600 mb-6">
-                        {hasActiveFilters 
-                          ? 'No activities match your current filters. Try adjusting or clearing them.'
-                          : 'Get started by creating your first activity.'}
-                      </p>
-                      {hasActiveFilters ? (
-                        <EnhancedButton variant="secondary" onClick={resetFilters}>
-                          Clear Filters
-                        </EnhancedButton>
-                      ) : (
-                        <div className="flex items-center justify-center gap-4">
-                          <ViewToggleSlider
-                            value={timelineView}
-                            onChange={setTimelineView}
-                          />
-
+                <div className="border border-gray-200 rounded-lg overflow-hidden bg-white flex flex-col" style={{ height: '520px' }}>
+                  {/* Scrollable list area */}
+                  <div className="flex-1 overflow-auto p-4 space-y-4">
+                    {filteredAndSortedActivities.length === 0 ? (
+                      <div className="text-center py-16 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 h-full flex flex-col items-center justify-center">
+                        <Activity className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                        <h3 className="text-lg font-semibold text-gray-900 mb-2">No Activities Found</h3>
+                        <p className="text-gray-600 mb-6">
+                          {hasActiveFilters 
+                            ? 'No activities match your current filters. Try adjusting or clearing them.'
+                            : 'Get started by creating your first activity.'}
+                        </p>
+                        {hasActiveFilters ? (
+                          <EnhancedButton variant="secondary" onClick={resetFilters}>
+                            Clear Filters
+                          </EnhancedButton>
+                        ) : (
                           <button
                             onClick={() => setIsCreateActivityModalOpen(true)}
                             className="flex items-center space-x-2"
@@ -957,123 +934,123 @@ const ProjectWorkspaceView: React.FC = () => {
                             <Plus className="w-4 h-4" />
                             <span>Create First Activity</span>
                           </button>
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    filteredAndSortedActivities.map(activity => (
-                      <div 
-                        key={activity.id} 
-                        className="p-4 border border-gray-200 rounded-lg hover:border-purple-300 transition-all bg-white"
-                        style={{
-                          backdropFilter: 'blur(10px)',
-                          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)'
-                        }}
-                      >
-                        {/* Activity Header - Title, Status, and Action Buttons */}
-                        <div className="flex items-center justify-between mb-4">
-                          <div className="flex items-center gap-4">
-                            <h3 className="font-semibold text-gray-900 text-base">{activity.name}</h3>
-                            <span className={`px-3 py-1 text-xs font-medium rounded-full ${
-                              activity.status === 'completed' ? 'bg-green-100 text-green-700' :
-                              activity.status === 'in_progress' ? 'bg-orange-100 text-orange-700' :
-                              activity.status === 'blocked' ? 'bg-red-100 text-red-700' :
-                              'bg-gray-100 text-gray-700'
-                            }`}>
-                              {activity.status.replace('_', ' ').toUpperCase()}
-                            </span>
-                            <span className="px-2 py-1 text-xs text-gray-600 bg-gray-100 rounded">
-                              {activity.type.replace('_', ' ')}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <button
-                              onClick={() => {
-                                setSelectedActivity(activity);
-                                setIsEditActivityModalOpen(true);
-                              }}
-                              className="p-2 rounded hover:bg-purple-50 transition-colors"
-                              style={{
-                                ...DesignTokens.components.button.secondary,
-                                height: 'auto',
-                                padding: '8px 16px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '6px'
-                              }}
-                              title="Edit Activity"
-                            >
-                              <Edit3 className="w-4 h-4" />
-                              <span className="text-sm font-medium">Edit</span>
-                            </button>
-                            <button
-                              className="p-2 rounded hover:bg-red-50 transition-colors"
-                              onClick={() => handleActivityDelete(activity.id)}
-                              title="Delete Activity"
-                            >
-                              <Trash2 className="w-4 h-4 text-red-600" />
-                            </button>
-                          </div>
-                        </div>
-                        
-                        {/* Activity Details Grid */}
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                          <div>
-                            <span className="text-gray-600 font-medium block mb-1">Assignees</span>
-                            <div className="flex flex-wrap gap-1">
-                              {(activity.assignees && activity.assignees.length > 0 ? activity.assignees : [activity.assignee]).map((assignee, idx) => (
-                                <span key={idx} className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                                  {assignee.split('@')[0]}
-                                </span>
-                              ))}
+                        )}
+                      </div>
+                    ) : (
+                      filteredAndSortedActivities.map(activity => (
+                        <div 
+                          key={activity.id} 
+                          className="p-4 border border-gray-200 rounded-lg hover:border-purple-300 transition-all bg-white"
+                          style={{
+                            backdropFilter: 'blur(10px)',
+                            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)'
+                          }}
+                        >
+                          {/* Activity Header - Title, Status, and Action Buttons */}
+                          <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center gap-4">
+                              <h3 className="font-semibold text-gray-900 text-base">{activity.name}</h3>
+                              <span className={`px-3 py-1 text-xs font-medium rounded-full ${
+                                activity.status === 'completed' ? 'bg-green-100 text-green-700' :
+                                activity.status === 'in_progress' ? 'bg-orange-100 text-orange-700' :
+                                activity.status === 'blocked' ? 'bg-red-100 text-red-700' :
+                                'bg-gray-100 text-gray-700'
+                              }`}>
+                                {activity.status.replace('_', ' ').toUpperCase()}
+                              </span>
+                              <span className="px-2 py-1 text-xs text-gray-600 bg-gray-100 rounded">
+                                {activity.type.replace('_', ' ')}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => {
+                                  setSelectedActivity(activity);
+                                  setIsEditActivityModalOpen(true);
+                                }}
+                                className="p-2 rounded hover:bg-purple-50 transition-colors"
+                                style={{
+                                  ...DesignTokens.components.button.secondary,
+                                  height: 'auto',
+                                  padding: '8px 16px',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '6px'
+                                }}
+                                title="Edit Activity"
+                              >
+                                <Edit3 className="w-4 h-4" />
+                                <span className="text-sm font-medium">Edit</span>
+                              </button>
+                              <button
+                                className="p-2 rounded hover:bg-red-50 transition-colors"
+                                onClick={() => handleActivityDelete(activity.id)}
+                                title="Delete Activity"
+                              >
+                                <Trash2 className="w-4 h-4 text-red-600" />
+                              </button>
                             </div>
                           </div>
-                          <div>
-                            <span className="text-gray-600 font-medium">Start Date</span>
-                            <p className="text-gray-900 mt-1">{activity.start_date.toLocaleDateString()}</p>
-                          </div>
-                          <div>
-                            <span className="text-gray-600 font-medium">End Date</span>
-                            <p className="text-gray-900 mt-1">{activity.end_date.toLocaleDateString()}</p>
-                          </div>
-                          <div>
-                            <span className="text-gray-600 font-medium">Progress</span>
-                            <div className="mt-1">
-                              <div className="flex items-center gap-2">
-                                <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
-                                  <div 
-                                    className="h-full rounded-full transition-all"
-                                    style={{ 
-                                      width: `${activity.progress}%`,
-                                      background: `linear-gradient(135deg, ${getStatusColor(activity.status)}, ${getStatusColor(activity.status)}dd)`
-                                    }}
-                                  />
+
+                          {/* Activity Details Grid */}
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                            <div>
+                              <span className="text-gray-600 font-medium block mb-1">Assignees</span>
+                              <div className="flex flex-wrap gap-1">
+                                {(activity.assignees && activity.assignees.length > 0 ? activity.assignees : [activity.assignee]).map((assignee, idx) => (
+                                  <span key={idx} className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                    {assignee.split('@')[0]}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                            <div>
+                              <span className="text-gray-600 font-medium">Start Date</span>
+                              <p className="text-gray-900 mt-1">{activity.start_date.toLocaleDateString()}</p>
+                            </div>
+                            <div>
+                              <span className="text-gray-600 font-medium">End Date</span>
+                              <p className="text-gray-900 mt-1">{activity.end_date.toLocaleDateString()}</p>
+                            </div>
+                            <div>
+                              <span className="text-gray-600 font-medium">Progress</span>
+                              <div className="mt-1">
+                                <div className="flex items-center gap-2">
+                                  <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                                    <div 
+                                      className="h-full rounded-full transition-all"
+                                      style={{ 
+                                        width: `${activity.progress}%`,
+                                        background: `linear-gradient(135deg, ${getStatusColor(activity.status)}, ${getStatusColor(activity.status)}dd)`
+                                      }}
+                                    />
+                                  </div>
+                                  <span className="text-xs font-medium text-gray-700">{activity.progress}%</span>
                                 </div>
-                                <span className="text-xs font-medium text-gray-700">{activity.progress}%</span>
                               </div>
                             </div>
                           </div>
-                        </div>
 
-                        {/* Dependencies if any */}
-                        {activity.dependencies && activity.dependencies.length > 0 && (
-                          <div className="mt-3 pt-3 border-t border-gray-200">
-                            <span className="text-xs text-gray-600 font-medium">Dependencies: </span>
-                            <span className="text-xs text-gray-900">
-                              {activity.dependencies.map(depId => {
-                                const dep = activities.find(a => a.id === depId);
-                                return dep?.name || depId;
-                              }).join(', ')}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    ))
-                  )}
-                  
-                  {/* Add Activity Button for List View */}
-                  {filteredAndSortedActivities.length > 0 && (
-                    <div className="flex justify-end gap-4 pt-4">
+                          {/* Dependencies if any */}
+                          {activity.dependencies && activity.dependencies.length > 0 && (
+                            <div className="mt-3 pt-3 border-t border-gray-200">
+                              <span className="text-xs text-gray-600 font-medium">Dependencies: </span>
+                              <span className="text-xs text-gray-900">
+                                {activity.dependencies.map(depId => {
+                                  const dep = activities.find(a => a.id === depId);
+                                  return dep?.name || depId;
+                                }).join(', ')}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      ))
+                    )}
+                  </div>
+
+                  {/* Footer: identical slider + Add Activity placement */}
+                  {(
+                    <div className="flex items-center justify-end gap-4 p-4 border-t bg-white">
                       <ViewToggleSlider
                         value={timelineView}
                         onChange={setTimelineView}
@@ -1084,18 +1061,6 @@ const ProjectWorkspaceView: React.FC = () => {
                         className="flex items-center space-x-2"
                         style={{
                           ...DesignTokens.components.button.primary
-                        }}
-                        onMouseEnter={(e) => {
-                          const target = e.currentTarget as HTMLElement;
-                          target.style.transform = 'translateY(-3px) scale(1.05)';
-                          target.style.background = 'linear-gradient(135deg, #7c3aed 0%, #9333ea 100%)';
-                          target.style.boxShadow = '0 12px 24px rgba(99, 102, 241, 0.4), 0 6px 16px rgba(0, 0, 0, 0.2)';
-                        }}
-                        onMouseLeave={(e) => {
-                          const target = e.currentTarget as HTMLElement;
-                          target.style.transform = 'translateY(0) scale(1)';
-                          target.style.background = 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)';
-                          target.style.boxShadow = '0 2px 8px rgba(99, 102, 241, 0.25)';
                         }}
                       >
                         <Plus className="w-4 h-4" />
