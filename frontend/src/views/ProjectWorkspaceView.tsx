@@ -712,7 +712,11 @@ const ProjectWorkspaceView: React.FC = () => {
                         color: timelineView === 'timeline' ? '#ffffff' : '#6b7280',
                         fontFamily: "'Poppins', sans-serif",
                         fontWeight: '600',
-                        transition: 'color 0.3s ease'
+                        transition: 'color 0.3s ease',
+                        background: 'none',
+                        border: 'none',
+                        outline: 'none',
+                        cursor: 'pointer'
                       }}
                     >
                       <BarChart3 className="w-4 h-4 mr-2" />
@@ -728,7 +732,11 @@ const ProjectWorkspaceView: React.FC = () => {
                         color: timelineView === 'list' ? '#ffffff' : '#6b7280',
                         fontFamily: "'Poppins', sans-serif",
                         fontWeight: '600',
-                        transition: 'color 0.3s ease'
+                        transition: 'color 0.3s ease',
+                        background: 'none',
+                        border: 'none',
+                        outline: 'none',
+                        cursor: 'pointer'
                       }}
                     >
                       <Activity className="w-4 h-4 mr-2" />
