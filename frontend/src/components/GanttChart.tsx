@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { 
-  AddRegular,
   EditRegular,
   DeleteRegular,
   CalendarRegular,
@@ -128,6 +127,7 @@ const GanttChart: React.FC<GanttChartProps> = ({
   };
 
   // Calculate timeline and positioning
+  // Calculate timeline and positioning
   const timelineData = useMemo(() => calculateTimeline(activities), [activities]);
 
   const getActivityTypeIcon = (type: string) => {
@@ -203,32 +203,6 @@ const GanttChart: React.FC<GanttChartProps> = ({
               {activities.length} activities • {timelineData.projectStart.toLocaleDateString()} - {timelineData.projectEnd.toLocaleDateString()}
             </p>
           </div>
-          {!readonly && (
-            <button
-              onClick={() => setShowAddModal(true)}
-              style={{
-                ...DesignTokens.components.button.primary,
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px'
-              }}
-              onMouseEnter={(e) => {
-                const target = e.currentTarget as HTMLElement;
-                target.style.transform = 'translateY(-3px) scale(1.05)';
-                target.style.background = 'linear-gradient(135deg, #7c3aed 0%, #9333ea 100%)';
-                target.style.boxShadow = '0 12px 24px rgba(99, 102, 241, 0.4), 0 6px 16px rgba(0, 0, 0, 0.2)';
-              }}
-              onMouseLeave={(e) => {
-                const target = e.currentTarget as HTMLElement;
-                target.style.transform = 'translateY(0) scale(1)';
-                target.style.background = 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)';
-                target.style.boxShadow = '0 2px 8px rgba(99, 102, 241, 0.25)';
-              }}
-            >
-              <AddRegular style={{ fontSize: '16px' }} />
-              Add Activity
-            </button>
-          )}
         </div>
       </div>
 
@@ -304,7 +278,7 @@ const GanttChart: React.FC<GanttChartProps> = ({
                   target.style.boxShadow = '0 2px 8px rgba(99, 102, 241, 0.25)';
                 }}
               >
-                <AddRegular style={{ fontSize: '16px' }} />
+                <TaskListAddRegular style={{ fontSize: '16px' }} />
                 Add First Activity
               </button>
             )}
