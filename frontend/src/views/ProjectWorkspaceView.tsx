@@ -26,7 +26,8 @@ interface Activity {
   status: 'pending' | 'in_progress' | 'completed' | 'blocked';
   start_date: Date;
   end_date: Date;
-  assignee: string;
+  assignee: string; // For backward compatibility
+  assignees?: string[]; // Multi-assignee support
   dependencies: string[];
   progress: number;
 }
@@ -67,6 +68,7 @@ const ProjectWorkspaceView: React.FC = () => {
     startDate: new Date().toISOString().split('T')[0],
     endDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     assignee: '',
+    assignees: [] as string[],
     description: '',
     status: 'pending' as Activity['status'],
     priority: 'medium' as 'low' | 'medium' | 'high'
@@ -106,6 +108,7 @@ const ProjectWorkspaceView: React.FC = () => {
         startDate: selectedActivity.start_date.toISOString().split('T')[0],
         endDate: selectedActivity.end_date.toISOString().split('T')[0],
         assignee: selectedActivity.assignee,
+        assignees: selectedActivity.assignees || [selectedActivity.assignee],
         description: '',
         status: selectedActivity.status,
         priority: 'medium'
@@ -249,10 +252,8 @@ const ProjectWorkspaceView: React.FC = () => {
       errors.endDate = 'End date must be after start date';
     }
     
-    if (!activityForm.assignee || activityForm.assignee.trim().length === 0) {
-      errors.assignee = 'Assignee is required';
-    } else if (!activityForm.assignee.includes('@')) {
-      errors.assignee = 'Please enter a valid email address';
+    if (activityForm.assignees.length === 0) {
+      errors.assignee = 'At least one assignee is required';
     }
     
     setFormErrors(errors);
@@ -274,7 +275,8 @@ const ProjectWorkspaceView: React.FC = () => {
         status: activityForm.status,
         start_date: new Date(activityForm.startDate),
         end_date: new Date(activityForm.endDate),
-        assignee: activityForm.assignee.trim(),
+        assignee: activityForm.assignees[0] || activityForm.assignee.trim(),
+        assignees: activityForm.assignees,
         dependencies: [],
         progress: 0
       };
@@ -289,6 +291,7 @@ const ProjectWorkspaceView: React.FC = () => {
         startDate: new Date().toISOString().split('T')[0],
         endDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         assignee: '',
+        assignees: [],
         description: '',
         status: 'pending',
         priority: 'medium'
@@ -819,35 +822,63 @@ const ProjectWorkspaceView: React.FC = () => {
                 
                 {/* View Toggle Slider */}
                 <div className="flex items-center gap-4 flex-shrink-0">
+                  {/* Proper iOS-style Slider Toggle */}
                   <div 
-                    className="flex items-center gap-1 p-1 rounded-lg"
+                    className="relative flex items-center rounded-full p-1"
                     style={{
-                      background: 'rgba(255, 255, 255, 0.9)',
-                      backdropFilter: 'blur(10px)',
+                      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.6) 0%, rgba(139, 92, 246, 0.1) 100%)',
+                      backdropFilter: 'blur(20px)',
                       border: '1px solid rgba(99, 102, 241, 0.2)',
-                      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)'
+                      boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.06), 0 2px 8px rgba(0, 0, 0, 0.05)',
+                      width: '280px',
+                      height: '48px'
                     }}
                   >
+                    {/* Sliding Background Indicator */}
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: '4px',
+                        left: timelineView === 'timeline' ? '4px' : 'calc(50% + 2px)',
+                        width: 'calc(50% - 6px)',
+                        height: 'calc(100% - 8px)',
+                        background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                        borderRadius: '9999px',
+                        boxShadow: '0 4px 12px rgba(99, 102, 241, 0.4), 0 2px 4px rgba(0, 0, 0, 0.1)',
+                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                        zIndex: 0
+                      }}
+                    />
+                    
+                    {/* Timeline Button */}
                     <button
                       onClick={() => setTimelineView('timeline')}
-                      className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                        timelineView === 'timeline'
-                          ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md'
-                          : 'text-gray-600 hover:text-gray-900'
-                      }`}
+                      className="relative z-10 flex items-center justify-center px-4 py-2 rounded-full text-sm font-semibold transition-all"
+                      style={{
+                        flex: 1,
+                        color: timelineView === 'timeline' ? '#ffffff' : '#6b7280',
+                        fontFamily: "'Poppins', sans-serif",
+                        fontWeight: '600',
+                        transition: 'color 0.3s ease'
+                      }}
                     >
-                      <BarChart3 className="w-4 h-4 inline-block mr-2" />
+                      <BarChart3 className="w-4 h-4 mr-2" />
                       Timeline
                     </button>
+                    
+                    {/* List Button */}
                     <button
                       onClick={() => setTimelineView('list')}
-                      className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                        timelineView === 'list'
-                          ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md'
-                          : 'text-gray-600 hover:text-gray-900'
-                      }`}
+                      className="relative z-10 flex items-center justify-center px-4 py-2 rounded-full text-sm font-semibold transition-all"
+                      style={{
+                        flex: 1,
+                        color: timelineView === 'list' ? '#ffffff' : '#6b7280',
+                        fontFamily: "'Poppins', sans-serif",
+                        fontWeight: '600',
+                        transition: 'color 0.3s ease'
+                      }}
                     >
-                      <Activity className="w-4 h-4 inline-block mr-2" />
+                      <Activity className="w-4 h-4 mr-2" />
                       List
                     </button>
                   </div>
@@ -1060,8 +1091,14 @@ const ProjectWorkspaceView: React.FC = () => {
                         {/* Activity Details Grid */}
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                           <div>
-                            <span className="text-gray-600 font-medium">Assignee</span>
-                            <p className="text-gray-900 mt-1">{activity.assignee}</p>
+                            <span className="text-gray-600 font-medium block mb-1">Assignees</span>
+                            <div className="flex flex-wrap gap-1">
+                              {(activity.assignees && activity.assignees.length > 0 ? activity.assignees : [activity.assignee]).map((assignee, idx) => (
+                                <span key={idx} className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                  {assignee.split('@')[0]}
+                                </span>
+                              ))}
+                            </div>
                           </div>
                           <div>
                             <span className="text-gray-600 font-medium">Start Date</span>
@@ -1273,24 +1310,72 @@ const ProjectWorkspaceView: React.FC = () => {
               </div>
             </div>
 
-            {/* Assignee */}
+            {/* Assignees - Multi-select */}
             <div>
-              <label htmlFor="assignee" className="block text-sm font-medium text-gray-700 mb-2">
-                Assignee (Email) *
+              <label htmlFor="assignees" className="block text-sm font-medium text-gray-700 mb-2">
+                Assignees (Team Members) *
               </label>
-              <input
-                id="assignee"
-                type="email"
-                value={activityForm.assignee}
-                onChange={(e) => setActivityForm({ ...activityForm, assignee: e.target.value })}
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                  formErrors.assignee ? 'border-red-500' : 'border-gray-300'
-                }`}
-                placeholder="assignee@example.com"
-              />
-              {formErrors.assignee && (
-                <p className="mt-1 text-sm text-red-600">{formErrors.assignee}</p>
-              )}
+              <div className="space-y-2">
+                {/* Selected Assignees Pills */}
+                {activityForm.assignees.length > 0 && (
+                  <div className="flex flex-wrap gap-2 p-2 border border-gray-200 rounded-lg bg-gray-50">
+                    {activityForm.assignees.map((assignee, index) => (
+                      <span
+                        key={index}
+                        className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800"
+                      >
+                        {assignee}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setActivityForm({
+                              ...activityForm,
+                              assignees: activityForm.assignees.filter((_, i) => i !== index),
+                              assignee: activityForm.assignees.filter((_, i) => i !== index)[0] || ''
+                            });
+                          }}
+                          className="hover:text-purple-900"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+                
+                {/* Assignee Selection Dropdown */}
+                <select
+                  id="assignees"
+                  value=""
+                  onChange={(e) => {
+                    const selectedEmail = e.target.value;
+                    if (selectedEmail && !activityForm.assignees.includes(selectedEmail)) {
+                      setActivityForm({
+                        ...activityForm,
+                        assignees: [...activityForm.assignees, selectedEmail],
+                        assignee: activityForm.assignees.length === 0 ? selectedEmail : activityForm.assignee
+                      });
+                    }
+                  }}
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                    formErrors.assignee ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                >
+                  <option value="">Select team member to add...</option>
+                  {teamMembers
+                    .filter(member => !activityForm.assignees.includes(member))
+                    .map(member => (
+                      <option key={member} value={member}>{member}</option>
+                    ))}
+                </select>
+                
+                {formErrors.assignee && (
+                  <p className="mt-1 text-sm text-red-600">{formErrors.assignee}</p>
+                )}
+                <p className="text-xs text-gray-500 mt-1">
+                  Select one or more team members. The first assignee will be the primary contact.
+                </p>
+              </div>
             </div>
 
             {/* Status and Priority */}
@@ -1416,7 +1501,7 @@ const ProjectWorkspaceView: React.FC = () => {
                 // Validate form
                 const errors: Record<string, string> = {};
                 if (!activityForm.name.trim()) errors.name = 'Activity name is required';
-                if (!activityForm.assignee.trim()) errors.assignee = 'Assignee is required';
+                if (activityForm.assignees.length === 0) errors.assignee = 'At least one assignee is required';
                 if (!activityForm.startDate) errors.startDate = 'Start date is required';
                 if (!activityForm.endDate) errors.endDate = 'End date is required';
                 if (new Date(activityForm.endDate) < new Date(activityForm.startDate)) {
@@ -1435,7 +1520,8 @@ const ProjectWorkspaceView: React.FC = () => {
                   status: activityForm.status,
                   start_date: new Date(activityForm.startDate),
                   end_date: new Date(activityForm.endDate),
-                  assignee: activityForm.assignee
+                  assignee: activityForm.assignees[0] || activityForm.assignee,
+                  assignees: activityForm.assignees
                 });
 
                 setIsEditActivityModalOpen(false);
@@ -1528,24 +1614,72 @@ const ProjectWorkspaceView: React.FC = () => {
                 </div>
               </div>
 
-              {/* Assignee */}
+              {/* Assignees - Multi-select */}
               <div>
-                <label htmlFor="edit-assignee" className="block text-sm font-medium text-gray-700 mb-2">
-                  Assignee (Email) *
+                <label htmlFor="edit-assignees" className="block text-sm font-medium text-gray-700 mb-2">
+                  Assignees (Team Members) *
                 </label>
-                <input
-                  id="edit-assignee"
-                  type="email"
-                  value={activityForm.assignee}
-                  onChange={(e) => setActivityForm({ ...activityForm, assignee: e.target.value })}
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                    formErrors.assignee ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                  placeholder="assignee@example.com"
-                />
-                {formErrors.assignee && (
-                  <p className="mt-1 text-sm text-red-600">{formErrors.assignee}</p>
-                )}
+                <div className="space-y-2">
+                  {/* Selected Assignees Pills */}
+                  {activityForm.assignees.length > 0 && (
+                    <div className="flex flex-wrap gap-2 p-2 border border-gray-200 rounded-lg bg-gray-50">
+                      {activityForm.assignees.map((assignee, index) => (
+                        <span
+                          key={index}
+                          className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800"
+                        >
+                          {assignee}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setActivityForm({
+                                ...activityForm,
+                                assignees: activityForm.assignees.filter((_, i) => i !== index),
+                                assignee: activityForm.assignees.filter((_, i) => i !== index)[0] || ''
+                              });
+                            }}
+                            className="hover:text-purple-900"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  
+                  {/* Assignee Selection Dropdown */}
+                  <select
+                    id="edit-assignees"
+                    value=""
+                    onChange={(e) => {
+                      const selectedEmail = e.target.value;
+                      if (selectedEmail && !activityForm.assignees.includes(selectedEmail)) {
+                        setActivityForm({
+                          ...activityForm,
+                          assignees: [...activityForm.assignees, selectedEmail],
+                          assignee: activityForm.assignees.length === 0 ? selectedEmail : activityForm.assignee
+                        });
+                      }
+                    }}
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                      formErrors.assignee ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                  >
+                    <option value="">Select team member to add...</option>
+                    {teamMembers
+                      .filter(member => !activityForm.assignees.includes(member))
+                      .map(member => (
+                        <option key={member} value={member}>{member}</option>
+                      ))}
+                  </select>
+                  
+                  {formErrors.assignee && (
+                    <p className="mt-1 text-sm text-red-600">{formErrors.assignee}</p>
+                  )}
+                  <p className="text-xs text-gray-500 mt-1">
+                    Select one or more team members. The first assignee will be the primary contact.
+                  </p>
+                </div>
               </div>
 
               {/* Status and Priority */}
