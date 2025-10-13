@@ -17,6 +17,7 @@ import {
   EnhancedModal
 } from '../components/EnhancedUXComponents';
 import { useEnhancedUX } from '../hooks/useEnhancedUX';
+import { DesignTokens } from '../styles/designSystem';
 
 interface Activity {
   id: string;
@@ -46,9 +47,11 @@ const ProjectWorkspaceView: React.FC = () => {
   
   const [project, setProject] = useState<Project | null>(null);
   const [activities, setActivities] = useState<Activity[]>([]);
-  const [activeTab, setActiveTab] = useState<'timeline' | 'activities' | 'overview' | 'capacity'>('timeline');
+  const [activeTab, setActiveTab] = useState<'timeline' | 'overview' | 'capacity'>('timeline');
+  const [timelineView, setTimelineView] = useState<'timeline' | 'list'>('timeline');
   const [isCreateActivityModalOpen, setIsCreateActivityModalOpen] = useState(false);
-  const [selectedActivity, setSelectedActivity] = useState<string | null>(null);
+  const [isEditActivityModalOpen, setIsEditActivityModalOpen] = useState(false);
+  const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
   
   // Filtering and sorting state
   const [filterStatus, setFilterStatus] = useState<string>('all');
@@ -93,6 +96,22 @@ const ProjectWorkspaceView: React.FC = () => {
       loadActivities();
     }
   }, [projectId]);
+
+  // Populate form when editing an activity
+  useEffect(() => {
+    if (selectedActivity && isEditActivityModalOpen) {
+      setActivityForm({
+        name: selectedActivity.name,
+        type: selectedActivity.type,
+        startDate: selectedActivity.start_date.toISOString().split('T')[0],
+        endDate: selectedActivity.end_date.toISOString().split('T')[0],
+        assignee: selectedActivity.assignee,
+        description: '',
+        status: selectedActivity.status,
+        priority: 'medium'
+      });
+    }
+  }, [selectedActivity, isEditActivityModalOpen]);
 
   const loadProject = async () => {
     await withLoading(async () => {
@@ -483,24 +502,35 @@ const ProjectWorkspaceView: React.FC = () => {
       
       {/* Back Button - Outside Main Card */}
       <div className="mb-6">
-        <EnhancedButton
-          variant="ghost"
+        <button
           onClick={() => navigate('/app/projects')}
           className="flex items-center space-x-2"
+          style={{
+            ...DesignTokens.components.button.secondary
+          }}
+          onMouseEnter={(e) => {
+            const target = e.currentTarget as HTMLElement;
+            target.style.transform = 'translateY(-2px)';
+            target.style.boxShadow = '0 4px 12px rgba(99, 102, 241, 0.25)';
+          }}
+          onMouseLeave={(e) => {
+            const target = e.currentTarget as HTMLElement;
+            target.style.transform = 'translateY(0)';
+            target.style.boxShadow = '0 1px 4px rgba(99, 102, 241, 0.15)';
+          }}
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to Projects</span>
-        </EnhancedButton>
+        </button>
       </div>
 
-      {/* Main Unified Card */}
-      <EnhancedCard className="overflow-hidden">
+  {/* Main Unified Card */}
+  <EnhancedCard className="overflow-visible">
         {/* Project Header Section */}
         <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border-b border-purple-200 p-6 mb-6">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <div className="flex-1">
               <div className="flex items-center space-x-3 mb-3">
-                <Target className="w-8 h-8 text-purple-600 flex-shrink-0" />
                 <h1 className="text-3xl font-bold text-gray-900">{project.name}</h1>
               </div>
               <p className="text-gray-600 text-base mb-4">{project.description}</p>
@@ -533,54 +563,52 @@ const ProjectWorkspaceView: React.FC = () => {
 
         {/* Stats Summary Section */}
         <div className="px-6 mb-6">
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 p-4 bg-white border border-gray-200 rounded-lg">
-            {/* Overall Progress */}
-            <div className="flex flex-col items-center text-center">
-              <div className="text-3xl font-bold text-purple-600 mb-1">{stats.overallProgress}%</div>
-              <div className="text-sm text-gray-500">Overall Progress</div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            <div className="flex items-center justify-between lg:flex-col lg:items-start lg:justify-start gap-2">
+              <div className="flex items-center gap-2">
+                <Target className="w-5 h-5 text-purple-600" />
+                <span className="text-xs uppercase tracking-wide text-gray-500">Overall Progress</span>
+              </div>
+              <span className="text-3xl font-semibold text-purple-600">{stats.overallProgress}%</span>
             </div>
-          
-          {/* Total Activities */}
-          <div className="flex flex-col items-center text-center">
-            <div className="flex items-center justify-center mb-2">
-              <Activity className="w-5 h-5 text-purple-600" />
-            </div>
-            <div className="text-3xl font-bold text-gray-900 mb-1">{stats.totalActivities}</div>
-            <div className="text-sm text-gray-500">Total Activities</div>
-          </div>
 
-          {/* Completed */}
-          <div className="flex flex-col items-center text-center">
-            <div className="flex items-center justify-center mb-2">
-              <CheckCircle className="w-5 h-5 text-green-600" />
+            <div className="flex items-center justify-between lg:flex-col lg:items-start gap-2">
+              <div className="flex items-center gap-2">
+                <Activity className="w-5 h-5 text-indigo-600" />
+                <span className="text-xs uppercase tracking-wide text-gray-500">Total Activities</span>
+              </div>
+              <span className="text-2xl font-semibold text-indigo-600">{stats.totalActivities}</span>
             </div>
-            <div className="text-3xl font-bold text-gray-900 mb-1">{stats.completedActivities}</div>
-            <div className="text-sm text-gray-500">Completed</div>
-          </div>
 
-          {/* In Progress */}
-          <div className="flex flex-col items-center text-center">
-            <div className="flex items-center justify-center mb-2">
-              <Clock className="w-5 h-5 text-orange-600" />
+            <div className="flex items-center justify-between lg:flex-col lg:items-start gap-2">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-5 h-5 text-green-600" />
+                <span className="text-xs uppercase tracking-wide text-gray-500">Completed</span>
+              </div>
+              <span className="text-2xl font-semibold text-green-600">{stats.completedActivities}</span>
             </div>
-            <div className="text-3xl font-bold text-gray-900 mb-1">{stats.inProgressActivities}</div>
-            <div className="text-sm text-gray-500">In Progress</div>
-          </div>
 
-          {/* Days Remaining */}
-          <div className="flex flex-col items-center text-center">
-            <div className="flex items-center justify-center mb-2">
-              <Target className="w-5 h-5 text-blue-600" />
+            <div className="flex items-center justify-between lg:flex-col lg:items-start gap-2">
+              <div className="flex items-center gap-2">
+                <Clock className="w-5 h-5 text-orange-500" />
+                <span className="text-xs uppercase tracking-wide text-gray-500">In Progress</span>
+              </div>
+              <span className="text-2xl font-semibold text-orange-500">{stats.inProgressActivities}</span>
             </div>
-            <div className="text-3xl font-bold text-gray-900 mb-1">{stats.daysRemaining}</div>
-            <div className="text-sm text-gray-500">Days Remaining</div>
+
+            <div className="flex items-center justify-between lg:flex-col lg:items-start gap-2">
+              <div className="flex items-center gap-2">
+                <Calendar className="w-5 h-5 text-blue-600" />
+                <span className="text-xs uppercase tracking-wide text-gray-500">Days Remaining</span>
+              </div>
+              <span className="text-2xl font-semibold text-blue-600">{stats.daysRemaining}</span>
+            </div>
           </div>
-        </div>
         </div>
 
         {/* Filtering and Sorting Controls */}
-        <div className="px-6 mb-6">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+        <div className="px-6 mb-8">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 py-4 border-y border-white/40">
             {/* Left side: Filter toggle and active filters */}
             <div className="flex items-center space-x-4">
             <EnhancedButton
@@ -613,26 +641,26 @@ const ProjectWorkspaceView: React.FC = () => {
             </div>
           </div>
 
-          {/* Right side: Quick stats */}
-          <div className="flex items-center space-x-6 text-sm">
-            <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-              <span className="text-gray-600">Completed: {activities.filter(a => a.status === 'completed').length}</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
-              <span className="text-gray-600">In Progress: {activities.filter(a => a.status === 'in_progress').length}</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
-              <span className="text-gray-600">Pending: {activities.filter(a => a.status === 'pending').length}</span>
-            </div>
+            {/* Right side: Quick stats */}
+            <div className="flex items-center space-x-6 text-sm text-gray-600">
+              <div className="flex items-center gap-2">
+                <span className="inline-flex h-2 w-2 rounded-full bg-green-500" />
+                <span>Completed: {activities.filter(a => a.status === 'completed').length}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="inline-flex h-2 w-2 rounded-full bg-orange-500" />
+                <span>In Progress: {activities.filter(a => a.status === 'in_progress').length}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="inline-flex h-2 w-2 rounded-full bg-gray-400" />
+                <span>Pending: {activities.filter(a => a.status === 'pending').length}</span>
+              </div>
           </div>
         </div>
 
         {/* Expandable Filter Panel */}
         {showFilters && (
-          <div className="mt-6 pt-6 border-t border-gray-200">
+            <div className="mt-6 pt-6 border-t border-white/30">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* Status Filter */}
               <div>
@@ -749,322 +777,333 @@ const ProjectWorkspaceView: React.FC = () => {
         )}
         </div>
 
-        {/* Tab Navigation - Fluent UI 2 Compliant */}
-        <div className="lcm-tabs-container" style={{ margin: 0, borderRadius: 0, borderLeft: 0, borderRight: 0 }}>
-          {[
-            { id: 'timeline', label: 'Timeline', icon: <BarChart3 className="w-5 h-5" /> },
-            { id: 'activities', label: 'Activities', count: filteredAndSortedActivities.length, icon: <Activity className="w-5 h-5" /> },
-            { id: 'overview', label: 'Overview', icon: <FileText className="w-5 h-5" /> },
-            { id: 'capacity', label: 'Capacity', icon: <Server className="w-5 h-5" /> }
-          ].map(tab => (
-            <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id as any)}
-            className={`lcm-tab-button ${
-              activeTab === tab.id ? 'lcm-tab-button-active' : 'lcm-tab-button-inactive'
-            }`}
-            aria-selected={activeTab === tab.id}
-            role="tab"
-          >
-            <div className="lcm-tab-button-content">
-              <div className="lcm-tab-button-icon">{tab.icon}</div>
-              <span className="lcm-tab-button-label">
-                {tab.label}
-                {'count' in tab && tab.count !== undefined && ` (${tab.count})`}
-              </span>
-            </div>
-          </button>
-        ))}
+        {/* Tab Navigation - Document Templates pill styling */}
+        <div className="lcm-pill-tabs" role="tablist" aria-label="Project workspace sections">
+          {([
+            { id: 'timeline', label: 'Timeline' },
+            { id: 'overview', label: 'Overview' },
+            { id: 'capacity', label: 'Capacity' }
+          ] as const).map(tab => {
+            const isActive = activeTab === tab.id;
+            const label = tab.label;
+
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setActiveTab(tab.id)}
+                className={`lcm-pill-tab ${isActive ? 'lcm-pill-tab-active' : 'lcm-pill-tab-inactive'}`}
+                aria-selected={isActive}
+                role="tab"
+              >
+                <span className="lcm-pill-tab-label">{label}</span>
+              </button>
+            );
+          })}
         </div>
 
         {/* Tab Content */}
         <div className="p-6" style={{ minHeight: '400px' }}>
           {activeTab === 'timeline' && (
             <div className="space-y-6" style={{ display: 'block' }}>
-              {/* Section Header */}
+              {/* Section Header with View Toggle */}
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <h2 className="text-xl font-semibold text-gray-900 mb-2">Project Timeline</h2>
                   <p className="text-sm text-gray-600">
-                    Interactive Gantt chart showing all project activities, dependencies, and progress.
-                    Click on any activity bar to view details or drag to adjust dates.
+                    {timelineView === 'timeline' 
+                      ? 'Interactive Gantt chart showing all project activities, dependencies, and progress. Click on any activity bar to edit details.'
+                      : 'List view of all activities with detailed information. Click edit button to modify activity details.'}
                   </p>
                 </div>
-                <EnhancedButton
-                  onClick={() => setIsCreateActivityModalOpen(true)}
-                  variant="primary"
-                  className="flex items-center space-x-2 flex-shrink-0"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>Add Activity</span>
-                </EnhancedButton>
-              </div>
-
-              {/* Timeline Stats Bar */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-purple-50/50 rounded-lg border border-purple-100">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-purple-600">{filteredAndSortedActivities.length}</div>
-                  <div className="text-xs text-gray-600">Activities Shown</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">
-                    {filteredAndSortedActivities.filter(a => a.status === 'completed').length}
-                  </div>
-                  <div className="text-xs text-gray-600">Completed</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-orange-600">
-                    {filteredAndSortedActivities.filter(a => a.status === 'in_progress').length}
-                  </div>
-                  <div className="text-xs text-gray-600">In Progress</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-gray-600">
-                    {filteredAndSortedActivities.filter(a => a.status === 'pending').length}
-                  </div>
-                  <div className="text-xs text-gray-600">Pending</div>
-                </div>
-              </div>
-
-              {/* Gantt Chart */}
-              {filteredAndSortedActivities.length > 0 ? (
-                <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
-                  <GanttChart
-                    activities={filteredAndSortedActivities}
-                    onActivityUpdate={handleActivityUpdate}
-                    onActivityCreate={handleActivityCreate}
-                    onActivityDelete={handleActivityDelete}
-                    onDependencyChange={handleDependencyChange}
-                    onActivityClick={(activityId) => {
-                      setActiveTab('activities');
-                      setSelectedActivity(activityId);
+                
+                {/* View Toggle Slider */}
+                <div className="flex items-center gap-4 flex-shrink-0">
+                  <div 
+                    className="flex items-center gap-1 p-1 rounded-lg"
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.9)',
+                      backdropFilter: 'blur(10px)',
+                      border: '1px solid rgba(99, 102, 241, 0.2)',
+                      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)'
                     }}
-                  />
-                </div>
-              ) : (
-                <div className="text-center py-16 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-                  <BarChart3 className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No Activities to Display</h3>
-                  <p className="text-gray-600 mb-6 max-w-md mx-auto">
-                    {hasActiveFilters 
-                      ? 'No activities match your current filters. Try adjusting or clearing the filters above.'
-                      : 'Create your first activity to start building your project timeline.'}
-                  </p>
-                  {hasActiveFilters ? (
-                    <EnhancedButton variant="secondary" onClick={resetFilters}>
-                      Clear Filters
-                    </EnhancedButton>
-                  ) : (
-                    <EnhancedButton variant="primary" onClick={() => setIsCreateActivityModalOpen(true)}>
-                      <Plus className="w-4 h-4 mr-2" />
-                      Create First Activity
-                    </EnhancedButton>
-                  )}
-                </div>
-              )}
-
-              {/* Timeline Legend */}
-              <div className="flex items-center justify-center gap-6 text-sm text-gray-600 pt-4 border-t border-gray-200">
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 bg-green-500 rounded"></div>
-                  <span>Completed</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 bg-orange-500 rounded"></div>
-                  <span>In Progress</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 bg-gray-400 rounded"></div>
-                  <span>Pending</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 bg-red-500 rounded"></div>
-                  <span>Blocked</span>
-                </div>
-              </div>
-            </div>
-          )}
-          
-          {activeTab === 'activities' && (
-            <div className="space-y-6" style={{ display: 'block' }}>
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold text-gray-900">Activity Management</h2>
-                <EnhancedButton
-                  onClick={() => setIsCreateActivityModalOpen(true)}
-                  variant="primary"
-                  className="flex items-center space-x-2"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>Add Activity</span>
-                </EnhancedButton>
-              </div>
-            
-            <div className="space-y-4">
-              {filteredAndSortedActivities.length === 0 ? (
-                <div className="text-center py-12">
-                  <Activity className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No Activities Found</h3>
-                  <p className="text-gray-600 mb-4">
-                    {hasActiveFilters 
-                      ? 'No activities match your current filters. Try adjusting or clearing them.'
-                      : 'Get started by creating your first activity.'}
-                  </p>
-                  {hasActiveFilters && (
-                    <EnhancedButton variant="secondary" onClick={resetFilters}>
-                      Clear Filters
-                    </EnhancedButton>
-                  )}
-                </div>
-              ) : (
-                filteredAndSortedActivities.map(activity => (
-                <div 
-                  key={activity.id} 
-                  className={`p-4 border rounded-lg transition-all ${
-                    selectedActivity === activity.id 
-                      ? 'border-purple-500 bg-purple-50 shadow-md' 
-                      : 'border-gray-200 hover:border-purple-300'
-                  }`}
-                  ref={selectedActivity === activity.id ? (el) => el?.scrollIntoView({ behavior: 'smooth', block: 'center' }) : null}
-                >
-                  {/* Activity Header - Title, Status, and Action Buttons */}
-                  <div className="flex items-center gap-4 mb-4">
-                    <h3 className="font-semibold text-gray-900 text-base">{activity.name}</h3>
-                    <span className={`px-2 py-1 text-xs rounded-full ${
-                      activity.status === 'completed' ? 'bg-green-100 text-green-700' :
-                      activity.status === 'in_progress' ? 'bg-orange-100 text-orange-700' :
-                      activity.status === 'blocked' ? 'bg-red-100 text-red-700' :
-                      'bg-gray-100 text-gray-700'
-                    }`}>
-                      {activity.status.replace('_', ' ').toUpperCase()}
-                    </span>
+                  >
                     <button
-                      className="p-1.5 rounded hover:bg-gray-100 transition-colors"
-                      title="Edit Activity"
+                      onClick={() => setTimelineView('timeline')}
+                      className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                        timelineView === 'timeline'
+                          ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md'
+                          : 'text-gray-600 hover:text-gray-900'
+                      }`}
                     >
-                      <Edit3 className="w-4 h-4 text-gray-600" />
+                      <BarChart3 className="w-4 h-4 inline-block mr-2" />
+                      Timeline
                     </button>
                     <button
-                      className="p-1.5 rounded hover:bg-red-50 transition-colors"
-                      onClick={() => handleActivityDelete(activity.id)}
-                      title="Delete Activity"
+                      onClick={() => setTimelineView('list')}
+                      className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                        timelineView === 'list'
+                          ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md'
+                          : 'text-gray-600 hover:text-gray-900'
+                      }`}
                     >
-                      <Trash2 className="w-4 h-4 text-red-600" />
+                      <Activity className="w-4 h-4 inline-block mr-2" />
+                      List
                     </button>
                   </div>
                   
-                  {/* Single Column Metainformation */}
-                  <div className="space-y-3">
-                    {/* Assignee with Inline Editing */}
-                    <div className="flex items-center">
-                      <span className="text-sm font-medium text-gray-600 w-32">Assignee:</span>
-                      {editingAssigneeId === activity.id ? (
-                        <select
-                          className="text-sm text-gray-900 border border-purple-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                          value={activity.assignee}
-                          onChange={(e) => handleAssigneeChange(activity.id, e.target.value)}
-                          onBlur={() => setEditingAssigneeId(null)}
-                          autoFocus
-                        >
-                          {teamMembers.map(member => (
-                            <option key={member} value={member}>{member}</option>
-                          ))}
-                        </select>
+                  <button
+                    onClick={() => setIsCreateActivityModalOpen(true)}
+                    className="flex items-center space-x-2"
+                    style={{
+                      ...DesignTokens.components.button.primary
+                    }}
+                    onMouseEnter={(e) => {
+                      const target = e.currentTarget as HTMLElement;
+                      target.style.transform = 'translateY(-3px) scale(1.05)';
+                      target.style.background = 'linear-gradient(135deg, #7c3aed 0%, #9333ea 100%)';
+                      target.style.boxShadow = '0 12px 24px rgba(99, 102, 241, 0.4), 0 6px 16px rgba(0, 0, 0, 0.2)';
+                    }}
+                    onMouseLeave={(e) => {
+                      const target = e.currentTarget as HTMLElement;
+                      target.style.transform = 'translateY(0) scale(1)';
+                      target.style.background = 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)';
+                      target.style.boxShadow = '0 2px 8px rgba(99, 102, 241, 0.25)';
+                    }}
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Add Activity</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Timeline View */}
+              {timelineView === 'timeline' && (
+                <>
+                  {/* Gantt Chart */}
+                  {filteredAndSortedActivities.length > 0 ? (
+                    <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
+                      <GanttChart
+                        activities={filteredAndSortedActivities}
+                        onActivityUpdate={handleActivityUpdate}
+                        onActivityCreate={handleActivityCreate}
+                        onActivityDelete={handleActivityDelete}
+                        onDependencyChange={handleDependencyChange}
+                        onActivityClick={(activityId) => {
+                          const activity = activities.find(a => a.id === activityId);
+                          if (activity) {
+                            setSelectedActivity(activity);
+                            setIsEditActivityModalOpen(true);
+                          }
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <div className="text-center py-16 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                      <BarChart3 className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">No Activities to Display</h3>
+                      <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                        {hasActiveFilters 
+                          ? 'No activities match your current filters. Try adjusting or clearing the filters above.'
+                          : 'Create your first activity to start building your project timeline.'}
+                      </p>
+                      {hasActiveFilters ? (
+                        <EnhancedButton variant="secondary" onClick={resetFilters}>
+                          Clear Filters
+                        </EnhancedButton>
                       ) : (
-                        <div
-                          className={`flex items-center gap-2 px-2 py-1 rounded cursor-pointer transition-colors ${
-                            assigneeHoverId === activity.id ? 'bg-purple-100' : ''
-                          }`}
-                          onMouseEnter={() => setAssigneeHoverId(activity.id)}
-                          onMouseLeave={() => setAssigneeHoverId(null)}
-                          onClick={() => setEditingAssigneeId(activity.id)}
+                        <button
+                          onClick={() => setIsCreateActivityModalOpen(true)}
+                          className="flex items-center space-x-2 mx-auto"
+                          style={{
+                            ...DesignTokens.components.button.primary
+                          }}
+                          onMouseEnter={(e) => {
+                            const target = e.currentTarget as HTMLElement;
+                            target.style.transform = 'translateY(-3px) scale(1.05)';
+                            target.style.background = 'linear-gradient(135deg, #7c3aed 0%, #9333ea 100%)';
+                            target.style.boxShadow = '0 12px 24px rgba(99, 102, 241, 0.4), 0 6px 16px rgba(0, 0, 0, 0.2)';
+                          }}
+                          onMouseLeave={(e) => {
+                            const target = e.currentTarget as HTMLElement;
+                            target.style.transform = 'translateY(0) scale(1)';
+                            target.style.background = 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)';
+                            target.style.boxShadow = '0 2px 8px rgba(99, 102, 241, 0.25)';
+                          }}
                         >
-                          <span className="text-sm text-gray-900">{activity.assignee}</span>
-                          {assigneeHoverId === activity.id && (
-                            <Edit3 className="w-3 h-3 text-purple-600" />
-                          )}
-                        </div>
+                          <Plus className="w-4 h-4" />
+                          <span>Create First Activity</span>
+                        </button>
                       )}
                     </div>
+                  )}
 
-                    {/* Start Date with Inline Editing */}
-                    <div className="flex items-center">
-                      <span className="text-sm font-medium text-gray-600 w-32">Start Date:</span>
-                      {editingStartDateId === activity.id ? (
-                        <input
-                          type="date"
-                          className="text-sm text-gray-900 border border-purple-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                          value={activity.start_date.toISOString().split('T')[0]}
-                          onChange={(e) => handleStartDateChange(activity.id, e.target.value)}
-                          onBlur={() => setEditingStartDateId(null)}
-                          autoFocus
-                        />
-                      ) : (
-                        <div
-                          className={`flex items-center gap-2 px-2 py-1 rounded cursor-pointer transition-colors ${
-                            dateHoverId === `start-${activity.id}` ? 'bg-purple-100' : ''
-                          }`}
-                          onMouseEnter={() => setDateHoverId(`start-${activity.id}`)}
-                          onMouseLeave={() => setDateHoverId(null)}
-                          onClick={() => setEditingStartDateId(activity.id)}
-                        >
-                          <span className="text-sm text-gray-900">{activity.start_date.toLocaleDateString()}</span>
-                          {dateHoverId === `start-${activity.id}` && (
-                            <Edit3 className="w-3 h-3 text-purple-600" />
-                          )}
-                        </div>
-                      )}
+                  {/* Timeline Legend */}
+                  <div className="flex items-center justify-center gap-6 text-sm text-gray-600 pt-4 border-t border-gray-200">
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 bg-green-500 rounded"></div>
+                      <span>Completed</span>
                     </div>
-
-                    {/* End Date with Inline Editing */}
-                    <div className="flex items-center">
-                      <span className="text-sm font-medium text-gray-600 w-32">End Date:</span>
-                      {editingEndDateId === activity.id ? (
-                        <input
-                          type="date"
-                          className="text-sm text-gray-900 border border-purple-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                          value={activity.end_date.toISOString().split('T')[0]}
-                          onChange={(e) => handleEndDateChange(activity.id, e.target.value)}
-                          onBlur={() => setEditingEndDateId(null)}
-                          autoFocus
-                        />
-                      ) : (
-                        <div
-                          className={`flex items-center gap-2 px-2 py-1 rounded cursor-pointer transition-colors ${
-                            dateHoverId === `end-${activity.id}` ? 'bg-purple-100' : ''
-                          }`}
-                          onMouseEnter={() => setDateHoverId(`end-${activity.id}`)}
-                          onMouseLeave={() => setDateHoverId(null)}
-                          onClick={() => setEditingEndDateId(activity.id)}
-                        >
-                          <span className="text-sm text-gray-900">{activity.end_date.toLocaleDateString()}</span>
-                          {dateHoverId === `end-${activity.id}` && (
-                            <Edit3 className="w-3 h-3 text-purple-600" />
-                          )}
-                        </div>
-                      )}
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 bg-orange-500 rounded"></div>
+                      <span>In Progress</span>
                     </div>
-
-                    {/* Status */}
-                    <div className="flex items-center">
-                      <span className="text-sm font-medium text-gray-600 w-32">Status:</span>
-                      <span className="text-sm text-gray-900">{activity.status.replace('_', ' ')}</span>
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 bg-gray-400 rounded"></div>
+                      <span>Pending</span>
                     </div>
-
-                    {/* Progress Bar - 50% width */}
-                    <div className="flex items-center">
-                      <span className="text-sm font-medium text-gray-600 w-32">Progress:</span>
-                      <div className="flex-1 max-w-xs">
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-sm font-medium text-gray-900">{activity.progress}%</span>
-                        </div>
-                        <EnhancedProgressBar value={activity.progress} color="purple" />
-                      </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 bg-red-500 rounded"></div>
+                      <span>Blocked</span>
                     </div>
                   </div>
-                </div>
-              ))
+                </>
               )}
-            </div>
+
+              {/* List View */}
+              {timelineView === 'list' && (
+                <div className="space-y-4">
+                  {filteredAndSortedActivities.length === 0 ? (
+                    <div className="text-center py-16 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                      <Activity className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">No Activities Found</h3>
+                      <p className="text-gray-600 mb-6">
+                        {hasActiveFilters 
+                          ? 'No activities match your current filters. Try adjusting or clearing them.'
+                          : 'Get started by creating your first activity.'}
+                      </p>
+                      {hasActiveFilters ? (
+                        <EnhancedButton variant="secondary" onClick={resetFilters}>
+                          Clear Filters
+                        </EnhancedButton>
+                      ) : (
+                        <button
+                          onClick={() => setIsCreateActivityModalOpen(true)}
+                          className="flex items-center space-x-2 mx-auto"
+                          style={{
+                            ...DesignTokens.components.button.primary
+                          }}
+                          onMouseEnter={(e) => {
+                            const target = e.currentTarget as HTMLElement;
+                            target.style.transform = 'translateY(-3px) scale(1.05)';
+                            target.style.background = 'linear-gradient(135deg, #7c3aed 0%, #9333ea 100%)';
+                            target.style.boxShadow = '0 12px 24px rgba(99, 102, 241, 0.4), 0 6px 16px rgba(0, 0, 0, 0.2)';
+                          }}
+                          onMouseLeave={(e) => {
+                            const target = e.currentTarget as HTMLElement;
+                            target.style.transform = 'translateY(0) scale(1)';
+                            target.style.background = 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)';
+                            target.style.boxShadow = '0 2px 8px rgba(99, 102, 241, 0.25)';
+                          }}
+                        >
+                          <Plus className="w-4 h-4" />
+                          <span>Create First Activity</span>
+                        </button>
+                      )}
+                    </div>
+                  ) : (
+                    filteredAndSortedActivities.map(activity => (
+                      <div 
+                        key={activity.id} 
+                        className="p-4 border border-gray-200 rounded-lg hover:border-purple-300 transition-all bg-white"
+                        style={{
+                          backdropFilter: 'blur(10px)',
+                          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)'
+                        }}
+                      >
+                        {/* Activity Header - Title, Status, and Action Buttons */}
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center gap-4">
+                            <h3 className="font-semibold text-gray-900 text-base">{activity.name}</h3>
+                            <span className={`px-3 py-1 text-xs font-medium rounded-full ${
+                              activity.status === 'completed' ? 'bg-green-100 text-green-700' :
+                              activity.status === 'in_progress' ? 'bg-orange-100 text-orange-700' :
+                              activity.status === 'blocked' ? 'bg-red-100 text-red-700' :
+                              'bg-gray-100 text-gray-700'
+                            }`}>
+                              {activity.status.replace('_', ' ').toUpperCase()}
+                            </span>
+                            <span className="px-2 py-1 text-xs text-gray-600 bg-gray-100 rounded">
+                              {activity.type.replace('_', ' ')}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => {
+                                setSelectedActivity(activity);
+                                setIsEditActivityModalOpen(true);
+                              }}
+                              className="p-2 rounded hover:bg-purple-50 transition-colors"
+                              style={{
+                                ...DesignTokens.components.button.secondary,
+                                height: 'auto',
+                                padding: '8px 16px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px'
+                              }}
+                              title="Edit Activity"
+                            >
+                              <Edit3 className="w-4 h-4" />
+                              <span className="text-sm font-medium">Edit</span>
+                            </button>
+                            <button
+                              className="p-2 rounded hover:bg-red-50 transition-colors"
+                              onClick={() => handleActivityDelete(activity.id)}
+                              title="Delete Activity"
+                            >
+                              <Trash2 className="w-4 h-4 text-red-600" />
+                            </button>
+                          </div>
+                        </div>
+                        
+                        {/* Activity Details Grid */}
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                          <div>
+                            <span className="text-gray-600 font-medium">Assignee</span>
+                            <p className="text-gray-900 mt-1">{activity.assignee}</p>
+                          </div>
+                          <div>
+                            <span className="text-gray-600 font-medium">Start Date</span>
+                            <p className="text-gray-900 mt-1">{activity.start_date.toLocaleDateString()}</p>
+                          </div>
+                          <div>
+                            <span className="text-gray-600 font-medium">End Date</span>
+                            <p className="text-gray-900 mt-1">{activity.end_date.toLocaleDateString()}</p>
+                          </div>
+                          <div>
+                            <span className="text-gray-600 font-medium">Progress</span>
+                            <div className="mt-1">
+                              <div className="flex items-center gap-2">
+                                <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                                  <div 
+                                    className="h-full bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full transition-all"
+                                    style={{ width: `${activity.progress}%` }}
+                                  />
+                                </div>
+                                <span className="text-xs font-medium text-gray-700">{activity.progress}%</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Dependencies if any */}
+                        {activity.dependencies && activity.dependencies.length > 0 && (
+                          <div className="mt-3 pt-3 border-t border-gray-200">
+                            <span className="text-xs text-gray-600 font-medium">Dependencies: </span>
+                            <span className="text-xs text-gray-900">
+                              {activity.dependencies.map(depId => {
+                                const dep = activities.find(a => a.id === depId);
+                                return dep?.name || depId;
+                              }).join(', ')}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
             </div>
           )}
           
@@ -1125,8 +1164,8 @@ const ProjectWorkspaceView: React.FC = () => {
           )}
 
           {activeTab === 'capacity' && (
-            <div className="overflow-hidden rounded-lg border border-gray-200" style={{ display: 'block' }}>
-              <div className="min-h-[600px] bg-white">
+            <div className="rounded-lg border border-gray-200" style={{ display: 'block', overflow: 'visible' }}>
+              <div className="bg-white">
                 <CapacityVisualizerView />
               </div>
             </div>
@@ -1311,27 +1350,304 @@ const ProjectWorkspaceView: React.FC = () => {
 
             {/* Form Actions */}
             <div className="flex items-center justify-end space-x-3 pt-4 border-t">
-              <EnhancedButton
+              <button
                 type="button"
-                variant="secondary"
                 onClick={() => {
                   setIsCreateActivityModalOpen(false);
                   setFormErrors({});
                 }}
                 disabled={isSubmitting}
+                style={DesignTokens.components.button.secondary}
               >
                 Cancel
-              </EnhancedButton>
-              <EnhancedButton
+              </button>
+              <button
                 type="submit"
-                variant="primary"
                 disabled={isSubmitting}
+                style={{
+                  ...DesignTokens.components.button.primary,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px'
+                }}
+                onMouseEnter={(e) => {
+                  if (!isSubmitting) {
+                    const target = e.currentTarget as HTMLElement;
+                    target.style.transform = 'translateY(-3px) scale(1.05)';
+                    target.style.background = 'linear-gradient(135deg, #7c3aed 0%, #9333ea 100%)';
+                    target.style.boxShadow = '0 12px 24px rgba(99, 102, 241, 0.4), 0 6px 16px rgba(0, 0, 0, 0.2)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  const target = e.currentTarget as HTMLElement;
+                  target.style.transform = 'translateY(0) scale(1)';
+                  target.style.background = 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)';
+                  target.style.boxShadow = '0 2px 8px rgba(99, 102, 241, 0.25)';
+                }}
               >
                 {isSubmitting ? 'Creating...' : 'Create Activity'}
-              </EnhancedButton>
+              </button>
             </div>
           </form>
         </div>
+      </EnhancedModal>
+
+      {/* Edit Activity Modal */}
+      <EnhancedModal
+        isOpen={isEditActivityModalOpen}
+        onClose={() => {
+          setIsEditActivityModalOpen(false);
+          setSelectedActivity(null);
+          setFormErrors({});
+        }}
+        title="Edit Activity"
+        size="lg"
+      >
+        {selectedActivity && (
+          <div className="space-y-6">
+            <p className="text-gray-600">
+              Update activity details. All fields marked with * are required.
+            </p>
+            
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              if (selectedActivity) {
+                // Validate form
+                const errors: Record<string, string> = {};
+                if (!activityForm.name.trim()) errors.name = 'Activity name is required';
+                if (!activityForm.assignee.trim()) errors.assignee = 'Assignee is required';
+                if (!activityForm.startDate) errors.startDate = 'Start date is required';
+                if (!activityForm.endDate) errors.endDate = 'End date is required';
+                if (new Date(activityForm.endDate) < new Date(activityForm.startDate)) {
+                  errors.endDate = 'End date must be after start date';
+                }
+
+                if (Object.keys(errors).length > 0) {
+                  setFormErrors(errors);
+                  return;
+                }
+
+                // Update activity
+                handleActivityUpdate(selectedActivity.id, {
+                  name: activityForm.name,
+                  type: activityForm.type,
+                  status: activityForm.status,
+                  start_date: new Date(activityForm.startDate),
+                  end_date: new Date(activityForm.endDate),
+                  assignee: activityForm.assignee
+                });
+
+                setIsEditActivityModalOpen(false);
+                setSelectedActivity(null);
+                setFormErrors({});
+                showToast('Activity updated successfully', 'success');
+              }
+            }} className="space-y-4">
+              {/* Activity Name */}
+              <div>
+                <label htmlFor="edit-activity-name" className="block text-sm font-medium text-gray-700 mb-2">
+                  Activity Name *
+                </label>
+                <input
+                  id="edit-activity-name"
+                  type="text"
+                  value={activityForm.name}
+                  onChange={(e) => setActivityForm({ ...activityForm, name: e.target.value })}
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                    formErrors.name ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                  placeholder="Enter activity name"
+                />
+                {formErrors.name && (
+                  <p className="mt-1 text-sm text-red-600">{formErrors.name}</p>
+                )}
+              </div>
+
+              {/* Activity Type */}
+              <div>
+                <label htmlFor="edit-activity-type" className="block text-sm font-medium text-gray-700 mb-2">
+                  Activity Type *
+                </label>
+                <select
+                  id="edit-activity-type"
+                  value={activityForm.type}
+                  onChange={(e) => setActivityForm({ ...activityForm, type: e.target.value as Activity['type'] })}
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                    formErrors.type ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                >
+                  <option value="custom">Custom Activity</option>
+                  <option value="migration">Migration</option>
+                  <option value="lifecycle">Lifecycle Planning</option>
+                  <option value="hardware_customization">Hardware Customization</option>
+                  <option value="commissioning">Commissioning</option>
+                  <option value="decommission">Decommissioning</option>
+                </select>
+                {formErrors.type && (
+                  <p className="mt-1 text-sm text-red-600">{formErrors.type}</p>
+                )}
+              </div>
+
+              {/* Date Range */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="edit-start-date" className="block text-sm font-medium text-gray-700 mb-2">
+                    Start Date *
+                  </label>
+                  <input
+                    id="edit-start-date"
+                    type="date"
+                    value={activityForm.startDate}
+                    onChange={(e) => setActivityForm({ ...activityForm, startDate: e.target.value })}
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                      formErrors.startDate ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                  />
+                  {formErrors.startDate && (
+                    <p className="mt-1 text-sm text-red-600">{formErrors.startDate}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label htmlFor="edit-end-date" className="block text-sm font-medium text-gray-700 mb-2">
+                    End Date *
+                  </label>
+                  <input
+                    id="edit-end-date"
+                    type="date"
+                    value={activityForm.endDate}
+                    onChange={(e) => setActivityForm({ ...activityForm, endDate: e.target.value })}
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                      formErrors.endDate ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                  />
+                  {formErrors.endDate && (
+                    <p className="mt-1 text-sm text-red-600">{formErrors.endDate}</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Assignee */}
+              <div>
+                <label htmlFor="edit-assignee" className="block text-sm font-medium text-gray-700 mb-2">
+                  Assignee (Email) *
+                </label>
+                <input
+                  id="edit-assignee"
+                  type="email"
+                  value={activityForm.assignee}
+                  onChange={(e) => setActivityForm({ ...activityForm, assignee: e.target.value })}
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                    formErrors.assignee ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                  placeholder="assignee@example.com"
+                />
+                {formErrors.assignee && (
+                  <p className="mt-1 text-sm text-red-600">{formErrors.assignee}</p>
+                )}
+              </div>
+
+              {/* Status and Priority */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="edit-status" className="block text-sm font-medium text-gray-700 mb-2">
+                    Status
+                  </label>
+                  <select
+                    id="edit-status"
+                    value={activityForm.status}
+                    onChange={(e) => setActivityForm({ ...activityForm, status: e.target.value as Activity['status'] })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  >
+                    <option value="pending">Pending</option>
+                    <option value="in_progress">In Progress</option>
+                    <option value="completed">Completed</option>
+                    <option value="blocked">Blocked</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label htmlFor="edit-priority" className="block text-sm font-medium text-gray-700 mb-2">
+                    Priority
+                  </label>
+                  <select
+                    id="edit-priority"
+                    value={activityForm.priority}
+                    onChange={(e) => setActivityForm({ ...activityForm, priority: e.target.value as any })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  >
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Description */}
+              <div>
+                <label htmlFor="edit-description" className="block text-sm font-medium text-gray-700 mb-2">
+                  Description (Optional)
+                </label>
+                <textarea
+                  id="edit-description"
+                  value={activityForm.description}
+                  onChange={(e) => setActivityForm({ ...activityForm, description: e.target.value })}
+                  rows={3}
+                  maxLength={500}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  placeholder="Add any additional details..."
+                />
+                <p className="mt-1 text-xs text-gray-500">
+                  {activityForm.description.length}/500 characters
+                </p>
+              </div>
+
+              {/* Form Actions */}
+              <div className="flex items-center justify-end space-x-3 pt-4 border-t">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsEditActivityModalOpen(false);
+                    setSelectedActivity(null);
+                    setFormErrors({});
+                  }}
+                  disabled={isSubmitting}
+                  style={DesignTokens.components.button.secondary}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  style={{
+                    ...DesignTokens.components.button.primary,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isSubmitting) {
+                      const target = e.currentTarget as HTMLElement;
+                      target.style.transform = 'translateY(-3px) scale(1.05)';
+                      target.style.background = 'linear-gradient(135deg, #7c3aed 0%, #9333ea 100%)';
+                      target.style.boxShadow = '0 12px 24px rgba(99, 102, 241, 0.4), 0 6px 16px rgba(0, 0, 0, 0.2)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    const target = e.currentTarget as HTMLElement;
+                    target.style.transform = 'translateY(0) scale(1)';
+                    target.style.background = 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)';
+                    target.style.boxShadow = '0 2px 8px rgba(99, 102, 241, 0.25)';
+                  }}
+                >
+                  {isSubmitting ? 'Updating...' : 'Update Activity'}
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
       </EnhancedModal>
     </div>
   );

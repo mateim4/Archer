@@ -11,6 +11,8 @@
   --lcm-primary-light: rgba(139, 92, 246, 0.1);
   --lcm-primary-border: rgba(139, 92, 246, 0.2);
   --lcm-primary-hover: rgba(139, 92, 246, 0.4);
+  --lcm-primary-focus-soft: rgba(139, 92, 246, 0.25);
+  --lcm-primary-focus-strong: rgba(139, 92, 246, 0.35);
   
   /* Standard Backgrounds */
   --lcm-bg-card: rgba(255, 255, 255, 0.85);
@@ -1188,6 +1190,66 @@ input[type="number"] {
   background: linear-gradient(90deg, #a855f7 0%, #ec4899 100%);
   border-radius: 2px;
   box-shadow: 0 2px 8px rgba(168, 85, 247, 0.6);
+}
+
+/* ===================
+   PILL TAB GROUP (Document Templates styling)
+   =================== */
+
+.lcm-pill-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--lcm-spacing-sm);
+  margin: var(--lcm-spacing-lg) 0;
+}
+
+.lcm-pill-tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--lcm-spacing-xs);
+  padding: var(--lcm-spacing-sm) var(--lcm-spacing-xxl);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background: transparent;
+  color: var(--lcm-text-muted);
+  font-family: var(--fluent-font-family-base);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease, box-shadow 0.3s ease;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+}
+
+.lcm-pill-tab:hover {
+  background: var(--lcm-primary-light);
+  border-color: var(--lcm-primary-border);
+  color: var(--lcm-primary);
+}
+
+.lcm-pill-tab-active {
+  background: var(--lcm-primary-light);
+  border-color: var(--lcm-primary);
+  color: var(--lcm-primary);
+  box-shadow: 0 10px 30px -12px var(--lcm-primary-hover);
+}
+
+.lcm-pill-tab-inactive {
+  border-color: transparent;
+}
+
+.lcm-pill-tab:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--lcm-primary-focus-soft);
+}
+
+.lcm-pill-tab-active:focus-visible {
+  box-shadow: 0 0 0 3px var(--lcm-primary-focus-strong);
+}
+
+.lcm-pill-tab-label {
+  text-transform: capitalize;
 }
 
 /* ===================

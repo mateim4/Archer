@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Title2,
   Title3,
@@ -9,10 +9,6 @@ import {
   Button,
   Badge,
   Divider,
-  Tab,
-  TabList,
-  SelectTabData,
-  SelectTabEvent,
   Input,
   Dialog,
   DialogTrigger,
@@ -63,8 +59,20 @@ interface DocumentTemplate {
   sections?: any[]; // Template sections from backend
 }
 
+type TemplateTabKey = 'all' | DocumentTemplate['category'];
+
+const TEMPLATE_TABS: Array<{ id: TemplateTabKey; label: string }> = [
+  { id: 'all', label: 'All Templates' },
+  { id: 'hld', label: 'HLD' },
+  { id: 'lld', label: 'LLD' },
+  { id: 'bom', label: 'BOM' },
+  { id: 'proposal', label: 'Proposal' },
+  { id: 'assessment', label: 'Assessment' },
+  { id: 'other', label: 'Other' }
+];
+
 const DocumentTemplatesView: React.FC = () => {
-  const [selectedTab, setSelectedTab] = useState<string>('all');
+  const [selectedTab, setSelectedTab] = useState<TemplateTabKey>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   
   // Modal states
@@ -84,6 +92,25 @@ const DocumentTemplatesView: React.FC = () => {
 
   const [templates, setTemplates] = useState<DocumentTemplate[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const templateTabCounts = useMemo<Record<TemplateTabKey, number>>(() => {
+    const counts: Record<TemplateTabKey, number> = {
+      all: 0,
+      hld: 0,
+      lld: 0,
+      bom: 0,
+      proposal: 0,
+      assessment: 0,
+      other: 0
+    };
+
+    templates.forEach((template) => {
+      counts[template.category] += 1;
+    });
+
+    counts.all = templates.length;
+    return counts;
+  }, [templates]);
   
   useEffect(() => {
     loadRealTemplates();
@@ -189,10 +216,6 @@ const DocumentTemplatesView: React.FC = () => {
       variables: ['SOURCE_ENVIRONMENT', 'TARGET_ENVIRONMENT']
     }
   ];
-
-  const handleTabChange = (_event: SelectTabEvent, data: SelectTabData) => {
-    setSelectedTab(data.value as string);
-  };
 
   const getCategoryColor = (category: string) => {
     switch (category) {
@@ -414,37 +437,25 @@ const DocumentTemplatesView: React.FC = () => {
         cursor: 'default'
       }}>
         <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
-          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-            {['all', 'hld', 'lld', 'bom', 'proposal', 'assessment', 'other'].map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setSelectedTab(tab)}
-                style={{
-                  padding: '8px 16px',
-                  borderRadius: '20px',
-                  border: selectedTab === tab ? '2px solid #6366f1' : '2px solid transparent',
-                  background: selectedTab === tab ? 'rgba(99, 102, 241, 0.1)' : 'transparent',
-                  color: selectedTab === tab ? '#6366f1' : '#64748b',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  fontFamily: 'Montserrat, sans-serif'
-                }}
-                onMouseOver={(e) => {
-                  if (selectedTab !== tab) {
-                    e.currentTarget.style.background = 'rgba(99, 102, 241, 0.05)';
-                  }
-                }}
-                onMouseOut={(e) => {
-                  if (selectedTab !== tab) {
-                    e.currentTarget.style.background = 'transparent';
-                  }
-                }}
-              >
-                {tab === 'all' ? 'All Templates' : tab.toUpperCase()}
-              </button>
-            ))}
+          <div className="lcm-pill-tabs" role="tablist" aria-label="Template categories" style={{ margin: 0 }}>
+            {TEMPLATE_TABS.map((tab) => {
+              const isActive = selectedTab === tab.id;
+              const count = templateTabCounts[tab.id];
+              const label = count > 0 ? `${tab.label} (${count})` : tab.label;
+
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setSelectedTab(tab.id)}
+                  className={`lcm-pill-tab ${isActive ? 'lcm-pill-tab-active' : 'lcm-pill-tab-inactive'}`}
+                  aria-selected={isActive}
+                  role="tab"
+                >
+                  <span className="lcm-pill-tab-label">{label}</span>
+                </button>
+              );
+            })}
           </div>
           
           <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>

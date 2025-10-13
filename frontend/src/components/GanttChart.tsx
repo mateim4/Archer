@@ -15,6 +15,7 @@ import {
   WrenchRegular,
   TaskListAddRegular
 } from '@fluentui/react-icons';
+import { DesignTokens } from '../styles/designSystem';
 
 interface Activity {
   id: string;
@@ -204,20 +205,24 @@ const GanttChart: React.FC<GanttChartProps> = ({
           </div>
           {!readonly && (
             <button
-              className="lcm-button"
               onClick={() => setShowAddModal(true)}
               style={{
+                ...DesignTokens.components.button.primary,
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px',
-                padding: '10px 16px',
-                background: 'linear-gradient(135deg, var(--lcm-primary), #a855f7)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '14px',
-                fontWeight: '500',
-                cursor: 'pointer'
+                gap: '8px'
+              }}
+              onMouseEnter={(e) => {
+                const target = e.currentTarget as HTMLElement;
+                target.style.transform = 'translateY(-3px) scale(1.05)';
+                target.style.background = 'linear-gradient(135deg, #7c3aed 0%, #9333ea 100%)';
+                target.style.boxShadow = '0 12px 24px rgba(99, 102, 241, 0.4), 0 6px 16px rgba(0, 0, 0, 0.2)';
+              }}
+              onMouseLeave={(e) => {
+                const target = e.currentTarget as HTMLElement;
+                target.style.transform = 'translateY(0) scale(1)';
+                target.style.background = 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)';
+                target.style.boxShadow = '0 2px 8px rgba(99, 102, 241, 0.25)';
               }}
             >
               <AddRegular style={{ fontSize: '16px' }} />
@@ -279,20 +284,24 @@ const GanttChart: React.FC<GanttChartProps> = ({
             <p style={{ margin: '0 0 24px 0', fontSize: '14px' }}>Add your first activity to start planning your project timeline</p>
             {!readonly && (
               <button
-                className="lcm-button"
                 onClick={() => setShowAddModal(true)}
                 style={{
+                  ...DesignTokens.components.button.primary,
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '8px',
-                  padding: '12px 20px',
-                  background: 'linear-gradient(135deg, var(--lcm-primary), #a855f7)',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  cursor: 'pointer'
+                  gap: '8px'
+                }}
+                onMouseEnter={(e) => {
+                  const target = e.currentTarget as HTMLElement;
+                  target.style.transform = 'translateY(-3px) scale(1.05)';
+                  target.style.background = 'linear-gradient(135deg, #7c3aed 0%, #9333ea 100%)';
+                  target.style.boxShadow = '0 12px 24px rgba(99, 102, 241, 0.4), 0 6px 16px rgba(0, 0, 0, 0.2)';
+                }}
+                onMouseLeave={(e) => {
+                  const target = e.currentTarget as HTMLElement;
+                  target.style.transform = 'translateY(0) scale(1)';
+                  target.style.background = 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)';
+                  target.style.boxShadow = '0 2px 8px rgba(99, 102, 241, 0.25)';
                 }}
               >
                 <AddRegular style={{ fontSize: '16px' }} />
@@ -306,6 +315,9 @@ const GanttChart: React.FC<GanttChartProps> = ({
               const activity = activities.find(a => a.id === bar.id)!;
               const rowHeight = 64;
               const topOffset = 20 + (bar.y * (rowHeight + 12));
+              const isCompact = bar.width < 18; // percent of track width
+              const isTiny = bar.width < 10;
+              const contentPadding = isCompact ? '8px 12px' : '12px 16px';
 
               return (
                 <div key={bar.id}>
@@ -315,7 +327,7 @@ const GanttChart: React.FC<GanttChartProps> = ({
                       position: 'absolute',
                       left: `${bar.x}%`,
                       top: `${topOffset}px`,
-                      width: `${bar.width}%`,
+                      width: `${Math.max(bar.width, 2)}%`,
                       height: `${rowHeight}px`,
                       background: `linear-gradient(135deg, ${getStatusColor(activity.status)}15, ${getStatusColor(activity.status)}25)`,
                       border: `2px solid ${getStatusColor(activity.status)}`,
@@ -323,8 +335,11 @@ const GanttChart: React.FC<GanttChartProps> = ({
                       cursor: 'pointer',
                       transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                       zIndex: selectedActivity === bar.id ? 10 : 1,
-                      boxShadow: selectedActivity === bar.id ? `0 8px 32px ${getStatusColor(activity.status)}40` : 'none'
+                      boxShadow: selectedActivity === bar.id ? `0 8px 32px ${getStatusColor(activity.status)}40` : 'none',
+                      overflow: 'hidden',
+                      boxSizing: 'border-box'
                     }}
+                    title={`${activity.name} • ${activity.assignee || 'Unassigned'} • ${activity.progress}% complete`}
                     onClick={() => {
                       if (onActivityClick) {
                         onActivityClick(bar.id);
@@ -360,10 +375,11 @@ const GanttChart: React.FC<GanttChartProps> = ({
                       left: 0,
                       right: 0,
                       bottom: 0,
-                      padding: '12px 16px',
+                      padding: contentPadding,
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '12px'
+                      gap: isCompact ? '8px' : '12px',
+                      width: '100%'
                     }}>
                       <div style={{ 
                         fontSize: '20px', 
@@ -373,38 +389,44 @@ const GanttChart: React.FC<GanttChartProps> = ({
                         {getActivityTypeIcon(activity.type)}
                       </div>
                       
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ 
-                          fontSize: '15px', 
-                          fontWeight: '600', 
-                          color: 'var(--lcm-text-primary)',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
-                          marginBottom: '4px'
-                        }}>
-                          {activity.name}
-                        </div>
-                        <div style={{ 
-                          fontSize: '12px', 
-                          color: 'var(--lcm-text-muted)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '12px'
-                        }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                            <PersonRegular style={{ fontSize: '11px' }} />
-                            {activity.assignee || 'Unassigned'}
+                      {!isTiny && (
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ 
+                            fontSize: isCompact ? '13px' : '15px', 
+                            fontWeight: '600', 
+                            color: 'var(--lcm-text-primary)',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            marginBottom: isCompact ? 0 : '4px'
+                          }}>
+                            {activity.name}
                           </div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: getStatusColor(activity.status) }}>
-                            {getStatusIcon(activity.status)}
-                            <span style={{ textTransform: 'capitalize' }}>{activity.status.replace('_', ' ')}</span>
-                          </div>
+                          {!isCompact && (
+                            <div style={{ 
+                              fontSize: '12px', 
+                              color: 'var(--lcm-text-muted)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '12px'
+                            }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                <PersonRegular style={{ fontSize: '11px' }} />
+                                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                  {activity.assignee || 'Unassigned'}
+                                </span>
+                              </div>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: getStatusColor(activity.status) }}>
+                                {getStatusIcon(activity.status)}
+                                <span style={{ textTransform: 'capitalize' }}>{activity.status.replace('_', ' ')}</span>
+                              </div>
+                            </div>
+                          )}
                         </div>
-                      </div>
-                      
+                      )}
+
                       {/* Dependency Indicator */}
-                      {activity.dependencies.length > 0 && (
+                      {!isCompact && activity.dependencies.length > 0 && (
                         <div style={{
                           display: 'flex',
                           alignItems: 'center',
@@ -415,7 +437,8 @@ const GanttChart: React.FC<GanttChartProps> = ({
                           fontSize: '10px',
                           fontWeight: '600',
                           color: 'var(--lcm-primary)',
-                          flexShrink: 0
+                          flexShrink: 0,
+                          whiteSpace: 'nowrap'
                         }}>
                           <LinkRegular style={{ fontSize: '10px' }} />
                           {activity.dependencies.length}

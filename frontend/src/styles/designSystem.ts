@@ -179,7 +179,7 @@ export const DesignTokens = {
         fontWeight: '600',
         fontSize: '14px',
         fontFamily: "'Poppins', system-ui, sans-serif",
-        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+        transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
         boxShadow: '0 2px 8px rgba(99, 102, 241, 0.25)',
         cursor: 'pointer',
         display: 'inline-flex',
@@ -190,6 +190,11 @@ export const DesignTokens = {
         minWidth: '80px',
         whiteSpace: 'nowrap',
         textAlign: 'center' as const,
+      },
+      primaryHover: {
+        transform: 'translateY(-3px) scale(1.05)',
+        background: 'linear-gradient(135deg, #7c3aed 0%, #9333ea 100%)',
+        boxShadow: '0 12px 24px rgba(99, 102, 241, 0.4), 0 6px 16px rgba(0, 0, 0, 0.2)',
       },
       secondary: {
         background: 'rgba(255, 255, 255, 0.9)',
