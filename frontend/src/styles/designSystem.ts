@@ -268,6 +268,64 @@ export const DesignTokens = {
       },
     },
     
+    // Toggle Slider - Standard Configuration
+    // Used for Timeline/List view toggles and similar binary switches
+    slider: {
+      // Container
+      container: {
+        position: 'relative' as const,
+        display: 'flex',
+        alignItems: 'center',
+        borderRadius: '9999px',
+        padding: '4px',
+        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.6) 0%, rgba(139, 92, 246, 0.08) 100%)',
+        backdropFilter: 'blur(20px)',
+        border: '1px solid rgba(99, 102, 241, 0.12)',
+        boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.04)',
+        width: '220px',
+        height: '42px',
+      },
+      // Animated Thumb (slides left/right)
+      thumb: {
+        position: 'absolute' as const,
+        top: '4px',
+        width: 'calc(50% - 6px)',
+        height: 'calc(100% - 8px)',
+        background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+        borderRadius: '9999px',
+        boxShadow: '0 4px 12px rgba(99, 102, 241, 0.2)',
+        transition: 'all 0.24s cubic-bezier(0.4, 0, 0.2, 1)',
+        zIndex: 0,
+      },
+      // Button Base (left and right options)
+      button: {
+        position: 'relative' as const,
+        zIndex: 10,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flex: 1,
+        padding: '4px 12px',
+        borderRadius: '9999px',
+        fontSize: '14px',
+        fontWeight: '600',
+        fontFamily: "'Poppins', sans-serif",
+        background: 'none',
+        border: 'none',
+        outline: 'none',
+        cursor: 'pointer',
+        transition: 'color 0.24s ease',
+      },
+      // Active Button State (white text when selected)
+      buttonActive: {
+        color: '#ffffff',
+      },
+      // Inactive Button State (gray text when not selected)
+      buttonInactive: {
+        color: '#6b7280',
+      },
+    },
+    
     // Input Fields
     input: {
       background: 'rgba(255, 255, 255, 0.9)',

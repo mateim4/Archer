@@ -644,7 +644,7 @@ const ProjectWorkspaceView: React.FC = () => {
         <div className="p-6" style={{ minHeight: '400px' }}>
           {activeTab === 'timeline' && (
             <div className="space-y-6" style={{ display: 'block' }}>
-              {/* Section Header with View Toggle */}
+              {/* Section Header (View Toggle moved to footer next to Add Activity button) */}
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <h2 className="text-xl font-semibold text-gray-900 mb-2">Project Timeline</h2>
@@ -653,78 +653,6 @@ const ProjectWorkspaceView: React.FC = () => {
                       ? 'Interactive Gantt chart showing all project activities, dependencies, and progress. Click on any activity bar to edit details.'
                       : 'List view of all activities with detailed information. Click edit button to modify activity details.'}
                   </p>
-                </div>
-                
-                {/* View Toggle Slider */}
-                <div className="flex items-center gap-4 flex-shrink-0">
-                  {/* Proper iOS-style Slider Toggle */}
-                  <div 
-                    className="relative flex items-center rounded-full p-1"
-                    style={{
-                      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.6) 0%, rgba(139, 92, 246, 0.1) 100%)',
-                      backdropFilter: 'blur(20px)',
-                      border: '1px solid rgba(99, 102, 241, 0.2)',
-                      boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.06), 0 2px 8px rgba(0, 0, 0, 0.05)',
-                      width: '280px',
-                      height: '42px'
-                    }}
-                  >
-                    {/* Sliding Background Indicator */}
-                    <div
-                      style={{
-                        position: 'absolute',
-                        top: '4px',
-                        left: timelineView === 'timeline' ? '4px' : 'calc(50% + 2px)',
-                        width: 'calc(50% - 6px)',
-                        height: 'calc(100% - 8px)',
-                        background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-                        borderRadius: '9999px',
-                        boxShadow: '0 4px 12px rgba(99, 102, 241, 0.4), 0 2px 4px rgba(0, 0, 0, 0.1)',
-                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                        zIndex: 0
-                      }}
-                    />
-                    
-                    {/* Timeline Button */}
-                    <button
-                      onClick={() => setTimelineView('timeline')}
-                      className="relative z-10 flex items-center justify-center px-4 py-2 rounded-full text-sm font-semibold transition-all"
-                      style={{
-                        flex: 1,
-                        color: timelineView === 'timeline' ? '#ffffff' : '#6b7280',
-                        fontFamily: "'Poppins', sans-serif",
-                        fontWeight: '600',
-                        transition: 'color 0.3s ease',
-                        background: 'none',
-                        border: 'none',
-                        outline: 'none',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      <BarChart3 className="w-4 h-4 mr-2" />
-                      Timeline
-                    </button>
-                    
-                    {/* List Button */}
-                    <button
-                      onClick={() => setTimelineView('list')}
-                      className="relative z-10 flex items-center justify-center px-4 py-2 rounded-full text-sm font-semibold transition-all"
-                      style={{
-                        flex: 1,
-                        color: timelineView === 'list' ? '#ffffff' : '#6b7280',
-                        fontFamily: "'Poppins', sans-serif",
-                        fontWeight: '600',
-                        transition: 'color 0.3s ease',
-                        background: 'none',
-                        border: 'none',
-                        outline: 'none',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      <Activity className="w-4 h-4 mr-2" />
-                      List
-                    </button>
-                  </div>
                 </div>
               </div>
 
@@ -908,13 +836,8 @@ const ProjectWorkspaceView: React.FC = () => {
                           }
                         }}
                       />
-                      {/* Add Activity + Slider Row for Timeline (non-empty) */}
-                      <div className="flex items-center justify-end gap-4 p-4 border-t bg-white">
-                        <ViewToggleSlider
-                          value={timelineView}
-                          onChange={setTimelineView}
-                        />
-
+                      {/* Add Activity Button for Timeline (non-empty) */}
+                      <div className="flex items-center justify-end p-4 border-t bg-white">
                         <button
                           onClick={() => setIsCreateActivityModalOpen(true)}
                           className="flex items-center space-x-2"
@@ -941,23 +864,16 @@ const ProjectWorkspaceView: React.FC = () => {
                           Clear Filters
                         </EnhancedButton>
                       ) : (
-                        <div className="flex items-center justify-center gap-4">
-                          <ViewToggleSlider
-                            value={timelineView}
-                            onChange={setTimelineView}
-                          />
-
-                          <button
-                            onClick={() => setIsCreateActivityModalOpen(true)}
-                            className="flex items-center space-x-2"
-                            style={{
-                              ...DesignTokens.components.button.primary
-                            }}
-                          >
-                            <Plus className="w-4 h-4" />
-                            <span>Create First Activity</span>
-                          </button>
-                        </div>
+                        <button
+                          onClick={() => setIsCreateActivityModalOpen(true)}
+                          className="flex items-center space-x-2"
+                          style={{
+                            ...DesignTokens.components.button.primary
+                          }}
+                        >
+                          <Plus className="w-4 h-4" />
+                          <span>Create First Activity</span>
+                        </button>
                       )}
                     </div>
                   )}
@@ -1001,35 +917,28 @@ const ProjectWorkspaceView: React.FC = () => {
                           Clear Filters
                         </EnhancedButton>
                       ) : (
-                        <div className="flex items-center justify-center gap-4">
-                          <ViewToggleSlider
-                            value={timelineView}
-                            onChange={setTimelineView}
-                          />
-
-                          <button
-                            onClick={() => setIsCreateActivityModalOpen(true)}
-                            className="flex items-center space-x-2"
-                            style={{
-                              ...DesignTokens.components.button.primary
-                            }}
-                            onMouseEnter={(e) => {
-                              const target = e.currentTarget as HTMLElement;
-                              target.style.transform = 'translateY(-3px) scale(1.05)';
-                              target.style.background = 'linear-gradient(135deg, #7c3aed 0%, #9333ea 100%)';
-                              target.style.boxShadow = '0 12px 24px rgba(99, 102, 241, 0.4), 0 6px 16px rgba(0, 0, 0, 0.2)';
-                            }}
-                            onMouseLeave={(e) => {
-                              const target = e.currentTarget as HTMLElement;
-                              target.style.transform = 'translateY(0) scale(1)';
-                              target.style.background = 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)';
-                              target.style.boxShadow = '0 2px 8px rgba(99, 102, 241, 0.25)';
-                            }}
-                          >
-                            <Plus className="w-4 h-4" />
-                            <span>Create First Activity</span>
-                          </button>
-                        </div>
+                        <button
+                          onClick={() => setIsCreateActivityModalOpen(true)}
+                          className="flex items-center space-x-2"
+                          style={{
+                            ...DesignTokens.components.button.primary
+                          }}
+                          onMouseEnter={(e) => {
+                            const target = e.currentTarget as HTMLElement;
+                            target.style.transform = 'translateY(-3px) scale(1.05)';
+                            target.style.background = 'linear-gradient(135deg, #7c3aed 0%, #9333ea 100%)';
+                            target.style.boxShadow = '0 12px 24px rgba(99, 102, 241, 0.4), 0 6px 16px rgba(0, 0, 0, 0.2)';
+                          }}
+                          onMouseLeave={(e) => {
+                            const target = e.currentTarget as HTMLElement;
+                            target.style.transform = 'translateY(0) scale(1)';
+                            target.style.background = 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)';
+                            target.style.boxShadow = '0 2px 8px rgba(99, 102, 241, 0.25)';
+                          }}
+                        >
+                          <Plus className="w-4 h-4" />
+                          <span>Create First Activity</span>
+                        </button>
                       )}
                     </div>
                   ) : (
@@ -1145,36 +1054,29 @@ const ProjectWorkspaceView: React.FC = () => {
                   
                   {/* Add Activity Button for List View */}
                   {filteredAndSortedActivities.length > 0 && (
-                    <div className="flex justify-center pt-4">
-                      <div className="flex items-center gap-4">
-                        <ViewToggleSlider
-                          value={timelineView}
-                          onChange={setTimelineView}
-                        />
-
-                        <button
-                          onClick={() => setIsCreateActivityModalOpen(true)}
-                          className="flex items-center space-x-2"
-                          style={{
-                            ...DesignTokens.components.button.primary
-                          }}
-                          onMouseEnter={(e) => {
-                            const target = e.currentTarget as HTMLElement;
-                            target.style.transform = 'translateY(-3px) scale(1.05)';
-                            target.style.background = 'linear-gradient(135deg, #7c3aed 0%, #9333ea 100%)';
-                            target.style.boxShadow = '0 12px 24px rgba(99, 102, 241, 0.4), 0 6px 16px rgba(0, 0, 0, 0.2)';
-                          }}
-                          onMouseLeave={(e) => {
-                            const target = e.currentTarget as HTMLElement;
-                            target.style.transform = 'translateY(0) scale(1)';
-                            target.style.background = 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)';
-                            target.style.boxShadow = '0 2px 8px rgba(99, 102, 241, 0.25)';
-                          }}
-                        >
-                          <Plus className="w-4 h-4" />
-                          <span>Add Activity</span>
-                        </button>
-                      </div>
+                    <div className="flex justify-end pt-4">
+                      <button
+                        onClick={() => setIsCreateActivityModalOpen(true)}
+                        className="flex items-center space-x-2"
+                        style={{
+                          ...DesignTokens.components.button.primary
+                        }}
+                        onMouseEnter={(e) => {
+                          const target = e.currentTarget as HTMLElement;
+                          target.style.transform = 'translateY(-3px) scale(1.05)';
+                          target.style.background = 'linear-gradient(135deg, #7c3aed 0%, #9333ea 100%)';
+                          target.style.boxShadow = '0 12px 24px rgba(99, 102, 241, 0.4), 0 6px 16px rgba(0, 0, 0, 0.2)';
+                        }}
+                        onMouseLeave={(e) => {
+                          const target = e.currentTarget as HTMLElement;
+                          target.style.transform = 'translateY(0) scale(1)';
+                          target.style.background = 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)';
+                          target.style.boxShadow = '0 2px 8px rgba(99, 102, 241, 0.25)';
+                        }}
+                      >
+                        <Plus className="w-4 h-4" />
+                        <span>Add Activity</span>
+                      </button>
                     </div>
                   )}
                 </div>
