@@ -871,25 +871,7 @@ const ProjectWorkspaceView: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Timeline Legend */}
-                  <div className="flex items-center justify-center gap-6 text-sm text-gray-600 pt-4 border-t border-gray-200">
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 bg-green-500 rounded"></div>
-                      <span>Completed</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 bg-orange-500 rounded"></div>
-                      <span>In Progress</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 bg-gray-400 rounded"></div>
-                      <span>Pending</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 bg-red-500 rounded"></div>
-                      <span>Blocked</span>
-                    </div>
-                  </div>
+                  {/* Timeline Legend removed per request */}
                 </>
               )}
 
