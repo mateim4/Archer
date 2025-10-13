@@ -60,6 +60,7 @@ const ProjectWorkspaceView: React.FC = () => {
   const [sortBy, setSortBy] = useState<'date' | 'name' | 'completion'>('date');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [showFilters, setShowFilters] = useState(false);
+  const [searchQuery, setSearchQuery] = useState<string>('');
   
   // Activity form state
   const [activityForm, setActivityForm] = useState({
@@ -425,9 +426,31 @@ const ProjectWorkspaceView: React.FC = () => {
     return Array.from(assignees).sort();
   }, [activities]);
 
+  // Helper function to get status color matching Gantt chart
+  const getStatusColor = (status: Activity['status']) => {
+    const colors = {
+      pending: '#9ca3af',      // gray-400
+      in_progress: '#3b82f6',  // blue-500
+      completed: '#10b981',    // green-500
+      blocked: '#ef4444'       // red-500
+    };
+    return colors[status];
+  };
+
   // Filter and sort activities
   const filteredAndSortedActivities = useMemo(() => {
     let filtered = [...activities];
+
+    // Apply search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(a => 
+        a.name.toLowerCase().includes(query) ||
+        a.assignee.toLowerCase().includes(query) ||
+        (a.assignees && a.assignees.some(assignee => assignee.toLowerCase().includes(query))) ||
+        a.type.toLowerCase().includes(query)
+      );
+    }
 
     // Apply status filter
     if (filterStatus !== 'all') {
@@ -459,10 +482,10 @@ const ProjectWorkspaceView: React.FC = () => {
     });
 
     return filtered;
-  }, [activities, filterStatus, filterAssignee, sortBy, sortOrder]);
+  }, [activities, searchQuery, filterStatus, filterAssignee, sortBy, sortOrder]);
 
   // Check if any filters are active
-  const hasActiveFilters = filterStatus !== 'all' || filterAssignee !== 'all';
+  const hasActiveFilters = filterStatus !== 'all' || filterAssignee !== 'all' || searchQuery.trim() !== '';
 
   // Reset all filters
   const resetFilters = () => {
@@ -470,6 +493,7 @@ const ProjectWorkspaceView: React.FC = () => {
     setFilterAssignee('all');
     setSortBy('date');
     setSortOrder('asc');
+    setSearchQuery('');
   };
 
   if (isLoading && !project) {
@@ -609,177 +633,6 @@ const ProjectWorkspaceView: React.FC = () => {
           </div>
         </div>
 
-        {/* Filtering and Sorting Controls */}
-        <div className="px-6 mb-8">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 py-4 border-y border-white/40">
-            {/* Left side: Filter toggle and active filters */}
-            <div className="flex items-center space-x-4">
-            <EnhancedButton
-              variant={showFilters ? 'primary' : 'secondary'}
-              onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center space-x-2"
-            >
-              <Filter className="w-4 h-4" />
-              <span>Filters & Sorting</span>
-              {hasActiveFilters && (
-                <span className="ml-1 px-2 py-0.5 bg-purple-600 text-white text-xs rounded-full">
-                  Active
-                </span>
-              )}
-            </EnhancedButton>
-
-            {hasActiveFilters && (
-              <EnhancedButton
-                variant="ghost"
-                onClick={resetFilters}
-                className="flex items-center space-x-1 text-gray-600 hover:text-gray-900"
-              >
-                <X className="w-4 h-4" />
-                <span className="text-sm">Clear Filters</span>
-              </EnhancedButton>
-            )}
-
-            <div className="text-sm text-gray-600">
-              Showing <span className="font-semibold text-purple-600">{filteredAndSortedActivities.length}</span> of {activities.length} activities
-            </div>
-          </div>
-
-            {/* Right side: Quick stats */}
-            <div className="flex items-center space-x-6 text-sm text-gray-600">
-              <div className="flex items-center gap-2">
-                <span className="inline-flex h-2 w-2 rounded-full bg-green-500" />
-                <span>Completed: {activities.filter(a => a.status === 'completed').length}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="inline-flex h-2 w-2 rounded-full bg-orange-500" />
-                <span>In Progress: {activities.filter(a => a.status === 'in_progress').length}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="inline-flex h-2 w-2 rounded-full bg-gray-400" />
-                <span>Pending: {activities.filter(a => a.status === 'pending').length}</span>
-              </div>
-          </div>
-        </div>
-
-        {/* Expandable Filter Panel */}
-        {showFilters && (
-            <div className="mt-6 pt-6 border-t border-white/30">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {/* Status Filter */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Filter by Status
-                </label>
-                <select
-                  value={filterStatus}
-                  onChange={(e) => setFilterStatus(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                >
-                  <option value="all">All Statuses</option>
-                  <option value="pending">Pending</option>
-                  <option value="in_progress">In Progress</option>
-                  <option value="completed">Completed</option>
-                  <option value="blocked">Blocked</option>
-                </select>
-              </div>
-
-              {/* Assignee Filter */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Filter by Assignee
-                </label>
-                <select
-                  value={filterAssignee}
-                  onChange={(e) => setFilterAssignee(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                >
-                  <option value="all">All Assignees</option>
-                  {uniqueAssignees.map(assignee => (
-                    <option key={assignee} value={assignee}>
-                      {assignee}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Sort By */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Sort By
-                </label>
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as 'date' | 'name' | 'completion')}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                >
-                  <option value="date">Start Date</option>
-                  <option value="name">Activity Name</option>
-                  <option value="completion">Completion %</option>
-                </select>
-              </div>
-
-              {/* Sort Order */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Sort Order
-                </label>
-                <div className="flex space-x-2">
-                  <button
-                    onClick={() => setSortOrder('asc')}
-                    className={`flex-1 px-3 py-2 rounded-lg border transition-all ${
-                      sortOrder === 'asc'
-                        ? 'bg-purple-600 text-white border-purple-600'
-                        : 'bg-white text-gray-700 border-gray-300 hover:border-purple-300'
-                    }`}
-                  >
-                    Ascending
-                  </button>
-                  <button
-                    onClick={() => setSortOrder('desc')}
-                    className={`flex-1 px-3 py-2 rounded-lg border transition-all ${
-                      sortOrder === 'desc'
-                        ? 'bg-purple-600 text-white border-purple-600'
-                        : 'bg-white text-gray-700 border-gray-300 hover:border-purple-300'
-                    }`}
-                  >
-                    Descending
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Active Filters Summary */}
-            {hasActiveFilters && (
-              <div className="mt-4 flex flex-wrap items-center gap-2">
-                <span className="text-sm font-medium text-gray-700">Active Filters:</span>
-                {filterStatus !== 'all' && (
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-purple-100 text-purple-800">
-                    Status: {filterStatus.replace('_', ' ')}
-                    <button
-                      onClick={() => setFilterStatus('all')}
-                      className="ml-2 hover:text-purple-900"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </span>
-                )}
-                {filterAssignee !== 'all' && (
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-indigo-100 text-indigo-800">
-                    Assignee: {filterAssignee}
-                    <button
-                      onClick={() => setFilterAssignee('all')}
-                      className="ml-2 hover:text-indigo-900"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </span>
-                )}
-              </div>
-            )}
-          </div>
-        )}
-        </div>
-
         {/* Tab Navigation - Document Templates pill styling */}
         <div className="lcm-pill-tabs" role="tablist" aria-label="Project workspace sections">
           {([
@@ -906,6 +759,174 @@ const ProjectWorkspaceView: React.FC = () => {
                     <span>Add Activity</span>
                   </button>
                 </div>
+              </div>
+
+              {/* Search, Filter & Sort Controls */}
+              <div 
+                className="p-4 rounded-lg border"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.6) 0%, rgba(139, 92, 246, 0.08) 100%)',
+                  backdropFilter: 'blur(20px)',
+                  borderColor: 'rgba(99, 102, 241, 0.2)',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)'
+                }}
+              >
+                {/* Search Bar */}
+                <div className="mb-4">
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder="Search activities by name, assignee, or type..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg text-sm"
+                      style={{
+                        fontFamily: "'Poppins', sans-serif",
+                        background: 'rgba(255, 255, 255, 0.9)',
+                        transition: 'all 0.2s ease'
+                      }}
+                      onFocus={(e) => {
+                        e.currentTarget.style.borderColor = '#6366f1';
+                        e.currentTarget.style.boxShadow = '0 0 0 3px rgba(99, 102, 241, 0.1)';
+                      }}
+                      onBlur={(e) => {
+                        e.currentTarget.style.borderColor = '#d1d5db';
+                        e.currentTarget.style.boxShadow = 'none';
+                      }}
+                    />
+                    <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    {searchQuery && (
+                      <button
+                        onClick={() => setSearchQuery('')}
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Filter & Sort Toggle Button */}
+                <div className="flex items-center justify-between">
+                  <button
+                    onClick={() => setShowFilters(!showFilters)}
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all"
+                    style={{
+                      background: showFilters ? 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)' : 'rgba(255, 255, 255, 0.9)',
+                      color: showFilters ? '#ffffff' : '#6b7280',
+                      border: showFilters ? 'none' : '1px solid rgba(209, 213, 219, 1)',
+                      fontFamily: "'Poppins', sans-serif",
+                      boxShadow: showFilters ? '0 2px 8px rgba(99, 102, 241, 0.25)' : 'none'
+                    }}
+                  >
+                    <SortAsc className="w-4 h-4" />
+                    <span>{showFilters ? 'Hide' : 'Show'} Advanced Filters</span>
+                  </button>
+
+                  {hasActiveFilters && (
+                    <button
+                      onClick={resetFilters}
+                      className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium text-purple-700 hover:bg-purple-50 transition-all"
+                    >
+                      <X className="w-4 h-4" />
+                      Clear All
+                    </button>
+                  )}
+                </div>
+
+                {/* Expandable Filter Panel */}
+                {showFilters && (
+                  <div className="mt-4 pt-4 border-t border-purple-100/50">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                      {/* Status Filter */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2" style={{ fontFamily: "'Poppins', sans-serif" }}>
+                          Status
+                        </label>
+                        <select
+                          value={filterStatus}
+                          onChange={(e) => setFilterStatus(e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                          style={{ fontFamily: "'Poppins', sans-serif" }}
+                        >
+                          <option value="all">All Statuses</option>
+                          <option value="pending">Pending</option>
+                          <option value="in_progress">In Progress</option>
+                          <option value="completed">Completed</option>
+                          <option value="blocked">Blocked</option>
+                        </select>
+                      </div>
+
+                      {/* Assignee Filter */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2" style={{ fontFamily: "'Poppins', sans-serif" }}>
+                          Assignee
+                        </label>
+                        <select
+                          value={filterAssignee}
+                          onChange={(e) => setFilterAssignee(e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                          style={{ fontFamily: "'Poppins', sans-serif" }}
+                        >
+                          <option value="all">All Assignees</option>
+                          {uniqueAssignees.map(assignee => (
+                            <option key={assignee} value={assignee}>
+                              {assignee}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* Sort By */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2" style={{ fontFamily: "'Poppins', sans-serif" }}>
+                          Sort By
+                        </label>
+                        <select
+                          value={sortBy}
+                          onChange={(e) => setSortBy(e.target.value as 'date' | 'name' | 'completion')}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                          style={{ fontFamily: "'Poppins', sans-serif" }}
+                        >
+                          <option value="date">Start Date</option>
+                          <option value="name">Activity Name</option>
+                          <option value="completion">Completion %</option>
+                        </select>
+                      </div>
+
+                      {/* Sort Order */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2" style={{ fontFamily: "'Poppins', sans-serif" }}>
+                          Order
+                        </label>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => setSortOrder('asc')}
+                            className={`flex-1 px-3 py-2 rounded-lg border text-sm font-medium transition-all ${
+                              sortOrder === 'asc'
+                                ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-transparent shadow-md'
+                                : 'bg-white text-gray-700 border-gray-300 hover:border-purple-300'
+                            }`}
+                            style={{ fontFamily: "'Poppins', sans-serif" }}
+                          >
+                            Asc
+                          </button>
+                          <button
+                            onClick={() => setSortOrder('desc')}
+                            className={`flex-1 px-3 py-2 rounded-lg border text-sm font-medium transition-all ${
+                              sortOrder === 'desc'
+                                ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-transparent shadow-md'
+                                : 'bg-white text-gray-700 border-gray-300 hover:border-purple-300'
+                            }`}
+                            style={{ fontFamily: "'Poppins', sans-serif" }}
+                          >
+                            Desc
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Timeline View */}
@@ -1114,8 +1135,11 @@ const ProjectWorkspaceView: React.FC = () => {
                               <div className="flex items-center gap-2">
                                 <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
                                   <div 
-                                    className="h-full bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full transition-all"
-                                    style={{ width: `${activity.progress}%` }}
+                                    className="h-full rounded-full transition-all"
+                                    style={{ 
+                                      width: `${activity.progress}%`,
+                                      background: `linear-gradient(135deg, ${getStatusColor(activity.status)}, ${getStatusColor(activity.status)}dd)`
+                                    }}
                                   />
                                 </div>
                                 <span className="text-xs font-medium text-gray-700">{activity.progress}%</span>
