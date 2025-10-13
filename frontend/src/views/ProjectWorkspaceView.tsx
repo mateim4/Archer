@@ -770,15 +770,7 @@ const ProjectWorkspaceView: React.FC = () => {
               </div>
 
               {/* Search, Filter & Sort Controls */}
-              <div 
-                className="p-4 rounded-lg border"
-                style={{
-                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.6) 0%, rgba(139, 92, 246, 0.08) 100%)',
-                  backdropFilter: 'blur(20px)',
-                  borderColor: 'rgba(99, 102, 241, 0.2)',
-                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)'
-                }}
-              >
+              <div className="pb-4 border-b border-gray-200">
                 {/* Search Bar */}
                 <div className="mb-4">
                   <div className="relative">
