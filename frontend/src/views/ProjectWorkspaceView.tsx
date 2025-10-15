@@ -21,7 +21,8 @@ import {
   ArrowSortRegular,
   DismissRegular,
   InfoRegular,
-  ArrowTrendingRegular
+  ArrowTrendingRegular,
+  FolderRegular
 } from '@fluentui/react-icons';
 import GanttChart from '../components/GanttChart';
 import GlassmorphicSearchBar from '../components/GlassmorphicSearchBar';
@@ -581,8 +582,23 @@ const ProjectWorkspaceView: React.FC = () => {
         <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border-b border-purple-200 pb-4 mb-6">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <div className="flex-1">
-              <div className="flex items-center space-x-3 mb-3">
-                <h1 className="text-3xl font-bold text-gray-900">{project.name}</h1>
+              <div className="flex items-center gap-3 mb-3">
+                <div style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center',
+                  color: '#8b5cf6',
+                  fontSize: '32px'
+                }}>
+                  <FolderRegular />
+                </div>
+                <h1 style={{
+                  fontSize: '30px',
+                  fontWeight: '700',
+                  color: '#8b5cf6',
+                  fontFamily: "'Poppins', sans-serif",
+                  margin: 0
+                }}>{project.name}</h1>
               </div>
               <p className="text-gray-600 text-base">{project.description}</p>
             </div>
@@ -874,7 +890,7 @@ const ProjectWorkspaceView: React.FC = () => {
                           {/* Activity Header - Title, Status, and Action Buttons */}
                           <div className="flex items-center justify-between mb-4">
                             <div className="flex items-center gap-4">
-                              <h3 className="font-semibold text-gray-900 text-base">{activity.name}</h3>
+                              <h3 style={DesignTokens.components.standardCardTitle}>{activity.name}</h3>
                               <span className={`px-3 py-1 text-xs font-medium rounded-full ${
                                 activity.status === 'completed' ? 'bg-green-100 text-green-700' :
                                 activity.status === 'in_progress' ? 'bg-orange-100 text-orange-700' :
