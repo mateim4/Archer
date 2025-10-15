@@ -646,7 +646,7 @@ const ProjectWorkspaceView: React.FC = () => {
                       <GlassmorphicSearchBar
                         value={searchQuery}
                         onChange={setSearchQuery}
-                        placeholder="Search activities by name, assignee, or type..."
+                        placeholder="Search activities"
                       />
                     </div>
 
