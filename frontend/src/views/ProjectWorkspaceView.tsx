@@ -732,14 +732,14 @@ const ProjectWorkspaceView: React.FC = () => {
                   <div className="flex gap-2" data-testid="stats-strip">
                     {/* Total Activities */}
                     <div className="flex flex-col items-center justify-center p-3 rounded-lg aspect-square w-20"
-                         style={{ background: 'rgba(139, 92, 246, 0.08)' }}
+                         style={{ background: 'rgba(59, 130, 246, 0.08)' }}
                          aria-label="Total Activities">
-                      <div className="p-1.5 rounded-md mb-1.5" style={{ background: 'rgba(139, 92, 246, 0.15)' }}>
-                        <CalendarLtrRegular className="w-4 h-4" style={{ color: '#8b5cf6' }} />
+                      <div className="p-1.5 mb-1.5">
+                        <CalendarLtrRegular className="w-4 h-4" style={{ color: '#3b82f6' }} />
                       </div>
                       <div className="text-center">
                         <div className="text-xs mb-0.5" style={{ color: '#64748b', fontSize: '10px' }}>Total</div>
-                        <div className="text-base font-bold" style={{ color: '#8b5cf6' }}>{stats.totalActivities}</div>
+                        <div className="text-base font-bold" style={{ color: '#3b82f6' }}>{stats.totalActivities}</div>
                       </div>
                     </div>
 
@@ -747,7 +747,7 @@ const ProjectWorkspaceView: React.FC = () => {
                     <div className="flex flex-col items-center justify-center p-3 rounded-lg aspect-square w-20"
                          style={{ background: 'rgba(16, 185, 129, 0.08)' }}
                          aria-label="Completed">
-                      <div className="p-1.5 rounded-md mb-1.5" style={{ background: 'rgba(16, 185, 129, 0.15)' }}>
+                      <div className="p-1.5 mb-1.5">
                         <CheckmarkCircleRegular className="w-4 h-4" style={{ color: '#10b981' }} />
                       </div>
                       <div className="text-center">
@@ -756,11 +756,11 @@ const ProjectWorkspaceView: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* In Progress */}
+                    {/* Active */}
                     <div className="flex flex-col items-center justify-center p-3 rounded-lg aspect-square w-20"
                          style={{ background: 'rgba(245, 158, 11, 0.08)' }}
                          aria-label="In Progress">
-                      <div className="p-1.5 rounded-md mb-1.5" style={{ background: 'rgba(245, 158, 11, 0.15)' }}>
+                      <div className="p-1.5 mb-1.5">
                         <ClockRegular className="w-4 h-4" style={{ color: '#f59e0b' }} />
                       </div>
                       <div className="text-center">
@@ -770,15 +770,16 @@ const ProjectWorkspaceView: React.FC = () => {
                     </div>
 
                     {/* Days Remaining */}
+                    {/* Days Remaining */}
                     <div className="flex flex-col items-center justify-center p-3 rounded-lg aspect-square w-20"
-                         style={{ background: 'rgba(99, 102, 241, 0.08)' }}
+                         style={{ background: 'rgba(249, 115, 22, 0.08)' }}
                          aria-label="Days Remaining">
-                      <div className="p-1.5 rounded-md mb-1.5" style={{ background: 'rgba(99, 102, 241, 0.15)' }}>
-                        <CalendarRegular className="w-4 h-4" style={{ color: '#6366f1' }} />
+                      <div className="p-1.5 mb-1.5">
+                        <CalendarRegular className="w-4 h-4" style={{ color: '#f97316' }} />
                       </div>
                       <div className="text-center">
                         <div className="text-xs mb-0.5" style={{ color: '#64748b', fontSize: '10px' }}>Days</div>
-                        <div className="text-base font-bold" style={{ color: '#6366f1' }}>{stats.daysRemaining}</div>
+                        <div className="text-base font-bold" style={{ color: '#f97316' }}>{stats.daysRemaining}</div>
                       </div>
                     </div>
                   </div>
