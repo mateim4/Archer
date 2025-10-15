@@ -21,7 +21,7 @@ export default defineConfig({
   
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [
-    ['html'],
+    ['html', { open: 'never', outputFolder: 'playwright-report' }],
     ['json', { outputFile: 'test-results/results.json' }],
     ['list']
   ],
@@ -29,7 +29,7 @@ export default defineConfig({
   /* Shared settings for all the projects below. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: 'http://localhost:1421',
+  baseURL: 'http://localhost:1420',
     
     /* Collect trace when retrying the failed test. */
     trace: 'on-first-retry',
@@ -69,8 +69,8 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: 'npx vite --port 1421',
-    url: 'http://localhost:1421',
+    command: 'npx vite --port 1420',
+    url: 'http://localhost:1420',
     reuseExistingServer: !process.env.CI,
     timeout: 120000,
   },

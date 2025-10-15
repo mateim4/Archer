@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback, memo } from 'react';
+import { DesignTokens } from '../../styles/designSystem';
 import { Pie } from '@visx/shape';
 import { Group } from '@visx/group';
 import { scaleOrdinal } from '@visx/scale';
@@ -447,8 +448,9 @@ const SimpleVisualizer: React.FC<SimpleVisualizerProps> = ({
             padding: '16px',
             border: `1px solid ${colors.border}`,
             maxHeight: '400px',
-            overflowY: 'auto'
-          }}>
+            overflowY: 'auto',
+            position: 'relative'
+          }} data-testid="vm-list-container">
             <div style={{
               display: 'flex',
               alignItems: 'center',
@@ -545,16 +547,15 @@ const SimpleVisualizer: React.FC<SimpleVisualizerProps> = ({
                 position: 'relative'
               }}>
                 <thead>
-                  <tr style={{ 
+                  <tr data-testid="vm-header-row" style={{ 
                     borderBottom: `2px solid ${colors.border}`,
-                    position: 'sticky',
-                    top: 0,
                     backgroundColor: 'rgba(255, 255, 255, 0.95)',
                     backdropFilter: 'blur(10px)',
-                    WebkitBackdropFilter: 'blur(10px)',
-                    zIndex: 5
+                    WebkitBackdropFilter: 'blur(10px)'
                   }}>
                     <th style={{ 
+                      position: 'sticky',
+                      top: DesignTokens.layout.stickyHeaderOffset,
                       padding: '10px 8px', 
                       textAlign: 'left',
                       fontWeight: '600',
@@ -563,11 +564,15 @@ const SimpleVisualizer: React.FC<SimpleVisualizerProps> = ({
                       width: '40px',
                       backgroundColor: 'rgba(255, 255, 255, 0.95)',
                       backdropFilter: 'blur(10px)',
-                      WebkitBackdropFilter: 'blur(10px)'
+                      WebkitBackdropFilter: 'blur(10px)',
+                      zIndex: 5 as any,
+                      boxShadow: '0 1px 0 rgba(0,0,0,0.06)'
                     }}>
                       ✓
                     </th>
                     <th style={{ 
+                      position: 'sticky',
+                      top: DesignTokens.layout.stickyHeaderOffset,
                       padding: '10px 8px', 
                       textAlign: 'left',
                       fontWeight: '600',
@@ -575,11 +580,15 @@ const SimpleVisualizer: React.FC<SimpleVisualizerProps> = ({
                       fontSize: '11px',
                       backgroundColor: 'rgba(255, 255, 255, 0.95)',
                       backdropFilter: 'blur(10px)',
-                      WebkitBackdropFilter: 'blur(10px)'
+                      WebkitBackdropFilter: 'blur(10px)',
+                      zIndex: 5 as any,
+                      boxShadow: '0 1px 0 rgba(0,0,0,0.06)'
                     }}>
                       Name
                     </th>
                     <th style={{ 
+                      position: 'sticky',
+                      top: DesignTokens.layout.stickyHeaderOffset,
                       padding: '10px 8px', 
                       textAlign: 'left',
                       fontWeight: '600',
@@ -587,11 +596,15 @@ const SimpleVisualizer: React.FC<SimpleVisualizerProps> = ({
                       fontSize: '11px',
                       backgroundColor: 'rgba(255, 255, 255, 0.95)',
                       backdropFilter: 'blur(10px)',
-                      WebkitBackdropFilter: 'blur(10px)'
+                      WebkitBackdropFilter: 'blur(10px)',
+                      zIndex: 5 as any,
+                      boxShadow: '0 1px 0 rgba(0,0,0,0.06)'
                     }}>
                       vCPUs
                     </th>
                     <th style={{ 
+                      position: 'sticky',
+                      top: DesignTokens.layout.stickyHeaderOffset,
                       padding: '10px 8px', 
                       textAlign: 'left',
                       fontWeight: '600',
@@ -599,11 +612,15 @@ const SimpleVisualizer: React.FC<SimpleVisualizerProps> = ({
                       fontSize: '11px',
                       backgroundColor: 'rgba(255, 255, 255, 0.95)',
                       backdropFilter: 'blur(10px)',
-                      WebkitBackdropFilter: 'blur(10px)'
+                      WebkitBackdropFilter: 'blur(10px)',
+                      zIndex: 5 as any,
+                      boxShadow: '0 1px 0 rgba(0,0,0,0.06)'
                     }}>
                       Memory
                     </th>
                     <th style={{ 
+                      position: 'sticky',
+                      top: DesignTokens.layout.stickyHeaderOffset,
                       padding: '10px 8px', 
                       textAlign: 'left',
                       fontWeight: '600',
@@ -611,11 +628,15 @@ const SimpleVisualizer: React.FC<SimpleVisualizerProps> = ({
                       fontSize: '11px',
                       backgroundColor: 'rgba(255, 255, 255, 0.95)',
                       backdropFilter: 'blur(10px)',
-                      WebkitBackdropFilter: 'blur(10px)'
+                      WebkitBackdropFilter: 'blur(10px)',
+                      zIndex: 5 as any,
+                      boxShadow: '0 1px 0 rgba(0,0,0,0.06)'
                     }}>
                       Storage
                     </th>
                     <th style={{ 
+                      position: 'sticky',
+                      top: DesignTokens.layout.stickyHeaderOffset,
                       padding: '10px 8px', 
                       textAlign: 'left',
                       fontWeight: '600',
@@ -623,7 +644,9 @@ const SimpleVisualizer: React.FC<SimpleVisualizerProps> = ({
                       fontSize: '11px',
                       backgroundColor: 'rgba(255, 255, 255, 0.95)',
                       backdropFilter: 'blur(10px)',
-                      WebkitBackdropFilter: 'blur(10px)'
+                      WebkitBackdropFilter: 'blur(10px)',
+                      zIndex: 5 as any,
+                      boxShadow: '0 1px 0 rgba(0,0,0,0.06)'
                     }}>
                       Host
                     </th>

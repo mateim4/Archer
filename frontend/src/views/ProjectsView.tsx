@@ -514,8 +514,26 @@ export default function ProjectsView() {
     return String(id);
   };
 
-  const handleProjectClick = (projectId: any) => {
+  const handleProjectClick = (projectId: any, e?: React.MouseEvent) => {
     const id = extractProjectId(projectId);
+    try {
+      const target = (e?.currentTarget as HTMLElement) ?? null;
+      if (target) {
+        const rect = target.getBoundingClientRect();
+        const payload = {
+          id,
+          left: rect.left,
+          top: rect.top,
+          width: rect.width,
+          height: rect.height,
+          scrollY: window.scrollY,
+          viewportWidth: window.innerWidth,
+        };
+        sessionStorage.setItem('lcm-last-project-card-rect', JSON.stringify(payload));
+      }
+    } catch (err) {
+      console.warn('Unable to record project card rect', err);
+    }
     navigate(`/app/projects/${id}`);
   };
 
@@ -611,14 +629,16 @@ export default function ProjectsView() {
   }
 
   return (
-    <div style={{...DesignTokens.components.pageContainer, overflow: 'visible'}}>
+    <div role="region" aria-label="Projects" data-testid="projects-view" style={{...DesignTokens.components.pageContainer, overflow: 'visible'}}>
+      <h1 style={{position:'absolute',width:0,height:0,overflow:'hidden',clip:'rect(0 0 0 0)'}}>Projects</h1>
       {/* Header */}
       <div className={styles.header}>
-        <h1 className={styles.headerTitle}>
+        <h2 className={styles.headerTitle}>
           <FolderRegular style={{ fontSize: '32px', color: '#000000' }} />
           Projects
-        </h1>
+        </h2>
         <Button
+          data-testid="create-project-button"
           appearance="primary"
           style={{
             ...DesignTokens.components.button.primary,
@@ -794,7 +814,7 @@ export default function ProjectsView() {
               )}
             </Card>
           ) : (
-            <div className={styles.projectGrid} style={{ overflow: 'visible' }}>
+            <div className={styles.projectGrid} data-testid="projects-grid" style={{ overflow: 'visible' }}>
               {filteredAndSortedProjects.map((project) => (
                 <Card 
                   key={project.id} 
@@ -804,7 +824,7 @@ export default function ProjectsView() {
                     position: 'relative',
                     zIndex: 2
                   }}
-                  onClick={() => handleProjectClick(project.id)}
+                  onClick={(e) => handleProjectClick(project.id, e)}
                   onMouseEnter={(e) => {
                     const target = e.currentTarget as HTMLElement;
                     Object.assign(target.style, DesignTokens.components.standardCardHover);
@@ -1090,24 +1110,42 @@ export default function ProjectsView() {
 
       {/* Create Project Dialog */}
       <Dialog open={showCreateDialog} onOpenChange={(_, data) => setShowCreateDialog(data.open)}>
-        <DialogSurface>
+        <DialogSurface data-testid="project-creation-modal" aria-label="Create Project Modal" role="dialog">
           <form onSubmit={handleCreateProject}>
             <DialogBody>
               <DialogTitle>Create New Project</DialogTitle>
               <DialogContent className={styles.dialogContent}>
+                {error && (
+                  <div
+                    role="alert"
+                    aria-live="assertive"
+                    data-testid="project-form-error"
+                    style={{
+                      marginBottom: '12px',
+                      padding: '12px',
+                      borderRadius: '8px',
+                      background: 'rgba(239, 68, 68, 0.1)',
+                      color: '#b91c1c',
+                      border: '1px solid rgba(185, 28, 28, 0.3)'
+                    }}
+                  >
+                    {error}
+                  </div>
+                )}
                 <div className={styles.formField}>
                   <label className={styles.formLabel}>Project Name</label>
                   <Input
+                    data-testid="project-name-input"
                     value={newProject.name}
                     onChange={(_, data) => setNewProject({ ...newProject, name: data.value })}
                     placeholder="Enter project name"
-                    required
                     size="large"
                   />
                 </div>
                 <div className={styles.formField}>
                   <label className={styles.formLabel}>Description</label>
                   <Textarea
+                    data-testid="project-description-input"
                     value={newProject.description}
                     onChange={(_, data) => setNewProject({ ...newProject, description: data.value })}
                     placeholder="Enter project description"
@@ -1157,8 +1195,8 @@ export default function ProjectsView() {
                 </Button>
                 <Button 
                   type="submit" 
+                  data-testid="submit-project-button"
                   appearance="primary"
-                  disabled={!newProject.name.trim()}
                   style={{
                     ...DesignTokens.components.button.primary,
                     borderRadius: DesignTokens.borderRadius.md

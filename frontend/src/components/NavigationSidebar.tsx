@@ -123,7 +123,7 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
   };
 
   return (
-        <nav 
+        <nav role="navigation" aria-label="Primary" 
       style={{
         position: 'fixed',
         top: 0,
@@ -190,7 +190,7 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
           
           {isOpen && (
             <div style={{ flex: 1 }}>
-              <h1 style={{ 
+              <div role="heading" aria-level={2} style={{ 
                 margin: 0,
                 fontSize: '18px',
                 fontWeight: '700',
@@ -201,7 +201,7 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
                 fontFamily: "'Poppins', system-ui, sans-serif"
               }}>
                 LCM Designer
-              </h1>
+              </div>
               <p style={{ 
                 margin: 0,
                 fontSize: '12px',

@@ -520,52 +520,48 @@ const ProjectWorkspaceView: React.FC = () => {
   const stats = calculateStats();
 
   return (
-    <div 
-      className="lcm-page-container" 
-      style={{ 
-        position: 'relative', 
-        overflow: 'visible', 
-        padding: '0',
-        margin: '20px',
-        minHeight: 'calc(100vh - 120px)'
-      }}
-    >
+    <>
       <ToastContainer />
       
-      {/* Back Button - Positioned much higher, halfway to top */}
-      <button
-        aria-label="Projects"
-        data-testid="breadcrumb-projects"
-        onClick={() => navigate('/app/projects')}
-        className="flex items-center space-x-2"
+      {/* Back Button - Positioned absolutely, halfway between screen top and card */}
+      <div style={{ position: 'fixed', top: '10px', left: '210px', zIndex: 100 }}>
+        <button
+          aria-label="Projects"
+          data-testid="breadcrumb-projects"
+          onClick={() => navigate('/app/projects')}
+          className="flex items-center space-x-2"
+          style={{
+            ...DesignTokens.components.button.secondary,
+            width: 'auto',
+          }}
+          onMouseEnter={(e) => {
+            const target = e.currentTarget as HTMLElement;
+            target.style.transform = 'translateY(-2px)';
+            target.style.boxShadow = '0 4px 12px rgba(99, 102, 241, 0.25)';
+          }}
+          onMouseLeave={(e) => {
+            const target = e.currentTarget as HTMLElement;
+            target.style.transform = 'translateY(0)';
+            target.style.boxShadow = '0 1px 4px rgba(99, 102, 241, 0.15)';
+          }}
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Back to Projects</span>
+        </button>
+      </div>
+
+      {/* Main Unified Card - Same positioning as Projects view */}
+      <div 
+        role="main" 
+        aria-label={`Project Details: ${project?.name ?? ''}`}
         style={{
-          ...DesignTokens.components.button.secondary,
-          marginTop: '20px',
-          marginLeft: '32px',
-          marginBottom: '20px',
-          width: 'auto',
-          alignSelf: 'flex-start',
-        }}
-        onMouseEnter={(e) => {
-          const target = e.currentTarget as HTMLElement;
-          target.style.transform = 'translateY(-2px)';
-          target.style.boxShadow = '0 4px 12px rgba(99, 102, 241, 0.25)';
-        }}
-        onMouseLeave={(e) => {
-          const target = e.currentTarget as HTMLElement;
-          target.style.transform = 'translateY(0)';
-          target.style.boxShadow = '0 1px 4px rgba(99, 102, 241, 0.15)';
+          ...DesignTokens.components.pageContainer,
+          overflow: 'visible'
         }}
       >
-        <ArrowLeft className="w-4 h-4" />
-        <span>Back to Projects</span>
-      </button>
-
-  {/* Main Unified Card */}
-  <div role="main" aria-label={`Project Details: ${project?.name ?? ''}`} style={{ padding: '0 32px 32px 32px' }}>
-    <EnhancedCard className="overflow-visible">
-        {/* Project Header Section */}
-        <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border-b border-purple-200 p-6 mb-3">
+        <EnhancedCard>
+          {/* Project Header Section */}
+          <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border-b border-purple-200 p-6 mb-3">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <div className="flex-1">
               <div className="flex items-center space-x-3 mb-3">
@@ -1029,7 +1025,7 @@ const ProjectWorkspaceView: React.FC = () => {
           )}
         </div>
       </EnhancedCard>
-  </div>
+      </div>
 
       {/* Create Activity Modal */}
       <EnhancedModal
@@ -1624,7 +1620,7 @@ const ProjectWorkspaceView: React.FC = () => {
           </div>
         )}
       </EnhancedModal>
-    </div>
+    </>
   );
 };
 

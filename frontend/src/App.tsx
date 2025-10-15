@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 // Import ONLY Fluent UI 2 Design System
 import './styles/fluent2-design-system.css';
 import './styles/wizard.css';
@@ -15,6 +15,7 @@ import GuidesView from './views/GuidesView';
 import DocumentTemplatesView from './views/DocumentTemplatesView';
 import SettingsView from './views/SettingsView';
 import LandingView from './views/LandingView';
+import DataCollectionView from './views/DataCollectionView';
 import { EnhancedRVToolsReportView } from './views/EnhancedRVToolsReportView';
 import { HardwareLifecycleView } from './views/HardwareLifecycleView';
 import { ZoomTestPage } from './components/CapacityVisualizer/ZoomTestPage';
@@ -37,6 +38,12 @@ function App() {
         {/* Direct zoom test - full screen without sidebar */}
         <Route path="/zoom-test" element={<ZoomTestPage />} />
         
+        {/* Simple aliases to support non-/app routes used by tests */}
+        <Route path="/projects" element={<Navigate to="/app/projects" replace />} />
+        <Route path="/projects/:projectId" element={<Navigate to="/app/projects/:projectId" replace />} />
+        <Route path="/capacity-visualizer" element={<Navigate to="/app/capacity-visualizer" replace />} />
+        <Route path="/data-collection" element={<Navigate to="/app/data-collection" replace />} />
+
         {/* App routes with sidebar navigation */}
         <Route path="/app/*" element={
           <div style={{ 
@@ -52,14 +59,13 @@ function App() {
               isProjectOpen={isProjectOpen}
             />
             
-            <main style={{ 
+            <main role="main" aria-label="Main content" style={{ 
               flex: 1,
               marginLeft: isSidebarOpen ? '280px' : '60px',
               transition: 'margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
               padding: '32px',
-              overflowY: 'auto',
               overflowX: 'hidden',
-              maxHeight: '100vh'
+              minHeight: '100vh'
             }}>
               {/* Single Card Container for All Content */}
               <div style={{
@@ -77,7 +83,12 @@ function App() {
                 <Route path="enhanced-rvtools" element={<EnhancedRVToolsReportView />} />
                 <Route path="enhanced-rvtools/:uploadId" element={<EnhancedRVToolsReportView />} />
                 <Route path="settings" element={<SettingsView />} />
-                <Route path="capacity-visualizer" element={<CapacityVisualizerView />} />
+                <Route path="capacity-visualizer" element={
+                  <div data-testid="capacity-visualizer" style={{ height: '100%', width: '100%' }}>
+                    <CapacityVisualizerView />
+                  </div>
+                } />
+                <Route path="data-collection" element={<DataCollectionView />} />
                 <Route path="projects/:projectId/workflows/:workflowId/migration-wizard" element={<EmbeddedMigrationWizard />} />
                 <Route path="projects/:projectId/workflows/:workflowId/lifecycle-wizard" element={<EmbeddedLifecycleWizard />} />
                 <Route path="zoom-test" element={<ZoomTestPage />} />

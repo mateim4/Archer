@@ -715,7 +715,8 @@ export const CapacityVisualizerView: React.FC = () => {
   }, []);
 
   return (
-    <div className={styles.container}>
+    <div className={styles.container} data-testid="capacity-visualizer" aria-label="Capacity Visualizer">
+      <h1 style={{position:'absolute', width:0, height:0, overflow:'hidden', clip:'rect(0 0 0 0)'}}>Capacity Visualizer</h1>
       {/* Header */}
       <div className={styles.header}>
         <Title2 style={DesignTokens.components.standardTitle}>

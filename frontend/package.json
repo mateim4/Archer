@@ -10,6 +10,7 @@
     "tauri": "tauri",
     "server": "cd server && npm start",
     "server:dev": "cd server && npm run dev",
+    "type-check": "tsc --noEmit",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:watch": "vitest --watch",
@@ -20,6 +21,7 @@
     "test:e2e:report": "playwright show-report"
   },
   "dependencies": {
+    "@axe-core/playwright": "^4.10.2",
     "@fluentui/react-components": "^9.67.0",
     "@fluentui/react-icons": "^2.0.307",
     "@hello-pangea/dnd": "^18.0.1",

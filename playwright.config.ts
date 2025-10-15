@@ -4,7 +4,11 @@ import { defineConfig, devices } from '@playwright/test';
  * @see https://playwright.dev/docs/test-configuration
  */
 export default defineConfig({
-  testDir: './tests',
+  testDir: '.',
+  testMatch: ['tests/**/*.spec.{ts,tsx}', 'frontend/tests/e2e/**/*.spec.{ts,tsx}'],
+  // Ignore unit test files intended for Vitest (they use *.test.ts/tsx naming)
+  // This prevents Playwright from attempting to transform them and requiring 'vitest' in this root context
+  testIgnore: ['**/*.test.ts', '**/*.test.tsx'],
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */

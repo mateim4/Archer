@@ -394,6 +394,20 @@
   -webkit-backdrop-filter: blur(16px) saturate(150%);
 }
 
+/* Accessibility: ensure sufficient contrast for input text and placeholders in dialogs */
+[data-testid="project-creation-modal"] input,
+[data-testid="project-creation-modal"] textarea {
+  color: #242424; /* Increase text contrast */
+}
+[data-testid="project-creation-modal"] input::placeholder,
+[data-testid="project-creation-modal"] textarea::placeholder {
+  color: #5b5b5b; /* Darker placeholder for 4.5:1 on white */
+}
+[data-testid="project-creation-modal"] .fluent2-input,
+[data-testid="project-creation-modal"] .fluent2-textarea {
+  border-color: rgba(0,0,0,0.2);
+}
+
 .fluent2-input-small {
   min-height: 28px;
   padding: var(--fluent-spacing-s) var(--fluent-spacing-l);

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import GlassmorphicLayout from '../components/GlassmorphicLayout';
 import { DesignTokens } from '../styles/designSystem';
 import {
@@ -9,7 +9,9 @@ import {
   Flash24Regular,
   DocumentRegular,
   BookRegular,
-  BuildingRegular
+  BuildingRegular,
+  ChartMultipleRegular,
+  DataUsageRegular
 } from '@fluentui/react-icons';
 
 const LandingView: React.FC = () => {
@@ -22,6 +24,13 @@ const LandingView: React.FC = () => {
       icon: <DataBarHorizontal24Regular />,
       path: '/app/projects',
       color: '#6366f1'
+    },
+    {
+      title: 'Capacity Visualizer',
+      description: 'Visualize clusters, hosts and VMs capacity',
+      icon: <ChartMultipleRegular />,
+      path: '/capacity-visualizer',
+      color: '#22c55e'
     },
     {
       title: 'Hardware Pool',
@@ -45,6 +54,13 @@ const LandingView: React.FC = () => {
       color: '#f59e0b'
     },
     {
+      title: 'Data Collection',
+      description: 'Upload vendor data and analyze',
+      icon: <DataUsageRegular />,
+      path: '/app/data-collection',
+      color: '#0ea5e9'
+    },
+    {
       title: 'Document Templates',
       description: 'Technical documentation and templates',
       icon: <DocumentRegular />,
@@ -65,7 +81,7 @@ const LandingView: React.FC = () => {
   };
 
   return (
-    <div style={{
+    <div role="main" aria-label="Landing" style={{
       minHeight: '100vh',
       background: 'linear-gradient(135deg, #e0e7ff 0%, #f1f5f9 25%, #f8fafc 50%, #f0f9ff 75%, #fafbff 100%)',
       backgroundSize: '400% 400%',
@@ -75,6 +91,7 @@ const LandingView: React.FC = () => {
       justifyContent: 'center',
       padding: '40px'
     }}>
+      <h1 style={{position:'absolute', width:0, height:0, overflow:'hidden', clip:'rect(0 0 0 0)'}}>LCM Designer</h1>
       <div style={{
         maxWidth: '1200px',
         width: '100%',
@@ -121,7 +138,7 @@ const LandingView: React.FC = () => {
             
             {/* Title */}
             <div>
-              <h1 style={{
+              <h2 style={{
                 fontSize: '52px',
                 fontWeight: '800',
                 color: '#1f2937',
@@ -131,7 +148,7 @@ const LandingView: React.FC = () => {
                 letterSpacing: '-0.02em'
               }}>
                 LCM<span style={{ color: '#8b5cf6' }}>Designer</span>
-              </h1>
+              </h2>
               <div style={{
                 height: '4px',
                 background: 'linear-gradient(135deg, #8b5cf6, #9333ea)',
@@ -267,9 +284,12 @@ const LandingView: React.FC = () => {
             gap: '20px'
           }}>
             {navigationCards.map((card, index) => (
-              <div
+              <Link
                 key={index}
-                onClick={() => handleNavigate(card.path)}
+                to={card.path}
+                role="link"
+                aria-label={card.title}
+                data-testid={`nav-card-${card.title.toLowerCase().replace(/\s+/g, '-')}`}
                 style={{
                   background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.65))',
                   backdropFilter: 'blur(60px) saturate(220%) brightness(145%) contrast(105%)',
@@ -285,7 +305,8 @@ const LandingView: React.FC = () => {
                   border: '1px solid rgba(255, 255, 255, 0.4)',
                   overflow: 'hidden',
                   boxShadow: 'inset 0 0 15px rgba(255, 255, 255, 0.15), 0 0 30px rgba(255, 255, 255, 0.08)',
-                  padding: DesignTokens.components.standardCard.padding
+                  padding: DesignTokens.components.standardCard.padding,
+                  textDecoration: 'none',
                 }}
                 onMouseEnter={(e) => {
                   const target = e.currentTarget as HTMLElement;
@@ -327,7 +348,7 @@ const LandingView: React.FC = () => {
                   }}>
                     {card.icon}
                   </div>
-                  <h3 style={{
+                  <h2 style={{
                     margin: 0,
                     fontFamily: DesignTokens.typography.fontFamily,
                     color: '#0f172a',
@@ -337,7 +358,7 @@ const LandingView: React.FC = () => {
                     textAlign: 'left'
                   }}>
                     {card.title}
-                  </h3>
+                  </h2>
                 </div>
 
                 {/* Card Description */}
@@ -376,7 +397,7 @@ const LandingView: React.FC = () => {
                     <span style={{ fontSize: '16px' }}>→</span>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>

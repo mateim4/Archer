@@ -2,6 +2,11 @@
 // Consistent colors, spacing, and styling across all components
 
 export const DesignTokens = {
+  // Layout constants
+  layout: {
+    // Sticky header offset used for tables beneath sticky toolbars
+    stickyHeaderOffset: 80,
+  },
   // Color Palette (Hardware Pool Reference)
   colors: {
     // Primary Colors
