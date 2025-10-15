@@ -567,68 +567,6 @@ const ProjectWorkspaceView: React.FC = () => {
           </div>
         </div>
 
-        {/* Compact Stats Summary (enhanced) */}
-        <div className="px-4 py-2 mb-2" data-testid="stats-strip" style={{
-          background: 'linear-gradient(180deg, rgba(99,102,241,0.06) 0%, rgba(255,255,255,0.0) 100%)',
-          borderRadius: DesignTokens.borderRadius.lg,
-        }}>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-3 items-stretch">
-            {/* Compact Overall Progress tile removed to avoid duplicate display */}
-
-            {/* Total Activities */}
-            <div className="flex items-center gap-3 p-2 rounded-lg"
-                 style={{ background: DesignTokens.colorVariants.indigo.alpha10 }}
-                 aria-label="Total Activities">
-              <div className="p-2 rounded-md" style={{ background: 'rgba(99,102,241,0.12)' }}>
-                <Activity className="w-4 h-4" style={{ color: DesignTokens.colorVariants.indigo.base }} />
-              </div>
-              <div>
-                <div className="text-xs" style={{ color: DesignTokens.colors.textSecondary }}>Total Activities</div>
-                <div className="text-base font-semibold" style={{ color: DesignTokens.colorVariants.indigo.base }}>{stats.totalActivities}</div>
-              </div>
-            </div>
-
-            {/* Completed */}
-            <div className="flex items-center gap-3 p-2 rounded-lg"
-                 style={{ background: DesignTokens.colorVariants.emerald.alpha10 }}
-                 aria-label="Completed">
-              <div className="p-2 rounded-md" style={{ background: 'rgba(16,185,129,0.12)' }}>
-                <CheckCircle className="w-4 h-4" style={{ color: DesignTokens.colorVariants.emerald.base }} />
-              </div>
-              <div>
-                <div className="text-xs" style={{ color: DesignTokens.colors.textSecondary }}>Completed</div>
-                <div className="text-base font-semibold" style={{ color: DesignTokens.colorVariants.emerald.base }}>{stats.completedActivities}</div>
-              </div>
-            </div>
-
-            {/* In Progress */}
-            <div className="flex items-center gap-3 p-2 rounded-lg"
-                 style={{ background: DesignTokens.colorVariants.amber.alpha10 }}
-                 aria-label="In Progress">
-              <div className="p-2 rounded-md" style={{ background: 'rgba(245,158,11,0.12)' }}>
-                <Clock className="w-4 h-4" style={{ color: DesignTokens.colorVariants.amber.base }} />
-              </div>
-              <div>
-                <div className="text-xs" style={{ color: DesignTokens.colors.textSecondary }}>In Progress</div>
-                <div className="text-base font-semibold" style={{ color: DesignTokens.colorVariants.amber.base }}>{stats.inProgressActivities}</div>
-              </div>
-            </div>
-
-            {/* Days Remaining */}
-            <div className="flex items-center gap-3 p-2 rounded-lg"
-                 style={{ background: DesignTokens.colorVariants.indigo.alpha10 }}
-                 aria-label="Days Remaining">
-              <div className="p-2 rounded-md" style={{ background: 'rgba(99,102,241,0.12)' }}>
-                <Calendar className="w-4 h-4" style={{ color: DesignTokens.colorVariants.indigo.dark }} />
-              </div>
-              <div>
-                <div className="text-xs" style={{ color: DesignTokens.colors.textSecondary }}>Days Remaining</div>
-                <div className="text-base font-semibold" style={{ color: DesignTokens.colorVariants.indigo.dark }}>{stats.daysRemaining}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
         {/* Tab Navigation - Document Templates pill styling */}
         <div className="lcm-pill-tabs" role="tablist" aria-label="Project workspace sections">
           {([
@@ -658,28 +596,31 @@ const ProjectWorkspaceView: React.FC = () => {
         <div className="px-6 pt-3 pb-6" style={{ minHeight: '400px' }}>
           {activeTab === 'timeline' && (
             <div className="space-y-4" style={{ display: 'block' }}>
-              {/* Search, Filter & Sort Controls */}
+              {/* Search, Filter & Stats Row */}
               <div className="pb-3 border-b border-gray-200">
-                {/* Search Bar */}
-                <div className="mb-3">
-                  <GlassmorphicSearchBar
-                    value={searchQuery}
-                    onChange={setSearchQuery}
-                    placeholder="Search activities by name, assignee, or type..."
-                  />
-                </div>
+                <div className="flex gap-4 items-start">
+                  {/* Left side: Search and Filters */}
+                  <div className="flex-1 space-y-3">
+                    {/* Search Bar */}
+                    <div>
+                      <GlassmorphicSearchBar
+                        value={searchQuery}
+                        onChange={setSearchQuery}
+                        placeholder="Search activities by name, assignee, or type..."
+                      />
+                    </div>
 
-                {/* Compact Filter Panel - Single Row with Glassmorphic Design */}
-                <div className="flex flex-wrap items-center gap-3">
-                  {/* Status Filter */}
-                  <div className="flex items-center gap-2">
-                    <label className="text-xs font-semibold whitespace-nowrap" style={{ fontFamily: "'Poppins', sans-serif", color: '#1a202c' }}>
-                      Status:
-                    </label>
-                    <select
-                      value={filterStatus}
-                      onChange={(e) => setFilterStatus(e.target.value)}
-                      className="glassmorphic-filter-select"
+                    {/* Compact Filter Panel - Single Row with Glassmorphic Design */}
+                    <div className="flex flex-wrap items-center gap-3">
+                      {/* Status Filter */}
+                      <div className="flex items-center gap-2">
+                        <label className="text-xs font-semibold whitespace-nowrap" style={{ fontFamily: "'Poppins', sans-serif", color: '#1a202c' }}>
+                          Status:
+                        </label>
+                        <select
+                          value={filterStatus}
+                          onChange={(e) => setFilterStatus(e.target.value)}
+                          className="glassmorphic-filter-select"
                       style={{ minWidth: '140px' }}
                     >
                       <option value="all">All Statuses</option>
@@ -743,6 +684,63 @@ const ProjectWorkspaceView: React.FC = () => {
                     >
                       ↓ Desc
                     </button>
+                  </div>
+                    </div>
+                  </div>
+
+                  {/* Right side: Compact Stats Summary */}
+                  <div className="flex gap-2" data-testid="stats-strip">
+                    {/* Total Activities */}
+                    <div className="flex flex-col items-center justify-center p-3 rounded-lg aspect-square w-20"
+                         style={{ background: 'rgba(139, 92, 246, 0.08)' }}
+                         aria-label="Total Activities">
+                      <div className="p-1.5 rounded-md mb-1.5" style={{ background: 'rgba(139, 92, 246, 0.15)' }}>
+                        <Activity className="w-4 h-4" style={{ color: '#8b5cf6' }} />
+                      </div>
+                      <div className="text-center">
+                        <div className="text-xs mb-0.5" style={{ color: '#64748b', fontSize: '10px' }}>Total</div>
+                        <div className="text-base font-bold" style={{ color: '#8b5cf6' }}>{stats.totalActivities}</div>
+                      </div>
+                    </div>
+
+                    {/* Completed */}
+                    <div className="flex flex-col items-center justify-center p-3 rounded-lg aspect-square w-20"
+                         style={{ background: 'rgba(16, 185, 129, 0.08)' }}
+                         aria-label="Completed">
+                      <div className="p-1.5 rounded-md mb-1.5" style={{ background: 'rgba(16, 185, 129, 0.15)' }}>
+                        <CheckCircle className="w-4 h-4" style={{ color: '#10b981' }} />
+                      </div>
+                      <div className="text-center">
+                        <div className="text-xs mb-0.5" style={{ color: '#64748b', fontSize: '10px' }}>Done</div>
+                        <div className="text-base font-bold" style={{ color: '#10b981' }}>{stats.completedActivities}</div>
+                      </div>
+                    </div>
+
+                    {/* In Progress */}
+                    <div className="flex flex-col items-center justify-center p-3 rounded-lg aspect-square w-20"
+                         style={{ background: 'rgba(245, 158, 11, 0.08)' }}
+                         aria-label="In Progress">
+                      <div className="p-1.5 rounded-md mb-1.5" style={{ background: 'rgba(245, 158, 11, 0.15)' }}>
+                        <Clock className="w-4 h-4" style={{ color: '#f59e0b' }} />
+                      </div>
+                      <div className="text-center">
+                        <div className="text-xs mb-0.5" style={{ color: '#64748b', fontSize: '10px' }}>Active</div>
+                        <div className="text-base font-bold" style={{ color: '#f59e0b' }}>{stats.inProgressActivities}</div>
+                      </div>
+                    </div>
+
+                    {/* Days Remaining */}
+                    <div className="flex flex-col items-center justify-center p-3 rounded-lg aspect-square w-20"
+                         style={{ background: 'rgba(99, 102, 241, 0.08)' }}
+                         aria-label="Days Remaining">
+                      <div className="p-1.5 rounded-md mb-1.5" style={{ background: 'rgba(99, 102, 241, 0.15)' }}>
+                        <Calendar className="w-4 h-4" style={{ color: '#6366f1' }} />
+                      </div>
+                      <div className="text-center">
+                        <div className="text-xs mb-0.5" style={{ color: '#64748b', fontSize: '10px' }}>Days</div>
+                        <div className="text-base font-bold" style={{ color: '#6366f1' }}>{stats.daysRemaining}</div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
