@@ -523,8 +523,8 @@ const ProjectWorkspaceView: React.FC = () => {
     <>
       <ToastContainer />
       
-      {/* Back Button - Centered between screen top and card, aligned with card left edge */}
-      <div style={{ position: 'fixed', top: '10px', left: 'calc(280px + 20px)', zIndex: 100 }}>
+      {/* Back Button - Centered between screen top and outer card, aligned with card left edge */}
+      <div style={{ position: 'fixed', top: '28px', left: '356px', zIndex: 100 }}>
         <button
           aria-label="Projects"
           data-testid="breadcrumb-projects"
@@ -559,9 +559,8 @@ const ProjectWorkspaceView: React.FC = () => {
           overflow: 'visible'
         }}
       >
-        <EnhancedCard>
-          {/* Project Header Section */}
-          <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border-b border-purple-200 p-6 mb-3">
+        {/* Project Header Section */}
+        <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border-b border-purple-200 pb-4 mb-6">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <div className="flex-1">
               <div className="flex items-center space-x-3 mb-3">
@@ -600,7 +599,7 @@ const ProjectWorkspaceView: React.FC = () => {
         </div>
 
         {/* Tab Content */}
-        <div className="px-6 pt-3 pb-6" style={{ minHeight: '400px' }}>
+        <div style={{ minHeight: '400px' }}>
           {activeTab === 'timeline' && (
             <div className="space-y-4" style={{ display: 'block' }}>
               {/* Search, Filter & Stats Row */}
@@ -1024,7 +1023,6 @@ const ProjectWorkspaceView: React.FC = () => {
             </div>
           )}
         </div>
-      </EnhancedCard>
       </div>
 
       {/* Create Activity Modal */}
