@@ -520,10 +520,19 @@ const ProjectWorkspaceView: React.FC = () => {
   const stats = calculateStats();
 
   return (
-    <div className="lcm-page-container" style={{ position: 'relative', overflow: 'visible', paddingTop: '20px' }}>
+    <div 
+      className="lcm-page-container" 
+      style={{ 
+        position: 'relative', 
+        overflow: 'visible', 
+        padding: '0',
+        margin: '20px',
+        minHeight: 'calc(100vh - 120px)'
+      }}
+    >
       <ToastContainer />
       
-      {/* Back Button - Positioned higher up, halfway between top of card and screen */}
+      {/* Back Button - Positioned much higher, halfway to top */}
       <button
         aria-label="Projects"
         data-testid="breadcrumb-projects"
@@ -531,6 +540,8 @@ const ProjectWorkspaceView: React.FC = () => {
         className="flex items-center space-x-2"
         style={{
           ...DesignTokens.components.button.secondary,
+          marginTop: '20px',
+          marginLeft: '32px',
           marginBottom: '20px',
           width: 'auto',
           alignSelf: 'flex-start',
@@ -551,7 +562,7 @@ const ProjectWorkspaceView: React.FC = () => {
       </button>
 
   {/* Main Unified Card */}
-  <div role="main" aria-label={`Project Details: ${project?.name ?? ''}`}>
+  <div role="main" aria-label={`Project Details: ${project?.name ?? ''}`} style={{ padding: '0 32px 32px 32px' }}>
     <EnhancedCard className="overflow-visible">
         {/* Project Header Section */}
         <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border-b border-purple-200 p-6 mb-3">
