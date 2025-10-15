@@ -520,10 +520,10 @@ const ProjectWorkspaceView: React.FC = () => {
   const stats = calculateStats();
 
   return (
-    <div className="lcm-page-container" style={{ position: 'relative', overflow: 'visible' }}>
+    <div className="lcm-page-container" style={{ position: 'relative', overflow: 'visible', paddingTop: '20px' }}>
       <ToastContainer />
       
-      {/* Back Button - Above the card */}
+      {/* Back Button - Positioned higher up, halfway between top of card and screen */}
       <button
         aria-label="Projects"
         data-testid="breadcrumb-projects"
@@ -531,7 +531,7 @@ const ProjectWorkspaceView: React.FC = () => {
         className="flex items-center space-x-2"
         style={{
           ...DesignTokens.components.button.secondary,
-          marginBottom: '16px',
+          marginBottom: '20px',
           width: 'auto',
           alignSelf: 'flex-start',
         }}
