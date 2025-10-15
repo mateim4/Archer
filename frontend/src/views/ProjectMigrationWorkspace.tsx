@@ -41,6 +41,7 @@ import {
   Clock24Regular,
 } from '@fluentui/react-icons';
 import { useNavigate, useParams } from 'react-router-dom';
+import { ClusterStrategyModal, ClusterStrategyFormData, ClusterStrategyList } from '../components/ClusterStrategy';
 
 // Types
 interface MigrationProject {
@@ -244,6 +245,8 @@ const ProjectMigrationWorkspace: React.FC = () => {
   const [project, setProject] = useState<MigrationProject | null>(null);
   const [clusterStrategies, setClusterStrategies] = useState<ClusterMigrationPlan[]>([]);
   const [capacityOverview, setCapacityOverview] = useState<CapacityOverview | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [editingStrategy, setEditingStrategy] = useState<ClusterStrategyFormData | undefined>(undefined);
   
   useEffect(() => {
     if (projectId) {
@@ -350,8 +353,74 @@ const ProjectMigrationWorkspace: React.FC = () => {
   };
   
   const handleConfigureStrategy = (clusterId?: string) => {
-    // TODO: Open cluster strategy modal
-    console.log('Configure strategy for cluster:', clusterId);
+    if (clusterId) {
+      // Edit existing strategy
+      const strategy = clusterStrategies.find(s => s.id === clusterId);
+      if (strategy) {
+        setEditingStrategy(strategy as unknown as ClusterStrategyFormData);
+      }
+    } else {
+      // Create new strategy
+      setEditingStrategy(undefined);
+    }
+    setIsModalOpen(true);
+  };
+  
+  const handleSaveStrategy = async (strategyData: ClusterStrategyFormData) => {
+    try {
+      const url = strategyData.id
+        ? `/api/projects/${projectId}/cluster-strategies/${strategyData.id}`
+        : `/api/projects/${projectId}/cluster-strategies`;
+      
+      const method = strategyData.id ? 'PUT' : 'POST';
+      
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(strategyData),
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        // Reload strategies
+        await loadProjectData();
+        setIsModalOpen(false);
+      } else {
+        throw new Error(data.error || 'Failed to save strategy');
+      }
+    } catch (error) {
+      console.error('Error saving strategy:', error);
+      throw error;
+    }
+  };
+  
+  const handleDeleteStrategy = async (strategyId: string) => {
+    if (!confirm('Are you sure you want to delete this cluster strategy?')) {
+      return;
+    }
+    
+    try {
+      const response = await fetch(`/api/projects/${projectId}/cluster-strategies/${strategyId}`, {
+        method: 'DELETE',
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        // Reload strategies
+        await loadProjectData();
+      }
+    } catch (error) {
+      console.error('Error deleting strategy:', error);
+    }
+  };
+  
+  const handleViewDetails = (strategyId: string) => {
+    // TODO: Navigate to strategy details view
+    console.log('View details for strategy:', strategyId);
   };
   
   const handleOpenCapacityVisualizer = () => {
@@ -509,57 +578,12 @@ const ProjectMigrationWorkspace: React.FC = () => {
             </Button>
           </div>
         ) : (
-          <div className={styles.clusterList}>
-            {clusterStrategies.map((strategy) => (
-              <div key={strategy.id} className={styles.clusterCard}>
-                <div className={styles.clusterContent}>
-                  <div className={styles.clusterInfo}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: tokens.spacingHorizontalM }}>
-                      {getStatusIcon(strategy.status)}
-                      <Title3>{strategy.source_cluster_name}</Title3>
-                      <ArrowRight24Regular style={{ color: tokens.colorNeutralForeground3 }} />
-                      <Title3>{strategy.target_cluster_name}</Title3>
-                    </div>
-                    
-                    <div className={styles.clusterMeta}>
-                      <Badge appearance={getStatusColor(strategy.status)}>
-                        {strategy.status.replace(/_/g, ' ').toUpperCase()}
-                      </Badge>
-                      <Caption1>{getStrategyLabel(strategy.strategy_type)}</Caption1>
-                      <Caption1>|</Caption1>
-                      <Caption1>{strategy.total_vms} VMs</Caption1>
-                      <Caption1>|</Caption1>
-                      <Caption1>
-                        {strategy.required_cpu_cores} Cores, {strategy.required_memory_gb}GB RAM
-                      </Caption1>
-                    </div>
-                    
-                    {strategy.strategy_type === 'domino_hardware_swap' && strategy.domino_source_cluster && (
-                      <Caption1 style={{ color: tokens.colorBrandForeground1 }}>
-                        ⚡ Hardware from: {strategy.domino_source_cluster}
-                        {strategy.hardware_available_date && ` (Available: ${new Date(strategy.hardware_available_date).toLocaleDateString()})`}
-                      </Caption1>
-                    )}
-                  </div>
-                  
-                  <div className={styles.clusterActions}>
-                    <Button
-                      appearance="subtle"
-                      onClick={() => handleConfigureStrategy(strategy.id)}
-                    >
-                      Edit Strategy
-                    </Button>
-                    <Button
-                      appearance="primary"
-                      icon={<ArrowRight24Regular />}
-                    >
-                      View Details
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+          <ClusterStrategyList
+            strategies={clusterStrategies}
+            onEdit={(strategy) => handleConfigureStrategy(strategy.id)}
+            onDelete={handleDeleteStrategy}
+            onViewDetails={handleViewDetails}
+          />
         )}
       </div>
       
@@ -590,6 +614,16 @@ const ProjectMigrationWorkspace: React.FC = () => {
           </div>
         </div>
       </div>
+      
+      {/* Cluster Strategy Modal */}
+      <ClusterStrategyModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSave={handleSaveStrategy}
+        projectId={projectId!}
+        existingStrategy={editingStrategy}
+        availableClusters={clusterStrategies.map(s => s.source_cluster_name)}
+      />
     </div>
   );
 };
