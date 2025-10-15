@@ -587,7 +587,7 @@ const ProjectWorkspaceView: React.FC = () => {
                   display: 'flex', 
                   alignItems: 'center', 
                   justifyContent: 'center',
-                  color: '#8b5cf6',
+                  color: '#1f2937',  // Use gray-900 for icon color
                   fontSize: '32px'
                 }}>
                   <FolderRegular />
