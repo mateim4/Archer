@@ -7,7 +7,6 @@ pub mod services;
 pub mod utils;
 pub mod models;
 pub mod database;
-pub mod migration_models;
 pub mod middleware;
 
 // Re-export main services

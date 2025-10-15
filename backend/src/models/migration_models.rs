@@ -500,3 +500,283 @@ pub struct MigrationProjectResponse {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
+
+// ============================================================================
+// CLUSTER MIGRATION STRATEGY MODELS
+// ============================================================================
+
+/// Cluster migration strategy - determines how a cluster will be migrated
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum MigrationStrategyType {
+    /// Hardware will be reused from another cluster (domino swap)
+    DominoHardwareSwap,
+    /// New hardware will be purchased
+    NewHardwarePurchase,
+    /// Use existing free hardware from the pool
+    ExistingFreeHardware,
+}
+
+/// Complete cluster migration plan
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ClusterMigrationPlan {
+    pub id: Option<Thing>,
+    pub project_id: Thing,
+    pub target_cluster_name: String,
+    pub strategy_type: MigrationStrategyType,
+    
+    // VM Migration Details
+    pub source_vms: Vec<VMMigrationMapping>,
+    pub total_vms: u32,
+    pub total_vcpu: u32,
+    pub total_memory_gb: f64,
+    pub total_storage_tb: f64,
+    
+    // Hardware Strategy Details
+    pub hardware_basket_id: Option<Thing>, // For NewHardwarePurchase or ExistingFreeHardware
+    pub source_cluster_id: Option<Thing>, // For DominoHardwareSwap
+    pub procurement_order_id: Option<Thing>, // For NewHardwarePurchase
+    
+    // Domino-specific fields
+    pub depends_on_cluster_ids: Vec<Thing>, // Other clusters this depends on (domino chain)
+    pub frees_hardware_for_cluster_ids: Vec<Thing>, // Clusters that will use this hardware
+    
+    // Target Environment Configuration
+    pub target_config: TargetClusterConfiguration,
+    
+    // Capacity Validation
+    pub capacity_validation: Option<CapacityValidationResult>,
+    pub overcommit_ratios: OvercommitRatios,
+    
+    // Timeline
+    pub planned_migration_date: DateTime<Utc>,
+    pub hardware_available_date: Option<DateTime<Utc>>, // When hardware becomes available
+    pub estimated_duration_hours: u32,
+    
+    // Status
+    pub status: MigrationPlanStatus,
+    pub validation_status: ClusterValidationStatus,
+    pub notes: String,
+    
+    // Metadata
+    pub created_by: Thing,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+/// Individual VM migration mapping
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct VMMigrationMapping {
+    pub source_vm_name: String,
+    pub source_cluster: String,
+    pub source_host: String,
+    pub target_vm_name: String,
+    pub vcpu: u32,
+    pub memory_gb: f64,
+    pub storage_gb: f64,
+    pub os_type: String,
+    pub priority: TaskPriority,
+    pub migration_order: u32, // Order within the cluster migration
+}
+
+/// Target cluster hardware and configuration
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TargetClusterConfiguration {
+    pub cluster_name: String,
+    pub num_nodes: u32,
+    pub node_specs: NodeSpecification,
+    pub storage_design: StorageDesign,
+    pub network_design: NetworkDesign,
+}
+
+/// Individual node specifications
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct NodeSpecification {
+    pub model: String,
+    pub cpu_sockets: u32,
+    pub cpu_cores_per_socket: u32,
+    pub cpu_threads_per_core: u32,
+    pub total_cpu_cores: u32,
+    pub total_cpu_threads: u32,
+    pub ram_gb: u32,
+    pub network_adapters: u32,
+    pub adapter_speed_gbps: u32,
+}
+
+/// Storage design for the target cluster
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct StorageDesign {
+    pub storage_type: StorageType,
+    pub s2d_config: Option<S2DConfiguration>,
+    pub external_storage_config: Option<ExternalStorageConfig>,
+}
+
+/// External storage configuration (SAN/NAS)
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ExternalStorageConfig {
+    pub storage_system_name: String,
+    pub total_capacity_tb: f64,
+    pub raid_level: String,
+    pub connection_type: String, // iSCSI, FC, NFS, SMB
+}
+
+/// Overcommit ratios for capacity planning
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct OvercommitRatios {
+    pub cpu_overcommit: f64, // e.g., 2.0 = 2:1 overcommit
+    pub memory_overcommit: f64, // e.g., 1.0 = no overcommit
+}
+
+/// Result of capacity validation
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CapacityValidationResult {
+    pub is_valid: bool,
+    pub cpu_validation: ResourceValidation,
+    pub memory_validation: ResourceValidation,
+    pub storage_validation: ResourceValidation,
+    pub status: CapacityValidationStatus,
+    pub recommendations: Vec<String>,
+    pub validated_at: DateTime<Utc>,
+}
+
+/// Individual resource validation details
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ResourceValidation {
+    pub resource_type: String,
+    pub required: f64,
+    pub available: f64,
+    pub utilization_percent: f64,
+    pub meets_requirement: bool,
+    pub message: String,
+    pub severity: ValidationSeverity,
+}
+
+/// Validation severity levels
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum ValidationSeverity {
+    Info,
+    Warning,
+    Error,
+}
+
+/// Capacity validation status levels
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum CapacityValidationStatus {
+    Optimal,     // < 80% utilization
+    Acceptable,  // 80-90% utilization
+    Warning,     // 90-100% utilization
+    Critical,    // Over 100% utilization
+}
+
+/// Migration plan status
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum MigrationPlanStatus {
+    Draft,
+    PendingHardware,
+    ReadyToMigrate,
+    InProgress,
+    Completed,
+    Failed,
+    Cancelled,
+}
+
+/// Cluster migration validation status
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum ClusterValidationStatus {
+    NotValidated,
+    Valid,
+    Invalid,
+    Warning,
+}
+
+/// Procurement order for new hardware
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ProcurementOrder {
+    pub id: Option<Thing>,
+    pub project_id: Thing,
+    pub cluster_migration_plan_id: Thing,
+    pub hardware_basket_id: Thing,
+    
+    // Order Details
+    pub order_number: Option<String>,
+    pub vendor: String,
+    pub total_cost: f64,
+    pub currency: String,
+    
+    // Items
+    pub line_items: Vec<ProcurementLineItem>,
+    
+    // Timeline
+    pub order_date: Option<DateTime<Utc>>,
+    pub expected_delivery_date: DateTime<Utc>,
+    pub actual_delivery_date: Option<DateTime<Utc>>,
+    
+    // Status
+    pub status: ProcurementStatus,
+    pub notes: String,
+    
+    // Metadata
+    pub created_by: Thing,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+/// Individual line item in a procurement order
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ProcurementLineItem {
+    pub part_number: String,
+    pub description: String,
+    pub quantity: u32,
+    pub unit_price: f64,
+    pub total_price: f64,
+}
+
+/// Procurement order status
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum ProcurementStatus {
+    Draft,
+    Submitted,
+    Approved,
+    Ordered,
+    Shipped,
+    Delivered,
+    Installed,
+    Cancelled,
+}
+
+/// Dependency validation result
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DependencyValidationResult {
+    pub is_valid: bool,
+    pub has_circular_dependencies: bool,
+    pub circular_dependencies: Vec<CircularDependency>,
+    pub topological_order: Vec<Thing>, // Cluster IDs in valid execution order
+    pub critical_path: Vec<Thing>, // Longest dependency chain
+    pub warnings: Vec<String>,
+    pub errors: Vec<String>,
+}
+
+/// Circular dependency detection result
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CircularDependency {
+    pub cycle: Vec<String>, // Cluster names in the cycle
+    pub cluster_ids: Vec<Thing>,
+}
+
+/// Hardware availability timeline entry
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct HardwareTimelineEntry {
+    pub cluster_id: Thing,
+    pub cluster_name: String,
+    pub hardware_available_date: DateTime<Utc>,
+    pub freed_by_cluster_id: Option<Thing>,
+    pub freed_by_cluster_name: Option<String>,
+}
+
+/// Hardware availability timeline response
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct HardwareAvailabilityTimeline {
+    pub project_id: Thing,
+    pub timeline: Vec<HardwareTimelineEntry>,
+    pub total_domino_chains: u32,
+    pub longest_chain_length: u32,
+}

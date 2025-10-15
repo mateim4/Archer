@@ -27,7 +27,7 @@ use surrealdb::sql::Thing;
 use crate::{
     models::migration_models::*,
     services::dependency_validator::DependencyValidator,
-    AppState,
+    database::AppState,
 };
 
 /// API response wrapper
@@ -175,15 +175,15 @@ pub async fn configure_cluster_strategy(
         MigrationStrategyType::DominoHardwareSwap => {
             plan.domino_source_cluster = request.domino_source_cluster;
             // Hardware available date will be set when source cluster completes
-            plan.status = ClusterMigrationStatus::Configured;
+            plan.status = MigrationPlanStatus::PendingHardware;
         }
         MigrationStrategyType::NewHardwarePurchase => {
             plan.hardware_basket_items = request.hardware_basket_items.unwrap_or_default();
-            plan.status = ClusterMigrationStatus::AwaitingHardware;
+            plan.status = MigrationPlanStatus::PendingHardware;
         }
         MigrationStrategyType::ExistingFreeHardware => {
             plan.hardware_pool_allocations = request.hardware_pool_allocations.unwrap_or_default();
-            plan.status = ClusterMigrationStatus::ReadyToMigrate;
+            plan.status = MigrationPlanStatus::ReadyToMigrate;
         }
     }
 
@@ -693,13 +693,13 @@ pub async fn validate_capacity(
     let is_valid = cpu_meets_requirement && memory_meets_requirement && storage_meets_requirement;
     
     let status = if !is_valid {
-        ValidationStatus::Critical
+        CapacityValidationStatus::Critical
     } else if cpu_utilization > 90.0 || memory_utilization > 90.0 || storage_utilization > 90.0 {
-        ValidationStatus::Warning
+        CapacityValidationStatus::Warning
     } else if cpu_utilization > 80.0 || memory_utilization > 80.0 || storage_utilization > 80.0 {
-        ValidationStatus::Acceptable
+        CapacityValidationStatus::Acceptable
     } else {
-        ValidationStatus::Optimal
+        CapacityValidationStatus::Optimal
     };
 
     // Generate recommendations
