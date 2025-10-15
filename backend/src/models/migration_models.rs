@@ -97,6 +97,7 @@ pub enum EnvironmentType {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum StorageType {
+    LocalDirect, // Direct-attached storage
     FibreChannel,
     Nfs,
     Vsan,
@@ -174,6 +175,9 @@ pub enum DriveInterface {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct NetworkDesign {
+    pub vlans: Vec<VlanConfiguration>,
+    pub requires_routing: bool,
+    pub external_connectivity: bool,
     pub vlan_plan: Vec<VlanConfiguration>,
     pub switch_configuration: Vec<SwitchConfiguration>,
     pub bandwidth_requirements: BandwidthRequirements,
@@ -252,9 +256,13 @@ pub enum LoadBalancingMethod {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BandwidthRequirements {
+    pub management_gbps: u32,
     pub management_network_gbps: u32,
+    pub storage_gbps: u32,
     pub storage_network_gbps: u32,
+    pub vm_traffic_gbps: u32,
     pub vm_network_gbps: u32,
+    pub live_migration_gbps: u32,
     pub backup_network_gbps: Option<u32>,
 }
 
@@ -506,7 +514,7 @@ pub struct MigrationProjectResponse {
 // ============================================================================
 
 /// Cluster migration strategy - determines how a cluster will be migrated
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub enum MigrationStrategyType {
     /// Hardware will be reused from another cluster (domino swap)
     DominoHardwareSwap,
@@ -533,12 +541,23 @@ pub struct ClusterMigrationPlan {
     
     // Hardware Strategy Details
     pub hardware_basket_id: Option<Thing>, // For NewHardwarePurchase or ExistingFreeHardware
+    pub hardware_basket_items: Vec<String>, // Hardware basket item IDs for new purchase
+    pub hardware_pool_allocations: Vec<String>, // Hardware pool allocation IDs for existing hardware
     pub source_cluster_id: Option<Thing>, // For DominoHardwareSwap
+    pub source_cluster_name: Option<String>, // Alternative name for domino_source_cluster
+    pub domino_source_cluster: Option<String>, // Source cluster name for domino swap
+    pub domino_hardware_items: Option<Vec<String>>, // Hardware items freed from domino source
     pub procurement_order_id: Option<Thing>, // For NewHardwarePurchase
     
     // Domino-specific fields
     pub depends_on_cluster_ids: Vec<Thing>, // Other clusters this depends on (domino chain)
+    pub dependencies: Vec<Thing>, // Alternative name for depends_on_cluster_ids
     pub frees_hardware_for_cluster_ids: Vec<Thing>, // Clusters that will use this hardware
+    
+    // Capacity Requirements
+    pub required_cpu_cores: u32,
+    pub required_memory_gb: u32,
+    pub required_storage_tb: f64,
     
     // Target Environment Configuration
     pub target_config: TargetClusterConfiguration,
@@ -549,6 +568,8 @@ pub struct ClusterMigrationPlan {
     
     // Timeline
     pub planned_migration_date: DateTime<Utc>,
+    pub planned_start_date: Option<DateTime<Utc>>,
+    pub planned_completion_date: Option<DateTime<Utc>>,
     pub hardware_available_date: Option<DateTime<Utc>>, // When hardware becomes available
     pub estimated_duration_hours: u32,
     
@@ -561,6 +582,93 @@ pub struct ClusterMigrationPlan {
     pub created_by: Thing,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
+}
+
+impl ClusterMigrationPlan {
+    /// Create a new ClusterMigrationPlan with default values
+    pub fn new(project_id: Thing, target_cluster_name: String, strategy_type: MigrationStrategyType, created_by: Thing) -> Self {
+        let now = Utc::now();
+        Self {
+            id: None,
+            project_id,
+            target_cluster_name,
+            strategy_type,
+            source_vms: Vec::new(),
+            total_vms: 0,
+            total_vcpu: 0,
+            total_memory_gb: 0.0,
+            total_storage_tb: 0.0,
+            hardware_basket_id: None,
+            hardware_basket_items: Vec::new(),
+            hardware_pool_allocations: Vec::new(),
+            source_cluster_id: None,
+            source_cluster_name: None,
+            domino_source_cluster: None,
+            domino_hardware_items: None,
+            procurement_order_id: None,
+            depends_on_cluster_ids: Vec::new(),
+            dependencies: Vec::new(),
+            frees_hardware_for_cluster_ids: Vec::new(),
+            required_cpu_cores: 0,
+            required_memory_gb: 0,
+            required_storage_tb: 0.0,
+            target_config: TargetClusterConfiguration {
+                cluster_name: target_cluster_name.clone(),
+                num_nodes: 0,
+                node_specs: NodeSpecification {
+                    model: String::new(),
+                    cpu_sockets: 0,
+                    cpu_cores_per_socket: 0,
+                    cpu_threads_per_core: 0,
+                    total_cpu_cores: 0,
+                    total_cpu_threads: 0,
+                    ram_gb: 0,
+                    network_adapters: 0,
+                    adapter_speed_gbps: 0,
+                },
+                storage_design: StorageDesign {
+                    design_type: String::new(),
+                    total_capacity_tb: 0.0,
+                    usable_capacity_tb: 0.0,
+                    resilience_type: String::new(),
+                    storage_type: StorageType::LocalDirect,
+                    s2d_config: None,
+                    external_storage_config: None,
+                },
+                network_design: NetworkDesign {
+                    vlans: Vec::new(),
+                    requires_routing: false,
+                    external_connectivity: false,
+                    vlan_plan: Vec::new(),
+                    switch_configuration: Vec::new(),
+                    bandwidth_requirements: BandwidthRequirements {
+                        management_gbps: 0,
+                        storage_gbps: 0,
+                        vm_traffic_gbps: 0,
+                        live_migration_gbps: 0,
+                    },
+                    rdma_configuration: None,
+                },
+            },
+            capacity_validation: None,
+            overcommit_ratios: OvercommitRatios {
+                cpu: 1.0,
+                memory: 1.0,
+                storage: 0.85,
+            },
+            planned_migration_date: now,
+            planned_start_date: None,
+            planned_completion_date: None,
+            hardware_available_date: None,
+            estimated_duration_hours: 0,
+            status: MigrationPlanStatus::Draft,
+            validation_status: ClusterValidationStatus::NotValidated,
+            notes: String::new(),
+            created_by,
+            created_at: now,
+            updated_at: now,
+        }
+    }
 }
 
 /// Individual VM migration mapping
@@ -605,6 +713,10 @@ pub struct NodeSpecification {
 /// Storage design for the target cluster
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct StorageDesign {
+    pub design_type: String,
+    pub total_capacity_tb: f64,
+    pub usable_capacity_tb: f64,
+    pub resilience_type: String,
     pub storage_type: StorageType,
     pub s2d_config: Option<S2DConfiguration>,
     pub external_storage_config: Option<ExternalStorageConfig>,
@@ -620,10 +732,11 @@ pub struct ExternalStorageConfig {
 }
 
 /// Overcommit ratios for capacity planning
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct OvercommitRatios {
-    pub cpu_overcommit: f64, // e.g., 2.0 = 2:1 overcommit
-    pub memory_overcommit: f64, // e.g., 1.0 = no overcommit
+    pub cpu: f64, // e.g., 2.0 = 2:1 overcommit
+    pub memory: f64, // e.g., 1.0 = no overcommit
+    pub storage: f64, // e.g., 0.85 = 15% overhead
 }
 
 /// Result of capacity validation
@@ -704,6 +817,8 @@ pub struct ProcurementOrder {
     
     // Items
     pub line_items: Vec<ProcurementLineItem>,
+    pub hardware_items: Vec<ProcurementLineItem>, // Alternative name
+    pub allocated_to_clusters: Vec<String>, // Cluster names this hardware is for
     
     // Timeline
     pub order_date: Option<DateTime<Utc>>,
@@ -750,9 +865,11 @@ pub struct DependencyValidationResult {
     pub has_circular_dependencies: bool,
     pub circular_dependencies: Vec<CircularDependency>,
     pub topological_order: Vec<Thing>, // Cluster IDs in valid execution order
+    pub execution_order: Vec<String>, // Cluster names in execution order (alternative)
     pub critical_path: Vec<Thing>, // Longest dependency chain
     pub warnings: Vec<String>,
     pub errors: Vec<String>,
+    pub validated_at: DateTime<Utc>,
 }
 
 /// Circular dependency detection result
@@ -760,16 +877,26 @@ pub struct DependencyValidationResult {
 pub struct CircularDependency {
     pub cycle: Vec<String>, // Cluster names in the cycle
     pub cluster_ids: Vec<Thing>,
+    pub cluster_chain: Vec<String>, // Alternative name for cycle
+    pub description: String, // Human-readable description
+}
+
+/// Hardware source for timeline tracking
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum HardwareSource {
+    DominoSwap { source_cluster: String },
+    Procurement { order_number: String },
+    ExistingPool,
 }
 
 /// Hardware availability timeline entry
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HardwareTimelineEntry {
-    pub cluster_id: Thing,
-    pub cluster_name: String,
-    pub hardware_available_date: DateTime<Utc>,
-    pub freed_by_cluster_id: Option<Thing>,
-    pub freed_by_cluster_name: Option<String>,
+    pub available_date: DateTime<Utc>,
+    pub source: HardwareSource,
+    pub hardware_items: Vec<String>,
+    pub allocated_to_clusters: Vec<String>,
+    pub description: String,
 }
 
 /// Hardware availability timeline response
@@ -777,6 +904,9 @@ pub struct HardwareTimelineEntry {
 pub struct HardwareAvailabilityTimeline {
     pub project_id: Thing,
     pub timeline: Vec<HardwareTimelineEntry>,
+    pub timeline_entries: Vec<HardwareTimelineEntry>, // Alternative name
     pub total_domino_chains: u32,
     pub longest_chain_length: u32,
+    pub generated_at: DateTime<Utc>,
 }
+

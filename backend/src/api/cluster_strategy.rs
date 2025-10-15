@@ -145,7 +145,6 @@ pub fn routes() -> Router<AppState> {
 /// * `201 Created` - Strategy created successfully
 /// * `400 Bad Request` - Invalid strategy configuration
 /// * `500 Internal Server Error` - Database error
-#[axum::debug_handler]
 pub async fn configure_cluster_strategy(
     Path(project_id): Path<String>,
     State(state): State<AppState>,
@@ -236,7 +235,6 @@ pub async fn configure_cluster_strategy(
 }
 
 /// List all cluster strategies for a project
-#[axum::debug_handler]
 pub async fn list_cluster_strategies(
     Path(project_id): Path<String>,
     State(state): State<AppState>,
@@ -245,7 +243,7 @@ pub async fn list_cluster_strategies(
 
     let query = "SELECT * FROM cluster_migration_plans WHERE project_id = $project_id ORDER BY created_at DESC";
     
-    let mut result = state.db.query(query)
+    let mut result = state.query(query)
         .bind(("project_id", project_thing))
         .await
         .map_err(|e| {
@@ -262,7 +260,6 @@ pub async fn list_cluster_strategies(
 }
 
 /// Get a specific cluster strategy
-#[axum::debug_handler]
 pub async fn get_cluster_strategy(
     Path((project_id, strategy_id)): Path<(String, String)>,
     State(state): State<AppState>,
@@ -287,7 +284,6 @@ pub async fn get_cluster_strategy(
 }
 
 /// Update an existing cluster strategy
-#[axum::debug_handler]
 pub async fn update_cluster_strategy(
     Path((project_id, strategy_id)): Path<(String, String)>,
     State(state): State<AppState>,
@@ -385,7 +381,6 @@ pub async fn update_cluster_strategy(
 }
 
 /// Delete a cluster strategy
-#[axum::debug_handler]
 pub async fn delete_cluster_strategy(
     Path((project_id, strategy_id)): Path<(String, String)>,
     State(state): State<AppState>,
@@ -413,7 +408,6 @@ pub async fn delete_cluster_strategy(
 /// - Circular dependencies (A depends on B, B depends on A)
 /// - Missing dependencies (cluster references non-existent source)
 /// - Generates optimal execution order
-#[axum::debug_handler]
 pub async fn validate_dependencies(
     Path(project_id): Path<String>,
     State(state): State<AppState>,
@@ -423,7 +417,7 @@ pub async fn validate_dependencies(
     // Fetch all cluster strategies for this project
     let query = "SELECT * FROM cluster_migration_plans WHERE project_id = $project_id";
     
-    let mut result = state.db.query(query)
+    let mut result = state.query(query)
         .bind(("project_id", project_thing))
         .await
         .map_err(|e| {
@@ -449,7 +443,6 @@ pub async fn validate_dependencies(
 /// - Domino swaps (hardware from decommissioned clusters)
 /// - Procurement orders (expected delivery dates)
 /// - Existing pool (already available)
-#[axum::debug_handler]
 pub async fn get_hardware_timeline(
     Path(project_id): Path<String>,
     State(state): State<AppState>,
@@ -458,7 +451,7 @@ pub async fn get_hardware_timeline(
 
     // Fetch all cluster strategies
     let strategies_query = "SELECT * FROM cluster_migration_plans WHERE project_id = $project_id";
-    let mut strategies_result = state.db.query(strategies_query)
+    let mut strategies_result = state.query(strategies_query)
         .bind(("project_id", project_thing.clone()))
         .await
         .map_err(|e| {
@@ -473,7 +466,7 @@ pub async fn get_hardware_timeline(
 
     // Fetch procurement orders
     let procurement_query = "SELECT * FROM procurement_orders WHERE project_id = $project_id";
-    let mut procurement_result = state.db.query(procurement_query)
+    let mut procurement_result = state.query(procurement_query)
         .bind(("project_id", project_thing.clone()))
         .await
         .map_err(|e| {
@@ -563,7 +556,6 @@ pub async fn get_hardware_timeline(
 /// Validate capacity for a cluster strategy
 ///
 /// Checks if the target hardware configuration can accommodate the source cluster's workload
-#[axum::debug_handler]
 pub async fn validate_capacity(
     Path((project_id, strategy_id)): Path<(String, String)>,
     State(state): State<AppState>,
