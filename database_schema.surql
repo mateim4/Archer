@@ -184,3 +184,106 @@ DEFINE FIELD imported_at ON import_history TYPE datetime DEFAULT time::now();
 
 // Make import_id the primary key
 DEFINE INDEX idx_import_id ON import_history COLUMNS import_id UNIQUE;
+
+// =============================================================================
+// 8. CLUSTER MIGRATION PLANS TABLE
+// =============================================================================
+// Cluster migration strategies for VMware to Hyper-V migrations
+DEFINE TABLE cluster_migration_plans SCHEMAFULL;
+
+// Identifiers
+DEFINE FIELD project_id ON cluster_migration_plans TYPE record<projects>;
+DEFINE FIELD source_cluster_name ON cluster_migration_plans TYPE string;
+DEFINE FIELD target_cluster_name ON cluster_migration_plans TYPE string;
+
+// Migration strategy
+DEFINE FIELD strategy_type ON cluster_migration_plans TYPE string; // domino_hardware_swap, new_hardware_purchase, existing_free_hardware
+
+// Domino hardware swap fields
+DEFINE FIELD domino_source_cluster ON cluster_migration_plans TYPE option<string>;
+DEFINE FIELD hardware_available_date ON cluster_migration_plans TYPE option<datetime>;
+DEFINE FIELD domino_hardware_items ON cluster_migration_plans TYPE option<array<string>>;
+
+// Procurement fields
+DEFINE FIELD procurement_order_id ON cluster_migration_plans TYPE option<record<procurement_orders>>;
+DEFINE FIELD hardware_basket_items ON cluster_migration_plans TYPE array<string>;
+
+// Existing hardware fields
+DEFINE FIELD hardware_pool_allocations ON cluster_migration_plans TYPE array<string>;
+
+// Capacity requirements
+DEFINE FIELD required_cpu_cores ON cluster_migration_plans TYPE int;
+DEFINE FIELD required_memory_gb ON cluster_migration_plans TYPE int;
+DEFINE FIELD required_storage_tb ON cluster_migration_plans TYPE decimal;
+DEFINE FIELD overcommit_ratios ON cluster_migration_plans TYPE option<object>;
+
+// VM migration mappings
+DEFINE FIELD vm_mappings ON cluster_migration_plans TYPE array<object>;
+DEFINE FIELD total_vms ON cluster_migration_plans TYPE int;
+DEFINE FIELD mapped_vms ON cluster_migration_plans TYPE int;
+
+// Status and dependencies
+DEFINE FIELD status ON cluster_migration_plans TYPE string; // not_configured, configured, awaiting_hardware, ready_to_migrate, in_progress, completed, blocked, cancelled
+DEFINE FIELD dependencies ON cluster_migration_plans TYPE array<string>;
+DEFINE FIELD dependency_validation ON cluster_migration_plans TYPE option<object>;
+
+// Timeline
+DEFINE FIELD planned_start_date ON cluster_migration_plans TYPE option<datetime>;
+DEFINE FIELD planned_completion_date ON cluster_migration_plans TYPE option<datetime>;
+DEFINE FIELD actual_start_date ON cluster_migration_plans TYPE option<datetime>;
+DEFINE FIELD actual_completion_date ON cluster_migration_plans TYPE option<datetime>;
+
+// Metadata
+DEFINE FIELD notes ON cluster_migration_plans TYPE option<string>;
+DEFINE FIELD created_at ON cluster_migration_plans TYPE datetime DEFAULT time::now();
+DEFINE FIELD updated_at ON cluster_migration_plans TYPE datetime DEFAULT time::now();
+DEFINE FIELD created_by ON cluster_migration_plans TYPE string;
+
+// Indexes
+DEFINE INDEX idx_cluster_project ON cluster_migration_plans COLUMNS project_id;
+DEFINE INDEX idx_cluster_source ON cluster_migration_plans COLUMNS source_cluster_name;
+DEFINE INDEX idx_cluster_target ON cluster_migration_plans COLUMNS target_cluster_name;
+DEFINE INDEX idx_cluster_status ON cluster_migration_plans COLUMNS status;
+
+// =============================================================================
+// 9. PROCUREMENT ORDERS TABLE
+// =============================================================================
+// Hardware procurement orders for migration projects
+DEFINE TABLE procurement_orders SCHEMAFULL;
+
+// Identifiers
+DEFINE FIELD order_number ON procurement_orders TYPE string;
+DEFINE FIELD project_id ON procurement_orders TYPE record<projects>;
+
+// Hardware items
+DEFINE FIELD hardware_items ON procurement_orders TYPE array<object>;
+DEFINE FIELD total_cost ON procurement_orders TYPE decimal;
+DEFINE FIELD currency ON procurement_orders TYPE string;
+
+// Vendor information
+DEFINE FIELD vendor_name ON procurement_orders TYPE string;
+DEFINE FIELD vendor_contact ON procurement_orders TYPE option<string>;
+
+// Timeline
+DEFINE FIELD order_date ON procurement_orders TYPE datetime;
+DEFINE FIELD expected_delivery_date ON procurement_orders TYPE option<datetime>;
+DEFINE FIELD actual_delivery_date ON procurement_orders TYPE option<datetime>;
+
+// Status
+DEFINE FIELD status ON procurement_orders TYPE string; // draft, submitted, confirmed, processing, in_transit, delivered, received, cancelled, delayed
+DEFINE FIELD allocated_to_clusters ON procurement_orders TYPE array<string>;
+
+// Tracking
+DEFINE FIELD tracking_number ON procurement_orders TYPE option<string>;
+DEFINE FIELD notes ON procurement_orders TYPE option<string>;
+
+// Metadata
+DEFINE FIELD created_at ON procurement_orders TYPE datetime DEFAULT time::now();
+DEFINE FIELD updated_at ON procurement_orders TYPE datetime DEFAULT time::now();
+DEFINE FIELD created_by ON procurement_orders TYPE string;
+
+// Indexes
+DEFINE INDEX idx_procurement_project ON procurement_orders COLUMNS project_id;
+DEFINE INDEX idx_procurement_order_number ON procurement_orders COLUMNS order_number UNIQUE;
+DEFINE INDEX idx_procurement_status ON procurement_orders COLUMNS status;
+DEFINE INDEX idx_procurement_delivery ON procurement_orders COLUMNS expected_delivery_date;
