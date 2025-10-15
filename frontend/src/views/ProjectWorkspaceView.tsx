@@ -523,8 +523,8 @@ const ProjectWorkspaceView: React.FC = () => {
     <>
       <ToastContainer />
       
-      {/* Back Button - Positioned absolutely, halfway between screen top and card */}
-      <div style={{ position: 'fixed', top: '10px', left: '210px', zIndex: 100 }}>
+      {/* Back Button - Centered between screen top and card, aligned with card left edge */}
+      <div style={{ position: 'fixed', top: '10px', left: '20px', zIndex: 100 }}>
         <button
           aria-label="Projects"
           data-testid="breadcrumb-projects"
