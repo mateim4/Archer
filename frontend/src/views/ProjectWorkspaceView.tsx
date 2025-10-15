@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, Calendar, Clock, Users, Target, BarChart3, 
@@ -6,6 +6,7 @@ import {
   Activity, FileText, MessageCircle, Server, Filter, SortAsc, X
 } from 'lucide-react';
 import GanttChart from '../components/GanttChart';
+import GlassmorphicSearchBar from '../components/GlassmorphicSearchBar';
 import { CapacityVisualizerView } from './CapacityVisualizerView';
 import { apiClient, Project } from '../utils/apiClient';
 import {
@@ -54,13 +55,14 @@ const ProjectWorkspaceView: React.FC = () => {
   const [isCreateActivityModalOpen, setIsCreateActivityModalOpen] = useState(false);
   const [isEditActivityModalOpen, setIsEditActivityModalOpen] = useState(false);
   const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
+  const [initialCardRect, setInitialCardRect] = useState<{left:number;top:number;width:number;height:number;id:string}|null>(null);
+  const cardRef = useRef<HTMLDivElement | null>(null);
   
   // Filtering and sorting state
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [filterAssignee, setFilterAssignee] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'date' | 'name' | 'completion'>('date');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
-  const [showFilters, setShowFilters] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
   
   // Activity form state
@@ -99,6 +101,19 @@ const ProjectWorkspaceView: React.FC = () => {
       loadProject();
       loadActivities();
     }
+  }, [projectId]);
+
+  // Load last project card coordinates to align card position
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem('lcm-last-project-card-rect');
+      if (raw) {
+        const payload = JSON.parse(raw) as {id:string;left:number;top:number;width:number;height:number;scrollY:number;viewportWidth:number};
+        if (!projectId || payload.id === projectId) {
+          setInitialCardRect({ left: payload.left, top: payload.top, width: payload.width, height: payload.height, id: payload.id });
+        }
+      }
+    } catch {}
   }, [projectId]);
 
   // Populate form when editing an activity
@@ -408,6 +423,8 @@ const ProjectWorkspaceView: React.FC = () => {
     return Array.from(assignees).sort();
   }, [activities]);
 
+  const hasActiveFilters = filterStatus !== 'all' || filterAssignee !== 'all' || searchQuery.trim() !== '';
+
   // Helper function to get status color matching Gantt chart
   const getStatusColor = (status: Activity['status']) => {
     const colors = {
@@ -447,16 +464,17 @@ const ProjectWorkspaceView: React.FC = () => {
     // Apply sorting
     filtered.sort((a, b) => {
       let comparison = 0;
-      
+
       switch (sortBy) {
         case 'name':
           comparison = a.name.localeCompare(b.name);
           break;
-        case 'date':
-          comparison = a.start_date.getTime() - b.start_date.getTime();
-          break;
         case 'completion':
-          comparison = a.progress - b.progress;
+          comparison = (a.progress || 0) - (b.progress || 0);
+          break;
+        case 'date':
+        default:
+          comparison = a.start_date.getTime() - b.start_date.getTime();
           break;
       }
 
@@ -466,10 +484,6 @@ const ProjectWorkspaceView: React.FC = () => {
     return filtered;
   }, [activities, searchQuery, filterStatus, filterAssignee, sortBy, sortOrder]);
 
-  // Check if any filters are active
-  const hasActiveFilters = filterStatus !== 'all' || filterAssignee !== 'all' || searchQuery.trim() !== '';
-
-  // Reset all filters
   const resetFilters = () => {
     setFilterStatus('all');
     setFilterAssignee('all');
@@ -506,111 +520,111 @@ const ProjectWorkspaceView: React.FC = () => {
   const stats = calculateStats();
 
   return (
-    <div className="lcm-page-container">
+    <div className="lcm-page-container" style={{ position: 'relative', overflow: 'visible' }}>
       <ToastContainer />
       
-      {/* Back Button - Outside Main Card */}
-      <div className="mb-6">
-        <button
-          onClick={() => navigate('/app/projects')}
-          className="flex items-center space-x-2"
-          style={{
-            ...DesignTokens.components.button.secondary
-          }}
-          onMouseEnter={(e) => {
-            const target = e.currentTarget as HTMLElement;
-            target.style.transform = 'translateY(-2px)';
-            target.style.boxShadow = '0 4px 12px rgba(99, 102, 241, 0.25)';
-          }}
-          onMouseLeave={(e) => {
-            const target = e.currentTarget as HTMLElement;
-            target.style.transform = 'translateY(0)';
-            target.style.boxShadow = '0 1px 4px rgba(99, 102, 241, 0.15)';
-          }}
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Back to Projects</span>
-        </button>
-      </div>
+      {/* Back Button - Above the card */}
+      <button
+        aria-label="Projects"
+        data-testid="breadcrumb-projects"
+        onClick={() => navigate('/app/projects')}
+        className="flex items-center space-x-2"
+        style={{
+          ...DesignTokens.components.button.secondary,
+          marginBottom: '16px',
+          width: 'auto',
+          alignSelf: 'flex-start',
+        }}
+        onMouseEnter={(e) => {
+          const target = e.currentTarget as HTMLElement;
+          target.style.transform = 'translateY(-2px)';
+          target.style.boxShadow = '0 4px 12px rgba(99, 102, 241, 0.25)';
+        }}
+        onMouseLeave={(e) => {
+          const target = e.currentTarget as HTMLElement;
+          target.style.transform = 'translateY(0)';
+          target.style.boxShadow = '0 1px 4px rgba(99, 102, 241, 0.15)';
+        }}
+      >
+        <ArrowLeft className="w-4 h-4" />
+        <span>Back to Projects</span>
+      </button>
 
   {/* Main Unified Card */}
-  <EnhancedCard className="overflow-visible">
+  <div role="main" aria-label={`Project Details: ${project?.name ?? ''}`}>
+    <EnhancedCard className="overflow-visible">
         {/* Project Header Section */}
-        <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border-b border-purple-200 p-6 mb-6">
+        <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border-b border-purple-200 p-6 mb-3">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <div className="flex-1">
               <div className="flex items-center space-x-3 mb-3">
                 <h1 className="text-3xl font-bold text-gray-900">{project.name}</h1>
               </div>
-              <p className="text-gray-600 text-base mb-4">{project.description}</p>
-              <div className="flex items-center space-x-6 text-sm text-gray-600">
-                <div className="flex items-center space-x-2">
-                  <Users className="w-4 h-4" />
-                  <span>Owner: {project.owner_id.replace('user:', '')}</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Calendar className="w-4 h-4" />
-                  <span>Created: {new Date(project.created_at).toLocaleDateString()}</span>
-                </div>
-              </div>
+              <p className="text-gray-600 text-base">{project.description}</p>
             </div>
             
-            <div className="flex flex-col items-end space-y-3" style={{ minWidth: '250px' }}>
-              <div className="text-right w-full">
-                <div className="text-2xl font-bold text-purple-600">{stats.overallProgress}%</div>
-                <div className="text-sm text-gray-500">Overall Progress</div>
-              </div>
-              <div className="w-full">
-                <EnhancedProgressBar
-                  value={stats.overallProgress}
-                  color="purple"
-                />
-              </div>
-            </div>
+            {/* Right-side overall progress card removed to eliminate duplicate/leftover text */}
           </div>
         </div>
 
-        {/* Stats Summary Section */}
-        <div className="px-6 mb-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-            <div className="flex items-center justify-between lg:flex-col lg:items-start lg:justify-start gap-2">
-              <div className="flex items-center gap-2">
-                <Target className="w-5 h-5 text-purple-600" />
-                <span className="text-xs uppercase tracking-wide text-gray-500">Overall Progress</span>
+        {/* Compact Stats Summary (enhanced) */}
+        <div className="px-4 py-2 mb-2" data-testid="stats-strip" style={{
+          background: 'linear-gradient(180deg, rgba(99,102,241,0.06) 0%, rgba(255,255,255,0.0) 100%)',
+          borderRadius: DesignTokens.borderRadius.lg,
+        }}>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3 items-stretch">
+            {/* Compact Overall Progress tile removed to avoid duplicate display */}
+
+            {/* Total Activities */}
+            <div className="flex items-center gap-3 p-2 rounded-lg"
+                 style={{ background: DesignTokens.colorVariants.indigo.alpha10 }}
+                 aria-label="Total Activities">
+              <div className="p-2 rounded-md" style={{ background: 'rgba(99,102,241,0.12)' }}>
+                <Activity className="w-4 h-4" style={{ color: DesignTokens.colorVariants.indigo.base }} />
               </div>
-              <span className="text-3xl font-semibold text-purple-600">{stats.overallProgress}%</span>
+              <div>
+                <div className="text-xs" style={{ color: DesignTokens.colors.textSecondary }}>Total Activities</div>
+                <div className="text-base font-semibold" style={{ color: DesignTokens.colorVariants.indigo.base }}>{stats.totalActivities}</div>
+              </div>
             </div>
 
-            <div className="flex items-center justify-between lg:flex-col lg:items-start gap-2">
-              <div className="flex items-center gap-2">
-                <Activity className="w-5 h-5 text-indigo-600" />
-                <span className="text-xs uppercase tracking-wide text-gray-500">Total Activities</span>
+            {/* Completed */}
+            <div className="flex items-center gap-3 p-2 rounded-lg"
+                 style={{ background: DesignTokens.colorVariants.emerald.alpha10 }}
+                 aria-label="Completed">
+              <div className="p-2 rounded-md" style={{ background: 'rgba(16,185,129,0.12)' }}>
+                <CheckCircle className="w-4 h-4" style={{ color: DesignTokens.colorVariants.emerald.base }} />
               </div>
-              <span className="text-2xl font-semibold text-indigo-600">{stats.totalActivities}</span>
+              <div>
+                <div className="text-xs" style={{ color: DesignTokens.colors.textSecondary }}>Completed</div>
+                <div className="text-base font-semibold" style={{ color: DesignTokens.colorVariants.emerald.base }}>{stats.completedActivities}</div>
+              </div>
             </div>
 
-            <div className="flex items-center justify-between lg:flex-col lg:items-start gap-2">
-              <div className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-green-600" />
-                <span className="text-xs uppercase tracking-wide text-gray-500">Completed</span>
+            {/* In Progress */}
+            <div className="flex items-center gap-3 p-2 rounded-lg"
+                 style={{ background: DesignTokens.colorVariants.amber.alpha10 }}
+                 aria-label="In Progress">
+              <div className="p-2 rounded-md" style={{ background: 'rgba(245,158,11,0.12)' }}>
+                <Clock className="w-4 h-4" style={{ color: DesignTokens.colorVariants.amber.base }} />
               </div>
-              <span className="text-2xl font-semibold text-green-600">{stats.completedActivities}</span>
+              <div>
+                <div className="text-xs" style={{ color: DesignTokens.colors.textSecondary }}>In Progress</div>
+                <div className="text-base font-semibold" style={{ color: DesignTokens.colorVariants.amber.base }}>{stats.inProgressActivities}</div>
+              </div>
             </div>
 
-            <div className="flex items-center justify-between lg:flex-col lg:items-start gap-2">
-              <div className="flex items-center gap-2">
-                <Clock className="w-5 h-5 text-orange-500" />
-                <span className="text-xs uppercase tracking-wide text-gray-500">In Progress</span>
+            {/* Days Remaining */}
+            <div className="flex items-center gap-3 p-2 rounded-lg"
+                 style={{ background: DesignTokens.colorVariants.indigo.alpha10 }}
+                 aria-label="Days Remaining">
+              <div className="p-2 rounded-md" style={{ background: 'rgba(99,102,241,0.12)' }}>
+                <Calendar className="w-4 h-4" style={{ color: DesignTokens.colorVariants.indigo.dark }} />
               </div>
-              <span className="text-2xl font-semibold text-orange-500">{stats.inProgressActivities}</span>
-            </div>
-
-            <div className="flex items-center justify-between lg:flex-col lg:items-start gap-2">
-              <div className="flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-blue-600" />
-                <span className="text-xs uppercase tracking-wide text-gray-500">Days Remaining</span>
+              <div>
+                <div className="text-xs" style={{ color: DesignTokens.colors.textSecondary }}>Days Remaining</div>
+                <div className="text-base font-semibold" style={{ color: DesignTokens.colorVariants.indigo.dark }}>{stats.daysRemaining}</div>
               </div>
-              <span className="text-2xl font-semibold text-blue-600">{stats.daysRemaining}</span>
             </div>
           </div>
         </div>
@@ -641,179 +655,96 @@ const ProjectWorkspaceView: React.FC = () => {
         </div>
 
         {/* Tab Content */}
-        <div className="p-6" style={{ minHeight: '400px' }}>
+        <div className="px-6 pt-3 pb-6" style={{ minHeight: '400px' }}>
           {activeTab === 'timeline' && (
-            <div className="space-y-6" style={{ display: 'block' }}>
-              {/* Section Header (View Toggle moved to footer next to Add Activity button) */}
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <h2 className="text-xl font-semibold text-gray-900 mb-2">Project Timeline</h2>
-                  <p className="text-sm text-gray-600">
-                    {timelineView === 'timeline' 
-                      ? 'Interactive Gantt chart showing all project activities, dependencies, and progress. Click on any activity bar to edit details.'
-                      : 'List view of all activities with detailed information. Click edit button to modify activity details.'}
-                  </p>
-                </div>
-              </div>
-
+            <div className="space-y-4" style={{ display: 'block' }}>
               {/* Search, Filter & Sort Controls */}
-              <div className="pb-4 border-b border-gray-200">
+              <div className="pb-3 border-b border-gray-200">
                 {/* Search Bar */}
-                <div className="mb-4">
-                  <div className="relative">
-                    <input
-                      type="text"
-                      placeholder="Search activities by name, assignee, or type..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg text-sm"
-                      style={{
-                        fontFamily: "'Poppins', sans-serif",
-                        background: 'rgba(255, 255, 255, 0.9)',
-                        transition: 'all 0.2s ease'
-                      }}
-                      onFocus={(e) => {
-                        e.currentTarget.style.borderColor = '#6366f1';
-                        e.currentTarget.style.boxShadow = '0 0 0 3px rgba(99, 102, 241, 0.1)';
-                      }}
-                      onBlur={(e) => {
-                        e.currentTarget.style.borderColor = '#d1d5db';
-                        e.currentTarget.style.boxShadow = 'none';
-                      }}
-                    />
-                    <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    {searchQuery && (
-                      <button
-                        onClick={() => setSearchQuery('')}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    )}
-                  </div>
+                <div className="mb-3">
+                  <GlassmorphicSearchBar
+                    value={searchQuery}
+                    onChange={setSearchQuery}
+                    placeholder="Search activities by name, assignee, or type..."
+                  />
                 </div>
 
-                {/* Filter & Sort Toggle Button */}
-                <div className="flex items-center justify-between">
-                  <button
-                    onClick={() => setShowFilters(!showFilters)}
-                    className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all"
-                    style={{
-                      background: showFilters ? 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)' : 'rgba(255, 255, 255, 0.9)',
-                      color: showFilters ? '#ffffff' : '#6b7280',
-                      border: showFilters ? 'none' : '1px solid rgba(209, 213, 219, 1)',
-                      fontFamily: "'Poppins', sans-serif",
-                      boxShadow: showFilters ? '0 2px 8px rgba(99, 102, 241, 0.25)' : 'none'
-                    }}
-                  >
-                    <SortAsc className="w-4 h-4" />
-                    <span>{showFilters ? 'Hide' : 'Show'} Advanced Filters</span>
-                  </button>
-
-                  {hasActiveFilters && (
-                    <button
-                      onClick={resetFilters}
-                      className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium text-purple-700 hover:bg-purple-50 transition-all"
+                {/* Compact Filter Panel - Single Row with Glassmorphic Design */}
+                <div className="flex flex-wrap items-center gap-3">
+                  {/* Status Filter */}
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs font-semibold whitespace-nowrap" style={{ fontFamily: "'Poppins', sans-serif", color: '#1a202c' }}>
+                      Status:
+                    </label>
+                    <select
+                      value={filterStatus}
+                      onChange={(e) => setFilterStatus(e.target.value)}
+                      className="glassmorphic-filter-select"
+                      style={{ minWidth: '140px' }}
                     >
-                      <X className="w-4 h-4" />
-                      Clear All
-                    </button>
-                  )}
-                </div>
-
-                {/* Expandable Filter Panel */}
-                {showFilters && (
-                  <div className="mt-4 pt-4 border-t border-purple-100/50">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                      {/* Status Filter */}
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2" style={{ fontFamily: "'Poppins', sans-serif" }}>
-                          Status
-                        </label>
-                        <select
-                          value={filterStatus}
-                          onChange={(e) => setFilterStatus(e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
-                          style={{ fontFamily: "'Poppins', sans-serif" }}
-                        >
-                          <option value="all">All Statuses</option>
-                          <option value="pending">Pending</option>
-                          <option value="in_progress">In Progress</option>
-                          <option value="completed">Completed</option>
-                          <option value="blocked">Blocked</option>
-                        </select>
-                      </div>
-
-                      {/* Assignee Filter */}
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2" style={{ fontFamily: "'Poppins', sans-serif" }}>
-                          Assignee
-                        </label>
-                        <select
-                          value={filterAssignee}
-                          onChange={(e) => setFilterAssignee(e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
-                          style={{ fontFamily: "'Poppins', sans-serif" }}
-                        >
-                          <option value="all">All Assignees</option>
-                          {uniqueAssignees.map(assignee => (
-                            <option key={assignee} value={assignee}>
-                              {assignee}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      {/* Sort By */}
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2" style={{ fontFamily: "'Poppins', sans-serif" }}>
-                          Sort By
-                        </label>
-                        <select
-                          value={sortBy}
-                          onChange={(e) => setSortBy(e.target.value as 'date' | 'name' | 'completion')}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
-                          style={{ fontFamily: "'Poppins', sans-serif" }}
-                        >
-                          <option value="date">Start Date</option>
-                          <option value="name">Activity Name</option>
-                          <option value="completion">Completion %</option>
-                        </select>
-                      </div>
-
-                      {/* Sort Order */}
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2" style={{ fontFamily: "'Poppins', sans-serif" }}>
-                          Order
-                        </label>
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => setSortOrder('asc')}
-                            className={`flex-1 px-3 py-2 rounded-lg border text-sm font-medium transition-all ${
-                              sortOrder === 'asc'
-                                ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-transparent shadow-md'
-                                : 'bg-white text-gray-700 border-gray-300 hover:border-purple-300'
-                            }`}
-                            style={{ fontFamily: "'Poppins', sans-serif" }}
-                          >
-                            Asc
-                          </button>
-                          <button
-                            onClick={() => setSortOrder('desc')}
-                            className={`flex-1 px-3 py-2 rounded-lg border text-sm font-medium transition-all ${
-                              sortOrder === 'desc'
-                                ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-transparent shadow-md'
-                                : 'bg-white text-gray-700 border-gray-300 hover:border-purple-300'
-                            }`}
-                            style={{ fontFamily: "'Poppins', sans-serif" }}
-                          >
-                            Desc
-                          </button>
-                        </div>
-                      </div>
-                    </div>
+                      <option value="all">All Statuses</option>
+                      <option value="pending">Pending</option>
+                      <option value="in_progress">In Progress</option>
+                      <option value="completed">Completed</option>
+                      <option value="blocked">Blocked</option>
+                    </select>
                   </div>
-                )}
+
+                  {/* Assignee Filter */}
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs font-semibold whitespace-nowrap" style={{ fontFamily: "'Poppins', sans-serif", color: '#1a202c' }}>
+                      Assignee:
+                    </label>
+                    <select
+                      value={filterAssignee}
+                      onChange={(e) => setFilterAssignee(e.target.value)}
+                      className="glassmorphic-filter-select"
+                      style={{ minWidth: '140px' }}
+                    >
+                      <option value="all">All Assignees</option>
+                      {uniqueAssignees.map(assignee => (
+                        <option key={assignee} value={assignee}>
+                          {assignee}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Sort By */}
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs font-semibold whitespace-nowrap" style={{ fontFamily: "'Poppins', sans-serif", color: '#1a202c' }}>
+                      Sort:
+                    </label>
+                    <select
+                      value={sortBy}
+                      onChange={(e) => setSortBy(e.target.value as 'date' | 'name' | 'completion')}
+                      className="glassmorphic-filter-select"
+                      style={{ minWidth: '130px' }}
+                    >
+                      <option value="date">Start Date</option>
+                      <option value="name">Activity Name</option>
+                      <option value="completion">Completion %</option>
+                    </select>
+                  </div>
+
+                  {/* Sort Order - Glassmorphic Toggle Buttons */}
+                  <div className="flex items-center gap-1.5 ml-auto">
+                    <button
+                      onClick={() => setSortOrder('asc')}
+                      className={`glassmorphic-filter-button ${sortOrder === 'asc' ? 'glassmorphic-filter-button-active' : ''}`}
+                      title="Sort Ascending"
+                    >
+                      ↑ Asc
+                    </button>
+                    <button
+                      onClick={() => setSortOrder('desc')}
+                      className={`glassmorphic-filter-button ${sortOrder === 'desc' ? 'glassmorphic-filter-button-active' : ''}`}
+                      title="Sort Descending"
+                    >
+                      ↓ Desc
+                    </button>
+                  </div>
+                </div>
               </div>
 
               {/* Timeline View */}
@@ -821,6 +752,20 @@ const ProjectWorkspaceView: React.FC = () => {
                 <>
                   {/* Shared container for Timeline and List so footer and placement remain identical */}
                   <div className="border border-gray-200 rounded-lg overflow-hidden bg-white flex flex-col" style={{ height: '520px' }}>
+                    {/* Top controls: Slider + Add Activity (moved from footer) */}
+                    <div className="flex items-center gap-4 p-4 border-b bg-white">
+                      <ViewToggleSlider value={timelineView} onChange={setTimelineView} />
+                      <div className="flex-1" />
+                      <button
+                        onClick={() => setIsCreateActivityModalOpen(true)}
+                        className="flex items-center space-x-2"
+                        style={{ ...DesignTokens.components.button.primary }}
+                      >
+                        <Plus className="w-4 h-4" />
+                        <span>Add Activity</span>
+                      </button>
+                    </div>
+
                     {/* Content area (Gantt chart or empty state) - scrollable */}
                     <div className="flex-1 overflow-auto p-4">
                       {filteredAndSortedActivities.length > 0 ? (
@@ -851,24 +796,8 @@ const ProjectWorkspaceView: React.FC = () => {
                       )}
                     </div>
 
-                    {/* Footer: keep slider + Add button placement identical for both views */}
-                    <div className="flex items-center justify-end gap-4 p-4 border-t bg-white">
-                      <ViewToggleSlider
-                        value={timelineView}
-                        onChange={setTimelineView}
-                      />
-
-                      <button
-                        onClick={() => setIsCreateActivityModalOpen(true)}
-                        className="flex items-center space-x-2"
-                        style={{
-                          ...DesignTokens.components.button.primary
-                        }}
-                      >
-                        <Plus className="w-4 h-4" />
-                        <span>Add Activity</span>
-                      </button>
-                    </div>
+                    {/* Footer intentionally left minimal after moving controls to top */}
+                    <div className="h-2" />
                   </div>
 
                   {/* Timeline Legend removed per request */}
@@ -878,6 +807,19 @@ const ProjectWorkspaceView: React.FC = () => {
               {/* List View */}
               {timelineView === 'list' && (
                 <div className="border border-gray-200 rounded-lg overflow-hidden bg-white flex flex-col" style={{ height: '520px' }}>
+                  {/* Top controls: Slider + Add Activity (moved from footer) */}
+                  <div className="flex items-center gap-4 p-4 border-b bg-white">
+                    <ViewToggleSlider value={timelineView} onChange={setTimelineView} />
+                    <div className="flex-1" />
+                    <button
+                      onClick={() => setIsCreateActivityModalOpen(true)}
+                      className="flex items-center space-x-2"
+                      style={{ ...DesignTokens.components.button.primary }}
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>Add Activity</span>
+                    </button>
+                  </div>
                   {/* Scrollable list area */}
                   <div className="flex-1 overflow-auto p-4 space-y-4">
                     {filteredAndSortedActivities.length === 0 ? (
@@ -894,28 +836,7 @@ const ProjectWorkspaceView: React.FC = () => {
                             Clear Filters
                           </EnhancedButton>
                         ) : (
-                          <button
-                            onClick={() => setIsCreateActivityModalOpen(true)}
-                            className="flex items-center space-x-2"
-                            style={{
-                              ...DesignTokens.components.button.primary
-                            }}
-                            onMouseEnter={(e) => {
-                              const target = e.currentTarget as HTMLElement;
-                              target.style.transform = 'translateY(-3px) scale(1.05)';
-                              target.style.background = 'linear-gradient(135deg, #7c3aed 0%, #9333ea 100%)';
-                              target.style.boxShadow = '0 12px 24px rgba(99, 102, 241, 0.4), 0 6px 16px rgba(0, 0, 0, 0.2)';
-                            }}
-                            onMouseLeave={(e) => {
-                              const target = e.currentTarget as HTMLElement;
-                              target.style.transform = 'translateY(0) scale(1)';
-                              target.style.background = 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)';
-                              target.style.boxShadow = '0 2px 8px rgba(99, 102, 241, 0.25)';
-                            }}
-                          >
-                            <Plus className="w-4 h-4" />
-                            <span>Create First Activity</span>
-                          </button>
+                          <p className="text-sm text-gray-600">Get started by creating your first activity using the button below.</p>
                         )}
                       </div>
                     ) : (
@@ -1029,27 +950,6 @@ const ProjectWorkspaceView: React.FC = () => {
                       ))
                     )}
                   </div>
-
-                  {/* Footer: identical slider + Add Activity placement */}
-                  {(
-                    <div className="flex items-center justify-end gap-4 p-4 border-t bg-white">
-                      <ViewToggleSlider
-                        value={timelineView}
-                        onChange={setTimelineView}
-                      />
-
-                      <button
-                        onClick={() => setIsCreateActivityModalOpen(true)}
-                        className="flex items-center space-x-2"
-                        style={{
-                          ...DesignTokens.components.button.primary
-                        }}
-                      >
-                        <Plus className="w-4 h-4" />
-                        <span>Add Activity</span>
-                      </button>
-                    </div>
-                  )}
                 </div>
               )}
             </div>
@@ -1120,6 +1020,7 @@ const ProjectWorkspaceView: React.FC = () => {
           )}
         </div>
       </EnhancedCard>
+  </div>
 
       {/* Create Activity Modal */}
       <EnhancedModal
