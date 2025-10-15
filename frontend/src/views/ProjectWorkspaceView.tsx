@@ -603,7 +603,16 @@ const ProjectWorkspaceView: React.FC = () => {
               <p className="text-gray-600 text-base">{project.description}</p>
             </div>
             
-            {/* Right-side overall progress card removed to eliminate duplicate/leftover text */}
+            {/* Quick Actions - Migration Hub Button */}
+            <div className="flex gap-3">
+              <EnhancedButton
+                onClick={() => navigate(`/app/projects/${projectId}/migration-workspace`)}
+                variant="primary"
+              >
+                <ServerRegular className="w-5 h-5 mr-2" />
+                Migration Hub
+              </EnhancedButton>
+            </div>
           </div>
         </div>
 
