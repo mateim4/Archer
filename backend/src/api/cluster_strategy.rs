@@ -112,25 +112,25 @@ pub struct HardwareSpec {
 pub fn routes() -> Router<AppState> {
     Router::new()
         .route(
-            "/api/projects/:project_id/cluster-strategies",
+            "/projects/:project_id/cluster-strategies",
             post(configure_cluster_strategy).get(list_cluster_strategies),
         )
         .route(
-            "/api/projects/:project_id/cluster-strategies/:strategy_id",
+            "/projects/:project_id/cluster-strategies/:strategy_id",
             get(get_cluster_strategy)
                 .put(update_cluster_strategy)
                 .delete(delete_cluster_strategy),
         )
         .route(
-            "/api/projects/:project_id/validate-dependencies",
+            "/projects/:project_id/validate-dependencies",
             post(validate_dependencies),
         )
         .route(
-            "/api/projects/:project_id/hardware-timeline",
+            "/projects/:project_id/hardware-timeline",
             get(get_hardware_timeline),
         )
         .route(
-            "/api/projects/:project_id/cluster-strategies/:strategy_id/validate-capacity",
+            "/projects/:project_id/cluster-strategies/:strategy_id/validate-capacity",
             post(validate_capacity),
         )
 }
