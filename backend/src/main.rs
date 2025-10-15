@@ -5,7 +5,6 @@ use axum::middleware::from_fn;
 mod api;
 mod models;
 mod database;
-mod migration_models;
 mod services;
 mod utils;
 mod middleware;

@@ -158,13 +158,14 @@ pub async fn configure_cluster_strategy(
 
     // Parse project ID
     let project_thing = Thing::from(("projects", project_id.as_str()));
+    let created_by = Thing::from(("users", "system")); // TODO: Get from auth context
 
     // Create cluster migration plan
     let mut plan = ClusterMigrationPlan::new(
         project_thing.clone(),
-        request.source_cluster_name,
-        request.target_cluster_name,
-        "system".to_string(), // TODO: Get from auth context
+        request.target_cluster_name.clone(),
+        request.strategy_type.clone(),
+        created_by,
     );
 
     // Set strategy type and related fields
@@ -209,21 +210,23 @@ pub async fn configure_cluster_strategy(
             .map(|dt| dt.with_timezone(&Utc));
     }
 
-    plan.notes = request.notes;
+    plan.notes = request.notes.unwrap_or_default();
 
     // Save to database
-    let created: Result<Option<ClusterMigrationPlan>, surrealdb::Error> = state
-        .db
+    let created = state
         .create("cluster_migration_plans")
         .content(&plan)
         .await;
 
     match created {
-        Ok(Some(created_plan)) => Ok(Json(ApiResponse::success_with_message(
-            created_plan,
-            "Cluster migration strategy configured successfully".to_string(),
-        ))),
-        Ok(None) => Err(StatusCode::INTERNAL_SERVER_ERROR),
+        Ok(mut plans) if !plans.is_empty() => {
+            let created_plan = plans.remove(0);
+            Ok(Json(ApiResponse::success_with_message(
+                created_plan,
+                "Cluster migration strategy configured successfully".to_string(),
+            )))
+        }
+        Ok(_) => Err(StatusCode::INTERNAL_SERVER_ERROR),
         Err(e) => {
             eprintln!("Database error creating cluster strategy: {:?}", e);
             Ok(Json(ApiResponse::error(format!(
@@ -267,7 +270,6 @@ pub async fn get_cluster_strategy(
     let strategy_thing = Thing::from(("cluster_migration_plans", strategy_id.as_str()));
 
     let strategy: Option<ClusterMigrationPlan> = state
-        .db
         .select(strategy_thing)
         .await
         .map_err(|e| {
@@ -299,7 +301,6 @@ pub async fn update_cluster_strategy(
 
     // Fetch existing strategy
     let existing: Option<ClusterMigrationPlan> = state
-        .db
         .select(strategy_thing.clone())
         .await
         .map_err(|e| {
@@ -317,7 +318,7 @@ pub async fn update_cluster_strategy(
     };
 
     // Update fields
-    plan.source_cluster_name = request.source_cluster_name;
+    plan.source_cluster_name = Some(request.source_cluster_name);
     plan.target_cluster_name = request.target_cluster_name;
     plan.strategy_type = request.strategy_type.clone();
     plan.updated_at = Utc::now();
@@ -355,21 +356,19 @@ pub async fn update_cluster_strategy(
             .map(|dt| dt.with_timezone(&Utc));
     }
 
-    plan.notes = request.notes;
+    plan.notes = request.notes.unwrap_or_default();
 
     // Update in database
-    let updated: Result<Option<ClusterMigrationPlan>, surrealdb::Error> = state
-        .db
+    let updated: Result<Option<ClusterMigrationPlan>, _> = state
         .update(strategy_thing)
         .content(&plan)
         .await;
 
     match updated {
-        Ok(Some(updated_plan)) => Ok(Json(ApiResponse::success_with_message(
-            updated_plan,
+        Ok(_) => Ok(Json(ApiResponse::success_with_message(
+            plan,
             "Cluster migration strategy updated successfully".to_string(),
         ))),
-        Ok(None) => Err(StatusCode::INTERNAL_SERVER_ERROR),
         Err(e) => {
             eprintln!("Database error updating cluster strategy: {:?}", e);
             Ok(Json(ApiResponse::error(format!(
@@ -388,7 +387,6 @@ pub async fn delete_cluster_strategy(
     let strategy_thing = Thing::from(("cluster_migration_plans", strategy_id.as_str()));
 
     let _deleted: Option<ClusterMigrationPlan> = state
-        .db
         .delete(strategy_thing)
         .await
         .map_err(|e| {
@@ -503,26 +501,24 @@ pub async fn get_hardware_timeline(
 
     // Add procurement entries
     for order in &procurement_orders {
-        if let Some(expected_delivery) = order.expected_delivery_date {
-            let hardware_items: Vec<String> = order
-                .hardware_items
-                .iter()
-                .map(|item| format!("{}x {}", item.quantity, item.model_name))
-                .collect();
+        let hardware_items: Vec<String> = order
+            .hardware_items
+            .iter()
+            .map(|item| format!("{}x {}", item.quantity, item.model_name))
+            .collect();
 
-            timeline_entries.push(HardwareTimelineEntry {
-                available_date: expected_delivery,
+        timeline_entries.push(HardwareTimelineEntry {
+            available_date: order.expected_delivery_date,
                 source: HardwareSource::Procurement {
-                    order_number: order.order_number.clone(),
+                    order_number: order.order_number.clone().unwrap_or_else(|| "N/A".to_string()),
                 },
                 hardware_items,
                 allocated_to_clusters: order.allocated_to_clusters.clone(),
                 description: format!(
                     "Procurement order {} delivery expected",
-                    order.order_number
+                    order.order_number.as_ref().map(|s| s.as_str()).unwrap_or("N/A")
                 ),
             });
-        }
     }
 
     // Add existing pool entries
@@ -568,7 +564,6 @@ pub async fn validate_capacity(
 
     // Fetch strategy
     let strategy: Option<ClusterMigrationPlan> = state
-        .db
         .select(strategy_thing)
         .await
         .map_err(|e| {

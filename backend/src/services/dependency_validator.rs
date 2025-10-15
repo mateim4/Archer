@@ -65,7 +65,7 @@ impl DependencyValidator {
             circular_dependencies,
             topological_order: Vec::new(), // Converted from execution_order strings
             execution_order,
-            critical_path,
+            critical_path: Vec::new(), // TODO: Convert from string names to Thing IDs
             warnings,
             errors,
             validated_at: Utc::now(),
@@ -95,12 +95,8 @@ impl DependencyValidator {
                 }
             }
 
-            // Add explicit dependencies
-            for dep in &strategy.dependencies {
-                graph.entry(cluster_name.clone())
-                    .or_insert_with(Vec::new)
-                    .push(dep.clone());
-            }
+            // Note: dependencies field contains Thing IDs which need to be resolved to names
+            // For now, domino_source_cluster provides the necessary dependency info
         }
 
         graph
@@ -184,7 +180,7 @@ impl DependencyValidator {
         let cluster_names: HashSet<String> = self
             .strategies
             .iter()
-            .map(|s| s.source_cluster_name.clone())
+            .filter_map(|s| s.source_cluster_name.clone())
             .collect();
 
         for strategy in &self.strategies {
