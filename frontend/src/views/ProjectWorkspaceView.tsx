@@ -1,10 +1,28 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
-  ArrowLeft, Calendar, Clock, Users, Target, BarChart3, 
-  Plus, Edit3, Trash2, Settings, CheckCircle, AlertCircle,
-  Activity, FileText, MessageCircle, Server, Filter, SortAsc, X
-} from 'lucide-react';
+  ArrowLeftRegular,
+  CalendarRegular,
+  ClockRegular,
+  PeopleRegular,
+  TargetRegular,
+  ChartMultipleRegular,
+  AddRegular,
+  EditRegular,
+  DeleteRegular,
+  SettingsRegular,
+  CheckmarkCircleRegular,
+  ErrorCircleRegular,
+  CalendarLtrRegular,
+  DocumentRegular,
+  ChatRegular,
+  ServerRegular,
+  FilterRegular,
+  ArrowSortRegular,
+  DismissRegular,
+  InfoRegular,
+  ArrowTrendingRegular
+} from '@fluentui/react-icons';
 import GanttChart from '../components/GanttChart';
 import GlassmorphicSearchBar from '../components/GlassmorphicSearchBar';
 import { CapacityVisualizerView } from './CapacityVisualizerView';
@@ -505,7 +523,7 @@ const ProjectWorkspaceView: React.FC = () => {
     return (
       <div className="lcm-page-container">
         <EnhancedCard className="text-center py-12">
-          <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+          <ErrorCircleRegular className="w-16 h-16 text-red-500 mx-auto mb-4" />
           <h2 className="text-xl font-semibold text-gray-900 mb-2">Project Not Found</h2>
           <p className="text-gray-600 mb-6">The requested project could not be found.</p>
           <EnhancedButton onClick={() => navigate('/app/projects')} variant="primary">
@@ -545,7 +563,7 @@ const ProjectWorkspaceView: React.FC = () => {
             target.style.boxShadow = '0 1px 4px rgba(99, 102, 241, 0.15)';
           }}
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeftRegular className="w-4 h-4" />
           <span>Back to Projects</span>
         </button>
       </div>
@@ -701,7 +719,7 @@ const ProjectWorkspaceView: React.FC = () => {
                          style={{ background: 'rgba(139, 92, 246, 0.08)' }}
                          aria-label="Total Activities">
                       <div className="p-1.5 rounded-md mb-1.5" style={{ background: 'rgba(139, 92, 246, 0.15)' }}>
-                        <Activity className="w-4 h-4" style={{ color: '#8b5cf6' }} />
+                        <CalendarLtrRegular className="w-4 h-4" style={{ color: '#8b5cf6' }} />
                       </div>
                       <div className="text-center">
                         <div className="text-xs mb-0.5" style={{ color: '#64748b', fontSize: '10px' }}>Total</div>
@@ -714,7 +732,7 @@ const ProjectWorkspaceView: React.FC = () => {
                          style={{ background: 'rgba(16, 185, 129, 0.08)' }}
                          aria-label="Completed">
                       <div className="p-1.5 rounded-md mb-1.5" style={{ background: 'rgba(16, 185, 129, 0.15)' }}>
-                        <CheckCircle className="w-4 h-4" style={{ color: '#10b981' }} />
+                        <CheckmarkCircleRegular className="w-4 h-4" style={{ color: '#10b981' }} />
                       </div>
                       <div className="text-center">
                         <div className="text-xs mb-0.5" style={{ color: '#64748b', fontSize: '10px' }}>Done</div>
@@ -727,7 +745,7 @@ const ProjectWorkspaceView: React.FC = () => {
                          style={{ background: 'rgba(245, 158, 11, 0.08)' }}
                          aria-label="In Progress">
                       <div className="p-1.5 rounded-md mb-1.5" style={{ background: 'rgba(245, 158, 11, 0.15)' }}>
-                        <Clock className="w-4 h-4" style={{ color: '#f59e0b' }} />
+                        <ClockRegular className="w-4 h-4" style={{ color: '#f59e0b' }} />
                       </div>
                       <div className="text-center">
                         <div className="text-xs mb-0.5" style={{ color: '#64748b', fontSize: '10px' }}>Active</div>
@@ -740,7 +758,7 @@ const ProjectWorkspaceView: React.FC = () => {
                          style={{ background: 'rgba(99, 102, 241, 0.08)' }}
                          aria-label="Days Remaining">
                       <div className="p-1.5 rounded-md mb-1.5" style={{ background: 'rgba(99, 102, 241, 0.15)' }}>
-                        <Calendar className="w-4 h-4" style={{ color: '#6366f1' }} />
+                        <CalendarRegular className="w-4 h-4" style={{ color: '#6366f1' }} />
                       </div>
                       <div className="text-center">
                         <div className="text-xs mb-0.5" style={{ color: '#64748b', fontSize: '10px' }}>Days</div>
@@ -765,7 +783,7 @@ const ProjectWorkspaceView: React.FC = () => {
                         className="flex items-center space-x-2"
                         style={{ ...DesignTokens.components.button.primary }}
                       >
-                        <Plus className="w-4 h-4" />
+                        <AddRegular className="w-4 h-4" />
                         <span>Add Activity</span>
                       </button>
                     </div>
@@ -789,7 +807,7 @@ const ProjectWorkspaceView: React.FC = () => {
                         />
                       ) : (
                         <div className="text-center py-16 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 h-full flex flex-col items-center justify-center">
-                          <BarChart3 className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                          <ChartMultipleRegular className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                           <h3 className="text-lg font-semibold text-gray-900 mb-2">No Activities to Display</h3>
                           <p className="text-gray-600 mb-6 max-w-md mx-auto">
                             {hasActiveFilters 
@@ -820,7 +838,7 @@ const ProjectWorkspaceView: React.FC = () => {
                       className="flex items-center space-x-2"
                       style={{ ...DesignTokens.components.button.primary }}
                     >
-                      <Plus className="w-4 h-4" />
+                      <AddRegular className="w-4 h-4" />
                       <span>Add Activity</span>
                     </button>
                   </div>
@@ -828,7 +846,7 @@ const ProjectWorkspaceView: React.FC = () => {
                   <div className="flex-1 overflow-auto p-4 space-y-4">
                     {filteredAndSortedActivities.length === 0 ? (
                       <div className="text-center py-16 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 h-full flex flex-col items-center justify-center">
-                        <Activity className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                        <CalendarLtrRegular className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                         <h3 className="text-lg font-semibold text-gray-900 mb-2">No Activities Found</h3>
                         <p className="text-gray-600 mb-6">
                           {hasActiveFilters 
@@ -886,7 +904,7 @@ const ProjectWorkspaceView: React.FC = () => {
                                 }}
                                 title="Edit Activity"
                               >
-                                <Edit3 className="w-4 h-4" />
+                                <EditRegular className="w-4 h-4" />
                                 <span className="text-sm font-medium">Edit</span>
                               </button>
                               <button
@@ -894,7 +912,7 @@ const ProjectWorkspaceView: React.FC = () => {
                                 onClick={() => handleActivityDelete(activity.id)}
                                 title="Delete Activity"
                               >
-                                <Trash2 className="w-4 h-4 text-red-600" />
+                                <DeleteRegular className="w-4 h-4 text-red-600" />
                               </button>
                             </div>
                           </div>
@@ -962,7 +980,12 @@ const ProjectWorkspaceView: React.FC = () => {
           {activeTab === 'overview' && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6" style={{ display: 'grid' }}>
               <div className="p-6 bg-white border border-gray-200 rounded-lg">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Project Information</h3>
+                <div className="flex items-center gap-3 mb-4">
+                  <div style={DesignTokens.components.standardCardIcon}>
+                    <InfoRegular style={{ fontSize: '20px' }} />
+                  </div>
+                  <h3 style={DesignTokens.components.standardCardTitle}>Project Information</h3>
+                </div>
                 <div className="space-y-3">
                 <div>
                   <span className="text-sm text-gray-500">Project ID:</span>
@@ -984,7 +1007,12 @@ const ProjectWorkspaceView: React.FC = () => {
               </div>
               
               <div className="p-6 bg-white border border-gray-200 rounded-lg">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Activity Breakdown</h3>
+                <div className="flex items-center gap-3 mb-4">
+                  <div style={DesignTokens.components.standardCardIcon}>
+                    <ChartMultipleRegular style={{ fontSize: '20px' }} />
+                  </div>
+                  <h3 style={DesignTokens.components.standardCardTitle}>Activity Breakdown</h3>
+                </div>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">Migration Activities</span>
@@ -1151,7 +1179,7 @@ const ProjectWorkspaceView: React.FC = () => {
                           }}
                           className="hover:text-purple-900"
                         >
-                          <X className="w-3 h-3" />
+                          <DismissRegular className="w-3 h-3" />
                         </button>
                       </span>
                     ))}
@@ -1455,7 +1483,7 @@ const ProjectWorkspaceView: React.FC = () => {
                             }}
                             className="hover:text-purple-900"
                           >
-                            <X className="w-3 h-3" />
+                            <DismissRegular className="w-3 h-3" />
                           </button>
                         </span>
                       ))}
