@@ -546,7 +546,10 @@ pub async fn get_hardware_timeline(
 
     let timeline = HardwareAvailabilityTimeline {
         project_id: project_thing,
+        timeline: timeline_entries.clone(),
         timeline_entries,
+        total_domino_chains: 0, // TODO: Calculate actual domino chains
+        longest_chain_length: 0, // TODO: Calculate actual chain length
         generated_at: Utc::now(),
     };
 

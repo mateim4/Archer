@@ -591,7 +591,7 @@ impl ClusterMigrationPlan {
         Self {
             id: None,
             project_id,
-            target_cluster_name,
+            target_cluster_name: target_cluster_name.clone(),
             strategy_type,
             source_vms: Vec::new(),
             total_vms: 0,
@@ -643,9 +643,13 @@ impl ClusterMigrationPlan {
                     switch_configuration: Vec::new(),
                     bandwidth_requirements: BandwidthRequirements {
                         management_gbps: 0,
+                        management_network_gbps: 0,
                         storage_gbps: 0,
+                        storage_network_gbps: 0,
                         vm_traffic_gbps: 0,
+                        vm_network_gbps: 0,
                         live_migration_gbps: 0,
+                        backup_network_gbps: None,
                     },
                     rdma_configuration: None,
                 },
@@ -838,6 +842,7 @@ pub struct ProcurementOrder {
 /// Individual line item in a procurement order
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ProcurementLineItem {
+    pub model_name: String,
     pub part_number: String,
     pub description: String,
     pub quantity: u32,

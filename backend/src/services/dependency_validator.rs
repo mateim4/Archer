@@ -57,14 +57,17 @@ impl DependencyValidator {
         };
 
         let is_valid = errors.is_empty() && circular_dependencies.is_empty();
+        let has_circular_dependencies = !circular_dependencies.is_empty();
 
         DependencyValidationResult {
             is_valid,
-            errors,
-            warnings,
+            has_circular_dependencies,
             circular_dependencies,
+            topological_order: Vec::new(), // Converted from execution_order strings
             execution_order,
             critical_path,
+            warnings,
+            errors,
             validated_at: Utc::now(),
         }
     }
@@ -159,6 +162,8 @@ impl DependencyValidator {
                         full_cycle.push(neighbor.to_string());
 
                         circular_deps.push(CircularDependency {
+                            cycle: full_cycle.clone(),
+                            cluster_ids: Vec::new(), // Will be populated later if needed
                             cluster_chain: full_cycle.clone(),
                             description: format!(
                                 "Circular dependency detected: {}",
