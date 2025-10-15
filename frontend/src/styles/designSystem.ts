@@ -412,14 +412,34 @@ export const DesignTokens = {
       marginBottom: '16px',
       fontFamily: "'Poppins', system-ui, sans-serif",
     },
-    
-    metaText: {
-      fontSize: '12px',
-      color: '#000000',
-      lineHeight: '16px',
+
+    // Standardized Card Header Styles
+    standardCardTitle: {
+      fontSize: '18px',
+      fontWeight: '600',
+      color: '#1f2937',
+      lineHeight: '1.4',
+      margin: '0',
       fontFamily: "'Poppins', system-ui, sans-serif",
     },
 
+    standardCardSubtitle: {
+      fontSize: '14px',
+      fontWeight: '400',
+      color: '#6b7280',
+      lineHeight: '1.5',
+      margin: '4px 0 0 0',
+      fontFamily: "'Poppins', system-ui, sans-serif",
+    },
+
+    standardCardIcon: {
+      fontSize: '20px',
+      color: '#8b5cf6',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    
     // Standard Title/Subtitle Pattern (based on main project title)
     standardTitle: {
       fontSize: '24px',
@@ -501,7 +521,7 @@ export const DesignTokens = {
       secondary: '#2563eb',  // Blue-600 (bright blue)
       tertiary: '#10b981',   // Emerald-500 (bright emerald)  
       quaternary: '#22c55e', // Green-500 (bright green)
-    }
+    },
   },
 };
 
