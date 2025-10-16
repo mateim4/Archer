@@ -100,13 +100,13 @@
 .wizard-progress-steps {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   position: relative;
 }
 
 .wizard-progress-line {
   position: absolute;
-  top: 20px;
+  top: 20px; /* Half of 40px circle height */
   left: 0;
   right: 0;
   height: 2px;
@@ -116,7 +116,7 @@
 
 .wizard-progress-line-filled {
   position: absolute;
-  top: 20px;
+  top: 20px; /* Half of 40px circle height */
   left: 0;
   height: 2px;
   background: linear-gradient(90deg, 
@@ -133,7 +133,12 @@
   gap: var(--fluent-spacing-m);
   position: relative;
   z-index: 1;
+  cursor: pointer;
   transition: all var(--fluent-duration-normal) var(--fluent-curve-ease);
+}
+
+.wizard-progress-step:hover .wizard-progress-step-circle {
+  transform: scale(1.05);
 }
 
 .wizard-progress-step-circle {
@@ -169,6 +174,7 @@
   box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2), 
               0 4px 12px rgba(139, 92, 246, 0.3);
   transform: scale(1.1);
+  transform-origin: center center; /* Ensure scaling from center */
 }
 
 .wizard-progress-step-label {
@@ -604,6 +610,11 @@
   
   .wizard-progress-steps {
     gap: var(--fluent-spacing-s);
+  }
+  
+  .wizard-progress-line,
+  .wizard-progress-line-filled {
+    top: 16px; /* Half of 32px circle height for mobile */
   }
   
   .wizard-progress-step {
