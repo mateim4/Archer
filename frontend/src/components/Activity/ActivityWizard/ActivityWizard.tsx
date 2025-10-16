@@ -23,7 +23,7 @@ import Step2_SourceDestination from './Steps/Step2_SourceDestination';
 import Step3_Infrastructure from './Steps/Step3_Infrastructure';
 import Step4_CapacityValidation from './Steps/Step4_CapacityValidation';
 import Step5_Timeline from './Steps/Step5_Timeline';
-// import Step6_Assignment from './Steps/Step6_Assignment';
+import Step6_Assignment from './Steps/Step6_Assignment';
 // import Step7_Review from './Steps/Step7_Review';
 
 // ============================================================================
@@ -234,11 +234,7 @@ const WizardContent: React.FC = () => {
           {currentStep === 3 && <Step3_Infrastructure />}
           {currentStep === 4 && <Step4_CapacityValidation />}
           {currentStep === 5 && <Step5_Timeline />}
-          {currentStep === 6 && (
-            <div className={styles.placeholder}>
-              Step 6: Team Assignment (Coming Soon)
-            </div>
-          )}
+          {currentStep === 6 && <Step6_Assignment />}
           {currentStep === 7 && (
             <div className={styles.placeholder}>
               Step 7: Review & Submit (Coming Soon)
