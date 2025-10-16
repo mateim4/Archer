@@ -297,12 +297,100 @@
   align-items: center;
 }
 
+/* Stylize navigation buttons with purple glass aesthetic */
+.wizard-navigation .fui-Button {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  border-radius: var(--fluent-border-radius-medium);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(8px) saturate(150%);
+  -webkit-backdrop-filter: blur(8px) saturate(150%);
+}
+
+/* Primary button (Next/Submit) - Purple gradient */
+.wizard-navigation .fui-Button[appearance="primary"] {
+  background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+  border: none;
+  color: white;
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+}
+
+.wizard-navigation .fui-Button[appearance="primary"]:hover:not(:disabled) {
+  background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);
+  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.4);
+  transform: translateY(-2px);
+}
+
+.wizard-navigation .fui-Button[appearance="primary"]:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+}
+
+/* Secondary button (Back) - Purple glass */
+.wizard-navigation .fui-Button[appearance="secondary"] {
+  background: rgba(139, 92, 246, 0.08);
+  border: 2px solid rgba(139, 92, 246, 0.3);
+  color: #8b5cf6;
+}
+
+.wizard-navigation .fui-Button[appearance="secondary"]:hover:not(:disabled) {
+  background: rgba(139, 92, 246, 0.15);
+  border-color: rgba(139, 92, 246, 0.5);
+  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.15);
+  transform: translateY(-2px);
+}
+
+.wizard-navigation .fui-Button[appearance="secondary"]:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Subtle button (Save Draft) - Minimal purple glass */
+.wizard-navigation .fui-Button[appearance="subtle"] {
+  background: rgba(139, 92, 246, 0.05);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  color: #8b5cf6;
+}
+
+.wizard-navigation .fui-Button[appearance="subtle"]:hover:not(:disabled) {
+  background: rgba(139, 92, 246, 0.1);
+  border-color: rgba(139, 92, 246, 0.3);
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.1);
+}
+
+/* Disabled state for all navigation buttons */
+.wizard-navigation .fui-Button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Success box styling */
+.wizard-success-box {
+  display: flex;
+  align-items: center;
+  gap: var(--fluent-spacing-m);
+  padding: var(--fluent-spacing-l) var(--fluent-spacing-xl);
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%);
+  border: 2px solid rgba(16, 185, 129, 0.3);
+  border-radius: var(--fluent-border-radius-large);
+  color: #059669;
+  font-weight: 600;
+  font-family: 'Poppins', sans-serif;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
 .wizard-save-indicator {
   display: flex;
   align-items: center;
   gap: var(--fluent-spacing-s);
   font-size: var(--fluent-font-size-200);
-  color: var(--fluent-color-neutral-foreground-2);
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  color: #10b981;
+  padding: var(--fluent-spacing-s) var(--fluent-spacing-m);
+  background: rgba(16, 185, 129, 0.1);
+  border-radius: var(--fluent-border-radius-medium);
 }
 
 /* ===================
@@ -368,6 +456,54 @@
 /* Ensure the indicator is centered within its container */
 .wizard-step-container .fui-Radio__indicator {
   margin: 0 !important;
+}
+
+/* ===================
+   PURPLE GLASS FORM INPUTS
+   =================== */
+
+/* Style Combobox with purple glass aesthetic */
+.wizard-step-container .fui-Combobox {
+  background: rgba(255, 255, 255, 0.7);
+  border: 2px solid rgba(139, 92, 246, 0.2);
+  border-radius: var(--fluent-border-radius-medium);
+  backdrop-filter: blur(8px) saturate(150%);
+  -webkit-backdrop-filter: blur(8px) saturate(150%);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: 'Poppins', sans-serif;
+}
+
+.wizard-step-container .fui-Combobox:hover {
+  border-color: rgba(139, 92, 246, 0.4);
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.1);
+}
+
+.wizard-step-container .fui-Combobox:focus-within {
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15), 0 2px 8px rgba(139, 92, 246, 0.2);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+/* Style Input with purple glass aesthetic */
+.wizard-step-container .fui-Input {
+  background: rgba(255, 255, 255, 0.7);
+  border: 2px solid rgba(139, 92, 246, 0.2);
+  border-radius: var(--fluent-border-radius-medium);
+  backdrop-filter: blur(8px) saturate(150%);
+  -webkit-backdrop-filter: blur(8px) saturate(150%);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: 'Poppins', sans-serif;
+}
+
+.wizard-step-container .fui-Input:hover {
+  border-color: rgba(139, 92, 246, 0.4);
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.1);
+}
+
+.wizard-step-container .fui-Input:focus-within {
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15), 0 2px 8px rgba(139, 92, 246, 0.2);
+  background: rgba(255, 255, 255, 0.9);
 }
 
 .wizard-save-indicator.saving {

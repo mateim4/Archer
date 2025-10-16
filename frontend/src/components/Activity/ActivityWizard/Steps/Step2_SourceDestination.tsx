@@ -286,7 +286,24 @@ const Step2_SourceDestination: React.FC = () => {
     if (selectedCluster) {
       setSourceClusterId(selectedCluster.id);
       setSourceClusterName(selectedCluster.name);
+    } else if (data.optionValue === undefined || data.optionValue === null) {
+      // Handle clearing/resetting the selection
+      setSourceClusterId('');
+      setSourceClusterName('');
     }
+  };
+
+  const handleSourceClusterInputChange = (_event: any, data: any) => {
+    // Only update the display value, not the actual selection
+    // This prevents glitching when typing
+    if (data.value === '') {
+      setSourceClusterId('');
+      setSourceClusterName('');
+    }
+  };
+
+  const handleTargetClusterNameChange = (_event: any, data: any) => {
+    setTargetClusterName(data.value || '');
   };
 
   const handleInfrastructureChange = (_event: any, data: any) => {
@@ -308,8 +325,10 @@ const Step2_SourceDestination: React.FC = () => {
           className={styles.combobox}
           placeholder="Select source cluster..."
           value={sourceClusterName}
+          selectedOptions={sourceClusterId ? [sourceClusterId] : []}
           onOptionSelect={handleSourceClusterChange}
           size="large"
+          clearable
         >
           {MOCK_CLUSTERS.map((cluster) => (
             <Option key={cluster.id} value={cluster.id} text={cluster.name}>
