@@ -70,49 +70,75 @@ const useStyles = makeStyles({
   },
 
   radioGroup: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: tokens.spacingVerticalL,
+    display: 'grid',
+    gridTemplateColumns: 'repeat(3, 1fr)',
+    gap: tokens.spacingHorizontalL,
     marginTop: tokens.spacingVerticalM,
+    
+    '@media (max-width: 1200px)': {
+      gridTemplateColumns: 'repeat(2, 1fr)',
+    },
+    
+    '@media (max-width: 768px)': {
+      gridTemplateColumns: '1fr',
+    },
   },
 
   radioCard: {
     display: 'flex',
-    alignItems: 'flex-start',
-    ...shorthands.padding(tokens.spacingVerticalL, tokens.spacingHorizontalL),
-    backgroundColor: '#ffffff',
-    ...shorthands.border('2px', 'solid', '#e5e7eb'),
-    ...shorthands.borderRadius(tokens.borderRadiusMedium),
+    flexDirection: 'column',
+    alignItems: 'center',
+    ...shorthands.padding(tokens.spacingVerticalXL, tokens.spacingHorizontalL),
+    background: 'rgba(255, 255, 255, 0.7)',
+    backdropFilter: 'blur(20px) saturate(180%)',
+    ...shorthands.border('2px', 'solid', 'rgba(139, 92, 246, 0.2)'),
+    ...shorthands.borderRadius(tokens.borderRadiusLarge),
     cursor: 'pointer',
-    ...shorthands.transition('all', '0.2s', 'ease'),
-    boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.06)',
+    ...shorthands.transition('all', '0.2s', 'cubic-bezier(0.4, 0, 0.2, 1)'),
+    boxShadow: '0 4px 24px rgba(139, 92, 246, 0.08)',
+    minHeight: '240px',
 
     ':hover': {
-      ...shorthands.borderColor(tokens.colorBrandForeground1),
-      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+      transform: 'translateY(-4px)',
+      ...shorthands.borderColor('rgba(139, 92, 246, 0.5)'),
+      boxShadow: '0 8px 32px rgba(139, 92, 246, 0.16)',
     },
   },
 
   radioCardSelected: {
-    backgroundColor: tokens.colorBrandBackground2,
-    ...shorthands.borderColor(tokens.colorBrandForeground1),
+    background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(99, 102, 241, 0.08) 100%)',
+    ...shorthands.borderColor('#8b5cf6'),
+    ...shorthands.borderWidth('2px'),
+    boxShadow: '0 0 0 4px rgba(139, 92, 246, 0.15), 0 8px 32px rgba(139, 92, 246, 0.2)',
+
+    ':hover': {
+      transform: 'translateY(-4px)',
+      boxShadow: '0 0 0 4px rgba(139, 92, 246, 0.15), 0 12px 40px rgba(139, 92, 246, 0.25)',
+    },
+  },
+  
+  radioCardRadio: {
+    marginBottom: tokens.spacingVerticalM,
   },
 
   radioCardContent: {
     display: 'flex',
-    alignItems: 'flex-start',
-    gap: tokens.spacingHorizontalM,
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: tokens.spacingVerticalM,
     width: '100%',
+    textAlign: 'center',
   },
 
   radioCardIcon: {
-    fontSize: '32px',
-    color: tokens.colorNeutralForeground2,
-    marginTop: '4px',
+    fontSize: '48px',
+    color: '#8b5cf6',
+    ...shorthands.transition('all', '0.2s', 'ease'),
   },
 
   radioCardIconSelected: {
-    color: tokens.colorBrandForeground1,
+    color: '#8b5cf6',
+    transform: 'scale(1.1)',
   },
 
   radioCardText: {
@@ -120,6 +146,7 @@ const useStyles = makeStyles({
     display: 'flex',
     flexDirection: 'column',
     gap: tokens.spacingVerticalXS,
+    alignItems: 'center',
   },
 
   radioCardTitle: {
@@ -127,6 +154,7 @@ const useStyles = makeStyles({
     fontWeight: 600,
     color: tokens.colorNeutralForeground1,
     fontFamily: 'Poppins, sans-serif',
+    textAlign: 'center',
   },
 
   radioCardDescription: {
@@ -134,13 +162,16 @@ const useStyles = makeStyles({
     color: tokens.colorNeutralForeground2,
     fontFamily: 'Poppins, sans-serif',
     lineHeight: '1.5',
+    textAlign: 'center',
   },
 
   radioCardFeatures: {
     fontSize: '12px',
-    color: tokens.colorNeutralForeground3,
+    color: '#8b5cf6',
     fontFamily: 'Poppins, sans-serif',
+    fontWeight: 500,
     marginTop: tokens.spacingVerticalXS,
+    textAlign: 'center',
   },
 
   requiredIndicator: {
@@ -308,8 +339,11 @@ const Step2_SourceDestination: React.FC = () => {
               <div
                 key={option.type}
                 className={`${styles.radioCard} ${isSelected ? styles.radioCardSelected : ''}`}
+                onClick={() => setTargetInfrastructure(option.type)}
               >
-                <Radio value={option.type} label="" />
+                <div className={styles.radioCardRadio}>
+                  <Radio value={option.type} label="" />
+                </div>
                 <div className={styles.radioCardContent}>
                   <IconComponent
                     className={`${styles.radioCardIcon} ${
