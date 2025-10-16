@@ -830,6 +830,7 @@ const ProjectWorkspaceView: React.FC = () => {
                           onActivityCreate={handleActivityCreate}
                           onActivityDelete={handleActivityDelete}
                           onDependencyChange={handleDependencyChange}
+                          projectId={projectId} // Phase 5: Pass projectId for fetching strategies
                           onActivityClick={(activityId) => {
                             const activity = activities.find(a => a.id === activityId);
                             if (activity) {

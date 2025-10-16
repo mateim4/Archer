@@ -12,9 +12,25 @@ import {
   DataBarHorizontalRegular,
   FlashRegular,
   WrenchRegular,
-  TaskListAddRegular
+  TaskListAddRegular,
+  ChevronRightRegular,
+  ChevronDownRegular,
+  ServerRegular,
+  ArrowRightRegular
 } from '@fluentui/react-icons';
 import { DesignTokens } from '../styles/designSystem';
+
+interface ClusterStrategy {
+  id: string;
+  strategy_name: string;
+  migration_strategy_type: string;
+  target_cluster_name: string;
+  source_hardware_type: 'new' | 'domino' | 'pool';
+  planned_start_date: string;
+  estimated_duration_days: number;
+  status: 'pending' | 'in_progress' | 'completed' | 'blocked';
+  depends_on_strategy_id?: string;
+}
 
 interface Activity {
   id: string;
@@ -26,6 +42,13 @@ interface Activity {
   assignee: string;
   dependencies: string[];
   progress: number; // 0-100
+  // Phase 5: Migration-specific fields (strategies fetched separately)
+  cluster_strategies?: string[]; // Strategy IDs
+  migration_metadata?: {
+    total_clusters: number;
+    clusters_completed: number;
+    hardware_source: 'new' | 'domino' | 'pool' | 'mixed';
+  };
 }
 
 interface GanttChartProps {
@@ -36,6 +59,7 @@ interface GanttChartProps {
   onDependencyChange: (activityId: string, dependencies: string[]) => void;
   onActivityClick?: (activityId: string) => void;
   readonly?: boolean;
+  projectId?: string; // Phase 5: For fetching cluster strategies
 }
 
 interface TimelineCalculation {
@@ -51,6 +75,10 @@ interface ActivityBar {
   width: number; // percentage of total width
   y: number; // row position
   conflicts: string[]; // overlapping activities
+  isParent?: boolean; // Phase 5: Is this a parent activity with children?
+  isChild?: boolean; // Phase 5: Is this a child (cluster strategy)?
+  parentId?: string; // Phase 5: Parent activity ID for cluster strategies
+  strategyData?: ClusterStrategy; // Phase 5: Cluster strategy details if isChild
 }
 
 const GanttChart: React.FC<GanttChartProps> = ({
@@ -60,10 +88,47 @@ const GanttChart: React.FC<GanttChartProps> = ({
   onActivityDelete,
   onDependencyChange,
   onActivityClick,
-  readonly = false
+  readonly = false,
+  projectId
 }) => {
   const [selectedActivity, setSelectedActivity] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
+  // Phase 5: Hierarchical state
+  const [expandedActivities, setExpandedActivities] = useState<Set<string>>(new Set());
+  const [clusterStrategiesMap, setClusterStrategiesMap] = useState<Map<string, ClusterStrategy[]>>(new Map());
+
+  // Phase 5: Fetch cluster strategies for migration activities
+  useEffect(() => {
+    if (!projectId) return;
+
+    const migrationActivities = activities.filter(a => a.type === 'migration');
+    
+    migrationActivities.forEach(async (activity) => {
+      try {
+        const response = await fetch(
+          `http://127.0.0.1:3001/api/v1/projects/${projectId}/activities/${activity.id}/cluster-strategies`
+        );
+        if (response.ok) {
+          const strategies: ClusterStrategy[] = await response.json();
+          setClusterStrategiesMap(prev => new Map(prev).set(activity.id, strategies));
+        }
+      } catch (error) {
+        console.error(`Failed to fetch cluster strategies for activity ${activity.id}:`, error);
+      }
+    });
+  }, [activities, projectId]);
+
+  const toggleExpanded = (activityId: string) => {
+    setExpandedActivities(prev => {
+      const next = new Set(prev);
+      if (next.has(activityId)) {
+        next.delete(activityId);
+      } else {
+        next.add(activityId);
+      }
+      return next;
+    });
+  };
 
   const calculateTimeline = (activities: Activity[]): TimelineCalculation => {
     if (activities.length === 0) {
@@ -75,14 +140,29 @@ const GanttChart: React.FC<GanttChartProps> = ({
       };
     }
 
-    // Find project boundaries
-    const projectStart = new Date(Math.min(...activities.map(a => a.start_date.getTime())));
-    const projectEnd = new Date(Math.max(...activities.map(a => a.end_date.getTime())));
+    // Find project boundaries - include cluster strategies in calculations
+    let allDates: number[] = activities.map(a => a.start_date.getTime());
+    allDates.push(...activities.map(a => a.end_date.getTime()));
+    
+    // Add cluster strategy dates if expanded
+    activities.forEach(activity => {
+      if (expandedActivities.has(activity.id)) {
+        const strategies = clusterStrategiesMap.get(activity.id) || [];
+        strategies.forEach(s => {
+          const startDate = new Date(s.planned_start_date);
+          const endDate = new Date(startDate.getTime() + s.estimated_duration_days * 24 * 60 * 60 * 1000);
+          allDates.push(startDate.getTime(), endDate.getTime());
+        });
+      }
+    });
+
+    const projectStart = new Date(Math.min(...allDates));
+    const projectEnd = new Date(Math.max(...allDates));
     const totalDuration = projectEnd.getTime() - projectStart.getTime();
 
-    // Calculate bar positions and handle overlaps
+    // Calculate bar positions with hierarchical support
     const activityBars: ActivityBar[] = [];
-    const rows: Array<{ activities: string[], endTime: number }> = [];
+    let currentRow = 0;
 
     activities
       .sort((a, b) => a.start_date.getTime() - b.start_date.getTime())
@@ -91,18 +171,9 @@ const GanttChart: React.FC<GanttChartProps> = ({
         const x = ((activity.start_date.getTime() - projectStart.getTime()) / totalDuration) * 100;
         const width = (duration / totalDuration) * 100;
 
-        // Find available row (handle overlaps)
-        let rowIndex = 0;
-        while (rowIndex < rows.length && rows[rowIndex].endTime > activity.start_date.getTime()) {
-          rowIndex++;
-        }
-
-        if (rowIndex === rows.length) {
-          rows.push({ activities: [], endTime: activity.end_date.getTime() });
-        } else {
-          rows[rowIndex].endTime = Math.max(rows[rowIndex].endTime, activity.end_date.getTime());
-        }
-        rows[rowIndex].activities.push(activity.id);
+        const strategies = clusterStrategiesMap.get(activity.id) || [];
+        const isParent = activity.type === 'migration' && strategies.length > 0;
+        const isExpanded = expandedActivities.has(activity.id);
 
         // Find conflicts (overlapping activities)
         const conflicts = activities
@@ -114,13 +185,41 @@ const GanttChart: React.FC<GanttChartProps> = ({
           )
           .map(other => other.id);
 
+        // Add parent activity bar
         activityBars.push({
           id: activity.id,
           x: Math.max(0, x),
           width: Math.min(100 - x, width),
-          y: rowIndex,
-          conflicts
+          y: currentRow,
+          conflicts,
+          isParent,
+          isChild: false
         });
+        currentRow++;
+
+        // Add cluster strategy sub-rows if expanded
+        if (isExpanded && strategies.length > 0) {
+          strategies.forEach(strategy => {
+            const strategyStart = new Date(strategy.planned_start_date);
+            const strategyEnd = new Date(strategyStart.getTime() + strategy.estimated_duration_days * 24 * 60 * 60 * 1000);
+            const strategyDuration = strategyEnd.getTime() - strategyStart.getTime();
+            const strategyX = ((strategyStart.getTime() - projectStart.getTime()) / totalDuration) * 100;
+            const strategyWidth = (strategyDuration / totalDuration) * 100;
+
+            activityBars.push({
+              id: strategy.id,
+              x: Math.max(0, strategyX),
+              width: Math.min(100 - strategyX, strategyWidth),
+              y: currentRow,
+              conflicts: [], // TODO: Calculate strategy conflicts if needed
+              isParent: false,
+              isChild: true,
+              parentId: activity.id,
+              strategyData: strategy
+            });
+            currentRow++;
+          });
+        }
       });
 
     return { projectStart, projectEnd, totalDuration, activityBars };
@@ -286,12 +385,133 @@ const GanttChart: React.FC<GanttChartProps> = ({
         ) : (
           <>
             {timelineData.activityBars.map((bar, index) => {
+              // Phase 5: Handle both parent activities and child cluster strategies
+              if (bar.isChild && bar.strategyData) {
+                // Render cluster strategy sub-row
+                const strategy = bar.strategyData;
+                const rowHeight = 48; // Smaller for child rows
+                const topOffset = 20 + (bar.y * (rowHeight + 8));
+                const isCompact = bar.width < 15;
+                
+                // Determine strategy status color
+                const strategyStatusColor = getStatusColor(strategy.status);
+                const hardwareTypeColor = strategy.source_hardware_type === 'domino' ? '#ff6b35' : 
+                                         strategy.source_hardware_type === 'pool' ? '#3b82f6' : '#10b981';
+
+                return (
+                  <div key={`strategy-${bar.id}`}>
+                    {/* Cluster Strategy Bar */}
+                    <div
+                      style={{
+                        position: 'absolute',
+                        left: `calc(${bar.x}% + 24px)`, // Indent for hierarchy
+                        top: `${topOffset}px`,
+                        width: `calc(${Math.max(bar.width, 2)}% - 24px)`,
+                        height: `${rowHeight}px`,
+                        background: `linear-gradient(135deg, ${strategyStatusColor}10, ${strategyStatusColor}20)`,
+                        border: `1px solid ${strategyStatusColor}80`,
+                        borderLeft: `3px solid ${hardwareTypeColor}`,
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        transition: 'all 0.15s ease',
+                        zIndex: 1,
+                        overflow: 'hidden',
+                        boxSizing: 'border-box'
+                      }}
+                      title={`${strategy.target_cluster_name} • ${strategy.migration_strategy_type} • ${strategy.source_hardware_type.toUpperCase()}`}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'translateX(2px)';
+                        e.currentTarget.style.boxShadow = `0 4px 16px ${strategyStatusColor}20`;
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'translateX(0)';
+                        e.currentTarget.style.boxShadow = 'none';
+                      }}
+                    >
+                      {/* Progress indicator */}
+                      {strategy.status === 'completed' && (
+                        <div
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                            background: `linear-gradient(135deg, ${strategyStatusColor}, ${strategyStatusColor}dd)`,
+                            borderRadius: '7px',
+                            opacity: 0.3
+                          }}
+                        />
+                      )}
+
+                      {/* Strategy Content */}
+                      <div style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        padding: isCompact ? '6px 10px' : '8px 12px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        color: 'var(--lcm-text-primary)',
+                        fontSize: '12px',
+                        fontWeight: '500',
+                        zIndex: 2
+                      }}>
+                        <ServerRegular style={{ fontSize: '14px', color: hardwareTypeColor, flexShrink: 0 }} />
+                        {!isCompact && (
+                          <>
+                            <span style={{ 
+                              overflow: 'hidden', 
+                              textOverflow: 'ellipsis', 
+                              whiteSpace: 'nowrap',
+                              flex: 1
+                            }}>
+                              {strategy.target_cluster_name}
+                            </span>
+                            <span style={{
+                              fontSize: '10px',
+                              padding: '2px 6px',
+                              background: `${hardwareTypeColor}20`,
+                              color: hardwareTypeColor,
+                              borderRadius: '4px',
+                              fontWeight: '600',
+                              textTransform: 'uppercase',
+                              flexShrink: 0
+                            }}>
+                              {strategy.source_hardware_type}
+                            </span>
+                          </>
+                        )}
+                      </div>
+
+                      {/* Domino dependency arrow */}
+                      {strategy.depends_on_strategy_id && (
+                        <ArrowRightRegular
+                          style={{
+                            position: 'absolute',
+                            left: '-20px',
+                            top: '50%',
+                            transform: 'translateY(-50%)',
+                            fontSize: '14px',
+                            color: '#ff6b35',
+                            opacity: 0.7
+                          }}
+                        />
+                      )}
+                    </div>
+                  </div>
+                );
+              }
+
+              // Render parent activity
               const activity = activities.find(a => a.id === bar.id)!;
               const rowHeight = 64;
               const topOffset = 20 + (bar.y * (rowHeight + 12));
-              const isCompact = bar.width < 18; // percent of track width
+              const isCompact = bar.width < 18;
               const isTiny = bar.width < 10;
               const contentPadding = isCompact ? '8px 12px' : '12px 16px';
+              const isExpanded = expandedActivities.has(bar.id);
+              const strategies = clusterStrategiesMap.get(bar.id) || [];
 
               return (
                 <div key={bar.id}>
@@ -355,6 +575,45 @@ const GanttChart: React.FC<GanttChartProps> = ({
                       gap: isCompact ? '8px' : '12px',
                       width: '100%'
                     }}>
+                      {/* Phase 5: Expand/Collapse button for migration activities with strategies */}
+                      {bar.isParent && strategies.length > 0 && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleExpanded(bar.id);
+                          }}
+                          style={{
+                            background: 'rgba(99, 102, 241, 0.1)',
+                            border: '1px solid rgba(99, 102, 241, 0.3)',
+                            borderRadius: '6px',
+                            padding: '4px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                            flexShrink: 0,
+                            width: '24px',
+                            height: '24px',
+                            transition: 'all 0.2s ease'
+                          }}
+                          title={isExpanded ? 'Collapse cluster strategies' : `Expand ${strategies.length} cluster strategies`}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = 'rgba(99, 102, 241, 0.2)';
+                            e.currentTarget.style.transform = 'scale(1.1)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = 'rgba(99, 102, 241, 0.1)';
+                            e.currentTarget.style.transform = 'scale(1)';
+                          }}
+                        >
+                          {isExpanded ? (
+                            <ChevronDownRegular style={{ fontSize: '14px', color: 'var(--lcm-primary)' }} />
+                          ) : (
+                            <ChevronRightRegular style={{ fontSize: '14px', color: 'var(--lcm-primary)' }} />
+                          )}
+                        </button>
+                      )}
+
                       <div style={{ 
                         fontSize: '20px', 
                         flexShrink: 0,
@@ -372,9 +631,25 @@ const GanttChart: React.FC<GanttChartProps> = ({
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
                             whiteSpace: 'nowrap',
-                            marginBottom: isCompact ? 0 : '4px'
+                            marginBottom: isCompact ? 0 : '4px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px'
                           }}>
                             {activity.name}
+                            {/* Phase 5: Show cluster count badge for migration activities */}
+                            {bar.isParent && strategies.length > 0 && (
+                              <span style={{
+                                fontSize: '11px',
+                                padding: '2px 6px',
+                                background: 'rgba(99, 102, 241, 0.15)',
+                                color: 'var(--lcm-primary)',
+                                borderRadius: '4px',
+                                fontWeight: '600'
+                              }}>
+                                {strategies.length}
+                              </span>
+                            )}
                           </div>
                           {!isCompact && (
                             <div style={{ 
