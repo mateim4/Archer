@@ -329,6 +329,16 @@ const Step2_SourceDestination: React.FC = () => {
           onOptionSelect={handleSourceClusterChange}
           size="large"
           clearable
+          positioning={{
+            position: 'below',
+            align: 'start',
+            fallbackPositions: ['above', 'after', 'before'],
+          }}
+          listbox={{
+            style: {
+              maxHeight: '300px',
+            },
+          }}
         >
           {MOCK_CLUSTERS.map((cluster) => (
             <Option key={cluster.id} value={cluster.id} text={cluster.name}>

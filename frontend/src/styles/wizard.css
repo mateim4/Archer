@@ -21,7 +21,7 @@
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   box-shadow: var(--fluent-shadow-8);
-  overflow: hidden;
+  overflow: visible; /* Changed from hidden to allow dropdown to render properly */
   position: relative;
 }
 
@@ -36,6 +36,8 @@
     var(--fluent-color-brand-primary) 0%, 
     var(--fluent-color-brand-accent) 50%,
     var(--fluent-color-brand-secondary) 100%);
+  border-radius: var(--fluent-border-radius-large) var(--fluent-border-radius-large) 0 0;
+  z-index: 1;
 }
 
 /* ===================
@@ -482,6 +484,39 @@
   border-color: #8b5cf6;
   box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15), 0 2px 8px rgba(139, 92, 246, 0.2);
   background: rgba(255, 255, 255, 0.9);
+}
+
+/* Style the Combobox dropdown listbox */
+.fui-Listbox {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(20px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(150%) !important;
+  border: 2px solid rgba(139, 92, 246, 0.3) !important;
+  border-radius: var(--fluent-border-radius-medium) !important;
+  box-shadow: 0 8px 32px rgba(139, 92, 246, 0.2), 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  font-family: 'Poppins', sans-serif !important;
+  padding: var(--fluent-spacing-xs) !important;
+  max-height: 300px !important;
+  overflow-y: auto !important;
+  z-index: 1000000 !important; /* Ensure it's above all other content */
+}
+
+/* Style individual options in the dropdown */
+.fui-Option {
+  font-family: 'Poppins', sans-serif !important;
+  padding: var(--fluent-spacing-s) var(--fluent-spacing-m) !important;
+  border-radius: var(--fluent-border-radius-small) !important;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.fui-Option:hover {
+  background: rgba(139, 92, 246, 0.1) !important;
+}
+
+.fui-Option[aria-selected="true"] {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(99, 102, 241, 0.15) 100%) !important;
+  color: #8b5cf6 !important;
+  font-weight: 600 !important;
 }
 
 /* Style Input with purple glass aesthetic */
