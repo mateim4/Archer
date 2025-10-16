@@ -119,6 +119,9 @@ const useStyles = makeStyles({
   
   radioCardRadio: {
     marginBottom: tokens.spacingVerticalM,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
   radioCardContent: {
