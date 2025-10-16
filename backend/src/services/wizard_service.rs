@@ -16,6 +16,7 @@ use surrealdb::sql::Thing;
 use crate::models::workflow::{
     Activity, ActivityStatus, ActivityType, MigrationMetadata, WizardState,
 };
+use crate::database::AppState;
 
 /// Request to start a new wizard session
 #[derive(Debug, Serialize, Deserialize)]
@@ -61,9 +62,10 @@ impl WizardService {
     /// Creates an Activity with status=Draft and sets expiration to 30 days from now.
     /// Returns the activity ID and expiration timestamp.
     pub async fn create_draft_activity(
-        db: &Surreal<Db>,
+        state: &AppState,
         request: StartWizardRequest,
     ) -> Result<StartWizardResponse, Box<dyn std::error::Error>> {
+        let db = state.as_ref();
         let now = Utc::now();
         let expires_at = now + Duration::days(30);
 
@@ -100,14 +102,16 @@ impl WizardService {
         };
 
         // Insert into database
-        let created: Option<Activity> = db
+        let created: Vec<Activity> = db
             .create("activity")
             .content(activity)
             .await?;
 
         let activity_id = created
-            .and_then(|a| a.id)
+            .first()
+            .and_then(|a| a.id.as_ref())
             .ok_or("Failed to create activity")?
+            .id
             .to_string();
 
         Ok(StartWizardResponse {
@@ -121,10 +125,11 @@ impl WizardService {
     /// Updates the wizard_state field with current step data.
     /// Extends expiration by another 30 days from now.
     pub async fn save_wizard_progress(
-        db: &Surreal<Db>,
+        state: &AppState,
         activity_id: &str,
-        wizard_state: serde_json::Value,
+        request: SaveProgressRequest,
     ) -> Result<(), Box<dyn std::error::Error>> {
+        let db = state.as_ref();
         let now = Utc::now();
         let new_expiration = now + Duration::days(30);
 
@@ -165,9 +170,10 @@ impl WizardService {
     ///
     /// Returns None if draft doesn't exist or has expired.
     pub async fn get_wizard_draft(
-        db: &Surreal<Db>,
+        state: &AppState,
         activity_id: &str,
-    ) -> Result<Option<Activity>, Box<dyn std::error::Error>> {
+    ) -> Result<Activity, Box<dyn std::error::Error>> {
+        let db = state.as_ref();
         let activity: Option<Activity> = db.select(("activity", activity_id)).await?;
         let activity = activity.ok_or("Activity not found")?;
 
@@ -192,10 +198,11 @@ impl WizardService {
     /// Changes status from Draft → Planned, removes expiration_date,
     /// and updates wizard_state with final data.
     pub async fn complete_wizard(
-        db: &Surreal<Db>,
+        state: &AppState,
         activity_id: &str,
-        final_data: serde_json::Value,
-    ) -> Result<Activity, Box<dyn std::error::Error>> {
+        request: CompleteWizardRequest,
+    ) -> Result<CompleteWizardResponse, Box<dyn std::error::Error>> {
+        let db = state.as_ref();
         let now = Utc::now();
 
         // Fetch existing activity
@@ -274,8 +281,9 @@ impl WizardService {
     /// This should be run as a scheduled task to remove drafts that have
     /// been inactive for more than 30 days.
     pub async fn cleanup_expired_drafts(
-        db: &Surreal<Db>,
+        state: &AppState,
     ) -> Result<u32, Box<dyn std::error::Error>> {
+        let db = state.as_ref();
         let now = Utc::now();
 
         // Query for expired drafts
