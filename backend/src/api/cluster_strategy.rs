@@ -75,6 +75,10 @@ pub struct ConfigureStrategyRequest {
     pub target_cluster_name: String,
     pub strategy_type: MigrationStrategyType,
     
+    // NEW: Activity linking
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub activity_id: Option<String>,
+    
     // Optional fields based on strategy type
     pub domino_source_cluster: Option<String>,
     pub hardware_basket_items: Option<Vec<String>>,
@@ -120,6 +124,11 @@ pub fn routes() -> Router<AppState> {
             get(get_cluster_strategy)
                 .put(update_cluster_strategy)
                 .delete(delete_cluster_strategy),
+        )
+        // NEW: Activity-based routes
+        .route(
+            "/projects/:project_id/activities/:activity_id/cluster-strategies",
+            post(configure_cluster_strategy_for_activity).get(list_cluster_strategies_for_activity),
         )
         .route(
             "/projects/:project_id/validate-dependencies",
@@ -167,6 +176,9 @@ pub async fn configure_cluster_strategy(
         request.strategy_type.clone(),
         created_by,
     );
+
+    // NEW: Set activity_id if provided
+    plan.activity_id = request.activity_id;
 
     // Set strategy type and related fields
     plan.strategy_type = request.strategy_type.clone();
@@ -797,5 +809,77 @@ mod tests {
         };
 
         assert!(validate_strategy_request(&request).is_err());
+    }
+}
+
+// ============================================================================
+// Activity-Based Strategy Handlers (NEW)
+// ============================================================================
+
+/// Configure a new cluster migration strategy for a specific activity
+///
+/// # Arguments
+/// * `project_id` - Project identifier
+/// * `activity_id` - Activity identifier  
+/// * `request` - Strategy configuration details
+///
+/// # Returns
+/// * `201 Created` - Strategy created successfully
+/// * `400 Bad Request` - Invalid strategy configuration
+/// * `500 Internal Server Error` - Database error
+pub async fn configure_cluster_strategy_for_activity(
+    Path((project_id, activity_id)): Path<(String, String)>,
+    State(state): State<AppState>,
+    Json(mut request): Json<ConfigureStrategyRequest>,
+) -> Result<Json<ApiResponse<ClusterMigrationPlan>>, StatusCode> {
+    // Add activity_id to the request
+    request.activity_id = Some(activity_id.clone());
+    
+    // Reuse existing configure_cluster_strategy logic
+    configure_cluster_strategy(
+        Path(project_id),
+        State(state),
+        Json(request),
+    ).await
+}
+
+/// List all cluster strategies for a specific activity
+///
+/// # Arguments
+/// * `project_id` - Project identifier
+/// * `activity_id` - Activity identifier
+///
+/// # Returns
+/// * `200 OK` - List of strategies
+/// * `500 Internal Server Error` - Database error
+pub async fn list_cluster_strategies_for_activity(
+    Path((project_id, activity_id)): Path<(String, String)>,
+    State(state): State<AppState>,
+) -> Result<Json<ApiResponse<Vec<ClusterMigrationPlan>>>, (StatusCode, Json<ApiResponse<()>>)> {
+    match state.select::<Vec<ClusterMigrationPlan>>("cluster_migration_plans").await {
+        Ok(all_strategies) => {
+            // Filter strategies by project_id and activity_id
+            let filtered_strategies: Vec<ClusterMigrationPlan> = all_strategies
+                .into_iter()
+                .filter(|s| {
+                    // Check if project_id matches
+                    let project_matches = s.project_id.to_string() == format!("projects:{}", project_id);
+                    // Check if activity_id matches
+                    let activity_matches = s.activity_id.as_ref()
+                        .map(|aid| aid == &activity_id)
+                        .unwrap_or(false);
+                    project_matches && activity_matches
+                })
+                .collect();
+            
+            Ok(Json(ApiResponse::success(filtered_strategies)))
+        }
+        Err(e) => {
+            eprintln!("Failed to fetch cluster strategies: {}", e);
+            Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(ApiResponse::error(format!("Failed to fetch strategies: {}", e))),
+            ))
+        }
     }
 }

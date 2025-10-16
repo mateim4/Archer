@@ -51,6 +51,13 @@ interface Activity {
   assignees?: string[]; // Multi-assignee support
   dependencies: string[];
   progress: number;
+  // Migration-specific fields
+  cluster_strategies?: string[]; // IDs of associated cluster migration strategies
+  migration_metadata?: {
+    total_clusters: number;
+    clusters_completed: number;
+    hardware_source: 'new' | 'domino' | 'pool' | 'mixed';
+  };
 }
 
 interface ProjectStats {
@@ -826,8 +833,14 @@ const ProjectWorkspaceView: React.FC = () => {
                           onActivityClick={(activityId) => {
                             const activity = activities.find(a => a.id === activityId);
                             if (activity) {
-                              setSelectedActivity(activity);
-                              setIsEditActivityModalOpen(true);
+                              // Migration activities navigate to cluster strategy manager
+                              if (activity.type === 'migration') {
+                                navigate(`/app/projects/${projectId}/activities/${activity.id}/cluster-strategies`);
+                              } else {
+                                // Other activities open edit modal
+                                setSelectedActivity(activity);
+                                setIsEditActivityModalOpen(true);
+                              }
                             }
                           }}
                         />

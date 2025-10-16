@@ -529,6 +529,7 @@ pub enum MigrationStrategyType {
 pub struct ClusterMigrationPlan {
     pub id: Option<Thing>,
     pub project_id: Thing,
+    pub activity_id: Option<String>, // NEW: Link to parent migration activity
     pub target_cluster_name: String,
     pub strategy_type: MigrationStrategyType,
     
@@ -591,6 +592,7 @@ impl ClusterMigrationPlan {
         Self {
             id: None,
             project_id,
+            activity_id: None, // NEW: Initialize as None, can be set later
             target_cluster_name: target_cluster_name.clone(),
             strategy_type,
             source_vms: Vec::new(),
