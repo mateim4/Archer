@@ -17,10 +17,14 @@ import { WizardProvider, useWizardContext } from './Context/WizardContext';
 import WizardProgress from './WizardProgress';
 import WizardNavigation from './WizardNavigation';
 
-// Step components (will be created next)
-// import Step1_Basics from './Steps/Step1_Basics';
+// Step components
+import Step1_Basics from './Steps/Step1_Basics';
 // import Step2_SourceDestination from './Steps/Step2_SourceDestination';
-// etc...
+// import Step3_Infrastructure from './Steps/Step3_Infrastructure';
+// import Step4_HardwareSelection from './Steps/Step4_HardwareSelection';
+// import Step5_Timeline from './Steps/Step5_Timeline';
+// import Step6_Assignment from './Steps/Step6_Assignment';
+// import Step7_Review from './Steps/Step7_Review';
 
 // ============================================================================
 // Styles
@@ -224,20 +228,38 @@ const WizardContent: React.FC = () => {
           <h2 className={styles.stepTitle}>{currentStepInfo.title}</h2>
           <p className={styles.stepDescription}>{currentStepInfo.description}</p>
 
-          {/* Placeholder for step components */}
-          <div className={styles.placeholder}>
-            Step {currentStep} component will be rendered here
-          </div>
-
-          {/* TODO: Replace with actual step components
+          {/* Render step component */}
           {currentStep === 1 && <Step1_Basics />}
-          {currentStep === 2 && <Step2_SourceDestination />}
-          {currentStep === 3 && <Step3_Infrastructure />}
-          {currentStep === 4 && <Step4_HardwareSelection />}
-          {currentStep === 5 && <Step5_Timeline />}
-          {currentStep === 6 && <Step6_Assignment />}
-          {currentStep === 7 && <Step7_Review />}
-          */}
+          {currentStep === 2 && (
+            <div className={styles.placeholder}>
+              Step 2: Source & Destination (Coming Soon)
+            </div>
+          )}
+          {currentStep === 3 && (
+            <div className={styles.placeholder}>
+              Step 3: Hardware Compatibility (Coming Soon)
+            </div>
+          )}
+          {currentStep === 4 && (
+            <div className={styles.placeholder}>
+              Step 4: Capacity Validation (Coming Soon)
+            </div>
+          )}
+          {currentStep === 5 && (
+            <div className={styles.placeholder}>
+              Step 5: Timeline Estimation (Coming Soon)
+            </div>
+          )}
+          {currentStep === 6 && (
+            <div className={styles.placeholder}>
+              Step 6: Team Assignment (Coming Soon)
+            </div>
+          )}
+          {currentStep === 7 && (
+            <div className={styles.placeholder}>
+              Step 7: Review & Submit (Coming Soon)
+            </div>
+          )}
         </div>
 
         {/* Navigation */}
