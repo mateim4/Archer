@@ -6,15 +6,12 @@
  * - Next button (disabled if step invalid or last step)
  * - Save Draft button (manual save)
  * - Submit button (only on last step)
+ * 
+ * Now using wizard.css design system classes
  */
 
 import React, { useState } from 'react';
-import { 
-  Button, 
-  makeStyles, 
-  shorthands, 
-  tokens,
-} from '@fluentui/react-components';
+import { Button } from '@fluentui/react-components';
 import {
   ArrowLeftRegular,
   ArrowRightRegular,
@@ -24,62 +21,10 @@ import {
 import { useWizardContext } from './Context/WizardContext';
 
 // ============================================================================
-// Styles
-// ============================================================================
-
-const useStyles = makeStyles({
-  container: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    ...shorthands.padding(tokens.spacingVerticalL),
-    backgroundColor: '#ffffff',
-    ...shorthands.borderRadius(tokens.borderRadiusLarge),
-    ...shorthands.border('1px', 'solid', '#e5e7eb'),
-    boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-  },
-
-  leftButtons: {
-    display: 'flex',
-    gap: tokens.spacingHorizontalM,
-  },
-
-  rightButtons: {
-    display: 'flex',
-    gap: tokens.spacingHorizontalM,
-  },
-
-  button: {
-    fontFamily: 'Poppins, sans-serif',
-    fontWeight: 500,
-  },
-
-  buttonPrimary: {
-    fontFamily: 'Poppins, sans-serif',
-    fontWeight: 600,
-  },
-
-  successMessage: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: tokens.spacingHorizontalS,
-    ...shorthands.padding(tokens.spacingVerticalM, tokens.spacingHorizontalL),
-    backgroundColor: tokens.colorPaletteGreenBackground1,
-    ...shorthands.border('1px', 'solid', tokens.colorPaletteGreenBorder1),
-    ...shorthands.borderRadius(tokens.borderRadiusMedium),
-    color: tokens.colorPaletteGreenForeground2,
-    fontSize: '14px',
-    fontFamily: 'Poppins, sans-serif',
-    fontWeight: 500,
-  },
-});
-
-// ============================================================================
 // Component
 // ============================================================================
 
 const WizardNavigation: React.FC = () => {
-  const styles = useStyles();
   const {
     currentStep,
     canGoNext,
@@ -147,8 +92,8 @@ const WizardNavigation: React.FC = () => {
 
   if (showSuccess && isLastStep) {
     return (
-      <div className={styles.container}>
-        <div className={styles.successMessage}>
+      <div className="wizard-navigation">
+        <div className="wizard-success-box">
           <CheckmarkCircleFilled style={{ fontSize: '20px' }} />
           Activity created successfully! Redirecting...
         </div>
@@ -157,29 +102,27 @@ const WizardNavigation: React.FC = () => {
   }
 
   return (
-    <div className={styles.container}>
+    <div className="wizard-navigation">
       {/* Left Side - Back Button */}
-      <div className={styles.leftButtons}>
+      <div className="wizard-nav-group">
         <Button
           appearance="secondary"
           icon={<ArrowLeftRegular />}
           onClick={handleBack}
           disabled={isFirstStep || isSaving || isSubmitting}
-          className={styles.button}
         >
           Back
         </Button>
       </div>
 
       {/* Right Side - Save Draft, Next/Submit */}
-      <div className={styles.rightButtons}>
+      <div className="wizard-nav-group">
         {/* Save Draft Button */}
         <Button
           appearance="subtle"
           icon={<SaveRegular />}
           onClick={handleSaveDraft}
           disabled={isSaving || isSubmitting}
-          className={styles.button}
         >
           {isSaving ? 'Saving...' : 'Save Draft'}
         </Button>
@@ -191,7 +134,6 @@ const WizardNavigation: React.FC = () => {
             icon={<CheckmarkCircleFilled />}
             onClick={handleSubmit}
             disabled={!canGoNext() || isSubmitting}
-            className={styles.buttonPrimary}
           >
             {isSubmitting ? 'Submitting...' : 'Submit & Create Activity'}
           </Button>
@@ -202,7 +144,6 @@ const WizardNavigation: React.FC = () => {
             iconPosition="after"
             onClick={handleNext}
             disabled={!canGoNext() || isSaving || isSubmitting}
-            className={styles.buttonPrimary}
           >
             Next
           </Button>
@@ -211,7 +152,7 @@ const WizardNavigation: React.FC = () => {
 
       {/* Success Message (for Save Draft) */}
       {showSuccess && !isLastStep && (
-        <div className={styles.successMessage} style={{ marginLeft: 'auto' }}>
+        <div className="wizard-save-indicator" style={{ marginLeft: 'auto' }}>
           <CheckmarkCircleFilled style={{ fontSize: '16px' }} />
           Draft saved!
         </div>

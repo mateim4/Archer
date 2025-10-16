@@ -27,53 +27,11 @@ import Step6_Assignment from './Steps/Step6_Assignment';
 import Step7_Review from './Steps/Step7_Review';
 
 // ============================================================================
-// Styles
+// Styles - Using wizard.css design system classes
 // ============================================================================
 
 const useStyles = makeStyles({
-  container: {
-    display: 'flex',
-    flexDirection: 'column',
-    width: '100%',
-    height: '100vh',
-    backgroundColor: '#f9fafb',
-    fontFamily: 'Poppins, Montserrat, system-ui, -apple-system, sans-serif',
-  },
-  
-  header: {
-    backgroundColor: '#ffffff',
-    ...shorthands.borderBottom('1px', 'solid', '#e5e7eb'),
-    ...shorthands.padding(tokens.spacingVerticalXL, tokens.spacingHorizontalXXL),
-    boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-  },
-  
-  headerTitle: {
-    fontSize: '24px',
-    fontWeight: 600,
-    color: tokens.colorNeutralForeground1,
-    marginTop: 0,
-    marginBottom: tokens.spacingVerticalS,
-    fontFamily: 'Poppins, sans-serif',
-  },
-  
-  headerSubtitle: {
-    fontSize: '14px',
-    fontWeight: 400,
-    color: tokens.colorNeutralForeground2,
-    marginTop: 0,
-    marginBottom: 0,
-    fontFamily: 'Poppins, sans-serif',
-  },
-  
-  saveIndicator: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: tokens.spacingHorizontalS,
-    fontSize: '12px',
-    color: tokens.colorNeutralForeground3,
-    marginTop: tokens.spacingVerticalS,
-  },
-  
+  // Minimal styles - most styling comes from wizard.css
   saveIndicatorIcon: {
     width: '8px',
     height: '8px',
@@ -83,71 +41,6 @@ const useStyles = makeStyles({
   
   saveIndicatorSaving: {
     backgroundColor: tokens.colorPaletteYellowBackground3,
-  },
-  
-  expirationWarning: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: tokens.spacingHorizontalS,
-    ...shorthands.padding(tokens.spacingVerticalS, tokens.spacingHorizontalM),
-    backgroundColor: tokens.colorPaletteYellowBackground1,
-    ...shorthands.border('1px', 'solid', tokens.colorPaletteYellowBorder1),
-    ...shorthands.borderRadius(tokens.borderRadiusMedium),
-    fontSize: '13px',
-    color: tokens.colorNeutralForeground1,
-    marginTop: tokens.spacingVerticalM,
-  },
-  
-  content: {
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-    ...shorthands.padding(tokens.spacingVerticalXXL, tokens.spacingHorizontalXXL),
-    overflowY: 'auto',
-  },
-  
-  progressSection: {
-    marginBottom: tokens.spacingVerticalXXL,
-  },
-  
-  stepContent: {
-    backgroundColor: '#ffffff',
-    ...shorthands.borderRadius(tokens.borderRadiusLarge),
-    ...shorthands.padding(tokens.spacingVerticalXXL, tokens.spacingHorizontalXXL),
-    ...shorthands.border('1px', 'solid', '#e5e7eb'),
-    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-    minHeight: '400px',
-  },
-  
-  stepTitle: {
-    fontSize: '20px',
-    fontWeight: 600,
-    color: tokens.colorNeutralForeground1,
-    marginTop: 0,
-    marginBottom: tokens.spacingVerticalS,
-    fontFamily: 'Poppins, sans-serif',
-  },
-  
-  stepDescription: {
-    fontSize: '14px',
-    color: tokens.colorNeutralForeground2,
-    marginTop: 0,
-    marginBottom: tokens.spacingVerticalXXL,
-    fontFamily: 'Poppins, sans-serif',
-  },
-  
-  navigationSection: {
-    marginTop: tokens.spacingVerticalXXL,
-  },
-  
-  placeholder: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: '300px',
-    fontSize: '16px',
-    color: tokens.colorNeutralForeground3,
-    fontStyle: 'italic',
   },
 });
 
@@ -185,48 +78,46 @@ const WizardContent: React.FC = () => {
   const currentStepInfo = stepInfo[currentStep - 1];
 
   return (
-    <div className={styles.container}>
-      {/* Header */}
-      <div className={styles.header}>
-        <h1 className={styles.headerTitle}>Create New Activity</h1>
-        <p className={styles.headerSubtitle}>
-          Step {currentStep} of 7: {currentStepInfo.title}
-        </p>
+    <div className="wizard-container">
+      {/* Main Card with Glassmorphic Effect */}
+      <div className="wizard-main-card">
+        {/* Header */}
+        <div className="wizard-header">
+          <h1 className="wizard-title">Create New Activity</h1>
+          <p className="wizard-subtitle">
+            Step {currentStep} of 7: {currentStepInfo.title}
+          </p>
 
-        {/* Save Indicator */}
-        {lastSavedAt && (
-          <div className={styles.saveIndicator}>
-            <div className={`${styles.saveIndicatorIcon} ${isSaving ? styles.saveIndicatorSaving : ''}`} />
-            {isSaving ? (
-              <span>Saving...</span>
-            ) : (
-              <span>
-                Last saved at {lastSavedAt.toLocaleTimeString()}
-              </span>
-            )}
-          </div>
-        )}
+          {/* Save Indicator */}
+          {lastSavedAt && (
+            <div className="wizard-save-indicator">
+              <div className={`${styles.saveIndicatorIcon} ${isSaving ? styles.saveIndicatorSaving : ''}`} />
+              {isSaving ? (
+                <span>Saving...</span>
+              ) : (
+                <span>
+                  Last saved at {lastSavedAt.toLocaleTimeString()}
+                </span>
+              )}
+            </div>
+          )}
 
-        {/* Expiration Warning */}
-        {showExpirationWarning && (
-          <div className={styles.expirationWarning}>
-            ⚠️ Draft expires in {daysUntilExpiration} {daysUntilExpiration === 1 ? 'day' : 'days'}. 
-            Please complete or it will be automatically deleted.
-          </div>
-        )}
-      </div>
-
-      {/* Main Content */}
-      <div className={styles.content}>
-        {/* Progress Indicator */}
-        <div className={styles.progressSection}>
-          <WizardProgress />
+          {/* Expiration Warning */}
+          {showExpirationWarning && (
+            <div className="wizard-warning-box">
+              ⚠️ Draft expires in {daysUntilExpiration} {daysUntilExpiration === 1 ? 'day' : 'days'}. 
+              Please complete or it will be automatically deleted.
+            </div>
+          )}
         </div>
 
+        {/* Progress Indicator */}
+        <WizardProgress />
+
         {/* Step Content */}
-        <div className={styles.stepContent}>
-          <h2 className={styles.stepTitle}>{currentStepInfo.title}</h2>
-          <p className={styles.stepDescription}>{currentStepInfo.description}</p>
+        <div className="wizard-step-container">
+          <h2 className="wizard-step-title">{currentStepInfo.title}</h2>
+          <p className="wizard-step-subtitle">{currentStepInfo.description}</p>
 
           {/* Render step component */}
           {currentStep === 1 && <Step1_Basics />}
@@ -239,9 +130,7 @@ const WizardContent: React.FC = () => {
         </div>
 
         {/* Navigation */}
-        <div className={styles.navigationSection}>
-          <WizardNavigation />
-        </div>
+        <WizardNavigation />
       </div>
     </div>
   );
