@@ -926,8 +926,67 @@ const ProjectWorkspaceView: React.FC = () => {
                               <span className="px-2 py-1 text-xs text-gray-600 bg-gray-100 rounded">
                                 {activity.type.replace('_', ' ')}
                               </span>
+                              
+                              {/* Phase 6: Migration-specific badges */}
+                              {activity.type === 'migration' && activity.migration_metadata && (
+                                <>
+                                  {/* Cluster count badge */}
+                                  <span className="px-2 py-1 text-xs font-semibold bg-purple-100 text-purple-700 rounded flex items-center gap-1">
+                                    <ServerRegular style={{ fontSize: '12px' }} />
+                                    {activity.migration_metadata.total_clusters} Clusters
+                                  </span>
+                                  
+                                  {/* Hardware source badge */}
+                                  <span 
+                                    className="px-2 py-1 text-xs font-semibold rounded flex items-center gap-1"
+                                    style={{
+                                      background: activity.migration_metadata.hardware_source === 'domino' ? 'rgba(255, 107, 53, 0.15)' :
+                                                 activity.migration_metadata.hardware_source === 'pool' ? 'rgba(59, 130, 246, 0.15)' :
+                                                 activity.migration_metadata.hardware_source === 'new' ? 'rgba(16, 185, 129, 0.15)' :
+                                                 'rgba(139, 92, 246, 0.15)',
+                                      color: activity.migration_metadata.hardware_source === 'domino' ? '#ff6b35' :
+                                             activity.migration_metadata.hardware_source === 'pool' ? '#3b82f6' :
+                                             activity.migration_metadata.hardware_source === 'new' ? '#10b981' :
+                                             '#8b5cf6'
+                                    }}
+                                  >
+                                    {activity.migration_metadata.hardware_source === 'domino' && '🔄'}
+                                    {activity.migration_metadata.hardware_source === 'pool' && '📦'}
+                                    {activity.migration_metadata.hardware_source === 'new' && '✨'}
+                                    {activity.migration_metadata.hardware_source === 'mixed' && '🔀'}
+                                    {activity.migration_metadata.hardware_source.toUpperCase()}
+                                  </span>
+                                  
+                                  {/* Completion status */}
+                                  {activity.migration_metadata.clusters_completed > 0 && (
+                                    <span className="px-2 py-1 text-xs font-semibold bg-green-50 text-green-700 rounded">
+                                      {activity.migration_metadata.clusters_completed}/{activity.migration_metadata.total_clusters} Complete
+                                    </span>
+                                  )}
+                                </>
+                              )}
                             </div>
                             <div className="flex items-center gap-2">
+                              {/* Phase 6: Configure Clusters button for migration activities */}
+                              {activity.type === 'migration' && (
+                                <button
+                                  onClick={() => navigate(`/app/projects/${projectId}/activities/${activity.id}/cluster-strategies`)}
+                                  style={{
+                                    ...DesignTokens.components.button.primary,
+                                    height: 'auto',
+                                    padding: '8px 16px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '6px',
+                                    fontSize: '13px',
+                                    fontWeight: '600'
+                                  }}
+                                  title="Configure cluster migration strategies"
+                                >
+                                  <ServerRegular style={{ fontSize: '14px' }} />
+                                  Configure Clusters
+                                </button>
+                              )}
                               <button
                                 onClick={() => {
                                   setSelectedActivity(activity);
@@ -1080,6 +1139,102 @@ const ProjectWorkspaceView: React.FC = () => {
                 </div>
               </div>
               </div>
+
+              {/* Phase 6: Migration Statistics Card */}
+              {(() => {
+                const migrationActivities = activities.filter(a => a.type === 'migration');
+                const totalClusters = migrationActivities.reduce((sum, a) => 
+                  sum + (a.migration_metadata?.total_clusters || 0), 0);
+                const completedClusters = migrationActivities.reduce((sum, a) => 
+                  sum + (a.migration_metadata?.clusters_completed || 0), 0);
+                const dominoCount = migrationActivities.filter(a => 
+                  a.migration_metadata?.hardware_source === 'domino').length;
+                const poolCount = migrationActivities.filter(a => 
+                  a.migration_metadata?.hardware_source === 'pool').length;
+                const newCount = migrationActivities.filter(a => 
+                  a.migration_metadata?.hardware_source === 'new').length;
+                const mixedCount = migrationActivities.filter(a => 
+                  a.migration_metadata?.hardware_source === 'mixed').length;
+
+                return migrationActivities.length > 0 ? (
+                  <div className="p-6 bg-white border border-gray-200 rounded-lg lg:col-span-2">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div style={{
+                        ...DesignTokens.components.standardCardIcon,
+                        background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)'
+                      }}>
+                        <ServerRegular style={{ fontSize: '20px', color: 'white' }} />
+                      </div>
+                      <h3 style={DesignTokens.components.standardCardTitle}>Migration Overview</h3>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                      {/* Total Clusters */}
+                      <div>
+                        <div className="text-sm text-gray-500 mb-2">Total Clusters</div>
+                        <div className="text-3xl font-bold text-gray-900">{totalClusters}</div>
+                        {completedClusters > 0 && (
+                          <div className="text-xs text-green-600 mt-1">
+                            {completedClusters} completed ({Math.round(completedClusters / totalClusters * 100)}%)
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Hardware Sources */}
+                      <div>
+                        <div className="text-sm text-gray-500 mb-2">Domino Reuse</div>
+                        <div className="flex items-baseline gap-2">
+                          <div className="text-2xl font-bold" style={{ color: '#ff6b35' }}>
+                            {dominoCount}
+                          </div>
+                          <span className="text-xs text-gray-500">activities</span>
+                        </div>
+                      </div>
+
+                      <div>
+                        <div className="text-sm text-gray-500 mb-2">Hardware Pool</div>
+                        <div className="flex items-baseline gap-2">
+                          <div className="text-2xl font-bold" style={{ color: '#3b82f6' }}>
+                            {poolCount}
+                          </div>
+                          <span className="text-xs text-gray-500">activities</span>
+                        </div>
+                      </div>
+
+                      <div>
+                        <div className="text-sm text-gray-500 mb-2">New Hardware</div>
+                        <div className="flex items-baseline gap-2">
+                          <div className="text-2xl font-bold" style={{ color: '#10b981' }}>
+                            {newCount}
+                          </div>
+                          <span className="text-xs text-gray-500">activities</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Progress Bar */}
+                    {totalClusters > 0 && (
+                      <div className="mt-6">
+                        <div className="flex justify-between text-sm mb-2">
+                          <span className="text-gray-600 font-medium">Overall Migration Progress</span>
+                          <span className="text-gray-900 font-semibold">
+                            {Math.round(completedClusters / totalClusters * 100)}%
+                          </span>
+                        </div>
+                        <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
+                          <div
+                            className="h-full rounded-full transition-all"
+                            style={{
+                              width: `${(completedClusters / totalClusters) * 100}%`,
+                              background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)'
+                            }}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : null;
+              })()}
             </div>
           )}
 
