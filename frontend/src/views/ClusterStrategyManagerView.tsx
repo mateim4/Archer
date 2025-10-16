@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   ArrowLeftRegular,
@@ -82,6 +82,84 @@ const ClusterStrategyManagerView: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedStrategy, setSelectedStrategy] = useState<ClusterStrategy | null>(null);
 
+  // ============================================================================
+  // Phase 4: Activity Progress Rollup Functions
+  // ============================================================================
+
+  /**
+   * Calculate activity progress based on cluster strategy completion
+   * Progress = (completed strategies / total strategies) * 100
+   */
+  const calculateActivityProgress = useCallback((strategies: ClusterStrategy[]): number => {
+    if (strategies.length === 0) return 0;
+    
+    const completedCount = strategies.filter(
+      s => s.status === 'completed'
+    ).length;
+    
+    return Math.round((completedCount / strategies.length) * 100);
+  }, []);
+
+  /**
+   * Determine hardware source type based on strategies
+   * - 'new': All strategies use new hardware purchase
+   * - 'domino': All strategies use domino hardware swap
+   * - 'pool': All strategies use existing free hardware
+   * - 'mixed': Mix of different hardware sources
+   */
+  const determineHardwareSource = useCallback((strategies: ClusterStrategy[]): 'new' | 'domino' | 'pool' | 'mixed' => {
+    if (strategies.length === 0) return 'new';
+    
+    const types = new Set(strategies.map(s => s.strategy_type));
+    
+    if (types.size === 1) {
+      const type = strategies[0].strategy_type;
+      if (type === 'new_hardware_purchase') return 'new';
+      if (type === 'domino_hardware_swap') return 'domino';
+      if (type === 'existing_free_hardware') return 'pool';
+    }
+    
+    return 'mixed';
+  }, []);
+
+  /**
+   * Update activity with new progress and metadata
+   * Called after strategies are added/updated/deleted
+   */
+  const updateActivityProgress = useCallback(async (updatedStrategies: ClusterStrategy[]) => {
+    if (!activity) return;
+
+    const newProgress = calculateActivityProgress(updatedStrategies);
+    const completedCount = updatedStrategies.filter(s => s.status === 'completed').length;
+    const hardwareSource = determineHardwareSource(updatedStrategies);
+
+    const updatedActivity: Activity = {
+      ...activity,
+      progress: newProgress,
+      cluster_strategies: updatedStrategies.map(s => s.id),
+      migration_metadata: {
+        total_clusters: updatedStrategies.length,
+        clusters_completed: completedCount,
+        hardware_source: hardwareSource
+      }
+    };
+
+    setActivity(updatedActivity);
+
+    // TODO: Phase 4.5 - Persist to backend when activity API is available
+    // await fetch(`/api/v1/projects/${projectId}/activities/${activityId}`, {
+    //   method: 'PUT',
+    //   body: JSON.stringify(updatedActivity)
+    // });
+
+    console.log('Activity progress updated:', {
+      progress: newProgress,
+      total_clusters: updatedStrategies.length,
+      clusters_completed: completedCount,
+      hardware_source: hardwareSource
+    });
+  }, [activity, calculateActivityProgress, determineHardwareSource]);
+
   // Load activity details
   useEffect(() => {
     if (!projectId || !activityId) return;
@@ -119,7 +197,13 @@ const ClusterStrategyManagerView: React.FC = () => {
         
         if (response.ok) {
           const data = await response.json();
-          setStrategies(data.strategies || []);
+          const loadedStrategies = data.strategies || [];
+          setStrategies(loadedStrategies);
+          
+          // Phase 4: Calculate initial progress when strategies load
+          if (loadedStrategies.length > 0) {
+            await updateActivityProgress(loadedStrategies);
+          }
         } else {
           // No strategies yet - this is expected for new activities
           setStrategies([]);
@@ -129,7 +213,7 @@ const ClusterStrategyManagerView: React.FC = () => {
         setStrategies([]);
       }
     });
-  }, [projectId, activityId, withLoading]);
+  }, [projectId, activityId, withLoading, updateActivityProgress]);
 
   const handleCreateStrategy = () => {
     setSelectedStrategy(null);
@@ -152,7 +236,12 @@ const ClusterStrategyManagerView: React.FC = () => {
         );
 
         if (response.ok) {
-          setStrategies(prev => prev.filter(s => s.id !== strategyId));
+          const updatedStrategies = strategies.filter(s => s.id !== strategyId);
+          setStrategies(updatedStrategies);
+          
+          // Phase 4: Update activity progress after deletion
+          await updateActivityProgress(updatedStrategies);
+          
           showToast('Cluster strategy deleted successfully', 'success');
         } else {
           showToast('Failed to delete cluster strategy', 'error');
@@ -175,13 +264,42 @@ const ClusterStrategyManagerView: React.FC = () => {
       activity_id: activityId
     };
 
-    // TODO: Save strategy via API
-    console.log('Saving strategy:', strategyWithActivity);
+    try {
+      // Save strategy via API
+      const response = await fetch(
+        `http://127.0.0.1:3001/api/v1/projects/${projectId}/activities/${activityId}/cluster-strategies`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(strategyWithActivity)
+        }
+      );
+
+      if (response.ok) {
+        // Refresh strategies list
+        const refreshResponse = await fetch(
+          `http://127.0.0.1:3001/api/v1/projects/${projectId}/activities/${activityId}/cluster-strategies`
+        );
+        
+        if (refreshResponse.ok) {
+          const data = await refreshResponse.json();
+          const updatedStrategies = data.strategies || [];
+          setStrategies(updatedStrategies);
+          
+          // Phase 4: Update activity progress after adding strategy
+          await updateActivityProgress(updatedStrategies);
+        }
+        
+        showToast('Cluster strategy saved successfully', 'success');
+      } else {
+        showToast('Failed to save cluster strategy', 'error');
+      }
+    } catch (error) {
+      console.error('Error saving strategy:', error);
+      showToast('Error saving cluster strategy', 'error');
+    }
     
-    // Refresh strategies list
-    // This will be replaced with actual API call
     handleModalClose();
-    showToast('Cluster strategy saved successfully', 'success');
   };
 
   const getStatusBadge = (status: Activity['status']) => {
