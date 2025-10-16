@@ -21,6 +21,7 @@ pub fn create_enhanced_rvtools_router(db: Arc<Database>) -> Router {
     Router::new()
         .route("/excel/upload", post(upload_rvtools_excel))
         .route("/uploads", get(get_rvtools_uploads))
+        .route("/projects/:project_id/clusters", get(get_project_clusters))
         .route("/generate-report", post(generate_report_data))
         .route("/export-report", post(export_report_file))
         .route("/reports/generate", post(generate_standard_reports))
@@ -128,6 +129,42 @@ async fn get_rvtools_uploads(
         .map_err(|e| ApiError::InternalError(e.to_string()))?;
     
     Ok(Json(uploads))
+}
+
+async fn get_project_clusters(
+    State(db): State<Arc<Database>>,
+    Path(project_id): Path<String>,
+) -> Result<impl IntoResponse, ApiError> {
+    // Get the latest RVTools upload for this project
+    let query_str = format!(
+        "SELECT * FROM rvtools_upload WHERE project_id = type::thing('project', '{}') ORDER BY upload_date DESC LIMIT 1",
+        project_id
+    );
+    
+    let uploads: Vec<RvToolsUpload> = db
+        .query(&query_str)
+        .await
+        .map_err(|e| ApiError::InternalError(e.to_string()))?
+        .take(0)
+        .map_err(|e| ApiError::InternalError(e.to_string()))?;
+    
+    if uploads.is_empty() {
+        // No RVTools upload found for this project
+        return Ok(Json(json!({ "clusters": [] })));
+    }
+    
+    let upload = &uploads[0];
+    let upload_id = match &upload.id {
+        Some(id) => id,
+        None => return Err(ApiError::InternalError("Upload ID missing".to_string())),
+    };
+    
+    // Extract cluster list from the upload
+    let service = EnhancedRvToolsService::new((*db).clone());
+    let clusters = service.extract_cluster_list_public(upload_id).await
+        .map_err(|e| ApiError::InternalError(e.to_string()))?;
+    
+    Ok(Json(json!({ "clusters": clusters })))
 }
 
 async fn generate_report_data(

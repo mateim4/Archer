@@ -827,6 +827,11 @@ impl EnhancedRvToolsService {
         Ok(clusters)
     }
 
+    /// Public method to extract cluster list for API endpoints
+    pub async fn extract_cluster_list_public(&self, upload_id: &Thing) -> Result<Vec<String>> {
+        self.extract_cluster_list(upload_id).await
+    }
+
     fn generate_storage_recommendations(&self, _analyses: &[StorageArchitectureAnalysis]) -> Vec<String> {
         vec![
             "Consider S2D deployment only for confirmed vSAN provider clusters".to_string(),

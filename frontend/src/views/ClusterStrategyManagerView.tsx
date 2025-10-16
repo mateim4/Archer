@@ -304,22 +304,32 @@ const ClusterStrategyManagerView: React.FC = () => {
 
   const getStatusBadge = (status: Activity['status']) => {
     const badges = {
-      pending: { icon: ClockRegular, color: DesignTokens.colors.warning, label: 'Pending' },
-      in_progress: { icon: ArrowSyncRegular, color: DesignTokens.colors.info, label: 'In Progress' },
-      completed: { icon: CheckmarkCircleRegular, color: DesignTokens.colors.success, label: 'Completed' },
-      blocked: { icon: ErrorCircleRegular, color: DesignTokens.colors.error, label: 'Blocked' }
+      pending: { 
+        icon: ClockRegular, 
+        className: 'bg-amber-50 text-amber-700 border border-amber-200', 
+        label: 'Pending' 
+      },
+      in_progress: { 
+        icon: ArrowSyncRegular, 
+        className: 'bg-blue-50 text-blue-700 border border-blue-200', 
+        label: 'In Progress' 
+      },
+      completed: { 
+        icon: CheckmarkCircleRegular, 
+        className: 'bg-emerald-50 text-emerald-700 border border-emerald-200', 
+        label: 'Completed' 
+      },
+      blocked: { 
+        icon: ErrorCircleRegular, 
+        className: 'bg-red-50 text-red-700 border border-red-200', 
+        label: 'Blocked' 
+      }
     };
     const badge = badges[status];
     const Icon = badge.icon;
     
     return (
-      <span
-        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium"
-        style={{ 
-          backgroundColor: `${badge.color}15`,
-          color: badge.color
-        }}
-      >
+      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium ${badge.className}`}>
         <Icon className="w-4 h-4" />
         {badge.label}
       </span>
@@ -343,29 +353,32 @@ const ClusterStrategyManagerView: React.FC = () => {
   }
 
   return (
-    <div className="h-full flex flex-col bg-gradient-to-br from-gray-50 to-blue-50/30">
+    <div className="h-full flex flex-col" style={{ background: 'var(--lcm-bg-primary, #fafbfc)' }}>
       <ToastContainer />
 
       {/* Header with breadcrumbs and activity context */}
-      <div className="border-b border-gray-200 bg-white/80 backdrop-blur-sm">
+      <div className="border-b" style={{ 
+        borderColor: 'var(--lcm-primary-border, #e5e7eb)',
+        background: 'var(--lcm-bg-card, #ffffff)'
+      }}>
         <div className="px-8 py-6">
           {/* Breadcrumbs */}
-          <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">
+          <div className="flex items-center gap-2 text-sm mb-4" style={{ fontFamily: 'Poppins, system-ui, -apple-system, sans-serif' }}>
             <button
               onClick={() => navigate('/app/projects')}
-              className="hover:text-gray-900 transition-colors"
+              className="text-gray-600 hover:text-indigo-600 transition-colors font-medium"
             >
               Projects
             </button>
-            <span>/</span>
+            <span className="text-gray-400">/</span>
             <button
               onClick={() => navigate(`/app/projects/${projectId}`)}
-              className="hover:text-gray-900 transition-colors"
+              className="text-gray-600 hover:text-indigo-600 transition-colors font-medium"
             >
               Project Workspace
             </button>
-            <span>/</span>
-            <span className="text-gray-900 font-medium">{activity.name}</span>
+            <span className="text-gray-400">/</span>
+            <span className="text-gray-900 font-semibold">{activity.name}</span>
           </div>
 
           {/* Activity Header */}
@@ -381,10 +394,7 @@ const ClusterStrategyManagerView: React.FC = () => {
               
               <div>
                 <div className="flex items-center gap-3 mb-2">
-                  <h1 
-                    className="text-2xl font-bold"
-                    style={{ fontFamily: DesignTokens.typography.fontFamily }}
-                  >
+                  <h1 className="text-2xl font-bold" style={{ fontFamily: 'Poppins, system-ui, -apple-system, sans-serif' }}>
                     {activity.name}
                   </h1>
                   {getStatusBadge(activity.status)}
@@ -424,7 +434,7 @@ const ClusterStrategyManagerView: React.FC = () => {
           <div className="mt-6">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-medium text-gray-700">Activity Progress</span>
-              <span className="text-sm font-semibold" style={{ color: DesignTokens.colors.primary }}>
+              <span className="text-sm font-semibold text-indigo-600">
                 {activity.progress}%
               </span>
             </div>
@@ -437,14 +447,11 @@ const ClusterStrategyManagerView: React.FC = () => {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-auto p-8">
+      <div className="flex-1 overflow-auto p-8" style={{ background: 'var(--lcm-bg-primary, #fafbfc)' }}>
         {strategies.length === 0 ? (
           <EnhancedCard className="text-center py-16">
             <ServerRegular className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 
-              className="text-lg font-semibold text-gray-900 mb-2"
-              style={{ fontFamily: DesignTokens.typography.fontFamily }}
-            >
+            <h3 className="text-lg font-semibold text-gray-900 mb-2" style={{ fontFamily: 'Poppins, system-ui, -apple-system, sans-serif' }}>
               No Cluster Strategies Yet
             </h3>
             <p className="text-gray-600 mb-6 max-w-md mx-auto">
@@ -468,7 +475,7 @@ const ClusterStrategyManagerView: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <div className="text-sm text-gray-600 mb-1">Total Clusters</div>
-                      <div className="text-2xl font-bold" style={{ color: DesignTokens.colors.primary }}>
+                      <div className="text-2xl font-bold text-indigo-600">
                         {activity.migration_metadata.total_clusters}
                       </div>
                     </div>
@@ -480,7 +487,7 @@ const ClusterStrategyManagerView: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <div className="text-sm text-gray-600 mb-1">Completed</div>
-                      <div className="text-2xl font-bold" style={{ color: DesignTokens.colors.success }}>
+                      <div className="text-2xl font-bold text-emerald-600">
                         {activity.migration_metadata.clusters_completed}
                       </div>
                     </div>

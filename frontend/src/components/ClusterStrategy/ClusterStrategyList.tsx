@@ -63,16 +63,15 @@ const useStyles = makeStyles({
   },
   
   card: {
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    backdropFilter: 'blur(20px)',
+    backgroundColor: '#ffffff',
     ...shorthands.borderRadius(tokens.borderRadiusLarge),
     ...shorthands.padding(tokens.spacingVerticalL, tokens.spacingHorizontalL),
-    ...shorthands.border('1px', 'solid', 'rgba(255, 255, 255, 0.3)'),
-    boxShadow: '0 4px 16px 0 rgba(31, 38, 135, 0.1)',
+    ...shorthands.border('1px', 'solid', '#e5e7eb'),
+    boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
     ...shorthands.transition('all', '0.2s', 'ease'),
     ':hover': {
-      boxShadow: '0 4px 16px 0 rgba(31, 38, 135, 0.2)',
-      transform: 'translateX(4px)',
+      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+      ...shorthands.border('1px', 'solid', '#c7d2fe'),
     },
   },
   

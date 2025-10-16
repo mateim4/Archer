@@ -104,10 +104,9 @@ const useStyles = makeStyles({
   dialogSurface: {
     maxWidth: '900px',
     width: '90vw',
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    backdropFilter: 'blur(20px)',
+    backgroundColor: '#ffffff',
     ...shorthands.borderRadius(tokens.borderRadiusXLarge),
-    boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.25)',
+    boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
   },
   
   dialogBody: {
@@ -119,9 +118,9 @@ const useStyles = makeStyles({
     flexDirection: 'column',
     ...shorthands.gap(tokens.spacingVerticalL),
     ...shorthands.padding(tokens.spacingVerticalL),
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    backgroundColor: '#f9fafb',
     ...shorthands.borderRadius(tokens.borderRadiusLarge),
-    ...shorthands.border('1px', 'solid', 'rgba(0, 0, 0, 0.05)'),
+    ...shorthands.border('1px', 'solid', '#e5e7eb'),
   },
   
   formGrid: {
@@ -136,15 +135,15 @@ const useStyles = makeStyles({
     ...shorthands.gap(tokens.spacingVerticalXS),
     ...shorthands.padding(tokens.spacingVerticalM),
     ...shorthands.borderRadius(tokens.borderRadiusMedium),
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-    ...shorthands.border('1px', 'solid', 'rgba(0, 0, 0, 0.08)'),
+    backgroundColor: '#ffffff',
+    ...shorthands.border('2px', 'solid', '#e5e7eb'),
     ...shorthands.transition('all', '0.2s', 'ease'),
     cursor: 'pointer',
     ':hover': {
-      backgroundColor: 'rgba(255, 255, 255, 1)',
-      ...shorthands.border('1px', 'solid', tokens.colorBrandForeground1),
+      backgroundColor: '#f9fafb',
+      ...shorthands.border('2px', 'solid', tokens.colorBrandForeground1),
       transform: 'translateY(-2px)',
-      boxShadow: '0 4px 12px 0 rgba(31, 38, 135, 0.15)',
+      boxShadow: '0 4px 12px 0 rgba(99, 102, 241, 0.15)',
     },
   },
   
@@ -160,9 +159,9 @@ const useStyles = makeStyles({
   
   validationCard: {
     ...shorthands.padding(tokens.spacingVerticalL),
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    backgroundColor: '#f9fafb',
     ...shorthands.borderRadius(tokens.borderRadiusMedium),
-    ...shorthands.border('1px', 'solid', 'rgba(0, 0, 0, 0.08)'),
+    ...shorthands.border('1px', 'solid', '#e5e7eb'),
     display: 'flex',
     flexDirection: 'column',
     ...shorthands.gap(tokens.spacingVerticalM),
@@ -223,6 +222,86 @@ export const ClusterStrategyModal: React.FC<ClusterStrategyModalProps> = ({
   const [isSaving, setIsSaving] = useState(false);
   const [capacityValidation, setCapacityValidation] = useState<CapacityValidation | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  
+  // New state for clusters and hardware baskets
+  const [projectClusters, setProjectClusters] = useState<string[]>([]);
+  const [hardwareBaskets, setHardwareBaskets] = useState<any[]>([]);
+  const [selectedBasket, setSelectedBasket] = useState<string>('');
+  const [basketModels, setBasketModels] = useState<any[]>([]);
+  const [loadingClusters, setLoadingClusters] = useState(false);
+  const [loadingBaskets, setLoadingBaskets] = useState(false);
+  const [loadingModels, setLoadingModels] = useState(false);
+  
+  // Fetch project clusters on mount
+  useEffect(() => {
+    if (isOpen && projectId) {
+      fetchProjectClusters();
+      fetchHardwareBaskets();
+    }
+  }, [isOpen, projectId]);
+  
+  const fetchProjectClusters = async () => {
+    setLoadingClusters(true);
+    try {
+      const response = await fetch(`http://127.0.0.1:3001/api/v1/enhanced-rvtools/projects/${projectId}/clusters`);
+      if (response.ok) {
+        const data = await response.json();
+        setProjectClusters(data.clusters || []);
+      }
+    } catch (error) {
+      console.error('Failed to fetch project clusters:', error);
+    } finally {
+      setLoadingClusters(false);
+    }
+  };
+  
+  const fetchHardwareBaskets = async () => {
+    setLoadingBaskets(true);
+    try {
+      const response = await fetch('http://127.0.0.1:3001/api/hardware-baskets');
+      if (response.ok) {
+        const data = await response.json();
+        setHardwareBaskets(data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch hardware baskets:', error);
+    } finally {
+      setLoadingBaskets(false);
+    }
+  };
+  
+  const fetchBasketModels = async (basketId: string) => {
+    setLoadingModels(true);
+    try {
+      // Extract actual ID if needed
+      let actualId = basketId;
+      if (typeof basketId === 'object' && basketId !== null) {
+        const idObj: any = basketId;
+        if (idObj.id) {
+          actualId = typeof idObj.id === 'object' && idObj.id.String ? idObj.id.String : String(idObj.id);
+        }
+      }
+      
+      const response = await fetch(`http://127.0.0.1:3001/api/hardware-baskets/${actualId}/models`);
+      if (response.ok) {
+        const data = await response.json();
+        setBasketModels(data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch basket models:', error);
+    } finally {
+      setLoadingModels(false);
+    }
+  };
+  
+  const handleBasketChange = (basketId: string) => {
+    setSelectedBasket(basketId);
+    if (basketId) {
+      fetchBasketModels(basketId);
+    } else {
+      setBasketModels([]);
+    }
+  };
   
   useEffect(() => {
     if (existingStrategy) {
@@ -390,12 +469,26 @@ export const ClusterStrategyModal: React.FC<ClusterStrategyModalProps> = ({
                   required
                   validationMessage={errors.source_cluster_name}
                   validationState={errors.source_cluster_name ? 'error' : 'none'}
+                  hint="Select from clusters in the RVTools report"
                 >
-                  <Input
+                  <Dropdown
+                    placeholder={loadingClusters ? "Loading clusters..." : "Select source cluster"}
                     value={formData.source_cluster_name}
-                    onChange={(e) => handleFieldChange('source_cluster_name', e.target.value)}
-                    placeholder="e.g., ASN-PROD-01"
-                  />
+                    selectedOptions={formData.source_cluster_name ? [formData.source_cluster_name] : []}
+                    onOptionSelect={(_, data) => handleFieldChange('source_cluster_name', data.optionValue)}
+                    disabled={loadingClusters || projectClusters.length === 0}
+                  >
+                    {projectClusters.map((cluster) => (
+                      <Option key={cluster} value={cluster}>
+                        {cluster}
+                      </Option>
+                    ))}
+                  </Dropdown>
+                  {!loadingClusters && projectClusters.length === 0 && (
+                    <div style={{ fontSize: '12px', color: tokens.colorPaletteRedForeground1, marginTop: '4px' }}>
+                      No RVTools data found for this project. Please upload an RVTools report first.
+                    </div>
+                  )}
                 </Field>
                 
                 <Field
@@ -477,7 +570,7 @@ export const ClusterStrategyModal: React.FC<ClusterStrategyModalProps> = ({
             {formData.strategy_type === 'domino_hardware_swap' && (
               <DominoConfigurationSection
                 formData={formData}
-                availableClusters={availableClusters}
+                availableClusters={projectClusters}
                 onFieldChange={handleFieldChange}
                 error={errors.domino_source_cluster}
               />
@@ -486,18 +579,62 @@ export const ClusterStrategyModal: React.FC<ClusterStrategyModalProps> = ({
             {formData.strategy_type === 'new_hardware_purchase' && (
               <div className={styles.formSection}>
                 <Label weight="semibold" size="large">Hardware Procurement</Label>
+                
                 <Field
-                  label="Hardware Basket Items"
+                  label="Hardware Basket"
                   required
-                  validationMessage={errors.hardware_basket_items}
-                  validationState={errors.hardware_basket_items ? 'error' : 'none'}
-                  hint="Select hardware configurations from the basket"
+                  hint="Select a hardware basket to choose server models from"
                 >
-                  <Input
-                    placeholder="Select from hardware basket (TODO: implement dropdown)"
-                    disabled
-                  />
+                  <Dropdown
+                    placeholder={loadingBaskets ? "Loading baskets..." : "Select hardware basket"}
+                    value={selectedBasket}
+                    selectedOptions={selectedBasket ? [selectedBasket] : []}
+                    onOptionSelect={(_, data) => handleBasketChange(data.optionValue as string)}
+                    disabled={loadingBaskets}
+                  >
+                    {hardwareBaskets.map((basket) => {
+                      const basketId = typeof basket.id === 'object' && basket.id?.id?.String 
+                        ? basket.id.id.String 
+                        : String(basket.id);
+                      const displayText = `${basket.name} (${basket.vendor} - ${basket.total_models || 0} models)`;
+                      return (
+                        <Option key={basketId} value={basketId} text={displayText}>
+                          {displayText}
+                        </Option>
+                      );
+                    })}
+                  </Dropdown>
                 </Field>
+                
+                {selectedBasket && (
+                  <Field
+                    label="Server Model"
+                    required
+                    validationMessage={errors.hardware_basket_items}
+                    validationState={errors.hardware_basket_items ? 'error' : 'none'}
+                    hint="Select the server model/platform for new hardware purchase"
+                  >
+                    <Dropdown
+                      placeholder={loadingModels ? "Loading models..." : "Select server model"}
+                      value={formData.hardware_basket_items?.[0] || ''}
+                      selectedOptions={formData.hardware_basket_items?.[0] ? [formData.hardware_basket_items[0]] : []}
+                      onOptionSelect={(_, data) => handleFieldChange('hardware_basket_items', [data.optionValue])}
+                      disabled={loadingModels}
+                    >
+                      {basketModels.map((model, idx) => {
+                        const modelValue = model.model_name || model.lot_description;
+                        const displayText = model.form_factor 
+                          ? `${modelValue} (${model.form_factor})`
+                          : modelValue;
+                        return (
+                          <Option key={idx} value={modelValue} text={displayText}>
+                            {displayText}
+                          </Option>
+                        );
+                      })}
+                    </Dropdown>
+                  </Field>
+                )}
               </div>
             )}
             
