@@ -122,6 +122,7 @@ const useStyles = makeStyles({
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
+    width: '100%', // Ensure it takes full width for proper centering
   },
 
   radioCardContent: {
@@ -137,6 +138,8 @@ const useStyles = makeStyles({
     fontSize: '48px',
     color: '#8b5cf6',
     ...shorthands.transition('all', '0.2s', 'ease'),
+    display: 'block', // Ensure icon is treated as a block element
+    margin: '0 auto', // Extra centering insurance
   },
 
   radioCardIconSelected: {
@@ -344,10 +347,10 @@ const Step2_SourceDestination: React.FC = () => {
                 className={`${styles.radioCard} ${isSelected ? styles.radioCardSelected : ''}`}
                 onClick={() => setTargetInfrastructure(option.type)}
               >
-                <div className={styles.radioCardRadio}>
-                  <Radio value={option.type} label="" />
-                </div>
                 <div className={styles.radioCardContent}>
+                  <div className={styles.radioCardRadio}>
+                    <Radio value={option.type} label="" />
+                  </div>
                   <IconComponent
                     className={`${styles.radioCardIcon} ${
                       isSelected ? styles.radioCardIconSelected : ''
