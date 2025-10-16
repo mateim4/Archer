@@ -24,7 +24,7 @@ import Step3_Infrastructure from './Steps/Step3_Infrastructure';
 import Step4_CapacityValidation from './Steps/Step4_CapacityValidation';
 import Step5_Timeline from './Steps/Step5_Timeline';
 import Step6_Assignment from './Steps/Step6_Assignment';
-// import Step7_Review from './Steps/Step7_Review';
+import Step7_Review from './Steps/Step7_Review';
 
 // ============================================================================
 // Styles
@@ -235,11 +235,7 @@ const WizardContent: React.FC = () => {
           {currentStep === 4 && <Step4_CapacityValidation />}
           {currentStep === 5 && <Step5_Timeline />}
           {currentStep === 6 && <Step6_Assignment />}
-          {currentStep === 7 && (
-            <div className={styles.placeholder}>
-              Step 7: Review & Submit (Coming Soon)
-            </div>
-          )}
+          {currentStep === 7 && <Step7_Review />}
         </div>
 
         {/* Navigation */}
