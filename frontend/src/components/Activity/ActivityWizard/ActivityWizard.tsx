@@ -20,7 +20,7 @@ import WizardNavigation from './WizardNavigation';
 // Step components
 import Step1_Basics from './Steps/Step1_Basics';
 import Step2_SourceDestination from './Steps/Step2_SourceDestination';
-// import Step3_Infrastructure from './Steps/Step3_Infrastructure';
+import Step3_Infrastructure from './Steps/Step3_Infrastructure';
 // import Step4_HardwareSelection from './Steps/Step4_HardwareSelection';
 // import Step5_Timeline from './Steps/Step5_Timeline';
 // import Step6_Assignment from './Steps/Step6_Assignment';
@@ -231,11 +231,7 @@ const WizardContent: React.FC = () => {
           {/* Render step component */}
           {currentStep === 1 && <Step1_Basics />}
           {currentStep === 2 && <Step2_SourceDestination />}
-          {currentStep === 3 && (
-            <div className={styles.placeholder}>
-              Step 3: Hardware Compatibility (Coming Soon)
-            </div>
-          )}
+          {currentStep === 3 && <Step3_Infrastructure />}
           {currentStep === 4 && (
             <div className={styles.placeholder}>
               Step 4: Capacity Validation (Coming Soon)
