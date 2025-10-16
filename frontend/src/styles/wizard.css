@@ -342,22 +342,32 @@
   box-shadow: 0 0 8px rgba(139, 92, 246, 0.6) !important;
 }
 
-/* Ensure radio button is centered in cards */
+/* Ensure radio button is centered in cards using absolute positioning */
 .wizard-step-container .fui-Radio {
   justify-content: center !important;
   margin: 0 auto !important;
-  display: flex !important;
+  display: inline-flex !important;
+  position: relative !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
 }
 
 /* Remove any default padding/margin from Radio label area */
 .wizard-step-container .fui-Radio__label {
   padding: 0 !important;
   margin: 0 !important;
+  min-width: 0 !important;
+  width: 0 !important;
 }
 
 /* Center the radio indicator itself */
 .wizard-step-container .fui-Radio > span {
   margin: 0 auto !important;
+}
+
+/* Ensure the indicator is centered within its container */
+.wizard-step-container .fui-Radio__indicator {
+  margin: 0 !important;
 }
 
 .wizard-save-indicator.saving {
