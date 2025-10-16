@@ -322,6 +322,15 @@ const ProjectWorkspaceView: React.FC = () => {
       });
       setFormErrors({});
       setIsCreateActivityModalOpen(false);
+      
+      // Phase 7: Prompt to configure clusters for migration activities
+      if (newActivity.type === 'migration') {
+        setTimeout(() => {
+          if (confirm(`Would you like to configure cluster migration strategies for "${newActivity.name}" now?`)) {
+            navigate(`/app/projects/${projectId}/activities/${newActivity.id}/cluster-strategies`);
+          }
+        }, 500);
+      }
     } catch (error) {
       showToast('Failed to create activity', 'error');
     } finally {
@@ -610,16 +619,7 @@ const ProjectWorkspaceView: React.FC = () => {
               <p className="text-gray-600 text-base">{project.description}</p>
             </div>
             
-            {/* Quick Actions - Migration Hub Button */}
-            <div className="flex gap-3">
-              <EnhancedButton
-                onClick={() => navigate(`/app/projects/${projectId}/migration-workspace`)}
-                variant="primary"
-              >
-                <ServerRegular className="w-5 h-5 mr-2" />
-                Migration Hub
-              </EnhancedButton>
-            </div>
+            {/* Phase 7: Removed Migration Hub button - use activity-driven workflow instead */}
           </div>
         </div>
 

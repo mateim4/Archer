@@ -9,7 +9,7 @@ import HardwarePoolView from './views/HardwarePoolView';
 import HardwareBasketView from './views/HardwareBasketView';
 import ProjectsView from './views/ProjectsView';
 import ProjectWorkspaceView from './views/ProjectWorkspaceView';
-import ProjectMigrationWorkspace from './views/ProjectMigrationWorkspace';
+// Phase 7: Removed standalone ProjectMigrationWorkspace - integrated via activities
 import ClusterStrategyManagerView from './views/ClusterStrategyManagerView';
 import EmbeddedMigrationWizard from './views/EmbeddedMigrationWizard';
 import EmbeddedLifecycleWizard from './views/EmbeddedLifecycleWizard';
@@ -79,7 +79,7 @@ function App() {
                 <Route path="projects" element={<ProjectsView />} />
                 <Route path="projects/:projectId" element={<ProjectWorkspaceView />} />
                 <Route path="projects/:projectId/activities/:activityId/cluster-strategies" element={<ClusterStrategyManagerView />} />
-                <Route path="projects/:projectId/migration-workspace" element={<ProjectMigrationWorkspace />} />
+                {/* Phase 7: Removed migration-workspace route - use activity-driven flow instead */}
                 <Route path="hardware-pool" element={<HardwarePoolView />} />
                 <Route path="hardware-basket" element={<HardwareBasketView />} />
                 <Route path="guides" element={<GuidesView />} />
