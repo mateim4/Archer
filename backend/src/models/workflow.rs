@@ -465,3 +465,198 @@ pub enum ProcurementStatus {
     #[serde(rename = "cancelled")]
     Cancelled,
 }
+
+// ============================================================================
+// Activity Wizard System - New Models for Wizard-based Activity Creation
+// ============================================================================
+
+/// Enhanced Activity model for wizard-based creation
+/// This extends the Workflow concept with activity-specific fields
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Activity {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<Thing>,
+    pub project_id: Thing,
+    pub name: String,
+    pub description: Option<String>,
+    pub activity_type: ActivityType,
+    pub status: ActivityStatus,
+    
+    // Strategy references - One activity can have multiple strategies
+    pub strategy_ids: Vec<Thing>,
+    
+    // Wizard state management
+    pub wizard_state: Option<WizardState>,
+    
+    // Migration-specific metadata
+    pub migration_metadata: Option<MigrationMetadata>,
+    
+    // Timeline
+    pub estimated_start_date: Option<DateTime<Utc>>,
+    pub estimated_end_date: Option<DateTime<Utc>>,
+    pub actual_start_date: Option<DateTime<Utc>>,
+    pub actual_end_date: Option<DateTime<Utc>>,
+    pub estimated_duration_days: Option<u32>,
+    
+    // Team assignment
+    pub assigned_users: Vec<String>,
+    pub team_lead: Option<String>,
+    
+    // Progress tracking
+    pub progress_percentage: u8,
+    
+    // Draft expiration (30 days)
+    pub expires_at: Option<DateTime<Utc>>,
+    
+    // Audit fields
+    pub created_by: String,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+/// Activity types supported by the wizard
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "lowercase")]
+pub enum ActivityType {
+    Migration,
+    Lifecycle,
+    Decommission,
+    Expansion,
+    Maintenance,
+}
+
+/// Activity status throughout its lifecycle
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "lowercase")]
+pub enum ActivityStatus {
+    Draft,        // Being created in wizard
+    Planned,      // Wizard completed, not started
+    InProgress,   // Activity is underway
+    OnHold,       // Temporarily paused
+    Completed,    // Successfully finished
+    Blocked,      // Blocked by dependencies
+    Cancelled,    // Cancelled before completion
+}
+
+/// Migration-specific metadata
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct MigrationMetadata {
+    pub source_cluster_id: Option<String>,
+    pub target_cluster_name: Option<String>,
+    pub vm_count: Option<u32>,
+    pub host_count: Option<u32>,
+    pub total_workload_vcpu: Option<u32>,
+    pub total_workload_memory_gb: Option<f64>,
+    pub total_workload_storage_tb: Option<f64>,
+}
+
+/// Infrastructure type for cluster strategies
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "snake_case")]
+pub enum InfrastructureType {
+    Traditional,
+    HciS2d,
+    AzureLocal,
+}
+
+/// Hardware compatibility check result
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct HardwareCompatibilityResult {
+    pub status: CompatibilityStatus,
+    pub checks: CompatibilityChecks,
+    pub recommendations: Vec<String>,
+    pub can_proceed: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "lowercase")]
+pub enum CompatibilityStatus {
+    Passed,
+    Warnings,
+    Failed,
+}
+
+/// Individual compatibility checks
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CompatibilityChecks {
+    pub rdma_nics: CheckResult,
+    pub jbod_hba: CheckResult,
+    pub network_speed: CheckResult,
+    pub jbod_disks: CheckResult,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CheckResult {
+    pub status: CheckStatus,
+    pub message: String,
+    pub details: Option<serde_json::Value>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "lowercase")]
+pub enum CheckStatus {
+    Passed,
+    Warning,
+    Failed,
+}
+
+/// Capacity validation result
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CapacityValidationResult {
+    pub status: ValidationStatus,
+    pub cpu: ResourceValidation,
+    pub memory: ResourceValidation,
+    pub storage: ResourceValidation,
+    pub recommendations: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "lowercase")]
+pub enum ValidationStatus {
+    Optimal,     // <60% utilization
+    Acceptable,  // 60-80% utilization
+    Warning,     // 80-95% utilization
+    Critical,    // >95% utilization
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ResourceValidation {
+    pub required: f64,
+    pub available: f64,
+    pub utilization_percent: f64,
+    pub status: ResourceStatus,
+    pub message: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "lowercase")]
+pub enum ResourceStatus {
+    Ok,
+    Warning,
+    Critical,
+}
+
+/// Timeline estimation result
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TimelineEstimationResult {
+    pub estimated_days: u32,
+    pub task_breakdown: Vec<TaskEstimate>,
+    pub critical_path: Vec<String>,
+    pub confidence: EstimationConfidence,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TaskEstimate {
+    pub name: String,
+    pub duration_days: u32,
+    pub dependencies: Vec<String>,
+    pub is_critical_path: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "lowercase")]
+pub enum EstimationConfidence {
+    High,    // 90%+ confidence
+    Medium,  // 70-89% confidence
+    Low,     // <70% confidence
+}

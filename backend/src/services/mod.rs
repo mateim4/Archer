@@ -6,3 +6,10 @@ pub mod enhanced_rvtools_service; // TODO: Fix compilation errors
 pub mod dependency_validator;
 // pub mod analytics_service; // TODO: Fix compilation errors
 // pub mod reporting_service; // TODO: Fix compilation errors
+
+// Activity Wizard Services
+pub mod wizard_service;
+pub mod hardware_compatibility_service;
+pub mod timeline_estimation_service;
+pub mod capacity_validation_service;
+

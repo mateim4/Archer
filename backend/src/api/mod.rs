@@ -4,6 +4,7 @@ pub mod project_lifecycle;
 pub mod hardware_pool;
 pub mod rvtools;
 pub mod cluster_strategy;
+pub mod wizard; // Activity wizard API
 // pub mod analytics; // TODO: Convert from actix_web to axum
 pub mod enhanced_rvtools; // TODO: Fix compilation errors
 // pub mod migration; // TODO: Fix migration_models imports
@@ -23,6 +24,7 @@ pub fn api_router(state: AppState) -> Router {
         .merge(hardware_baskets::routes().with_state(state.clone()))
         .merge(project_workflow::routes().with_state(state.clone()))
         .merge(cluster_strategy::routes().with_state(state.clone()))
+        .merge(wizard::wizard_routes().with_state(state.clone())) // Activity wizard routes
         .nest("/hardware-pool", hardware_pool::create_hardware_pool_router(state.clone()))
         .nest("/rvtools", rvtools::create_rvtools_router(state.clone()))
         .nest("/enhanced-rvtools", enhanced_rvtools::create_enhanced_rvtools_router(state.clone()))
