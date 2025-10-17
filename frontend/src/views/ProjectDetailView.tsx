@@ -395,7 +395,7 @@ const ProjectDetailView: React.FC = () => {
                     }}
                   >
                     <PeopleRegular style={{ color: '#6366f1', fontSize: '16px' }} />
-                    <Caption1 style={DesignTokens.components.metaText}>
+                    <Caption1 style={{ fontSize: '12px', color: DesignTokens.colors.gray600 }}>
                       Owner: {project.owner_id ? project.owner_id.replace('user:', '') : 'Unknown'}
                     </Caption1>
                   </div>
@@ -411,7 +411,7 @@ const ProjectDetailView: React.FC = () => {
                     }}
                   >
                     <CalendarRegular style={{ color: DesignTokens.colorVariants.indigo.base, fontSize: '16px' }} />
-                    <Caption1 style={DesignTokens.components.metaText}>
+                    <Caption1 style={{ fontSize: '12px', color: DesignTokens.colors.gray600 }}>
                       Created: {new Date(project.created_at).toLocaleDateString()}
                     </Caption1>
                   </div>
@@ -427,7 +427,7 @@ const ProjectDetailView: React.FC = () => {
                     }}
                   >
                     <ClockRegular style={{ color: DesignTokens.colorVariants.indigo.base, fontSize: '16px' }} />
-                    <Caption1 style={DesignTokens.components.metaText}>
+                    <Caption1 style={{ fontSize: '12px', color: DesignTokens.colors.gray600 }}>
                       Updated: {new Date(project.updated_at).toLocaleDateString()}
                     </Caption1>
                   </div>
