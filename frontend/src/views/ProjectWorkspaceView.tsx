@@ -39,6 +39,7 @@ import {
 import { ViewToggleSlider } from '../components/ViewToggleSlider';
 import { useEnhancedUX } from '../hooks/useEnhancedUX';
 import { DesignTokens } from '../styles/designSystem';
+import { ActivityWizardModal } from '../components/Activity/ActivityWizardModal';
 
 interface Activity {
   id: string;
@@ -1248,273 +1249,24 @@ const ProjectWorkspaceView: React.FC = () => {
         </div>
       </div>
 
-      {/* Create Activity Modal */}
-      <EnhancedModal
+      {/* Activity Wizard Modal */}
+      <ActivityWizardModal
         isOpen={isCreateActivityModalOpen}
         onClose={() => {
           setIsCreateActivityModalOpen(false);
           setFormErrors({});
         }}
-        title="Create New Activity"
-        size="lg"
-      >
-        <div className="space-y-6">
-          <p className="text-gray-600">
-            Create a new activity with all the necessary details. All fields marked with * are required.
-          </p>
-          
-          <form onSubmit={(e) => { e.preventDefault(); handleCreateActivitySubmit(); }} className="space-y-4">
-            {/* Activity Name */}
-            <div>
-              <label htmlFor="activity-name" className="block text-sm font-medium text-gray-700 mb-2">
-                Activity Name *
-              </label>
-              <input
-                id="activity-name"
-                type="text"
-                value={activityForm.name}
-                onChange={(e) => setActivityForm({ ...activityForm, name: e.target.value })}
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                  formErrors.name ? 'border-red-500' : 'border-gray-300'
-                }`}
-                placeholder="Enter activity name"
-              />
-              {formErrors.name && (
-                <p className="mt-1 text-sm text-red-600">{formErrors.name}</p>
-              )}
-            </div>
-
-            {/* Activity Type */}
-            <div>
-              <label htmlFor="activity-type" className="block text-sm font-medium text-gray-700 mb-2">
-                Activity Type *
-              </label>
-              <select
-                id="activity-type"
-                value={activityForm.type}
-                onChange={(e) => setActivityForm({ ...activityForm, type: e.target.value as Activity['type'] })}
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                  formErrors.type ? 'border-red-500' : 'border-gray-300'
-                }`}
-              >
-                <option value="custom">Custom Activity</option>
-                <option value="migration">Migration</option>
-                <option value="lifecycle">Lifecycle Planning</option>
-                <option value="hardware_customization">Hardware Customization</option>
-                <option value="commissioning">Commissioning</option>
-                <option value="decommission">Decommissioning</option>
-              </select>
-              {formErrors.type && (
-                <p className="mt-1 text-sm text-red-600">{formErrors.type}</p>
-              )}
-            </div>
-
-            {/* Date Range */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="start-date" className="block text-sm font-medium text-gray-700 mb-2">
-                  Start Date *
-                </label>
-                <input
-                  id="start-date"
-                  type="date"
-                  value={activityForm.startDate}
-                  onChange={(e) => setActivityForm({ ...activityForm, startDate: e.target.value })}
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                    formErrors.startDate ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                />
-                {formErrors.startDate && (
-                  <p className="mt-1 text-sm text-red-600">{formErrors.startDate}</p>
-                )}
-              </div>
-
-              <div>
-                <label htmlFor="end-date" className="block text-sm font-medium text-gray-700 mb-2">
-                  End Date *
-                </label>
-                <input
-                  id="end-date"
-                  type="date"
-                  value={activityForm.endDate}
-                  onChange={(e) => setActivityForm({ ...activityForm, endDate: e.target.value })}
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                    formErrors.endDate ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                />
-                {formErrors.endDate && (
-                  <p className="mt-1 text-sm text-red-600">{formErrors.endDate}</p>
-                )}
-              </div>
-            </div>
-
-            {/* Assignees - Multi-select */}
-            <div>
-              <label htmlFor="assignees" className="block text-sm font-medium text-gray-700 mb-2">
-                Assignees (Team Members) *
-              </label>
-              <div className="space-y-2">
-                {/* Selected Assignees Pills */}
-                {activityForm.assignees.length > 0 && (
-                  <div className="flex flex-wrap gap-2 p-2 border border-gray-200 rounded-lg bg-gray-50">
-                    {activityForm.assignees.map((assignee, index) => (
-                      <span
-                        key={index}
-                        className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800"
-                      >
-                        {assignee}
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setActivityForm({
-                              ...activityForm,
-                              assignees: activityForm.assignees.filter((_, i) => i !== index),
-                              assignee: activityForm.assignees.filter((_, i) => i !== index)[0] || ''
-                            });
-                          }}
-                          className="hover:text-purple-900"
-                        >
-                          <DismissRegular className="w-3 h-3" />
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                )}
-                
-                {/* Assignee Selection Dropdown */}
-                <select
-                  id="assignees"
-                  value=""
-                  onChange={(e) => {
-                    const selectedEmail = e.target.value;
-                    if (selectedEmail && !activityForm.assignees.includes(selectedEmail)) {
-                      setActivityForm({
-                        ...activityForm,
-                        assignees: [...activityForm.assignees, selectedEmail],
-                        assignee: activityForm.assignees.length === 0 ? selectedEmail : activityForm.assignee
-                      });
-                    }
-                  }}
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                    formErrors.assignee ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                >
-                  <option value="">Select team member to add...</option>
-                  {teamMembers
-                    .filter(member => !activityForm.assignees.includes(member))
-                    .map(member => (
-                      <option key={member} value={member}>{member}</option>
-                    ))}
-                </select>
-                
-                {formErrors.assignee && (
-                  <p className="mt-1 text-sm text-red-600">{formErrors.assignee}</p>
-                )}
-                <p className="text-xs text-gray-500 mt-1">
-                  Select one or more team members. The first assignee will be the primary contact.
-                </p>
-              </div>
-            </div>
-
-            {/* Status and Priority */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-2">
-                  Initial Status
-                </label>
-                <select
-                  id="status"
-                  value={activityForm.status}
-                  onChange={(e) => setActivityForm({ ...activityForm, status: e.target.value as Activity['status'] })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                >
-                  <option value="pending">Pending</option>
-                  <option value="in_progress">In Progress</option>
-                  <option value="completed">Completed</option>
-                  <option value="blocked">Blocked</option>
-                </select>
-              </div>
-
-              <div>
-                <label htmlFor="priority" className="block text-sm font-medium text-gray-700 mb-2">
-                  Priority
-                </label>
-                <select
-                  id="priority"
-                  value={activityForm.priority}
-                  onChange={(e) => setActivityForm({ ...activityForm, priority: e.target.value as any })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                >
-                  <option value="low">Low</option>
-                  <option value="medium">Medium</option>
-                  <option value="high">High</option>
-                </select>
-              </div>
-            </div>
-
-            {/* Description */}
-            <div>
-              <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
-                Description (Optional)
-              </label>
-              <textarea
-                id="description"
-                value={activityForm.description}
-                onChange={(e) => setActivityForm({ ...activityForm, description: e.target.value })}
-                rows={3}
-                maxLength={500}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                placeholder="Add any additional details..."
-              />
-              <p className="mt-1 text-xs text-gray-500">
-                {activityForm.description.length}/500 characters
-              </p>
-            </div>
-
-            {/* Form Actions */}
-            <div className="flex items-center justify-end space-x-3 pt-4 border-t">
-              <button
-                type="button"
-                onClick={() => {
-                  setIsCreateActivityModalOpen(false);
-                  setFormErrors({});
-                }}
-                disabled={isSubmitting}
-                style={DesignTokens.components.button.secondary}
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                style={{
-                  ...DesignTokens.components.button.primary,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px'
-                }}
-                onMouseEnter={(e) => {
-                  if (!isSubmitting) {
-                    const target = e.currentTarget as HTMLElement;
-                    target.style.transform = 'translateY(-3px) scale(1.05)';
-                    target.style.background = 'linear-gradient(135deg, #7c3aed 0%, #9333ea 100%)';
-                    target.style.boxShadow = '0 12px 24px rgba(99, 102, 241, 0.4), 0 6px 16px rgba(0, 0, 0, 0.2)';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  const target = e.currentTarget as HTMLElement;
-                  target.style.transform = 'translateY(0) scale(1)';
-                  target.style.background = 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)';
-                  target.style.boxShadow = '0 2px 8px rgba(99, 102, 241, 0.25)';
-                }}
-              >
-                {isSubmitting ? 'Creating...' : 'Create Activity'}
-              </button>
-            </div>
-          </form>
-        </div>
-      </EnhancedModal>
+        onSuccess={(activityId) => {
+          console.log('Activity created:', activityId);
+          setIsCreateActivityModalOpen(false);
+          setFormErrors({});
+          // Refresh activities
+          loadActivities();
+          showToast('Activity created successfully!', 'success');
+        }}
+        mode="create"
+        projectId={projectId || ''}
+      />
 
       {/* Edit Activity Modal */}
       <EnhancedModal

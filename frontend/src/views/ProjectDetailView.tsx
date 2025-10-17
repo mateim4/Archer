@@ -59,6 +59,7 @@ import GanttChart from '../components/EnhancedGanttChart';
 import { Project } from '../utils/apiClient';
 import ErrorBoundary from '../components/ErrorBoundary';
 import { CapacityVisualizerView } from './CapacityVisualizerView';
+import { ActivityWizardModal } from '../components/Activity/ActivityWizardModal';
 
 interface Activity {
   id: string;
@@ -956,29 +957,19 @@ const ProjectDetailView: React.FC = () => {
           </div>
         </div>
 
-        {/* Create Activity Modal (minimal) */}
-        {isCreateActivityModalOpen && (
-          <Dialog open={isCreateActivityModalOpen} onOpenChange={(_, d) => setIsCreateActivityModalOpen(d.open)}>
-            <DialogSurface aria-describedby="create-activity-description">
-              <DialogBody>
-                <DialogTitle>Create New Activity</DialogTitle>
-                <DialogContent>
-                  <Text id="create-activity-description" style={{ marginBottom: tokens.spacingVerticalL }}>
-                    Add a new activity to your project timeline.
-                  </Text>
-                </DialogContent>
-                <DialogActions>
-                  <Button appearance="secondary" onClick={() => setIsCreateActivityModalOpen(false)}>
-                    Cancel
-                  </Button>
-                  <Button appearance="primary" onClick={() => setIsCreateActivityModalOpen(false)}>
-                    Create
-                  </Button>
-                </DialogActions>
-              </DialogBody>
-            </DialogSurface>
-          </Dialog>
-        )}
+        {/* Activity Wizard Modal */}
+        <ActivityWizardModal
+          isOpen={isCreateActivityModalOpen}
+          onClose={() => setIsCreateActivityModalOpen(false)}
+          onSuccess={(activityId) => {
+            console.log('Activity created:', activityId);
+            setIsCreateActivityModalOpen(false);
+            // Refresh activities list
+            loadActivities();
+          }}
+          mode="create"
+          projectId={projectId || ''}
+        />
         </main>
         </div>
       </div>
