@@ -27,7 +27,8 @@ import Step6_Assignment from './Steps/Step6_Assignment';
 import Step7_Review from './Steps/Step7_Review';
 
 // ============================================================================
-// Styles - Using wizard.css design system classes
+// ============================================================================
+// Styles - Context-aware styling (proper approach, no !important)
 // ============================================================================
 
 const useStyles = makeStyles({
@@ -41,6 +42,43 @@ const useStyles = makeStyles({
   
   saveIndicatorSaving: {
     backgroundColor: tokens.colorPaletteYellowBackground3,
+  },
+  
+  // Modal-specific overrides (proper way - component controls its own styles)
+  containerModal: {
+    maxWidth: 'none',
+    padding: 0,
+    margin: 0,
+  },
+  
+  cardModal: {
+    border: 'none',
+    boxShadow: 'none',
+    borderRadius: 0,
+    backgroundColor: 'transparent',
+    '::before': {
+      display: 'none', // Remove gradient top border in modal
+    },
+  },
+  
+  headerModal: {
+    padding: `${tokens.spacingVerticalXL} 0`,
+    background: 'transparent',
+    backgroundImage: 'none',
+    borderBottom: `1px solid rgba(139, 92, 246, 0.15)`,
+  },
+  
+  stepContainerModal: {
+    padding: `${tokens.spacingVerticalXL} 0`,
+    background: 'transparent',
+    backgroundImage: 'none',
+  },
+  
+  navigationModal: {
+    padding: `${tokens.spacingVerticalXL} 0`,
+    borderTop: `1px solid rgba(139, 92, 246, 0.15)`,
+    background: 'transparent',
+    backgroundImage: 'none',
   },
 });
 

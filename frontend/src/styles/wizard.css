@@ -917,23 +917,50 @@
 
 .wizard-modal .wizard-header {
   padding: var(--fluent-spacing-xl) 0;
-  background: transparent;
+  background: transparent !important;
   border-bottom: 1px solid rgba(139, 92, 246, 0.15);
 }
 
 .wizard-modal .wizard-progress-container {
-  background: transparent;
+  background: transparent !important;
   padding: var(--fluent-spacing-xl) 0;
 }
 
 .wizard-modal .wizard-step-container {
   padding: var(--fluent-spacing-xl) 0;
+  background: transparent !important;
 }
 
 .wizard-modal .wizard-navigation {
   padding: var(--fluent-spacing-xl) 0;
   border-top: 1px solid rgba(139, 92, 246, 0.15);
-  background: transparent;
+  background: transparent !important;
+}
+
+/* Remove all backgrounds from sections in modal */
+.wizard-modal .wizard-section {
+  background: transparent !important;
+}
+
+.wizard-modal .wizard-info-box {
+  background: rgba(139, 92, 246, 0.05) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+}
+
+/* Force transparent backgrounds on all wizard children in modal */
+.wizard-modal * {
+  background-image: none !important;
+}
+
+.wizard-modal .wizard-container,
+.wizard-modal .wizard-main-card,
+.wizard-modal .wizard-header,
+.wizard-modal .wizard-progress-container,
+.wizard-modal .wizard-step-container,
+.wizard-modal .wizard-navigation {
+  background-color: transparent !important;
+  background-image: none !important;
 }
 
 /* Ensure modal content is scrollable */
