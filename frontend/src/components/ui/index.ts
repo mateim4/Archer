@@ -35,7 +35,9 @@ export type { PurpleGlassCheckboxProps } from './PurpleGlassCheckbox';
 export { PurpleGlassRadio, PurpleGlassRadioGroup } from './PurpleGlassRadio';
 export type { PurpleGlassRadioProps, PurpleGlassRadioGroupProps } from './PurpleGlassRadio';
 
-// More components to be added:
+// Switch Components
+export { PurpleGlassSwitch } from './PurpleGlassSwitch';
+export type { PurpleGlassSwitchProps } from './PurpleGlassSwitch';
 // export { PurpleGlassCheckbox } from './PurpleGlassCheckbox';
 // export { PurpleGlassRadio } from './PurpleGlassRadio';
 // export { PurpleGlassSwitch } from './PurpleGlassSwitch';
