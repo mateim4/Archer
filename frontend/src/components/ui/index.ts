@@ -19,9 +19,12 @@ export type { PurpleGlassButtonProps, ButtonVariant, ButtonSize } from './Purple
 export { PurpleGlassCard } from './PurpleGlassCard';
 export type { PurpleGlassCardProps, CardVariant, CardPadding } from './PurpleGlassCard';
 
+// Textarea Components
+export { PurpleGlassTextarea } from './PurpleGlassTextarea';
+export type { PurpleGlassTextareaProps } from './PurpleGlassTextarea';
+
 // More components to be added:
 // export { PurpleGlassDropdown } from './PurpleGlassDropdown';
-// export { PurpleGlassTextarea } from './PurpleGlassTextarea';
 // export { PurpleGlassCheckbox } from './PurpleGlassCheckbox';
 // export { PurpleGlassRadio } from './PurpleGlassRadio';
 // export { PurpleGlassSwitch } from './PurpleGlassSwitch';
