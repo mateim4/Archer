@@ -23,8 +23,11 @@ export type { PurpleGlassCardProps, CardVariant, CardPadding } from './PurpleGla
 export { PurpleGlassTextarea } from './PurpleGlassTextarea';
 export type { PurpleGlassTextareaProps } from './PurpleGlassTextarea';
 
+// Dropdown Components
+export { PurpleGlassDropdown } from './PurpleGlassDropdown';
+export type { PurpleGlassDropdownProps, DropdownOption } from './PurpleGlassDropdown';
+
 // More components to be added:
-// export { PurpleGlassDropdown } from './PurpleGlassDropdown';
 // export { PurpleGlassCheckbox } from './PurpleGlassCheckbox';
 // export { PurpleGlassRadio } from './PurpleGlassRadio';
 // export { PurpleGlassSwitch } from './PurpleGlassSwitch';
