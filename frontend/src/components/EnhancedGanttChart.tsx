@@ -32,6 +32,7 @@ interface GanttChartProps {
   onActivityCreate: (activity: Partial<Activity>) => void;
   onActivityDelete: (id: string) => void;
   onDependencyChange: (activityId: string, dependencies: string[]) => void;
+  onActivityClick?: (activityId: string) => void;
 }
 
 // FIX: Fluent 2 styles with proper containment
@@ -227,7 +228,8 @@ const useGanttStyles = makeStyles({
 const GanttChart: React.FC<GanttChartProps> = ({
   activities,
   onActivityUpdate,
-  onActivityDelete
+  onActivityDelete,
+  onActivityClick
 }) => {
   const styles = useGanttStyles();
 
@@ -342,6 +344,7 @@ const GanttChart: React.FC<GanttChartProps> = ({
                   appearance="subtle"
                   icon={<EditRegular />}
                   size="small"
+                  onClick={() => onActivityClick?.(activity.id)}
                   aria-label={`Edit ${activity.name}`}
                 />
                 <Button

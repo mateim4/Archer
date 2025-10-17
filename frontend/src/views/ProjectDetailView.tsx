@@ -164,6 +164,8 @@ const ProjectDetailView: React.FC = () => {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [activeTab, setActiveTab] = useState<'timeline' | 'activities' | 'overview' | 'capacity'>('timeline');
   const [isCreateActivityModalOpen, setIsCreateActivityModalOpen] = useState(false);
+  const [isEditActivityModalOpen, setIsEditActivityModalOpen] = useState(false);
+  const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -606,6 +608,13 @@ const ProjectDetailView: React.FC = () => {
                     onDependencyChange={(activityId: string, dependencies: string[]) =>
                       setActivities((prev) => prev.map((a) => (a.id === activityId ? { ...a, dependencies } : a)))
                     }
+                    onActivityClick={(activityId) => {
+                      const activity = activities.find(a => a.id === activityId);
+                      if (activity) {
+                        setSelectedActivity(activity);
+                        setIsEditActivityModalOpen(true);
+                      }
+                    }}
                   />
                 ) : (
                   <div style={{ textAlign: 'center', padding: tokens.spacingVerticalXXL }}>
@@ -969,6 +978,25 @@ const ProjectDetailView: React.FC = () => {
           }}
           mode="create"
           projectId={projectId || ''}
+        />
+
+        {/* Edit Activity Modal */}
+        <ActivityWizardModal
+          isOpen={isEditActivityModalOpen}
+          onClose={() => {
+            setIsEditActivityModalOpen(false);
+            setSelectedActivity(null);
+          }}
+          onSuccess={(activityId) => {
+            console.log('Activity updated:', activityId);
+            setIsEditActivityModalOpen(false);
+            setSelectedActivity(null);
+            // Refresh activities list
+            loadActivities();
+          }}
+          mode="edit"
+          projectId={projectId || ''}
+          activityId={selectedActivity?.id}
         />
         </main>
         </div>
