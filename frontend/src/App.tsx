@@ -22,8 +22,6 @@ import { EnhancedRVToolsReportView } from './views/EnhancedRVToolsReportView';
 import { HardwareLifecycleView } from './views/HardwareLifecycleView';
 import { ZoomTestPage } from './components/CapacityVisualizer/ZoomTestPage';
 import { CapacityVisualizerView } from './views/CapacityVisualizerView';
-import ActivityWizard from './components/Activity/ActivityWizard/ActivityWizard';
-import { WizardProvider } from './components/Activity/ActivityWizard/Context/WizardContext';
 
 function App() {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
@@ -81,13 +79,7 @@ function App() {
                 <Route path="projects" element={<ProjectsView />} />
                 <Route path="projects/:projectId" element={<ProjectWorkspaceView />} />
                 <Route path="projects/:projectId/activities/:activityId/cluster-strategies" element={<ClusterStrategyManagerView />} />
-                {/* Activity Wizard - New Activity Creation */}
-                <Route path="activities/wizard" element={
-                  <WizardProvider>
-                    <ActivityWizard />
-                  </WizardProvider>
-                } />
-                {/* Phase 7: Removed migration-workspace route - use activity-driven flow instead */}
+                {/* Phase 7: Activity Wizard now modal-only - accessible via "Add Activity" buttons in project views */}
                 <Route path="hardware-pool" element={<HardwarePoolView />} />
                 <Route path="hardware-basket" element={<HardwareBasketView />} />
                 <Route path="guides" element={<GuidesView />} />
