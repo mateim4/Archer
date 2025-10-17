@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 // Import ONLY Fluent UI 2 Design System
 import './styles/fluent2-design-system.css';
-import './styles/wizard.css';
 import { FluentProvider, webLightTheme } from '@fluentui/react-components';
 import NavigationSidebar from './components/NavigationSidebar';
 import HardwarePoolView from './views/HardwarePoolView';

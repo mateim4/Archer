@@ -108,9 +108,9 @@ const WizardContent: React.FC = () => {
         <WizardProgress />
 
         {/* Step Content */}
-        <div className="wizard-step-container">
-          <h2 className="wizard-step-title">{currentStepInfo.title}</h2>
-          <p className="wizard-step-subtitle">{currentStepInfo.description}</p>
+        <div className={styles.stepContainerWrapper}>
+          <h2 className={styles.stepTitle}>{currentStepInfo.title}</h2>
+          <p className={styles.stepSubtitle}>{currentStepInfo.description}</p>
 
           {/* Render step component */}
           {currentStep === 1 && <Step1_Basics />}

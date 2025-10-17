@@ -185,6 +185,32 @@ export const useWizardStyles = makeStyles({
     color: tokens.colorStatusWarning,
     ...shorthands.margin(tokens.m, 0),
   },
+  
+  // Step container
+  stepContainerWrapper: {
+    ...shorthands.padding(tokens.xxxl, tokens.xxxxl),
+    minHeight: '400px',
+  },
+  
+  // Step title
+  stepTitle: {
+    fontSize: tokens.fontSizeHero800,
+    fontWeight: tokens.fontWeightSemibold,
+    lineHeight: tokens.lineHeightHero800,
+    color: tokens.colorNeutralForeground1,
+    ...shorthands.margin(0, 0, tokens.s, 0),
+    fontFamily: tokens.fontFamilyPrimary,
+  },
+  
+  // Step subtitle
+  stepSubtitle: {
+    fontSize: tokens.fontSizeBase300,
+    fontWeight: tokens.fontWeightRegular,
+    lineHeight: tokens.lineHeightBase300,
+    color: tokens.colorNeutralForeground2,
+    ...shorthands.margin(0, 0, tokens.xl, 0),
+    fontFamily: tokens.fontFamilyPrimary,
+  },
 });
 
 // ============================================================================
