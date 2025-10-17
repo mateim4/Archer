@@ -10,6 +10,8 @@ import React, { useState, useEffect } from 'react';
 import {
   Input,
   Textarea,
+  Radio,
+  RadioGroup,
   makeStyles,
   shorthands,
   tokens,
@@ -120,6 +122,23 @@ const useStyles = makeStyles({
   typeCardIconSelected: {
     color: '#8b5cf6',
     transform: 'scale(1.1)',
+  },
+
+  typeCardRadio: {
+    marginBottom: tokens.spacingVerticalM,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
+  },
+
+  typeCardContent: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: tokens.spacingVerticalM,
+    width: '100%',
+    textAlign: 'center',
   },
 
   typeCardTitle: {
@@ -276,7 +295,11 @@ const Step1_Basics: React.FC = () => {
           Select the type of activity you're planning. This determines the workflow and available options.
         </p>
 
-        <div className={styles.typeCardsGrid}>
+        <RadioGroup
+          value={selectedType}
+          onChange={(ev, data) => handleTypeSelect(data.value as ActivityType)}
+          className={styles.typeCardsGrid}
+        >
           {ACTIVITY_TYPE_OPTIONS.map((option) => {
             const isSelected = selectedType === option.type;
             const IconComponent = getIconComponent(option.icon);
@@ -286,25 +309,23 @@ const Step1_Basics: React.FC = () => {
                 key={option.type}
                 className={`${styles.typeCard} ${isSelected ? styles.typeCardSelected : ''}`}
                 onClick={() => handleTypeSelect(option.type)}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    handleTypeSelect(option.type);
-                  }
-                }}
               >
-                <IconComponent
-                  className={`${styles.typeCardIcon} ${
-                    isSelected ? styles.typeCardIconSelected : ''
-                  }`}
-                />
-                <div className={styles.typeCardTitle}>{option.label}</div>
-                <div className={styles.typeCardDescription}>{option.description}</div>
+                <div className={styles.typeCardContent}>
+                  <div className={styles.typeCardRadio}>
+                    <Radio value={option.type} label="" />
+                  </div>
+                  <IconComponent
+                    className={`${styles.typeCardIcon} ${
+                      isSelected ? styles.typeCardIconSelected : ''
+                    }`}
+                  />
+                  <div className={styles.typeCardTitle}>{option.label}</div>
+                  <div className={styles.typeCardDescription}>{option.description}</div>
+                </div>
               </div>
             );
           })}
-        </div>
+        </RadioGroup>
       </div>
 
       {/* Optional Description */}
