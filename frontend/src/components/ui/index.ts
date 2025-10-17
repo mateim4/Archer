@@ -27,6 +27,10 @@ export type { PurpleGlassTextareaProps } from './PurpleGlassTextarea';
 export { PurpleGlassDropdown } from './PurpleGlassDropdown';
 export type { PurpleGlassDropdownProps, DropdownOption } from './PurpleGlassDropdown';
 
+// Checkbox Components
+export { PurpleGlassCheckbox } from './PurpleGlassCheckbox';
+export type { PurpleGlassCheckboxProps } from './PurpleGlassCheckbox';
+
 // More components to be added:
 // export { PurpleGlassCheckbox } from './PurpleGlassCheckbox';
 // export { PurpleGlassRadio } from './PurpleGlassRadio';
