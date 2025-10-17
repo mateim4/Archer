@@ -131,6 +131,29 @@ export const useWizardStyles = makeStyles({
     backgroundColor: 'rgba(255, 255, 255, 0.6)',
   },
   
+  // Navigation button group
+  navGroup: {
+    display: 'flex',
+    alignItems: 'center',
+    ...shorthands.gap(tokens.m),
+  },
+  
+  // Success message box
+  successBox: {
+    display: 'flex',
+    alignItems: 'center',
+    ...shorthands.gap(tokens.m),
+    ...shorthands.padding(tokens.l, tokens.xl),
+    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+    ...shorthands.border('1px', 'solid', 'rgba(16, 185, 129, 0.3)'),
+    ...shorthands.borderRadius(tokens.large),
+    color: tokens.colorStatusSuccess,
+    fontSize: tokens.fontSizeBase300,
+    fontWeight: tokens.fontWeightSemibold,
+    width: '100%',
+    justifyContent: 'center',
+  },
+  
   // Content card (legacy support)
   contentCard: {
     minHeight: '400px',

@@ -7,7 +7,7 @@
  * - Save Draft button (manual save)
  * - Submit button (only on last step)
  * 
- * Now using wizard.css design system classes
+ * Now using Fluent UI 2 makeStyles with design tokens
  */
 
 import React, { useState } from 'react';
@@ -19,6 +19,7 @@ import {
   CheckmarkCircleFilled,
 } from '@fluentui/react-icons';
 import { useWizardContext } from './Context/WizardContext';
+import { useWizardStyles } from '../../../hooks/useWizardStyles';
 
 // ============================================================================
 // Component
@@ -38,6 +39,7 @@ const WizardNavigation: React.FC = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const styles = useWizardStyles();
 
   const isLastStep = currentStep === 7;
   const isFirstStep = currentStep === 1;
@@ -92,8 +94,8 @@ const WizardNavigation: React.FC = () => {
 
   if (showSuccess && isLastStep) {
     return (
-      <div className="wizard-navigation">
-        <div className="wizard-success-box">
+      <div className={styles.navigation}>
+        <div className={styles.successBox}>
           <CheckmarkCircleFilled style={{ fontSize: '20px' }} />
           Activity created successfully! Redirecting...
         </div>
@@ -102,9 +104,9 @@ const WizardNavigation: React.FC = () => {
   }
 
   return (
-    <div className="wizard-navigation">
+    <div className={styles.navigation}>
       {/* Left Side - Back Button */}
-      <div className="wizard-nav-group">
+      <div className={styles.navGroup}>
         <Button
           appearance="secondary"
           icon={<ArrowLeftRegular />}
@@ -116,7 +118,7 @@ const WizardNavigation: React.FC = () => {
       </div>
 
       {/* Right Side - Save Draft, Next/Submit */}
-      <div className="wizard-nav-group">
+      <div className={styles.navGroup}>
         {/* Save Draft Button */}
         <Button
           appearance="subtle"
@@ -152,7 +154,7 @@ const WizardNavigation: React.FC = () => {
 
       {/* Success Message (for Save Draft) */}
       {showSuccess && !isLastStep && (
-        <div className="wizard-save-indicator" style={{ marginLeft: 'auto' }}>
+        <div className={styles.saveIndicator}>
           <CheckmarkCircleFilled style={{ fontSize: '16px' }} />
           Draft saved!
         </div>
