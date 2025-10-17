@@ -15,7 +15,6 @@ import {
   Label,
   makeStyles,
   shorthands,
-  tokens,
   Combobox,
   Option,
 } from '@fluentui/react-components';
@@ -30,6 +29,7 @@ import {
 } from '@fluentui/react-icons';
 import { useWizardContext } from '../Context/WizardContext';
 import { InfrastructureType } from '../types/WizardTypes';
+import { tokens } from '../../../../styles/design-tokens';
 
 // ============================================================================
 // Styles
@@ -39,28 +39,28 @@ const useStyles = makeStyles({
   container: {
     display: 'flex',
     flexDirection: 'column',
-    gap: tokens.spacingVerticalXXL,
+    ...shorthands.gap(tokens.xxl),
   },
 
   section: {
     display: 'flex',
     flexDirection: 'column',
-    gap: tokens.spacingVerticalL,
+    ...shorthands.gap(tokens.l),
   },
 
   label: {
-    fontSize: '14px',
-    fontWeight: 600,
+    fontSize: tokens.fontSizeBase300,
+    fontWeight: tokens.fontWeightSemibold,
     color: tokens.colorNeutralForeground1,
-    fontFamily: 'Poppins, sans-serif',
-    marginBottom: tokens.spacingVerticalS,
+    fontFamily: tokens.fontFamilyPrimary,
+    ...shorthands.margin(0, 0, tokens.s, 0),
   },
 
   description: {
-    fontSize: '13px',
+    fontSize: tokens.fontSizeBase200,
     color: tokens.colorNeutralForeground2,
-    fontFamily: 'Poppins, sans-serif',
-    marginTop: tokens.spacingVerticalXS,
+    fontFamily: tokens.fontFamilyPrimary,
+    ...shorthands.margin(tokens.xs, 0, 0, 0),
   },
 
   combobox: {
@@ -76,8 +76,8 @@ const useStyles = makeStyles({
   radioGroup: {
     display: 'grid',
     gridTemplateColumns: 'repeat(3, 1fr)',
-    gap: tokens.spacingHorizontalL,
-    marginTop: tokens.spacingVerticalM,
+    ...shorthands.gap(tokens.l),
+    ...shorthands.margin(tokens.m, 0, 0, 0),
     
     '@media (max-width: 1200px)': {
       gridTemplateColumns: 'repeat(2, 1fr)',
@@ -92,62 +92,67 @@ const useStyles = makeStyles({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    ...shorthands.padding(tokens.spacingVerticalXL, tokens.spacingHorizontalL),
-    background: 'rgba(255, 255, 255, 0.7)',
-    backdropFilter: 'blur(20px) saturate(180%)',
+    ...shorthands.padding(tokens.xl, tokens.l),
+    backgroundColor: tokens.colorGlassBackground,
+    backdropFilter: tokens.blurMedium,
+    WebkitBackdropFilter: tokens.blurMedium,
     ...shorthands.border('2px', 'solid', 'rgba(139, 92, 246, 0.2)'),
-    ...shorthands.borderRadius(tokens.borderRadiusLarge),
+    ...shorthands.borderRadius(tokens.large),
     cursor: 'pointer',
-    ...shorthands.transition('all', '0.2s', 'cubic-bezier(0.4, 0, 0.2, 1)'),
-    boxShadow: '0 4px 24px rgba(139, 92, 246, 0.08)',
+    transitionProperty: 'all',
+    transitionDuration: tokens.durationNormal,
+    transitionTimingFunction: tokens.curveEasyEase,
+    boxShadow: tokens.glowSmall,
     minHeight: '240px',
 
     ':hover': {
       transform: 'translateY(-4px)',
       ...shorthands.borderColor('rgba(139, 92, 246, 0.5)'),
-      boxShadow: '0 8px 32px rgba(139, 92, 246, 0.16)',
+      boxShadow: tokens.glowMedium,
     },
   },
 
   radioCardSelected: {
-    background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(99, 102, 241, 0.08) 100%)',
-    ...shorthands.borderColor('#8b5cf6'),
+    backgroundColor: 'rgba(139, 92, 246, 0.08)',
+    ...shorthands.borderColor(tokens.colorBrandPrimary),
     ...shorthands.borderWidth('2px'),
-    boxShadow: '0 0 0 4px rgba(139, 92, 246, 0.15), 0 8px 32px rgba(139, 92, 246, 0.2)',
+    boxShadow: tokens.glowLarge,
 
     ':hover': {
       transform: 'translateY(-4px)',
-      boxShadow: '0 0 0 4px rgba(139, 92, 246, 0.15), 0 12px 40px rgba(139, 92, 246, 0.25)',
+      boxShadow: tokens.glowLarge,
     },
   },
   
   radioCardRadio: {
-    marginBottom: tokens.spacingVerticalM,
+    ...shorthands.margin(0, 0, tokens.m, 0),
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    width: '100%', // Ensure it takes full width for proper centering
+    width: '100%',
   },
 
   radioCardContent: {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    gap: tokens.spacingVerticalM,
+    ...shorthands.gap(tokens.m),
     width: '100%',
     textAlign: 'center',
   },
 
   radioCardIcon: {
     fontSize: '48px',
-    color: '#8b5cf6',
-    ...shorthands.transition('all', '0.2s', 'ease'),
-    display: 'block', // Ensure icon is treated as a block element
-    margin: '0 auto', // Extra centering insurance
+    color: tokens.colorBrandPrimary,
+    transitionProperty: 'all',
+    transitionDuration: tokens.durationNormal,
+    transitionTimingFunction: tokens.curveEasyEase,
+    display: 'block',
+    ...shorthands.margin('0', 'auto'),
   },
 
   radioCardIconSelected: {
-    color: '#8b5cf6',
+    color: tokens.colorBrandPrimary,
     transform: 'scale(1.1)',
   },
 
@@ -155,49 +160,49 @@ const useStyles = makeStyles({
     flex: 1,
     display: 'flex',
     flexDirection: 'column',
-    gap: tokens.spacingVerticalXS,
+    ...shorthands.gap(tokens.xs),
     alignItems: 'center',
   },
 
   radioCardTitle: {
-    fontSize: '16px',
-    fontWeight: 600,
+    fontSize: tokens.fontSizeBase400,
+    fontWeight: tokens.fontWeightSemibold,
     color: tokens.colorNeutralForeground1,
-    fontFamily: 'Poppins, sans-serif',
+    fontFamily: tokens.fontFamilyPrimary,
     textAlign: 'center',
   },
 
   radioCardDescription: {
-    fontSize: '13px',
+    fontSize: tokens.fontSizeBase200,
     color: tokens.colorNeutralForeground2,
-    fontFamily: 'Poppins, sans-serif',
-    lineHeight: '1.5',
+    fontFamily: tokens.fontFamilyPrimary,
+    lineHeight: tokens.lineHeightBase300,
     textAlign: 'center',
   },
 
   radioCardFeatures: {
-    fontSize: '12px',
-    color: '#8b5cf6',
-    fontFamily: 'Poppins, sans-serif',
-    fontWeight: 500,
-    marginTop: tokens.spacingVerticalXS,
+    fontSize: tokens.fontSizeBase100,
+    color: tokens.colorBrandPrimary,
+    fontFamily: tokens.fontFamilyPrimary,
+    fontWeight: tokens.fontWeightMedium,
+    ...shorthands.margin(tokens.xs, 0, 0, 0),
     textAlign: 'center',
   },
 
   requiredIndicator: {
-    color: tokens.colorPaletteRedForeground1,
+    color: tokens.colorStatusDanger,
     marginLeft: '4px',
   },
 
   infoBox: {
-    ...shorthands.padding(tokens.spacingVerticalM, tokens.spacingHorizontalL),
+    ...shorthands.padding(tokens.m, tokens.l),
     backgroundColor: tokens.colorNeutralBackground3,
     ...shorthands.border('1px', 'solid', tokens.colorNeutralStroke2),
-    ...shorthands.borderRadius(tokens.borderRadiusMedium),
-    fontSize: '13px',
+    ...shorthands.borderRadius(tokens.medium),
+    fontSize: tokens.fontSizeBase200,
     color: tokens.colorNeutralForeground2,
-    fontFamily: 'Poppins, sans-serif',
-    lineHeight: '1.6',
+    fontFamily: tokens.fontFamilyPrimary,
+    lineHeight: tokens.lineHeightBase300,
   },
 });
 
@@ -537,7 +542,7 @@ const Step2_SourceDestination: React.FC = () => {
 
           {/* Domino Configuration (conditional) */}
           {migrationStrategy === 'domino_hardware_swap' && (
-            <div style={{ marginTop: tokens.spacingVerticalXL, display: 'flex', flexDirection: 'column', gap: tokens.spacingVerticalL }}>
+            <div style={{ marginTop: tokens.xl, display: 'flex', flexDirection: 'column', gap: tokens.l }}>
               <Label className={styles.label}>
                 Domino Source Cluster
                 <span className={styles.requiredIndicator}>*</span>
@@ -560,7 +565,7 @@ const Step2_SourceDestination: React.FC = () => {
                 Select the cluster that will be decommissioned to provide hardware for this migration.
               </p>
 
-              <Label className={styles.label} style={{ marginTop: tokens.spacingVerticalM }}>
+              <Label className={styles.label} style={{ marginTop: tokens.m }}>
                 Hardware Available Date
               </Label>
               <Input
@@ -579,7 +584,7 @@ const Step2_SourceDestination: React.FC = () => {
 
           {/* Hardware Basket Selection (conditional) */}
           {migrationStrategy === 'new_hardware_purchase' && (
-            <div style={{ marginTop: tokens.spacingVerticalXL, display: 'flex', flexDirection: 'column', gap: tokens.spacingVerticalL }}>
+            <div style={{ marginTop: tokens.xl, display: 'flex', flexDirection: 'column', gap: tokens.l }}>
               <Label className={styles.label}>
                 Hardware Basket
                 <span className={styles.requiredIndicator}>*</span>
@@ -622,7 +627,7 @@ const Step2_SourceDestination: React.FC = () => {
 
           {/* Existing Hardware Pool (conditional) */}
           {migrationStrategy === 'existing_free_hardware' && (
-            <div style={{ marginTop: tokens.spacingVerticalXL }}>
+            <div style={{ marginTop: tokens.xl }}>
               <div className={styles.infoBox}>
                 <strong>📦 Hardware Pool Allocation:</strong>
                 <br />
