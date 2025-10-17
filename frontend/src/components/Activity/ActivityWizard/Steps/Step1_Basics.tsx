@@ -14,7 +14,6 @@ import {
   RadioGroup,
   makeStyles,
   shorthands,
-  tokens,
   Label,
 } from '@fluentui/react-components';
 import {
@@ -26,6 +25,7 @@ import {
 } from '@fluentui/react-icons';
 import { useWizardContext } from '../Context/WizardContext';
 import { ActivityType, ActivityTypeOption } from '../types/WizardTypes';
+import { tokens } from '../../../../styles/design-tokens';
 
 // ============================================================================
 // Styles
@@ -35,28 +35,28 @@ const useStyles = makeStyles({
   container: {
     display: 'flex',
     flexDirection: 'column',
-    gap: tokens.spacingVerticalXXL,
+    ...shorthands.gap(tokens.xxl),
   },
 
   section: {
     display: 'flex',
     flexDirection: 'column',
-    gap: tokens.spacingVerticalL,
+    ...shorthands.gap(tokens.l),
   },
 
   label: {
-    fontSize: '14px',
-    fontWeight: 600,
+    fontSize: tokens.fontSizeBase300,
+    fontWeight: tokens.fontWeightSemibold,
     color: tokens.colorNeutralForeground1,
-    fontFamily: 'Poppins, sans-serif',
-    marginBottom: tokens.spacingVerticalS,
+    fontFamily: tokens.fontFamilyPrimary,
+    ...shorthands.margin(0, 0, tokens.s, 0),
   },
 
   description: {
-    fontSize: '13px',
+    fontSize: tokens.fontSizeBase200,
     color: tokens.colorNeutralForeground2,
-    fontFamily: 'Poppins, sans-serif',
-    marginTop: tokens.spacingVerticalXS,
+    fontFamily: tokens.fontFamilyPrimary,
+    ...shorthands.margin(tokens.xs, 0, 0, 0),
   },
 
   textField: {
@@ -67,8 +67,8 @@ const useStyles = makeStyles({
   typeCardsGrid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(3, 1fr)',
-    gap: tokens.spacingHorizontalL,
-    marginTop: tokens.spacingVerticalM,
+    ...shorthands.gap(tokens.l),
+    ...shorthands.margin(tokens.m, 0, 0, 0),
     
     '@media (max-width: 1200px)': {
       gridTemplateColumns: 'repeat(2, 1fr)',
@@ -83,49 +83,54 @@ const useStyles = makeStyles({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    ...shorthands.padding(tokens.spacingVerticalXL, tokens.spacingHorizontalL),
-    background: 'rgba(255, 255, 255, 0.7)',
-    backdropFilter: 'blur(20px) saturate(180%)',
+    ...shorthands.padding(tokens.xl, tokens.l),
+    backgroundColor: tokens.colorGlassBackground,
+    backdropFilter: tokens.blurMedium,
+    WebkitBackdropFilter: tokens.blurMedium,
     ...shorthands.border('2px', 'solid', 'rgba(139, 92, 246, 0.2)'),
-    ...shorthands.borderRadius(tokens.borderRadiusLarge),
+    ...shorthands.borderRadius(tokens.large),
     cursor: 'pointer',
-    ...shorthands.transition('all', '0.2s', 'cubic-bezier(0.4, 0, 0.2, 1)'),
-    boxShadow: '0 4px 24px rgba(139, 92, 246, 0.08)',
+    transitionProperty: 'all',
+    transitionDuration: tokens.durationNormal,
+    transitionTimingFunction: tokens.curveEasyEase,
+    boxShadow: tokens.glowSmall,
     minHeight: '220px',
 
     ':hover': {
       transform: 'translateY(-4px)',
       ...shorthands.borderColor('rgba(139, 92, 246, 0.5)'),
-      boxShadow: '0 8px 32px rgba(139, 92, 246, 0.16)',
+      boxShadow: tokens.glowMedium,
     },
   },
 
   typeCardSelected: {
-    background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(99, 102, 241, 0.08) 100%)',
-    ...shorthands.borderColor('#8b5cf6'),
+    backgroundColor: 'rgba(139, 92, 246, 0.08)',
+    ...shorthands.borderColor(tokens.colorBrandPrimary),
     ...shorthands.borderWidth('2px'),
-    boxShadow: '0 0 0 4px rgba(139, 92, 246, 0.15), 0 8px 32px rgba(139, 92, 246, 0.2)',
+    boxShadow: tokens.glowLarge,
 
     ':hover': {
       transform: 'translateY(-4px)',
-      boxShadow: '0 0 0 4px rgba(139, 92, 246, 0.15), 0 12px 40px rgba(139, 92, 246, 0.25)',
+      boxShadow: tokens.glowLarge,
     },
   },
 
   typeCardIcon: {
     fontSize: '48px',
-    marginBottom: tokens.spacingVerticalM,
-    color: '#8b5cf6',
-    ...shorthands.transition('all', '0.2s', 'ease'),
+    ...shorthands.margin(0, 0, tokens.m, 0),
+    color: tokens.colorBrandPrimary,
+    transitionProperty: 'all',
+    transitionDuration: tokens.durationNormal,
+    transitionTimingFunction: tokens.curveEasyEase,
   },
 
   typeCardIconSelected: {
-    color: '#8b5cf6',
+    color: tokens.colorBrandPrimary,
     transform: 'scale(1.1)',
   },
 
   typeCardRadio: {
-    marginBottom: tokens.spacingVerticalM,
+    ...shorthands.margin(0, 0, tokens.m, 0),
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
@@ -136,30 +141,30 @@ const useStyles = makeStyles({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    gap: tokens.spacingVerticalM,
+    ...shorthands.gap(tokens.m),
     width: '100%',
     textAlign: 'center',
   },
 
   typeCardTitle: {
-    fontSize: '16px',
-    fontWeight: 600,
+    fontSize: tokens.fontSizeBase400,
+    fontWeight: tokens.fontWeightSemibold,
     color: tokens.colorNeutralForeground1,
-    fontFamily: 'Poppins, sans-serif',
-    marginBottom: tokens.spacingVerticalXS,
+    fontFamily: tokens.fontFamilyPrimary,
+    ...shorthands.margin(0, 0, tokens.xs, 0),
     textAlign: 'center',
   },
 
   typeCardDescription: {
-    fontSize: '13px',
+    fontSize: tokens.fontSizeBase200,
     color: tokens.colorNeutralForeground2,
-    fontFamily: 'Poppins, sans-serif',
+    fontFamily: tokens.fontFamilyPrimary,
     textAlign: 'center',
-    lineHeight: '1.5',
+    lineHeight: tokens.lineHeightBase300,
   },
 
   requiredIndicator: {
-    color: tokens.colorPaletteRedForeground1,
+    color: tokens.colorStatusDanger,
     marginLeft: '4px',
   },
 });
@@ -181,14 +186,14 @@ const ACTIVITY_TYPE_OPTIONS: ActivityTypeOption[] = [
     label: 'Lifecycle Management',
     description: 'Manage cluster lifecycle and updates',
     icon: 'ArrowSyncRegular',
-    color: tokens.colorPaletteGreenBorder2,
+    color: '#10b981', // Green
   },
   {
     type: 'decommission',
     label: 'Decommission',
     description: 'Retire and decommission old infrastructure',
     icon: 'DeleteRegular',
-    color: tokens.colorPaletteRedBorder2,
+    color: '#ef4444', // Red
   },
   {
     type: 'expansion',
@@ -202,7 +207,7 @@ const ACTIVITY_TYPE_OPTIONS: ActivityTypeOption[] = [
     label: 'Maintenance',
     description: 'Scheduled maintenance and upgrades',
     icon: 'WrenchRegular',
-    color: tokens.colorPaletteDarkOrangeBorder2,
+    color: '#f59e0b', // Orange
   },
 ];
 
