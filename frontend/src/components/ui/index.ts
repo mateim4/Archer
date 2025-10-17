@@ -31,6 +31,10 @@ export type { PurpleGlassDropdownProps, DropdownOption } from './PurpleGlassDrop
 export { PurpleGlassCheckbox } from './PurpleGlassCheckbox';
 export type { PurpleGlassCheckboxProps } from './PurpleGlassCheckbox';
 
+// Radio Components
+export { PurpleGlassRadio, PurpleGlassRadioGroup } from './PurpleGlassRadio';
+export type { PurpleGlassRadioProps, PurpleGlassRadioGroupProps } from './PurpleGlassRadio';
+
 // More components to be added:
 // export { PurpleGlassCheckbox } from './PurpleGlassCheckbox';
 // export { PurpleGlassRadio } from './PurpleGlassRadio';
