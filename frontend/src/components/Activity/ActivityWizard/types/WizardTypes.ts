@@ -68,6 +68,21 @@ export interface Step2Data {
   source_cluster_name?: string;
   target_infrastructure_type: InfrastructureType;
   target_cluster_name?: string;
+  
+  // Migration Strategy Fields (conditional on activity_type = 'migration')
+  migration_strategy_type?: 'domino_hardware_swap' | 'new_hardware_purchase' | 'existing_free_hardware';
+  
+  // Domino fields (conditional on migration_strategy_type = 'domino_hardware_swap')
+  domino_source_cluster?: string;
+  hardware_available_date?: string;
+  
+  // Procurement fields (conditional on migration_strategy_type = 'new_hardware_purchase')
+  hardware_basket_id?: string;
+  hardware_basket_name?: string;
+  selected_model_ids?: string[];
+  
+  // Existing hardware fields (conditional on migration_strategy_type = 'existing_free_hardware')
+  hardware_pool_allocations?: string[];
 }
 
 export interface Step3Data {

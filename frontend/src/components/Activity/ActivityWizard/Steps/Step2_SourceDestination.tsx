@@ -23,6 +23,10 @@ import {
   ServerRegular,
   CloudRegular,
   DatabaseRegular,
+  ArrowSyncRegular,
+  ShoppingBagRegular,
+  ArchiveRegular,
+  CalendarRegular,
 } from '@fluentui/react-icons';
 import { useWizardContext } from '../Context/WizardContext';
 import { InfrastructureType } from '../types/WizardTypes';
@@ -264,6 +268,18 @@ const Step2_SourceDestination: React.FC = () => {
   const [targetClusterName, setTargetClusterName] = useState(
     formData.step2?.target_cluster_name || ''
   );
+  
+  // Migration strategy state (conditional on activity type)
+  const [migrationStrategy, setMigrationStrategy] = useState<'domino_hardware_swap' | 'new_hardware_purchase' | 'existing_free_hardware' | undefined>(
+    formData.step2?.migration_strategy_type
+  );
+  const [dominoSourceCluster, setDominoSourceCluster] = useState(formData.step2?.domino_source_cluster || '');
+  const [hardwareAvailableDate, setHardwareAvailableDate] = useState(formData.step2?.hardware_available_date || '');
+  const [hardwareBasketId, setHardwareBasketId] = useState(formData.step2?.hardware_basket_id || '');
+  const [hardwareBasketName, setHardwareBasketName] = useState(formData.step2?.hardware_basket_name || '');
+  
+  // Check if current activity is a migration
+  const isMigrationActivity = formData.step1?.activity_type === 'migration';
 
   // Update context when form changes
   useEffect(() => {
@@ -273,9 +289,20 @@ const Step2_SourceDestination: React.FC = () => {
         source_cluster_name: sourceClusterName || undefined,
         target_infrastructure_type: targetInfrastructure,
         target_cluster_name: targetClusterName || undefined,
+        // Migration strategy fields (only relevant for migration activities)
+        migration_strategy_type: isMigrationActivity ? migrationStrategy : undefined,
+        domino_source_cluster: isMigrationActivity && migrationStrategy === 'domino_hardware_swap' ? dominoSourceCluster : undefined,
+        hardware_available_date: isMigrationActivity && migrationStrategy === 'domino_hardware_swap' ? hardwareAvailableDate : undefined,
+        hardware_basket_id: isMigrationActivity && migrationStrategy === 'new_hardware_purchase' ? hardwareBasketId : undefined,
+        hardware_basket_name: isMigrationActivity && migrationStrategy === 'new_hardware_purchase' ? hardwareBasketName : undefined,
       });
     }
-  }, [sourceClusterId, sourceClusterName, targetInfrastructure, targetClusterName, updateStepData]);
+  }, [
+    sourceClusterId, sourceClusterName, targetInfrastructure, targetClusterName,
+    isMigrationActivity, migrationStrategy, dominoSourceCluster, hardwareAvailableDate,
+    hardwareBasketId, hardwareBasketName,
+    updateStepData
+  ]);
 
   // ============================================================================
   // Handlers
@@ -413,6 +440,198 @@ const Step2_SourceDestination: React.FC = () => {
           Give your new cluster a descriptive name. You can change this later.
         </p>
       </div>
+
+      {/* Migration Strategy (Conditional - Only for Migration Activities) */}
+      {isMigrationActivity && (
+        <div className={styles.section}>
+          <Label className={styles.label}>
+            Hardware Sourcing Strategy <span style={{ fontWeight: 400, fontSize: '12px' }}>(Optional)</span>
+          </Label>
+          <p className={styles.description}>
+            Choose how you'll source hardware for this migration. This helps us plan procurement and timelines.
+          </p>
+
+          <RadioGroup
+            value={migrationStrategy}
+            onChange={(_, data) => setMigrationStrategy(data.value as any)}
+            className={styles.radioGroup}
+          >
+            {/* Domino Hardware Swap */}
+            <div
+              className={`${styles.radioCard} ${migrationStrategy === 'domino_hardware_swap' ? styles.radioCardSelected : ''}`}
+              onClick={() => setMigrationStrategy('domino_hardware_swap')}
+            >
+              <div className={styles.radioCardContent}>
+                <div className={styles.radioCardRadio}>
+                  <Radio value="domino_hardware_swap" label="" />
+                </div>
+                <ArrowSyncRegular
+                  className={`${styles.radioCardIcon} ${
+                    migrationStrategy === 'domino_hardware_swap' ? styles.radioCardIconSelected : ''
+                  }`}
+                />
+                <div className={styles.radioCardText}>
+                  <div className={styles.radioCardTitle}>⚡ Domino Hardware Swap</div>
+                  <div className={styles.radioCardDescription}>
+                    Reuse hardware from another cluster being decommissioned
+                  </div>
+                  <div className={styles.radioCardFeatures}>
+                    Zero procurement • Faster deployment • Cost-effective
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* New Hardware Purchase */}
+            <div
+              className={`${styles.radioCard} ${migrationStrategy === 'new_hardware_purchase' ? styles.radioCardSelected : ''}`}
+              onClick={() => setMigrationStrategy('new_hardware_purchase')}
+            >
+              <div className={styles.radioCardContent}>
+                <div className={styles.radioCardRadio}>
+                  <Radio value="new_hardware_purchase" label="" />
+                </div>
+                <ShoppingBagRegular
+                  className={`${styles.radioCardIcon} ${
+                    migrationStrategy === 'new_hardware_purchase' ? styles.radioCardIconSelected : ''
+                  }`}
+                />
+                <div className={styles.radioCardText}>
+                  <div className={styles.radioCardTitle}>🛒 New Hardware Purchase</div>
+                  <div className={styles.radioCardDescription}>
+                    Order new servers from hardware basket
+                  </div>
+                  <div className={styles.radioCardFeatures}>
+                    Latest technology • Warranty support • Custom configuration
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Existing Free Hardware */}
+            <div
+              className={`${styles.radioCard} ${migrationStrategy === 'existing_free_hardware' ? styles.radioCardSelected : ''}`}
+              onClick={() => setMigrationStrategy('existing_free_hardware')}
+            >
+              <div className={styles.radioCardContent}>
+                <div className={styles.radioCardRadio}>
+                  <Radio value="existing_free_hardware" label="" />
+                </div>
+                <ArchiveRegular
+                  className={`${styles.radioCardIcon} ${
+                    migrationStrategy === 'existing_free_hardware' ? styles.radioCardIconSelected : ''
+                  }`}
+                />
+                <div className={styles.radioCardText}>
+                  <div className={styles.radioCardTitle}>📦 Use Existing Free Hardware</div>
+                  <div className={styles.radioCardDescription}>
+                    Allocate hardware from available pool
+                  </div>
+                  <div className={styles.radioCardFeatures}>
+                    Immediate availability • No procurement • Reuse existing assets
+                  </div>
+                </div>
+              </div>
+            </div>
+          </RadioGroup>
+
+          {/* Domino Configuration (conditional) */}
+          {migrationStrategy === 'domino_hardware_swap' && (
+            <div style={{ marginTop: tokens.spacingVerticalXL, display: 'flex', flexDirection: 'column', gap: tokens.spacingVerticalL }}>
+              <Label className={styles.label}>
+                Domino Source Cluster
+                <span className={styles.requiredIndicator}>*</span>
+              </Label>
+              <Combobox
+                className={styles.combobox}
+                placeholder="Select cluster to reuse hardware from..."
+                value={dominoSourceCluster}
+                selectedOptions={dominoSourceCluster ? [dominoSourceCluster] : []}
+                onOptionSelect={(_, data) => setDominoSourceCluster(data.optionValue as string || '')}
+                size="large"
+              >
+                {MOCK_CLUSTERS.filter(c => c.id !== sourceClusterId).map((cluster) => (
+                  <Option key={cluster.id} value={cluster.id} text={cluster.name}>
+                    {cluster.name} ({cluster.type})
+                  </Option>
+                ))}
+              </Combobox>
+              <p className={styles.description}>
+                Select the cluster that will be decommissioned to provide hardware for this migration.
+              </p>
+
+              <Label className={styles.label} style={{ marginTop: tokens.spacingVerticalM }}>
+                Hardware Available Date
+              </Label>
+              <Input
+                className={styles.textField}
+                type="date"
+                value={hardwareAvailableDate}
+                onChange={(_, data) => setHardwareAvailableDate(data.value)}
+                size="large"
+                contentBefore={<CalendarRegular />}
+              />
+              <p className={styles.description}>
+                When will the hardware from the source cluster be available for reuse?
+              </p>
+            </div>
+          )}
+
+          {/* Hardware Basket Selection (conditional) */}
+          {migrationStrategy === 'new_hardware_purchase' && (
+            <div style={{ marginTop: tokens.spacingVerticalXL, display: 'flex', flexDirection: 'column', gap: tokens.spacingVerticalL }}>
+              <Label className={styles.label}>
+                Hardware Basket
+                <span className={styles.requiredIndicator}>*</span>
+              </Label>
+              <Combobox
+                className={styles.combobox}
+                placeholder="Select hardware basket..."
+                value={hardwareBasketName}
+                selectedOptions={hardwareBasketId ? [hardwareBasketId] : []}
+                onOptionSelect={(_, data) => {
+                  setHardwareBasketId(data.optionValue as string || '');
+                  const selected = data.optionText || '';
+                  setHardwareBasketName(selected);
+                }}
+                size="large"
+              >
+                <Option value="basket-dell-r760" text="Dell PowerEdge R760 Basket">
+                  Dell PowerEdge R760 Basket (12 models)
+                </Option>
+                <Option value="basket-hpe-gen11" text="HPE ProLiant Gen11 Basket">
+                  HPE ProLiant Gen11 Basket (8 models)
+                </Option>
+                <Option value="basket-lenovo-sr650v3" text="Lenovo ThinkSystem SR650 V3 Basket">
+                  Lenovo ThinkSystem SR650 V3 Basket (10 models)
+                </Option>
+              </Combobox>
+              <p className={styles.description}>
+                Select a pre-configured hardware basket with validated server models.
+              </p>
+              
+              {hardwareBasketId && (
+                <div className={styles.infoBox}>
+                  <strong>📦 Selected Basket:</strong> {hardwareBasketName}
+                  <br />
+                  You can configure specific models and quantities in Step 4 (Capacity Validation).
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Existing Hardware Pool (conditional) */}
+          {migrationStrategy === 'existing_free_hardware' && (
+            <div style={{ marginTop: tokens.spacingVerticalXL }}>
+              <div className={styles.infoBox}>
+                <strong>📦 Hardware Pool Allocation:</strong>
+                <br />
+                Hardware pool selection will be available in Step 4 (Capacity Validation) where you can review available hardware and allocate specific servers to this migration.
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Info Box based on selection */}
       {targetInfrastructure === 'azure_local' && (
