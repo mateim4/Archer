@@ -15,8 +15,11 @@ export type { PurpleGlassInputProps, GlassVariant, ValidationState } from './Pur
 export { PurpleGlassButton } from './PurpleGlassButton';
 export type { PurpleGlassButtonProps, ButtonVariant, ButtonSize } from './PurpleGlassButton';
 
+// Card Components
+export { PurpleGlassCard } from './PurpleGlassCard';
+export type { PurpleGlassCardProps, CardVariant, CardPadding } from './PurpleGlassCard';
+
 // More components to be added:
-// export { PurpleGlassCard } from './PurpleGlassCard';
 // export { PurpleGlassDropdown } from './PurpleGlassDropdown';
 // export { PurpleGlassTextarea } from './PurpleGlassTextarea';
 // export { PurpleGlassCheckbox } from './PurpleGlassCheckbox';
