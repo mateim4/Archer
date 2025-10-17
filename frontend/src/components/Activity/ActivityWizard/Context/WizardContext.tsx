@@ -78,12 +78,25 @@ async function apiGet<T>(endpoint: string): Promise<T> {
 // Wizard Provider Component
 // ============================================================================
 
+export type WizardMode = 'create' | 'edit';
+
 interface WizardProviderProps {
   children: React.ReactNode;
-  initialActivityId?: string;  // For resuming drafts
+  initialActivityId?: string;  // For resuming drafts or editing
+  mode?: WizardMode;  // Create or edit mode
+  projectId?: string;  // Project ID for context
+  onComplete?: (activityId: string) => void;  // Success callback
+  onUnsavedChanges?: (hasChanges: boolean) => void;  // Unsaved changes callback
 }
 
-export const WizardProvider: React.FC<WizardProviderProps> = ({ children, initialActivityId }) => {
+export const WizardProvider: React.FC<WizardProviderProps> = ({ 
+  children, 
+  initialActivityId,
+  mode = 'create',
+  projectId,
+  onComplete,
+  onUnsavedChanges,
+}) => {
   const [activityId, setActivityId] = useState<string | undefined>(initialActivityId);
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<WizardFormData>({});
@@ -91,6 +104,8 @@ export const WizardProvider: React.FC<WizardProviderProps> = ({ children, initia
   const [isSaving, setIsSaving] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState<Date | undefined>();
   const [expiresAt, setExpiresAt] = useState<Date | undefined>();
+  const [wizardMode] = useState<WizardMode>(mode);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   
   const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
   const formDataRef = useRef(formData); // For auto-save debounce
@@ -181,9 +196,15 @@ export const WizardProvider: React.FC<WizardProviderProps> = ({ children, initia
       [`step${step}`]: data,
     }));
 
+    // Mark as having unsaved changes
+    setHasUnsavedChanges(true);
+    if (onUnsavedChanges) {
+      onUnsavedChanges(true);
+    }
+
     // Trigger auto-save after update
     triggerAutoSave();
-  }, [triggerAutoSave]);
+  }, [triggerAutoSave, onUnsavedChanges]);
 
   const saveProgress = useCallback(async () => {
     if (!activityId) {
@@ -203,13 +224,17 @@ export const WizardProvider: React.FC<WizardProviderProps> = ({ children, initia
       } as SaveProgressRequest);
 
       setLastSavedAt(new Date());
+      setHasUnsavedChanges(false);
+      if (onUnsavedChanges) {
+        onUnsavedChanges(false);
+      }
     } catch (error) {
       console.error('Save progress failed:', error);
       throw error;
     } finally {
       setIsSaving(false);
     }
-  }, [activityId, currentStep, formData]);
+  }, [activityId, currentStep, formData, onUnsavedChanges]);
 
   const completeWizard = useCallback(async () => {
     if (!activityId) {
@@ -229,6 +254,18 @@ export const WizardProvider: React.FC<WizardProviderProps> = ({ children, initia
 
       // Wizard completed successfully
       console.log('Wizard completed:', result);
+      
+      // Clear unsaved changes flag
+      setHasUnsavedChanges(false);
+      if (onUnsavedChanges) {
+        onUnsavedChanges(false);
+      }
+      
+      // Call success callback
+      if (onComplete) {
+        onComplete(activityId);
+      }
+      
       return result;
     } catch (error) {
       console.error('Complete wizard failed:', error);
@@ -236,7 +273,7 @@ export const WizardProvider: React.FC<WizardProviderProps> = ({ children, initia
     } finally {
       setIsLoading(false);
     }
-  }, [activityId, formData]);
+  }, [activityId, formData, onComplete, onUnsavedChanges]);
 
   // ============================================================================
   // Draft Management
@@ -361,6 +398,9 @@ export const WizardProvider: React.FC<WizardProviderProps> = ({ children, initia
     isSaving,
     lastSavedAt,
     expiresAt,
+    mode: wizardMode,
+    projectId,
+    hasUnsavedChanges,
 
     // Navigation
     goToStep,

@@ -55,6 +55,7 @@ const WizardContent: React.FC = () => {
     isSaving,
     lastSavedAt,
     expiresAt,
+    mode,
   } = useWizardContext();
 
   // Calculate days until expiration
@@ -79,12 +80,11 @@ const WizardContent: React.FC = () => {
 
   return (
     <div className="wizard-container">
-      {/* Main Card with Glassmorphic Effect */}
-      <div className="wizard-main-card">
-        {/* Header */}
-        <div className="wizard-header">
-          <h1 className="wizard-title">Create New Activity</h1>
-          <p className="wizard-subtitle">
+      {/* Main Card with Glassmorphic Effect - Note: Remove outer padding for modal */}
+      <div className="wizard-main-card" style={{ margin: 0, padding: 0 }}>
+        {/* Header - Title removed as modal has its own header */}
+        <div className="wizard-header" style={{ borderTop: 'none' }}>
+          <p className="wizard-subtitle" style={{ fontSize: '16px', marginBottom: 0 }}>
             Step {currentStep} of 7: {currentStepInfo.title}
           </p>
 
@@ -137,25 +137,15 @@ const WizardContent: React.FC = () => {
 };
 
 // ============================================================================
-// Main Component (with Provider)
+// Main Component Export
 // ============================================================================
 
-interface ActivityWizardProps {
-  resumeDraftId?: string;  // Optional: Resume draft by activity ID
-  onComplete?: (activityId: string) => void;  // Callback when wizard completes
-  onCancel?: () => void;    // Callback when user cancels
-}
-
-const ActivityWizard: React.FC<ActivityWizardProps> = ({ 
-  resumeDraftId, 
-  onComplete,
-  onCancel,
-}) => {
-  return (
-    <WizardProvider initialActivityId={resumeDraftId}>
-      <WizardContent />
-    </WizardProvider>
-  );
+/**
+ * ActivityWizard - expects WizardProvider to be wrapped by parent
+ * (ActivityWizardModal or direct route)
+ */
+const ActivityWizard: React.FC = () => {
+  return <WizardContent />;
 };
 
 export default ActivityWizard;

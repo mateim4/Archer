@@ -302,6 +302,9 @@ export interface WizardContextValue {
   isSaving: boolean;
   lastSavedAt?: Date;
   expiresAt?: Date;
+  mode?: 'create' | 'edit';
+  projectId?: string;
+  hasUnsavedChanges?: boolean;
   
   // Navigation
   goToStep: (step: number) => void;
