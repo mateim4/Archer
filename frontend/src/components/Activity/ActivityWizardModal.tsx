@@ -63,16 +63,24 @@ export interface ActivityWizardModalProps {
 // ============================================================================
 
 const useStyles = makeStyles({
+  // Backdrop blur effect
+  backdrop: {
+    backdropFilter: 'blur(12px) saturate(120%)',
+    WebkitBackdropFilter: 'blur(12px) saturate(120%)',
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+  },
+  
   dialogSurface: {
-    maxWidth: '1200px',
-    width: '90vw',
+    maxWidth: '1400px',
+    width: '95vw',
     maxHeight: '90vh',
     height: '90vh',
     display: 'flex',
     flexDirection: 'column',
     ...shorthands.padding(0),
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    backgroundColor: 'rgba(255, 255, 255, 0.98)',
     backdropFilter: 'blur(40px) saturate(180%)',
+    WebkitBackdropFilter: 'blur(40px) saturate(180%)',
     ...shorthands.borderRadius(tokens.borderRadiusXLarge),
     boxShadow: '0 20px 60px rgba(139, 92, 246, 0.3), 0 0 0 1px rgba(139, 92, 246, 0.1)',
     
@@ -229,7 +237,8 @@ export const ActivityWizardModal: React.FC<ActivityWizardModalProps> = ({
     <>
       {/* Main Wizard Modal */}
       <Dialog 
-        open={isOpen} 
+        open={isOpen}
+        modalType="modal"
         onOpenChange={(event, data) => {
           if (!data.open) {
             handleCloseClick();

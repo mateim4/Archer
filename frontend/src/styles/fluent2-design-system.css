@@ -1036,3 +1036,55 @@
 /* ===================
    END ENHANCED VISUAL HIERARCHY
    =================== */
+
+/* ===================
+   FLUENT UI DIALOG & MODAL BACKDROP
+   =================== */
+
+/* Fluent UI Dialog Backdrop - Add blur and glassmorphic effect */
+.fui-DialogBackdrop,
+[class*="fui-Dialog"] [role="presentation"] {
+  backdrop-filter: blur(12px) saturate(120%) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(120%) !important;
+  background-color: rgba(0, 0, 0, 0.4) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Dialog Surface - Purple glass styling */
+.fui-DialogSurface,
+[class*="fui-Dialog"] [role="dialog"] {
+  background: rgba(255, 255, 255, 0.98) !important;
+  backdrop-filter: blur(40px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(40px) saturate(180%) !important;
+  border: 1px solid rgba(139, 92, 246, 0.15) !important;
+  box-shadow: 
+    0 20px 60px rgba(139, 92, 246, 0.25),
+    0 8px 16px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(139, 92, 246, 0.1) !important;
+}
+
+/* Ensure no forced backgrounds on dialog content */
+.fui-DialogBody {
+  background: transparent !important;
+}
+
+/* Modal animation */
+@keyframes modal-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.fui-DialogSurface {
+  animation: modal-fade-in 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ===================
+   END DIALOG & MODAL STYLES
+   =================== */
+

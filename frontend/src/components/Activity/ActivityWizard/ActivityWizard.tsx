@@ -77,9 +77,12 @@ const WizardContent: React.FC = () => {
   ];
 
   const currentStepInfo = stepInfo[currentStep - 1];
+  
+  // Determine if we're in a modal (check if parent has dialog role)
+  const isInModal = mode === 'create' || mode === 'edit'; // Modal mode indicator
 
   return (
-    <div className="wizard-container">
+    <div className={`wizard-container ${isInModal ? 'wizard-modal' : ''}`}>
       {/* Main Card with Glassmorphic Effect - Note: Remove outer padding for modal */}
       <div className="wizard-main-card" style={{ margin: 0, padding: 0 }}>
         {/* Header - Title removed as modal has its own header */}
