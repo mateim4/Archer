@@ -64,9 +64,17 @@ const useStyles = makeStyles({
 
   typeCardsGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+    gridTemplateColumns: 'repeat(3, 1fr)',
     gap: tokens.spacingHorizontalL,
     marginTop: tokens.spacingVerticalM,
+    
+    '@media (max-width: 1200px)': {
+      gridTemplateColumns: 'repeat(2, 1fr)',
+    },
+    
+    '@media (max-width: 768px)': {
+      gridTemplateColumns: '1fr',
+    },
   },
 
   typeCard: {
@@ -74,41 +82,44 @@ const useStyles = makeStyles({
     flexDirection: 'column',
     alignItems: 'center',
     ...shorthands.padding(tokens.spacingVerticalXL, tokens.spacingHorizontalL),
-    backgroundColor: '#ffffff',
-    ...shorthands.border('2px', 'solid', '#e5e7eb'),
+    background: 'rgba(255, 255, 255, 0.7)',
+    backdropFilter: 'blur(20px) saturate(180%)',
+    ...shorthands.border('2px', 'solid', 'rgba(139, 92, 246, 0.2)'),
     ...shorthands.borderRadius(tokens.borderRadiusLarge),
     cursor: 'pointer',
-    ...shorthands.transition('all', '0.2s', 'ease'),
-    boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+    ...shorthands.transition('all', '0.2s', 'cubic-bezier(0.4, 0, 0.2, 1)'),
+    boxShadow: '0 4px 24px rgba(139, 92, 246, 0.08)',
+    minHeight: '220px',
 
     ':hover': {
       transform: 'translateY(-4px)',
-      boxShadow: '0 8px 12px -2px rgba(0, 0, 0, 0.1)',
-      ...shorthands.borderColor(tokens.colorBrandForeground1),
+      ...shorthands.borderColor('rgba(139, 92, 246, 0.5)'),
+      boxShadow: '0 8px 32px rgba(139, 92, 246, 0.16)',
     },
   },
 
   typeCardSelected: {
-    backgroundColor: tokens.colorBrandBackground2,
-    ...shorthands.borderColor(tokens.colorBrandForeground1),
+    background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(99, 102, 241, 0.08) 100%)',
+    ...shorthands.borderColor('#8b5cf6'),
     ...shorthands.borderWidth('2px'),
-    boxShadow: `0 0 0 4px ${tokens.colorBrandBackground2}`,
+    boxShadow: '0 0 0 4px rgba(139, 92, 246, 0.15), 0 8px 32px rgba(139, 92, 246, 0.2)',
 
     ':hover': {
       transform: 'translateY(-4px)',
-      boxShadow: `0 8px 12px -2px rgba(99, 102, 241, 0.2), 0 0 0 4px ${tokens.colorBrandBackground2}`,
+      boxShadow: '0 0 0 4px rgba(139, 92, 246, 0.15), 0 12px 40px rgba(139, 92, 246, 0.25)',
     },
   },
 
   typeCardIcon: {
     fontSize: '48px',
     marginBottom: tokens.spacingVerticalM,
-    color: tokens.colorNeutralForeground2,
-    ...shorthands.transition('color', '0.2s', 'ease'),
+    color: '#8b5cf6',
+    ...shorthands.transition('all', '0.2s', 'ease'),
   },
 
   typeCardIconSelected: {
-    color: tokens.colorBrandForeground1,
+    color: '#8b5cf6',
+    transform: 'scale(1.1)',
   },
 
   typeCardTitle: {
@@ -121,7 +132,7 @@ const useStyles = makeStyles({
   },
 
   typeCardDescription: {
-    fontSize: '12px',
+    fontSize: '13px',
     color: tokens.colorNeutralForeground2,
     fontFamily: 'Poppins, sans-serif',
     textAlign: 'center',
