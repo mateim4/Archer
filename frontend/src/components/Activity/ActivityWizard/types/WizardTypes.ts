@@ -94,6 +94,11 @@ export interface Step4Data {
   target_hardware: TargetHardware;
   overcommit_ratios: OvercommitRatios;
   capacity_result?: CapacityValidationResult;
+  
+  // Explicit capacity requirements (from ClusterStrategyModal)
+  required_cpu_cores?: number;
+  required_memory_gb?: number;
+  required_storage_tb?: number;
 }
 
 export interface Step5Data {

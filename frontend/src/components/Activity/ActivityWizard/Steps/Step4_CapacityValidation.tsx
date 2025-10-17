@@ -229,6 +229,11 @@ const Step4_CapacityValidation: React.FC = () => {
   const [cpuOvercommit, setCpuOvercommit] = useState('4.0');
   const [memoryOvercommit, setMemoryOvercommit] = useState('1.5');
   const [storageOvercommit, setStorageOvercommit] = useState('1.0');
+  
+  // Required capacity (explicit requirements from ClusterStrategyModal)
+  const [requiredCpu, setRequiredCpu] = useState(formData.step4?.required_cpu_cores?.toString() || '');
+  const [requiredMemory, setRequiredMemory] = useState(formData.step4?.required_memory_gb?.toString() || '');
+  const [requiredStorage, setRequiredStorage] = useState(formData.step4?.required_storage_tb?.toString() || '');
 
   // State for capacity validation
   const [isValidating, setIsValidating] = useState(false);
@@ -255,6 +260,10 @@ const Step4_CapacityValidation: React.FC = () => {
       target_hardware: targetHardware,
       overcommit_ratios: overcommitRatios,
       capacity_result: capacityResult || undefined,
+      // Required capacity fields
+      required_cpu_cores: requiredCpu ? parseInt(requiredCpu, 10) : undefined,
+      required_memory_gb: requiredMemory ? parseInt(requiredMemory, 10) : undefined,
+      required_storage_tb: requiredStorage ? parseFloat(requiredStorage) : undefined,
     };
 
     // Always update context
@@ -267,6 +276,9 @@ const Step4_CapacityValidation: React.FC = () => {
     cpuOvercommit,
     memoryOvercommit,
     storageOvercommit,
+    requiredCpu,
+    requiredMemory,
+    requiredStorage,
     capacityResult,
     updateStepData,
   ]);
@@ -297,15 +309,15 @@ const Step4_CapacityValidation: React.FC = () => {
       const availableMemory = hosts * memGb * memRatio;
       const availableStorage = hosts * storageTb * storageRatio;
 
-      // Mock required resources (from workload analysis)
-      const requiredCpu = 80; // Example: 80 vCPUs required
-      const requiredMemory = 256; // Example: 256 GB required
-      const requiredStorage = 8; // Example: 8 TB required
+      // Use explicit required resources if provided, otherwise use mock values
+      const reqCpu = requiredCpu ? parseInt(requiredCpu, 10) : 80; // Default: 80 vCPUs required
+      const reqMemory = requiredMemory ? parseInt(requiredMemory, 10) : 256; // Default: 256 GB required
+      const reqStorage = requiredStorage ? parseFloat(requiredStorage) : 8; // Default: 8 TB required
 
       // Calculate utilization percentages
-      const cpuUtil = (requiredCpu / availableCpu) * 100;
-      const memUtil = (requiredMemory / availableMemory) * 100;
-      const storageUtil = (requiredStorage / availableStorage) * 100;
+      const cpuUtil = (reqCpu / availableCpu) * 100;
+      const memUtil = (reqMemory / availableMemory) * 100;
+      const storageUtil = (reqStorage / availableStorage) * 100;
 
       // Determine status based on utilization
       const getCpuStatus = (util: number): ResourceStatus => {
@@ -346,19 +358,19 @@ const Step4_CapacityValidation: React.FC = () => {
         overall_status: overallStatus,
         cpu: {
           available: availableCpu,
-          required: requiredCpu,
+          required: reqCpu,
           utilization_percent: cpuUtil,
           status: cpuStatus,
         },
         memory: {
           available: availableMemory,
-          required: requiredMemory,
+          required: reqMemory,
           utilization_percent: memUtil,
           status: memStatus,
         },
         storage: {
           available: availableStorage,
-          required: requiredStorage,
+          required: reqStorage,
           utilization_percent: storageUtil,
           status: storageStatus,
         },
@@ -449,6 +461,69 @@ const Step4_CapacityValidation: React.FC = () => {
 
   return (
     <div className={classes.container}>
+      {/* Required Capacity Section (from ClusterStrategyModal) */}
+      <div className={classes.section}>
+        <div className={classes.title}>Required Capacity</div>
+        <div className={classes.subtitle}>
+          Specify the minimum resource requirements for your workloads. These values will be used to validate if the target hardware meets your needs.
+        </div>
+
+        <div className={classes.formGrid}>
+          {/* Required CPU */}
+          <div className={classes.fieldContainer}>
+            <Label className={classes.label}>
+              Required CPU Cores
+            </Label>
+            <Input
+              className={classes.input}
+              type="number"
+              min="1"
+              value={requiredCpu}
+              onChange={(ev, data) => setRequiredCpu(data.value)}
+              placeholder="e.g., 64"
+              size="large"
+            />
+          </div>
+
+          {/* Required Memory */}
+          <div className={classes.fieldContainer}>
+            <Label className={classes.label}>
+              Required Memory (GB)
+            </Label>
+            <Input
+              className={classes.input}
+              type="number"
+              min="1"
+              value={requiredMemory}
+              onChange={(ev, data) => setRequiredMemory(data.value)}
+              placeholder="e.g., 256"
+              size="large"
+            />
+          </div>
+
+          {/* Required Storage */}
+          <div className={classes.fieldContainer}>
+            <Label className={classes.label}>
+              Required Storage (TB)
+            </Label>
+            <Input
+              className={classes.input}
+              type="number"
+              min="0.1"
+              step="0.1"
+              value={requiredStorage}
+              onChange={(ev, data) => setRequiredStorage(data.value)}
+              placeholder="e.g., 5"
+              size="large"
+            />
+          </div>
+        </div>
+
+        <div className={classes.infoBox}>
+          💡 <strong>Tip:</strong> These requirements represent the minimum resources needed. The validation will check if your target hardware (below) can meet or exceed these requirements with the specified overcommit ratios.
+        </div>
+      </div>
+
       {/* Target Hardware Section */}
       <div className={classes.section}>
         <div className={classes.title}>Target Hardware Specifications</div>
