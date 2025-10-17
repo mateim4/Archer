@@ -320,6 +320,7 @@ export interface WizardContextValue {
   
   // Draft Management
   resumeDraft: (activityId: string) => Promise<void>;
+  loadExistingActivity: (activityId: string) => Promise<void>;
   
   // Validation
   validateStep: (step: number) => boolean;

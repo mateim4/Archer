@@ -248,12 +248,26 @@ export const WizardProvider: React.FC<WizardProviderProps> = ({
         ...formData,
       };
 
-      const result = await apiPost<Activity>(`/wizard/${activityId}/complete`, {
-        wizard_data: wizardData,
-      } as CompleteWizardRequest);
+      let result: Activity;
+      
+      if (wizardMode === 'edit') {
+        // Edit mode: Update existing activity
+        result = await apiPut<Activity>(`/activities/${activityId}`, {
+          wizard_state: wizardData,
+          // Include other activity properties as needed
+          name: formData.step1?.activity_name,
+          activity_type: formData.step1?.activity_type,
+          description: formData.step1?.description,
+        });
+      } else {
+        // Create mode: Complete wizard
+        result = await apiPost<Activity>(`/wizard/${activityId}/complete`, {
+          wizard_data: wizardData,
+        } as CompleteWizardRequest);
+      }
 
       // Wizard completed successfully
-      console.log('Wizard completed:', result);
+      console.log(`Wizard ${wizardMode === 'edit' ? 'updated' : 'completed'}:`, result);
       
       // Clear unsaved changes flag
       setHasUnsavedChanges(false);
@@ -268,12 +282,12 @@ export const WizardProvider: React.FC<WizardProviderProps> = ({
       
       return result;
     } catch (error) {
-      console.error('Complete wizard failed:', error);
+      console.error(`${wizardMode === 'edit' ? 'Update' : 'Complete'} wizard failed:`, error);
       throw error;
     } finally {
       setIsLoading(false);
     }
-  }, [activityId, formData, onComplete, onUnsavedChanges]);
+  }, [activityId, formData, wizardMode, onComplete, onUnsavedChanges]);
 
   // ============================================================================
   // Draft Management
@@ -300,6 +314,47 @@ export const WizardProvider: React.FC<WizardProviderProps> = ({
         throw new Error('This draft has expired. Please start a new activity.');
       }
       console.error('Resume draft failed:', error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const loadExistingActivity = useCallback(async (existingActivityId: string) => {
+    try {
+      setIsLoading(true);
+      
+      // Fetch the existing activity from the backend
+      // Note: This assumes a GET endpoint exists for fetching activity details
+      const activity = await apiGet<Activity>(`/activities/${existingActivityId}`);
+
+      // Pre-fill wizard state from activity data
+      if (activity.wizard_state) {
+        const { current_step, ...stepData } = activity.wizard_state;
+        // Start from step 1 in edit mode (user can navigate through all steps)
+        setCurrentStep(1);
+        setFormData(stepData);
+      } else {
+        // If no wizard_state, construct from activity properties
+        setFormData({
+          step1: {
+            activity_name: activity.name || '',
+            activity_type: activity.activity_type || 'migration',
+            description: activity.description || '',
+          },
+          // Additional steps can be pre-filled based on available data
+        });
+        setCurrentStep(1);
+      }
+
+      setActivityId(existingActivityId);
+      
+      // No expiration for editing existing activities
+      setExpiresAt(undefined);
+      
+      console.log('Loaded existing activity for editing:', existingActivityId);
+    } catch (error) {
+      console.error('Load existing activity failed:', error);
       throw error;
     } finally {
       setIsLoading(false);
@@ -355,14 +410,21 @@ export const WizardProvider: React.FC<WizardProviderProps> = ({
 
   useEffect(() => {
     const initializeWizard = async () => {
-      if (initialActivityId) {
+      if (initialActivityId && wizardMode === 'edit') {
+        // Edit mode: Load existing activity
+        try {
+          await loadExistingActivity(initialActivityId);
+        } catch (error) {
+          console.error('Failed to load existing activity:', error);
+        }
+      } else if (initialActivityId && wizardMode === 'create') {
         // Resume draft mode
         try {
           await resumeDraft(initialActivityId);
         } catch (error) {
           console.error('Failed to resume draft:', error);
         }
-      } else if (!activityId && formData.step1?.activity_name) {
+      } else if (!activityId && formData.step1?.activity_name && wizardMode === 'create') {
         // Start new wizard (if step 1 data exists but no activity ID)
         try {
           setIsLoading(true);
@@ -383,7 +445,7 @@ export const WizardProvider: React.FC<WizardProviderProps> = ({
     };
 
     initializeWizard();
-  }, [initialActivityId]); // Only run on mount with initialActivityId
+  }, [initialActivityId, wizardMode, loadExistingActivity, resumeDraft]); // Run when initialActivityId or mode changes
 
   // ============================================================================
   // Context Value
@@ -416,6 +478,7 @@ export const WizardProvider: React.FC<WizardProviderProps> = ({
 
     // Draft Management
     resumeDraft,
+    loadExistingActivity,
 
     // Validation
     validateStep,
