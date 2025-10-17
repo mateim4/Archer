@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
   makeStyles,
   shorthands,
-  tokens,
   Button,
   Spinner,
 } from '@fluentui/react-components';
@@ -13,25 +12,26 @@ import {
   WarningRegular,
 } from '@fluentui/react-icons';
 import { useWizardContext } from '../Context/WizardContext';
+import { tokens } from '../../../../styles/design-tokens';
 
 const useStyles = makeStyles({
   container: {
     display: 'flex',
     flexDirection: 'column',
-    ...shorthands.gap(tokens.spacingVerticalXXL),
+    ...shorthands.gap(tokens.xxl),
     maxWidth: '1000px',
   },
   header: {
     display: 'flex',
     flexDirection: 'column',
-    ...shorthands.gap(tokens.spacingVerticalM),
+    ...shorthands.gap(tokens.m),
   },
   title: {
     fontSize: tokens.fontSizeBase600,
     fontWeight: tokens.fontWeightSemibold,
     color: tokens.colorNeutralForeground1,
     fontFamily: 'Poppins, Montserrat, system-ui, sans-serif',
-    marginBottom: tokens.spacingVerticalS,
+    marginBottom: tokens.s,
   },
   subtitle: {
     fontSize: tokens.fontSizeBase400,
@@ -42,27 +42,27 @@ const useStyles = makeStyles({
   reviewSection: {
     display: 'flex',
     flexDirection: 'column',
-    ...shorthands.gap(tokens.spacingVerticalL),
+    ...shorthands.gap(tokens.l),
   },
   sectionCard: {
     backgroundColor: tokens.colorNeutralBackground1,
-    ...shorthands.borderRadius(tokens.borderRadiusLarge),
+    ...shorthands.borderRadius(tokens.large),
     ...shorthands.border('1px', 'solid', '#e5e7eb'),
-    ...shorthands.padding(tokens.spacingVerticalXL),
+    ...shorthands.padding(tokens.xl),
     boxShadow: tokens.shadow4,
   },
   sectionHeader: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: tokens.spacingVerticalL,
-    paddingBottom: tokens.spacingVerticalM,
+    marginBottom: tokens.l,
+    paddingBottom: tokens.m,
     ...shorthands.borderBottom('2px', 'solid', '#e5e7eb'),
   },
   sectionTitle: {
     display: 'flex',
     alignItems: 'center',
-    ...shorthands.gap(tokens.spacingHorizontalM),
+    ...shorthands.gap(tokens.m),
     fontSize: tokens.fontSizeBase500,
     fontWeight: tokens.fontWeightSemibold,
     color: tokens.colorNeutralForeground1,
@@ -87,12 +87,12 @@ const useStyles = makeStyles({
   fieldGrid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-    ...shorthands.gap(tokens.spacingVerticalL, tokens.spacingHorizontalL),
+    ...shorthands.gap(tokens.l, tokens.l),
   },
   field: {
     display: 'flex',
     flexDirection: 'column',
-    ...shorthands.gap(tokens.spacingVerticalXS),
+    ...shorthands.gap(tokens.xs),
   },
   fieldLabel: {
     fontSize: tokens.fontSizeBase200,
@@ -115,8 +115,8 @@ const useStyles = makeStyles({
   badge: {
     display: 'inline-flex',
     alignItems: 'center',
-    ...shorthands.padding(tokens.spacingVerticalXXS, tokens.spacingHorizontalS),
-    ...shorthands.borderRadius(tokens.borderRadiusMedium),
+    ...shorthands.padding(tokens.xxs, tokens.s),
+    ...shorthands.borderRadius(tokens.medium),
     fontSize: tokens.fontSizeBase200,
     fontWeight: tokens.fontWeightSemibold,
     fontFamily: 'Poppins, Montserrat, system-ui, sans-serif',
@@ -135,12 +135,12 @@ const useStyles = makeStyles({
     margin: 0,
     display: 'flex',
     flexDirection: 'column',
-    ...shorthands.gap(tokens.spacingVerticalS),
+    ...shorthands.gap(tokens.s),
   },
   listItem: {
     display: 'flex',
     alignItems: 'flex-start',
-    ...shorthands.gap(tokens.spacingHorizontalS),
+    ...shorthands.gap(tokens.s),
     fontSize: tokens.fontSizeBase300,
     color: tokens.colorNeutralForeground2,
     fontFamily: 'Poppins, Montserrat, system-ui, sans-serif',
@@ -148,9 +148,9 @@ const useStyles = makeStyles({
   submitSection: {
     display: 'flex',
     flexDirection: 'column',
-    ...shorthands.gap(tokens.spacingVerticalL),
-    ...shorthands.padding(tokens.spacingVerticalXL),
-    ...shorthands.borderRadius(tokens.borderRadiusLarge),
+    ...shorthands.gap(tokens.l),
+    ...shorthands.padding(tokens.xl),
+    ...shorthands.borderRadius(tokens.large),
     backgroundColor: '#f0f9ff',
     ...shorthands.border('2px', 'solid', '#3b82f6'),
   },
@@ -170,15 +170,15 @@ const useStyles = makeStyles({
     alignSelf: 'flex-start',
     fontFamily: 'Poppins, Montserrat, system-ui, sans-serif',
     fontWeight: tokens.fontWeightSemibold,
-    ...shorthands.padding(tokens.spacingVerticalM, tokens.spacingHorizontalXXL),
+    ...shorthands.padding(tokens.m, tokens.xxxl),
     fontSize: tokens.fontSizeBase400,
   },
   successMessage: {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    ...shorthands.padding(tokens.spacingVerticalXXXL),
-    ...shorthands.borderRadius(tokens.borderRadiusLarge),
+    ...shorthands.padding(tokens.xxxl),
+    ...shorthands.borderRadius(tokens.large),
     backgroundColor: '#dcfce7',
     ...shorthands.border('2px', 'solid', '#86efac'),
     textAlign: 'center',
@@ -186,14 +186,14 @@ const useStyles = makeStyles({
   successIcon: {
     fontSize: '64px',
     color: '#15803d',
-    marginBottom: tokens.spacingVerticalL,
+    marginBottom: tokens.l,
   },
   successTitle: {
     fontSize: tokens.fontSizeBase600,
     fontWeight: tokens.fontWeightBold,
     color: '#15803d',
     fontFamily: 'Poppins, Montserrat, system-ui, sans-serif',
-    marginBottom: tokens.spacingVerticalM,
+    marginBottom: tokens.m,
   },
   successSubtitle: {
     fontSize: tokens.fontSizeBase400,
@@ -201,8 +201,8 @@ const useStyles = makeStyles({
     fontFamily: 'Poppins, Montserrat, system-ui, sans-serif',
   },
   errorMessage: {
-    ...shorthands.padding(tokens.spacingVerticalL),
-    ...shorthands.borderRadius(tokens.borderRadiusMedium),
+    ...shorthands.padding(tokens.l),
+    ...shorthands.borderRadius(tokens.medium),
     backgroundColor: '#fee2e2',
     ...shorthands.border('1px', 'solid', '#fca5a5'),
     color: '#b91c1c',

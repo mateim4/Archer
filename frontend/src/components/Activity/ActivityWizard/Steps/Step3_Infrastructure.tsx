@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import {
   makeStyles,
   shorthands,
-  tokens,
   Input,
   Label,
   Button,
@@ -19,42 +18,43 @@ import {
 } from '@fluentui/react-icons';
 import { useWizardContext } from '../Context/WizardContext';
 import type { HardwareCompatibilityResult, HardwareSpec, CheckStatus } from '../types/WizardTypes';
+import { tokens } from '../../../../styles/design-tokens';
 
 const useStyles = makeStyles({
   container: {
     display: 'flex',
     flexDirection: 'column',
-    ...shorthands.gap(tokens.spacingVerticalXXL),
+    ...shorthands.gap(tokens.xxl),
     maxWidth: '900px',
   },
   section: {
     display: 'flex',
     flexDirection: 'column',
-    ...shorthands.gap(tokens.spacingVerticalL),
+    ...shorthands.gap(tokens.l),
   },
   title: {
     fontSize: tokens.fontSizeBase600,
     fontWeight: tokens.fontWeightSemibold,
     color: tokens.colorNeutralForeground1,
     fontFamily: 'Poppins, Montserrat, system-ui, sans-serif',
-    marginBottom: tokens.spacingVerticalS,
+    marginBottom: tokens.s,
   },
   subtitle: {
     fontSize: tokens.fontSizeBase400,
     fontWeight: tokens.fontWeightRegular,
     color: tokens.colorNeutralForeground2,
     fontFamily: 'Poppins, Montserrat, system-ui, sans-serif',
-    marginBottom: tokens.spacingVerticalM,
+    marginBottom: tokens.m,
   },
   formGrid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-    ...shorthands.gap(tokens.spacingVerticalL, tokens.spacingHorizontalL),
+    ...shorthands.gap(tokens.l, tokens.l),
   },
   fieldContainer: {
     display: 'flex',
     flexDirection: 'column',
-    ...shorthands.gap(tokens.spacingVerticalS),
+    ...shorthands.gap(tokens.s),
   },
   label: {
     fontFamily: 'Poppins, Montserrat, system-ui, sans-serif',
@@ -69,20 +69,20 @@ const useStyles = makeStyles({
     alignSelf: 'flex-start',
     fontFamily: 'Poppins, Montserrat, system-ui, sans-serif',
     fontWeight: tokens.fontWeightSemibold,
-    ...shorthands.padding(tokens.spacingVerticalM, tokens.spacingHorizontalXL),
+    ...shorthands.padding(tokens.m, tokens.xxl),
   },
   resultsCard: {
     backgroundColor: tokens.colorNeutralBackground1,
-    ...shorthands.borderRadius(tokens.borderRadiusLarge),
+    ...shorthands.borderRadius(tokens.large),
     ...shorthands.border('1px', 'solid', '#e5e7eb'),
-    ...shorthands.padding(tokens.spacingVerticalXL),
+    ...shorthands.padding(tokens.xl),
     boxShadow: tokens.shadow4,
   },
   resultsHeader: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: tokens.spacingVerticalL,
+    marginBottom: tokens.l,
   },
   resultsTitle: {
     fontSize: tokens.fontSizeBase500,
@@ -93,9 +93,9 @@ const useStyles = makeStyles({
   statusBadge: {
     display: 'inline-flex',
     alignItems: 'center',
-    ...shorthands.gap(tokens.spacingHorizontalS),
-    ...shorthands.padding(tokens.spacingVerticalXS, tokens.spacingHorizontalM),
-    ...shorthands.borderRadius(tokens.borderRadiusLarge),
+    ...shorthands.gap(tokens.s),
+    ...shorthands.padding(tokens.xs, tokens.m),
+    ...shorthands.borderRadius(tokens.large),
     fontSize: tokens.fontSizeBase200,
     fontWeight: tokens.fontWeightSemibold,
     fontFamily: 'Poppins, Montserrat, system-ui, sans-serif',
@@ -118,15 +118,15 @@ const useStyles = makeStyles({
   checksGrid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-    ...shorthands.gap(tokens.spacingVerticalM, tokens.spacingHorizontalM),
-    marginBottom: tokens.spacingVerticalL,
+    ...shorthands.gap(tokens.m, tokens.m),
+    marginBottom: tokens.l,
   },
   checkCard: {
     display: 'flex',
     alignItems: 'center',
-    ...shorthands.gap(tokens.spacingHorizontalS),
-    ...shorthands.padding(tokens.spacingVerticalM),
-    ...shorthands.borderRadius(tokens.borderRadiusMedium),
+    ...shorthands.gap(tokens.s),
+    ...shorthands.padding(tokens.m),
+    ...shorthands.borderRadius(tokens.medium),
     backgroundColor: tokens.colorNeutralBackground2,
     ...shorthands.border('1px', 'solid', tokens.colorNeutralStroke1),
     transitionProperty: 'all',
@@ -145,14 +145,14 @@ const useStyles = makeStyles({
   recommendationsSection: {
     display: 'flex',
     flexDirection: 'column',
-    ...shorthands.gap(tokens.spacingVerticalM),
+    ...shorthands.gap(tokens.m),
   },
   recommendationsTitle: {
     fontSize: tokens.fontSizeBase400,
     fontWeight: tokens.fontWeightSemibold,
     color: tokens.colorNeutralForeground1,
     fontFamily: 'Poppins, Montserrat, system-ui, sans-serif',
-    marginBottom: tokens.spacingVerticalS,
+    marginBottom: tokens.s,
   },
   recommendationsList: {
     listStyleType: 'none',
@@ -160,14 +160,14 @@ const useStyles = makeStyles({
     margin: 0,
     display: 'flex',
     flexDirection: 'column',
-    ...shorthands.gap(tokens.spacingVerticalS),
+    ...shorthands.gap(tokens.s),
   },
   recommendationItem: {
     display: 'flex',
     alignItems: 'flex-start',
-    ...shorthands.gap(tokens.spacingHorizontalS),
-    ...shorthands.padding(tokens.spacingVerticalS, tokens.spacingHorizontalM),
-    ...shorthands.borderRadius(tokens.borderRadiusMedium),
+    ...shorthands.gap(tokens.s),
+    ...shorthands.padding(tokens.s, tokens.m),
+    ...shorthands.borderRadius(tokens.medium),
     backgroundColor: tokens.colorNeutralBackground3,
     fontFamily: 'Poppins, Montserrat, system-ui, sans-serif',
     fontSize: tokens.fontSizeBase300,
@@ -179,9 +179,9 @@ const useStyles = makeStyles({
     marginTop: '2px',
   },
   infoBox: {
-    ...shorthands.padding(tokens.spacingVerticalM, tokens.spacingHorizontalM),
-    ...shorthands.borderRadius(tokens.borderRadiusMedium),
-    backgroundColor: tokens.colorNeutralBackground4,
+    ...shorthands.padding(tokens.m, tokens.m),
+    ...shorthands.borderRadius(tokens.medium),
+    backgroundColor: tokens.colorNeutralBackground3,
     ...shorthands.border('1px', 'solid', tokens.colorNeutralStroke2),
     fontFamily: 'Poppins, Montserrat, system-ui, sans-serif',
     fontSize: tokens.fontSizeBase300,

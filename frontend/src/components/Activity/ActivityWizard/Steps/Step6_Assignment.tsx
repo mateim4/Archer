@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import {
   makeStyles,
   shorthands,
-  tokens,
   Input,
   Label,
   Button,
@@ -16,43 +15,44 @@ import {
   DeleteRegular,
 } from '@fluentui/react-icons';
 import { useWizardContext } from '../Context/WizardContext';
-import type { Milestone } from '../types/WizardTypes';
+import type { Assignment } from '../types/WizardTypes';
+import { tokens } from '../../../../styles/design-tokens';
 
 const useStyles = makeStyles({
   container: {
     display: 'flex',
     flexDirection: 'column',
-    ...shorthands.gap(tokens.spacingVerticalXXL),
+    ...shorthands.gap(tokens.xxl),
     maxWidth: '900px',
   },
   section: {
     display: 'flex',
     flexDirection: 'column',
-    ...shorthands.gap(tokens.spacingVerticalL),
+    ...shorthands.gap(tokens.l),
   },
   title: {
     fontSize: tokens.fontSizeBase600,
     fontWeight: tokens.fontWeightSemibold,
     color: tokens.colorNeutralForeground1,
     fontFamily: 'Poppins, Montserrat, system-ui, sans-serif',
-    marginBottom: tokens.spacingVerticalS,
+    marginBottom: tokens.s,
   },
   subtitle: {
     fontSize: tokens.fontSizeBase400,
     fontWeight: tokens.fontWeightRegular,
     color: tokens.colorNeutralForeground2,
     fontFamily: 'Poppins, Montserrat, system-ui, sans-serif',
-    marginBottom: tokens.spacingVerticalM,
+    marginBottom: tokens.m,
   },
   formGrid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-    ...shorthands.gap(tokens.spacingVerticalL, tokens.spacingHorizontalL),
+    ...shorthands.gap(tokens.l, tokens.l),
   },
   fieldContainer: {
     display: 'flex',
     flexDirection: 'column',
-    ...shorthands.gap(tokens.spacingVerticalS),
+    ...shorthands.gap(tokens.s),
   },
   label: {
     fontFamily: 'Poppins, Montserrat, system-ui, sans-serif',
@@ -66,7 +66,7 @@ const useStyles = makeStyles({
   milestonesSection: {
     display: 'flex',
     flexDirection: 'column',
-    ...shorthands.gap(tokens.spacingVerticalL),
+    ...shorthands.gap(tokens.l),
   },
   milestonesHeader: {
     display: 'flex',
@@ -83,14 +83,14 @@ const useStyles = makeStyles({
     margin: 0,
     display: 'flex',
     flexDirection: 'column',
-    ...shorthands.gap(tokens.spacingVerticalM),
+    ...shorthands.gap(tokens.m),
   },
   milestoneCard: {
     display: 'flex',
     flexDirection: 'column',
-    ...shorthands.gap(tokens.spacingVerticalM),
-    ...shorthands.padding(tokens.spacingVerticalL),
-    ...shorthands.borderRadius(tokens.borderRadiusMedium),
+    ...shorthands.gap(tokens.m),
+    ...shorthands.padding(tokens.l),
+    ...shorthands.borderRadius(tokens.medium),
     backgroundColor: tokens.colorNeutralBackground1,
     ...shorthands.border('1px', 'solid', '#e5e7eb'),
     boxShadow: tokens.shadow4,
@@ -118,15 +118,15 @@ const useStyles = makeStyles({
   milestoneFields: {
     display: 'grid',
     gridTemplateColumns: '2fr 1fr',
-    ...shorthands.gap(tokens.spacingVerticalM, tokens.spacingHorizontalM),
+    ...shorthands.gap(tokens.m, tokens.m),
   },
   fullWidth: {
     gridColumn: '1 / -1',
   },
   infoBox: {
-    ...shorthands.padding(tokens.spacingVerticalM, tokens.spacingHorizontalM),
-    ...shorthands.borderRadius(tokens.borderRadiusMedium),
-    backgroundColor: tokens.colorNeutralBackground4,
+    ...shorthands.padding(tokens.m, tokens.m),
+    ...shorthands.borderRadius(tokens.medium),
+    backgroundColor: tokens.colorNeutralBackground3,
     ...shorthands.border('1px', 'solid', tokens.colorNeutralStroke2),
     fontFamily: 'Poppins, Montserrat, system-ui, sans-serif',
     fontSize: tokens.fontSizeBase300,
@@ -138,8 +138,8 @@ const useStyles = makeStyles({
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    ...shorthands.padding(tokens.spacingVerticalXXL),
-    ...shorthands.borderRadius(tokens.borderRadiusMedium),
+    ...shorthands.padding(tokens.xxl),
+    ...shorthands.borderRadius(tokens.medium),
     backgroundColor: tokens.colorNeutralBackground3,
     ...shorthands.border('1px', 'dashed', tokens.colorNeutralStroke2),
     textAlign: 'center',
@@ -148,7 +148,7 @@ const useStyles = makeStyles({
     fontSize: tokens.fontSizeBase400,
     color: tokens.colorNeutralForeground3,
     fontFamily: 'Poppins, Montserrat, system-ui, sans-serif',
-    marginTop: tokens.spacingVerticalM,
+    marginTop: tokens.m,
   },
 });
 
@@ -296,7 +296,7 @@ const Step6_Assignment: React.FC = () => {
 
         {milestones.length === 0 ? (
           <div className={classes.emptyState}>
-            <AddRegular style={{ fontSize: '48px', color: tokens.colorNeutralForeground4 }} />
+            <AddRegular style={{ fontSize: '48px', color: tokens.colorNeutralForeground3 }} />
             <div className={classes.emptyStateText}>
               No milestones yet. Click "Add Milestone" to create project milestones.
             </div>

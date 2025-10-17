@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import {
   makeStyles,
   shorthands,
-  tokens,
   Button,
   Spinner,
 } from '@fluentui/react-components';
@@ -14,53 +13,54 @@ import {
 } from '@fluentui/react-icons';
 import { useWizardContext } from '../Context/WizardContext';
 import type { TimelineEstimationResult, TaskEstimate } from '../types/WizardTypes';
+import { tokens } from '../../../../styles/design-tokens';
 
 const useStyles = makeStyles({
   container: {
     display: 'flex',
     flexDirection: 'column',
-    ...shorthands.gap(tokens.spacingVerticalXXL),
+    ...shorthands.gap(tokens.xxl),
     maxWidth: '900px',
   },
   section: {
     display: 'flex',
     flexDirection: 'column',
-    ...shorthands.gap(tokens.spacingVerticalL),
+    ...shorthands.gap(tokens.l),
   },
   title: {
     fontSize: tokens.fontSizeBase600,
     fontWeight: tokens.fontWeightSemibold,
     color: tokens.colorNeutralForeground1,
     fontFamily: 'Poppins, Montserrat, system-ui, sans-serif',
-    marginBottom: tokens.spacingVerticalS,
+    marginBottom: tokens.s,
   },
   subtitle: {
     fontSize: tokens.fontSizeBase400,
     fontWeight: tokens.fontWeightRegular,
     color: tokens.colorNeutralForeground2,
     fontFamily: 'Poppins, Montserrat, system-ui, sans-serif',
-    marginBottom: tokens.spacingVerticalM,
+    marginBottom: tokens.m,
   },
   estimateButton: {
     alignSelf: 'flex-start',
     fontFamily: 'Poppins, Montserrat, system-ui, sans-serif',
     fontWeight: tokens.fontWeightSemibold,
-    ...shorthands.padding(tokens.spacingVerticalM, tokens.spacingHorizontalXL),
+    ...shorthands.padding(tokens.m, tokens.xxl),
   },
   resultsCard: {
     backgroundColor: tokens.colorNeutralBackground1,
-    ...shorthands.borderRadius(tokens.borderRadiusLarge),
+    ...shorthands.borderRadius(tokens.large),
     ...shorthands.border('1px', 'solid', '#e5e7eb'),
-    ...shorthands.padding(tokens.spacingVerticalXL),
+    ...shorthands.padding(tokens.xl),
     boxShadow: tokens.shadow4,
   },
   resultsHeader: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: tokens.spacingVerticalL,
+    marginBottom: tokens.l,
     flexWrap: 'wrap',
-    ...shorthands.gap(tokens.spacingVerticalM),
+    ...shorthands.gap(tokens.m),
   },
   resultsTitle: {
     fontSize: tokens.fontSizeBase500,
@@ -71,9 +71,9 @@ const useStyles = makeStyles({
   confidenceBadge: {
     display: 'inline-flex',
     alignItems: 'center',
-    ...shorthands.gap(tokens.spacingHorizontalS),
-    ...shorthands.padding(tokens.spacingVerticalXS, tokens.spacingHorizontalM),
-    ...shorthands.borderRadius(tokens.borderRadiusLarge),
+    ...shorthands.gap(tokens.s),
+    ...shorthands.padding(tokens.xs, tokens.m),
+    ...shorthands.borderRadius(tokens.large),
     fontSize: tokens.fontSizeBase200,
     fontWeight: tokens.fontWeightSemibold,
     fontFamily: 'Poppins, Montserrat, system-ui, sans-serif',
@@ -96,15 +96,15 @@ const useStyles = makeStyles({
   summaryGrid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-    ...shorthands.gap(tokens.spacingVerticalM, tokens.spacingHorizontalM),
-    marginBottom: tokens.spacingVerticalXL,
+    ...shorthands.gap(tokens.m, tokens.m),
+    marginBottom: tokens.xl,
   },
   summaryCard: {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    ...shorthands.padding(tokens.spacingVerticalL),
-    ...shorthands.borderRadius(tokens.borderRadiusMedium),
+    ...shorthands.padding(tokens.l),
+    ...shorthands.borderRadius(tokens.medium),
     backgroundColor: tokens.colorNeutralBackground2,
     ...shorthands.border('1px', 'solid', tokens.colorNeutralStroke1),
   },
@@ -113,7 +113,7 @@ const useStyles = makeStyles({
     fontWeight: tokens.fontWeightBold,
     color: '#3b82f6',
     fontFamily: 'Poppins, Montserrat, system-ui, sans-serif',
-    marginBottom: tokens.spacingVerticalXS,
+    marginBottom: tokens.xs,
   },
   summaryLabel: {
     fontSize: tokens.fontSizeBase300,
@@ -123,14 +123,14 @@ const useStyles = makeStyles({
     textAlign: 'center',
   },
   tasksSection: {
-    marginBottom: tokens.spacingVerticalXL,
+    marginBottom: tokens.xl,
   },
   tasksTitle: {
     fontSize: tokens.fontSizeBase400,
     fontWeight: tokens.fontWeightSemibold,
     color: tokens.colorNeutralForeground1,
     fontFamily: 'Poppins, Montserrat, system-ui, sans-serif',
-    marginBottom: tokens.spacingVerticalM,
+    marginBottom: tokens.m,
   },
   tasksList: {
     listStyleType: 'none',
@@ -138,14 +138,14 @@ const useStyles = makeStyles({
     margin: 0,
     display: 'flex',
     flexDirection: 'column',
-    ...shorthands.gap(tokens.spacingVerticalS),
+    ...shorthands.gap(tokens.s),
   },
   taskItem: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    ...shorthands.padding(tokens.spacingVerticalM, tokens.spacingHorizontalL),
-    ...shorthands.borderRadius(tokens.borderRadiusMedium),
+    ...shorthands.padding(tokens.m, tokens.l),
+    ...shorthands.borderRadius(tokens.medium),
     backgroundColor: tokens.colorNeutralBackground3,
     ...shorthands.border('1px', 'solid', tokens.colorNeutralStroke2),
     transitionProperty: 'all',
@@ -180,22 +180,22 @@ const useStyles = makeStyles({
   criticalBadge: {
     display: 'inline-flex',
     alignItems: 'center',
-    ...shorthands.gap(tokens.spacingHorizontalXS),
+    ...shorthands.gap(tokens.xs),
     fontSize: tokens.fontSizeBase200,
     fontWeight: tokens.fontWeightSemibold,
     color: '#b45309',
     fontFamily: 'Poppins, Montserrat, system-ui, sans-serif',
-    marginLeft: tokens.spacingHorizontalM,
+    marginLeft: tokens.m,
   },
   infoSection: {
     display: 'flex',
     flexDirection: 'column',
-    ...shorthands.gap(tokens.spacingVerticalM),
+    ...shorthands.gap(tokens.m),
   },
   infoBox: {
-    ...shorthands.padding(tokens.spacingVerticalM, tokens.spacingHorizontalM),
-    ...shorthands.borderRadius(tokens.borderRadiusMedium),
-    backgroundColor: tokens.colorNeutralBackground4,
+    ...shorthands.padding(tokens.m, tokens.m),
+    ...shorthands.borderRadius(tokens.medium),
+    backgroundColor: tokens.colorNeutralBackground3,
     ...shorthands.border('1px', 'solid', tokens.colorNeutralStroke2),
     fontFamily: 'Poppins, Montserrat, system-ui, sans-serif',
     fontSize: tokens.fontSizeBase300,
