@@ -11,9 +11,10 @@
  * 7. Review & Submit (final confirmation)
  */
 
-import React, { useEffect } from 'react';
-import { makeStyles, shorthands, tokens } from '@fluentui/react-components';
-import { WizardProvider, useWizardContext } from './Context/WizardContext';
+import React from 'react';
+import { useWizardContext } from './Context/WizardContext';
+import { useWizardStyles } from '../../../hooks/useWizardStyles';
+import { tokens } from '../../../styles/design-tokens';
 import WizardProgress from './WizardProgress';
 import WizardNavigation from './WizardNavigation';
 
@@ -27,67 +28,11 @@ import Step6_Assignment from './Steps/Step6_Assignment';
 import Step7_Review from './Steps/Step7_Review';
 
 // ============================================================================
-// ============================================================================
-// Styles - Context-aware styling (proper approach, no !important)
-// ============================================================================
-
-const useStyles = makeStyles({
-  // Minimal styles - most styling comes from wizard.css
-  saveIndicatorIcon: {
-    width: '8px',
-    height: '8px',
-    borderRadius: '50%',
-    backgroundColor: tokens.colorPaletteGreenBackground3,
-  },
-  
-  saveIndicatorSaving: {
-    backgroundColor: tokens.colorPaletteYellowBackground3,
-  },
-  
-  // Modal-specific overrides (proper way - component controls its own styles)
-  containerModal: {
-    maxWidth: 'none',
-    padding: 0,
-    margin: 0,
-  },
-  
-  cardModal: {
-    border: 'none',
-    boxShadow: 'none',
-    borderRadius: 0,
-    backgroundColor: 'transparent',
-    '::before': {
-      display: 'none', // Remove gradient top border in modal
-    },
-  },
-  
-  headerModal: {
-    padding: `${tokens.spacingVerticalXL} 0`,
-    background: 'transparent',
-    backgroundImage: 'none',
-    borderBottom: `1px solid rgba(139, 92, 246, 0.15)`,
-  },
-  
-  stepContainerModal: {
-    padding: `${tokens.spacingVerticalXL} 0`,
-    background: 'transparent',
-    backgroundImage: 'none',
-  },
-  
-  navigationModal: {
-    padding: `${tokens.spacingVerticalXL} 0`,
-    borderTop: `1px solid rgba(139, 92, 246, 0.15)`,
-    background: 'transparent',
-    backgroundImage: 'none',
-  },
-});
-
-// ============================================================================
 // Wizard Content Component (uses context)
 // ============================================================================
 
 const WizardContent: React.FC = () => {
-  const styles = useStyles();
+  const styles = useWizardStyles();
   const {
     currentStep,
     isSaving,
@@ -116,23 +61,30 @@ const WizardContent: React.FC = () => {
 
   const currentStepInfo = stepInfo[currentStep - 1];
   
-  // Determine if we're in a modal (check if parent has dialog role)
-  const isInModal = mode === 'create' || mode === 'edit'; // Modal mode indicator
+  // Determine if we're in a modal
+  const isInModal = mode === 'create' || mode === 'edit';
 
   return (
-    <div className={`wizard-container ${isInModal ? 'wizard-modal' : ''}`}>
-      {/* Main Card with Glassmorphic Effect - Note: Remove outer padding for modal */}
-      <div className="wizard-main-card" style={{ margin: 0, padding: 0 }}>
-        {/* Header - Title removed as modal has its own header */}
-        <div className="wizard-header" style={{ borderTop: 'none' }}>
-          <p className="wizard-subtitle" style={{ fontSize: '16px', marginBottom: 0 }}>
+    <div className={isInModal ? styles.containerModal : styles.container}>
+      {/* Main Card with Glassmorphic Effect */}
+      <div className={isInModal ? styles.cardModal : styles.mainCard}>
+        {/* Header */}
+        <div className={isInModal ? styles.headerModal : styles.header}>
+          <p className={styles.subtitle}>
             Step {currentStep} of 7: {currentStepInfo.title}
           </p>
 
           {/* Save Indicator */}
           {lastSavedAt && (
-            <div className="wizard-save-indicator">
-              <div className={`${styles.saveIndicatorIcon} ${isSaving ? styles.saveIndicatorSaving : ''}`} />
+            <div className={styles.saveIndicator}>
+              <div 
+                className={styles.saveIndicatorIcon}
+                style={{
+                  backgroundColor: isSaving 
+                    ? tokens.colorStatusWarning 
+                    : tokens.colorStatusSuccess
+                }}
+              />
               {isSaving ? (
                 <span>Saving...</span>
               ) : (
@@ -145,7 +97,7 @@ const WizardContent: React.FC = () => {
 
           {/* Expiration Warning */}
           {showExpirationWarning && (
-            <div className="wizard-warning-box">
+            <div className={styles.warningBox}>
               ⚠️ Draft expires in {daysUntilExpiration} {daysUntilExpiration === 1 ? 'day' : 'days'}. 
               Please complete or it will be automatically deleted.
             </div>

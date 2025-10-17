@@ -20,13 +20,25 @@ import { tokens, gradients } from '../styles/design-tokens';
 export const useWizardStyles = makeStyles({
   // Main wizard container
   container: {
-    maxWidth: '1200px',
-    ...shorthands.margin(0, 'auto'),
-    ...shorthands.padding(tokens.xxxl),
+    maxWidth: '900px',
+    ...shorthands.margin('0', 'auto'),
+    ...shorthands.padding(tokens.xxl, tokens.l),
+    fontFamily: tokens.fontFamilyPrimary,
+    
+    '@media (max-width: 768px)': {
+      ...shorthands.padding(tokens.l, tokens.m),
+    },
+  },
+  
+    // Modal variant - no max-width, no padding
+  containerModal: {
+    maxWidth: 'none',
+    ...shorthands.padding(0),
+    ...shorthands.margin(0),
     fontFamily: tokens.fontFamilyPrimary,
   },
   
-  // Main card wrapper
+  // Main card styling with glassmorphism
   mainCard: {
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
     ...shorthands.border('1px', 'solid', 'rgba(139, 92, 246, 0.15)'),
@@ -50,10 +62,31 @@ export const useWizardStyles = makeStyles({
     },
   },
   
+  // Modal variant - transparent card
+  cardModal: {
+    ...shorthands.border('none'),
+    boxShadow: 'none',
+    ...shorthands.borderRadius(0),
+    backgroundColor: 'transparent',
+    backdropFilter: 'none',
+    
+    '::before': {
+      display: 'none',
+    },
+  },
+  
   // Header section
   header: {
     ...shorthands.padding(tokens.xxxl, tokens.xxxxl),
     background: gradients.purpleSubtle,
+    ...shorthands.borderBottom('1px', 'solid', 'rgba(139, 92, 246, 0.15)'),
+  },
+  
+  // Modal variant - transparent header
+  headerModal: {
+    ...shorthands.padding(tokens.xl, 0),
+    background: 'transparent',
+    backgroundImage: 'none',
     ...shorthands.borderBottom('1px', 'solid', 'rgba(139, 92, 246, 0.15)'),
   },
   
@@ -102,6 +135,32 @@ export const useWizardStyles = makeStyles({
   contentCard: {
     minHeight: '400px',
     ...shorthands.padding(0),
+  },
+  
+  // Save indicator
+  saveIndicator: {
+    display: 'flex',
+    alignItems: 'center',
+    ...shorthands.gap(tokens.s),
+    fontSize: tokens.fontSizeBase200,
+    color: tokens.colorNeutralForeground3,
+  },
+  
+  saveIndicatorIcon: {
+    width: '8px',
+    height: '8px',
+    ...shorthands.borderRadius(tokens.circular),
+  },
+  
+  // Warning box
+  warningBox: {
+    ...shorthands.padding(tokens.m, tokens.l),
+    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+    ...shorthands.border('1px', 'solid', 'rgba(245, 158, 11, 0.3)'),
+    ...shorthands.borderRadius(tokens.large),
+    fontSize: tokens.fontSizeBase300,
+    color: tokens.colorStatusWarning,
+    ...shorthands.margin(tokens.m, 0),
   },
 });
 
