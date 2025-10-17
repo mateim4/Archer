@@ -23,11 +23,12 @@ import {
   Button,
   makeStyles,
   shorthands,
-  tokens,
 } from '@fluentui/react-components';
 import { DismissRegular } from '@fluentui/react-icons';
 import { WizardProvider } from './ActivityWizard/Context/WizardContext';
 import ActivityWizard from './ActivityWizard/ActivityWizard';
+import { tokens } from '../../styles/design-tokens';
+import { useModalStyles } from '../../hooks/usePurpleGlassStyles';
 
 // ============================================================================
 // Types
@@ -63,75 +64,41 @@ export interface ActivityWizardModalProps {
 // ============================================================================
 
 const useStyles = makeStyles({
-  // Backdrop blur effect
-  backdrop: {
-    backdropFilter: 'blur(12px) saturate(120%)',
-    WebkitBackdropFilter: 'blur(12px) saturate(120%)',
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
-  },
-  
-  dialogSurface: {
-    maxWidth: '1400px',
-    width: '95vw',
-    maxHeight: '90vh',
-    height: '90vh',
-    display: 'flex',
-    flexDirection: 'column',
-    ...shorthands.padding(0),
-    backgroundColor: 'rgba(255, 255, 255, 0.98)',
-    backdropFilter: 'blur(40px) saturate(180%)',
-    WebkitBackdropFilter: 'blur(40px) saturate(180%)',
-    ...shorthands.borderRadius(tokens.borderRadiusXLarge),
-    boxShadow: '0 20px 60px rgba(139, 92, 246, 0.3), 0 0 0 1px rgba(139, 92, 246, 0.1)',
-    
-    '@media (max-width: 768px)': {
-      width: '100vw',
-      height: '100vh',
-      maxWidth: '100vw',
-      maxHeight: '100vh',
-      ...shorthands.borderRadius(0),
-    },
-  },
-  
-  dialogBody: {
-    display: 'flex',
-    flexDirection: 'column',
-    height: '100%',
-    ...shorthands.padding(0),
-    ...shorthands.overflow('hidden'),
-  },
-  
   header: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    ...shorthands.padding(tokens.spacingVerticalXL, tokens.spacingHorizontalXXL),
+    ...shorthands.padding(tokens.xl, tokens.xxl),
     ...shorthands.borderBottom('1px', 'solid', 'rgba(139, 92, 246, 0.15)'),
     backgroundColor: 'rgba(255, 255, 255, 0.8)',
-    backdropFilter: 'blur(20px)',
+    backdropFilter: tokens.blurMedium,
+    WebkitBackdropFilter: tokens.blurMedium,
     flexShrink: 0,
   },
   
   headerTitle: {
-    fontSize: '24px',
-    fontWeight: 600,
-    fontFamily: 'Poppins, sans-serif',
+    fontSize: tokens.fontSizeBase600,
+    fontWeight: tokens.fontWeightSemibold,
+    fontFamily: tokens.fontFamilyPrimary,
     color: tokens.colorNeutralForeground1,
     margin: 0,
   },
   
   closeButton: {
     minWidth: 'auto',
-    ...shorthands.padding(tokens.spacingVerticalS, tokens.spacingHorizontalS),
-    ...shorthands.borderRadius(tokens.borderRadiusMedium),
+    ...shorthands.padding(tokens.s, tokens.s),
+    ...shorthands.borderRadius(tokens.medium),
     ...shorthands.border('1px', 'solid', 'rgba(139, 92, 246, 0.2)'),
     backgroundColor: 'rgba(255, 255, 255, 0.5)',
-    backdropFilter: 'blur(10px)',
+    backdropFilter: tokens.blurLight,
+    WebkitBackdropFilter: tokens.blurLight,
     cursor: 'pointer',
-    ...shorthands.transition('all', '0.2s', 'ease'),
+    transitionProperty: 'all',
+    transitionDuration: tokens.durationFast,
+    transitionTimingFunction: tokens.curveEasyEase,
     
     ':hover': {
-      backgroundColor: 'rgba(139, 92, 246, 0.1)',
+      backgroundColor: tokens.colorGlassPurpleLight,
       ...shorthands.borderColor('rgba(139, 92, 246, 0.4)'),
       transform: 'scale(1.05)',
     },
@@ -140,14 +107,14 @@ const useStyles = makeStyles({
   content: {
     flex: 1,
     ...shorthands.overflow('auto'),
-    ...shorthands.padding(tokens.spacingVerticalXL, tokens.spacingHorizontalXXL),
+    ...shorthands.padding(tokens.xl, tokens.xxl),
     
     // Custom scrollbar
     '::-webkit-scrollbar': {
       width: '8px',
     },
     '::-webkit-scrollbar-track': {
-      backgroundColor: 'rgba(139, 92, 246, 0.05)',
+      backgroundColor: tokens.colorGlassPurpleLight,
       ...shorthands.borderRadius('4px'),
     },
     '::-webkit-scrollbar-thumb': {
@@ -166,12 +133,12 @@ const useStyles = makeStyles({
     alignItems: 'center',
     justifyContent: 'center',
     height: '100%',
-    ...shorthands.gap(tokens.spacingVerticalL),
+    ...shorthands.gap(tokens.l),
   },
   
   loadingText: {
-    fontSize: '16px',
-    fontFamily: 'Poppins, sans-serif',
+    fontSize: tokens.fontSizeBase400,
+    fontFamily: tokens.fontFamilyPrimary,
     color: tokens.colorNeutralForeground2,
   },
 });
@@ -190,6 +157,7 @@ export const ActivityWizardModal: React.FC<ActivityWizardModalProps> = ({
   initialData,
 }) => {
   const styles = useStyles();
+  const modalStyles = useModalStyles(); // Use our reusable modal styles
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [showCloseConfirmation, setShowCloseConfirmation] = useState(false);
 
@@ -245,8 +213,8 @@ export const ActivityWizardModal: React.FC<ActivityWizardModalProps> = ({
           }
         }}
       >
-        <DialogSurface className={styles.dialogSurface}>
-          <DialogBody className={styles.dialogBody}>
+        <DialogSurface className={modalStyles.surface}>
+          <DialogBody className={modalStyles.body}>
             {/* Header */}
             <div className={styles.header}>
               <h2 className={styles.headerTitle}>
@@ -283,16 +251,16 @@ export const ActivityWizardModal: React.FC<ActivityWizardModalProps> = ({
           <DialogSurface
             style={{
               maxWidth: '500px',
-              padding: tokens.spacingVerticalXL,
+              padding: tokens.xl,
             }}
           >
             <DialogBody>
               <h3
                 style={{
-                  fontSize: '20px',
-                  fontWeight: 600,
-                  fontFamily: 'Poppins, sans-serif',
-                  marginBottom: tokens.spacingVerticalM,
+                  fontSize: tokens.fontSizeBase500,
+                  fontWeight: tokens.fontWeightSemibold,
+                  fontFamily: tokens.fontFamilyPrimary,
+                  marginBottom: tokens.m,
                   color: tokens.colorNeutralForeground1,
                 }}
               >
@@ -300,10 +268,10 @@ export const ActivityWizardModal: React.FC<ActivityWizardModalProps> = ({
               </h3>
               <p
                 style={{
-                  fontSize: '14px',
-                  fontFamily: 'Poppins, sans-serif',
+                  fontSize: tokens.fontSizeBase300,
+                  fontFamily: tokens.fontFamilyPrimary,
                   color: tokens.colorNeutralForeground2,
-                  marginBottom: tokens.spacingVerticalL,
+                  marginBottom: tokens.l,
                   lineHeight: '1.6',
                 }}
               >
@@ -312,7 +280,7 @@ export const ActivityWizardModal: React.FC<ActivityWizardModalProps> = ({
               <div
                 style={{
                   display: 'flex',
-                  gap: tokens.spacingHorizontalM,
+                  gap: tokens.m,
                   justifyContent: 'flex-end',
                 }}
               >
@@ -323,7 +291,7 @@ export const ActivityWizardModal: React.FC<ActivityWizardModalProps> = ({
                   appearance="primary"
                   onClick={handleConfirmClose}
                   style={{
-                    background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                    background: tokens.colorBrandPrimary,
                     border: 'none',
                     color: 'white',
                   }}
