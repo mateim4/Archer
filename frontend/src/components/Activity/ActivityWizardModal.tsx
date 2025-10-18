@@ -69,10 +69,8 @@ const useStyles = makeStyles({
     justifyContent: 'space-between',
     alignItems: 'center',
     ...shorthands.padding(tokens.xl, tokens.xxl),
-    ...shorthands.borderBottom('1px', 'solid', 'rgba(139, 92, 246, 0.15)'),
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-    backdropFilter: tokens.blurMedium,
-    WebkitBackdropFilter: tokens.blurMedium,
+    ...shorthands.borderBottom('1px', 'solid', tokens.colorNeutralStroke2),
+    backgroundColor: 'transparent', // Remove background - DialogSurface already has glass effect
     flexShrink: 0,
   },
   
@@ -88,18 +86,16 @@ const useStyles = makeStyles({
     minWidth: 'auto',
     ...shorthands.padding(tokens.s, tokens.s),
     ...shorthands.borderRadius(tokens.medium),
-    ...shorthands.border('1px', 'solid', 'rgba(139, 92, 246, 0.2)'),
-    backgroundColor: 'rgba(255, 255, 255, 0.5)',
-    backdropFilter: tokens.blurLight,
-    WebkitBackdropFilter: tokens.blurLight,
+    ...shorthands.border('1px', 'solid', tokens.colorNeutralStroke2),
+    backgroundColor: 'transparent', // Remove background - avoid layering
     cursor: 'pointer',
     transitionProperty: 'all',
     transitionDuration: tokens.durationFast,
     transitionTimingFunction: tokens.curveEasyEase,
     
     ':hover': {
-      backgroundColor: tokens.colorGlassPurpleLight,
-      ...shorthands.borderColor('rgba(139, 92, 246, 0.4)'),
+      backgroundColor: tokens.colorBrandBackgroundHover,
+      ...shorthands.borderColor(tokens.colorBrandForeground),
       transform: 'scale(1.05)',
     },
   },
@@ -114,15 +110,15 @@ const useStyles = makeStyles({
       width: '8px',
     },
     '::-webkit-scrollbar-track': {
-      backgroundColor: tokens.colorGlassPurpleLight,
+      backgroundColor: tokens.colorNeutralBackground3,
       ...shorthands.borderRadius('4px'),
     },
     '::-webkit-scrollbar-thumb': {
-      backgroundColor: 'rgba(139, 92, 246, 0.3)',
+      backgroundColor: tokens.colorBrandBackground,
       ...shorthands.borderRadius('4px'),
       
       ':hover': {
-        backgroundColor: 'rgba(139, 92, 246, 0.5)',
+        backgroundColor: tokens.colorBrandBackgroundHover,
       },
     },
   },
