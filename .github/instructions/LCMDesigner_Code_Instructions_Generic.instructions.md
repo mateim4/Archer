@@ -78,23 +78,261 @@ When working with the following technologies, apply these additional rules.
 - **Frontend**: React + TypeScript + Vite
 - **Backend**: Rust 
 - **UI Framework**: Microsoft Fluent UI 2
+- **Component Library**: Purple Glass Components (Custom, production-ready)
 
 ### Typography Standards
 - **Font Family**: Poppins (primary), with Montserrat and then system fallbacks
+
+## Purple Glass Component Library 🎨
+
+### Overview
+LCMDesigner has a complete, production-ready component library built on Fluent UI 2 design tokens with glassmorphism aesthetic. **ALWAYS use these components for forms, inputs, buttons, and cards.**
+
+### Available Components (8 total, 4,540 lines)
+
+#### Import Path
+```typescript
+import { 
+  PurpleGlassButton,
+  PurpleGlassInput,
+  PurpleGlassTextarea,
+  PurpleGlassDropdown,
+  PurpleGlassCheckbox,
+  PurpleGlassRadio,
+  PurpleGlassRadioGroup,
+  PurpleGlassSwitch,
+  PurpleGlassCard
+} from '@/components/ui';
+```
+
+#### 1. PurpleGlassButton
+**Variants:** `primary` | `secondary` | `danger` | `ghost` | `link`  
+**Sizes:** `small` | `medium` | `large`
+
+```typescript
+<PurpleGlassButton 
+  variant="primary"
+  size="medium"
+  glass="medium"
+  loading={isSubmitting}
+  disabled={!isValid}
+  icon={<SaveRegular />}
+  onClick={handleSave}
+>
+  Save Changes
+</PurpleGlassButton>
+```
+
+#### 2. PurpleGlassInput
+**Features:** Validation states, prefix/suffix icons, helper text, required indicator
+
+```typescript
+<PurpleGlassInput 
+  label="Project Name"
+  value={name}
+  onChange={(e) => setName(e.target.value)}
+  validationState={error ? 'error' : 'default'}
+  helperText={error || 'Enter a descriptive name'}
+  prefixIcon={<SearchRegular />}
+  required
+  glass="light"
+/>
+```
+
+#### 3. PurpleGlassTextarea
+**Features:** Auto-resize, character count with warnings
+
+```typescript
+<PurpleGlassTextarea 
+  label="Description"
+  value={description}
+  onChange={(e) => setDescription(e.target.value)}
+  autoResize
+  maxLength={500}
+  showCharacterCount
+  glass="medium"
+/>
+```
+
+#### 4. PurpleGlassDropdown
+**Features:** Single/multi-select, searchable, portal rendering
+
+```typescript
+<PurpleGlassDropdown 
+  label="Cluster Strategy"
+  options={strategyOptions}
+  value={selected}
+  onChange={(value) => setSelected(value as string)}
+  searchable
+  glass="light"
+/>
+```
+
+#### 5. PurpleGlassCheckbox
+**Features:** Indeterminate state, validation states
+
+```typescript
+<PurpleGlassCheckbox 
+  label="I accept the terms"
+  checked={accepted}
+  onChange={(e) => setAccepted(e.target.checked)}
+  validationState={!accepted ? 'error' : 'default'}
+/>
+```
+
+#### 6. PurpleGlassRadio & PurpleGlassRadioGroup
+**Features:** Context-based, card variant for wizards
+
+```typescript
+<PurpleGlassRadioGroup 
+  label="Select Strategy"
+  value={strategy}
+  onChange={(value) => setStrategy(value)}
+  glass="medium"
+>
+  <PurpleGlassRadio 
+    value="lift-shift"
+    cardVariant
+    cardTitle="Lift & Shift"
+    cardDescription="Move as-is to cloud"
+  />
+  <PurpleGlassRadio 
+    value="replatform"
+    cardVariant
+    cardTitle="Replatform"
+    cardDescription="Optimize for cloud"
+  />
+</PurpleGlassRadioGroup>
+```
+
+#### 7. PurpleGlassSwitch
+**Features:** Toggle states, label positioning
+
+```typescript
+<PurpleGlassSwitch 
+  label="Enable notifications"
+  checked={enabled}
+  onChange={(e) => setEnabled(e.target.checked)}
+  glass="light"
+/>
+```
+
+#### 8. PurpleGlassCard
+**Variants:** `default` | `interactive` | `elevated` | `outlined` | `subtle`  
+**Features:** Header/body/footer sections, loading skeleton, selected state
+
+```typescript
+<PurpleGlassCard 
+  header="Project Details"
+  headerActions={<EditButton />}
+  variant="interactive"
+  glass="medium"
+  onClick={handleClick}
+>
+  <p>Card content goes here</p>
+</PurpleGlassCard>
+```
+
+### Shared Props
+
+All form components support:
+- **`glass`**: `'none'` | `'light'` | `'medium'` | `'heavy'` - Glassmorphism level
+- **`validationState`**: `'default'` | `'error'` | `'warning'` | `'success'` - Validation appearance
+- **`label`**: string - Component label
+- **`helperText`**: string - Helper/error text below component
+- **`required`**: boolean - Adds asterisk to label
+- **`disabled`**: boolean - Disabled state
+
+### Component Library Rules 📋
+
+#### ALWAYS Use Purple Glass Components For:
+✅ All form inputs (text, email, password, number)  
+✅ All buttons (primary actions, secondary actions, dangerous actions)  
+✅ All dropdowns/selects  
+✅ All checkboxes, radio buttons, switches  
+✅ All textareas  
+✅ All cards (especially interactive ones)
+
+#### NEVER Do:
+❌ Use native `<button>`, `<input>`, `<select>`, `<textarea>` elements  
+❌ Use Fluent UI `<Button>`, `<Input>`, `<Field>`, `<Dropdown>` directly  
+❌ Create custom form components (use Purple Glass instead)  
+❌ Hardcode colors, spacing, or styling (components use design tokens)
+
+#### Migration Pattern (Old → New)
+
+**Fluent Button → PurpleGlassButton:**
+```typescript
+// ❌ OLD - Don't use
+<Button appearance="primary" onClick={handleClick}>Save</Button>
+
+// ✅ NEW - Use this
+<PurpleGlassButton variant="primary" onClick={handleClick}>Save</PurpleGlassButton>
+```
+
+**Fluent Field + Input → PurpleGlassInput:**
+```typescript
+// ❌ OLD - Don't use
+<Field label="Name" validationMessage={error}>
+  <Input value={name} onChange={(e, data) => setName(data.value)} />
+</Field>
+
+// ✅ NEW - Use this
+<PurpleGlassInput 
+  label="Name"
+  value={name}
+  onChange={(e) => setName(e.target.value)}
+  validationState={error ? 'error' : 'default'}
+  helperText={error}
+/>
+```
+
+**Native button → PurpleGlassButton:**
+```typescript
+// ❌ OLD - Don't use
+<button onClick={handleClick} style={{ backgroundColor: '#8b5cf6' }}>
+  Click Me
+</button>
+
+// ✅ NEW - Use this
+<PurpleGlassButton variant="primary" onClick={handleClick}>
+  Click Me
+</PurpleGlassButton>
+```
+
+### Documentation References
+- **COMPONENT_LIBRARY_GUIDE.md** (1,083 lines) - Complete API reference, examples, best practices
+- **FORM_COMPONENTS_MIGRATION.md** (846 lines) - 15 migration patterns, before/after examples
+- **STAGE_4_COMPLETION_SUMMARY.md** (579 lines) - Executive summary, strategic decisions
+
+### Component Library Stats
+- ✅ 8 production-ready components
+- ✅ 4,540 lines of code
+- ✅ Zero TypeScript errors
+- ✅ 100% design token compliance (no hardcoded values)
+- ✅ Full accessibility support (ARIA, keyboard nav, screen readers)
+- ✅ 86+ visual variants
+- ✅ WCAG AA compliant
 
 ## File Structure & Key Components
 
 ## Development Guidelines
 
 ### DO's ✅
-- ALWAYS use standard CSS classes 
-- ALWAYS import from design system when possible
+- ALWAYS use Purple Glass components for all forms, inputs, buttons, cards
+- ALWAYS import from '@/components/ui' for form components
+- ALWAYS use standard CSS classes from design system
 - ALWAYS use Poppins family in styles
+- ALWAYS use Fluent UI 2 design tokens (no hardcoded values)
 - ALWAYS commit changes with descriptive messages
 - ALWAYS maintain Fluent UI 2 and glassmorphic aesthetic with colorful accents
+- ALWAYS refer to COMPONENT_LIBRARY_GUIDE.md when using Purple Glass components
 
 ### DON'Ts ❌
-- NEVER hardcode colors (use CSS custom properties)
+- NEVER use native HTML form elements (`<button>`, `<input>`, `<select>`, `<textarea>`)
+- NEVER use Fluent UI components directly (`<Button>`, `<Input>`, `<Field>`, `<Dropdown>`)
+- NEVER create custom form components (Purple Glass library has everything)
+- NEVER hardcode colors, spacing, or typography (use design tokens)
 - NEVER break the established design system
 - NEVER use or generate mock data unless explicitly asked to do so. In any other scenario it is strictly prohibited
 
