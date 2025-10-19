@@ -1,0 +1,27 @@
+/**
+ * Step1_Basics Custom Styles
+ * 
+ * CSS overrides for Fluent UI Radio buttons to match purple brand color
+ */
+
+/* Purple radio button styling */
+.purpleRadio :global(.fui-Radio__indicator) {
+  border-color: rgba(139, 92, 246, 0.6);
+}
+
+.purpleRadio :global(.fui-Radio__indicator)::before {
+  background-color: #8b5cf6;
+}
+
+.purpleRadio :global(.fui-Radio:hover .fui-Radio__indicator) {
+  border-color: rgba(139, 92, 246, 0.8);
+}
+
+.purpleRadio :global(.fui-Radio__input:checked + .fui-Radio__indicator) {
+  border-color: #8b5cf6;
+  background-color: #8b5cf6;
+}
+
+.purpleRadio :global(.fui-Radio__input:checked + .fui-Radio__indicator)::before {
+  background-color: #ffffff;
+}

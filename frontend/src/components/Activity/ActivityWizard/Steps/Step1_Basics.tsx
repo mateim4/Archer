@@ -26,6 +26,7 @@ import { PurpleGlassTextarea, PurpleGlassInput } from '../../../ui';
 import { useWizardContext } from '../Context/WizardContext';
 import { ActivityType, ActivityTypeOption } from '../types/WizardTypes';
 import { tokens } from '../../../../styles/design-tokens';
+import radioStyles from './Step1_Basics.module.css';
 
 // ============================================================================
 // Styles
@@ -278,7 +279,7 @@ const Step1_Basics: React.FC = () => {
                 className={`${styles.typeCard} ${isSelected ? styles.typeCardSelected : ''}`}
                 onClick={() => handleTypeChange(null, { value: option.type })}
               >
-                <div className={styles.radioContainer}>
+                <div className={`${styles.radioContainer} ${radioStyles.purpleRadio}`}>
                   <Radio value={option.type} label="" />
                 </div>
                 <IconComponent
