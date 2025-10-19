@@ -8,8 +8,6 @@ import {
   Input,
   Textarea,
   Checkbox,
-  Dropdown,
-  Option,
   Divider,
   Badge,
   MessageBar,
@@ -21,7 +19,8 @@ import {
   Draggable,
   DropResult,
 } from '@hello-pangea/dnd';
-import { standardCardStyle, standardButtonStyle, StandardDropdown, DESIGN_TOKENS } from '../DesignSystem';
+import { standardCardStyle, standardButtonStyle, DESIGN_TOKENS } from '../DesignSystem';
+import { PurpleGlassDropdown } from '@/components/ui';
 import { ReportSection, ReportTemplate, DragDropSection } from './ReportFramework';
 
 // =============================================================================
@@ -572,17 +571,12 @@ const SectionEditor: React.FC<SectionEditorProps> = ({
 
         {/* Display Format */}
         <div>
-          <Text style={{ 
-            fontWeight: DESIGN_TOKENS.typography.fontWeight.medium,
-            marginBottom: '8px',
-            display: 'block' 
-          }}>
-            Display Format
-          </Text>
-          <StandardDropdown
+          <PurpleGlassDropdown
+            label="Display Format"
             value={section.display_format}
             onChange={(value) => onUpdate({ display_format: value as any })}
             options={displayFormatOptions}
+            glass="medium"
           />
         </div>
 
