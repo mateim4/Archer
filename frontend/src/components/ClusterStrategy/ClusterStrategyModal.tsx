@@ -23,8 +23,6 @@ import {
   Label,
   RadioGroup,
   Radio,
-  Dropdown,
-  Option,
   Field,
   Textarea,
   Badge,
@@ -41,6 +39,7 @@ import {
   ShoppingBag24Regular,
   Archive24Regular,
 } from '@fluentui/react-icons';
+import { PurpleGlassDropdown, DropdownOption } from '@/components/ui';
 import { DominoConfigurationSection } from './DominoConfigurationSection';
 
 // Types
@@ -464,32 +463,26 @@ export const ClusterStrategyModal: React.FC<ClusterStrategyModalProps> = ({
               <Label weight="semibold" size="large">Basic Information</Label>
               
               <div className={styles.formGrid}>
-                <Field
+                <PurpleGlassDropdown
                   label="Source Cluster Name"
+                  placeholder={loadingClusters ? "Loading clusters..." : "Select source cluster"}
+                  options={projectClusters.map((cluster) => ({
+                    value: cluster,
+                    label: cluster,
+                  }))}
+                  value={formData.source_cluster_name}
+                  onChange={(value) => handleFieldChange('source_cluster_name', value as string)}
+                  disabled={loadingClusters || projectClusters.length === 0}
+                  validationState={errors.source_cluster_name ? 'error' : 'default'}
+                  helperText={
+                    errors.source_cluster_name || 
+                    (!loadingClusters && projectClusters.length === 0 
+                      ? 'No RVTools data found for this project. Please upload an RVTools report first.'
+                      : 'Select from clusters in the RVTools report')
+                  }
                   required
-                  validationMessage={errors.source_cluster_name}
-                  validationState={errors.source_cluster_name ? 'error' : 'none'}
-                  hint="Select from clusters in the RVTools report"
-                >
-                  <Dropdown
-                    placeholder={loadingClusters ? "Loading clusters..." : "Select source cluster"}
-                    value={formData.source_cluster_name}
-                    selectedOptions={formData.source_cluster_name ? [formData.source_cluster_name] : []}
-                    onOptionSelect={(_, data) => handleFieldChange('source_cluster_name', data.optionValue)}
-                    disabled={loadingClusters || projectClusters.length === 0}
-                  >
-                    {projectClusters.map((cluster) => (
-                      <Option key={cluster} value={cluster}>
-                        {cluster}
-                      </Option>
-                    ))}
-                  </Dropdown>
-                  {!loadingClusters && projectClusters.length === 0 && (
-                    <div style={{ fontSize: '12px', color: tokens.colorPaletteRedForeground1, marginTop: '4px' }}>
-                      No RVTools data found for this project. Please upload an RVTools report first.
-                    </div>
-                  )}
-                </Field>
+                  glass="light"
+                />
                 
                 <Field
                   label="Target Cluster Name"
@@ -580,60 +573,49 @@ export const ClusterStrategyModal: React.FC<ClusterStrategyModalProps> = ({
               <div className={styles.formSection}>
                 <Label weight="semibold" size="large">Hardware Procurement</Label>
                 
-                <Field
+                <PurpleGlassDropdown
                   label="Hardware Basket"
+                  placeholder={loadingBaskets ? "Loading baskets..." : "Select hardware basket"}
+                  options={hardwareBaskets.map((basket) => {
+                    const basketId = typeof basket.id === 'object' && basket.id?.id?.String 
+                      ? basket.id.id.String 
+                      : String(basket.id);
+                    const displayText = `${basket.name} (${basket.vendor} - ${basket.total_models || 0} models)`;
+                    return {
+                      value: basketId,
+                      label: displayText,
+                    };
+                  })}
+                  value={selectedBasket}
+                  onChange={(value) => handleBasketChange(value as string)}
+                  disabled={loadingBaskets}
+                  helperText="Select a hardware basket to choose server models from"
                   required
-                  hint="Select a hardware basket to choose server models from"
-                >
-                  <Dropdown
-                    placeholder={loadingBaskets ? "Loading baskets..." : "Select hardware basket"}
-                    value={selectedBasket}
-                    selectedOptions={selectedBasket ? [selectedBasket] : []}
-                    onOptionSelect={(_, data) => handleBasketChange(data.optionValue as string)}
-                    disabled={loadingBaskets}
-                  >
-                    {hardwareBaskets.map((basket) => {
-                      const basketId = typeof basket.id === 'object' && basket.id?.id?.String 
-                        ? basket.id.id.String 
-                        : String(basket.id);
-                      const displayText = `${basket.name} (${basket.vendor} - ${basket.total_models || 0} models)`;
-                      return (
-                        <Option key={basketId} value={basketId} text={displayText}>
-                          {displayText}
-                        </Option>
-                      );
-                    })}
-                  </Dropdown>
-                </Field>
+                  glass="light"
+                />
                 
                 {selectedBasket && (
-                  <Field
+                  <PurpleGlassDropdown
                     label="Server Model"
+                    placeholder={loadingModels ? "Loading models..." : "Select server model"}
+                    options={basketModels.map((model, idx) => {
+                      const modelValue = model.model_name || model.lot_description;
+                      const displayText = model.form_factor 
+                        ? `${modelValue} (${model.form_factor})`
+                        : modelValue;
+                      return {
+                        value: modelValue,
+                        label: displayText,
+                      };
+                    })}
+                    value={formData.hardware_basket_items?.[0] || ''}
+                    onChange={(value) => handleFieldChange('hardware_basket_items', [value as string])}
+                    disabled={loadingModels}
+                    validationState={errors.hardware_basket_items ? 'error' : 'default'}
+                    helperText={errors.hardware_basket_items || "Select the server model/platform for new hardware purchase"}
                     required
-                    validationMessage={errors.hardware_basket_items}
-                    validationState={errors.hardware_basket_items ? 'error' : 'none'}
-                    hint="Select the server model/platform for new hardware purchase"
-                  >
-                    <Dropdown
-                      placeholder={loadingModels ? "Loading models..." : "Select server model"}
-                      value={formData.hardware_basket_items?.[0] || ''}
-                      selectedOptions={formData.hardware_basket_items?.[0] ? [formData.hardware_basket_items[0]] : []}
-                      onOptionSelect={(_, data) => handleFieldChange('hardware_basket_items', [data.optionValue])}
-                      disabled={loadingModels}
-                    >
-                      {basketModels.map((model, idx) => {
-                        const modelValue = model.model_name || model.lot_description;
-                        const displayText = model.form_factor 
-                          ? `${modelValue} (${model.form_factor})`
-                          : modelValue;
-                        return (
-                          <Option key={idx} value={modelValue} text={displayText}>
-                            {displayText}
-                          </Option>
-                        );
-                      })}
-                    </Dropdown>
-                  </Field>
+                    glass="light"
+                  />
                 )}
               </div>
             )}

@@ -14,8 +14,6 @@ import React from 'react';
 import {
   Label,
   Field,
-  Dropdown,
-  Option,
   Input,
   Badge,
   makeStyles,
@@ -27,6 +25,7 @@ import {
   Info24Regular,
   ArrowRight24Regular,
 } from '@fluentui/react-icons';
+import { PurpleGlassDropdown, DropdownOption } from '@/components/ui';
 import { ClusterStrategyFormData } from './ClusterStrategyModal';
 
 interface DominoConfigurationSectionProps {
@@ -118,32 +117,23 @@ export const DominoConfigurationSection: React.FC<DominoConfigurationSectionProp
         </div>
       </div>
       
-      <Field
+      <PurpleGlassDropdown
         label="Source Cluster (Hardware Donor)"
+        placeholder="Select source cluster"
+        options={availableClusters.length > 0 
+          ? availableClusters.map((cluster) => ({
+              value: cluster,
+              label: cluster,
+            }))
+          : [{ value: '', label: 'No clusters available', disabled: true }]
+        }
+        value={selectedSourceCluster || ''}
+        onChange={(value) => onFieldChange('domino_source_cluster', value as string)}
+        validationState={error ? 'error' : 'default'}
+        helperText={error || "Select the cluster that will donate its hardware after decommission"}
         required
-        validationMessage={error}
-        validationState={error ? 'error' : 'none'}
-        hint="Select the cluster that will donate its hardware after decommission"
-      >
-        <Dropdown
-          placeholder="Select source cluster"
-          value={selectedSourceCluster || ''}
-          selectedOptions={selectedSourceCluster ? [selectedSourceCluster] : []}
-          onOptionSelect={(_, data) => onFieldChange('domino_source_cluster', data.optionValue)}
-        >
-          {availableClusters.length > 0 ? (
-            availableClusters.map((cluster) => (
-              <Option key={cluster} value={cluster}>
-                {cluster}
-              </Option>
-            ))
-          ) : (
-            <Option value="" disabled>
-              No clusters available
-            </Option>
-          )}
-        </Dropdown>
-      </Field>
+        glass="light"
+      />
       
       <Field
         label="Hardware Available Date"
