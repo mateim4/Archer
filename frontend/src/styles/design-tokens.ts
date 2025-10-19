@@ -119,8 +119,12 @@ const spacing = {
 
 const typography = {
   // Font Families
-  fontFamilyPrimary: '"Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+  fontFamilyBody: '"Oxanium", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+  fontFamilyHeading: '"Nasalization", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
   fontFamilyMonospace: '"Fira Code", "Consolas", "Monaco", monospace',
+  
+  // Legacy alias for backward compatibility
+  fontFamilyPrimary: '"Oxanium", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
 
   // Font Sizes (Fluent Type Ramp)
   fontSizeBase100: fluentTokens.fontSizeBase100, // 10px
