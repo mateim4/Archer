@@ -74,16 +74,22 @@ export const useRadioStyles = makeStyles({
     width: '20px',
     height: '20px',
     flexShrink: 0,
-    backgroundColor: tokens.colorNeutralBackground1,
-    ...shorthands.border(tokens.strokeWidthThin, 'solid', tokens.colorNeutralStroke1),
+    // Subtle frosted glass for unchecked state
+    backgroundColor: 'rgba(255, 255, 255, 0.6)',
+    backdropFilter: 'blur(10px) saturate(120%)',
+    WebkitBackdropFilter: 'blur(10px) saturate(120%)',
+    ...shorthands.border('2px', 'solid', 'rgba(139, 92, 246, 0.3)'),
     ...shorthands.borderRadius('50%'),
-    transitionProperty: 'background-color, border-color, transform',
+    transitionProperty: 'all',
     transitionDuration: tokens.durationNormal,
     transitionTimingFunction: tokens.curveEasyEase,
+    boxShadow: '0 2px 6px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
 
     ':hover': {
-      ...shorthands.border(tokens.strokeWidthThin, 'solid', tokens.colorNeutralStroke1Hover),
-      backgroundColor: tokens.colorNeutralBackground1Hover,
+      ...shorthands.border('2px', 'solid', 'rgba(139, 92, 246, 0.5)'),
+      backgroundColor: 'rgba(255, 255, 255, 0.8)',
+      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.15) inset',
+      transform: 'scale(1.05)',
     },
   },
 
@@ -109,14 +115,19 @@ export const useRadioStyles = makeStyles({
     ...shorthands.border(tokens.strokeWidthThin, 'solid', 'rgba(255, 255, 255, 0.4)'),
   },
 
-  // Checked state
+  // Checked state - Radial gradient with frosted glass
   radioChecked: {
-    backgroundColor: tokens.colorBrandBackground,
-    ...shorthands.border(tokens.strokeWidthThin, 'solid', tokens.colorBrandBackground),
+    // Radial gradient from purple to indigo (like Add Activity button)
+    background: 'radial-gradient(circle at center, #8b5cf6 0%, #6366f1 100%)',
+    backdropFilter: 'blur(16px) saturate(180%)',
+    WebkitBackdropFilter: 'blur(16px) saturate(180%)',
+    ...shorthands.border('2px', 'solid', 'rgba(255, 255, 255, 0.3)'),
+    boxShadow: '0 4px 12px rgba(139, 92, 246, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.2) inset',
 
     ':hover': {
-      backgroundColor: tokens.colorBrandBackgroundHover,
-      ...shorthands.border(tokens.strokeWidthThin, 'solid', tokens.colorBrandBackgroundHover),
+      background: 'radial-gradient(circle at center, #7c3aed 0%, #4f46e5 100%)',
+      boxShadow: '0 6px 16px rgba(139, 92, 246, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.3) inset',
+      transform: 'scale(1.05)',
     },
   },
 
@@ -160,12 +171,13 @@ export const useRadioStyles = makeStyles({
   // INNER DOT (Selected indicator)
   // ============================================================================
   innerDot: {
-    width: '8px',
-    height: '8px',
+    width: '10px',
+    height: '10px',
     ...shorthands.borderRadius('50%'),
-    backgroundColor: tokens.colorNeutralForegroundInverted,
+    backgroundColor: '#ffffff',
+    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
     opacity: 0,
-    transform: 'scale(0.5)',
+    transform: 'scale(0.3)',
     transitionProperty: 'opacity, transform',
     transitionDuration: tokens.durationFast,
     transitionTimingFunction: tokens.curveEasyEase,
