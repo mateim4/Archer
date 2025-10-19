@@ -10,6 +10,7 @@ import {
   ToastContainer
 } from '../components/EnhancedUXComponents';
 import { useEnhancedUX } from '../hooks/useEnhancedUX';
+import { PurpleGlassDropdown } from '../components/ui';
 
 interface Activity {
   id: string;
@@ -360,15 +361,16 @@ const ProjectTimelineView: React.FC = () => {
             
             <div className="flex items-center space-x-3">
               <div className="text-sm font-medium text-gray-700">Time Scale:</div>
-              <select
+              <PurpleGlassDropdown
+                options={[
+                  { value: 'days', label: 'Days' },
+                  { value: 'weeks', label: 'Weeks' },
+                  { value: 'months', label: 'Months' }
+                ]}
                 value={viewOptions.timeScale}
-                onChange={(e) => setViewOptions(prev => ({ ...prev, timeScale: e.target.value as any }))}
-                className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-              >
-                <option value="days">Days</option>
-                <option value="weeks">Weeks</option>
-                <option value="months">Months</option>
-              </select>
+                onChange={(value) => setViewOptions(prev => ({ ...prev, timeScale: value as any }))}
+                glass="light"
+              />
             </div>
           </div>
         </EnhancedCard>

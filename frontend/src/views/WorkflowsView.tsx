@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Play, Pause, Square, CheckCircle, AlertCircle, Clock, ChevronRight, Settings, RotateCcw } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
+import { PurpleGlassDropdown } from '../components/ui';
 
 interface WorkflowStep {
   id: string;
@@ -263,17 +264,18 @@ const WorkflowsView: React.FC = () => {
             <p className="lcm-page-subtitle">Execute guided workflows for assessment, sizing, migration, and validation</p>
           </div>
           <div className="flex gap-4">
-            <select
+            <PurpleGlassDropdown
+              options={[
+                { value: 'all', label: 'All Categories' },
+                { value: 'assessment', label: 'Assessment' },
+                { value: 'sizing', label: 'Sizing' },
+                { value: 'migration', label: 'Migration' },
+                { value: 'validation', label: 'Validation' }
+              ]}
               value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="lcm-dropdown"
-            >
-              <option value="all">All Categories</option>
-              <option value="assessment">Assessment</option>
-              <option value="sizing">Sizing</option>
-              <option value="migration">Migration</option>
-              <option value="validation">Validation</option>
-            </select>
+              onChange={(value) => setSelectedCategory(value as string)}
+              glass="light"
+            />
           </div>
         </div>
 
