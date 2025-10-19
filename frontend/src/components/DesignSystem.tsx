@@ -169,6 +169,18 @@ export const standardButtonStyle = {
 // STANDARD DROPDOWN COMPONENT
 // ===================
 
+/**
+ * StandardDropdown - Legacy wrapper component
+ * 
+ * **DEPRECATED:** This component is a legacy wrapper around PurpleGlassDropdown.
+ * For new code, use PurpleGlassDropdown directly from '@/components/ui'.
+ * 
+ * This wrapper maintains backward compatibility for existing consumers
+ * while internally using the standardized PurpleGlassDropdown component.
+ * 
+ * @deprecated Use PurpleGlassDropdown from '@/components/ui' instead
+ */
+
 interface StandardDropdownProps {
   value: string;
   onChange: (value: string) => void;
@@ -176,6 +188,16 @@ interface StandardDropdownProps {
   placeholder?: string;
   className?: string;
   style?: React.CSSProperties;
+  /**
+   * Glassmorphism variant
+   * @default 'light'
+   */
+  glass?: 'none' | 'light' | 'medium' | 'heavy';
+  /**
+   * Enable search/filter functionality
+   * @default false
+   */
+  searchable?: boolean;
 }
 
 export const StandardDropdown: React.FC<StandardDropdownProps> = ({
@@ -184,38 +206,31 @@ export const StandardDropdown: React.FC<StandardDropdownProps> = ({
   options,
   placeholder = "Select option",
   className = "",
-  style = {}
-}) => (
-  <div className={`relative ${className}`}>
-    <select
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      style={{
-        ...standardInputStyle,
-        width: '100%',
-        appearance: 'none',
-        WebkitAppearance: 'none',
-        MozAppearance: 'none',
-        ...style
-      }}
-      onFocus={(e) => {
-        e.target.style.background = 'transparent';
-        e.target.style.border = `2px solid ${DESIGN_TOKENS.colors.primaryHover}`;
-        e.target.style.boxShadow = `0 0 0 3px ${DESIGN_TOKENS.colors.primaryLight}`;
-      }}
-      onBlur={(e) => {
-        e.target.style.background = 'transparent';
-        e.target.style.border = `2px solid ${DESIGN_TOKENS.colors.primaryBorder}`;
-        e.target.style.boxShadow = 'none';
-      }}
-    >
-      <option value="">{placeholder}</option>
-      {options.map(option => (
-        <option key={option.value} value={option.value}>{option.label}</option>
-      ))}
-    </select>
-  </div>
-);
+  style = {},
+  glass = 'light',
+  searchable = false
+}) => {
+  // Import PurpleGlassDropdown dynamically to avoid circular dependencies
+  const { PurpleGlassDropdown } = require('./ui');
+  
+  return (
+    <div className={className} style={style}>
+      <PurpleGlassDropdown
+        value={value}
+        onChange={(newValue: string | string[] | undefined) => {
+          // StandardDropdown only supports single select
+          if (typeof newValue === 'string') {
+            onChange(newValue);
+          }
+        }}
+        options={options}
+        placeholder={placeholder}
+        glass={glass}
+        searchable={searchable}
+      />
+    </div>
+  );
+};
 
 // ===================
 // STANDARD CARD COMPONENT

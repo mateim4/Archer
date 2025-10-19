@@ -1,36 +1,85 @@
+/**
+ * SearchWithDropdown Component
+ * 
+ * A search autocomplete component built with PurpleGlassInput that provides
+ * live search results from cluster/host/VM data. Features glassmorphic styling,
+ * keyboard navigation, and click-outside detection.
+ * 
+ * **Note:** This is a search autocomplete, NOT a traditional dropdown selector.
+ * For standard dropdowns, use PurpleGlassDropdown instead.
+ * 
+ * @example
+ * ```tsx
+ * <SearchWithDropdown
+ *   value={searchQuery}
+ *   onChange={setSearchQuery}
+ *   onSelect={(result) => console.log(result)}
+ *   placeholder="Search VMs, hosts, or clusters..."
+ *   data={visualizationData}
+ *   glass="medium"
+ * />
+ * ```
+ */
+
 import React, { useState, useEffect, useRef } from 'react';
 import { SearchRegular } from '@fluentui/react-icons';
+import { PurpleGlassInput } from './ui';
+import type { GlassVariant } from './ui';
 
-interface SearchResult {
+/**
+ * Represents a single search result item
+ */
+export interface SearchResult {
+  /** Unique identifier for the item */
   id: string;
+  /** Type of infrastructure item */
   type: 'cluster' | 'host' | 'vm';
+  /** Display name of the item */
   name: string;
+  /** Optional parent context (e.g., "host in cluster") */
   parent?: string;
+  /** Descriptive match text shown to user */
   match: string;
 }
 
-interface SearchWithDropdownProps {
+/**
+ * Props for SearchWithDropdown component
+ */
+export interface SearchWithDropdownProps {
+  /** Current search query value */
   value: string;
+  /** Handler called when search value changes */
   onChange: (value: string) => void;
+  /** Optional handler called when a result is selected */
   onSelect?: (result: SearchResult) => void;
+  /** Placeholder text for the search input */
   placeholder?: string;
+  /** Width of the search component (CSS value) */
   width?: string;
-  data: any; // The visualization state data
+  /** Visualization state data containing clusters/hosts/VMs to search */
+  data: any;
+  /** Glassmorphism variant for the input field
+   * @default 'medium'
+   */
+  glass?: GlassVariant;
 }
 
+/**
+ * SearchWithDropdown - Autocomplete search component with glassmorphic design
+ */
 const SearchWithDropdown: React.FC<SearchWithDropdownProps> = ({
   value,
   onChange,
   onSelect,
   placeholder = "Search...",
   width = "400px",
-  data
+  data,
+  glass = 'medium'
 }) => {
   const [results, setResults] = useState<SearchResult[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
 
   // Perform search when value changes
   useEffect(() => {
@@ -105,6 +154,9 @@ const SearchWithDropdown: React.FC<SearchWithDropdownProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  /**
+   * Handle selection of a search result
+   */
   const handleSelect = (result: SearchResult) => {
     onChange(result.name);
     setShowDropdown(false);
@@ -113,6 +165,9 @@ const SearchWithDropdown: React.FC<SearchWithDropdownProps> = ({
     }
   };
 
+  /**
+   * Handle keyboard navigation in results
+   */
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (!showDropdown || results.length === 0) return;
 
@@ -142,6 +197,9 @@ const SearchWithDropdown: React.FC<SearchWithDropdownProps> = ({
     }
   };
 
+  /**
+   * Get icon emoji for infrastructure type
+   */
   const getTypeIcon = (type: string) => {
     switch (type) {
       case 'cluster':
@@ -155,6 +213,9 @@ const SearchWithDropdown: React.FC<SearchWithDropdownProps> = ({
     }
   };
 
+  /**
+   * Get color for infrastructure type badge
+   */
   const getTypeColor = (type: string) => {
     switch (type) {
       case 'cluster':
@@ -171,24 +232,19 @@ const SearchWithDropdown: React.FC<SearchWithDropdownProps> = ({
   return (
     <div 
       ref={dropdownRef}
-      className="glassmorphic-search-container" 
       style={{ width, position: 'relative' }}
     >
-      <div className="glassmorphic-search-wrapper">
-        <div className="glassmorphic-search-icon">
-          <SearchRegular />
-        </div>
-        <input
-          ref={inputRef}
-          type="text"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          onKeyDown={handleKeyDown}
-          onFocus={() => value.trim() && results.length > 0 && setShowDropdown(true)}
-          placeholder={placeholder}
-          className="glassmorphic-search-input"
-        />
-      </div>
+      {/* Search Input using PurpleGlassInput */}
+      <PurpleGlassInput
+        type="text"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        onKeyDown={handleKeyDown}
+        onFocus={() => value.trim() && results.length > 0 && setShowDropdown(true)}
+        placeholder={placeholder}
+        prefixIcon={<SearchRegular />}
+        glass={glass}
+      />
 
       {/* Search Results Dropdown */}
       {showDropdown && results.length > 0 && (
