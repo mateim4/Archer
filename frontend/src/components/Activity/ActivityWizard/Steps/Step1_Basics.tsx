@@ -9,7 +9,6 @@
 import React, { useState, useEffect } from 'react';
 import {
   Input,
-  Textarea,
   Radio,
   RadioGroup,
   makeStyles,
@@ -23,6 +22,7 @@ import {
   ResizeRegular,
   WrenchRegular,
 } from '@fluentui/react-icons';
+import { PurpleGlassTextarea, PurpleGlassInput } from '../../../ui';
 import { useWizardContext } from '../Context/WizardContext';
 import { ActivityType, ActivityTypeOption } from '../types/WizardTypes';
 import { tokens } from '../../../../styles/design-tokens';
@@ -41,49 +41,40 @@ const useStyles = makeStyles({
   section: {
     display: 'flex',
     flexDirection: 'column',
-    ...shorthands.gap(tokens.l),
+    ...shorthands.gap(tokens.m),
   },
 
   label: {
-    fontSize: tokens.fontSizeBase300,
+    fontSize: tokens.fontSizeBase400,
     fontWeight: tokens.fontWeightSemibold,
     color: tokens.colorNeutralForeground1,
-    fontFamily: tokens.fontFamilyPrimary,
-    ...shorthands.margin(0, 0, tokens.s, 0),
   },
 
   description: {
-    fontSize: tokens.fontSizeBase200,
+    fontSize: tokens.fontSizeBase300,
     color: tokens.colorNeutralForeground2,
-    fontFamily: tokens.fontFamilyPrimary,
-    ...shorthands.margin(tokens.xs, 0, 0, 0),
+    lineHeight: '1.6',
+    marginTop: `-${tokens.s}`,
   },
 
   textField: {
     width: '100%',
-    maxWidth: '600px',
   },
 
-  typeCardsGrid: {
+  radioGroup: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(3, 1fr)',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
     ...shorthands.gap(tokens.l),
-    ...shorthands.margin(tokens.m, 0, 0, 0),
-    
-    '@media (max-width: 1200px)': {
-      gridTemplateColumns: 'repeat(2, 1fr)',
-    },
-    
-    '@media (max-width: 768px)': {
-      gridTemplateColumns: '1fr',
-    },
+    justifyContent: 'center',
+    width: '100%',
   },
 
   typeCard: {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    ...shorthands.padding(tokens.xl, tokens.l),
+    justifyContent: 'center', // Center content vertically
+    ...shorthands.padding(tokens.l),
     backgroundColor: tokens.colorGlassBackground,
     backdropFilter: tokens.blurMedium,
     WebkitBackdropFilter: tokens.blurMedium,
@@ -93,79 +84,56 @@ const useStyles = makeStyles({
     transitionProperty: 'all',
     transitionDuration: tokens.durationNormal,
     transitionTimingFunction: tokens.curveEasyEase,
-    boxShadow: tokens.glowSmall,
-    minHeight: '220px',
+    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
+    minHeight: '180px',
+    textAlign: 'center',
 
     ':hover': {
       transform: 'translateY(-4px)',
       ...shorthands.borderColor('rgba(139, 92, 246, 0.5)'),
-      boxShadow: tokens.glowMedium,
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.15) inset',
     },
   },
 
   typeCardSelected: {
     backgroundColor: 'rgba(139, 92, 246, 0.08)',
     ...shorthands.borderColor(tokens.colorBrandPrimary),
-    ...shorthands.borderWidth('2px'),
-    boxShadow: tokens.glowLarge,
+    boxShadow: tokens.shadow8,
+  },
 
-    ':hover': {
-      transform: 'translateY(-4px)',
-      boxShadow: tokens.glowLarge,
-    },
+  radioContainer: {
+    width: '100%',
+    display: 'flex',
+    justifyContent: 'center',
+    marginBottom: tokens.m,
   },
 
   typeCardIcon: {
-    fontSize: '48px',
-    ...shorthands.margin(0, 0, tokens.m, 0),
+    fontSize: '32px',
     color: tokens.colorBrandPrimary,
-    transitionProperty: 'all',
-    transitionDuration: tokens.durationNormal,
-    transitionTimingFunction: tokens.curveEasyEase,
+    marginBottom: tokens.s,
+    transition: 'all 0.2s ease-in-out',
   },
 
   typeCardIconSelected: {
     color: tokens.colorBrandPrimary,
     transform: 'scale(1.1)',
-  },
-
-  typeCardRadio: {
-    ...shorthands.margin(0, 0, tokens.m, 0),
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '100%',
-  },
-
-  typeCardContent: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    ...shorthands.gap(tokens.m),
-    width: '100%',
-    textAlign: 'center',
+    background: `linear-gradient(225deg, ${tokens.colorBrandGradientStart} 0%, ${tokens.colorBrandGradientEnd} 100%)`,
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
   },
 
   typeCardTitle: {
     fontSize: tokens.fontSizeBase400,
     fontWeight: tokens.fontWeightSemibold,
     color: tokens.colorNeutralForeground1,
-    fontFamily: tokens.fontFamilyPrimary,
-    ...shorthands.margin(0, 0, tokens.xs, 0),
-    textAlign: 'center',
+    marginBottom: tokens.xs,
   },
 
   typeCardDescription: {
     fontSize: tokens.fontSizeBase200,
     color: tokens.colorNeutralForeground2,
-    fontFamily: tokens.fontFamilyPrimary,
-    textAlign: 'center',
-    lineHeight: tokens.lineHeightBase300,
-  },
-
-  requiredIndicator: {
-    color: tokens.colorStatusDanger,
-    marginLeft: '4px',
+    lineHeight: '1.5',
   },
 });
 
@@ -238,32 +206,35 @@ const getIconComponent = (iconName: string) => {
 
 const Step1_Basics: React.FC = () => {
   const styles = useStyles();
-  const { formData, updateStepData } = useWizardContext();
+  const { formData, updateStepData, setWizardTitle } = useWizardContext();
 
-  const [activityName, setActivityName] = useState(formData.step1?.activity_name || '');
+  const [activityName, setActivityName] = useState(formData.step1?.activityName || '');
   const [selectedType, setSelectedType] = useState<ActivityType | undefined>(
-    formData.step1?.activity_type
+    formData.step1?.activityType
   );
   const [description, setDescription] = useState(formData.step1?.description || '');
-
-  // Update context when form changes
-  useEffect(() => {
-    if (activityName && selectedType) {
-      updateStepData(1, {
-        activity_name: activityName,
-        activity_type: selectedType,
-        description: description || undefined,
-      });
-    }
-  }, [activityName, selectedType, description, updateStepData]);
 
   // ============================================================================
   // Handlers
   // ============================================================================
 
-  const handleTypeSelect = (type: ActivityType) => {
-    setSelectedType(type);
+  const handleTypeChange = (_: any, data: { value: string }) => {
+    const newType = data.value as ActivityType;
+    setSelectedType(newType);
+    const selectedOption = ACTIVITY_TYPE_OPTIONS.find(opt => opt.type === newType);
+    if (selectedOption) {
+      setWizardTitle(selectedOption.label);
+    }
   };
+
+  // Update context when form changes
+  useEffect(() => {
+    updateStepData(1, {
+      activityName: activityName || undefined,
+      activityType: selectedType || undefined,
+      description: description || undefined,
+    });
+  }, [activityName, selectedType, description, updateStepData]);
 
   // ============================================================================
   // Render
@@ -273,60 +244,48 @@ const Step1_Basics: React.FC = () => {
     <div className={styles.container}>
       {/* Activity Name */}
       <div className={styles.section}>
-        <Label className={styles.label} required>
-          Activity Name
-          <span className={styles.requiredIndicator}>*</span>
-        </Label>
-        <Input
-          className={styles.textField}
-          placeholder="e.g., Production Migration to Azure Local"
+        <PurpleGlassInput
+          label="Activity Name"
           value={activityName}
-          onChange={(ev, data) => setActivityName(data.value)}
-          size="large"
+          onChange={(e) => setActivityName(e.target.value)}
+          placeholder="e.g., 'Production Cluster Upgrade'"
           required
+          glass="medium"
+          helperText="Give your activity a descriptive name."
         />
-        <p className={styles.description}>
-          Give your activity a clear, descriptive name that identifies the project.
-        </p>
       </div>
 
       {/* Activity Type */}
       <div className={styles.section}>
-        <Label className={styles.label} required>
+        <Label required className={styles.label}>
           Activity Type
-          <span className={styles.requiredIndicator}>*</span>
         </Label>
         <p className={styles.description}>
           Select the type of activity you're planning. This determines the workflow and available options.
         </p>
 
         <RadioGroup
-          value={selectedType}
-          onChange={(ev, data) => handleTypeSelect(data.value as ActivityType)}
-          className={styles.typeCardsGrid}
+          value={selectedType || ''}
+          onChange={handleTypeChange}
+          className={styles.radioGroup}
         >
           {ACTIVITY_TYPE_OPTIONS.map((option) => {
             const isSelected = selectedType === option.type;
             const IconComponent = getIconComponent(option.icon);
-
             return (
               <div
                 key={option.type}
                 className={`${styles.typeCard} ${isSelected ? styles.typeCardSelected : ''}`}
-                onClick={() => handleTypeSelect(option.type)}
+                onClick={() => handleTypeChange(null, { value: option.type })}
               >
-                <div className={styles.typeCardContent}>
-                  <div className={styles.typeCardRadio}>
-                    <Radio value={option.type} label="" />
-                  </div>
-                  <IconComponent
-                    className={`${styles.typeCardIcon} ${
-                      isSelected ? styles.typeCardIconSelected : ''
-                    }`}
-                  />
-                  <div className={styles.typeCardTitle}>{option.label}</div>
-                  <div className={styles.typeCardDescription}>{option.description}</div>
+                <div className={styles.radioContainer}>
+                  <Radio value={option.type} label="" />
                 </div>
+                <IconComponent
+                  className={`${styles.typeCardIcon} ${isSelected ? styles.typeCardIconSelected : ''}`}
+                />
+                <div className={styles.typeCardTitle}>{option.label}</div>
+                <div className={styles.typeCardDescription}>{option.description}</div>
               </div>
             );
           })}
@@ -335,19 +294,15 @@ const Step1_Basics: React.FC = () => {
 
       {/* Optional Description */}
       <div className={styles.section}>
-        <Label className={styles.label}>
-          Description <span style={{ fontWeight: 400, fontSize: '12px' }}>(Optional)</span>
-        </Label>
-        <Textarea
-          className={styles.textField}
+        <PurpleGlassTextarea
+          label="Description (Optional)"
           placeholder="Add additional context or notes about this activity..."
           value={description}
-          onChange={(ev, data) => setDescription(data.value)}
+          onChange={(e) => setDescription(e.target.value)}
           rows={3}
+          glass="medium"
+          helperText="Provide any additional details or context that will help the team understand this activity."
         />
-        <p className={styles.description}>
-          Provide any additional details or context that will help the team understand this activity.
-        </p>
       </div>
     </div>
   );

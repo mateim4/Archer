@@ -12,6 +12,7 @@
  */
 
 import React from 'react';
+import { PurpleGlassCard } from '../../ui';
 import { useWizardContext } from './Context/WizardContext';
 import { useWizardStyles } from '../../../hooks/useWizardStyles';
 import { tokens } from '../../../styles/design-tokens';
@@ -64,67 +65,82 @@ const WizardContent: React.FC = () => {
   // Determine if we're in a modal
   const isInModal = mode === 'create' || mode === 'edit';
 
+  const cardContent = (
+    <>
+      {/* Header with Title */}
+      <div className={isInModal ? styles.headerModal : styles.header}>
+        <h1 className={styles.title}>
+          {mode === 'create' ? 'Create New Activity' : 'Edit Activity'}
+        </h1>
+
+        {/* Save Indicator */}
+        {lastSavedAt && (
+          <div className={styles.saveIndicator}>
+            <div 
+              className={styles.saveIndicatorIcon}
+              style={{
+                backgroundColor: isSaving 
+                  ? tokens.colorStatusWarning 
+                  : tokens.colorStatusSuccess
+              }}
+            />
+            {isSaving ? (
+              <span>Saving...</span>
+            ) : (
+              <span>
+                Last saved at {lastSavedAt.toLocaleTimeString()}
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Expiration Warning */}
+        {showExpirationWarning && (
+          <div className={styles.warningBox}>
+            ⚠️ Draft expires in {daysUntilExpiration} {daysUntilExpiration === 1 ? 'day' : 'days'}. 
+            Please complete or it will be automatically deleted.
+          </div>
+        )}
+      </div>
+
+      {/* Progress Indicator */}
+      <WizardProgress />
+
+      {/* Step Content */}
+      <div className={styles.stepContainerWrapper}>
+        <h2 className={styles.stepTitle}>{currentStepInfo.title}</h2>
+        <p className={styles.stepSubtitle}>{currentStepInfo.description}</p>
+
+        {/* Render step component */}
+        {currentStep === 1 && <Step1_Basics />}
+        {currentStep === 2 && <Step2_SourceDestination />}
+        {currentStep === 3 && <Step3_Infrastructure />}
+        {currentStep === 4 && <Step4_CapacityValidation />}
+        {currentStep === 5 && <Step5_Timeline />}
+        {currentStep === 6 && <Step6_Assignment />}
+        {currentStep === 7 && <Step7_Review />}
+      </div>
+
+      {/* Navigation */}
+      <WizardNavigation />
+    </>
+  );
+
   return (
     <div className={isInModal ? styles.containerModal : styles.container}>
-      {/* Main Card with Glassmorphic Effect */}
-      <div className={isInModal ? styles.cardModal : styles.mainCard}>
-        {/* Header */}
-        <div className={isInModal ? styles.headerModal : styles.header}>
-          <p className={styles.subtitle}>
-            Step {currentStep} of 7: {currentStepInfo.title}
-          </p>
-
-          {/* Save Indicator */}
-          {lastSavedAt && (
-            <div className={styles.saveIndicator}>
-              <div 
-                className={styles.saveIndicatorIcon}
-                style={{
-                  backgroundColor: isSaving 
-                    ? tokens.colorStatusWarning 
-                    : tokens.colorStatusSuccess
-                }}
-              />
-              {isSaving ? (
-                <span>Saving...</span>
-              ) : (
-                <span>
-                  Last saved at {lastSavedAt.toLocaleTimeString()}
-                </span>
-              )}
-            </div>
-          )}
-
-          {/* Expiration Warning */}
-          {showExpirationWarning && (
-            <div className={styles.warningBox}>
-              ⚠️ Draft expires in {daysUntilExpiration} {daysUntilExpiration === 1 ? 'day' : 'days'}. 
-              Please complete or it will be automatically deleted.
-            </div>
-          )}
-        </div>
-
-        {/* Progress Indicator */}
-        <WizardProgress />
-
-        {/* Step Content */}
-        <div className={styles.stepContainerWrapper}>
-          <h2 className={styles.stepTitle}>{currentStepInfo.title}</h2>
-          <p className={styles.stepSubtitle}>{currentStepInfo.description}</p>
-
-          {/* Render step component */}
-          {currentStep === 1 && <Step1_Basics />}
-          {currentStep === 2 && <Step2_SourceDestination />}
-          {currentStep === 3 && <Step3_Infrastructure />}
-          {currentStep === 4 && <Step4_CapacityValidation />}
-          {currentStep === 5 && <Step5_Timeline />}
-          {currentStep === 6 && <Step6_Assignment />}
-          {currentStep === 7 && <Step7_Review />}
-        </div>
-
-        {/* Navigation */}
-        <WizardNavigation />
-      </div>
+      {isInModal ? (
+        <PurpleGlassCard
+          glass
+          variant="elevated"
+          padding="none"
+          fullWidth
+          className={styles.cardModal}
+        >
+          {cardContent}
+        </PurpleGlassCard>
+      ) : (
+        <div className={styles.mainCard}>{cardContent}</div>
+      )}
     </div>
   );
 };
