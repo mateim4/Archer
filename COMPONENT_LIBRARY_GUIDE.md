@@ -23,6 +23,14 @@
 5. [Common Patterns](#common-patterns)
 6. [Accessibility](#accessibility)
 7. [TypeScript Support](#typescript-support)
+8. [Migration Guide: PurpleGlassDropdown](#migration-guide-purpleglassdropdown)
+   - [Migration Patterns](#migration-patterns)
+   - [Common Pitfalls & Solutions](#common-pitfalls--solutions)
+   - [Accessibility Best Practices](#accessibility-best-practices)
+   - [Testing Recommendations](#testing-recommendations)
+   - [Troubleshooting](#troubleshooting)
+   - [Performance Considerations](#performance-considerations)
+   - [Migration Checklist](#migration-checklist)
 
 ---
 
@@ -1261,6 +1269,494 @@ Potential additions for v2.0:
 - **PurpleGlassModal**: Already exists, integrate with library
 - **PurpleGlassTabs**: Tabbed content navigation
 - **PurpleGlassAccordion**: Collapsible content sections
+
+---
+
+## Migration Guide: PurpleGlassDropdown
+
+### Overview
+
+This section provides comprehensive guidance for migrating from native `<select>`, Fluent UI `<Dropdown>`, and custom dropdown components to `PurpleGlassDropdown`.
+
+**Reference:** See `DROPDOWN_AUDIT_REPORT.md` for complete list of 54 dropdown instances across the codebase.
+
+### Migration Patterns
+
+#### Pattern 1: Native HTML `<select>` → PurpleGlassDropdown
+
+**Before (Native Select):**
+```tsx
+<select 
+  className="lcm-dropdown"
+  value={selected}
+  onChange={(e) => setSelected(e.target.value)}
+>
+  <option value="">Select an option</option>
+  <option value="1">Option 1</option>
+  <option value="2">Option 2</option>
+  <option value="3">Option 3</option>
+</select>
+```
+
+**After (PurpleGlassDropdown):**
+```tsx
+<PurpleGlassDropdown
+  placeholder="Select an option"
+  options={[
+    { value: '1', label: 'Option 1' },
+    { value: '2', label: 'Option 2' },
+    { value: '3', label: 'Option 3' }
+  ]}
+  value={selected}
+  onChange={(value) => setSelected(value as string)}
+  glass="medium"
+/>
+```
+
+**Key Changes:**
+- ✅ Convert `<option>` elements to `DropdownOption[]` array
+- ✅ Change `onChange` handler signature: `(e) => ...` → `(value) => ...`
+- ✅ Replace placeholder `<option>` with `placeholder` prop
+- ✅ Add glassmorphism with `glass` prop
+- ✅ Remove CSS class (styling handled internally)
+
+---
+
+#### Pattern 2: Fluent UI `<Dropdown>` → PurpleGlassDropdown
+
+**Before (Fluent Dropdown):**
+```tsx
+import { Dropdown } from '@fluentui/react-components';
+
+<Dropdown
+  placeholder="Select strategy"
+  selectedOptions={[strategy]}
+  onOptionSelect={(e, data) => setStrategy(data.optionValue as string)}
+>
+  <Option value="lift-shift">Lift & Shift</Option>
+  <Option value="replatform">Replatform</Option>
+  <Option value="refactor">Refactor</Option>
+</Dropdown>
+```
+
+**After (PurpleGlassDropdown):**
+```tsx
+import { PurpleGlassDropdown } from '@/components/ui';
+
+<PurpleGlassDropdown
+  placeholder="Select strategy"
+  options={[
+    { value: 'lift-shift', label: 'Lift & Shift' },
+    { value: 'replatform', label: 'Replatform' },
+    { value: 'refactor', label: 'Refactor' }
+  ]}
+  value={strategy}
+  onChange={(value) => setStrategy(value as string)}
+  glass="medium"
+/>
+```
+
+**Key Changes:**
+- ✅ Import from `@/components/ui` instead of `@fluentui/react-components`
+- ✅ Convert `<Option>` children to `options` array
+- ✅ Change `selectedOptions={[value]}` to `value={value}`
+- ✅ Simplify `onOptionSelect` to `onChange`
+- ✅ Remove Fluent-specific props (they're incompatible)
+
+---
+
+#### Pattern 3: Dropdowns with Loading States
+
+**Before:**
+```tsx
+<Dropdown
+  placeholder={isLoading ? "Loading clusters..." : "Select cluster"}
+  selectedOptions={[cluster]}
+  disabled={isLoading}
+  onOptionSelect={(e, data) => setCluster(data.optionValue as string)}
+>
+  {clusters.map(c => <Option key={c.id} value={c.id}>{c.name}</Option>)}
+</Dropdown>
+```
+
+**After:**
+```tsx
+<PurpleGlassDropdown
+  placeholder={isLoading ? "Loading clusters..." : "Select cluster"}
+  options={clusters.map(c => ({ value: c.id, label: c.name }))}
+  value={cluster}
+  onChange={(value) => setCluster(value as string)}
+  disabled={isLoading}
+  glass="medium"
+/>
+```
+
+**Preserved Features:**
+- ✅ Loading state indicators via `placeholder`
+- ✅ Disabled state during loading
+- ✅ Dynamic options from API data
+
+---
+
+#### Pattern 4: Multi-Select Dropdowns
+
+**Before:**
+```tsx
+<Dropdown
+  placeholder="Select tags"
+  selectedOptions={selectedTags}
+  multiselect
+  onOptionSelect={(e, data) => {
+    const newTags = data.selectedOptions;
+    setSelectedTags(newTags);
+  }}
+>
+  {tags.map(tag => <Option key={tag} value={tag}>{tag}</Option>)}
+</Dropdown>
+```
+
+**After:**
+```tsx
+<PurpleGlassDropdown
+  placeholder="Select tags"
+  options={tags.map(tag => ({ value: tag, label: tag }))}
+  value={selectedTags}
+  onChange={(value) => setSelectedTags(value as string[])}
+  multiSelect
+  searchable
+  glass="medium"
+/>
+```
+
+**Key Changes:**
+- ✅ Use `multiSelect` prop (camelCase, not lowercase)
+- ✅ Value is `string[]` instead of `string`
+- ✅ Built-in tag display with remove buttons
+- ✅ Add `searchable` for better UX with many options
+
+---
+
+#### Pattern 5: Searchable/Filterable Dropdowns
+
+**After (PurpleGlassDropdown with Search):**
+```tsx
+<PurpleGlassDropdown
+  label="Select Server Model"
+  placeholder="Search models..."
+  options={serverModels.map(m => ({ 
+    value: m.id, 
+    label: `${m.vendor} ${m.model}` 
+  }))}
+  value={selectedModel}
+  onChange={(value) => setSelectedModel(value as string)}
+  searchable
+  searchPlaceholder="Type to filter..."
+  glass="medium"
+/>
+```
+
+**Features:**
+- ✅ Real-time client-side filtering
+- ✅ Custom search placeholder
+- ✅ Automatically focuses search input when opened
+- ✅ Clears search when menu closes
+
+---
+
+### Common Pitfalls & Solutions
+
+#### ❌ DON'T: Use array notation for single-select value
+
+```tsx
+// ❌ WRONG - This breaks single-select
+<PurpleGlassDropdown
+  value={[selected]}  // Array for single-select
+  onChange={(value) => setSelected(value)}
+/>
+```
+
+```tsx
+// ✅ CORRECT - Use string for single-select
+<PurpleGlassDropdown
+  value={selected}  // String for single-select
+  onChange={(value) => setSelected(value as string)}
+/>
+```
+
+---
+
+#### ❌ DON'T: Forget to type-cast onChange value
+
+```tsx
+// ❌ WRONG - TypeScript error: value could be string | string[] | undefined
+<PurpleGlassDropdown
+  value={selected}
+  onChange={(value) => setSelected(value)}  // Type error
+/>
+```
+
+```tsx
+// ✅ CORRECT - Type-cast based on multiSelect
+<PurpleGlassDropdown
+  value={selected}
+  onChange={(value) => setSelected(value as string)}  // Single-select
+/>
+
+<PurpleGlassDropdown
+  multiSelect
+  value={selectedTags}
+  onChange={(value) => setSelectedTags(value as string[])}  // Multi-select
+/>
+```
+
+---
+
+#### ❌ DON'T: Mix Fluent and Purple Glass dropdowns
+
+```tsx
+// ❌ WRONG - Inconsistent UI
+import { Dropdown } from '@fluentui/react-components';
+import { PurpleGlassDropdown } from '@/components/ui';
+
+<Dropdown />  // Different styling
+<PurpleGlassDropdown />  // Glassmorphic purple theme
+```
+
+```tsx
+// ✅ CORRECT - Consistent Purple Glass components
+import { PurpleGlassDropdown } from '@/components/ui';
+
+<PurpleGlassDropdown />
+<PurpleGlassDropdown />
+```
+
+---
+
+#### ❌ DON'T: Hardcode empty options
+
+```tsx
+// ❌ WRONG - Empty state handled poorly
+<PurpleGlassDropdown
+  options={data.length === 0 ? [{ value: '', label: 'No data' }] : data}
+/>
+```
+
+```tsx
+// ✅ CORRECT - Use emptyText prop
+<PurpleGlassDropdown
+  options={data}
+  emptyText="No data available"
+  searchable
+/>
+```
+
+---
+
+### Accessibility Best Practices
+
+#### ✅ DO: Always provide labels
+
+```tsx
+<PurpleGlassDropdown
+  label="Cluster Strategy"  // Screen readers announce this
+  options={strategies}
+  required  // Adds asterisk and aria-required
+/>
+```
+
+#### ✅ DO: Use validation states with helper text
+
+```tsx
+<PurpleGlassDropdown
+  label="Required Field"
+  options={options}
+  validationState={error ? 'error' : 'default'}
+  helperText={error || 'Please select an option'}
+  required
+/>
+```
+
+#### ✅ DO: Support keyboard navigation
+
+PurpleGlassDropdown automatically supports:
+- **Enter/Space** - Open dropdown
+- **Escape** - Close dropdown
+- **Arrow keys** - Navigate options (in roadmap)
+- **Tab** - Focus management
+
+---
+
+### Testing Recommendations
+
+#### Unit Tests (Vitest)
+
+```tsx
+import { render, screen, fireEvent } from '@testing-library/react';
+import { PurpleGlassDropdown } from '@/components/ui';
+
+test('selects option and calls onChange', async () => {
+  const handleChange = vi.fn();
+  render(
+    <PurpleGlassDropdown
+      options={[{ value: '1', label: 'Option 1' }]}
+      onChange={handleChange}
+    />
+  );
+
+  const trigger = screen.getByRole('button');
+  await userEvent.click(trigger);
+  
+  const option = screen.getByRole('option', { name: 'Option 1' });
+  await userEvent.click(option);
+  
+  expect(handleChange).toHaveBeenCalledWith('1');
+});
+```
+
+**See:** `frontend/tests/unit/components/PurpleGlassDropdown.test.tsx` for 44 comprehensive tests.
+
+#### E2E Tests (Playwright)
+
+```tsx
+test('dropdown interaction flow', async ({ page }) => {
+  const dropdown = page.locator('[role="button"][aria-haspopup="listbox"]').first();
+  
+  await dropdown.click();
+  await expect(page.locator('[role="listbox"]')).toBeVisible();
+  
+  await page.locator('[role="option"]', { hasText: 'Option 1' }).click();
+  await expect(dropdown).toContainText('Option 1');
+});
+```
+
+**See:** `frontend/tests/e2e/purple-glass-dropdown.spec.ts` for E2E test templates.
+
+---
+
+### Troubleshooting
+
+#### Issue: Dropdown menu appears behind other elements
+
+**Solution:** The dropdown uses fixed positioning with a high z-index. If it still appears behind, check parent element stacking contexts:
+
+```tsx
+// Ensure parent doesn't create stacking context
+// Remove: transform, filter, perspective, etc.
+```
+
+#### Issue: Click-outside doesn't close dropdown
+
+**Solution:** This is handled automatically via `mousedown` events. Ensure your page doesn't stop event propagation:
+
+```tsx
+// ❌ DON'T stop propagation
+<div onClick={(e) => e.stopPropagation()}>
+  <PurpleGlassDropdown />
+</div>
+
+// ✅ DO allow events to bubble
+<div>
+  <PurpleGlassDropdown />
+</div>
+```
+
+#### Issue: Search doesn't filter options
+
+**Solution:** Ensure `searchable` prop is set and options have `label` property:
+
+```tsx
+<PurpleGlassDropdown
+  searchable  // Required for search
+  options={[
+    { value: '1', label: 'Option 1' },  // 'label' is required
+  ]}
+/>
+```
+
+#### Issue: TypeScript errors with onChange
+
+**Solution:** Type-cast the value based on single/multi-select mode:
+
+```tsx
+// Single-select
+onChange={(value) => setSelected(value as string)}
+
+// Multi-select
+onChange={(value) => setTags(value as string[])}
+```
+
+---
+
+### Performance Considerations
+
+#### Large Option Lists (>100 items)
+
+For dropdowns with many options, always enable search:
+
+```tsx
+<PurpleGlassDropdown
+  options={largeDataset}  // 500+ items
+  searchable  // Essential for usability
+  searchPlaceholder="Type to filter..."
+  glass="medium"
+/>
+```
+
+#### Dynamic Options
+
+When options change frequently, ensure proper React keys:
+
+```tsx
+const options = data.map(item => ({
+  value: item.id,  // Stable key
+  label: item.name
+}));
+
+<PurpleGlassDropdown options={options} />
+```
+
+---
+
+### Glass Variant Guidelines
+
+Choose the appropriate glass level for your context:
+
+| Glass Level | Use Case | Visual Effect |
+|-------------|----------|---------------|
+| `none` | Dense forms, high information density | No glassmorphism |
+| `light` | Subtle elevation, minimal distraction | Light blur + transparency |
+| `medium` | Standard dropdowns, balanced aesthetics | ⭐ **Recommended default** |
+| `heavy` | Hero sections, emphasized selections | Strong blur + depth |
+
+**Example:**
+```tsx
+// Standard form dropdown
+<PurpleGlassDropdown glass="medium" />
+
+// Dense data grid filter
+<PurpleGlassDropdown glass="none" />
+
+// Hero section dropdown
+<PurpleGlassDropdown glass="heavy" />
+```
+
+---
+
+### Migration Checklist
+
+When migrating each dropdown instance:
+
+- [ ] ✅ Import `PurpleGlassDropdown` and `DropdownOption` from `@/components/ui`
+- [ ] ✅ Convert options to `DropdownOption[]` array format
+- [ ] ✅ Update `onChange` handler signature
+- [ ] ✅ Set appropriate `glass` variant (default: `medium`)
+- [ ] ✅ Add `label` for accessibility
+- [ ] ✅ Preserve loading states (via `placeholder` + `disabled`)
+- [ ] ✅ Preserve validation states (use `validationState` + `helperText`)
+- [ ] ✅ Add `searchable` for lists with >10 items
+- [ ] ✅ Update unit tests to use new component API
+- [ ] ✅ Verify keyboard navigation works
+- [ ] ✅ Test with screen reader (NVDA/JAWS)
 
 ---
 
