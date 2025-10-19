@@ -46,8 +46,6 @@ import {
   SelectTabEvent,
   Field,
   Input,
-  Dropdown,
-  Option,
   Menu,
   MenuTrigger,
   MenuPopover,
@@ -69,6 +67,8 @@ import {
   BreadcrumbButton,
   BreadcrumbDivider
 } from '@fluentui/react-components';
+import { PurpleGlassDropdown } from '@/components/ui';
+import { ACTIVITY_STATUS_OPTIONS } from '@/constants/projectFilters';
 
 import GanttChart from '../components/GanttChart';
 import { Project } from '../utils/apiClient';
@@ -488,20 +488,15 @@ const ProjectDetailView: React.FC = () => {
                   aria-label="Search activities"
                 />
               </Field>
-              <Field>
-                <Dropdown
+              <div style={{ minWidth: '200px' }}>
+                <PurpleGlassDropdown
                   placeholder="Filter by status"
+                  options={ACTIVITY_STATUS_OPTIONS}
                   value={filterStatus}
-                  onOptionSelect={(_, data) => setFilterStatus(data.optionValue as string)}
-                  aria-label="Filter activities by status"
-                >
-                  <Option value="all">All Status</Option>
-                  <Option value="pending">Pending</Option>
-                  <Option value="in_progress">In Progress</Option>
-                  <Option value="completed">Completed</Option>
-                  <Option value="blocked">Blocked</Option>
-                </Dropdown>
-              </Field>
+                  onChange={(value) => setFilterStatus(value as string)}
+                  glass="light"
+                />
+              </div>
             </div>
             
             <Button

@@ -45,8 +45,6 @@ import {
   SelectTabEvent,
   Field,
   Input,
-  Dropdown,
-  Option,
   Dialog,
   DialogSurface,
   DialogBody,
@@ -54,6 +52,8 @@ import {
   DialogContent,
   DialogActions,
 } from '@fluentui/react-components';
+import { PurpleGlassDropdown } from '@/components/ui';
+import { ACTIVITY_STATUS_OPTIONS } from '@/constants/projectFilters';
 
 import GanttChart from '../components/EnhancedGanttChart';
 import { Project } from '../utils/apiClient';
@@ -698,24 +698,15 @@ const ProjectDetailView: React.FC = () => {
                     }}
                   />
                 </Field>
-                <Field>
-                  <Dropdown
+                <div style={{ minWidth: '200px' }}>
+                  <PurpleGlassDropdown
                     placeholder="Filter by status"
+                    options={ACTIVITY_STATUS_OPTIONS}
                     value={filterStatus}
-                    onOptionSelect={(_, data) => setFilterStatus(data.optionValue as string)}
-                    aria-label="Filter activities by status"
-                    style={{ fontFamily: DesignTokens.typography.fontFamily, minWidth: '200px' }}
-                  >
-                    <Option value="all">All Status</Option>
-                    <Option value="pending">Pending</Option>
-                    <Option value="pending_assignment">Pending Assignment</Option>
-                    <Option value="in_progress">In Progress</Option>
-                    <Option value="completed">Completed</Option>
-                    <Option value="blocked">Blocked</Option>
-                    <Option value="delayed">Delayed</Option>
-                    <Option value="canceled">Canceled</Option>
-                  </Dropdown>
-                </Field>
+                    onChange={(value) => setFilterStatus(value as string)}
+                    glass="light"
+                  />
+                </div>
               </div>
               
               <div>

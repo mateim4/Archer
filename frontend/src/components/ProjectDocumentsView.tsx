@@ -11,8 +11,6 @@ import {
   Caption1,
   Badge,
   Button,
-  Dropdown,
-  Option,
   Dialog,
   DialogSurface,
   DialogBody,
@@ -26,6 +24,8 @@ import {
   tokens,
   shorthands,
 } from '@fluentui/react-components';
+import { PurpleGlassDropdown, type DropdownOption } from '@/components/ui';
+import { DOCUMENT_TYPE_OPTIONS } from '@/constants/projectFilters';
 import GlassmorphicSearchBar from './GlassmorphicSearchBar';
 import {
   DocumentText24Regular,
@@ -660,6 +660,18 @@ export const ProjectDocumentsView: React.FC<ProjectDocumentsViewProps> = ({
 
   const hardwareRefreshActivities = activities.filter(a => a.type === 'hardware_refresh');
   
+  // Convert activities to dropdown options
+  const activityOptions: DropdownOption[] = hardwareRefreshActivities.map(activity => ({
+    value: activity.id,
+    label: activity.name,
+  }));
+  
+  // Convert templates to dropdown options
+  const templateOptions: DropdownOption[] = templates.map(template => ({
+    value: template.id,
+    label: `${template.name} (${template.format.toUpperCase()})`,
+  }));
+  
   const documentGenerationData = [
     { date: 'Sep 20', count: 1 },
     { date: 'Sep 21', count: 0 },
@@ -710,17 +722,15 @@ export const ProjectDocumentsView: React.FC<ProjectDocumentsViewProps> = ({
           width="300px"
         />
         
-        <Dropdown
-          placeholder="Filter by type"
-          value={filterType}
-          onOptionSelect={(_, data) => setFilterType(data.optionValue as string)}
-        >
-          <Option value="all">All Types</Option>
-          <Option value="hardware_refresh_report">Hardware Refresh Reports</Option>
-          <Option value="lifecycle_assessment">Lifecycle Assessments</Option>
-          <Option value="migration_plan">Migration Plans</Option>
-          <Option value="capacity_analysis">Capacity Analysis</Option>
-        </Dropdown>
+        <div style={{ minWidth: '200px' }}>
+          <PurpleGlassDropdown
+            placeholder="Filter by type"
+            options={DOCUMENT_TYPE_OPTIONS}
+            value={filterType}
+            onChange={(value) => setFilterType(value as string)}
+            glass="light"
+          />
+        </div>
       </div>
 
       {filteredDocuments.length === 0 ? (
@@ -834,35 +844,25 @@ export const ProjectDocumentsView: React.FC<ProjectDocumentsViewProps> = ({
             <DialogContent>
               <div style={{ display: 'flex', flexDirection: 'column', gap: tokens.spacingVerticalL }}>
                 <div>
-                  <Text weight="semibold">Select Activity</Text>
-                  <Dropdown
+                  <PurpleGlassDropdown
+                    label="Select Activity"
                     placeholder="Choose a Hardware Refresh activity..."
+                    options={activityOptions}
                     value={selectedActivity}
-                    onOptionSelect={(_, data) => setSelectedActivity(data.optionValue as string)}
-                    style={{ marginTop: tokens.spacingVerticalS, width: '100%' }}
-                  >
-                    {hardwareRefreshActivities.map(activity => (
-                      <Option key={activity.id} value={activity.id}>
-                        {activity.name}
-                      </Option>
-                    ))}
-                  </Dropdown>
+                    onChange={(value) => setSelectedActivity(value as string)}
+                    glass="light"
+                  />
                 </div>
                 
                 <div>
-                  <Text weight="semibold">Select Template</Text>
-                  <Dropdown
+                  <PurpleGlassDropdown
+                    label="Select Template"
                     placeholder="Choose a document template..."
+                    options={templateOptions}
                     value={selectedTemplate}
-                    onOptionSelect={(_, data) => setSelectedTemplate(data.optionValue as string)}
-                    style={{ marginTop: tokens.spacingVerticalS, width: '100%' }}
-                  >
-                    {templates.map(template => (
-                      <Option key={template.id} value={template.id} text={`${template.name} (${template.format.toUpperCase()})`}>
-                        {template.name} ({template.format.toUpperCase()})
-                      </Option>
-                    ))}
-                  </Dropdown>
+                    onChange={(value) => setSelectedTemplate(value as string)}
+                    glass="light"
+                  />
                 </div>
                 
                 {/* Document Preview Section */}
