@@ -13,6 +13,17 @@ import { tokens as designTokens, zIndex as designZIndex } from '../../../styles/
 const dropdownTokens = designTokens.components.dropdown;
 
 export const useDropdownStyles = makeStyles({
+  '@keyframes dropdownFadeIn': {
+    from: {
+      opacity: 0,
+      transform: 'translateY(-8px)',
+    },
+    to: {
+      opacity: 1,
+      transform: 'translateY(0)',
+    },
+  },
+
   // ============================================================================
   // WRAPPER
   // ============================================================================
@@ -21,6 +32,12 @@ export const useDropdownStyles = makeStyles({
     flexDirection: 'column',
     ...shorthands.gap(designTokens.xxs),
     width: '100%',
+    maxWidth: dropdownTokens.wrapperMaxWidth,
+    alignSelf: 'flex-start',
+
+    [`@media (max-width: ${dropdownTokens.wrapperBreakpoint})`]: {
+      maxWidth: '100%',
+    },
   },
 
   // ============================================================================
@@ -47,9 +64,9 @@ export const useDropdownStyles = makeStyles({
     alignItems: 'center',
     justifyContent: 'space-between',
     width: '100%',
-    minHeight: '44px',
-    ...shorthands.padding(designTokens.s, designTokens.l),
-    fontFamily: designTokens.fontFamilyPrimary,
+    minHeight: dropdownTokens.triggerMinHeight,
+    ...shorthands.padding(dropdownTokens.triggerPaddingVertical, dropdownTokens.triggerPaddingHorizontal),
+    fontFamily: designTokens.fontFamilyBody,
     fontSize: designTokens.fontSizeBase300,
     fontWeight: designTokens.fontWeightMedium,
     color: dropdownTokens.triggerTextColor,
@@ -210,8 +227,9 @@ export const useDropdownStyles = makeStyles({
   menu: {
     position: 'absolute',
     zIndex: designZIndex.dropdown,
-    minWidth: '200px',
-    maxHeight: '300px',
+    minWidth: dropdownTokens.menuMinWidth,
+    maxWidth: dropdownTokens.menuMaxWidth,
+    maxHeight: dropdownTokens.menuMaxHeight,
     overflowY: 'auto',
     background: dropdownTokens.menuBackground,
     backdropFilter: dropdownTokens.menuBackdrop,
@@ -221,6 +239,16 @@ export const useDropdownStyles = makeStyles({
     boxShadow: dropdownTokens.menuBoxShadow,
     ...shorthands.padding(designTokens.xs, 0),
     marginTop: designTokens.xxs,
+    animationName: 'dropdownFadeIn',
+    animationDuration: dropdownTokens.menuAnimationDuration,
+    animationTimingFunction: dropdownTokens.menuAnimationCurve,
+    animationFillMode: 'both',
+    transformOrigin: 'top center',
+
+    [`@media (max-width: ${dropdownTokens.wrapperBreakpoint})`]: {
+      minWidth: '100%',
+      maxWidth: '100%',
+    },
   },
 
   menuGlass: {
@@ -242,7 +270,7 @@ export const useDropdownStyles = makeStyles({
   searchInput: {
     width: '100%',
     ...shorthands.padding(designTokens.xs, designTokens.m),
-    fontFamily: designTokens.fontFamilyPrimary,
+    fontFamily: designTokens.fontFamilyBody,
     fontSize: designTokens.fontSizeBase300,
     color: designTokens.colorNeutralForeground1,
     background: dropdownTokens.searchBackground,
