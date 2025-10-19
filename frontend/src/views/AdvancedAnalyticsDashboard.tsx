@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   BarChart3, 
   TrendingUp, 
@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import ReactECharts from 'echarts-for-react';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { PurpleGlassDropdown } from '@/components/ui';
 
 // Types for analytics data
 interface AnalyticsMetric {
@@ -251,6 +252,14 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
 
   const analyticsService = new AnalyticsService();
 
+  // Memoized time range options for dropdown
+  const timeRangeOptions = useMemo(() => [
+    { value: '24h', label: 'Last 24 Hours' },
+    { value: '7d', label: 'Last 7 Days' },
+    { value: '30d', label: 'Last 30 Days' },
+    { value: '90d', label: 'Last 90 Days' }
+  ], []);
+
   const loadDashboardData = async () => {
     try {
       setLoading(true);
@@ -443,16 +452,13 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
             <p className="text-gray-600">Real-time insights and system analytics</p>
           </div>
           <div className="flex items-center gap-4">
-            <select 
-              className="lcm-select"
+            <PurpleGlassDropdown
+              options={timeRangeOptions}
               value={selectedTimeRange}
-              onChange={(e) => setSelectedTimeRange(e.target.value)}
-            >
-              <option value="24h">Last 24 Hours</option>
-              <option value="7d">Last 7 Days</option>
-              <option value="30d">Last 30 Days</option>
-              <option value="90d">Last 90 Days</option>
-            </select>
+              onChange={(value) => setSelectedTimeRange(value as string)}
+              placeholder="Select time range..."
+              glass="light"
+            />
             <button 
               onClick={handleRefresh}
               disabled={refreshing}

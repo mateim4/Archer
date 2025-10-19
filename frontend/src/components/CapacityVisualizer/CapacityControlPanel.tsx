@@ -1,8 +1,6 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   Button,
-  Dropdown,
-  Option,
   Field,
   Input,
   Label,
@@ -32,6 +30,7 @@ import {
 } from '@fluentui/react-icons';
 import { DesignTokens } from '../../styles/designSystem';
 import { VisualizerState, CapacityView, OvercommitmentRatios, ClusterData } from '../../types/capacityVisualizer';
+import { PurpleGlassDropdown } from '@/components/ui';
 
 interface CapacityControlPanelProps {
   state: VisualizerState;
@@ -134,14 +133,13 @@ export const CapacityControlPanel: React.FC<CapacityControlPanelProps> = ({
 }) => {
   const styles = useStyles();
 
-  const viewOptions = [
-    { key: 'cpu', text: 'CPU Utilization', icon: <ViewDesktopRegular /> },
-    { key: 'memory', text: 'Memory Utilization', icon: <DatabaseRegular /> },
-    { key: 'storage', text: 'Storage Utilization', icon: <StorageRegular /> },
-    { key: 'bottleneck', text: 'Resource Bottleneck', icon: <ChartMultipleRegular /> }
-  ];
-
-  const currentViewOption = viewOptions.find(opt => opt.key === state.activeView);
+  // Memoized view options for dropdown
+  const viewOptions = useMemo(() => [
+    { value: 'cpu', label: 'CPU Utilization', icon: <ViewDesktopRegular /> },
+    { value: 'memory', label: 'Memory Utilization', icon: <DatabaseRegular /> },
+    { value: 'storage', label: 'Storage Utilization', icon: <StorageRegular /> },
+    { value: 'bottleneck', label: 'Resource Bottleneck', icon: <ChartMultipleRegular /> }
+  ], []);
 
   return (
     <div className={styles.panel}>
@@ -151,23 +149,19 @@ export const CapacityControlPanel: React.FC<CapacityControlPanelProps> = ({
           <ChartMultipleRegular style={{ color: DesignTokens.colors.primary }} />
           <Title3 style={{ color: DesignTokens.colors.primary }}>Capacity View</Title3>
         </div>
-        <Field>
-          <Label>Visualization Mode</Label>
-          <Dropdown
-            value={currentViewOption?.text || 'CPU Utilization'}
-            onOptionSelect={(_, data) => onViewChange(data.optionValue as CapacityView)}
-            style={{ width: '100%' }}
-          >
-            {viewOptions.map(option => (
-              <Option key={option.key} value={option.key} text={option.text}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  {option.icon}
-                  {option.text}
-                </div>
-              </Option>
-            ))}
-          </Dropdown>
-        </Field>
+        <PurpleGlassDropdown
+          label="Visualization Mode"
+          options={viewOptions}
+          value={state.activeView}
+          onChange={(value) => onViewChange(value as CapacityView)}
+          glass="light"
+          renderOption={(option, isSelected) => (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {option.icon}
+              {option.label}
+            </div>
+          )}
+        />
       </div>
 
       {/* Selected VMs Panel */}

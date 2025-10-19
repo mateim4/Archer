@@ -14,9 +14,7 @@ import {
   Input,
   Label,
   Caption1,
-  Badge,
-  Dropdown,
-  Option
+  Badge
 } from '@fluentui/react-components';
 import {
   ArrowUndoRegular,
