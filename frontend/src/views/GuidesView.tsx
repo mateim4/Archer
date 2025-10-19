@@ -7,11 +7,11 @@ import {
   Button,
   Badge,
   SearchBox,
-  Dropdown,
-  Option,
   makeStyles
 } from '@fluentui/react-components';
 import GlassmorphicSearchBar from '../components/GlassmorphicSearchBar';
+import { PurpleGlassDropdown } from '../components/ui';
+import type { DropdownOption } from '../components/ui';
 import {
   BookRegular,
   VideoRegular,
@@ -72,6 +72,22 @@ const GuidesView: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all');
+
+  // Dropdown options for filters
+  const categoryOptions: DropdownOption[] = [
+    { value: 'all', label: 'All Categories' },
+    { value: 'migration', label: 'Migration' },
+    { value: 'lifecycle', label: 'Lifecycle' },
+    { value: 'hardware', label: 'Hardware' },
+    { value: 'general', label: 'General' }
+  ];
+
+  const difficultyOptions: DropdownOption[] = [
+    { value: 'all', label: 'All Levels' },
+    { value: 'beginner', label: 'Beginner' },
+    { value: 'intermediate', label: 'Intermediate' },
+    { value: 'advanced', label: 'Advanced' }
+  ];
 
   const guides: Guide[] = [
     {
@@ -352,30 +368,21 @@ const GuidesView: React.FC = () => {
         </div>
         
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <Dropdown
+          <PurpleGlassDropdown
             placeholder="Category"
+            options={categoryOptions}
             value={selectedCategory}
-            onOptionSelect={(_, data) => setSelectedCategory(data.optionValue || 'all')}
-            style={{ minWidth: '140px' }}
-          >
-            <Option key="all" value="all">All Categories</Option>
-            <Option key="migration" value="migration">Migration</Option>
-            <Option key="lifecycle" value="lifecycle">Lifecycle</Option>
-            <Option key="hardware" value="hardware">Hardware</Option>
-            <Option key="general" value="general">General</Option>
-          </Dropdown>
+            onChange={(value) => setSelectedCategory(value as string)}
+            glass="light"
+          />
 
-          <Dropdown
+          <PurpleGlassDropdown
             placeholder="Difficulty"
+            options={difficultyOptions}
             value={selectedDifficulty}
-            onOptionSelect={(_, data) => setSelectedDifficulty(data.optionValue || 'all')}
-            style={{ minWidth: '140px' }}
-          >
-            <Option key="all" value="all">All Levels</Option>
-            <Option key="beginner" value="beginner">Beginner</Option>
-            <Option key="intermediate" value="intermediate">Intermediate</Option>
-            <Option key="advanced" value="advanced">Advanced</Option>
-          </Dropdown>
+            onChange={(value) => setSelectedDifficulty(value as string)}
+            glass="light"
+          />
         </div>
       </div>
 

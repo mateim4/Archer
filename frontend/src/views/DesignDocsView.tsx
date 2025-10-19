@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Plus, FileText, Edit3, Trash2, Save, X, Download, Upload } from 'lucide-react';
 import { apiClient, DesignDocument, CreateDesignDocRequest } from '../utils/apiClient';
 import { useAppStore } from '../store/useAppStore';
+import { PurpleGlassDropdown } from '../components/ui';
+import type { DropdownOption } from '../components/ui';
 
 interface DocFormData {
   name: string;
@@ -20,6 +22,16 @@ const DesignDocsView: React.FC = () => {
     doc_type: 'HLD',
     content: ''
   });
+
+  // Document type options for dropdown
+  const docTypeOptions: DropdownOption[] = [
+    { value: 'HLD', label: 'High Level Design (HLD)' },
+    { value: 'LLD', label: 'Low Level Design (LLD)' },
+    { value: 'Architecture', label: 'Architecture' },
+    { value: 'Requirements', label: 'Requirements' },
+    { value: 'Technical Specification', label: 'Technical Specification' },
+    { value: 'API Documentation', label: 'API Documentation' }
+  ];
 
   const { currentProject } = useAppStore();
 
@@ -190,21 +202,14 @@ const DesignDocsView: React.FC = () => {
               />
             </div>
             <div className="lcm-form-group">
-              <label className="lcm-label">
-                Document Type
-              </label>
-              <select
+              <PurpleGlassDropdown
+                label="Document Type"
+                options={docTypeOptions}
                 value={formData.doc_type}
-                onChange={(e) => setFormData({ ...formData, doc_type: e.target.value })}
-                className="lcm-dropdown"
-              >
-                <option value="HLD">High Level Design (HLD)</option>
-                <option value="LLD">Low Level Design (LLD)</option>
-                <option value="Architecture">Architecture</option>
-                <option value="Requirements">Requirements</option>
-                <option value="Technical Specification">Technical Specification</option>
-                <option value="API Documentation">API Documentation</option>
-              </select>
+                onChange={(value) => setFormData({ ...formData, doc_type: value as string })}
+                glass="light"
+                required
+              />
             </div>
           </div>
           <div className="lcm-form-group mb-4">

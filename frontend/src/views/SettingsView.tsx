@@ -5,6 +5,8 @@ import { InfoTooltip } from '../components/Tooltip';
 import { autoSave } from '../utils/autoSave';
 import { DESIGN_TOKENS } from '../components/DesignSystem';
 import { DesignTokens } from '../styles/designSystem';
+import { PurpleGlassDropdown } from '../components/ui';
+import type { DropdownOption } from '../components/ui';
 
 const SettingsView: React.FC = () => {
   // Add style to override table header background
@@ -24,6 +26,14 @@ const SettingsView: React.FC = () => {
       }
     };
   }, []);
+
+  // Optimization strategy options for dropdown
+  const optimizationOptions: DropdownOption[] = [
+    { value: 'cost', label: 'Cost Optimized' },
+    { value: 'performance', label: 'Performance Optimized' },
+    { value: 'balanced', label: 'Balanced' },
+    { value: 'efficiency', label: 'Efficiency Optimized' }
+  ];
 
   // Auto-save state to localStorage every second
   const [calculationSettings, setCalculationSettings] = useState({
@@ -91,22 +101,14 @@ const SettingsView: React.FC = () => {
             </div>
 
             <div>
-              <div className="flex items-center gap-2 mb-2">
-                <label className="text-sm font-medium" style={{ color: '#4b5563' }}>
-                  Optimization Strategy
-                </label>
-                <InfoTooltip content="Balance between cost, performance, and efficiency" />
-              </div>
-              <select 
-                className="lcm-dropdown w-full"
+              <PurpleGlassDropdown
+                label="Optimization Strategy"
+                options={optimizationOptions}
                 value={calculationSettings.optimization}
-                onChange={(e) => setCalculationSettings(prev => ({ ...prev, optimization: e.target.value }))}
-              >
-                <option value="cost">Cost Optimized</option>
-                <option value="performance">Performance Optimized</option>
-                <option value="balanced">Balanced</option>
-                <option value="efficiency">Efficiency Optimized</option>
-              </select>
+                onChange={(value) => setCalculationSettings(prev => ({ ...prev, optimization: value as string }))}
+                glass="light"
+                helperText="Balance between cost, performance, and efficiency"
+              />
             </div>
           </div>
         </div>
