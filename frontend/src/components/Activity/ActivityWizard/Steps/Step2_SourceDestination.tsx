@@ -10,13 +10,15 @@
 import React, { useState, useEffect } from 'react';
 import {
   Input,
-  Radio,
-  RadioGroup,
-  Label,
   makeStyles,
   shorthands,
 } from '@fluentui/react-components';
-import { PurpleGlassDropdown } from '../../../ui';
+import { 
+  PurpleGlassDropdown, 
+  PurpleGlassRadioGroup, 
+  PurpleGlassRadio,
+  PurpleGlassInput 
+} from '../../../ui';
 import type { DropdownOption } from '../../../ui/PurpleGlassDropdown';
 import {
   ServerRegular,
@@ -48,6 +50,21 @@ const useStyles = makeStyles({
     ...shorthands.gap(tokens.l),
   },
 
+  sectionTitle: {
+    fontSize: tokens.fontSizeBase400,
+    fontWeight: tokens.fontWeightSemibold,
+    color: tokens.colorNeutralForeground1,
+    fontFamily: tokens.fontFamilyPrimary,
+    margin: 0,
+  },
+
+  radioGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+    ...shorthands.gap(tokens.l),
+    width: '100%',
+  },
+
   label: {
     fontSize: tokens.fontSizeBase300,
     fontWeight: tokens.fontWeightSemibold,
@@ -66,146 +83,6 @@ const useStyles = makeStyles({
   textField: {
     width: '100%',
     maxWidth: '600px',
-  },
-
-  radioGroup: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(3, 1fr)',
-    ...shorthands.gap(tokens.l),
-    ...shorthands.margin(tokens.m, 0, 0, 0),
-    
-    '@media (max-width: 1200px)': {
-      gridTemplateColumns: 'repeat(2, 1fr)',
-    },
-    
-    '@media (max-width: 768px)': {
-      gridTemplateColumns: '1fr',
-    },
-  },
-
-  radioCard: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    ...shorthands.padding(tokens.xl, tokens.l),
-    backgroundColor: tokens.colorGlassBackground,
-    backdropFilter: tokens.blurMedium,
-    WebkitBackdropFilter: tokens.blurMedium,
-    ...shorthands.border('2px', 'solid', 'rgba(139, 92, 246, 0.2)'),
-    ...shorthands.borderRadius(tokens.large),
-    cursor: 'pointer',
-    transitionProperty: 'all',
-    transitionDuration: tokens.durationNormal,
-    transitionTimingFunction: tokens.curveEasyEase,
-    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
-    minHeight: '240px',
-
-    ':hover': {
-      transform: 'translateY(-4px)',
-      ...shorthands.borderColor('rgba(139, 92, 246, 0.5)'),
-      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.15) inset',
-    },
-  },
-
-  radioCardSelected: {
-    backgroundColor: 'rgba(139, 92, 246, 0.08)',
-    // Gradient border using border-image
-    ...shorthands.borderStyle('solid'), // Required for border-image
-    ...shorthands.borderWidth('2px'),
-    borderImage: 'linear-gradient(225deg, rgba(139, 92, 246, 1) 0%, rgba(99, 102, 241, 1) 100%) 1',
-    // Neutral shadow for selected state (no purple glow)
-    boxShadow: '0 4px 16px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.2) inset',
-
-    ':hover': {
-      transform: 'translateY(-4px)',
-      // Enhanced neutral shadow on hover
-      boxShadow: '0 8px 24px rgba(0, 0, 0, 0.16), 0 0 0 1px rgba(255, 255, 255, 0.25) inset',
-    },
-  },
-  
-  radioCardRadio: {
-    ...shorthands.margin(0, 0, tokens.m, 0),
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '100%',
-    position: 'relative',
-    // Force center alignment by shifting the Radio component
-    '& > *': {
-      position: 'relative',
-      left: '50%',
-      transform: 'translateX(-50%)',
-    },
-  },
-
-  radioCardContent: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    ...shorthands.gap(tokens.m),
-    width: '100%',
-    textAlign: 'center',
-  },
-
-  radioCardIcon: {
-    fontSize: '48px',
-    // Gradient text effect using background-clip
-    background: 'linear-gradient(225deg, rgba(139, 92, 246, 1) 0%, rgba(99, 102, 241, 1) 100%)',
-    WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: 'transparent',
-    backgroundClip: 'text',
-    transitionProperty: 'all',
-    transitionDuration: tokens.durationNormal,
-    transitionTimingFunction: tokens.curveEasyEase,
-    display: 'block',
-    ...shorthands.margin('0', 'auto'),
-  },
-
-  radioCardIconSelected: {
-    // Enhanced gradient on selection
-    background: 'linear-gradient(225deg, rgba(139, 92, 246, 1) 0%, rgba(99, 102, 241, 1) 100%)',
-    WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: 'transparent',
-    backgroundClip: 'text',
-    transform: 'scale(1.1)',
-    filter: 'brightness(1.2)',
-  },
-
-  radioCardText: {
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-    ...shorthands.gap(tokens.xs),
-    alignItems: 'center',
-  },
-
-  radioCardTitle: {
-    fontSize: tokens.fontSizeBase400,
-    fontWeight: tokens.fontWeightSemibold,
-    color: tokens.colorNeutralForeground1,
-    fontFamily: tokens.fontFamilyPrimary,
-    textAlign: 'center',
-  },
-
-  radioCardDescription: {
-    fontSize: tokens.fontSizeBase200,
-    color: tokens.colorNeutralForeground2,
-    fontFamily: tokens.fontFamilyPrimary,
-    lineHeight: tokens.lineHeightBase300,
-    textAlign: 'center',
-  },
-
-  radioCardFeatures: {
-    fontSize: tokens.fontSizeBase100,
-    // Gradient text effect
-    background: 'linear-gradient(225deg, rgba(139, 92, 246, 1) 0%, rgba(99, 102, 241, 1) 100%)',
-    WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: 'transparent',
-    backgroundClip: 'text',
-    fontFamily: tokens.fontFamilyPrimary,
-    fontWeight: tokens.fontWeightMedium,
-    ...shorthands.margin(tokens.xs, 0, 0, 0),
-    textAlign: 'center',
   },
 
   requiredIndicator: {
@@ -402,160 +279,84 @@ const Step2_SourceDestination: React.FC = () => {
 
       {/* Target Infrastructure Type */}
       <div className={styles.section}>
-        <Label className={styles.label} required>
-          Target Infrastructure Type
-          <span className={styles.requiredIndicator}>*</span>
-        </Label>
-        <p className={styles.description}>
-          Choose the infrastructure type for your new cluster. This determines hardware requirements and validation checks.
-        </p>
-
-        <RadioGroup
+        <PurpleGlassRadioGroup
+          required
+          label="Target Infrastructure Type"
+          helperText="Choose the infrastructure type for your new cluster. This determines hardware requirements and validation checks."
           value={targetInfrastructure}
-          onChange={handleInfrastructureChange}
-          className={styles.radioGroup}
+          onChange={(value) => setTargetInfrastructure(value as InfrastructureType)}
+          orientation="horizontal"
         >
-          {INFRASTRUCTURE_OPTIONS.map((option) => {
-            const isSelected = targetInfrastructure === option.type;
-            const IconComponent = option.icon;
-
-            return (
-              <div
-                key={option.type}
-                className={`${styles.radioCard} ${isSelected ? styles.radioCardSelected : ''}`}
-                onClick={() => setTargetInfrastructure(option.type)}
-              >
-                <div className={styles.radioCardContent}>
-                  <div className={styles.radioCardRadio}>
-                    <Radio value={option.type} label="" />
-                  </div>
-                  <IconComponent
-                    className={`${styles.radioCardIcon} ${
-                      isSelected ? styles.radioCardIconSelected : ''
-                    }`}
-                  />
-                  <div className={styles.radioCardText}>
-                    <div className={styles.radioCardTitle}>{option.label}</div>
-                    <div className={styles.radioCardDescription}>{option.description}</div>
-                    <div className={styles.radioCardFeatures}>{option.features}</div>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </RadioGroup>
+          <div className={styles.radioGrid}>
+            {INFRASTRUCTURE_OPTIONS.map((option) => {
+              const IconComponent = option.icon;
+              return (
+                <PurpleGlassRadio
+                  key={option.type}
+                  value={option.type}
+                  cardVariant
+                  cardTitle={option.label}
+                  cardDescription={option.description}
+                  cardIcon={<IconComponent />}
+                  glass="medium"
+                />
+              );
+            })}
+          </div>
+        </PurpleGlassRadioGroup>
       </div>
 
       {/* Target Cluster Name */}
       <div className={styles.section}>
-        <Label className={styles.label}>
-          Target Cluster Name <span style={{ fontWeight: 400, fontSize: '12px' }}>(Optional)</span>
-        </Label>
-        <Input
-          className={styles.textField}
+        <PurpleGlassInput
+          label="Target Cluster Name"
           placeholder="e.g., Azure Local Production Cluster"
           value={targetClusterName}
-          onChange={(ev, data) => setTargetClusterName(data.value)}
-          size="large"
+          onChange={(e) => setTargetClusterName(e.target.value)}
+          glass="light"
+          helperText="Give your new cluster a descriptive name. You can change this later."
         />
-        <p className={styles.description}>
-          Give your new cluster a descriptive name. You can change this later.
-        </p>
       </div>
 
       {/* Migration Strategy (Conditional - Only for Migration Activities) */}
       {isMigrationActivity && (
         <div className={styles.section}>
-          <Label className={styles.label}>
-            Hardware Sourcing Strategy <span style={{ fontWeight: 400, fontSize: '12px' }}>(Optional)</span>
-          </Label>
+          <h3 className={styles.sectionTitle}>Hardware Sourcing Strategy (Optional)</h3>
           <p className={styles.description}>
             Choose how you'll source hardware for this migration. This helps us plan procurement and timelines.
           </p>
 
-          <RadioGroup
-            value={migrationStrategy}
-            onChange={(_, data) => setMigrationStrategy(data.value as any)}
-            className={styles.radioGroup}
-          >
-            {/* Domino Hardware Swap */}
-            <div
-              className={`${styles.radioCard} ${migrationStrategy === 'domino_hardware_swap' ? styles.radioCardSelected : ''}`}
-              onClick={() => setMigrationStrategy('domino_hardware_swap')}
+          <div className={styles.radioGrid}>
+            <PurpleGlassRadioGroup
+              value={migrationStrategy}
+              onChange={(value) => setMigrationStrategy(value as "domino_hardware_swap" | "new_hardware_purchase" | "existing_free_hardware")}
             >
-              <div className={styles.radioCardContent}>
-                <div className={styles.radioCardRadio}>
-                  <Radio value="domino_hardware_swap" label="" />
-                </div>
-                <ArrowSyncRegular
-                  className={`${styles.radioCardIcon} ${
-                    migrationStrategy === 'domino_hardware_swap' ? styles.radioCardIconSelected : ''
-                  }`}
-                />
-                <div className={styles.radioCardText}>
-                  <div className={styles.radioCardTitle}>⚡ Domino Hardware Swap</div>
-                  <div className={styles.radioCardDescription}>
-                    Reuse hardware from another cluster being decommissioned
-                  </div>
-                  <div className={styles.radioCardFeatures}>
-                    Zero procurement • Faster deployment • Cost-effective
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* New Hardware Purchase */}
-            <div
-              className={`${styles.radioCard} ${migrationStrategy === 'new_hardware_purchase' ? styles.radioCardSelected : ''}`}
-              onClick={() => setMigrationStrategy('new_hardware_purchase')}
-            >
-              <div className={styles.radioCardContent}>
-                <div className={styles.radioCardRadio}>
-                  <Radio value="new_hardware_purchase" label="" />
-                </div>
-                <ShoppingBagRegular
-                  className={`${styles.radioCardIcon} ${
-                    migrationStrategy === 'new_hardware_purchase' ? styles.radioCardIconSelected : ''
-                  }`}
-                />
-                <div className={styles.radioCardText}>
-                  <div className={styles.radioCardTitle}>🛒 New Hardware Purchase</div>
-                  <div className={styles.radioCardDescription}>
-                    Order new servers from hardware basket
-                  </div>
-                  <div className={styles.radioCardFeatures}>
-                    Latest technology • Warranty support • Custom configuration
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Existing Free Hardware */}
-            <div
-              className={`${styles.radioCard} ${migrationStrategy === 'existing_free_hardware' ? styles.radioCardSelected : ''}`}
-              onClick={() => setMigrationStrategy('existing_free_hardware')}
-            >
-              <div className={styles.radioCardContent}>
-                <div className={styles.radioCardRadio}>
-                  <Radio value="existing_free_hardware" label="" />
-                </div>
-                <ArchiveRegular
-                  className={`${styles.radioCardIcon} ${
-                    migrationStrategy === 'existing_free_hardware' ? styles.radioCardIconSelected : ''
-                  }`}
-                />
-                <div className={styles.radioCardText}>
-                  <div className={styles.radioCardTitle}>📦 Use Existing Free Hardware</div>
-                  <div className={styles.radioCardDescription}>
-                    Allocate hardware from available pool
-                  </div>
-                  <div className={styles.radioCardFeatures}>
-                    Immediate availability • No procurement • Reuse existing assets
-                  </div>
-                </div>
-              </div>
-            </div>
-          </RadioGroup>
+              <PurpleGlassRadio
+                value="domino_hardware_swap"
+                cardVariant
+                cardTitle="⚡ Domino Hardware Swap"
+                cardDescription="Reuse hardware from another cluster being decommissioned"
+                cardIcon={<ArrowSyncRegular />}
+                glass="light"
+              />
+              <PurpleGlassRadio
+                value="new_hardware_purchase"
+                cardVariant
+                cardTitle="🛒 New Hardware Purchase"
+                cardDescription="Order new servers from hardware basket"
+                cardIcon={<ShoppingBagRegular />}
+                glass="light"
+              />
+              <PurpleGlassRadio
+                value="existing_free_hardware"
+                cardVariant
+                cardTitle="📦 Use Existing Free Hardware"
+                cardDescription="Allocate hardware from available pool"
+                cardIcon={<ArchiveRegular />}
+                glass="light"
+              />
+            </PurpleGlassRadioGroup>
+          </div>
 
           {/* Domino Configuration (conditional) */}
           {migrationStrategy === 'domino_hardware_swap' && (
@@ -571,20 +372,15 @@ const Step2_SourceDestination: React.FC = () => {
                 glass="light"
               />
 
-              <Label className={styles.label} style={{ marginTop: tokens.m }}>
-                Hardware Available Date
-              </Label>
-              <Input
-                className={styles.textField}
+              <PurpleGlassInput
+                label="Hardware Available Date"
                 type="date"
                 value={hardwareAvailableDate}
-                onChange={(_, data) => setHardwareAvailableDate(data.value)}
-                size="large"
-                contentBefore={<CalendarRegular />}
+                onChange={(e) => setHardwareAvailableDate(e.target.value)}
+                prefixIcon={<CalendarRegular />}
+                helperText="When will the hardware from the source cluster be available for reuse?"
+                glass="light"
               />
-              <p className={styles.description}>
-                When will the hardware from the source cluster be available for reuse?
-              </p>
             </div>
           )}
 
