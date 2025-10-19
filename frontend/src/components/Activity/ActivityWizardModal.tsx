@@ -17,11 +17,11 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogSurface, DialogBody } from '@fluentui/react-components';
-import { Dismiss24Regular } from '@fluentui/react-icons';
+import { makeStyles, shorthands } from '@fluentui/react-components';
+import { Dismiss24Regular, Warning24Regular } from '@fluentui/react-icons';
 import { WizardProvider } from './ActivityWizard/Context/WizardContext';
 import ActivityWizard from './ActivityWizard/ActivityWizard';
-import { PurpleGlassButton } from '../ui';
+import { PurpleGlassButton, PurpleGlassCard } from '../ui';
 import { tokens } from '../../styles/design-tokens';
 
 // ============================================================================
@@ -54,8 +54,102 @@ export interface ActivityWizardModalProps {
 }
 
 // ============================================================================
-// Styles (removed - now using inline styles for simplicity)
+// Styles
 // ============================================================================
+
+const useUnsavedModalStyles = makeStyles({
+  confirmOverlay: {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(15, 23, 42, 0.55)',
+    backdropFilter: 'blur(12px) saturate(140%)',
+    WebkitBackdropFilter: 'blur(12px) saturate(140%)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: tokens.xxxl,
+    zIndex: 1100,
+
+    '@media (max-width: 768px)': {
+      padding: tokens.l,
+    },
+  },
+
+  confirmWrapper: {
+    width: '100%',
+    maxWidth: '520px',
+  },
+
+  confirmCard: {
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    ...shorthands.gap(tokens.l),
+  },
+
+  confirmHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    ...shorthands.gap(tokens.m),
+  },
+
+  confirmIcon: {
+    width: '48px',
+    height: '48px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: '50%',
+    background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.18) 0%, rgba(99, 102, 241, 0.24) 100%)',
+    color: '#ffffff',
+    boxShadow: '0 12px 24px rgba(99, 102, 241, 0.2)',
+  },
+
+  confirmTitle: {
+    margin: 0,
+    fontFamily: tokens.fontFamilyHeading,
+    fontSize: tokens.fontSizeHero800,
+    lineHeight: tokens.lineHeightHero800,
+    color: tokens.colorNeutralForeground1,
+    letterSpacing: '0.01em',
+  },
+
+  confirmSubtitle: {
+    margin: 0,
+    marginTop: tokens.xs,
+    fontFamily: tokens.fontFamilyBody,
+    fontSize: tokens.fontSizeBase300,
+    color: tokens.colorNeutralForeground2,
+  },
+
+  confirmBody: {
+    fontFamily: tokens.fontFamilyBody,
+    fontSize: tokens.fontSizeBase300,
+    color: tokens.colorNeutralForeground1,
+    lineHeight: tokens.lineHeightBase400,
+    display: 'flex',
+    flexDirection: 'column',
+    ...shorthands.gap(tokens.m),
+  },
+
+  confirmList: {
+    margin: 0,
+    paddingLeft: tokens.l,
+    display: 'flex',
+    flexDirection: 'column',
+    ...shorthands.gap(tokens.xs),
+    color: tokens.colorNeutralForeground2,
+  },
+
+  confirmFooter: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+    ...shorthands.gap(tokens.m),
+  },
+});
 
 // ============================================================================
 // Component
@@ -72,6 +166,7 @@ export const ActivityWizardModal: React.FC<ActivityWizardModalProps> = ({
 }) => {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [showCloseConfirmation, setShowCloseConfirmation] = useState(false);
+  const confirmStyles = useUnsavedModalStyles();
 
   // Reset state when modal closes
   useEffect(() => {
@@ -80,6 +175,23 @@ export const ActivityWizardModal: React.FC<ActivityWizardModalProps> = ({
       setShowCloseConfirmation(false);
     }
   }, [isOpen]);
+
+  // Close unsaved dialog with Escape key
+  useEffect(() => {
+    if (!showCloseConfirmation) {
+      return;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        setShowCloseConfirmation(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [showCloseConfirmation]);
 
   // ============================================================================
   // Handlers
@@ -201,66 +313,58 @@ export const ActivityWizardModal: React.FC<ActivityWizardModalProps> = ({
 
       {/* Close Confirmation Dialog */}
       {showCloseConfirmation && (
-        <Dialog
-          open={showCloseConfirmation}
-          modalType="non-modal"
-          onOpenChange={(_, data) => {
-            if (!data.open) {
-              handleCancelClose();
-            }
-          }}
+        <div
+          className={confirmStyles.confirmOverlay}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="unsaved-changes-title"
+          aria-describedby="unsaved-changes-description"
+          onClick={handleCancelClose}
         >
-          <DialogSurface
-            style={{
-              maxWidth: '500px',
-              padding: tokens.xl,
-              backgroundColor: 'rgba(255, 255, 255, 0.98)',
-              backdropFilter: 'blur(20px) saturate(180%)',
-              borderRadius: '16px',
-              border: '1px solid rgba(139, 92, 246, 0.2)',
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.2) inset',
-            }}
-          >
-            <DialogBody>
-              <h3
-                style={{
-                  fontSize: tokens.fontSizeBase500,
-                  fontWeight: tokens.fontWeightSemibold,
-                  fontFamily: tokens.fontFamilyPrimary,
-                  marginBottom: tokens.m,
-                  color: tokens.colorNeutralForeground1,
-                }}
-              >
-                Unsaved Changes
-              </h3>
-              <p
-                style={{
-                  fontSize: tokens.fontSizeBase300,
-                  fontFamily: tokens.fontFamilyPrimary,
-                  color: tokens.colorNeutralForeground2,
-                  marginBottom: tokens.l,
-                  lineHeight: '1.6',
-                }}
-              >
-                You have unsaved changes. Your progress has been auto-saved as a draft, but are you sure you want to close the wizard?
-              </p>
-              <div
-                style={{
-                  display: 'flex',
-                  gap: tokens.m,
-                  justifyContent: 'flex-end',
-                }}
-              >
-                <PurpleGlassButton variant="secondary" glass onClick={handleCancelClose}>
-                  Continue Editing
-                </PurpleGlassButton>
-                <PurpleGlassButton variant="primary" glass onClick={handleConfirmClose}>
-                  Close Wizard
-                </PurpleGlassButton>
+          <div className={confirmStyles.confirmWrapper} onClick={(event) => event.stopPropagation()}>
+            <PurpleGlassCard
+              variant="elevated"
+              glass
+              padding="large"
+              className={confirmStyles.confirmCard}
+              header={(
+                <div className={confirmStyles.confirmHeader}>
+                  <div className={confirmStyles.confirmIcon}>
+                    <Warning24Regular />
+                  </div>
+                  <div>
+                    <h2 id="unsaved-changes-title" className={confirmStyles.confirmTitle}>
+                      Unsaved Changes
+                    </h2>
+                    <p className={confirmStyles.confirmSubtitle}>
+                      Your latest edits are already saved as a draft.
+                    </p>
+                  </div>
+                </div>
+              )}
+              footer={(
+                <div className={confirmStyles.confirmFooter}>
+                  <PurpleGlassButton variant="secondary" glass onClick={handleCancelClose}>
+                    Continue Editing
+                  </PurpleGlassButton>
+                  <PurpleGlassButton variant="primary" glass onClick={handleConfirmClose}>
+                    Close Wizard
+                  </PurpleGlassButton>
+                </div>
+              )}
+            >
+              <div id="unsaved-changes-description" className={confirmStyles.confirmBody}>
+                <p>
+                  Closing the wizard now will exit your editing session, but your draft remains safely stored so you can resume later without losing any field values.
+                </p>
+                <ul className={confirmStyles.confirmList}>
+                  <li>Find the draft under Projects → Drafts whenever you are ready.</li>
+                  <li>Share the draft with teammates to review before finalizing.</li>
+                </ul>
               </div>
-            </DialogBody>
-          </DialogSurface>
-        </Dialog>
+            </PurpleGlassCard>
+          </div>
+        </div>
       )}
     </>
   );

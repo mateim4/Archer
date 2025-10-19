@@ -33,7 +33,20 @@ import React, { useState, useRef, useEffect, forwardRef } from 'react';
 import { mergeClasses } from '@fluentui/react-components';
 import { ChevronDownRegular, DismissRegular, CheckmarkRegular } from '@fluentui/react-icons';
 import { useDropdownStyles } from './styles/useDropdownStyles';
+import { tokens as designTokens } from '../../styles/design-tokens';
 import type { GlassVariant, ValidationState } from './PurpleGlassInput';
+
+// ============================================================================
+// HELPER CONSTANTS & FUNCTIONS
+// ============================================================================
+
+const dropdownTokens = designTokens.components.dropdown;
+
+const parsePixelValue = (value?: string): number | undefined => {
+  if (!value) return undefined;
+  const parsed = Number.parseFloat(value.replace(/[^0-9.]/g, ''));
+  return Number.isNaN(parsed) ? undefined : parsed;
+};
 
 // ============================================================================
 // TYPE DEFINITIONS
@@ -232,14 +245,60 @@ export const PurpleGlassDropdown = forwardRef<HTMLDivElement, PurpleGlassDropdow
 
     // Calculate menu position when opened
     useEffect(() => {
-      if (isOpen && triggerRef.current) {
-        const rect = triggerRef.current.getBoundingClientRect();
-        setMenuPosition({
-          top: rect.bottom + window.scrollY,
-          left: rect.left + window.scrollX,
-          width: rect.width,
-        });
+      if (!isOpen) {
+        return;
       }
+
+      const updateMenuPosition = () => {
+        if (!triggerRef.current) {
+          return;
+        }
+
+        const rect = triggerRef.current.getBoundingClientRect();
+        const minWidth = parsePixelValue(dropdownTokens.menuMinWidth);
+        const maxWidth = parsePixelValue(dropdownTokens.menuMaxWidth);
+        const viewportPadding = parsePixelValue(dropdownTokens.menuViewportPadding) ?? 16;
+
+        let computedWidth = rect.width;
+        if (minWidth !== undefined) {
+          computedWidth = Math.max(computedWidth, minWidth);
+        }
+        if (maxWidth !== undefined) {
+          computedWidth = Math.min(computedWidth, maxWidth);
+        }
+
+        const pageScrollX = window.scrollX;
+        const pageScrollY = window.scrollY;
+        const viewportLeft = pageScrollX + viewportPadding;
+        const viewportRight = pageScrollX + window.innerWidth - viewportPadding;
+
+        let computedLeft = rect.left + pageScrollX + (rect.width - computedWidth) / 2;
+        if (computedLeft < viewportLeft) {
+          computedLeft = viewportLeft;
+        }
+        if (computedLeft + computedWidth > viewportRight) {
+          computedLeft = Math.max(viewportLeft, viewportRight - computedWidth);
+        }
+
+        const computedTop = rect.bottom + pageScrollY;
+
+        setMenuPosition({
+          top: computedTop,
+          left: computedLeft,
+          width: computedWidth,
+        });
+      };
+
+      const scrollOptions: AddEventListenerOptions = { capture: true };
+
+      updateMenuPosition();
+      window.addEventListener('resize', updateMenuPosition);
+      window.addEventListener('scroll', updateMenuPosition, scrollOptions);
+
+      return () => {
+        window.removeEventListener('resize', updateMenuPosition);
+        window.removeEventListener('scroll', updateMenuPosition, scrollOptions);
+      };
     }, [isOpen]);
 
     // Toggle dropdown

@@ -33,10 +33,12 @@ export const useDropdownStyles = makeStyles({
     ...shorthands.gap(designTokens.xxs),
     width: '100%',
     maxWidth: dropdownTokens.wrapperMaxWidth,
+    minWidth: dropdownTokens.wrapperMinWidth,
     alignSelf: 'flex-start',
 
     [`@media (max-width: ${dropdownTokens.wrapperBreakpoint})`]: {
       maxWidth: '100%',
+      minWidth: '100%',
     },
   },
 
