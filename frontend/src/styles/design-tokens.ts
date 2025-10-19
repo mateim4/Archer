@@ -297,6 +297,53 @@ const componentTokens = {
     dotGradient: 'radial-gradient(circle at center, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.2) 100%)',
     dotShadow: '0 2px 4px rgba(17, 23, 41, 0.25)',
   },
+  selectionCard: {
+    // Card Container States
+    containerBackground: glassEffects.backgroundMedium,
+    containerBackgroundHover: glassEffects.purpleGlassMedium,
+    containerBackgroundChecked: gradients.buttonPrimaryRadial,
+    containerBorder: 'rgba(255, 255, 255, 0.25)',
+    containerBorderHover: 'rgba(255, 255, 255, 0.35)',
+    containerBorderChecked: 'rgba(255, 255, 255, 0.32)',
+    containerBorderRadius: borderRadius.xxxLarge,
+    containerPadding: `${spacing.m} ${spacing.l}`,
+    containerBoxShadow: `${shadows.shadow8}, ${shadows.glowSmall}`,
+    containerBoxShadowHover: `${shadows.shadow16}, ${shadows.glowMedium}`,
+    containerBoxShadowChecked: `${shadows.shadow28}, ${shadows.glowLarge}`,
+    containerTransform: 'translateY(-4px)',
+    containerTransformChecked: 'translateY(-6px)',
+    
+    // Icon Circle States
+    iconWrapperSize: '72px',
+    iconWrapperBackground: 'rgba(255, 255, 255, 0.12)',
+    iconWrapperBackgroundChecked: gradients.buttonPrimary,
+    iconWrapperBorder: 'none',
+    iconWrapperBorderChecked: '2px solid rgba(255, 255, 255, 0.8)',
+    iconWrapperBoxShadow: '0 8px 24px rgba(139, 92, 246, 0.2) inset',
+    iconWrapperBoxShadowChecked: '0 0 24px rgba(139, 92, 246, 0.35)',
+    iconWrapperTransformChecked: 'scale(1.05)',
+    iconSize: '36px',
+    iconColor: purplePalette.purple600,
+    iconColorChecked: '#ffffff',
+    
+    // Text States
+    titleColor: purplePalette.gray900,
+    titleColorChecked: '#ffffff',
+    titleFontSize: typography.fontSizeBase400,
+    titleFontWeight: typography.fontWeightSemibold,
+    descriptionColor: purplePalette.gray700,
+    descriptionColorChecked: 'rgba(255, 255, 255, 0.9)',
+    descriptionFontSize: typography.fontSizeBase200,
+    descriptionLineHeight: typography.lineHeightBase300,
+    
+    // Radio Indicator (visible in top corner)
+    indicatorSize: '20px',
+    indicatorMarginBottom: spacing.s,
+    
+    // Animation
+    transitionDuration: motion.durationNormal,
+    transitionTimingFunction: motion.curveEasyEase,
+  },
   dropdown: {
     triggerBackground: glassEffects.purpleGlassLight,
     triggerBackgroundHover: glassEffects.purpleGlassMedium,

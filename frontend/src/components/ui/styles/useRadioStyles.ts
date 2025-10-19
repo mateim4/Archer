@@ -229,29 +229,30 @@ export const useRadioStyles = makeStyles({
 
   // ============================================================================
   // CARD VARIANT (For wizard-style radio buttons)
+  // Uses designTokens.components.selectionCard for standardized multi-selection UI
   // ============================================================================
   cardContainer: {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
     textAlign: 'center',
-    ...shorthands.padding(designTokens.m, designTokens.l),
-    backgroundColor: designTokens.colorGlassBackground,
+    padding: designTokens.components.selectionCard.containerPadding,
+    backgroundColor: designTokens.components.selectionCard.containerBackground,
     backdropFilter: designTokens.blurMedium,
     WebkitBackdropFilter: designTokens.blurMedium,
-    ...shorthands.border('1px', 'solid', 'rgba(255, 255, 255, 0.25)'),
-    borderRadius: designTokens.xxxLarge,
+    ...shorthands.border('1px', 'solid', designTokens.components.selectionCard.containerBorder),
+    borderRadius: designTokens.components.selectionCard.containerBorderRadius,
     cursor: 'pointer',
     transitionProperty: 'transform, border-color, background-color, box-shadow',
-    transitionDuration: fluentTokens.durationNormal,
-    transitionTimingFunction: fluentTokens.curveEasyEase,
-    boxShadow: `${designTokens.shadow8}, ${designTokens.glowSmall}`,
+    transitionDuration: designTokens.components.selectionCard.transitionDuration,
+    transitionTimingFunction: designTokens.components.selectionCard.transitionTimingFunction,
+    boxShadow: designTokens.components.selectionCard.containerBoxShadow,
 
     ':hover': {
-      transform: 'translateY(-4px)',
-      ...shorthands.border('1px', 'solid', 'rgba(255, 255, 255, 0.35)'),
-      backgroundColor: designTokens.colorGlassPurpleMedium,
-      boxShadow: `${designTokens.shadow16}, ${designTokens.glowMedium}`,
+      transform: designTokens.components.selectionCard.containerTransform,
+      ...shorthands.border('1px', 'solid', designTokens.components.selectionCard.containerBorderHover),
+      backgroundColor: designTokens.components.selectionCard.containerBackgroundHover,
+      boxShadow: designTokens.components.selectionCard.containerBoxShadowHover,
     },
   },
 
@@ -263,10 +264,10 @@ export const useRadioStyles = makeStyles({
   },
 
   cardContainerChecked: {
-    background: designTokens.components.radio.checkedBackground,
-    ...shorthands.border('1px', 'solid', designTokens.components.radio.checkedBorder),
-    boxShadow: designTokens.components.radio.checkedBoxShadow,
-    transform: 'translateY(-6px)',
+    background: designTokens.components.selectionCard.containerBackgroundChecked,
+    ...shorthands.border('1px', 'solid', designTokens.components.selectionCard.containerBorderChecked),
+    boxShadow: designTokens.components.selectionCard.containerBoxShadowChecked,
+    transform: designTokens.components.selectionCard.containerTransformChecked,
   },
 
   cardContainerDisabled: {
@@ -283,61 +284,62 @@ export const useRadioStyles = makeStyles({
 
   cardIndicator: {
     alignSelf: 'flex-start',
-    marginBottom: designTokens.s,
+    marginBottom: designTokens.components.selectionCard.indicatorMarginBottom,
   },
 
   cardIconWrapper: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    width: '72px',
-    height: '72px',
+    width: designTokens.components.selectionCard.iconWrapperSize,
+    height: designTokens.components.selectionCard.iconWrapperSize,
     marginBottom: designTokens.s,
     borderRadius: '50%',
-    backgroundColor: 'rgba(255, 255, 255, 0.12)',
-    boxShadow: '0 8px 24px rgba(139, 92, 246, 0.2) inset',
-    color: designTokens.colorBrandPrimary,
-    fontSize: '36px',
-    transitionProperty: 'transform, color, box-shadow, background-color, opacity',
-    transitionDuration: fluentTokens.durationNormal,
-    transitionTimingFunction: fluentTokens.curveEasyEase,
+    backgroundColor: designTokens.components.selectionCard.iconWrapperBackground,
+    ...shorthands.border('none'),
+    boxShadow: designTokens.components.selectionCard.iconWrapperBoxShadow,
+    color: designTokens.components.selectionCard.iconColor,
+    fontSize: designTokens.components.selectionCard.iconSize,
+    transitionProperty: 'transform, color, box-shadow, background-color, border',
+    transitionDuration: designTokens.components.selectionCard.transitionDuration,
+    transitionTimingFunction: designTokens.components.selectionCard.transitionTimingFunction,
   },
 
   cardIconChecked: {
-    background: designTokens.components.button.primary.background,
-    color: '#ffffff',
-    ...shorthands.border('2px', 'solid', 'rgba(255, 255, 255, 0.8)'),
-    boxShadow: '0 0 24px rgba(139, 92, 246, 0.35)',
-    transform: 'scale(1.05)',
+    background: designTokens.components.selectionCard.iconWrapperBackgroundChecked,
+    color: designTokens.components.selectionCard.iconColorChecked,
+    ...shorthands.border(designTokens.components.selectionCard.iconWrapperBorderChecked),
+    boxShadow: designTokens.components.selectionCard.iconWrapperBoxShadowChecked,
+    transform: designTokens.components.selectionCard.iconWrapperTransformChecked,
   },
 
   cardTitle: {
     fontFamily: designTokens.fontFamilyPrimary,
-    fontSize: designTokens.fontSizeBase400,
-    fontWeight: designTokens.fontWeightSemibold,
-    color: designTokens.colorNeutralForeground1,
+    fontSize: designTokens.components.selectionCard.titleFontSize,
+    fontWeight: designTokens.components.selectionCard.titleFontWeight,
+    color: designTokens.components.selectionCard.titleColor,
     marginBottom: designTokens.xs,
     transitionProperty: 'color',
-    transitionDuration: fluentTokens.durationNormal,
-    transitionTimingFunction: fluentTokens.curveEasyEase,
+    transitionDuration: designTokens.components.selectionCard.transitionDuration,
+    transitionTimingFunction: designTokens.components.selectionCard.transitionTimingFunction,
   },
 
   cardTitleChecked: {
-    color: '#ffffff',
+    color: designTokens.components.selectionCard.titleColorChecked,
   },
 
   cardDescription: {
     fontFamily: designTokens.fontFamilyPrimary,
-    fontSize: designTokens.fontSizeBase200,
-    color: designTokens.colorNeutralForeground2,
-    lineHeight: designTokens.lineHeightBase300,
+    fontSize: designTokens.components.selectionCard.descriptionFontSize,
+    color: designTokens.components.selectionCard.descriptionColor,
+    lineHeight: designTokens.components.selectionCard.descriptionLineHeight,
     transitionProperty: 'color',
-    transitionDuration: fluentTokens.durationNormal,
-    transitionTimingFunction: fluentTokens.curveEasyEase,
+    transitionDuration: designTokens.components.selectionCard.transitionDuration,
+    transitionTimingFunction: designTokens.components.selectionCard.transitionTimingFunction,
   },
 
   cardDescriptionChecked: {
-    color: 'rgba(255, 255, 255, 0.9)',
+    color: designTokens.components.selectionCard.descriptionColorChecked,
   },
 
   // ============================================================================
