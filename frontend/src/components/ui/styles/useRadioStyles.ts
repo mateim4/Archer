@@ -317,6 +317,13 @@ export const useRadioStyles = makeStyles({
     fontWeight: designTokens.fontWeightSemibold,
     color: designTokens.colorNeutralForeground1,
     marginBottom: designTokens.xs,
+    transitionProperty: 'color',
+    transitionDuration: fluentTokens.durationNormal,
+    transitionTimingFunction: fluentTokens.curveEasyEase,
+  },
+
+  cardTitleChecked: {
+    color: '#ffffff',
   },
 
   cardDescription: {
@@ -324,6 +331,13 @@ export const useRadioStyles = makeStyles({
     fontSize: designTokens.fontSizeBase200,
     color: designTokens.colorNeutralForeground2,
     lineHeight: designTokens.lineHeightBase300,
+    transitionProperty: 'color',
+    transitionDuration: fluentTokens.durationNormal,
+    transitionTimingFunction: fluentTokens.curveEasyEase,
+  },
+
+  cardDescriptionChecked: {
+    color: 'rgba(255, 255, 255, 0.9)',
   },
 
   // ============================================================================

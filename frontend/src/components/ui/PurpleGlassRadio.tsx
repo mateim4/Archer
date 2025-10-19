@@ -361,9 +361,17 @@ export const PurpleGlassRadio = forwardRef<HTMLInputElement, PurpleGlassRadioPro
 
           {cardIcon && <div className={iconClasses}>{cardIcon}</div>}
 
-          {cardTitle && <div className={styles.cardTitle}>{cardTitle}</div>}
+          {cardTitle && (
+            <div className={mergeClasses(styles.cardTitle, isChecked && styles.cardTitleChecked)}>
+              {cardTitle}
+            </div>
+          )}
 
-          {cardDescription && <div className={styles.cardDescription}>{cardDescription}</div>}
+          {cardDescription && (
+            <div className={mergeClasses(styles.cardDescription, isChecked && styles.cardDescriptionChecked)}>
+              {cardDescription}
+            </div>
+          )}
         </label>
       );
     }
