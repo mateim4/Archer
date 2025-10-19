@@ -5,14 +5,13 @@ import {
   Field,
   Input,
   Textarea,
-  Dropdown,
-  Option,
   MessageBar,
   MessageBarBody,
   makeStyles,
   tokens
 } from '@fluentui/react-components';
 import { ErrorCircleRegular } from '@fluentui/react-icons';
+import { PurpleGlassDropdown } from './ui';
 
 // FIX: TypeScript interfaces for form data
 interface Activity {
@@ -226,42 +225,38 @@ export const CreateActivityForm: React.FC<CreateActivityFormProps> = ({
 
         <div className={styles.formRow}>
           {/* Activity Type */}
-          <Field label="Activity Type" required>
-            <Dropdown
-              value={formData.type}
-              onOptionSelect={(_, data) => 
-                setFormData(prev => ({ ...prev, type: data.optionValue as Activity['type'] }))
-              }
-            >
-              <Option text="Migration" value="migration">Migration</Option>
-              <Option text="Lifecycle Planning" value="lifecycle">Lifecycle Planning</Option>
-              <Option text="Decommissioning" value="decommission">Decommissioning</Option>
-              <Option text="Hardware Customization" value="hardware_customization">Hardware Customization</Option>
-              <Option text="Hardware Refresh" value="hardware_refresh">Hardware Refresh</Option>
-              <Option text="Commissioning" value="commissioning">Commissioning</Option>
-              <Option text="Custom" value="custom">Custom</Option>
-            </Dropdown>
-          </Field>
+          <PurpleGlassDropdown
+            label="Activity Type"
+            required
+            options={[
+              { value: 'migration', label: 'Migration' },
+              { value: 'lifecycle', label: 'Lifecycle Planning' },
+              { value: 'decommission', label: 'Decommissioning' },
+              { value: 'hardware_customization', label: 'Hardware Customization' },
+              { value: 'hardware_refresh', label: 'Hardware Refresh' },
+              { value: 'commissioning', label: 'Commissioning' },
+              { value: 'custom', label: 'Custom' }
+            ]}
+            value={formData.type}
+            onChange={(value) => setFormData(prev => ({ ...prev, type: value as Activity['type'] }))}
+            glass="light"
+          />
 
           {/* Assignee */}
-          <Field 
-            label="Assignee" 
+          <PurpleGlassDropdown
+            label="Assignee"
             required
-            validationState={errors.assignee ? 'error' : 'none'}
-            validationMessage={errors.assignee}
-          >
-            <Dropdown
-              placeholder="Select assignee..."
-              value={formData.assignee}
-              onOptionSelect={(_, data) => 
-                setFormData(prev => ({ ...prev, assignee: data.optionValue as string }))
-              }
-            >
-              {assignees.map(assignee => (
-                <Option key={assignee} text={assignee} value={assignee}>{assignee}</Option>
-              ))}
-            </Dropdown>
-          </Field>
+            placeholder="Select assignee..."
+            options={assignees.map(assignee => ({
+              value: assignee,
+              label: assignee
+            }))}
+            value={formData.assignee}
+            onChange={(value) => setFormData(prev => ({ ...prev, assignee: value as string }))}
+            validationState={errors.assignee ? 'error' : 'default'}
+            helperText={errors.assignee}
+            glass="light"
+          />
         </div>
 
         <div className={styles.formRow}>

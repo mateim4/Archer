@@ -6,8 +6,6 @@ import {
   Label,
   Button,
   Spinner,
-  Combobox,
-  Option,
 } from '@fluentui/react-components';
 import {
   CheckmarkCircleFilled,
@@ -19,6 +17,7 @@ import {
 import { useWizardContext } from '../Context/WizardContext';
 import type { HardwareCompatibilityResult, HardwareSpec, CheckStatus } from '../types/WizardTypes';
 import { tokens } from '../../../../styles/design-tokens';
+import { PurpleGlassDropdown } from '../../../ui';
 
 const useStyles = makeStyles({
   container: {
@@ -399,23 +398,18 @@ const Step3_Infrastructure: React.FC = () => {
 
           {/* Network Speed */}
           <div className={classes.fieldContainer}>
-            <Label className={classes.label} required>
-              Network Speed
-            </Label>
-            <Combobox
-              className={classes.input}
-              value={NETWORK_SPEED_OPTIONS.find((opt) => opt.value === networkSpeed)?.label || ''}
-              selectedOptions={[networkSpeed]}
-              onOptionSelect={(ev, data) => setNetworkSpeed(data.optionValue || '10')}
+            <PurpleGlassDropdown
+              label="Network Speed"
+              required
               placeholder="Select network speed"
-              size="large"
-            >
-              {NETWORK_SPEED_OPTIONS.map((option) => (
-                <Option key={option.value} value={option.value} text={option.label}>
-                  {option.label}
-                </Option>
-              ))}
-            </Combobox>
+              options={NETWORK_SPEED_OPTIONS.map(opt => ({
+                value: opt.value,
+                label: opt.label
+              }))}
+              value={networkSpeed}
+              onChange={(value) => setNetworkSpeed(value as string || '10')}
+              glass="light"
+            />
           </div>
         </div>
 

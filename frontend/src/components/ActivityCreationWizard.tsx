@@ -10,8 +10,6 @@ import {
   Field,
   Input,
   Textarea,
-  Dropdown,
-  Option,
   Card,
   CardHeader,
   CardPreview,
@@ -26,6 +24,7 @@ import {
   makeStyles,
   tokens,
 } from '@fluentui/react-components';
+import { PurpleGlassDropdown } from './ui';
 import {
   AddRegular,
   ArrowLeftRegular,
@@ -771,35 +770,36 @@ export const ActivityCreationWizard: React.FC<WizardProps> = ({
         </Field>
 
         {isCustomActivity && (
-          <Field label="Activity Type" required>
-            <Dropdown
-              value={formData.type}
-              onOptionSelect={(_, data) => setFormData(prev => ({ ...prev, type: data.optionValue as any }))}
-            >
-              <Option text="Migration" value="migration">Migration</Option>
-              <Option text="Lifecycle Planning" value="lifecycle">Lifecycle Planning</Option>
-              <Option text="Decommissioning" value="decommission">Decommissioning</Option>
-              <Option text="Hardware Customization" value="hardware_customization">Hardware Customization</Option>
-              <Option text="Hardware Refresh" value="hardware_refresh">Hardware Refresh</Option>
-              <Option text="Commissioning" value="commissioning">Commissioning</Option>
-              <Option text="Custom" value="custom">Custom</Option>
-            </Dropdown>
-          </Field>
+          <PurpleGlassDropdown
+            label="Activity Type"
+            required
+            options={[
+              { value: 'migration', label: 'Migration' },
+              { value: 'lifecycle', label: 'Lifecycle Planning' },
+              { value: 'decommission', label: 'Decommissioning' },
+              { value: 'hardware_customization', label: 'Hardware Customization' },
+              { value: 'hardware_refresh', label: 'Hardware Refresh' },
+              { value: 'commissioning', label: 'Commissioning' },
+              { value: 'custom', label: 'Custom' }
+            ]}
+            value={formData.type}
+            onChange={(value) => setFormData(prev => ({ ...prev, type: value as any }))}
+            glass="light"
+          />
         )}
 
-        <Field label="Assignee" required>
-          <Dropdown
-            value={formData.assignee}
-            onOptionSelect={(_, data) => setFormData(prev => ({ ...prev, assignee: data.optionValue as string }))}
-            placeholder="Select assignee..."
-          >
-            {availableAssignees.map(assignee => (
-              <Option key={assignee} text={assignee} value={assignee}>
-                {assignee}
-              </Option>
-            ))}
-          </Dropdown>
-        </Field>
+        <PurpleGlassDropdown
+          label="Assignee"
+          required
+          placeholder="Select assignee..."
+          options={availableAssignees.map(assignee => ({
+            value: assignee,
+            label: assignee
+          }))}
+          value={formData.assignee}
+          onChange={(value) => setFormData(prev => ({ ...prev, assignee: value as string }))}
+          glass="light"
+        />
 
         <Field label="Start Date" required>
           <Input

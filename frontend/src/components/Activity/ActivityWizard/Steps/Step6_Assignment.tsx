@@ -5,8 +5,6 @@ import {
   Input,
   Label,
   Button,
-  Combobox,
-  Option,
 } from '@fluentui/react-components';
 import {
   PersonRegular,
@@ -15,8 +13,19 @@ import {
   DeleteRegular,
 } from '@fluentui/react-icons';
 import { useWizardContext } from '../Context/WizardContext';
-import type { Assignment } from '../types/WizardTypes';
 import { tokens } from '../../../../styles/design-tokens';
+import { PurpleGlassDropdown } from '../../../ui';
+
+// ============================================================================
+// Type Definitions
+// ============================================================================
+
+interface Milestone {
+  id: string;
+  name: string;
+  date: string;
+  completed: boolean;
+}
 
 const useStyles = makeStyles({
   container: {
@@ -219,24 +228,17 @@ const Step6_Assignment: React.FC = () => {
         <div className={classes.formGrid}>
           {/* Assigned To */}
           <div className={classes.fieldContainer}>
-            <Label className={classes.label}>
-              <PersonRegular style={{ marginRight: '4px', verticalAlign: 'middle' }} />
-              Assigned To (Optional)
-            </Label>
-            <Combobox
-              className={classes.input}
-              value={MOCK_TEAM_MEMBERS.find((m) => m.id === assignedTo)?.name || ''}
-              selectedOptions={assignedTo ? [assignedTo] : []}
-              onOptionSelect={(ev, data) => setAssignedTo(data.optionValue || '')}
+            <PurpleGlassDropdown
+              label="Assigned To (Optional)"
               placeholder="Select team member"
-              size="large"
-            >
-              {MOCK_TEAM_MEMBERS.map((member) => (
-                <Option key={member.id} value={member.id} text={member.name}>
-                  {member.name}
-                </Option>
-              ))}
-            </Combobox>
+              options={MOCK_TEAM_MEMBERS.map((member) => ({
+                value: member.id,
+                label: member.name
+              }))}
+              value={assignedTo}
+              onChange={(value) => setAssignedTo(value as string || '')}
+              glass="light"
+            />
           </div>
 
           {/* Start Date */}

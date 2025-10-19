@@ -15,8 +15,6 @@ import {
   Label,
   makeStyles,
   shorthands,
-  Combobox,
-  Option,
 } from '@fluentui/react-components';
 import {
   ServerRegular,
@@ -30,6 +28,7 @@ import {
 import { useWizardContext } from '../Context/WizardContext';
 import { InfrastructureType } from '../types/WizardTypes';
 import { tokens } from '../../../../styles/design-tokens';
+import { PurpleGlassDropdown } from '../../../ui';
 
 // ============================================================================
 // Styles
@@ -350,34 +349,26 @@ const Step2_SourceDestination: React.FC = () => {
     <div className={styles.container}>
       {/* Source Cluster */}
       <div className={styles.section}>
-        <Label className={styles.label}>
-          Source Cluster <span style={{ fontWeight: 400, fontSize: '12px' }}>(Optional)</span>
-        </Label>
-        <Combobox
-          className={styles.combobox}
+        <PurpleGlassDropdown
+          label="Source Cluster (Optional)"
           placeholder="Select source cluster..."
-          value={sourceClusterName}
-          selectedOptions={sourceClusterId ? [sourceClusterId] : []}
-          onOptionSelect={handleSourceClusterChange}
-          size="large"
-          clearable
-          positioning={{
-            position: 'below',
-            align: 'start',
-            fallbackPositions: ['above', 'after', 'before'],
+          options={MOCK_CLUSTERS.map((cluster) => ({
+            value: cluster.id,
+            label: `${cluster.name} (${cluster.type})`
+          }))}
+          value={sourceClusterId}
+          onChange={(value) => {
+            const selectedCluster = MOCK_CLUSTERS.find(c => c.id === value);
+            if (selectedCluster) {
+              setSourceClusterId(selectedCluster.id);
+              setSourceClusterName(selectedCluster.name);
+            } else {
+              setSourceClusterId('');
+              setSourceClusterName('');
+            }
           }}
-          listbox={{
-            style: {
-              maxHeight: '300px',
-            },
-          }}
-        >
-          {MOCK_CLUSTERS.map((cluster) => (
-            <Option key={cluster.id} value={cluster.id} text={cluster.name}>
-              {cluster.name} ({cluster.type})
-            </Option>
-          ))}
-        </Combobox>
+          glass="light"
+        />
         <p className={styles.description}>
           Select the cluster you're migrating from. This helps us analyze workload requirements.
         </p>
@@ -543,24 +534,18 @@ const Step2_SourceDestination: React.FC = () => {
           {/* Domino Configuration (conditional) */}
           {migrationStrategy === 'domino_hardware_swap' && (
             <div style={{ marginTop: tokens.xl, display: 'flex', flexDirection: 'column', gap: tokens.l }}>
-              <Label className={styles.label}>
-                Domino Source Cluster
-                <span className={styles.requiredIndicator}>*</span>
-              </Label>
-              <Combobox
-                className={styles.combobox}
+              <PurpleGlassDropdown
+                label="Domino Source Cluster"
                 placeholder="Select cluster to reuse hardware from..."
+                required
+                options={MOCK_CLUSTERS.filter(c => c.id !== sourceClusterId).map((cluster) => ({
+                  value: cluster.id,
+                  label: `${cluster.name} (${cluster.type})`
+                }))}
                 value={dominoSourceCluster}
-                selectedOptions={dominoSourceCluster ? [dominoSourceCluster] : []}
-                onOptionSelect={(_, data) => setDominoSourceCluster(data.optionValue as string || '')}
-                size="large"
-              >
-                {MOCK_CLUSTERS.filter(c => c.id !== sourceClusterId).map((cluster) => (
-                  <Option key={cluster.id} value={cluster.id} text={cluster.name}>
-                    {cluster.name} ({cluster.type})
-                  </Option>
-                ))}
-              </Combobox>
+                onChange={(value) => setDominoSourceCluster(value as string || '')}
+                glass="light"
+              />
               <p className={styles.description}>
                 Select the cluster that will be decommissioned to provide hardware for this migration.
               </p>
@@ -585,32 +570,27 @@ const Step2_SourceDestination: React.FC = () => {
           {/* Hardware Basket Selection (conditional) */}
           {migrationStrategy === 'new_hardware_purchase' && (
             <div style={{ marginTop: tokens.xl, display: 'flex', flexDirection: 'column', gap: tokens.l }}>
-              <Label className={styles.label}>
-                Hardware Basket
-                <span className={styles.requiredIndicator}>*</span>
-              </Label>
-              <Combobox
-                className={styles.combobox}
+              <PurpleGlassDropdown
+                label="Hardware Basket"
                 placeholder="Select hardware basket..."
-                value={hardwareBasketName}
-                selectedOptions={hardwareBasketId ? [hardwareBasketId] : []}
-                onOptionSelect={(_, data) => {
-                  setHardwareBasketId(data.optionValue as string || '');
-                  const selected = data.optionText || '';
-                  setHardwareBasketName(selected);
+                required
+                options={[
+                  { value: 'basket-dell-r760', label: 'Dell PowerEdge R760 Basket (12 models)' },
+                  { value: 'basket-hpe-gen11', label: 'HPE ProLiant Gen11 Basket (8 models)' },
+                  { value: 'basket-lenovo-sr650v3', label: 'Lenovo ThinkSystem SR650 V3 Basket (10 models)' }
+                ]}
+                value={hardwareBasketId}
+                onChange={(value) => {
+                  setHardwareBasketId(value as string || '');
+                  const option = [
+                    { value: 'basket-dell-r760', label: 'Dell PowerEdge R760 Basket' },
+                    { value: 'basket-hpe-gen11', label: 'HPE ProLiant Gen11 Basket' },
+                    { value: 'basket-lenovo-sr650v3', label: 'Lenovo ThinkSystem SR650 V3 Basket' }
+                  ].find(o => o.value === value);
+                  setHardwareBasketName(option?.label || '');
                 }}
-                size="large"
-              >
-                <Option value="basket-dell-r760" text="Dell PowerEdge R760 Basket">
-                  Dell PowerEdge R760 Basket (12 models)
-                </Option>
-                <Option value="basket-hpe-gen11" text="HPE ProLiant Gen11 Basket">
-                  HPE ProLiant Gen11 Basket (8 models)
-                </Option>
-                <Option value="basket-lenovo-sr650v3" text="Lenovo ThinkSystem SR650 V3 Basket">
-                  Lenovo ThinkSystem SR650 V3 Basket (10 models)
-                </Option>
-              </Combobox>
+                glass="light"
+              />
               <p className={styles.description}>
                 Select a pre-configured hardware basket with validated server models.
               </p>
