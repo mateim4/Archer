@@ -1,13 +1,14 @@
 /**
  * Radio Component Styles
  * 
- * Comprehensive styling for radio button components with Fluent UI 2 design tokens.
+ * Comprehensive styling for radio button components with Fluent UI 2 design fluentTokens.
  * Supports glassmorphism variants, validation states, and card-style radio buttons.
  * 
  * @module components/ui/styles/useRadioStyles
  */
 
-import { makeStyles, shorthands, tokens } from '@fluentui/react-components';
+import { makeStyles, shorthands, tokens as fluentTokens } from '@fluentui/react-components';
+import { tokens as designTokens } from '../../../styles/design-tokens';
 
 export const useRadioStyles = makeStyles({
   // ============================================================================
@@ -16,26 +17,26 @@ export const useRadioStyles = makeStyles({
   radioGroup: {
     display: 'flex',
     flexDirection: 'column',
-    ...shorthands.gap(tokens.spacingVerticalS),
+    ...shorthands.gap(fluentTokens.spacingVerticalS),
   },
 
   radioGroupHorizontal: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    ...shorthands.gap(tokens.spacingHorizontalM),
+    ...shorthands.gap(fluentTokens.spacingHorizontalM),
   },
 
   // Group label
   groupLabel: {
-    fontFamily: tokens.fontFamilyBase,
-    fontSize: tokens.fontSizeBase300,
-    fontWeight: tokens.fontWeightSemibold,
-    color: tokens.colorNeutralForeground1,
-    marginBottom: tokens.spacingVerticalXS,
+    fontFamily: fluentTokens.fontFamilyBase,
+    fontSize: fluentTokens.fontSizeBase300,
+    fontWeight: fluentTokens.fontWeightSemibold,
+    color: fluentTokens.colorNeutralForeground1,
+    marginBottom: fluentTokens.spacingVerticalXS,
   },
 
   groupLabelRequired: {
-    color: tokens.colorPaletteRedForeground1,
+    color: fluentTokens.colorPaletteRedForeground1,
   },
 
   // ============================================================================
@@ -44,7 +45,7 @@ export const useRadioStyles = makeStyles({
   radioWrapper: {
     display: 'inline-flex',
     flexDirection: 'column',
-    ...shorthands.gap(tokens.spacingVerticalXXS),
+    ...shorthands.gap(fluentTokens.spacingVerticalXXS),
   },
 
   // ============================================================================
@@ -53,7 +54,7 @@ export const useRadioStyles = makeStyles({
   container: {
     display: 'inline-flex',
     alignItems: 'center',
-    ...shorthands.gap(tokens.spacingHorizontalS),
+    ...shorthands.gap(fluentTokens.spacingHorizontalS),
     cursor: 'pointer',
     position: 'relative',
   },
@@ -74,21 +75,21 @@ export const useRadioStyles = makeStyles({
     width: '20px',
     height: '20px',
     flexShrink: 0,
-    // Subtle frosted glass for unchecked state
-    backgroundColor: 'rgba(255, 255, 255, 0.6)',
-    backdropFilter: 'blur(10px) saturate(120%)',
-    WebkitBackdropFilter: 'blur(10px) saturate(120%)',
-    ...shorthands.border('2px', 'solid', 'rgba(139, 92, 246, 0.3)'),
+    // Subtle frosted glass for unchecked state (design tokens)
+    backgroundColor: designTokens.components.radio.uncheckedBackground,
+    backdropFilter: designTokens.blurLight,
+    WebkitBackdropFilter: designTokens.blurLight,
+    ...shorthands.border('2px', 'solid', designTokens.components.radio.uncheckedBorder),
     ...shorthands.borderRadius('50%'),
     transitionProperty: 'all',
-    transitionDuration: tokens.durationNormal,
-    transitionTimingFunction: tokens.curveEasyEase,
-    boxShadow: '0 2px 6px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
+    transitionDuration: fluentTokens.durationNormal,
+    transitionTimingFunction: fluentTokens.curveEasyEase,
+    boxShadow: designTokens.components.radio.uncheckedBoxShadow,
 
     ':hover': {
-      ...shorthands.border('2px', 'solid', 'rgba(139, 92, 246, 0.5)'),
-      backgroundColor: 'rgba(255, 255, 255, 0.8)',
-      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.15) inset',
+      ...shorthands.border('2px', 'solid', designTokens.components.radio.hoverBorder),
+      backgroundColor: designTokens.components.radio.hoverBackground,
+      boxShadow: designTokens.components.radio.uncheckedBoxShadowHover,
       transform: 'scale(1.05)',
     },
   },
@@ -98,36 +99,40 @@ export const useRadioStyles = makeStyles({
     backgroundColor: 'var(--color-glass-background)',
     backdropFilter: 'var(--blur-light)',
     WebkitBackdropFilter: 'var(--blur-light)',
-    ...shorthands.border(tokens.strokeWidthThin, 'solid', 'rgba(255, 255, 255, 0.2)'),
+    ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', 'rgba(255, 255, 255, 0.2)'),
   },
 
   radioGlassMedium: {
     backgroundColor: 'var(--color-glass-background)',
     backdropFilter: 'var(--blur-medium)',
     WebkitBackdropFilter: 'var(--blur-medium)',
-    ...shorthands.border(tokens.strokeWidthThin, 'solid', 'rgba(255, 255, 255, 0.3)'),
+    ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', 'rgba(255, 255, 255, 0.3)'),
   },
 
   radioGlassHeavy: {
     backgroundColor: 'var(--color-glass-background-heavy)',
     backdropFilter: 'var(--blur-heavy)',
     WebkitBackdropFilter: 'var(--blur-heavy)',
-    ...shorthands.border(tokens.strokeWidthThin, 'solid', 'rgba(255, 255, 255, 0.4)'),
+    ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', 'rgba(255, 255, 255, 0.4)'),
   },
 
   // Checked state - Radial gradient with frosted glass
   radioChecked: {
-    // Radial gradient from purple to indigo (like Add Activity button)
-    background: 'radial-gradient(circle at center, #8b5cf6 0%, #6366f1 100%)',
-    backdropFilter: 'blur(16px) saturate(180%)',
-    WebkitBackdropFilter: 'blur(16px) saturate(180%)',
-    ...shorthands.border('2px', 'solid', 'rgba(255, 255, 255, 0.3)'),
-    boxShadow: '0 4px 12px rgba(139, 92, 246, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.2) inset',
+    background: designTokens.components.radio.checkedBackground,
+    backdropFilter: designTokens.blurHeavy,
+    WebkitBackdropFilter: designTokens.blurHeavy,
+    ...shorthands.border('2px', 'solid', designTokens.components.radio.checkedBorder),
+    boxShadow: designTokens.components.radio.checkedBoxShadow,
 
     ':hover': {
-      background: 'radial-gradient(circle at center, #7c3aed 0%, #4f46e5 100%)',
-      boxShadow: '0 6px 16px rgba(139, 92, 246, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.3) inset',
+      background: designTokens.components.radio.checkedBackgroundHover,
+      boxShadow: designTokens.components.radio.checkedBoxShadowHover,
       transform: 'scale(1.05)',
+    },
+
+    ':active': {
+      background: designTokens.components.radio.checkedBackgroundActive,
+      transform: 'scale(0.98)',
     },
   },
 
@@ -137,33 +142,33 @@ export const useRadioStyles = makeStyles({
     opacity: '0.5',
 
     ':hover': {
-      ...shorthands.border(tokens.strokeWidthThin, 'solid', tokens.colorNeutralStroke1),
-      backgroundColor: tokens.colorNeutralBackground1,
+      ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', fluentTokens.colorNeutralStroke1),
+      backgroundColor: fluentTokens.colorNeutralBackground1,
     },
   },
 
   // Validation states
   radioError: {
-    ...shorthands.border(tokens.strokeWidthThin, 'solid', tokens.colorPaletteRedBorder1),
+    ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', fluentTokens.colorPaletteRedBorder1),
 
     ':hover': {
-      ...shorthands.border(tokens.strokeWidthThin, 'solid', tokens.colorPaletteRedBorder2),
+      ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', fluentTokens.colorPaletteRedBorder2),
     },
   },
 
   radioWarning: {
-    ...shorthands.border(tokens.strokeWidthThin, 'solid', tokens.colorPaletteYellowBorder1),
+    ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', fluentTokens.colorPaletteYellowBorder1),
 
     ':hover': {
-      ...shorthands.border(tokens.strokeWidthThin, 'solid', tokens.colorPaletteYellowBorder2),
+      ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', fluentTokens.colorPaletteYellowBorder2),
     },
   },
 
   radioSuccess: {
-    ...shorthands.border(tokens.strokeWidthThin, 'solid', tokens.colorPaletteGreenBorder1),
+    ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', fluentTokens.colorPaletteGreenBorder1),
 
     ':hover': {
-      ...shorthands.border(tokens.strokeWidthThin, 'solid', tokens.colorPaletteGreenBorder2),
+      ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', fluentTokens.colorPaletteGreenBorder2),
     },
   },
 
@@ -174,13 +179,13 @@ export const useRadioStyles = makeStyles({
     width: '10px',
     height: '10px',
     ...shorthands.borderRadius('50%'),
-    backgroundColor: '#ffffff',
-    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
+    background: designTokens.components.radio.dotGradient,
+    boxShadow: designTokens.components.radio.dotShadow,
     opacity: 0,
     transform: 'scale(0.3)',
     transitionProperty: 'opacity, transform',
-    transitionDuration: tokens.durationFast,
-    transitionTimingFunction: tokens.curveEasyEase,
+    transitionDuration: fluentTokens.durationFast,
+    transitionTimingFunction: fluentTokens.curveEasyEase,
   },
 
   innerDotVisible: {
@@ -200,8 +205,8 @@ export const useRadioStyles = makeStyles({
     cursor: 'pointer',
 
     ':focus-visible + div': {
-      ...shorthands.outline(tokens.strokeWidthThick, 'solid', tokens.colorBrandStroke1),
-      outlineOffset: tokens.spacingHorizontalXXS,
+      ...shorthands.outline(fluentTokens.strokeWidthThick, 'solid', fluentTokens.colorBrandStroke1),
+      outlineOffset: fluentTokens.spacingHorizontalXXS,
     },
   },
 
@@ -209,10 +214,10 @@ export const useRadioStyles = makeStyles({
   // LABEL
   // ============================================================================
   label: {
-    fontFamily: tokens.fontFamilyBase,
-    fontSize: tokens.fontSizeBase300,
-    fontWeight: tokens.fontWeightRegular,
-    color: tokens.colorNeutralForeground1,
+    fontFamily: fluentTokens.fontFamilyBase,
+    fontSize: fluentTokens.fontSizeBase300,
+    fontWeight: fluentTokens.fontWeightRegular,
+    color: fluentTokens.colorNeutralForeground1,
     cursor: 'pointer',
     userSelect: 'none',
   },
@@ -228,32 +233,40 @@ export const useRadioStyles = makeStyles({
   cardContainer: {
     display: 'flex',
     flexDirection: 'column',
-    ...shorthands.padding(tokens.spacingVerticalM, tokens.spacingHorizontalL),
-    backgroundColor: tokens.colorNeutralBackground1,
-    ...shorthands.border(tokens.strokeWidthThin, 'solid', tokens.colorNeutralStroke1),
-    borderRadius: tokens.borderRadiusMedium,
+    alignItems: 'center',
+    textAlign: 'center',
+    ...shorthands.padding(designTokens.m, designTokens.l),
+    backgroundColor: designTokens.colorGlassBackground,
+    backdropFilter: designTokens.blurMedium,
+    WebkitBackdropFilter: designTokens.blurMedium,
+    ...shorthands.border('1px', 'solid', 'rgba(255, 255, 255, 0.25)'),
+    borderRadius: designTokens.xxxLarge,
     cursor: 'pointer',
-    transitionProperty: 'border-color, background-color, box-shadow',
-    transitionDuration: tokens.durationNormal,
-    transitionTimingFunction: tokens.curveEasyEase,
+    transitionProperty: 'transform, border-color, background-color, box-shadow',
+    transitionDuration: fluentTokens.durationNormal,
+    transitionTimingFunction: fluentTokens.curveEasyEase,
+    boxShadow: `${designTokens.shadow8}, ${designTokens.glowSmall}`,
 
     ':hover': {
-      ...shorthands.border(tokens.strokeWidthThin, 'solid', tokens.colorNeutralStroke1Hover),
-      backgroundColor: tokens.colorNeutralBackground1Hover,
+      transform: 'translateY(-4px)',
+      ...shorthands.border('1px', 'solid', 'rgba(255, 255, 255, 0.35)'),
+      backgroundColor: designTokens.colorGlassPurpleMedium,
+      boxShadow: `${designTokens.shadow16}, ${designTokens.glowMedium}`,
     },
   },
 
   cardContainerGlass: {
-    backgroundColor: 'var(--color-glass-background)',
-    backdropFilter: 'var(--blur-medium)',
-    WebkitBackdropFilter: 'var(--blur-medium)',
-    ...shorthands.border(tokens.strokeWidthThin, 'solid', 'rgba(255, 255, 255, 0.3)'),
+    backgroundColor: designTokens.colorGlassPurpleLight,
+    backdropFilter: designTokens.blurMedium,
+    WebkitBackdropFilter: designTokens.blurMedium,
+    ...shorthands.border('1px', 'solid', 'rgba(255, 255, 255, 0.28)'),
   },
 
   cardContainerChecked: {
-    ...shorthands.border(tokens.strokeWidthThick, 'solid', tokens.colorBrandStroke1),
-    backgroundColor: tokens.colorBrandBackground2,
-    boxShadow: 'var(--shadow-glow-small)',
+    background: designTokens.components.radio.checkedBackground,
+    ...shorthands.border('1px', 'solid', designTokens.components.radio.checkedBorder),
+    boxShadow: designTokens.components.radio.checkedBoxShadow,
+    transform: 'translateY(-6px)',
   },
 
   cardContainerDisabled: {
@@ -261,63 +274,89 @@ export const useRadioStyles = makeStyles({
     opacity: '0.5',
 
     ':hover': {
-      ...shorthands.border(tokens.strokeWidthThin, 'solid', tokens.colorNeutralStroke1),
-      backgroundColor: tokens.colorNeutralBackground1,
+      ...shorthands.border('1px', 'solid', 'rgba(255, 255, 255, 0.25)'),
+      backgroundColor: designTokens.colorGlassBackground,
+      transform: 'none',
+      boxShadow: `${designTokens.shadow8}, ${designTokens.glowSmall}`,
     },
   },
 
-  cardHeader: {
+  cardIndicator: {
+    alignSelf: 'flex-start',
+    marginBottom: designTokens.s,
+  },
+
+  cardIconWrapper: {
     display: 'flex',
     alignItems: 'center',
-    ...shorthands.gap(tokens.spacingHorizontalS),
-    marginBottom: tokens.spacingVerticalXS,
+    justifyContent: 'center',
+    width: '72px',
+    height: '72px',
+    marginBottom: designTokens.s,
+    borderRadius: '50%',
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    boxShadow: '0 8px 24px rgba(139, 92, 246, 0.2) inset',
+    color: designTokens.colorBrandPrimary,
+    fontSize: '36px',
+    transitionProperty: 'transform, color, box-shadow, background-color, opacity',
+    transitionDuration: fluentTokens.durationNormal,
+    transitionTimingFunction: fluentTokens.curveEasyEase,
+  },
+
+  cardIconChecked: {
+    background: designTokens.components.button.primary.background,
+    color: '#ffffff',
+    ...shorthands.border('2px', 'solid', 'rgba(255, 255, 255, 0.8)'),
+    boxShadow: '0 0 24px rgba(139, 92, 246, 0.35)',
+    transform: 'scale(1.05)',
   },
 
   cardTitle: {
-    fontFamily: tokens.fontFamilyBase,
-    fontSize: tokens.fontSizeBase400,
-    fontWeight: tokens.fontWeightSemibold,
-    color: tokens.colorNeutralForeground1,
+    fontFamily: designTokens.fontFamilyPrimary,
+    fontSize: designTokens.fontSizeBase400,
+    fontWeight: designTokens.fontWeightSemibold,
+    color: designTokens.colorNeutralForeground1,
+    marginBottom: designTokens.xs,
   },
 
   cardDescription: {
-    fontFamily: tokens.fontFamilyBase,
-    fontSize: tokens.fontSizeBase300,
-    color: tokens.colorNeutralForeground3,
-    lineHeight: tokens.lineHeightBase300,
+    fontFamily: designTokens.fontFamilyPrimary,
+    fontSize: designTokens.fontSizeBase200,
+    color: designTokens.colorNeutralForeground2,
+    lineHeight: designTokens.lineHeightBase300,
   },
 
   // ============================================================================
   // HELPER TEXT
   // ============================================================================
   helperText: {
-    fontFamily: tokens.fontFamilyBase,
-    fontSize: tokens.fontSizeBase200,
-    marginTop: tokens.spacingVerticalXXS,
+    fontFamily: fluentTokens.fontFamilyBase,
+    fontSize: fluentTokens.fontSizeBase200,
+    marginTop: fluentTokens.spacingVerticalXXS,
   },
 
   helperTextDefault: {
-    color: tokens.colorNeutralForeground3,
+    color: fluentTokens.colorNeutralForeground3,
   },
 
   helperTextError: {
-    color: tokens.colorPaletteRedForeground1,
+    color: fluentTokens.colorPaletteRedForeground1,
   },
 
   helperTextWarning: {
-    color: tokens.colorPaletteYellowForeground1,
+    color: fluentTokens.colorPaletteYellowForeground1,
   },
 
   helperTextSuccess: {
-    color: tokens.colorPaletteGreenForeground1,
+    color: fluentTokens.colorPaletteGreenForeground1,
   },
 
   // Group helper text
   groupHelperText: {
-    fontFamily: tokens.fontFamilyBase,
-    fontSize: tokens.fontSizeBase200,
-    color: tokens.colorNeutralForeground3,
-    marginTop: tokens.spacingVerticalXXS,
+    fontFamily: fluentTokens.fontFamilyBase,
+    fontSize: fluentTokens.fontSizeBase200,
+    color: fluentTokens.colorNeutralForeground3,
+    marginTop: fluentTokens.spacingVerticalXXS,
   },
 });
 

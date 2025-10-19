@@ -35,7 +35,6 @@ import {
   DialogActions,
   Input,
   Dropdown,
-  Option,
   makeStyles,
   tokens,
   shorthands,
@@ -52,6 +51,7 @@ import {
   Settings24Regular,
   DocumentText24Regular,
 } from '@fluentui/react-icons';
+import { PurpleGlassDropdown } from '../components/ui';
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Group } from '@visx/group';
 import { Bar as VisxBar } from '@visx/shape';
@@ -185,6 +185,11 @@ export const HardwareLifecycleView: React.FC = () => {
     { id: 'technical', name: 'Technical Deep Dive', description: 'Detailed technical specifications and metrics' },
     { id: 'migration', name: 'Migration Roadmap', description: 'Phased migration plan with timelines' },
   ];
+
+  const reportTemplateOptions = reportTemplates.map(template => ({
+    value: template.id,
+    label: template.name,
+  }));
 
   const handleTabSelect = (event: SelectTabEvent, data: SelectTabData) => {
     setSelectedTab(data.value as string);
@@ -642,19 +647,14 @@ export const HardwareLifecycleView: React.FC = () => {
               </div>
 
               <div style={{ marginBottom: tokens.spacingVerticalL }}>
-                <label>
-                  <Text weight="semibold">Default Report Template</Text>
-                  <Dropdown 
-                    defaultSelectedOptions={['default']}
-                    style={{ marginTop: tokens.spacingVerticalS, minWidth: '200px' }}
-                  >
-                    {reportTemplates.map(template => (
-                      <Option key={template.id} value={template.id}>
-                        {template.name}
-                      </Option>
-                    ))}
-                  </Dropdown>
-                </label>
+                <PurpleGlassDropdown
+                  label="Default Report Template"
+                  placeholder="Choose a template"
+                  value={selectedReportTemplate}
+                  onChange={(value) => setSelectedReportTemplate((value as string) || 'default')}
+                  options={reportTemplateOptions}
+                  glass="light"
+                />
               </div>
 
               <div style={{ marginBottom: tokens.spacingVerticalL }}>

@@ -236,6 +236,100 @@ const motion = {
 } as const;
 
 // ============================================================================
+// GRADIENTS
+// ============================================================================
+
+const gradients = {
+  // Purple Gradients
+  purplePrimary: `linear-gradient(135deg, ${purplePalette.purple600} 0%, ${purplePalette.purple800} 100%)`,
+  purpleLight: `linear-gradient(135deg, ${purplePalette.purple400} 0%, ${purplePalette.purple600} 100%)`,
+  purpleSubtle: `linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(99, 102, 241, 0.03) 100%)`,
+  
+  // Button Gradients (225deg for button direction)
+  buttonPrimary: `linear-gradient(225deg, rgba(139, 92, 246, 0.9) 0%, rgba(99, 102, 241, 0.9) 100%)`,
+  buttonPrimaryHover: `linear-gradient(225deg, rgba(139, 92, 246, 0.96) 0%, rgba(99, 102, 241, 0.96) 100%)`,
+  buttonPrimaryActive: `linear-gradient(225deg, rgba(139, 92, 246, 1) 0%, rgba(99, 102, 241, 1) 100%)`,
+  buttonPrimaryRadial: `radial-gradient(circle at center, rgba(139, 92, 246, 0.95) 0%, rgba(99, 102, 241, 0.78) 100%)`,
+  buttonPrimaryRadialHover: `radial-gradient(circle at center, rgba(139, 92, 246, 1) 0%, rgba(79, 70, 229, 0.86) 100%)`,
+  buttonPrimaryRadialActive: `radial-gradient(circle at center, rgba(124, 58, 237, 1) 0%, rgba(67, 56, 202, 0.95) 100%)`,
+  
+  // Glass Gradients (for overlays)
+  glassOverlay: `linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%)`,
+  glassPurple: `linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(99, 102, 241, 0.05) 100%)`,
+
+  // Status Gradients
+  successGradient: `linear-gradient(135deg, #10b981 0%, #059669 100%)`,
+  warningGradient: `linear-gradient(135deg, #f59e0b 0%, #d97706 100%)`,
+  errorGradient: `linear-gradient(135deg, #ef4444 0%, #dc2626 100%)`,
+} as const;
+
+// ============================================================================
+// COMPONENT TOKENS
+// ============================================================================
+
+const componentTokens = {
+  button: {
+    primary: {
+      background: gradients.buttonPrimary,
+      backgroundHover: gradients.buttonPrimaryHover,
+      backgroundActive: gradients.buttonPrimaryActive,
+      textColor: '#ffffff',
+      borderColor: 'rgba(255, 255, 255, 0.28)',
+      backdropFilter: glassEffects.blurMedium,
+      boxShadow: `${shadows.shadow16}, ${shadows.glowMedium}`,
+      boxShadowHover: `${shadows.shadow28}, ${shadows.glowLarge}`,
+      boxShadowActive: `${shadows.shadow8}, ${shadows.glowSmall}`,
+    },
+  },
+  radio: {
+    uncheckedBackground: glassEffects.backgroundMedium,
+    uncheckedBorder: 'rgba(139, 92, 246, 0.35)',
+    uncheckedBoxShadow: '0 2px 6px rgba(17, 23, 41, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
+    uncheckedBoxShadowHover: '0 4px 10px rgba(17, 23, 41, 0.16), 0 0 0 1px rgba(255, 255, 255, 0.15) inset',
+    hoverBackground: glassEffects.backgroundHeavy,
+    hoverBorder: 'rgba(139, 92, 246, 0.55)',
+    checkedBackground: gradients.buttonPrimaryRadial,
+    checkedBackgroundHover: gradients.buttonPrimaryRadialHover,
+    checkedBackgroundActive: gradients.buttonPrimaryRadialActive,
+    checkedBorder: 'rgba(255, 255, 255, 0.32)',
+    checkedBoxShadow: '0 4px 14px rgba(139, 92, 246, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.18) inset',
+    checkedBoxShadowHover: '0 6px 20px rgba(139, 92, 246, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.24) inset',
+    dotGradient: 'radial-gradient(circle at center, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.2) 100%)',
+    dotShadow: '0 2px 4px rgba(17, 23, 41, 0.25)',
+  },
+  dropdown: {
+    triggerBackground: glassEffects.purpleGlassLight,
+    triggerBackgroundHover: glassEffects.purpleGlassMedium,
+    triggerBackgroundActive: glassEffects.purpleGlassHeavy,
+    triggerBorder: 'rgba(255, 255, 255, 0.28)',
+    triggerBorderHover: 'rgba(255, 255, 255, 0.38)',
+    triggerBorderOpen: 'rgba(139, 92, 246, 0.5)',
+    triggerTextColor: purplePalette.gray900,
+    triggerPlaceholderColor: purplePalette.gray500,
+    triggerIconColor: purplePalette.gray600,
+  triggerBoxShadow: `${shadows.shadow8}, 0 0 0 1px rgba(255, 255, 255, 0.12)`,
+  triggerBoxShadowHover: `${shadows.shadow16}, 0 0 0 1px rgba(255, 255, 255, 0.18)`,
+    menuBackground: glassEffects.backgroundMedium,
+    menuBorder: 'rgba(255, 255, 255, 0.24)',
+    menuBoxShadow: `${shadows.shadow16}, ${shadows.glowSmall}`,
+    menuBackdrop: glassEffects.blurMedium,
+    menuDivider: 'rgba(255, 255, 255, 0.2)',
+    optionTextColor: purplePalette.gray900,
+    optionHoverBackground: 'rgba(139, 92, 246, 0.12)',
+    optionActiveBackground: 'rgba(99, 102, 241, 0.16)',
+    optionSelectedBackground: 'rgba(139, 92, 246, 0.22)',
+    optionSelectedColor: purplePalette.purple700,
+    optionDisabledOpacity: 0.45,
+    tagBackground: 'rgba(139, 92, 246, 0.18)',
+    tagColor: purplePalette.purple800,
+    tagRemoveHover: 'rgba(139, 92, 246, 0.25)',
+    searchBackground: glassEffects.backgroundLight,
+    searchBorder: 'rgba(139, 92, 246, 0.35)',
+    searchPlaceholderColor: purplePalette.gray500,
+  },
+} as const;
+
+// ============================================================================
 // SEMANTIC TOKENS (Mapped to our purple theme)
 // ============================================================================
 
@@ -289,30 +383,13 @@ export const tokens = {
 
   // Glass Effects
   ...glassEffects,
+
+  // Component specific design tokens
+  components: componentTokens,
 } as const;
 
 // ============================================================================
 // GRADIENTS
-// ============================================================================
-
-const gradients = {
-  // Purple Gradients
-  purplePrimary: `linear-gradient(135deg, ${purplePalette.purple600} 0%, ${purplePalette.purple800} 100%)`,
-  purpleLight: `linear-gradient(135deg, ${purplePalette.purple400} 0%, ${purplePalette.purple600} 100%)`,
-  purpleSubtle: `linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(99, 102, 241, 0.03) 100%)`,
-  
-  // Glass Gradients (for overlays)
-  glassOverlay: `linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%)`,
-  glassPurple: `linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(99, 102, 241, 0.05) 100%)`,
-
-  // Status Gradients
-  successGradient: `linear-gradient(135deg, #10b981 0%, #059669 100%)`,
-  warningGradient: `linear-gradient(135deg, #f59e0b 0%, #d97706 100%)`,
-  errorGradient: `linear-gradient(135deg, #ef4444 0%, #dc2626 100%)`,
-} as const;
-
-// ============================================================================
-// Z-INDEX SCALE
 // ============================================================================
 
 const zIndex = {
@@ -365,6 +442,7 @@ export {
   borderRadius,
   motion,
   gradients,
+  componentTokens as components,
   zIndex,
   breakpoints,
 };

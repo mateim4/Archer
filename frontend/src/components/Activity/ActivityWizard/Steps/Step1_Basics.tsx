@@ -7,14 +7,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import {
-  Input,
-  Radio,
-  RadioGroup,
-  makeStyles,
-  shorthands,
-  Label,
-} from '@fluentui/react-components';
+import { makeStyles, shorthands } from '@fluentui/react-components';
 import {
   ArrowSyncRegular,
   CloudArrowUpRegular,
@@ -22,7 +15,12 @@ import {
   ResizeRegular,
   WrenchRegular,
 } from '@fluentui/react-icons';
-import { PurpleGlassTextarea, PurpleGlassInput } from '../../../ui';
+import {
+  PurpleGlassTextarea,
+  PurpleGlassInput,
+  PurpleGlassRadioGroup,
+  PurpleGlassRadio,
+} from '../../../ui';
 import { useWizardContext } from '../Context/WizardContext';
 import { ActivityType, ActivityTypeOption } from '../types/WizardTypes';
 import { tokens } from '../../../../styles/design-tokens';
@@ -44,96 +42,11 @@ const useStyles = makeStyles({
     ...shorthands.gap(tokens.m),
   },
 
-  label: {
-    fontSize: tokens.fontSizeBase400,
-    fontWeight: tokens.fontWeightSemibold,
-    color: tokens.colorNeutralForeground1,
-  },
-
-  description: {
-    fontSize: tokens.fontSizeBase300,
-    color: tokens.colorNeutralForeground2,
-    lineHeight: '1.6',
-    marginTop: `-${tokens.s}`,
-  },
-
-  textField: {
-    width: '100%',
-  },
-
-  radioGroup: {
+  radioGrid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
     ...shorthands.gap(tokens.l),
-    justifyContent: 'center',
     width: '100%',
-  },
-
-  typeCard: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center', // Center content vertically
-    ...shorthands.padding(tokens.l),
-    backgroundColor: tokens.colorGlassBackground,
-    backdropFilter: tokens.blurMedium,
-    WebkitBackdropFilter: tokens.blurMedium,
-    ...shorthands.border('2px', 'solid', 'rgba(139, 92, 246, 0.2)'),
-    ...shorthands.borderRadius(tokens.large),
-    cursor: 'pointer',
-    transitionProperty: 'all',
-    transitionDuration: tokens.durationNormal,
-    transitionTimingFunction: tokens.curveEasyEase,
-    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
-    minHeight: '180px',
-    textAlign: 'center',
-
-    ':hover': {
-      transform: 'translateY(-4px)',
-      ...shorthands.borderColor('rgba(139, 92, 246, 0.5)'),
-      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.15) inset',
-    },
-  },
-
-  typeCardSelected: {
-    backgroundColor: 'rgba(139, 92, 246, 0.08)',
-    ...shorthands.borderColor(tokens.colorBrandPrimary),
-    boxShadow: tokens.shadow8,
-  },
-
-  radioContainer: {
-    width: '100%',
-    display: 'flex',
-    justifyContent: 'center',
-    marginBottom: tokens.m,
-  },
-
-  typeCardIcon: {
-    fontSize: '32px',
-    color: tokens.colorBrandPrimary,
-    marginBottom: tokens.s,
-    transition: 'all 0.2s ease-in-out',
-  },
-
-  typeCardIconSelected: {
-    color: tokens.colorBrandPrimary,
-    transform: 'scale(1.1)',
-    background: `linear-gradient(225deg, ${tokens.colorBrandGradientStart} 0%, ${tokens.colorBrandGradientEnd} 100%)`,
-    WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: 'transparent',
-  },
-
-  typeCardTitle: {
-    fontSize: tokens.fontSizeBase400,
-    fontWeight: tokens.fontWeightSemibold,
-    color: tokens.colorNeutralForeground1,
-    marginBottom: tokens.xs,
-  },
-
-  typeCardDescription: {
-    fontSize: tokens.fontSizeBase200,
-    color: tokens.colorNeutralForeground2,
-    lineHeight: '1.5',
   },
 });
 
@@ -153,7 +66,7 @@ const ACTIVITY_TYPE_OPTIONS: ActivityTypeOption[] = [
     type: 'lifecycle',
     label: 'Lifecycle Management',
     description: 'Manage cluster lifecycle and updates',
-    icon: 'ArrowSyncRegular',
+    icon: 'CloudArrowUpRegular',
     color: '#10b981', // Green
   },
   {
@@ -206,11 +119,11 @@ const getIconComponent = (iconName: string) => {
 
 const Step1_Basics: React.FC = () => {
   const styles = useStyles();
-  const { formData, updateStepData, setWizardTitle } = useWizardContext();
+  const { formData, updateStepData } = useWizardContext();
 
-  const [activityName, setActivityName] = useState(formData.step1?.activityName || '');
+  const [activityName, setActivityName] = useState(formData.step1?.activity_name || '');
   const [selectedType, setSelectedType] = useState<ActivityType | undefined>(
-    formData.step1?.activityType
+    formData.step1?.activity_type
   );
   const [description, setDescription] = useState(formData.step1?.description || '');
 
@@ -218,20 +131,15 @@ const Step1_Basics: React.FC = () => {
   // Handlers
   // ============================================================================
 
-  const handleTypeChange = (_: any, data: { value: string }) => {
-    const newType = data.value as ActivityType;
-    setSelectedType(newType);
-    const selectedOption = ACTIVITY_TYPE_OPTIONS.find(opt => opt.type === newType);
-    if (selectedOption) {
-      setWizardTitle(selectedOption.label);
-    }
+  const handleTypeChange = (value: ActivityType) => {
+    setSelectedType(value);
   };
 
   // Update context when form changes
   useEffect(() => {
     updateStepData(1, {
-      activityName: activityName || undefined,
-      activityType: selectedType || undefined,
+      activity_name: activityName || undefined,
+      activity_type: selectedType || undefined,
       description: description || undefined,
     });
   }, [activityName, selectedType, description, updateStepData]);
@@ -257,39 +165,31 @@ const Step1_Basics: React.FC = () => {
 
       {/* Activity Type */}
       <div className={styles.section}>
-        <Label required className={styles.label}>
-          Activity Type
-        </Label>
-        <p className={styles.description}>
-          Select the type of activity you're planning. This determines the workflow and available options.
-        </p>
-
-        <RadioGroup
+        <PurpleGlassRadioGroup
+          required
+          label="Activity Type"
+          helperText="Select the type of activity you're planning. This determines the workflow and available options."
           value={selectedType || ''}
-          onChange={handleTypeChange}
-          className={styles.radioGroup}
+          onChange={(value) => handleTypeChange(value as ActivityType)}
+          orientation="horizontal"
         >
-          {ACTIVITY_TYPE_OPTIONS.map((option) => {
-            const isSelected = selectedType === option.type;
-            const IconComponent = getIconComponent(option.icon);
-            return (
-              <div
-                key={option.type}
-                className={`${styles.typeCard} ${isSelected ? styles.typeCardSelected : ''}`}
-                onClick={() => handleTypeChange(null, { value: option.type })}
-              >
-                <div className={styles.radioContainer}>
-                  <Radio value={option.type} label="" />
-                </div>
-                <IconComponent
-                  className={`${styles.typeCardIcon} ${isSelected ? styles.typeCardIconSelected : ''}`}
+          <div className={styles.radioGrid}>
+            {ACTIVITY_TYPE_OPTIONS.map((option) => {
+              const IconComponent = getIconComponent(option.icon);
+              return (
+                <PurpleGlassRadio
+                  key={option.type}
+                  value={option.type}
+                  cardVariant
+                  cardTitle={option.label}
+                  cardDescription={option.description}
+                  cardIcon={<IconComponent />}
+                  glass="medium"
                 />
-                <div className={styles.typeCardTitle}>{option.label}</div>
-                <div className={styles.typeCardDescription}>{option.description}</div>
-              </div>
-            );
-          })}
-        </RadioGroup>
+              );
+            })}
+          </div>
+        </PurpleGlassRadioGroup>
       </div>
 
       {/* Optional Description */}
