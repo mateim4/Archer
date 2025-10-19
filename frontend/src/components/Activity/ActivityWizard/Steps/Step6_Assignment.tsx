@@ -4,8 +4,10 @@ import {
   shorthands,
   Input,
   Label,
-  Button,
+  Combobox,
+  Option,
 } from '@fluentui/react-components';
+import { PurpleGlassButton } from '../../../ui';
 import {
   PersonRegular,
   CalendarRegular,
@@ -13,19 +15,8 @@ import {
   DeleteRegular,
 } from '@fluentui/react-icons';
 import { useWizardContext } from '../Context/WizardContext';
+import type { Assignment } from '../types/WizardTypes';
 import { tokens } from '../../../../styles/design-tokens';
-import { PurpleGlassDropdown } from '../../../ui';
-
-// ============================================================================
-// Type Definitions
-// ============================================================================
-
-interface Milestone {
-  id: string;
-  name: string;
-  date: string;
-  completed: boolean;
-}
 
 const useStyles = makeStyles({
   container: {
@@ -228,17 +219,24 @@ const Step6_Assignment: React.FC = () => {
         <div className={classes.formGrid}>
           {/* Assigned To */}
           <div className={classes.fieldContainer}>
-            <PurpleGlassDropdown
-              label="Assigned To (Optional)"
+            <Label className={classes.label}>
+              <PersonRegular style={{ marginRight: '4px', verticalAlign: 'middle' }} />
+              Assigned To (Optional)
+            </Label>
+            <Combobox
+              className={classes.input}
+              value={MOCK_TEAM_MEMBERS.find((m) => m.id === assignedTo)?.name || ''}
+              selectedOptions={assignedTo ? [assignedTo] : []}
+              onOptionSelect={(ev, data) => setAssignedTo(data.optionValue || '')}
               placeholder="Select team member"
-              options={MOCK_TEAM_MEMBERS.map((member) => ({
-                value: member.id,
-                label: member.name
-              }))}
-              value={assignedTo}
-              onChange={(value) => setAssignedTo(value as string || '')}
-              glass="light"
-            />
+              size="large"
+            >
+              {MOCK_TEAM_MEMBERS.map((member) => (
+                <Option key={member.id} value={member.id} text={member.name}>
+                  {member.name}
+                </Option>
+              ))}
+            </Combobox>
           </div>
 
           {/* Start Date */}
@@ -283,14 +281,14 @@ const Step6_Assignment: React.FC = () => {
       <div className={classes.milestonesSection}>
         <div className={classes.milestonesHeader}>
           <div className={classes.title}>Milestones (Optional)</div>
-          <Button
+          <PurpleGlassButton
             className={classes.addButton}
-            appearance="primary"
+            variant="primary"
             icon={<AddRegular />}
             onClick={handleAddMilestone}
           >
             Add Milestone
-          </Button>
+          </PurpleGlassButton>
         </div>
         <div className={classes.subtitle}>
           Define key milestones to track progress throughout the migration activity.
@@ -309,9 +307,9 @@ const Step6_Assignment: React.FC = () => {
               <li key={index} className={classes.milestoneCard}>
                 <div className={classes.milestoneHeader}>
                   <div className={classes.milestoneNumber}>Milestone {index + 1}</div>
-                  <Button
+                  <PurpleGlassButton
                     className={classes.deleteButton}
-                    appearance="subtle"
+                    variant="ghost"
                     icon={<DeleteRegular />}
                     onClick={() => handleRemoveMilestone(index)}
                     aria-label="Remove milestone"

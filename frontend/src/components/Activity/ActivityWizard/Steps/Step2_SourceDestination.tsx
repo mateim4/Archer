@@ -16,6 +16,8 @@ import {
   makeStyles,
   shorthands,
 } from '@fluentui/react-components';
+import { PurpleGlassDropdown } from '../../../ui';
+import type { DropdownOption } from '../../../ui/PurpleGlassDropdown';
 import {
   ServerRegular,
   CloudRegular,
@@ -28,7 +30,6 @@ import {
 import { useWizardContext } from '../Context/WizardContext';
 import { InfrastructureType } from '../types/WizardTypes';
 import { tokens } from '../../../../styles/design-tokens';
-import { PurpleGlassDropdown } from '../../../ui';
 
 // ============================================================================
 // Styles
@@ -60,11 +61,6 @@ const useStyles = makeStyles({
     color: tokens.colorNeutralForeground2,
     fontFamily: tokens.fontFamilyPrimary,
     ...shorthands.margin(tokens.xs, 0, 0, 0),
-  },
-
-  combobox: {
-    width: '100%',
-    maxWidth: '600px',
   },
 
   textField: {
@@ -101,25 +97,29 @@ const useStyles = makeStyles({
     transitionProperty: 'all',
     transitionDuration: tokens.durationNormal,
     transitionTimingFunction: tokens.curveEasyEase,
-    boxShadow: tokens.glowSmall,
+    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
     minHeight: '240px',
 
     ':hover': {
       transform: 'translateY(-4px)',
       ...shorthands.borderColor('rgba(139, 92, 246, 0.5)'),
-      boxShadow: tokens.glowMedium,
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.15) inset',
     },
   },
 
   radioCardSelected: {
     backgroundColor: 'rgba(139, 92, 246, 0.08)',
-    ...shorthands.borderColor(tokens.colorBrandPrimary),
+    // Gradient border using border-image
+    ...shorthands.borderStyle('solid'), // Required for border-image
     ...shorthands.borderWidth('2px'),
-    boxShadow: tokens.glowLarge,
+    borderImage: 'linear-gradient(225deg, rgba(139, 92, 246, 1) 0%, rgba(99, 102, 241, 1) 100%) 1',
+    // Neutral shadow for selected state (no purple glow)
+    boxShadow: '0 4px 16px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.2) inset',
 
     ':hover': {
       transform: 'translateY(-4px)',
-      boxShadow: tokens.glowLarge,
+      // Enhanced neutral shadow on hover
+      boxShadow: '0 8px 24px rgba(0, 0, 0, 0.16), 0 0 0 1px rgba(255, 255, 255, 0.25) inset',
     },
   },
   
@@ -129,6 +129,13 @@ const useStyles = makeStyles({
     justifyContent: 'center',
     alignItems: 'center',
     width: '100%',
+    position: 'relative',
+    // Force center alignment by shifting the Radio component
+    '& > *': {
+      position: 'relative',
+      left: '50%',
+      transform: 'translateX(-50%)',
+    },
   },
 
   radioCardContent: {
@@ -142,7 +149,11 @@ const useStyles = makeStyles({
 
   radioCardIcon: {
     fontSize: '48px',
-    color: tokens.colorBrandPrimary,
+    // Gradient text effect using background-clip
+    background: 'linear-gradient(225deg, rgba(139, 92, 246, 1) 0%, rgba(99, 102, 241, 1) 100%)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    backgroundClip: 'text',
     transitionProperty: 'all',
     transitionDuration: tokens.durationNormal,
     transitionTimingFunction: tokens.curveEasyEase,
@@ -151,8 +162,13 @@ const useStyles = makeStyles({
   },
 
   radioCardIconSelected: {
-    color: tokens.colorBrandPrimary,
+    // Enhanced gradient on selection
+    background: 'linear-gradient(225deg, rgba(139, 92, 246, 1) 0%, rgba(99, 102, 241, 1) 100%)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    backgroundClip: 'text',
     transform: 'scale(1.1)',
+    filter: 'brightness(1.2)',
   },
 
   radioCardText: {
@@ -181,7 +197,11 @@ const useStyles = makeStyles({
 
   radioCardFeatures: {
     fontSize: tokens.fontSizeBase100,
-    color: tokens.colorBrandPrimary,
+    // Gradient text effect
+    background: 'linear-gradient(225deg, rgba(139, 92, 246, 1) 0%, rgba(99, 102, 241, 1) 100%)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    backgroundClip: 'text',
     fontFamily: tokens.fontFamilyPrimary,
     fontWeight: tokens.fontWeightMedium,
     ...shorthands.margin(tokens.xs, 0, 0, 0),
@@ -209,11 +229,17 @@ const useStyles = makeStyles({
 // Mock Data (TODO: Replace with API calls)
 // ============================================================================
 
-const MOCK_CLUSTERS = [
-  { id: 'cluster:vmware_prod', name: 'VMware Production Cluster', type: 'VMware vSphere' },
-  { id: 'cluster:vmware_dev', name: 'VMware Development Cluster', type: 'VMware vSphere' },
-  { id: 'cluster:hyperv_prod', name: 'Hyper-V Production Cluster', type: 'Microsoft Hyper-V' },
-  { id: 'cluster:hyperv_test', name: 'Hyper-V Test Cluster', type: 'Microsoft Hyper-V' },
+const CLUSTER_OPTIONS: DropdownOption[] = [
+  { value: 'cluster:vmware_prod', label: 'VMware Production Cluster (VMware vSphere)' },
+  { value: 'cluster:vmware_dev', label: 'VMware Development Cluster (VMware vSphere)' },
+  { value: 'cluster:hyperv_prod', label: 'Hyper-V Production Cluster (Microsoft Hyper-V)' },
+  { value: 'cluster:hyperv_test', label: 'Hyper-V Test Cluster (Microsoft Hyper-V)' },
+];
+
+const HARDWARE_BASKET_OPTIONS: DropdownOption[] = [
+  { value: 'basket-dell-r760', label: 'Dell PowerEdge R760 Basket (12 models)' },
+  { value: 'basket-hpe-gen11', label: 'HPE ProLiant Gen11 Basket (8 models)' },
+  { value: 'basket-lenovo-sr650v3', label: 'Lenovo ThinkSystem SR650 V3 Basket (10 models)' },
 ];
 
 // ============================================================================
@@ -312,24 +338,37 @@ const Step2_SourceDestination: React.FC = () => {
   // Handlers
   // ============================================================================
 
-  const handleSourceClusterChange = (_event: any, data: any) => {
-    const selectedCluster = MOCK_CLUSTERS.find(c => c.id === data.optionValue);
-    if (selectedCluster) {
-      setSourceClusterId(selectedCluster.id);
-      setSourceClusterName(selectedCluster.name);
-    } else if (data.optionValue === undefined || data.optionValue === null) {
-      // Handle clearing/resetting the selection
+  const handleSourceClusterChange = (value: string | string[] | undefined) => {
+    const selectedValue = value as string | undefined;
+    if (selectedValue) {
+      const selectedOption = CLUSTER_OPTIONS.find(opt => opt.value === selectedValue);
+      if (selectedOption) {
+        setSourceClusterId(selectedOption.value);
+        setSourceClusterName(selectedOption.label);
+      }
+    } else {
+      // Handle clearing the selection
       setSourceClusterId('');
       setSourceClusterName('');
     }
   };
 
-  const handleSourceClusterInputChange = (_event: any, data: any) => {
-    // Only update the display value, not the actual selection
-    // This prevents glitching when typing
-    if (data.value === '') {
-      setSourceClusterId('');
-      setSourceClusterName('');
+  const handleDominoSourceClusterChange = (value: string | string[] | undefined) => {
+    const selectedValue = value as string | undefined;
+    setDominoSourceCluster(selectedValue || '');
+  };
+
+  const handleHardwareBasketChange = (value: string | string[] | undefined) => {
+    const selectedValue = value as string | undefined;
+    if (selectedValue) {
+      const selectedOption = HARDWARE_BASKET_OPTIONS.find(opt => opt.value === selectedValue);
+      if (selectedOption) {
+        setHardwareBasketId(selectedOption.value);
+        setHardwareBasketName(selectedOption.label);
+      }
+    } else {
+      setHardwareBasketId('');
+      setHardwareBasketName('');
     }
   };
 
@@ -350,28 +389,15 @@ const Step2_SourceDestination: React.FC = () => {
       {/* Source Cluster */}
       <div className={styles.section}>
         <PurpleGlassDropdown
-          label="Source Cluster (Optional)"
+          label="Source Cluster"
+          helperText="Select the cluster you're migrating from. This helps us analyze workload requirements."
           placeholder="Select source cluster..."
-          options={MOCK_CLUSTERS.map((cluster) => ({
-            value: cluster.id,
-            label: `${cluster.name} (${cluster.type})`
-          }))}
-          value={sourceClusterId}
-          onChange={(value) => {
-            const selectedCluster = MOCK_CLUSTERS.find(c => c.id === value);
-            if (selectedCluster) {
-              setSourceClusterId(selectedCluster.id);
-              setSourceClusterName(selectedCluster.name);
-            } else {
-              setSourceClusterId('');
-              setSourceClusterName('');
-            }
-          }}
+          options={CLUSTER_OPTIONS}
+          value={sourceClusterId || undefined}
+          onChange={handleSourceClusterChange}
+          searchable
           glass="light"
         />
-        <p className={styles.description}>
-          Select the cluster you're migrating from. This helps us analyze workload requirements.
-        </p>
       </div>
 
       {/* Target Infrastructure Type */}
@@ -536,19 +562,14 @@ const Step2_SourceDestination: React.FC = () => {
             <div style={{ marginTop: tokens.xl, display: 'flex', flexDirection: 'column', gap: tokens.l }}>
               <PurpleGlassDropdown
                 label="Domino Source Cluster"
+                helperText="Select the cluster that will be decommissioned to provide hardware for this migration."
                 placeholder="Select cluster to reuse hardware from..."
+                options={CLUSTER_OPTIONS.filter(opt => opt.value !== sourceClusterId)}
+                value={dominoSourceCluster || undefined}
+                onChange={handleDominoSourceClusterChange}
                 required
-                options={MOCK_CLUSTERS.filter(c => c.id !== sourceClusterId).map((cluster) => ({
-                  value: cluster.id,
-                  label: `${cluster.name} (${cluster.type})`
-                }))}
-                value={dominoSourceCluster}
-                onChange={(value) => setDominoSourceCluster(value as string || '')}
                 glass="light"
               />
-              <p className={styles.description}>
-                Select the cluster that will be decommissioned to provide hardware for this migration.
-              </p>
 
               <Label className={styles.label} style={{ marginTop: tokens.m }}>
                 Hardware Available Date
@@ -572,28 +593,14 @@ const Step2_SourceDestination: React.FC = () => {
             <div style={{ marginTop: tokens.xl, display: 'flex', flexDirection: 'column', gap: tokens.l }}>
               <PurpleGlassDropdown
                 label="Hardware Basket"
+                helperText="Select a pre-configured hardware basket with validated server models."
                 placeholder="Select hardware basket..."
+                options={HARDWARE_BASKET_OPTIONS}
+                value={hardwareBasketId || undefined}
+                onChange={handleHardwareBasketChange}
                 required
-                options={[
-                  { value: 'basket-dell-r760', label: 'Dell PowerEdge R760 Basket (12 models)' },
-                  { value: 'basket-hpe-gen11', label: 'HPE ProLiant Gen11 Basket (8 models)' },
-                  { value: 'basket-lenovo-sr650v3', label: 'Lenovo ThinkSystem SR650 V3 Basket (10 models)' }
-                ]}
-                value={hardwareBasketId}
-                onChange={(value) => {
-                  setHardwareBasketId(value as string || '');
-                  const option = [
-                    { value: 'basket-dell-r760', label: 'Dell PowerEdge R760 Basket' },
-                    { value: 'basket-hpe-gen11', label: 'HPE ProLiant Gen11 Basket' },
-                    { value: 'basket-lenovo-sr650v3', label: 'Lenovo ThinkSystem SR650 V3 Basket' }
-                  ].find(o => o.value === value);
-                  setHardwareBasketName(option?.label || '');
-                }}
                 glass="light"
               />
-              <p className={styles.description}>
-                Select a pre-configured hardware basket with validated server models.
-              </p>
               
               {hardwareBasketId && (
                 <div className={styles.infoBox}>

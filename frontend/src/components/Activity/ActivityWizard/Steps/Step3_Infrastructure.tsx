@@ -14,10 +14,10 @@ import {
   PlayRegular,
   ServerRegular,
 } from '@fluentui/react-icons';
+import { PurpleGlassDropdown } from '../../../ui';
 import { useWizardContext } from '../Context/WizardContext';
 import type { HardwareCompatibilityResult, HardwareSpec, CheckStatus } from '../types/WizardTypes';
 import { tokens } from '../../../../styles/design-tokens';
-import { PurpleGlassDropdown } from '../../../ui';
 
 const useStyles = makeStyles({
   container: {
@@ -69,6 +69,14 @@ const useStyles = makeStyles({
     fontFamily: 'Poppins, Montserrat, system-ui, sans-serif',
     fontWeight: tokens.fontWeightSemibold,
     ...shorthands.padding(tokens.m, tokens.xxl),
+    backgroundColor: 'rgba(239, 234, 90, 0.85)',
+    color: 'rgba(0, 0, 0, 1)',
+    ':hover': {
+      backgroundColor: 'rgba(239, 234, 90, 0.95)',
+    },
+    ':active': {
+      backgroundColor: 'rgba(239, 234, 90, 1)',
+    },
   },
   resultsCard: {
     backgroundColor: tokens.colorNeutralBackground1,
@@ -400,15 +408,12 @@ const Step3_Infrastructure: React.FC = () => {
           <div className={classes.fieldContainer}>
             <PurpleGlassDropdown
               label="Network Speed"
-              required
-              placeholder="Select network speed"
-              options={NETWORK_SPEED_OPTIONS.map(opt => ({
-                value: opt.value,
-                label: opt.label
-              }))}
+              options={NETWORK_SPEED_OPTIONS}
               value={networkSpeed}
-              onChange={(value) => setNetworkSpeed(value as string || '10')}
+              onChange={(value) => setNetworkSpeed(value as string)}
+              searchable
               glass="light"
+              required
             />
           </div>
         </div>
