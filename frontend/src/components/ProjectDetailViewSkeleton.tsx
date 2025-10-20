@@ -39,6 +39,140 @@ const useSkeletonStyles = makeStyles({
   contentCard: {
     padding: tokens.spacingVerticalXL,
   },
+  // Layout utilities
+  flexRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    width: '100%',
+  },
+  flexRowCenter: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  flexRowGap: {
+    display: 'flex',
+    gap: tokens.spacingHorizontalS,
+  },
+  flexRowGapWrap: {
+    display: 'flex',
+    gap: tokens.spacingHorizontalL,
+    flexWrap: 'wrap',
+  },
+  flexColumn: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: tokens.spacingVerticalM,
+  },
+  // Skeleton item styles
+  skeletonMarginBottom: {
+    marginBottom: tokens.spacingVerticalS,
+  },
+  skeletonMarginBottomM: {
+    marginBottom: tokens.spacingVerticalM,
+  },
+  skeletonMarginBottomXS: {
+    marginBottom: tokens.spacingVerticalXS,
+  },
+  skeletonWidth70: {
+    marginBottom: tokens.spacingVerticalM,
+    width: '70%',
+  },
+  skeletonWidth120: {
+    width: '120px',
+  },
+  skeletonWidth80: {
+    width: '80px',
+  },
+  skeletonWidth60: {
+    width: '60px',
+  },
+  skeletonWidth100: {
+    width: '100px',
+  },
+  skeletonWidth200: {
+    width: '200px',
+  },
+  skeletonWidth250: {
+    width: '250px',
+  },
+  skeletonWidth300: {
+    width: '300px',
+  },
+  skeletonWidth350: {
+    width: '350px',
+  },
+  skeletonWidth150: {
+    width: '150px',
+  },
+  skeletonWidth40: {
+    marginBottom: tokens.spacingVerticalXS,
+    width: '40px',
+  },
+  skeletonWidth24: {
+    width: '24px',
+  },
+  skeletonCircular: {
+    borderRadius: tokens.borderRadiusCircular,
+  },
+  // Content layout
+  contentGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+    gap: tokens.spacingHorizontalM,
+    marginBottom: tokens.spacingVerticalM,
+  },
+  overviewGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+    gap: tokens.spacingHorizontalL,
+  },
+  timelineContainer: {
+    height: '400px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  timelineInner: {
+    width: '100%',
+    maxWidth: '600px',
+  },
+  timelineRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: tokens.spacingHorizontalM,
+    marginBottom: tokens.spacingVerticalL,
+  },
+  itemRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    paddingBottom: tokens.spacingVerticalS,
+  },
+  itemRowBorder: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    paddingBottom: tokens.spacingVerticalS,
+    borderBottom: `1px solid ${tokens.colorNeutralStroke2}`,
+  },
+  loadingMessage: {
+    textAlign: 'center',
+    marginBottom: tokens.spacingVerticalXL,
+    color: tokens.colorNeutralForeground2,
+  },
+  breadcrumb: {
+    marginBottom: tokens.spacingVerticalL,
+  },
+  marginTopM: {
+    marginTop: tokens.spacingVerticalM,
+  },
+  flex1: {
+    flex: 1,
+  },
+  flex1MarginLeft: {
+    flex: 1,
+    marginLeft: tokens.spacingHorizontalXL,
+  },
 });
 
 // FIX: Project header skeleton with proper Fluent 2 design
@@ -48,61 +182,47 @@ export const ProjectHeaderSkeleton: React.FC = () => {
   return (
     <Card className={styles.headerCard}>
       <CardHeader>
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'flex-start',
-          width: '100%'
-        }}>
-          <div style={{ flex: 1 }}>
+        <div className={styles.flexRow}>
+          <div className={styles.flex1}>
             <Skeleton>
-              <SkeletonItem size={32} style={{ marginBottom: tokens.spacingVerticalS }} />
+              <SkeletonItem size={32} className={styles.skeletonMarginBottom} />
             </Skeleton>
             <Skeleton>
-              <SkeletonItem size={16} style={{ marginBottom: tokens.spacingVerticalM, width: '70%' }} />
+              <SkeletonItem size={16} className={styles.skeletonWidth70} />
             </Skeleton>
-            <div style={{ 
-              display: 'flex', 
-              gap: tokens.spacingHorizontalL,
-              flexWrap: 'wrap'
-            }}>
+            <div className={styles.flexRowGapWrap}>
               {[1, 2, 3].map(i => (
                 <Skeleton key={i}>
-                  <SkeletonItem size={16} style={{ width: '120px' }} />
+                  <SkeletonItem size={16} className={styles.skeletonWidth120} />
                 </Skeleton>
               ))}
             </div>
           </div>
-          <div style={{ display: 'flex', gap: tokens.spacingHorizontalS }}>
+          <div className={styles.flexRowGap}>
             {[1, 2, 3].map(i => (
               <Skeleton key={i}>
-                <SkeletonItem size={32} style={{ width: '80px' }} />
+                <SkeletonItem size={32} className={styles.skeletonWidth80} />
               </Skeleton>
             ))}
           </div>
         </div>
       </CardHeader>
       <CardPreview>
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center',
-          marginTop: tokens.spacingVerticalM
-        }}>
+        <div className={`${styles.flexRowCenter} ${styles.marginTopM}`}>
           <div>
             <Skeleton>
-              <SkeletonItem size={24} style={{ marginBottom: tokens.spacingVerticalXS, width: '60px' }} />
+              <SkeletonItem size={24} className={styles.skeletonWidth60} />
             </Skeleton>
             <Skeleton>
-              <SkeletonItem size={12} style={{ width: '100px' }} />
+              <SkeletonItem size={12} className={styles.skeletonWidth100} />
             </Skeleton>
           </div>
-          <div style={{ flex: 1, marginLeft: tokens.spacingHorizontalXL }}>
+          <div className={styles.flex1MarginLeft}>
             <Skeleton>
-              <SkeletonItem size={8} style={{ marginBottom: tokens.spacingVerticalXS }} />
+              <SkeletonItem size={8} className={styles.skeletonMarginBottomXS} />
             </Skeleton>
             <Skeleton>
-              <SkeletonItem size={12} style={{ width: '200px' }} />
+              <SkeletonItem size={12} className={styles.skeletonWidth200} />
             </Skeleton>
           </div>
         </div>
@@ -120,21 +240,17 @@ export const StatsCardsSkeleton: React.FC = () => {
       {[1, 2, 3, 4].map(index => (
         <Card key={index} className={styles.statsCard}>
           <CardHeader>
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              alignItems: 'center' 
-            }}>
+            <div className={styles.flexRowCenter}>
               <div>
                 <Skeleton>
-                  <SkeletonItem size={24} style={{ marginBottom: tokens.spacingVerticalXS, width: '40px' }} />
+                  <SkeletonItem size={24} className={styles.skeletonWidth40} />
                 </Skeleton>
                 <Skeleton>
-                  <SkeletonItem size={12} style={{ width: '80px' }} />
+                  <SkeletonItem size={12} className={styles.skeletonWidth80} />
                 </Skeleton>
               </div>
               <Skeleton>
-                <SkeletonItem size={40} style={{ borderRadius: tokens.borderRadiusCircular }} />
+                <SkeletonItem size={40} className={styles.skeletonCircular} />
               </Skeleton>
             </div>
           </CardHeader>
@@ -150,10 +266,10 @@ export const TabNavigationSkeleton: React.FC = () => {
 
   return (
     <div className={styles.tabContainer}>
-      <div style={{ display: 'flex', gap: tokens.spacingHorizontalS }}>
+      <div className={styles.flexRowGap}>
         {[1, 2, 3].map(index => (
           <Skeleton key={index}>
-            <SkeletonItem size={32} style={{ width: '100px' }} />
+            <SkeletonItem size={32} className={styles.skeletonWidth100} />
           </Skeleton>
         ))}
       </div>
@@ -169,63 +285,54 @@ export const ActivityListSkeleton: React.FC = () => {
     <Card className={styles.contentCard}>
       <CardHeader>
         <Skeleton>
-          <SkeletonItem size={20} style={{ marginBottom: tokens.spacingVerticalXS, width: '200px' }} />
+          <SkeletonItem size={20} className={styles.skeletonWidth200} />
         </Skeleton>
         <Skeleton>
-          <SkeletonItem size={16} style={{ width: '300px' }} />
+          <SkeletonItem size={16} className={styles.skeletonWidth300} />
         </Skeleton>
       </CardHeader>
       <CardPreview>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: tokens.spacingVerticalM }}>
+        <div className={styles.flexColumn}>
           {[1, 2, 3, 4].map(index => (
             <Card key={index} className={styles.statsCard}>
               <CardHeader>
-                <div style={{ 
-                  display: 'flex', 
-                  justifyContent: 'space-between',
-                  alignItems: 'flex-start'
-                }}>
+                <div className={styles.flexRow}>
                   <div>
                     <Skeleton>
-                      <SkeletonItem size={16} style={{ marginBottom: tokens.spacingVerticalXS, width: '250px' }} />
+                      <SkeletonItem size={16} className={styles.skeletonWidth250} />
                     </Skeleton>
                     <Skeleton>
-                      <SkeletonItem size={12} style={{ width: '80px' }} />
+                      <SkeletonItem size={12} className={styles.skeletonWidth80} />
                     </Skeleton>
                   </div>
-                  <div style={{ display: 'flex', gap: tokens.spacingHorizontalXS }}>
+                  <div className={styles.flexRowGap}>
                     <Skeleton>
-                      <SkeletonItem size={24} style={{ width: '24px' }} />
+                      <SkeletonItem size={24} className={styles.skeletonWidth24} />
                     </Skeleton>
                     <Skeleton>
-                      <SkeletonItem size={24} style={{ width: '24px' }} />
+                      <SkeletonItem size={24} className={styles.skeletonWidth24} />
                     </Skeleton>
                   </div>
                 </div>
               </CardHeader>
               <CardPreview>
-                <div style={{ 
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-                  gap: tokens.spacingHorizontalM,
-                  marginBottom: tokens.spacingVerticalM
-                }}>
+                <div className={styles.contentGrid}>
                   {[1, 2, 3].map(i => (
                     <div key={i}>
                       <Skeleton>
-                        <SkeletonItem size={12} style={{ marginBottom: tokens.spacingVerticalXS, width: '60px' }} />
+                        <SkeletonItem size={12} className={styles.skeletonWidth60} />
                       </Skeleton>
                       <Skeleton>
-                        <SkeletonItem size={16} style={{ width: '100px' }} />
+                        <SkeletonItem size={16} className={styles.skeletonWidth100} />
                       </Skeleton>
                     </div>
                   ))}
                 </div>
                 <Skeleton>
-                  <SkeletonItem size={8} style={{ marginBottom: tokens.spacingVerticalXS }} />
+                  <SkeletonItem size={8} className={styles.skeletonMarginBottomXS} />
                 </Skeleton>
                 <Skeleton>
-                  <SkeletonItem size={12} style={{ width: '60px' }} />
+                  <SkeletonItem size={12} className={styles.skeletonWidth60} />
                 </Skeleton>
               </CardPreview>
             </Card>
@@ -244,30 +351,25 @@ export const TimelineSkeleton: React.FC = () => {
     <Card className={styles.contentCard}>
       <CardHeader>
         <Skeleton>
-          <SkeletonItem size={20} style={{ marginBottom: tokens.spacingVerticalXS, width: '150px' }} />
+          <SkeletonItem size={20} className={styles.skeletonWidth150} />
         </Skeleton>
         <Skeleton>
-          <SkeletonItem size={16} style={{ width: '350px' }} />
+          <SkeletonItem size={16} className={styles.skeletonWidth350} />
         </Skeleton>
       </CardHeader>
       <CardPreview>
-        <div style={{ height: '400px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ width: '100%', maxWidth: '600px' }}>
+        <div className={styles.timelineContainer}>
+          <div className={styles.timelineInner}>
             {[1, 2, 3, 4, 5].map(index => (
-              <div key={index} style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: tokens.spacingHorizontalM,
-                marginBottom: tokens.spacingVerticalL
-              }}>
+              <div key={index} className={styles.timelineRow}>
                 <Skeleton>
-                  <SkeletonItem size={16} style={{ width: '150px' }} />
+                  <SkeletonItem size={16} className={styles.skeletonWidth150} />
                 </Skeleton>
                 <Skeleton>
                   <SkeletonItem size={20} style={{ width: `${Math.random() * 300 + 100}px` }} />
                 </Skeleton>
                 <Skeleton>
-                  <SkeletonItem size={16} style={{ width: '80px' }} />
+                  <SkeletonItem size={16} className={styles.skeletonWidth80} />
                 </Skeleton>
               </div>
             ))}
@@ -283,32 +385,23 @@ export const OverviewSkeleton: React.FC = () => {
   const styles = useSkeletonStyles();
 
   return (
-    <div style={{ 
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-      gap: tokens.spacingHorizontalL
-    }}>
+    <div className={styles.overviewGrid}>
       {[1, 2].map(cardIndex => (
         <Card key={cardIndex} className={styles.statsCard}>
           <CardHeader>
             <Skeleton>
-              <SkeletonItem size={16} style={{ width: '200px' }} />
+              <SkeletonItem size={16} className={styles.skeletonWidth200} />
             </Skeleton>
           </CardHeader>
           <CardPreview>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: tokens.spacingVerticalS }}>
+            <div className={styles.flexColumn}>
               {[1, 2, 3, 4].map(itemIndex => (
-                <div key={itemIndex} style={{ 
-                  display: 'flex', 
-                  justifyContent: 'space-between',
-                  paddingBottom: tokens.spacingVerticalS,
-                  borderBottom: itemIndex < 3 ? `1px solid ${tokens.colorNeutralStroke2}` : 'none'
-                }}>
+                <div key={itemIndex} className={itemIndex < 4 ? styles.itemRowBorder : styles.itemRow}>
                   <Skeleton>
-                    <SkeletonItem size={12} style={{ width: '80px' }} />
+                    <SkeletonItem size={12} className={styles.skeletonWidth80} />
                   </Skeleton>
                   <Skeleton>
-                    <SkeletonItem size={12} style={{ width: '120px' }} />
+                    <SkeletonItem size={12} className={styles.skeletonWidth120} />
                   </Skeleton>
                 </div>
               ))}
@@ -327,18 +420,14 @@ export const ProjectDetailViewSkeleton: React.FC = () => {
   return (
     <main className={styles.container} role="main" aria-label="Loading project details">
       {/* Loading message */}
-      <div style={{ 
-        textAlign: 'center', 
-        marginBottom: tokens.spacingVerticalXL,
-        color: tokens.colorNeutralForeground2
-      }}>
+      <div className={styles.loadingMessage}>
         Loading project details...
       </div>
       
       {/* Breadcrumb skeleton */}
-      <div style={{ marginBottom: tokens.spacingVerticalL }}>
+      <div className={styles.breadcrumb}>
         <Skeleton>
-          <SkeletonItem size={16} style={{ width: '200px' }} />
+          <SkeletonItem size={16} className={styles.skeletonWidth200} />
         </Skeleton>
       </div>
 
