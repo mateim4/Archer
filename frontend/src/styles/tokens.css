@@ -34,11 +34,11 @@
   --font-size-900: 40px;
   --font-size-1000: 68px;
   
-  /* Font Weights (one increment thicker for better readability with Jura) */
-  --font-weight-regular: 500;
-  --font-weight-medium: 600;
-  --font-weight-semibold: 700;
-  --font-weight-bold: 800;
+  /* Font Weights (significantly thicker for better presence with Jura) */
+  --font-weight-regular: 600;
+  --font-weight-medium: 700;
+  --font-weight-semibold: 800;
+  --font-weight-bold: 900;
   
   /* Line Heights */
   --line-height-100: 14px;

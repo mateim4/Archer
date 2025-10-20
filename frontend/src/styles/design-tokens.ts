@@ -139,11 +139,11 @@ const typography = {
   fontSizeHero900: fluentTokens.fontSizeHero900, // 40px
   fontSizeHero1000: fluentTokens.fontSizeHero1000, // 68px
 
-  // Font Weights (one increment thicker for better readability with Jura)
-  fontWeightRegular: fluentTokens.fontWeightMedium,      // 500 (was 400)
-  fontWeightMedium: fluentTokens.fontWeightSemibold,     // 600 (was 500)
-  fontWeightSemibold: fluentTokens.fontWeightBold,       // 700 (was 600)
-  fontWeightBold: '800',                                  // 800 (was 700)
+  // Font Weights (significantly thicker for better presence with Jura)
+  fontWeightRegular: fluentTokens.fontWeightSemibold,    // 600 (was 400, then 500)
+  fontWeightMedium: fluentTokens.fontWeightBold,         // 700 (was 500, then 600)
+  fontWeightSemibold: '800',                              // 800 (was 600, then 700)
+  fontWeightBold: '900',                                  // 900 (was 700, then 800)
 
   // Line Heights
   lineHeightBase100: fluentTokens.lineHeightBase100, // 14px
