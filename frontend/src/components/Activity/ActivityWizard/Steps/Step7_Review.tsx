@@ -30,14 +30,14 @@ const useStyles = makeStyles({
     fontSize: tokens.fontSizeBase600,
     fontWeight: tokens.fontWeightSemibold,
     color: tokens.colorNeutralForeground1,
-    fontFamily: 'Oxanium, system-ui, sans-serif',
+    fontFamily: tokens.fontFamilyBody,
     marginBottom: tokens.s,
   },
   subtitle: {
     fontSize: tokens.fontSizeBase400,
     fontWeight: tokens.fontWeightRegular,
     color: tokens.colorNeutralForeground2,
-    fontFamily: 'Oxanium, system-ui, sans-serif',
+    fontFamily: tokens.fontFamilyBody,
   },
   reviewSection: {
     display: 'flex',
@@ -66,7 +66,7 @@ const useStyles = makeStyles({
     fontSize: tokens.fontSizeBase500,
     fontWeight: tokens.fontWeightSemibold,
     color: tokens.colorNeutralForeground1,
-    fontFamily: 'Oxanium, system-ui, sans-serif',
+    fontFamily: tokens.fontFamilyBody,
   },
   stepNumber: {
     display: 'flex',
@@ -82,7 +82,7 @@ const useStyles = makeStyles({
   },
   editButton: {
     minWidth: 'auto',
-    fontFamily: 'Oxanium, system-ui, sans-serif',
+    fontFamily: tokens.fontFamilyBody,
   },
   fieldGrid: {
     display: 'grid',
@@ -98,7 +98,7 @@ const useStyles = makeStyles({
     fontSize: tokens.fontSizeBase200,
     fontWeight: tokens.fontWeightMedium,
     color: tokens.colorNeutralForeground3,
-    fontFamily: 'Oxanium, system-ui, sans-serif',
+    fontFamily: tokens.fontFamilyBody,
     textTransform: 'uppercase',
     letterSpacing: '0.5px',
   },
@@ -106,7 +106,7 @@ const useStyles = makeStyles({
     fontSize: tokens.fontSizeBase400,
     fontWeight: tokens.fontWeightRegular,
     color: tokens.colorNeutralForeground1,
-    fontFamily: 'Oxanium, system-ui, sans-serif',
+    fontFamily: tokens.fontFamilyBody,
   },
   emptyValue: {
     fontStyle: 'italic',
@@ -119,7 +119,7 @@ const useStyles = makeStyles({
     ...shorthands.borderRadius(tokens.medium),
     fontSize: tokens.fontSizeBase200,
     fontWeight: tokens.fontWeightSemibold,
-    fontFamily: 'Oxanium, system-ui, sans-serif',
+    fontFamily: tokens.fontFamilyBody,
   },
   successBadge: {
     backgroundColor: '#dcfce7',
@@ -143,7 +143,7 @@ const useStyles = makeStyles({
     ...shorthands.gap(tokens.s),
     fontSize: tokens.fontSizeBase300,
     color: tokens.colorNeutralForeground2,
-    fontFamily: 'Oxanium, system-ui, sans-serif',
+    fontFamily: tokens.fontFamilyBody,
   },
   submitSection: {
     display: 'flex',
@@ -158,17 +158,17 @@ const useStyles = makeStyles({
     fontSize: tokens.fontSizeBase500,
     fontWeight: tokens.fontWeightSemibold,
     color: tokens.colorNeutralForeground1,
-    fontFamily: 'Oxanium, system-ui, sans-serif',
+    fontFamily: tokens.fontFamilyBody,
   },
   submitText: {
     fontSize: tokens.fontSizeBase300,
     color: tokens.colorNeutralForeground2,
-    fontFamily: 'Oxanium, system-ui, sans-serif',
+    fontFamily: tokens.fontFamilyBody,
     lineHeight: '1.6',
   },
   submitButton: {
     alignSelf: 'flex-start',
-    fontFamily: 'Oxanium, system-ui, sans-serif',
+    fontFamily: tokens.fontFamilyBody,
     fontWeight: tokens.fontWeightSemibold,
     ...shorthands.padding(tokens.m, tokens.xxxl),
     fontSize: tokens.fontSizeBase400,
@@ -192,13 +192,13 @@ const useStyles = makeStyles({
     fontSize: tokens.fontSizeBase600,
     fontWeight: tokens.fontWeightBold,
     color: '#15803d',
-    fontFamily: 'Oxanium, system-ui, sans-serif',
+    fontFamily: tokens.fontFamilyBody,
     marginBottom: tokens.m,
   },
   successSubtitle: {
     fontSize: tokens.fontSizeBase400,
     color: tokens.colorNeutralForeground2,
-    fontFamily: 'Oxanium, system-ui, sans-serif',
+    fontFamily: tokens.fontFamilyBody,
   },
   errorMessage: {
     ...shorthands.padding(tokens.l),
@@ -206,7 +206,7 @@ const useStyles = makeStyles({
     backgroundColor: '#fee2e2',
     ...shorthands.border('1px', 'solid', '#fca5a5'),
     color: '#b91c1c',
-    fontFamily: 'Oxanium, system-ui, sans-serif',
+    fontFamily: tokens.fontFamilyBody,
     fontSize: tokens.fontSizeBase300,
   },
 });
