@@ -1,0 +1,284 @@
+/**
+ * LCMDesigner CSS Design Tokens
+ * 
+ * CSS variables generated from design-tokens.ts for use in CSS files
+ * Follows Fluent UI 2 principles with purple glass aesthetic
+ * 
+ * Usage:
+ *   .my-element {
+ *     color: var(--color-brand-primary);
+ *     padding: var(--spacing-m);
+ *     font-family: var(--font-family-body);
+ *   }
+ */
+
+:root {
+  /* ========================================================================
+     TYPOGRAPHY
+     ======================================================================== */
+  
+  /* Font Families */
+  --font-family-body: "Oxanium", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-family-heading: "Nasalization", "Oxanium", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-family-monospace: "Fira Code", "Consolas", "Monaco", monospace;
+  
+  /* Font Sizes (Fluent Type Ramp) */
+  --font-size-100: 10px;
+  --font-size-200: 12px;
+  --font-size-300: 14px;
+  --font-size-400: 16px;
+  --font-size-500: 20px;
+  --font-size-600: 24px;
+  --font-size-700: 28px;
+  --font-size-800: 32px;
+  --font-size-900: 40px;
+  --font-size-1000: 68px;
+  
+  /* Font Weights */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  
+  /* Line Heights */
+  --line-height-100: 14px;
+  --line-height-200: 16px;
+  --line-height-300: 20px;
+  --line-height-400: 22px;
+  --line-height-500: 28px;
+  --line-height-600: 32px;
+  --line-height-700: 36px;
+  --line-height-800: 40px;
+  --line-height-900: 52px;
+  --line-height-1000: 92px;
+  
+  /* ========================================================================
+     SPACING (Based on Fluent UI 2)
+     ======================================================================== */
+  
+  --spacing-xxs: 2px;
+  --spacing-xs: 4px;
+  --spacing-s-nudge: 6px;
+  --spacing-s: 8px;
+  --spacing-m-nudge: 10px;
+  --spacing-m: 12px;
+  --spacing-l: 16px;
+  --spacing-xl: 20px;
+  --spacing-xxl: 24px;
+  --spacing-xxxl: 32px;
+  --spacing-xxxxl: 40px;
+  --spacing-xxxxxl: 48px;
+  --spacing-xxxxxxl: 64px;
+  
+  /* ========================================================================
+     PURPLE GLASS COLOR PALETTE
+     ======================================================================== */
+  
+  /* Primary Purple Shades */
+  --color-purple-50: #faf5ff;
+  --color-purple-100: #f3e8ff;
+  --color-purple-200: #e9d5ff;
+  --color-purple-300: #d8b4fe;
+  --color-purple-400: #c084fc;
+  --color-purple-500: #a855f7;
+  --color-purple-600: #8b5cf6;  /* Primary brand */
+  --color-purple-700: #7c3aed;
+  --color-purple-800: #6366f1;  /* Secondary brand */
+  --color-purple-900: #5b21b6;
+  
+  /* Indigo Shades */
+  --color-indigo-50: #eef2ff;
+  --color-indigo-100: #e0e7ff;
+  --color-indigo-200: #c7d2fe;
+  --color-indigo-300: #a5b4fc;
+  --color-indigo-400: #818cf8;
+  --color-indigo-500: #6366f1;
+  --color-indigo-600: #4f46e5;
+  --color-indigo-700: #4338ca;
+  --color-indigo-800: #3730a3;
+  --color-indigo-900: #312e81;
+  
+  /* Neutral Grays */
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1f2937;
+  --color-gray-900: #111827;
+  
+  /* Brand Colors (Aliases) */
+  --color-brand-primary: var(--color-purple-600);
+  --color-brand-secondary: var(--color-purple-800);
+  
+  /* ========================================================================
+     SEMANTIC COLORS
+     ======================================================================== */
+  
+  /* Success (Green) */
+  --color-success-bg: #ecfdf5;
+  --color-success-bg-hover: #d1fae5;
+  --color-success-fg: #065f46;
+  --color-success-fg-subtle: #10b981;
+  --color-success-border: #34d399;
+  --color-success-border-subtle: #6ee7b7;
+  
+  /* Warning (Yellow/Orange) */
+  --color-warning-bg: #fffbeb;
+  --color-warning-bg-hover: #fef3c7;
+  --color-warning-fg: #92400e;
+  --color-warning-fg-subtle: #f59e0b;
+  --color-warning-border: #fbbf24;
+  --color-warning-border-subtle: #fcd34d;
+  
+  /* Error (Red) */
+  --color-error-bg: #fef2f2;
+  --color-error-bg-hover: #fee2e2;
+  --color-error-fg: #991b1b;
+  --color-error-fg-subtle: #ef4444;
+  --color-error-border: #f87171;
+  --color-error-border-subtle: #fca5a5;
+  
+  /* Info (Blue) */
+  --color-info-bg: #eff6ff;
+  --color-info-bg-hover: #dbeafe;
+  --color-info-fg: #1e40af;
+  --color-info-fg-subtle: #3b82f6;
+  --color-info-border: #60a5fa;
+  --color-info-border-subtle: #93c5fd;
+  
+  /* Neutral */
+  --color-neutral-bg: #f9fafb;
+  --color-neutral-bg-hover: #f3f4f6;
+  --color-neutral-fg: #374151;
+  --color-neutral-fg-subtle: #6b7280;
+  --color-neutral-border: #d1d5db;
+  --color-neutral-border-subtle: #e5e7eb;
+  
+  /* ========================================================================
+     GLASSMORPHIC EFFECTS
+     ======================================================================== */
+  
+  /* Backdrop Filters */
+  --glass-blur-light: blur(10px) saturate(120%);
+  --glass-blur-medium: blur(20px) saturate(150%);
+  --glass-blur-heavy: blur(40px) saturate(180%);
+  --glass-blur-extreme: blur(60px) saturate(200%);
+  
+  /* Modal/Dialog Backdrops */
+  --glass-modal-backdrop: blur(12px) saturate(120%);
+  --glass-modal-surface: blur(40px) saturate(180%);
+  
+  /* Background Colors (with transparency) */
+  --glass-bg-light: rgba(255, 255, 255, 0.7);
+  --glass-bg-medium: rgba(255, 255, 255, 0.85);
+  --glass-bg-heavy: rgba(255, 255, 255, 0.95);
+  
+  /* Purple Glass Backgrounds */
+  --glass-purple-light: rgba(139, 92, 246, 0.05);
+  --glass-purple-medium: rgba(139, 92, 246, 0.1);
+  --glass-purple-heavy: rgba(139, 92, 246, 0.15);
+  
+  /* ========================================================================
+     SHADOWS (Purple-tinted)
+     ======================================================================== */
+  
+  /* Elevation Shadows */
+  --shadow-2: 0 1px 2px rgba(139, 92, 246, 0.08);
+  --shadow-4: 0 2px 4px rgba(139, 92, 246, 0.12);
+  --shadow-8: 0 4px 8px rgba(139, 92, 246, 0.15);
+  --shadow-16: 0 8px 16px rgba(139, 92, 246, 0.18);
+  --shadow-28: 0 14px 28px rgba(139, 92, 246, 0.22);
+  --shadow-64: 0 32px 64px rgba(139, 92, 246, 0.28);
+  
+  /* Special Effects */
+  --shadow-glow-small: 0 0 10px rgba(139, 92, 246, 0.3);
+  --shadow-glow-medium: 0 0 20px rgba(139, 92, 246, 0.4);
+  --shadow-glow-large: 0 0 40px rgba(139, 92, 246, 0.5);
+  
+  /* Combined Shadows */
+  --shadow-card: 0 8px 16px rgba(139, 92, 246, 0.15), 0 0 0 1px rgba(139, 92, 246, 0.1);
+  --shadow-card-hover: 0 12px 24px rgba(139, 92, 246, 0.2), 0 0 20px rgba(139, 92, 246, 0.15), 0 0 0 1px rgba(139, 92, 246, 0.2);
+  --shadow-modal: 0 20px 60px rgba(139, 92, 246, 0.25), 0 8px 16px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(139, 92, 246, 0.1);
+  
+  /* ========================================================================
+     BORDER RADIUS
+     ======================================================================== */
+  
+  --border-radius-none: 0;
+  --border-radius-small: 2px;
+  --border-radius-medium: 4px;
+  --border-radius-large: 6px;
+  --border-radius-xlarge: 8px;
+  --border-radius-xxlarge: 12px;
+  --border-radius-xxxlarge: 16px;
+  --border-radius-xxxxlarge: 24px;
+  --border-radius-circular: 9999px;
+  
+  /* ========================================================================
+     ANIMATION/MOTION
+     ======================================================================== */
+  
+  /* Durations */
+  --duration-ultra-fast: 50ms;
+  --duration-faster: 100ms;
+  --duration-fast: 150ms;
+  --duration-normal: 200ms;
+  --duration-gentle: 250ms;
+  --duration-slow: 300ms;
+  --duration-slower: 400ms;
+  --duration-ultra-slow: 500ms;
+  
+  /* Easing Curves */
+  --curve-accelerate-max: cubic-bezier(1, 0, 1, 1);
+  --curve-accelerate-mid: cubic-bezier(0.9, 0.1, 1, 0.2);
+  --curve-accelerate-min: cubic-bezier(0.8, 0, 1, 1);
+  --curve-decelerate-max: cubic-bezier(0, 0, 0, 1);
+  --curve-decelerate-mid: cubic-bezier(0.1, 0.9, 0.2, 1);
+  --curve-decelerate-min: cubic-bezier(0, 0, 0.2, 1);
+  --curve-easy-ease: cubic-bezier(0.33, 0, 0.67, 1);
+  --curve-easy-ease-max: cubic-bezier(0.8, 0, 0.1, 1);
+  --curve-linear: linear;
+  
+  /* ========================================================================
+     GRADIENTS
+     ======================================================================== */
+  
+  /* Purple Gradients */
+  --gradient-purple-primary: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+  --gradient-purple-light: linear-gradient(135deg, #c084fc 0%, #8b5cf6 100%);
+  --gradient-purple-subtle: linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(99, 102, 241, 0.03) 100%);
+  
+  /* Button Gradients */
+  --gradient-button-primary: linear-gradient(225deg, rgba(139, 92, 246, 0.9) 0%, rgba(99, 102, 241, 0.9) 100%);
+  --gradient-button-primary-hover: linear-gradient(225deg, rgba(139, 92, 246, 0.96) 0%, rgba(99, 102, 241, 0.96) 100%);
+  --gradient-button-primary-active: linear-gradient(225deg, rgba(139, 92, 246, 1) 0%, rgba(99, 102, 241, 1) 100%);
+  
+  /* Glass Gradients */
+  --gradient-glass-overlay: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%);
+  --gradient-glass-purple: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(99, 102, 241, 0.05) 100%);
+  
+  /* Status Gradients */
+  --gradient-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  --gradient-warning: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  --gradient-error: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  
+  /* ========================================================================
+     Z-INDEX LAYERS
+     ======================================================================== */
+  
+  --z-base: 0;
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+  --z-notification: 1080;
+  --z-toast: 1090;
+  --z-debug: 9999;
+}

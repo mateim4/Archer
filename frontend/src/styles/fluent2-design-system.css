@@ -10,7 +10,7 @@
 
 /* Force font overrides for FluentProvider components */
 .fui-FluentProvider {
-  font-family: "Oxanium", "Segoe UI Variable", "Segoe UI", system-ui, sans-serif !important;
+  font-family: var(--font-family-body) !important;
 }
 
 .fui-FluentProvider h1,
@@ -22,7 +22,7 @@
 .fui-FluentProvider strong,
 .fui-FluentProvider b,
 .fui-FluentProvider th {
-  font-family: "Nasalization", "Oxanium", "Segoe UI Variable", "Segoe UI", system-ui, sans-serif !important;
+  font-family: var(--font-family-heading) !important;
 }
 
 /* Override Fluent UI Typography components */
@@ -33,7 +33,7 @@
 .fui-Subtitle2,
 .fui-Display,
 .fui-LargeTitle {
-  font-family: "Nasalization", "Oxanium", "Segoe UI Variable", "Segoe UI", system-ui, sans-serif !important;
+  font-family: var(--font-family-heading) !important;
 }
 
 .fui-Body1,
@@ -45,7 +45,7 @@
 .fui-Caption1Stronger,
 .fui-Caption2,
 .fui-Text {
-  font-family: "Oxanium", "Segoe UI Variable", "Segoe UI", system-ui, sans-serif !important;
+  font-family: var(--font-family-body) !important;
 }
 
 /* Provider and Theme System */
@@ -146,8 +146,8 @@
   --fluent-color-stroke-focus: #8b5cf6;
   
   /* === Fluent 2 Typography Scale === */
-  --fluent-font-family-base: "Oxanium", "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
-  --fluent-font-family-heading: "Nasalization", "Oxanium", "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
+  --fluent-font-family-base: var(--font-family-body);
+  --fluent-font-family-heading: var(--font-family-heading);
   --fluent-font-size-100: 10px;   /* Caption 2 */
   --fluent-font-size-200: 12px;   /* Caption 1 */
   --fluent-font-size-300: 14px;   /* Body 1 */

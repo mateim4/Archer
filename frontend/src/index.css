@@ -1,29 +1,17 @@
-/* Import Google Fonts - Oxanium for Fluent UI 2 */
-@import url('https://fonts.googleapis.com/css2?family=Oxanium:wght@300;400;500;600;700&display=swap');
-
-/* Import ONLY Fluent UI 2 Design System */
-@import './styles/fluent2-design-system.css';
-
-/* Import Fluent UI 2 Design System First */
-@import './styles/fluent2-design-system.css';
-
 /* Import Fluent Enhancements - IMPORTANT: This contains the glassmorphic search bar styles */
 @import './fluent-enhancements.css';
-
-/* Import Oxanium Font */
-@import url('https://fonts.googleapis.com/css2?family=Oxanium:wght@300;400;500;600;700;800&display=swap');
 
 /* Modern CSS Reset and Fluent UI 2 Integration */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Oxanium', system-ui, sans-serif !important;
+  font-family: var(--font-family-body) !important;
 }
 
 html, body {
   height: 100%;
-  font-family: 'Oxanium', system-ui, sans-serif !important;
+  font-family: var(--font-family-body) !important;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden; /* Prevent horizontal scrolling */
@@ -44,7 +32,7 @@ html::before, body::before {
   z-index: -1;
 }
 
-/* Force Oxanium on ALL Fluent UI components and elements */
+/* Force design system font on ALL Fluent UI components and elements */
 *,
 *::before,
 *::after,
@@ -82,12 +70,12 @@ button, input, textarea, select, label,
 .fluent2-nav,
 .fluent2-badge,
 .fluent2-toast {
-  font-family: 'Oxanium', system-ui, sans-serif !important;
+  font-family: var(--font-family-body) !important;
 }
 
 /* Override any inherited font families */
 .fui-FluentProvider * {
-  font-family: 'Oxanium', system-ui, sans-serif !important;
+  font-family: var(--font-family-body) !important;
 }
 
 #root {
