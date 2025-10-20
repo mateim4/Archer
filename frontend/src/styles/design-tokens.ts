@@ -119,8 +119,12 @@ const spacing = {
 
 const typography = {
   // Font Families
-  fontFamilyPrimary: '"Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+  fontFamilyBody: '"Oxanium", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+  fontFamilyHeading: '"Nasalization", "Oxanium", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
   fontFamilyMonospace: '"Fira Code", "Consolas", "Monaco", monospace',
+  
+  // Legacy alias for backward compatibility
+  fontFamilyPrimary: '"Oxanium", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
 
   // Font Sizes (Fluent Type Ramp)
   fontSizeBase100: fluentTokens.fontSizeBase100, // 10px
@@ -236,6 +240,195 @@ const motion = {
 } as const;
 
 // ============================================================================
+// GRADIENTS
+// ============================================================================
+
+const gradients = {
+  // Purple Gradients
+  purplePrimary: `linear-gradient(135deg, ${purplePalette.purple600} 0%, ${purplePalette.purple800} 100%)`,
+  purpleLight: `linear-gradient(135deg, ${purplePalette.purple400} 0%, ${purplePalette.purple600} 100%)`,
+  purpleSubtle: `linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(99, 102, 241, 0.03) 100%)`,
+  
+  // Button Gradients (225deg for button direction)
+  buttonPrimary: `linear-gradient(225deg, rgba(139, 92, 246, 0.9) 0%, rgba(99, 102, 241, 0.9) 100%)`,
+  buttonPrimaryHover: `linear-gradient(225deg, rgba(139, 92, 246, 0.96) 0%, rgba(99, 102, 241, 0.96) 100%)`,
+  buttonPrimaryActive: `linear-gradient(225deg, rgba(139, 92, 246, 1) 0%, rgba(99, 102, 241, 1) 100%)`,
+  buttonPrimaryRadial: `radial-gradient(circle at center, rgba(139, 92, 246, 0.95) 0%, rgba(99, 102, 241, 0.78) 100%)`,
+  buttonPrimaryRadialHover: `radial-gradient(circle at center, rgba(139, 92, 246, 1) 0%, rgba(79, 70, 229, 0.86) 100%)`,
+  buttonPrimaryRadialActive: `radial-gradient(circle at center, rgba(124, 58, 237, 1) 0%, rgba(67, 56, 202, 0.95) 100%)`,
+  
+  // Glass Gradients (for overlays)
+  glassOverlay: `linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%)`,
+  glassPurple: `linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(99, 102, 241, 0.05) 100%)`,
+
+  // Status Gradients
+  successGradient: `linear-gradient(135deg, #10b981 0%, #059669 100%)`,
+  warningGradient: `linear-gradient(135deg, #f59e0b 0%, #d97706 100%)`,
+  errorGradient: `linear-gradient(135deg, #ef4444 0%, #dc2626 100%)`,
+} as const;
+
+// ============================================================================
+// COMPONENT TOKENS
+// ============================================================================
+
+const componentTokens = {
+  button: {
+    primary: {
+      background: gradients.buttonPrimary,
+      backgroundHover: gradients.buttonPrimaryHover,
+      backgroundActive: gradients.buttonPrimaryActive,
+      textColor: '#ffffff',
+      borderColor: 'rgba(255, 255, 255, 0.28)',
+      backdropFilter: glassEffects.blurMedium,
+      boxShadow: `${shadows.shadow16}, ${shadows.glowMedium}`,
+      boxShadowHover: `${shadows.shadow28}, ${shadows.glowLarge}`,
+      boxShadowActive: `${shadows.shadow8}, ${shadows.glowSmall}`,
+    },
+  },
+  radio: {
+    uncheckedBackground: glassEffects.backgroundMedium,
+    uncheckedBorder: 'rgba(139, 92, 246, 0.35)',
+    uncheckedBoxShadow: '0 2px 6px rgba(17, 23, 41, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
+    uncheckedBoxShadowHover: '0 4px 10px rgba(17, 23, 41, 0.16), 0 0 0 1px rgba(255, 255, 255, 0.15) inset',
+    hoverBackground: glassEffects.backgroundHeavy,
+    hoverBorder: 'rgba(139, 92, 246, 0.55)',
+    checkedBackground: gradients.buttonPrimaryRadial,
+    checkedBackgroundHover: gradients.buttonPrimaryRadialHover,
+    checkedBackgroundActive: gradients.buttonPrimaryRadialActive,
+    checkedBorder: 'rgba(255, 255, 255, 0.32)',
+    checkedBoxShadow: '0 4px 14px rgba(139, 92, 246, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.18) inset',
+    checkedBoxShadowHover: '0 6px 20px rgba(139, 92, 246, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.24) inset',
+    dotGradient: 'radial-gradient(circle at center, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.2) 100%)',
+    dotShadow: '0 2px 4px rgba(17, 23, 41, 0.25)',
+  },
+  selectionCard: {
+    // Card Container States
+    containerBackground: glassEffects.backgroundMedium,
+    containerBackgroundHover: glassEffects.purpleGlassMedium,
+    containerBackgroundChecked: gradients.buttonPrimaryRadial,
+  containerBorder: 'rgba(255, 255, 255, 0.35)',
+  containerBorderHover: 'rgba(255, 255, 255, 0.5)',
+  containerBorderChecked: 'rgba(255, 255, 255, 0.6)',
+    containerBorderRadius: borderRadius.xxxLarge,
+    containerPadding: `${spacing.m} ${spacing.l}`,
+  containerBoxShadow: '0 6px 18px rgba(15, 23, 42, 0.12), inset 0 0 0 1px rgba(255, 255, 255, 0.45)',
+  containerBoxShadowHover: '0 10px 28px rgba(15, 23, 42, 0.14), inset 0 0 0 2px rgba(255, 255, 255, 0.65)',
+  containerBoxShadowChecked: '0 14px 36px rgba(15, 23, 42, 0.16), inset 0 0 0 2px rgba(255, 255, 255, 0.75)',
+    containerTransform: 'translateY(-4px)',
+    containerTransformChecked: 'translateY(-6px)',
+    
+    // Icon Circle States
+    iconWrapperSize: '72px',
+    iconWrapperBackground: gradients.glassPurple,
+    iconWrapperBackgroundChecked: gradients.buttonPrimary,
+    iconWrapperBorder: '2px solid rgba(255, 255, 255, 0.65)',
+    iconWrapperBorderChecked: '2px solid rgba(255, 255, 255, 0.9)',
+    iconWrapperBoxShadow: '0 8px 24px rgba(139, 92, 246, 0.2) inset',
+    iconWrapperBoxShadowChecked: '0 0 24px rgba(139, 92, 246, 0.35)',
+    iconWrapperTransformChecked: 'scale(1.05)',
+    iconSize: '36px',
+    iconColor: purplePalette.purple600,
+    iconColorChecked: '#ffffff',
+    
+    // Text States
+    titleColor: purplePalette.gray900,
+    titleColorChecked: '#ffffff',
+    titleFontSize: typography.fontSizeBase400,
+    titleFontWeight: typography.fontWeightSemibold,
+    descriptionColor: purplePalette.gray700,
+    descriptionColorChecked: 'rgba(255, 255, 255, 0.9)',
+    descriptionFontSize: typography.fontSizeBase200,
+    descriptionLineHeight: typography.lineHeightBase300,
+    
+    // Radio Indicator (visible in top corner)
+    indicatorSize: '20px',
+    indicatorMarginBottom: spacing.s,
+    
+    // Animation
+    transitionDuration: motion.durationNormal,
+    transitionTimingFunction: motion.curveEasyEase,
+  },
+  card: {
+    elevatedGlassBackground: 'rgba(255, 255, 255, 0.8)',
+  },
+  input: {
+    background: glassEffects.purpleGlassLight,
+    backgroundHover: glassEffects.purpleGlassMedium,
+    backgroundFocus: glassEffects.purpleGlassHeavy,
+    textColor: purplePalette.gray900,
+    placeholderColor: purplePalette.gray500,
+    borderColor: 'rgba(203, 213, 225, 0.9)',
+    borderColorHover: 'rgba(148, 163, 184, 0.9)',
+    borderColorFocus: 'rgba(139, 92, 246, 0.6)',
+    borderRadius: borderRadius.xxxLarge,
+    boxShadow: '0 12px 32px rgba(15, 23, 42, 0.12)',
+    focusShadow: '0 0 0 4px rgba(139, 92, 246, 0.12)',
+    iconColor: purplePalette.gray600,
+    disabledBackground: glassEffects.backgroundLight,
+    disabledBorderColor: 'rgba(148, 163, 184, 0.45)',
+    disabledTextColor: purplePalette.gray500,
+    paddingVertical: spacing.s,
+    paddingHorizontal: spacing.l,
+    paddingVerticalPx: '8px',
+    paddingHorizontalPx: '16px',
+    iconOffset: spacing.xxxl,
+    iconOffsetPx: '32px',
+  },
+  dropdown: {
+    wrapperMaxWidth: '480px',
+    wrapperMinWidth: '260px',
+    wrapperBreakpoint: '768px',
+    triggerMinHeight: '44px',
+    triggerPaddingVertical: spacing.s,
+    triggerPaddingHorizontal: spacing.l,
+    triggerBackground: glassEffects.purpleGlassLight,
+    triggerBackgroundHover: glassEffects.purpleGlassMedium,
+    triggerBackgroundActive: glassEffects.purpleGlassHeavy,
+    triggerBorder: 'rgba(203, 213, 225, 0.9)',
+    triggerBorderHover: 'rgba(148, 163, 184, 0.9)',
+    triggerBorderOpen: 'rgba(148, 163, 184, 0.9)',
+    triggerTextColor: purplePalette.gray900,
+    triggerPlaceholderColor: purplePalette.gray500,
+    triggerIconColor: purplePalette.gray600,
+    triggerBoxShadow: 'none',
+    triggerBoxShadowHover: 'none',
+  // Restore purple glass panel aesthetic
+  menuBackground: gradients.purpleSubtle,
+    menuBorder: 'rgba(148, 163, 184, 0.45)',
+    menuBoxShadow: '0 18px 36px rgba(15, 23, 42, 0.16)',
+    menuBackdrop: glassEffects.blurHeavy,
+    menuDivider: 'rgba(255, 255, 255, 0.2)',
+    menuMinWidth: '260px',
+    menuMaxWidth: '480px',
+    menuMaxHeight: '320px',
+    menuAnimationDuration: motion.durationFast,
+    menuAnimationCurve: motion.curveEasyEase,
+    menuViewportPadding: '16px',
+    optionTextColor: purplePalette.gray900,
+    optionHoverBackground: 'rgba(30, 30, 45, 0.75)', // Much darker smoky glass on hover
+    optionHoverTextColor: '#ffffff', // White text on hover
+    optionActiveBackground: 'rgba(20, 20, 35, 0.85)', // Even darker on active
+    optionSelectedBackground: 'rgba(139, 92, 246, 0.22)',
+    optionSelectedColor: purplePalette.purple700,
+    optionDisabledOpacity: 0.45,
+  optionPaddingHorizontal: spacing.l,
+  // Logical spacing values (CSS vars) for general usage
+  optionLabelPaddingLeft: spacing.l, // 16px for compact visual indentation
+  searchPaddingHorizontal: spacing.l, // 16px to match option label indentation
+  searchPaddingVertical: spacing.s,
+  // Px-resolved fallbacks for portal content where CSS vars may not resolve
+  optionLabelPaddingLeftPx: '16px',
+  searchPaddingHorizontalPx: '16px',
+    tagBackground: 'rgba(139, 92, 246, 0.18)',
+    tagColor: purplePalette.purple800,
+    tagRemoveHover: 'rgba(139, 92, 246, 0.25)',
+    searchBackground: glassEffects.backgroundLight,
+    searchBorder: 'rgba(139, 92, 246, 0.35)',
+    searchPlaceholderColor: purplePalette.gray500,
+  },
+} as const;
+
+// ============================================================================
 // SEMANTIC TOKENS (Mapped to our purple theme)
 // ============================================================================
 
@@ -289,30 +482,13 @@ export const tokens = {
 
   // Glass Effects
   ...glassEffects,
+
+  // Component specific design tokens
+  components: componentTokens,
 } as const;
 
 // ============================================================================
 // GRADIENTS
-// ============================================================================
-
-const gradients = {
-  // Purple Gradients
-  purplePrimary: `linear-gradient(135deg, ${purplePalette.purple600} 0%, ${purplePalette.purple800} 100%)`,
-  purpleLight: `linear-gradient(135deg, ${purplePalette.purple400} 0%, ${purplePalette.purple600} 100%)`,
-  purpleSubtle: `linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(99, 102, 241, 0.03) 100%)`,
-  
-  // Glass Gradients (for overlays)
-  glassOverlay: `linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%)`,
-  glassPurple: `linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(99, 102, 241, 0.05) 100%)`,
-
-  // Status Gradients
-  successGradient: `linear-gradient(135deg, #10b981 0%, #059669 100%)`,
-  warningGradient: `linear-gradient(135deg, #f59e0b 0%, #d97706 100%)`,
-  errorGradient: `linear-gradient(135deg, #ef4444 0%, #dc2626 100%)`,
-} as const;
-
-// ============================================================================
-// Z-INDEX SCALE
 // ============================================================================
 
 const zIndex = {
@@ -365,6 +541,7 @@ export {
   borderRadius,
   motion,
   gradients,
+  componentTokens as components,
   zIndex,
   breakpoints,
 };

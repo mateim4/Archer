@@ -32,7 +32,7 @@ export const DESIGN_TOKENS = {
 
   // Typography
   typography: {
-    fontFamily: 'Montserrat, -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", system-ui, ui-sans-serif, Helvetica, Arial, sans-serif',
+    fontFamily: 'Oxanium, -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", system-ui, ui-sans-serif, Helvetica, Arial, sans-serif',
     fontSize: {
       xs: '12px',
       sm: '14px',

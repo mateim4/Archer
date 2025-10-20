@@ -407,7 +407,7 @@ const GuidesView: React.FC = () => {
             fontWeight: '600',
             color: '#1f2937',
             marginBottom: '12px',
-            fontFamily: 'Montserrat, sans-serif',
+            fontFamily: 'Oxanium, sans-serif',
             margin: '0 0 12px 0'
           }}>
             No guides found
@@ -420,7 +420,7 @@ const GuidesView: React.FC = () => {
             marginLeft: 'auto',
             marginRight: 'auto',
             lineHeight: '1.6',
-            fontFamily: 'Montserrat, sans-serif'
+            fontFamily: 'Oxanium, sans-serif'
           }}>
             Try adjusting your search terms or filters to find the guides you're looking for.
           </p>
@@ -433,7 +433,7 @@ const GuidesView: React.FC = () => {
               borderRadius: '8px',
               fontSize: '14px',
               fontWeight: '600',
-              fontFamily: 'Montserrat, sans-serif',
+              fontFamily: 'Oxanium, sans-serif',
               cursor: 'pointer'
             }}
             onClick={() => {
@@ -503,7 +503,7 @@ const GuidesView: React.FC = () => {
                     fontWeight: '600',
                     color: '#1f2937',
                     marginBottom: '8px',
-                    fontFamily: 'Montserrat, sans-serif',
+                    fontFamily: 'Oxanium, sans-serif',
                     lineHeight: '1.4',
                     margin: '0 0 8px 0'
                   }}>
@@ -512,7 +512,7 @@ const GuidesView: React.FC = () => {
                   <p style={{
                     fontSize: '14px',
                     color: '#64748b',
-                    fontFamily: 'Montserrat, sans-serif',
+                    fontFamily: 'Oxanium, sans-serif',
                     lineHeight: '1.5',
                     margin: 0
                   }}>
@@ -534,7 +534,7 @@ const GuidesView: React.FC = () => {
                   borderRadius: '12px',
                   background: 'rgba(99, 102, 241, 0.1)',
                   color: '#4f46e5',
-                  fontFamily: 'Montserrat, sans-serif',
+                  fontFamily: 'Oxanium, sans-serif',
                   textTransform: 'capitalize'
                 }}>
                   {guide.category}
@@ -545,7 +545,7 @@ const GuidesView: React.FC = () => {
                   borderRadius: '12px',
                   background: 'rgba(16, 185, 129, 0.1)',
                   color: '#047857',
-                  fontFamily: 'Montserrat, sans-serif',
+                  fontFamily: 'Oxanium, sans-serif',
                   textTransform: 'capitalize'
                 }}>
                   {guide.difficulty}
@@ -557,7 +557,7 @@ const GuidesView: React.FC = () => {
                     borderRadius: '12px',
                     background: 'rgba(107, 114, 128, 0.1)',
                     color: '#374151',
-                    fontFamily: 'Montserrat, sans-serif',
+                    fontFamily: 'Oxanium, sans-serif',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '4px'

@@ -8,7 +8,7 @@
  * - Document library access
  * - Hardware availability tracking
  * 
- * Design System: Fluent UI 2 with glassmorphic cards and Poppins typography
+ * Design System: Fluent UI 2 with glassmorphic cards and Oxanium typography
  */
 
 import React, { useState, useEffect } from 'react';
@@ -90,7 +90,7 @@ const useStyles = makeStyles({
     ...shorthands.padding(tokens.spacingVerticalXL, tokens.spacingHorizontalXL),
     backgroundColor: tokens.colorNeutralBackground3,
     minHeight: '100vh',
-    fontFamily: 'Poppins, Montserrat, system-ui, -apple-system, sans-serif',
+    fontFamily: 'Oxanium, Oxanium, system-ui, -apple-system, sans-serif',
   },
   
   header: {
@@ -145,13 +145,13 @@ const useStyles = makeStyles({
     fontSize: '28px',
     fontWeight: '600',
     color: tokens.colorNeutralForeground1,
-    fontFamily: 'Poppins, sans-serif',
+    fontFamily: 'Oxanium, sans-serif',
   },
   
   metricLabel: {
     fontSize: '13px',
     color: tokens.colorNeutralForeground3,
-    fontFamily: 'Poppins, sans-serif',
+    fontFamily: 'Oxanium, sans-serif',
   },
   
   section: {

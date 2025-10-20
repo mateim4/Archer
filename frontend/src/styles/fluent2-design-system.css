@@ -106,7 +106,8 @@
   --fluent-color-stroke-focus: #8b5cf6;
   
   /* === Fluent 2 Typography Scale === */
-  --fluent-font-family-base: "Poppins", "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
+  --fluent-font-family-base: "Oxanium", "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
+  --fluent-font-family-heading: "Nasalization", "Oxanium", "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
   --fluent-font-size-100: 10px;   /* Caption 2 */
   --fluent-font-size-200: 12px;   /* Caption 1 */
   --fluent-font-size-300: 14px;   /* Body 1 */
@@ -180,7 +181,72 @@
   --fluent-duration-gentle: 250ms;
   --fluent-duration-slow: 300ms;
   --fluent-duration-slower: 400ms;
-  --fluent-duration-ultra-slow: 500ms;
+    --fluent-duration-ultra-slow: 1000ms;
+}
+
+/* ===================
+   GLOBAL TYPOGRAPHY RULES
+   =================== */
+
+/* Apply Oxanium to all body text */
+body,
+p,
+span,
+div,
+button,
+input,
+textarea,
+select,
+a,
+li {
+  font-family: var(--fluent-font-family-base);
+}
+
+/* Apply Nasalization to all headings, titles, and bold text */
+h1, h2, h3, h4, h5, h6,
+.title,
+.heading,
+.subtitle,
+strong,
+b,
+th {
+  font-family: var(--fluent-font-family-heading) !important;
+  font-weight: var(--fluent-font-weight-bold);
+  letter-spacing: 0.02em;
+}
+
+/* Heading specific styles */
+h1 {
+  font-size: var(--fluent-font-size-1000);
+  line-height: var(--fluent-line-height-1000);
+}
+
+h2 {
+  font-size: var(--fluent-font-size-900);
+  line-height: var(--fluent-line-height-900);
+}
+
+h3 {
+  font-size: var(--fluent-font-size-800);
+  line-height: var(--fluent-line-height-800);
+}
+
+h4 {
+  font-size: var(--fluent-font-size-700);
+  line-height: var(--fluent-line-height-700);
+}
+
+h5 {
+  font-size: var(--fluent-font-size-600);
+  line-height: var(--fluent-line-height-600);
+}
+
+h6 {
+  font-size: var(--fluent-font-size-500);
+  line-height: var(--fluent-line-height-500);
+}
+
+/* ===================
 }
 
 /* ===================

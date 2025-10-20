@@ -57,7 +57,7 @@ export const ViewToggleSlider: React.FC<ViewToggleSliderProps> = ({
           style={{
             flex: 1,
             color: String(value) === 'timeline' ? '#ffffff' : '#6b7280',
-            fontFamily: "'Poppins', sans-serif",
+            fontFamily: "'Oxanium', sans-serif",
             fontWeight: '600',
             background: 'none',
             border: 'none',
@@ -78,7 +78,7 @@ export const ViewToggleSlider: React.FC<ViewToggleSliderProps> = ({
           style={{
             flex: 1,
             color: String(value) === 'list' ? '#ffffff' : '#6b7280',
-            fontFamily: "'Poppins', sans-serif",
+            fontFamily: "'Oxanium', sans-serif",
             fontWeight: '600',
             background: 'none',
             border: 'none',

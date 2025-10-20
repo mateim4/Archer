@@ -60,7 +60,7 @@ const useStyles = makeStyles({
     `,
     backgroundAttachment: 'fixed',
     minHeight: '100vh',
-    fontFamily: 'Montserrat, sans-serif',
+    fontFamily: 'Oxanium, sans-serif',
     '@media (max-width: 768px)': {
       padding: '16px'
     }
@@ -93,7 +93,7 @@ const useStyles = makeStyles({
     borderRadius: '12px',
     padding: '12px 20px',
     color: 'white',
-    fontFamily: 'Montserrat, sans-serif',
+    fontFamily: 'Oxanium, sans-serif',
     fontWeight: '600',
     fontSize: '14px',
     cursor: 'pointer',
@@ -117,7 +117,7 @@ const useStyles = makeStyles({
   
   projectTitle: {
     margin: '0 0 8px 0',
-    fontFamily: 'Montserrat, sans-serif',
+    fontFamily: 'Oxanium, sans-serif',
     fontWeight: '700',
     color: '#1f2937',
     fontSize: '28px'
@@ -126,7 +126,7 @@ const useStyles = makeStyles({
   projectDescription: {
     margin: 0,
     color: tokens.colorNeutralForeground3,
-    fontFamily: 'Montserrat, sans-serif',
+    fontFamily: 'Oxanium, sans-serif',
     fontSize: '14px',
     lineHeight: '1.5'
   },
@@ -147,7 +147,7 @@ const useStyles = makeStyles({
     border: 'none',
     borderRadius: '8px',
     padding: '12px 20px',
-    fontFamily: 'Montserrat, sans-serif',
+    fontFamily: 'Oxanium, sans-serif',
     fontWeight: '500',
     fontSize: '14px',
     cursor: 'pointer',
@@ -204,7 +204,7 @@ const useStyles = makeStyles({
     fontSize: '24px',
     fontWeight: '700',
     color: '#1f2937',
-    fontFamily: 'Montserrat, sans-serif',
+    fontFamily: 'Oxanium, sans-serif',
     margin: '8px 0 4px 0'
   },
   
@@ -212,7 +212,7 @@ const useStyles = makeStyles({
     color: tokens.colorNeutralForeground3,
     fontSize: '13px',
     fontWeight: '500',
-    fontFamily: 'Montserrat, sans-serif'
+    fontFamily: 'Oxanium, sans-serif'
   },
   
   workflowGrid: {
@@ -241,7 +241,7 @@ const useStyles = makeStyles({
     fontSize: '16px',
     fontWeight: '600',
     color: '#1f2937',
-    fontFamily: 'Montserrat, sans-serif',
+    fontFamily: 'Oxanium, sans-serif',
     marginBottom: '12px'
   },
   
@@ -249,7 +249,7 @@ const useStyles = makeStyles({
     color: tokens.colorNeutralForeground3,
     fontSize: '14px',
     lineHeight: '1.5',
-    fontFamily: 'Montserrat, sans-serif',
+    fontFamily: 'Oxanium, sans-serif',
     marginBottom: '16px'
   },
   
@@ -259,7 +259,7 @@ const useStyles = makeStyles({
     borderRadius: '8px',
     padding: '10px 16px',
     color: 'white',
-    fontFamily: 'Montserrat, sans-serif',
+    fontFamily: 'Oxanium, sans-serif',
     fontWeight: '500',
     fontSize: '13px',
     cursor: 'pointer',
@@ -383,7 +383,7 @@ const ProjectWorkspaceView: React.FC = () => {
             style={{ 
               backgroundColor: '#10b981',
               color: 'white',
-              fontFamily: 'Montserrat, sans-serif'
+              fontFamily: 'Oxanium, sans-serif'
             }}
           >
             Active
@@ -416,7 +416,7 @@ const ProjectWorkspaceView: React.FC = () => {
             <div>
               <Title2 style={{ 
                 marginBottom: '24px',
-                fontFamily: 'Montserrat, sans-serif',
+                fontFamily: 'Oxanium, sans-serif',
                 color: '#1f2937'
               }}>
                 Project Overview
@@ -468,7 +468,7 @@ const ProjectWorkspaceView: React.FC = () => {
               {/* Workflow Cards */}
               <Title3 style={{ 
                 marginBottom: '16px',
-                fontFamily: 'Montserrat, sans-serif',
+                fontFamily: 'Oxanium, sans-serif',
                 color: '#1f2937'
               }}>
                 Active Workflows
@@ -526,14 +526,14 @@ const ProjectWorkspaceView: React.FC = () => {
             <div>
               <Title2 style={{ 
                 marginBottom: '24px',
-                fontFamily: 'Montserrat, sans-serif',
+                fontFamily: 'Oxanium, sans-serif',
                 color: '#1f2937'
               }}>
                 Project Timeline
               </Title2>
               <Body1 style={{ 
                 color: tokens.colorNeutralForeground2,
-                fontFamily: 'Montserrat, sans-serif'
+                fontFamily: 'Oxanium, sans-serif'
               }}>
                 Interactive Gantt chart and timeline visualization will be implemented here
               </Body1>
@@ -544,14 +544,14 @@ const ProjectWorkspaceView: React.FC = () => {
             <div>
               <Title2 style={{ 
                 marginBottom: '24px',
-                fontFamily: 'Montserrat, sans-serif',
+                fontFamily: 'Oxanium, sans-serif',
                 color: '#1f2937'
               }}>
                 Infrastructure Resources
               </Title2>
               <Body1 style={{ 
                 color: tokens.colorNeutralForeground2,
-                fontFamily: 'Montserrat, sans-serif'
+                fontFamily: 'Oxanium, sans-serif'
               }}>
                 Server inventory, capacity planning, and resource allocation tools
               </Body1>
@@ -562,14 +562,14 @@ const ProjectWorkspaceView: React.FC = () => {
             <div>
               <Title2 style={{ 
                 marginBottom: '24px',
-                fontFamily: 'Montserrat, sans-serif',
+                fontFamily: 'Oxanium, sans-serif',
                 color: '#1f2937'
               }}>
                 Project Documentation
               </Title2>
               <Body1 style={{ 
                 color: tokens.colorNeutralForeground2,
-                fontFamily: 'Montserrat, sans-serif'
+                fontFamily: 'Oxanium, sans-serif'
               }}>
                 Architecture diagrams, technical specifications, and project documentation
               </Body1>
@@ -580,14 +580,14 @@ const ProjectWorkspaceView: React.FC = () => {
             <div>
               <Title2 style={{ 
                 marginBottom: '24px',
-                fontFamily: 'Montserrat, sans-serif',
+                fontFamily: 'Oxanium, sans-serif',
                 color: '#1f2937'
               }}>
                 Project Settings
               </Title2>
               <Body1 style={{ 
                 color: tokens.colorNeutralForeground2,
-                fontFamily: 'Montserrat, sans-serif'
+                fontFamily: 'Oxanium, sans-serif'
               }}>
                 Configure project parameters, team access, and notification preferences
               </Body1>

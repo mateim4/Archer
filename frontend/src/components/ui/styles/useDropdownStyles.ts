@@ -7,32 +7,56 @@
  * @module components/ui/styles/useDropdownStyles
  */
 
-import { makeStyles, shorthands, tokens } from '@fluentui/react-components';
+import { makeStyles, shorthands, tokens as fluentTokens } from '@fluentui/react-components';
+import { tokens as designTokens, zIndex as designZIndex } from '../../../styles/design-tokens';
+
+const dropdownTokens = designTokens.components.dropdown;
 
 export const useDropdownStyles = makeStyles({
+  '@keyframes dropdownFadeIn': {
+    from: {
+      opacity: 0,
+      transform: 'translateY(-8px)',
+    },
+    to: {
+      opacity: 1,
+      transform: 'translateY(0)',
+      background: dropdownTokens.menuBackground,
+      backdropFilter: dropdownTokens.menuBackdrop,
+      WebkitBackdropFilter: dropdownTokens.menuBackdrop,
+    },
+  },
+
   // ============================================================================
   // WRAPPER
   // ============================================================================
   dropdownWrapper: {
     display: 'flex',
     flexDirection: 'column',
-    ...shorthands.gap(tokens.spacingVerticalXXS),
+    ...shorthands.gap(designTokens.xxs),
     width: '100%',
+    maxWidth: dropdownTokens.wrapperMaxWidth,
+    minWidth: dropdownTokens.wrapperMinWidth,
+    alignSelf: 'flex-start',
+
+    [`@media (max-width: ${dropdownTokens.wrapperBreakpoint})`]: {
+      maxWidth: '100%',
+      minWidth: '100%',
+    },
   },
 
   // ============================================================================
   // LABEL
   // ============================================================================
   label: {
-    fontFamily: tokens.fontFamilyBase,
-    fontSize: tokens.fontSizeBase300,
-    fontWeight: tokens.fontWeightSemibold,
-    color: tokens.colorNeutralForeground1,
-    marginBottom: tokens.spacingVerticalXXS,
+    fontFamily: designTokens.fontFamilyPrimary,
+    fontSize: designTokens.fontSizeBase300,
+    fontWeight: designTokens.fontWeightSemibold,
+    color: designTokens.colorNeutralForeground1,
+    marginBottom: designTokens.xxs,
   },
-
   labelRequired: {
-    color: tokens.colorPaletteRedForeground1,
+    color: designTokens.colorStatusDanger,
   },
 
   // ============================================================================
@@ -44,76 +68,83 @@ export const useDropdownStyles = makeStyles({
     alignItems: 'center',
     justifyContent: 'space-between',
     width: '100%',
-    minHeight: '36px',
-    ...shorthands.padding(tokens.spacingVerticalS, tokens.spacingHorizontalM),
-    fontFamily: tokens.fontFamilyBase,
-    fontSize: tokens.fontSizeBase300,
-    fontWeight: tokens.fontWeightRegular,
-    color: tokens.colorNeutralForeground1,
-    backgroundColor: tokens.colorNeutralBackground1,
-    ...shorthands.border(tokens.strokeWidthThin, 'solid', tokens.colorNeutralStroke1),
-    borderRadius: tokens.borderRadiusMedium,
+    minHeight: dropdownTokens.triggerMinHeight,
+    ...shorthands.padding(dropdownTokens.triggerPaddingVertical, dropdownTokens.triggerPaddingHorizontal),
+    fontFamily: designTokens.fontFamilyBody,
+    fontSize: designTokens.fontSizeBase300,
+    fontWeight: designTokens.fontWeightMedium,
+    color: dropdownTokens.triggerTextColor,
+    background: dropdownTokens.triggerBackground,
+    backdropFilter: designTokens.blurMedium,
+    WebkitBackdropFilter: designTokens.blurMedium,
+    ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', dropdownTokens.triggerBorder),
+    borderRadius: designTokens.xxxLarge,
     cursor: 'pointer',
     transitionProperty: 'border-color, background-color',
-    transitionDuration: tokens.durationNormal,
-    transitionTimingFunction: tokens.curveEasyEase,
+    transitionDuration: designTokens.durationNormal,
+    transitionTimingFunction: designTokens.curveEasyEase,
+    boxShadow: dropdownTokens.triggerBoxShadow,
 
     ':hover': {
-      ...shorthands.border(tokens.strokeWidthThin, 'solid', tokens.colorNeutralStroke1Hover),
-      backgroundColor: tokens.colorNeutralBackground1Hover,
+      background: dropdownTokens.triggerBackgroundHover,
+      ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', dropdownTokens.triggerBorderHover),
+      boxShadow: dropdownTokens.triggerBoxShadowHover,
     },
 
     ':focus-visible': {
-      ...shorthands.outline(tokens.strokeWidthThick, 'solid', tokens.colorBrandStroke1),
-      outlineOffset: tokens.spacingHorizontalXXS,
+      ...shorthands.outline(fluentTokens.strokeWidthThick, 'solid', designTokens.colorBrandPrimary),
+      outlineOffset: designTokens.xxs,
     },
   },
 
   triggerOpen: {
-    ...shorthands.border(tokens.strokeWidthThin, 'solid', tokens.colorBrandStroke1),
+    ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', dropdownTokens.triggerBorderOpen),
+    boxShadow: dropdownTokens.triggerBoxShadowHover,
+    borderBottomLeftRadius: '0',
+    borderBottomRightRadius: '0',
   },
 
   // Glass variants for trigger
   triggerGlassLight: {
-    backgroundColor: 'var(--color-glass-background)',
-    backdropFilter: 'var(--blur-light)',
-    WebkitBackdropFilter: 'var(--blur-light)',
-    ...shorthands.border(tokens.strokeWidthThin, 'solid', 'rgba(255, 255, 255, 0.2)'),
+    backgroundColor: designTokens.colorGlassBackground,
+    backdropFilter: designTokens.blurLight,
+    WebkitBackdropFilter: designTokens.blurLight,
+    ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', dropdownTokens.triggerBorder),
   },
 
   triggerGlassMedium: {
-    backgroundColor: 'var(--color-glass-background)',
-    backdropFilter: 'var(--blur-medium)',
-    WebkitBackdropFilter: 'var(--blur-medium)',
-    ...shorthands.border(tokens.strokeWidthThin, 'solid', 'rgba(255, 255, 255, 0.3)'),
+    backgroundColor: designTokens.colorGlassPurpleLight,
+    backdropFilter: designTokens.blurMedium,
+    WebkitBackdropFilter: designTokens.blurMedium,
+    ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', dropdownTokens.triggerBorder),
   },
 
   triggerGlassHeavy: {
-    backgroundColor: 'var(--color-glass-background-heavy)',
-    backdropFilter: 'var(--blur-heavy)',
-    WebkitBackdropFilter: 'var(--blur-heavy)',
-    ...shorthands.border(tokens.strokeWidthThin, 'solid', 'rgba(255, 255, 255, 0.4)'),
+    backgroundColor: designTokens.colorGlassPurpleMedium,
+    backdropFilter: designTokens.blurHeavy,
+    WebkitBackdropFilter: designTokens.blurHeavy,
+    ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', dropdownTokens.triggerBorder),
   },
 
   // Validation states for trigger
   triggerError: {
-    ...shorthands.border(tokens.strokeWidthThin, 'solid', tokens.colorPaletteRedBorder1),
+    ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', designTokens.colorStatusDanger),
     ':hover': {
-      ...shorthands.border(tokens.strokeWidthThin, 'solid', tokens.colorPaletteRedBorder2),
+      ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', designTokens.colorStatusDanger),
     },
   },
 
   triggerWarning: {
-    ...shorthands.border(tokens.strokeWidthThin, 'solid', tokens.colorPaletteYellowBorder1),
+    ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', designTokens.colorStatusWarning),
     ':hover': {
-      ...shorthands.border(tokens.strokeWidthThin, 'solid', tokens.colorPaletteYellowBorder2),
+      ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', designTokens.colorStatusWarning),
     },
   },
 
   triggerSuccess: {
-    ...shorthands.border(tokens.strokeWidthThin, 'solid', tokens.colorPaletteGreenBorder1),
+    ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', designTokens.colorStatusSuccess),
     ':hover': {
-      ...shorthands.border(tokens.strokeWidthThin, 'solid', tokens.colorPaletteGreenBorder2),
+      ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', designTokens.colorStatusSuccess),
     },
   },
 
@@ -121,8 +152,8 @@ export const useDropdownStyles = makeStyles({
     opacity: '0.5',
     cursor: 'not-allowed',
     ':hover': {
-      ...shorthands.border(tokens.strokeWidthThin, 'solid', tokens.colorNeutralStroke1),
-      backgroundColor: tokens.colorNeutralBackground1,
+      ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', dropdownTokens.triggerBorder),
+      background: dropdownTokens.triggerBackground,
     },
   },
 
@@ -132,7 +163,7 @@ export const useDropdownStyles = makeStyles({
   triggerContent: {
     display: 'flex',
     alignItems: 'center',
-    ...shorthands.gap(tokens.spacingHorizontalXS),
+    ...shorthands.gap(designTokens.s),
     flex: 1,
     overflow: 'hidden',
   },
@@ -145,15 +176,16 @@ export const useDropdownStyles = makeStyles({
   },
 
   triggerPlaceholder: {
-    color: tokens.colorNeutralForeground4,
+    color: dropdownTokens.triggerPlaceholderColor,
   },
 
   triggerIcon: {
     display: 'flex',
     alignItems: 'center',
-    fontSize: tokens.fontSizeBase400,
-    color: tokens.colorNeutralForeground3,
-    ...shorthands.transition('transform', tokens.durationNormal, tokens.curveEasyEase),
+    fontSize: designTokens.fontSizeBase400,
+    color: dropdownTokens.triggerIconColor,
+    marginLeft: designTokens.s,
+    ...shorthands.transition('transform', designTokens.durationNormal, designTokens.curveEasyEase),
   },
 
   triggerIconOpen: {
@@ -166,19 +198,19 @@ export const useDropdownStyles = makeStyles({
   selectedTags: {
     display: 'flex',
     flexWrap: 'wrap',
-    ...shorthands.gap(tokens.spacingHorizontalXXS),
+    ...shorthands.gap(designTokens.xs),
   },
 
   tag: {
     display: 'inline-flex',
     alignItems: 'center',
-    ...shorthands.gap(tokens.spacingHorizontalXXS),
-    ...shorthands.padding(tokens.spacingVerticalXXS, tokens.spacingHorizontalXS),
-    backgroundColor: tokens.colorBrandBackground2,
-    color: tokens.colorBrandForeground2,
-    borderRadius: tokens.borderRadiusSmall,
-    fontSize: tokens.fontSizeBase200,
-    fontWeight: tokens.fontWeightSemibold,
+    ...shorthands.gap(designTokens.xs),
+    ...shorthands.padding(designTokens.xxs, designTokens.s),
+    backgroundColor: dropdownTokens.tagBackground,
+    color: dropdownTokens.tagColor,
+    borderRadius: designTokens.xLarge,
+    fontSize: designTokens.fontSizeBase200,
+    fontWeight: designTokens.fontWeightSemibold,
   },
 
   tagRemove: {
@@ -189,10 +221,10 @@ export const useDropdownStyles = makeStyles({
     height: '14px',
     cursor: 'pointer',
     ...shorthands.borderRadius('50%'),
-    ...shorthands.transition('background-color', tokens.durationFast, tokens.curveEasyEase),
+    ...shorthands.transition('background-color', designTokens.durationFast, designTokens.curveEasyEase),
 
     ':hover': {
-      backgroundColor: 'rgba(255, 255, 255, 0.2)',
+      backgroundColor: dropdownTokens.tagRemoveHover,
     },
   },
 
@@ -200,52 +232,76 @@ export const useDropdownStyles = makeStyles({
   // DROPDOWN MENU (Portal)
   // ============================================================================
   menu: {
-    position: 'absolute',
-    zIndex: 1000,
-    minWidth: '200px',
-    maxHeight: '300px',
+    position: 'fixed',
+    zIndex: designZIndex.dropdown,
+    minWidth: dropdownTokens.menuMinWidth,
+    maxWidth: dropdownTokens.menuMaxWidth,
+    maxHeight: dropdownTokens.menuMaxHeight,
     overflowY: 'auto',
-    backgroundColor: tokens.colorNeutralBackground1,
-    ...shorthands.border(tokens.strokeWidthThin, 'solid', tokens.colorNeutralStroke1),
-    borderRadius: tokens.borderRadiusMedium,
-    boxShadow: tokens.shadow16,
-    ...shorthands.padding(tokens.spacingVerticalXS, '0'),
-    marginTop: tokens.spacingVerticalXXS,
+    background: dropdownTokens.menuBackground,
+    backdropFilter: dropdownTokens.menuBackdrop,
+    WebkitBackdropFilter: dropdownTokens.menuBackdrop,
+    ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', dropdownTokens.menuBorder),
+    borderRadius: `0 0 ${designTokens.xxxLarge} ${designTokens.xxxLarge}`,
+    boxShadow: dropdownTokens.menuBoxShadow,
+    ...shorthands.padding(designTokens.xs, 0),
+    marginTop: designTokens.xxs,
+    animationName: 'dropdownFadeIn',
+    animationDuration: dropdownTokens.menuAnimationDuration,
+    animationTimingFunction: dropdownTokens.menuAnimationCurve,
+    animationFillMode: 'both',
+    transformOrigin: 'top center',
+
+    [`@media (max-width: ${dropdownTokens.wrapperBreakpoint})`]: {
+      minWidth: '100%',
+      maxWidth: '100%',
+    },
   },
 
   menuGlass: {
-    backgroundColor: 'var(--color-glass-background)',
-    backdropFilter: 'var(--blur-medium)',
-    WebkitBackdropFilter: 'var(--blur-medium)',
-    ...shorthands.border(tokens.strokeWidthThin, 'solid', 'rgba(255, 255, 255, 0.3)'),
+    backgroundColor: dropdownTokens.menuBackground,
+    backdropFilter: designTokens.blurMedium,
+    WebkitBackdropFilter: designTokens.blurMedium,
+    ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', 'rgba(255, 255, 255, 0.3)'),
   },
 
   // ============================================================================
   // SEARCH INPUT (Inside menu)
   // ============================================================================
   searchWrapper: {
-    ...shorthands.padding(tokens.spacingVerticalXS, tokens.spacingHorizontalM),
-    ...shorthands.borderBottom(tokens.strokeWidthThin, 'solid', tokens.colorNeutralStroke2),
-    marginBottom: tokens.spacingVerticalXS,
+    width: '100%',
+    maxWidth: '100%',
+    boxSizing: 'border-box',
+    // Only add vertical padding; horizontal padding is handled by the input itself
+    ...shorthands.padding(designTokens.xs, 0),
+    ...shorthands.borderBottom(fluentTokens.strokeWidthThin, 'solid', dropdownTokens.menuDivider),
+    marginBottom: designTokens.xs,
   },
 
   searchInput: {
     width: '100%',
-    ...shorthands.padding(tokens.spacingVerticalXS, tokens.spacingHorizontalS),
-    fontFamily: tokens.fontFamilyBase,
-    fontSize: tokens.fontSizeBase300,
-    color: tokens.colorNeutralForeground1,
-    backgroundColor: tokens.colorNeutralBackground3,
-    ...shorthands.border(tokens.strokeWidthThin, 'solid', tokens.colorNeutralStroke1),
-    borderRadius: tokens.borderRadiusSmall,
+    maxWidth: '100%',
+    boxSizing: 'border-box',
+    ...shorthands.padding(dropdownTokens.searchPaddingVertical, dropdownTokens.searchPaddingHorizontal),
+  // Explicitly set left padding to ensure it isn’t overridden by global styles
+  paddingLeft: dropdownTokens.searchPaddingHorizontalPx,
+  textIndent: dropdownTokens.searchPaddingHorizontalPx,
+    fontFamily: designTokens.fontFamilyBody,
+    fontSize: designTokens.fontSizeBase300,
+    color: designTokens.colorNeutralForeground1,
+    background: dropdownTokens.searchBackground,
+    ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', dropdownTokens.searchBorder),
+    borderRadius: `0 0 ${designTokens.xLarge} ${designTokens.xLarge}`,
     ...shorthands.outline('none'),
-
-    ':focus': {
-      ...shorthands.border(tokens.strokeWidthThin, 'solid', tokens.colorBrandStroke1),
-    },
-
+    outlineOffset: 0,
     '::placeholder': {
-      color: tokens.colorNeutralForeground4,
+      color: dropdownTokens.searchPlaceholderColor,
+    },
+    ':focus': {
+      // Neutral focus to avoid red underline; keep subtle brand-neutral border
+      ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', dropdownTokens.searchBorder),
+      boxShadow: 'none',
+      outline: 'none',
     },
   },
 
@@ -255,40 +311,41 @@ export const useDropdownStyles = makeStyles({
   menuItem: {
     display: 'flex',
     alignItems: 'center',
-    ...shorthands.gap(tokens.spacingHorizontalS),
+    ...shorthands.gap(designTokens.m),
     width: '100%',
-    ...shorthands.padding(tokens.spacingVerticalS, tokens.spacingHorizontalM),
-    fontFamily: tokens.fontFamilyBase,
-    fontSize: tokens.fontSizeBase300,
-    color: tokens.colorNeutralForeground1,
+    ...shorthands.padding(designTokens.s, dropdownTokens.optionPaddingHorizontal),
+    fontFamily: designTokens.fontFamilyPrimary,
+    fontSize: designTokens.fontSizeBase300,
+    color: dropdownTokens.optionTextColor,
     backgroundColor: 'transparent',
     cursor: 'pointer',
     ...shorthands.border('none'),
     textAlign: 'left',
-    ...shorthands.transition('background-color', tokens.durationFast, tokens.curveEasyEase),
+    ...shorthands.transition('all', designTokens.durationFast, designTokens.curveEasyEase),
 
     ':hover': {
-      backgroundColor: tokens.colorNeutralBackground1Hover,
+      background: dropdownTokens.optionHoverBackground,
+      color: dropdownTokens.optionHoverTextColor,
     },
 
     ':focus-visible': {
-      backgroundColor: tokens.colorNeutralBackground1Pressed,
-      ...shorthands.outline(tokens.strokeWidthThick, 'solid', tokens.colorBrandStroke1),
+      background: dropdownTokens.optionActiveBackground,
+      ...shorthands.outline(fluentTokens.strokeWidthThick, 'solid', designTokens.colorBrandPrimary),
       outlineOffset: '-2px',
     },
   },
 
   menuItemSelected: {
-    backgroundColor: tokens.colorBrandBackground2,
-    color: tokens.colorBrandForeground2,
+    background: dropdownTokens.optionSelectedBackground,
+    color: dropdownTokens.optionSelectedColor,
 
     ':hover': {
-      backgroundColor: tokens.colorBrandBackground2Hover,
+      background: dropdownTokens.optionSelectedBackground,
     },
   },
 
   menuItemDisabled: {
-    opacity: '0.5',
+    opacity: dropdownTokens.optionDisabledOpacity,
     cursor: 'not-allowed',
 
     ':hover': {
@@ -302,50 +359,58 @@ export const useDropdownStyles = makeStyles({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    ...shorthands.border(tokens.strokeWidthThin, 'solid', tokens.colorNeutralStroke1),
-    borderRadius: tokens.borderRadiusSmall,
-    fontSize: tokens.fontSizeBase200,
+    ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', dropdownTokens.triggerBorder),
+    borderRadius: designTokens.xLarge,
+    fontSize: designTokens.fontSizeBase200,
   },
 
   menuItemCheckboxChecked: {
-    backgroundColor: tokens.colorBrandBackground,
-    ...shorthands.border(tokens.strokeWidthThin, 'solid', tokens.colorBrandBackground),
-    color: tokens.colorNeutralForegroundInverted,
+    background: designTokens.colorBrandPrimary,
+    ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', designTokens.colorBrandPrimary),
+    color: '#ffffff',
+  },
+
+  menuItemLabel: {
+    display: 'inline-flex',
+    flex: 1,
+    paddingLeft: dropdownTokens.optionLabelPaddingLeftPx,
+    marginLeft: dropdownTokens.optionLabelPaddingLeftPx,
+    alignItems: 'center',
   },
 
   // ============================================================================
   // HELPER TEXT
   // ============================================================================
   helperText: {
-    fontFamily: tokens.fontFamilyBase,
-    fontSize: tokens.fontSizeBase200,
-    marginTop: tokens.spacingVerticalXXS,
+    fontFamily: designTokens.fontFamilyPrimary,
+    fontSize: designTokens.fontSizeBase200,
+    marginTop: designTokens.xxs,
   },
 
   helperTextDefault: {
-    color: tokens.colorNeutralForeground3,
+    color: designTokens.colorNeutralForeground3,
   },
 
   helperTextError: {
-    color: tokens.colorPaletteRedForeground1,
+    color: designTokens.colorStatusDanger,
   },
 
   helperTextWarning: {
-    color: tokens.colorPaletteYellowForeground1,
+    color: designTokens.colorStatusWarning,
   },
 
   helperTextSuccess: {
-    color: tokens.colorPaletteGreenForeground1,
+    color: designTokens.colorStatusSuccess,
   },
 
   // ============================================================================
   // EMPTY STATE
   // ============================================================================
   emptyState: {
-    ...shorthands.padding(tokens.spacingVerticalL, tokens.spacingHorizontalM),
+    ...shorthands.padding(designTokens.l, designTokens.l),
     textAlign: 'center',
-    color: tokens.colorNeutralForeground4,
-    fontSize: tokens.fontSizeBase300,
+    color: designTokens.colorNeutralForeground2,
+    fontSize: designTokens.fontSizeBase300,
   },
 });
 

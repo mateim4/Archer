@@ -198,7 +198,7 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
-                fontFamily: "'Poppins', system-ui, sans-serif"
+                fontFamily: "'Oxanium', system-ui, sans-serif"
               }}>
                 LCM Designer
               </div>
@@ -207,7 +207,7 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
                 fontSize: '12px',
                 color: 'rgba(44, 44, 44, 0.8)',
                 fontWeight: '400',
-                fontFamily: "'Poppins', system-ui, sans-serif"
+                fontFamily: "'Oxanium', system-ui, sans-serif"
               }}>
                 Infrastructure Planning
               </p>
@@ -252,7 +252,7 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
                 justifyContent: isOpen ? 'flex-start' : 'center',
                 position: 'relative',
                 minHeight: '48px',
-                fontFamily: "'Poppins', system-ui, sans-serif",
+                fontFamily: "'Oxanium', system-ui, sans-serif",
                 fontSize: '14px',
                 fontWeight: '500',
                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',

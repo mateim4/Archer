@@ -129,7 +129,7 @@ const useStyles = makeStyles({
     maxWidth: '100%',
     margin: '0 auto',
     minHeight: '100vh',
-    fontFamily: "'Poppins', system-ui, sans-serif"
+    fontFamily: "'Oxanium', system-ui, sans-serif"
   },
   
   mainContent: {
@@ -141,7 +141,7 @@ const useStyles = makeStyles({
     WebkitBackdropFilter: 'blur(20px) saturate(180%)',
     border: '1px solid rgba(255, 255, 255, 0.25)',
     boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-    fontFamily: "'Poppins', system-ui, sans-serif"
+    fontFamily: "'Oxanium', system-ui, sans-serif"
   },
   
   header: {

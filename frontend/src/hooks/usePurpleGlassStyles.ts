@@ -299,7 +299,7 @@ export const useLayoutStyles = makeStyles({
 // ============================================================================
 
 /**
- * Typography styles with Poppins font.
+ * Typography styles with Oxanium font.
  * 
  * @example
  * const styles = useTypographyStyles();

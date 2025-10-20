@@ -8,7 +8,7 @@
  */
 
 import { makeStyles, shorthands, tokens as fluentTokens } from '@fluentui/react-components';
-import { tokens } from '../../../styles/design-tokens';
+import { tokens, gradients } from '../../../styles/design-tokens';
 
 export const useButtonStyles = makeStyles({
   // ============================================================================
@@ -70,38 +70,46 @@ export const useButtonStyles = makeStyles({
   // ============================================================================
 
   primary: {
-    backgroundColor: tokens.colorBrandPrimary,
-    color: '#ffffff',
-    ...shorthands.borderColor(tokens.colorBrandPrimary),
-    boxShadow: tokens.shadow4,
+    backgroundImage: tokens.components.button.primary.background,
+    backgroundColor: 'transparent',
+    color: tokens.components.button.primary.textColor,
+    backdropFilter: tokens.components.button.primary.backdropFilter,
+    WebkitBackdropFilter: tokens.components.button.primary.backdropFilter,
+    ...shorthands.border('1px', 'solid', tokens.components.button.primary.borderColor),
+    boxShadow: tokens.components.button.primary.boxShadow,
 
     '&:hover': {
-      backgroundColor: tokens.colorBrandForegroundHover,
-      ...shorthands.borderColor(tokens.colorBrandForegroundHover),
-      boxShadow: tokens.shadow8,
+      backgroundImage: tokens.components.button.primary.backgroundHover,
+      boxShadow: tokens.components.button.primary.boxShadowHover,
+      transform: 'translateY(-1px)',
     },
 
     '&:active': {
-      backgroundColor: tokens.colorBrandForegroundPressed,
-      boxShadow: tokens.shadow2,
+      backgroundImage: tokens.components.button.primary.backgroundActive,
+      boxShadow: tokens.components.button.primary.boxShadowActive,
+      transform: 'scale(0.98)',
     },
   },
 
   primaryGlass: {
-    backgroundColor: 'rgba(139, 92, 246, 0.9)',
-    backdropFilter: tokens.blurMedium,
-    WebkitBackdropFilter: tokens.blurMedium,
-    color: '#ffffff',
-    ...shorthands.borderColor('rgba(255, 255, 255, 0.2)'),
-    boxShadow: `${tokens.shadow8}, ${tokens.glowSmall}`,
+    backgroundImage: gradients.buttonPrimaryRadial,
+    backgroundColor: 'transparent',
+    color: tokens.components.button.primary.textColor,
+    backdropFilter: tokens.blurHeavy,
+    WebkitBackdropFilter: tokens.blurHeavy,
+    ...shorthands.border('1px', 'solid', 'rgba(255, 255, 255, 0.32)'),
+    boxShadow: `${tokens.shadow16}, ${tokens.glowMedium}`,
 
     '&:hover': {
-      backgroundColor: 'rgba(124, 58, 237, 0.95)',
-      boxShadow: `${tokens.shadow16}, ${tokens.glowMedium}`,
+      backgroundImage: gradients.buttonPrimaryRadialHover,
+      boxShadow: `${tokens.shadow28}, ${tokens.glowLarge}`,
+      transform: 'translateY(-1px)',
     },
 
     '&:active': {
-      backgroundColor: 'rgba(109, 40, 217, 1)',
+      backgroundImage: gradients.buttonPrimaryRadialActive,
+      transform: 'scale(0.97)',
+      boxShadow: `${tokens.shadow8}, ${tokens.glowSmall}`,
     },
   },
 

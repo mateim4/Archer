@@ -143,7 +143,7 @@ const LandingView: React.FC = () => {
                 fontWeight: '800',
                 color: '#1f2937',
                 margin: 0,
-                fontFamily: 'Montserrat, sans-serif',
+                fontFamily: 'Oxanium, sans-serif',
                 lineHeight: '1.1',
                 letterSpacing: '-0.02em'
               }}>
@@ -164,7 +164,7 @@ const LandingView: React.FC = () => {
             fontSize: '28px',
             color: '#1f2937',
             marginBottom: '20px',
-            fontFamily: 'Montserrat, sans-serif',
+            fontFamily: 'Oxanium, sans-serif',
             fontWeight: '600',
             lineHeight: '1.3',
             textAlign: 'center'
@@ -178,7 +178,7 @@ const LandingView: React.FC = () => {
             color: '#374151',
             maxWidth: '640px',
             margin: '0 auto 40px auto',
-            fontFamily: 'Montserrat, sans-serif',
+            fontFamily: 'Oxanium, sans-serif',
             lineHeight: '1.6',
             textAlign: 'center'
           }}>
@@ -205,7 +205,7 @@ const LandingView: React.FC = () => {
                 fontWeight: '600',
                 cursor: 'pointer',
                 transition: 'all 0.3s ease',
-                fontFamily: 'Montserrat, sans-serif',
+                fontFamily: 'Oxanium, sans-serif',
                 boxShadow: '0 4px 16px rgba(99, 102, 241, 0.3)'
               }}
               onMouseOver={(e) => {
@@ -232,7 +232,7 @@ const LandingView: React.FC = () => {
                 fontWeight: '600',
                 cursor: 'pointer',
                 transition: 'all 0.3s ease',
-                fontFamily: 'Montserrat, sans-serif'
+                fontFamily: 'Oxanium, sans-serif'
               }}
               onMouseOver={(e) => {
                 e.currentTarget.style.background = '#6366f1';
@@ -271,7 +271,7 @@ const LandingView: React.FC = () => {
             fontWeight: '600',
             color: '#1f2937',
             marginBottom: '32px',
-            fontFamily: 'Montserrat, sans-serif',
+            fontFamily: 'Oxanium, sans-serif',
             textAlign: 'center'
           }}>
             Platform Features

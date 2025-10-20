@@ -35,7 +35,7 @@ export const FluentTokens = {
   // Typography
   typography: {
     fontFamily: {
-      base: '"Poppins", "Segoe UI Variable", "Segoe UI", system-ui, sans-serif',
+      base: '"Oxanium", "Segoe UI Variable", "Segoe UI", system-ui, sans-serif',
     },
     fontSize: {
       100: '10px',   // Caption 2

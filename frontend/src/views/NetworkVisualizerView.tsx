@@ -82,7 +82,7 @@ const NetworkVisualizerView = () => {
         secondaryColor: DIAGRAM_THEME.secondary,
         tertiaryColor: DIAGRAM_THEME.tertiary,
         primaryColorLight: DIAGRAM_THEME.primaryLight,
-        fontFamily: 'Montserrat, -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", system-ui, ui-sans-serif, Helvetica, Arial, sans-serif',
+        fontFamily: 'Oxanium, -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", system-ui, ui-sans-serif, Helvetica, Arial, sans-serif',
         fontSize: '14px',
         fontWeight: '500'
       },

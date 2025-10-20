@@ -30,14 +30,14 @@ const useStyles = makeStyles({
     fontSize: tokens.fontSizeBase600,
     fontWeight: tokens.fontWeightSemibold,
     color: tokens.colorNeutralForeground1,
-    fontFamily: 'Poppins, Montserrat, system-ui, sans-serif',
+    fontFamily: 'Oxanium, system-ui, sans-serif',
     marginBottom: tokens.s,
   },
   subtitle: {
     fontSize: tokens.fontSizeBase400,
     fontWeight: tokens.fontWeightRegular,
     color: tokens.colorNeutralForeground2,
-    fontFamily: 'Poppins, Montserrat, system-ui, sans-serif',
+    fontFamily: 'Oxanium, system-ui, sans-serif',
   },
   reviewSection: {
     display: 'flex',
@@ -66,7 +66,7 @@ const useStyles = makeStyles({
     fontSize: tokens.fontSizeBase500,
     fontWeight: tokens.fontWeightSemibold,
     color: tokens.colorNeutralForeground1,
-    fontFamily: 'Poppins, Montserrat, system-ui, sans-serif',
+    fontFamily: 'Oxanium, system-ui, sans-serif',
   },
   stepNumber: {
     display: 'flex',
@@ -82,7 +82,7 @@ const useStyles = makeStyles({
   },
   editButton: {
     minWidth: 'auto',
-    fontFamily: 'Poppins, Montserrat, system-ui, sans-serif',
+    fontFamily: 'Oxanium, system-ui, sans-serif',
   },
   fieldGrid: {
     display: 'grid',
@@ -98,7 +98,7 @@ const useStyles = makeStyles({
     fontSize: tokens.fontSizeBase200,
     fontWeight: tokens.fontWeightMedium,
     color: tokens.colorNeutralForeground3,
-    fontFamily: 'Poppins, Montserrat, system-ui, sans-serif',
+    fontFamily: 'Oxanium, system-ui, sans-serif',
     textTransform: 'uppercase',
     letterSpacing: '0.5px',
   },
@@ -106,7 +106,7 @@ const useStyles = makeStyles({
     fontSize: tokens.fontSizeBase400,
     fontWeight: tokens.fontWeightRegular,
     color: tokens.colorNeutralForeground1,
-    fontFamily: 'Poppins, Montserrat, system-ui, sans-serif',
+    fontFamily: 'Oxanium, system-ui, sans-serif',
   },
   emptyValue: {
     fontStyle: 'italic',
@@ -119,7 +119,7 @@ const useStyles = makeStyles({
     ...shorthands.borderRadius(tokens.medium),
     fontSize: tokens.fontSizeBase200,
     fontWeight: tokens.fontWeightSemibold,
-    fontFamily: 'Poppins, Montserrat, system-ui, sans-serif',
+    fontFamily: 'Oxanium, system-ui, sans-serif',
   },
   successBadge: {
     backgroundColor: '#dcfce7',
@@ -143,7 +143,7 @@ const useStyles = makeStyles({
     ...shorthands.gap(tokens.s),
     fontSize: tokens.fontSizeBase300,
     color: tokens.colorNeutralForeground2,
-    fontFamily: 'Poppins, Montserrat, system-ui, sans-serif',
+    fontFamily: 'Oxanium, system-ui, sans-serif',
   },
   submitSection: {
     display: 'flex',
@@ -158,17 +158,17 @@ const useStyles = makeStyles({
     fontSize: tokens.fontSizeBase500,
     fontWeight: tokens.fontWeightSemibold,
     color: tokens.colorNeutralForeground1,
-    fontFamily: 'Poppins, Montserrat, system-ui, sans-serif',
+    fontFamily: 'Oxanium, system-ui, sans-serif',
   },
   submitText: {
     fontSize: tokens.fontSizeBase300,
     color: tokens.colorNeutralForeground2,
-    fontFamily: 'Poppins, Montserrat, system-ui, sans-serif',
+    fontFamily: 'Oxanium, system-ui, sans-serif',
     lineHeight: '1.6',
   },
   submitButton: {
     alignSelf: 'flex-start',
-    fontFamily: 'Poppins, Montserrat, system-ui, sans-serif',
+    fontFamily: 'Oxanium, system-ui, sans-serif',
     fontWeight: tokens.fontWeightSemibold,
     ...shorthands.padding(tokens.m, tokens.xxxl),
     fontSize: tokens.fontSizeBase400,
@@ -192,13 +192,13 @@ const useStyles = makeStyles({
     fontSize: tokens.fontSizeBase600,
     fontWeight: tokens.fontWeightBold,
     color: '#15803d',
-    fontFamily: 'Poppins, Montserrat, system-ui, sans-serif',
+    fontFamily: 'Oxanium, system-ui, sans-serif',
     marginBottom: tokens.m,
   },
   successSubtitle: {
     fontSize: tokens.fontSizeBase400,
     color: tokens.colorNeutralForeground2,
-    fontFamily: 'Poppins, Montserrat, system-ui, sans-serif',
+    fontFamily: 'Oxanium, system-ui, sans-serif',
   },
   errorMessage: {
     ...shorthands.padding(tokens.l),
@@ -206,7 +206,7 @@ const useStyles = makeStyles({
     backgroundColor: '#fee2e2',
     ...shorthands.border('1px', 'solid', '#fca5a5'),
     color: '#b91c1c',
-    fontFamily: 'Poppins, Montserrat, system-ui, sans-serif',
+    fontFamily: 'Oxanium, system-ui, sans-serif',
     fontSize: tokens.fontSizeBase300,
   },
 });

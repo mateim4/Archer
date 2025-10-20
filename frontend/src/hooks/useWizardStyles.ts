@@ -30,17 +30,23 @@ export const useWizardStyles = makeStyles({
     },
   },
   
-    // Modal variant - no max-width, no padding
+    // Modal variant - no max-width, no padding, full height
   containerModal: {
     maxWidth: 'none',
     ...shorthands.padding(0),
     ...shorthands.margin(0),
+    width: '100%',
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'stretch',
     fontFamily: tokens.fontFamilyPrimary,
+    ...shorthands.overflow('hidden'),
   },
   
   // Main card styling with glassmorphism
   mainCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    backgroundColor: 'rgba(255, 255, 255, 0.85)',
     ...shorthands.border('1px', 'solid', 'rgba(139, 92, 246, 0.15)'),
     ...shorthands.borderRadius(tokens.xLarge),
     backdropFilter: tokens.blurMedium,
@@ -62,16 +68,44 @@ export const useWizardStyles = makeStyles({
     },
   },
   
-  // Modal variant - transparent card
+  // Modal variant - transparent card with scroll
   cardModal: {
-    ...shorthands.border('none'),
-    boxShadow: 'none',
-    ...shorthands.borderRadius(0),
-    backgroundColor: 'transparent',
-    backdropFilter: 'none',
-    
-    '::before': {
+    display: 'flex',
+    flexDirection: 'column',
+    ...shorthands.gap(tokens.xxl),
+    width: '100%',
+    height: '100%',
+    position: 'relative',
+    ...shorthands.overflow('auto'),
+
+    '&::before': {
       display: 'none',
+    },
+
+    '::-webkit-scrollbar': {
+      width: '8px',
+    },
+    '::-webkit-scrollbar-track': {
+      backgroundColor: 'rgba(139, 92, 246, 0.05)',
+      ...shorthands.borderRadius('4px'),
+    },
+    '::-webkit-scrollbar-thumb': {
+      backgroundColor: tokens.colorBrandBackground,
+      ...shorthands.borderRadius('4px'),
+      transitionProperty: 'background-color',
+      transitionDuration: tokens.durationFast,
+
+      ':hover': {
+        backgroundColor: tokens.colorBrandBackgroundHover,
+      },
+    },
+
+    '@media (max-width: 1024px)': {
+      ...shorthands.gap(tokens.xl),
+    },
+
+    '@media (max-width: 768px)': {
+      ...shorthands.gap(tokens.l),
     },
   },
   
@@ -82,20 +116,25 @@ export const useWizardStyles = makeStyles({
     ...shorthands.borderBottom('1px', 'solid', 'rgba(139, 92, 246, 0.15)'),
   },
   
-  // Modal variant - transparent header
+  // Modal variant - header with gradient
   headerModal: {
-    ...shorthands.padding(tokens.xl, 0),
-    background: 'transparent',
+    ...shorthands.padding(tokens.xxl, tokens.xxxxl, tokens.l, tokens.xxxxl),
+    background: gradients.purpleSubtle,
     backgroundImage: 'none',
-    ...shorthands.borderBottom('1px', 'solid', 'rgba(139, 92, 246, 0.15)'),
+    ...shorthands.borderBottom('none'),
+    flexShrink: 0,
+
+    '@media (max-width: 768px)': {
+      ...shorthands.padding(tokens.xl, tokens.xxxl, tokens.m, tokens.xxxl),
+    },
   },
   
   title: {
-    fontSize: tokens.fontSizeHero900,
+    fontSize: tokens.fontSizeBase600,
     fontWeight: tokens.fontWeightSemibold,
-    lineHeight: tokens.lineHeightHero900,
+    lineHeight: tokens.lineHeightBase600,
     color: tokens.colorNeutralForeground1,
-    ...shorthands.margin(0, 0, tokens.m, 0),
+    ...shorthands.margin(0),
     fontFamily: tokens.fontFamilyPrimary,
   },
   
@@ -119,16 +158,20 @@ export const useWizardStyles = makeStyles({
   stepContainer: {
     ...shorthands.padding(tokens.xxxl, tokens.xxxxl),
     minHeight: '400px',
+    flex: '1 1 auto',
   },
   
   // Navigation container
   navigation: {
-    ...shorthands.padding(tokens.xxxl, tokens.xxxxl),
+    ...shorthands.padding(tokens.xl, tokens.xxxl),
     ...shorthands.borderTop('1px', 'solid', 'rgba(139, 92, 246, 0.15)'),
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.6)',
+    backgroundColor: tokens.colorGlassBackground,
+    backdropFilter: tokens.blurLight,
+    WebkitBackdropFilter: tokens.blurLight,
+    flexShrink: 0,
   },
   
   // Navigation button group
@@ -188,8 +231,10 @@ export const useWizardStyles = makeStyles({
   
   // Step container
   stepContainerWrapper: {
-    ...shorthands.padding(tokens.xxxl, tokens.xxxxl),
+    ...shorthands.padding(tokens.xxl, tokens.xxxl),
     minHeight: '400px',
+    flex: '1 1 auto',
+    ...shorthands.overflow('auto'),
   },
   
   // Step title
@@ -266,18 +311,29 @@ export const useWizardProgressStyles = makeStyles({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    // Transparent background with frosted glass for incomplete/unfinished steps
+    backgroundColor: 'transparent',
+    backdropFilter: 'blur(12px) saturate(150%)',
+    WebkitBackdropFilter: 'blur(12px) saturate(150%)',
     ...shorthands.border('2px', 'solid', 'rgba(139, 92, 246, 0.3)'),
     fontSize: tokens.fontSizeBase300,
     fontWeight: tokens.fontWeightSemibold,
+    // 100% opacity for text/icon
     color: tokens.colorNeutralForeground2,
+    opacity: 1,
     transitionProperty: 'all',
     transitionDuration: tokens.durationFast,
     transitionTimingFunction: tokens.curveEasyEase,
+    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.2) inset',
     
     ':hover': {
       transform: 'scale(1.05)',
       boxShadow: tokens.glowSmall,
+    },
+    
+    // Ensure text/icon stays 100% opaque
+    '& > *': {
+      opacity: 1,
     },
     
     '@media (max-width: 768px)': {
@@ -288,16 +344,46 @@ export const useWizardProgressStyles = makeStyles({
   },
   
   stepCircleActive: {
-    backgroundColor: tokens.colorBrandPrimary,
-    ...shorthands.borderColor(tokens.colorBrandPrimary),
+    // Radial gradient (inner→outer) at 90% opacity with frosted glass
+    background: 'radial-gradient(circle at center, rgba(139, 92, 246, 0.9) 0%, rgba(99, 102, 241, 0.9) 100%)',
+    backdropFilter: 'blur(16px) saturate(180%)',
+    WebkitBackdropFilter: 'blur(16px) saturate(180%)',
+    // Use solid border instead of border-image to avoid square artifact on circles
+    ...shorthands.border('2px', 'solid', 'rgba(139, 92, 246, 1)'),
+    // 100% opacity for text/icon on top
     color: '#ffffff',
-    boxShadow: tokens.glowMedium,
+    opacity: 1,
+    boxShadow: `
+      0 4px 12px rgba(139, 92, 246, 0.3),
+      0 0 20px rgba(139, 92, 246, 0.2),
+      0 0 0 1px rgba(255, 255, 255, 0.3) inset
+    `,
+    
+    // Ensure text/icon stays 100% opaque
+    '& > *': {
+      opacity: 1,
+    },
   },
   
   stepCircleCompleted: {
-    backgroundColor: tokens.colorBrandPrimary,
-    ...shorthands.borderColor(tokens.colorBrandPrimary),
+    // Radial gradient (inner→outer) at 90% opacity with frosted glass
+    background: 'radial-gradient(circle at center, rgba(139, 92, 246, 0.9) 0%, rgba(99, 102, 241, 0.9) 100%)',
+    backdropFilter: 'blur(16px) saturate(180%)',
+    WebkitBackdropFilter: 'blur(16px) saturate(180%)',
+    // Remove border - no square border on completed steps
+    ...shorthands.border('none'),
+    // 100% opacity for text/icon on top
     color: '#ffffff',
+    opacity: 1,
+    boxShadow: `
+      0 2px 8px rgba(139, 92, 246, 0.25),
+      0 0 0 1px rgba(255, 255, 255, 0.25) inset
+    `,
+    
+    // Ensure text/icon stays 100% opaque
+    '& > *': {
+      opacity: 1,
+    },
   },
   
   stepLabel: {

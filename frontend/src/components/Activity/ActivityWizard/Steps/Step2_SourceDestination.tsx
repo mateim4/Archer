@@ -10,12 +10,16 @@
 import React, { useState, useEffect } from 'react';
 import {
   Input,
-  Radio,
-  RadioGroup,
-  Label,
   makeStyles,
   shorthands,
 } from '@fluentui/react-components';
+import { 
+  PurpleGlassDropdown, 
+  PurpleGlassRadioGroup, 
+  PurpleGlassRadio,
+  PurpleGlassInput 
+} from '../../../ui';
+import type { DropdownOption } from '../../../ui/PurpleGlassDropdown';
 import {
   ServerRegular,
   CloudRegular,
@@ -28,7 +32,6 @@ import {
 import { useWizardContext } from '../Context/WizardContext';
 import { InfrastructureType } from '../types/WizardTypes';
 import { tokens } from '../../../../styles/design-tokens';
-import { PurpleGlassDropdown } from '../../../ui';
 
 // ============================================================================
 // Styles
@@ -47,6 +50,22 @@ const useStyles = makeStyles({
     ...shorthands.gap(tokens.l),
   },
 
+  sectionTitle: {
+    fontSize: tokens.fontSizeBase400,
+    fontWeight: tokens.fontWeightSemibold,
+    color: tokens.colorNeutralForeground1,
+    fontFamily: tokens.fontFamilyPrimary,
+    margin: 0,
+  },
+
+  radioGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+    ...shorthands.gap(tokens.l),
+    width: '100%',
+  },
+
+
   label: {
     fontSize: tokens.fontSizeBase300,
     fontWeight: tokens.fontWeightSemibold,
@@ -62,130 +81,9 @@ const useStyles = makeStyles({
     ...shorthands.margin(tokens.xs, 0, 0, 0),
   },
 
-  combobox: {
-    width: '100%',
-    maxWidth: '600px',
-  },
-
   textField: {
     width: '100%',
     maxWidth: '600px',
-  },
-
-  radioGroup: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(3, 1fr)',
-    ...shorthands.gap(tokens.l),
-    ...shorthands.margin(tokens.m, 0, 0, 0),
-    
-    '@media (max-width: 1200px)': {
-      gridTemplateColumns: 'repeat(2, 1fr)',
-    },
-    
-    '@media (max-width: 768px)': {
-      gridTemplateColumns: '1fr',
-    },
-  },
-
-  radioCard: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    ...shorthands.padding(tokens.xl, tokens.l),
-    backgroundColor: tokens.colorGlassBackground,
-    backdropFilter: tokens.blurMedium,
-    WebkitBackdropFilter: tokens.blurMedium,
-    ...shorthands.border('2px', 'solid', 'rgba(139, 92, 246, 0.2)'),
-    ...shorthands.borderRadius(tokens.large),
-    cursor: 'pointer',
-    transitionProperty: 'all',
-    transitionDuration: tokens.durationNormal,
-    transitionTimingFunction: tokens.curveEasyEase,
-    boxShadow: tokens.glowSmall,
-    minHeight: '240px',
-
-    ':hover': {
-      transform: 'translateY(-4px)',
-      ...shorthands.borderColor('rgba(139, 92, 246, 0.5)'),
-      boxShadow: tokens.glowMedium,
-    },
-  },
-
-  radioCardSelected: {
-    backgroundColor: 'rgba(139, 92, 246, 0.08)',
-    ...shorthands.borderColor(tokens.colorBrandPrimary),
-    ...shorthands.borderWidth('2px'),
-    boxShadow: tokens.glowLarge,
-
-    ':hover': {
-      transform: 'translateY(-4px)',
-      boxShadow: tokens.glowLarge,
-    },
-  },
-  
-  radioCardRadio: {
-    ...shorthands.margin(0, 0, tokens.m, 0),
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '100%',
-  },
-
-  radioCardContent: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    ...shorthands.gap(tokens.m),
-    width: '100%',
-    textAlign: 'center',
-  },
-
-  radioCardIcon: {
-    fontSize: '48px',
-    color: tokens.colorBrandPrimary,
-    transitionProperty: 'all',
-    transitionDuration: tokens.durationNormal,
-    transitionTimingFunction: tokens.curveEasyEase,
-    display: 'block',
-    ...shorthands.margin('0', 'auto'),
-  },
-
-  radioCardIconSelected: {
-    color: tokens.colorBrandPrimary,
-    transform: 'scale(1.1)',
-  },
-
-  radioCardText: {
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-    ...shorthands.gap(tokens.xs),
-    alignItems: 'center',
-  },
-
-  radioCardTitle: {
-    fontSize: tokens.fontSizeBase400,
-    fontWeight: tokens.fontWeightSemibold,
-    color: tokens.colorNeutralForeground1,
-    fontFamily: tokens.fontFamilyPrimary,
-    textAlign: 'center',
-  },
-
-  radioCardDescription: {
-    fontSize: tokens.fontSizeBase200,
-    color: tokens.colorNeutralForeground2,
-    fontFamily: tokens.fontFamilyPrimary,
-    lineHeight: tokens.lineHeightBase300,
-    textAlign: 'center',
-  },
-
-  radioCardFeatures: {
-    fontSize: tokens.fontSizeBase100,
-    color: tokens.colorBrandPrimary,
-    fontFamily: tokens.fontFamilyPrimary,
-    fontWeight: tokens.fontWeightMedium,
-    ...shorthands.margin(tokens.xs, 0, 0, 0),
-    textAlign: 'center',
   },
 
   requiredIndicator: {
@@ -209,11 +107,17 @@ const useStyles = makeStyles({
 // Mock Data (TODO: Replace with API calls)
 // ============================================================================
 
-const MOCK_CLUSTERS = [
-  { id: 'cluster:vmware_prod', name: 'VMware Production Cluster', type: 'VMware vSphere' },
-  { id: 'cluster:vmware_dev', name: 'VMware Development Cluster', type: 'VMware vSphere' },
-  { id: 'cluster:hyperv_prod', name: 'Hyper-V Production Cluster', type: 'Microsoft Hyper-V' },
-  { id: 'cluster:hyperv_test', name: 'Hyper-V Test Cluster', type: 'Microsoft Hyper-V' },
+const CLUSTER_OPTIONS: DropdownOption[] = [
+  { value: 'cluster:vmware_prod', label: 'VMware Production Cluster (VMware vSphere)' },
+  { value: 'cluster:vmware_dev', label: 'VMware Development Cluster (VMware vSphere)' },
+  { value: 'cluster:hyperv_prod', label: 'Hyper-V Production Cluster (Microsoft Hyper-V)' },
+  { value: 'cluster:hyperv_test', label: 'Hyper-V Test Cluster (Microsoft Hyper-V)' },
+];
+
+const HARDWARE_BASKET_OPTIONS: DropdownOption[] = [
+  { value: 'basket-dell-r760', label: 'Dell PowerEdge R760 Basket (12 models)' },
+  { value: 'basket-hpe-gen11', label: 'HPE ProLiant Gen11 Basket (8 models)' },
+  { value: 'basket-lenovo-sr650v3', label: 'Lenovo ThinkSystem SR650 V3 Basket (10 models)' },
 ];
 
 // ============================================================================
@@ -312,24 +216,37 @@ const Step2_SourceDestination: React.FC = () => {
   // Handlers
   // ============================================================================
 
-  const handleSourceClusterChange = (_event: any, data: any) => {
-    const selectedCluster = MOCK_CLUSTERS.find(c => c.id === data.optionValue);
-    if (selectedCluster) {
-      setSourceClusterId(selectedCluster.id);
-      setSourceClusterName(selectedCluster.name);
-    } else if (data.optionValue === undefined || data.optionValue === null) {
-      // Handle clearing/resetting the selection
+  const handleSourceClusterChange = (value: string | string[] | undefined) => {
+    const selectedValue = value as string | undefined;
+    if (selectedValue) {
+      const selectedOption = CLUSTER_OPTIONS.find(opt => opt.value === selectedValue);
+      if (selectedOption) {
+        setSourceClusterId(selectedOption.value);
+        setSourceClusterName(selectedOption.label);
+      }
+    } else {
+      // Handle clearing the selection
       setSourceClusterId('');
       setSourceClusterName('');
     }
   };
 
-  const handleSourceClusterInputChange = (_event: any, data: any) => {
-    // Only update the display value, not the actual selection
-    // This prevents glitching when typing
-    if (data.value === '') {
-      setSourceClusterId('');
-      setSourceClusterName('');
+  const handleDominoSourceClusterChange = (value: string | string[] | undefined) => {
+    const selectedValue = value as string | undefined;
+    setDominoSourceCluster(selectedValue || '');
+  };
+
+  const handleHardwareBasketChange = (value: string | string[] | undefined) => {
+    const selectedValue = value as string | undefined;
+    if (selectedValue) {
+      const selectedOption = HARDWARE_BASKET_OPTIONS.find(opt => opt.value === selectedValue);
+      if (selectedOption) {
+        setHardwareBasketId(selectedOption.value);
+        setHardwareBasketName(selectedOption.label);
+      }
+    } else {
+      setHardwareBasketId('');
+      setHardwareBasketName('');
     }
   };
 
@@ -350,220 +267,122 @@ const Step2_SourceDestination: React.FC = () => {
       {/* Source Cluster */}
       <div className={styles.section}>
         <PurpleGlassDropdown
-          label="Source Cluster (Optional)"
+          label="Source Cluster"
+          helperText="Select the cluster you're migrating from. This helps us analyze workload requirements."
           placeholder="Select source cluster..."
-          options={MOCK_CLUSTERS.map((cluster) => ({
-            value: cluster.id,
-            label: `${cluster.name} (${cluster.type})`
-          }))}
-          value={sourceClusterId}
-          onChange={(value) => {
-            const selectedCluster = MOCK_CLUSTERS.find(c => c.id === value);
-            if (selectedCluster) {
-              setSourceClusterId(selectedCluster.id);
-              setSourceClusterName(selectedCluster.name);
-            } else {
-              setSourceClusterId('');
-              setSourceClusterName('');
-            }
-          }}
+          options={CLUSTER_OPTIONS}
+          value={sourceClusterId || undefined}
+          onChange={handleSourceClusterChange}
+          searchable
           glass="light"
         />
-        <p className={styles.description}>
-          Select the cluster you're migrating from. This helps us analyze workload requirements.
-        </p>
       </div>
 
       {/* Target Infrastructure Type */}
       <div className={styles.section}>
-        <Label className={styles.label} required>
-          Target Infrastructure Type
-          <span className={styles.requiredIndicator}>*</span>
-        </Label>
-        <p className={styles.description}>
-          Choose the infrastructure type for your new cluster. This determines hardware requirements and validation checks.
-        </p>
-
-        <RadioGroup
+        <PurpleGlassRadioGroup
+          required
+          label="Target Infrastructure Type"
+          helperText="Choose the infrastructure type for your new cluster. This determines hardware requirements and validation checks."
           value={targetInfrastructure}
-          onChange={handleInfrastructureChange}
-          className={styles.radioGroup}
+          onChange={(value) => setTargetInfrastructure(value as InfrastructureType)}
+          orientation="horizontal"
         >
-          {INFRASTRUCTURE_OPTIONS.map((option) => {
-            const isSelected = targetInfrastructure === option.type;
-            const IconComponent = option.icon;
-
-            return (
-              <div
-                key={option.type}
-                className={`${styles.radioCard} ${isSelected ? styles.radioCardSelected : ''}`}
-                onClick={() => setTargetInfrastructure(option.type)}
-              >
-                <div className={styles.radioCardContent}>
-                  <div className={styles.radioCardRadio}>
-                    <Radio value={option.type} label="" />
-                  </div>
-                  <IconComponent
-                    className={`${styles.radioCardIcon} ${
-                      isSelected ? styles.radioCardIconSelected : ''
-                    }`}
-                  />
-                  <div className={styles.radioCardText}>
-                    <div className={styles.radioCardTitle}>{option.label}</div>
-                    <div className={styles.radioCardDescription}>{option.description}</div>
-                    <div className={styles.radioCardFeatures}>{option.features}</div>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </RadioGroup>
+          <div className={styles.radioGrid}>
+            {INFRASTRUCTURE_OPTIONS.map((option) => {
+              const IconComponent = option.icon;
+              return (
+                <PurpleGlassRadio
+                  key={option.type}
+                  value={option.type}
+                  cardVariant
+                  cardTitle={option.label}
+                  cardDescription={option.description}
+                  cardIcon={<IconComponent />}
+                  glass="medium"
+                />
+              );
+            })}
+          </div>
+        </PurpleGlassRadioGroup>
       </div>
 
       {/* Target Cluster Name */}
       <div className={styles.section}>
-        <Label className={styles.label}>
-          Target Cluster Name <span style={{ fontWeight: 400, fontSize: '12px' }}>(Optional)</span>
-        </Label>
-        <Input
-          className={styles.textField}
+        <PurpleGlassInput
+          label="Target Cluster Name"
           placeholder="e.g., Azure Local Production Cluster"
           value={targetClusterName}
-          onChange={(ev, data) => setTargetClusterName(data.value)}
-          size="large"
+          onChange={(e) => setTargetClusterName(e.target.value)}
+          glass="light"
+          helperText="Give your new cluster a descriptive name. You can change this later."
         />
-        <p className={styles.description}>
-          Give your new cluster a descriptive name. You can change this later.
-        </p>
       </div>
 
       {/* Migration Strategy (Conditional - Only for Migration Activities) */}
       {isMigrationActivity && (
         <div className={styles.section}>
-          <Label className={styles.label}>
-            Hardware Sourcing Strategy <span style={{ fontWeight: 400, fontSize: '12px' }}>(Optional)</span>
-          </Label>
+          <h3 className={styles.sectionTitle}>Hardware Sourcing Strategy (Optional)</h3>
           <p className={styles.description}>
             Choose how you'll source hardware for this migration. This helps us plan procurement and timelines.
           </p>
 
-          <RadioGroup
+          <PurpleGlassRadioGroup
             value={migrationStrategy}
-            onChange={(_, data) => setMigrationStrategy(data.value as any)}
-            className={styles.radioGroup}
+            onChange={(value) => setMigrationStrategy(value as "domino_hardware_swap" | "new_hardware_purchase" | "existing_free_hardware")}
+            orientation="horizontal"
           >
-            {/* Domino Hardware Swap */}
-            <div
-              className={`${styles.radioCard} ${migrationStrategy === 'domino_hardware_swap' ? styles.radioCardSelected : ''}`}
-              onClick={() => setMigrationStrategy('domino_hardware_swap')}
-            >
-              <div className={styles.radioCardContent}>
-                <div className={styles.radioCardRadio}>
-                  <Radio value="domino_hardware_swap" label="" />
-                </div>
-                <ArrowSyncRegular
-                  className={`${styles.radioCardIcon} ${
-                    migrationStrategy === 'domino_hardware_swap' ? styles.radioCardIconSelected : ''
-                  }`}
-                />
-                <div className={styles.radioCardText}>
-                  <div className={styles.radioCardTitle}>⚡ Domino Hardware Swap</div>
-                  <div className={styles.radioCardDescription}>
-                    Reuse hardware from another cluster being decommissioned
-                  </div>
-                  <div className={styles.radioCardFeatures}>
-                    Zero procurement • Faster deployment • Cost-effective
-                  </div>
-                </div>
-              </div>
+            <div className={styles.radioGrid}>
+              <PurpleGlassRadio
+                value="domino_hardware_swap"
+                cardVariant
+                cardTitle="Domino Hardware Swap"
+                cardDescription="Reuse hardware from another cluster being decommissioned"
+                cardIcon={<ArrowSyncRegular />}
+                glass="light"
+              />
+              <PurpleGlassRadio
+                value="new_hardware_purchase"
+                cardVariant
+                cardTitle="New Hardware Purchase"
+                cardDescription="Order new servers from hardware basket"
+                cardIcon={<ShoppingBagRegular />}
+                glass="light"
+              />
+              <PurpleGlassRadio
+                value="existing_free_hardware"
+                cardVariant
+                cardTitle="Use Existing Free Hardware"
+                cardDescription="Allocate hardware from available pool"
+                cardIcon={<ArchiveRegular />}
+                glass="light"
+              />
             </div>
-
-            {/* New Hardware Purchase */}
-            <div
-              className={`${styles.radioCard} ${migrationStrategy === 'new_hardware_purchase' ? styles.radioCardSelected : ''}`}
-              onClick={() => setMigrationStrategy('new_hardware_purchase')}
-            >
-              <div className={styles.radioCardContent}>
-                <div className={styles.radioCardRadio}>
-                  <Radio value="new_hardware_purchase" label="" />
-                </div>
-                <ShoppingBagRegular
-                  className={`${styles.radioCardIcon} ${
-                    migrationStrategy === 'new_hardware_purchase' ? styles.radioCardIconSelected : ''
-                  }`}
-                />
-                <div className={styles.radioCardText}>
-                  <div className={styles.radioCardTitle}>🛒 New Hardware Purchase</div>
-                  <div className={styles.radioCardDescription}>
-                    Order new servers from hardware basket
-                  </div>
-                  <div className={styles.radioCardFeatures}>
-                    Latest technology • Warranty support • Custom configuration
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Existing Free Hardware */}
-            <div
-              className={`${styles.radioCard} ${migrationStrategy === 'existing_free_hardware' ? styles.radioCardSelected : ''}`}
-              onClick={() => setMigrationStrategy('existing_free_hardware')}
-            >
-              <div className={styles.radioCardContent}>
-                <div className={styles.radioCardRadio}>
-                  <Radio value="existing_free_hardware" label="" />
-                </div>
-                <ArchiveRegular
-                  className={`${styles.radioCardIcon} ${
-                    migrationStrategy === 'existing_free_hardware' ? styles.radioCardIconSelected : ''
-                  }`}
-                />
-                <div className={styles.radioCardText}>
-                  <div className={styles.radioCardTitle}>📦 Use Existing Free Hardware</div>
-                  <div className={styles.radioCardDescription}>
-                    Allocate hardware from available pool
-                  </div>
-                  <div className={styles.radioCardFeatures}>
-                    Immediate availability • No procurement • Reuse existing assets
-                  </div>
-                </div>
-              </div>
-            </div>
-          </RadioGroup>
+          </PurpleGlassRadioGroup>
 
           {/* Domino Configuration (conditional) */}
           {migrationStrategy === 'domino_hardware_swap' && (
             <div style={{ marginTop: tokens.xl, display: 'flex', flexDirection: 'column', gap: tokens.l }}>
               <PurpleGlassDropdown
                 label="Domino Source Cluster"
+                helperText="Select the cluster that will be decommissioned to provide hardware for this migration."
                 placeholder="Select cluster to reuse hardware from..."
+                options={CLUSTER_OPTIONS.filter(opt => opt.value !== sourceClusterId)}
+                value={dominoSourceCluster || undefined}
+                onChange={handleDominoSourceClusterChange}
                 required
-                options={MOCK_CLUSTERS.filter(c => c.id !== sourceClusterId).map((cluster) => ({
-                  value: cluster.id,
-                  label: `${cluster.name} (${cluster.type})`
-                }))}
-                value={dominoSourceCluster}
-                onChange={(value) => setDominoSourceCluster(value as string || '')}
                 glass="light"
               />
-              <p className={styles.description}>
-                Select the cluster that will be decommissioned to provide hardware for this migration.
-              </p>
 
-              <Label className={styles.label} style={{ marginTop: tokens.m }}>
-                Hardware Available Date
-              </Label>
-              <Input
-                className={styles.textField}
+              <PurpleGlassInput
+                label="Hardware Available Date"
                 type="date"
                 value={hardwareAvailableDate}
-                onChange={(_, data) => setHardwareAvailableDate(data.value)}
-                size="large"
-                contentBefore={<CalendarRegular />}
+                onChange={(e) => setHardwareAvailableDate(e.target.value)}
+                prefixIcon={<CalendarRegular />}
+                helperText="When will the hardware from the source cluster be available for reuse?"
+                glass="light"
               />
-              <p className={styles.description}>
-                When will the hardware from the source cluster be available for reuse?
-              </p>
             </div>
           )}
 
@@ -572,28 +391,14 @@ const Step2_SourceDestination: React.FC = () => {
             <div style={{ marginTop: tokens.xl, display: 'flex', flexDirection: 'column', gap: tokens.l }}>
               <PurpleGlassDropdown
                 label="Hardware Basket"
+                helperText="Select a pre-configured hardware basket with validated server models."
                 placeholder="Select hardware basket..."
+                options={HARDWARE_BASKET_OPTIONS}
+                value={hardwareBasketId || undefined}
+                onChange={handleHardwareBasketChange}
                 required
-                options={[
-                  { value: 'basket-dell-r760', label: 'Dell PowerEdge R760 Basket (12 models)' },
-                  { value: 'basket-hpe-gen11', label: 'HPE ProLiant Gen11 Basket (8 models)' },
-                  { value: 'basket-lenovo-sr650v3', label: 'Lenovo ThinkSystem SR650 V3 Basket (10 models)' }
-                ]}
-                value={hardwareBasketId}
-                onChange={(value) => {
-                  setHardwareBasketId(value as string || '');
-                  const option = [
-                    { value: 'basket-dell-r760', label: 'Dell PowerEdge R760 Basket' },
-                    { value: 'basket-hpe-gen11', label: 'HPE ProLiant Gen11 Basket' },
-                    { value: 'basket-lenovo-sr650v3', label: 'Lenovo ThinkSystem SR650 V3 Basket' }
-                  ].find(o => o.value === value);
-                  setHardwareBasketName(option?.label || '');
-                }}
                 glass="light"
               />
-              <p className={styles.description}>
-                Select a pre-configured hardware basket with validated server models.
-              </p>
               
               {hardwareBasketId && (
                 <div className={styles.infoBox}>

@@ -3,20 +3,15 @@ import {
   Card,
   CardHeader,
   Button,
-  Input,
   Dialog,
   DialogSurface,
   DialogTitle,
   DialogBody,
   DialogActions,
   DialogContent,
-  Field,
-  Label,
   Badge,
   Avatar,
   ProgressBar,
-  Dropdown,
-  Option,
   Menu,
   MenuTrigger,
   MenuPopover,
@@ -26,7 +21,6 @@ import {
 import {
   Search24Regular,
   Add24Regular,
-  Filter24Regular,
   Calendar24Regular,
   People24Regular,
   Warning24Regular,
@@ -38,6 +32,7 @@ import {
   Edit24Regular,
   Delete24Regular,
 } from '@fluentui/react-icons';
+import { PurpleGlassInput, PurpleGlassDropdown } from '../components/ui';
 import { MigrationProject, ProjectTemplate, PROJECT_TEMPLATES, MIGRATION_TASK_TYPES } from '../types/migrationTypes';
 
 interface MigrationProjectsProps {
@@ -52,6 +47,23 @@ export const MigrationProjects: React.FC<MigrationProjectsProps> = ({ className 
   const [filterType, setFilterType] = useState<string>('all');
   const [isNewProjectDialogOpen, setIsNewProjectDialogOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<ProjectTemplate | null>(null);
+
+  const statusOptions = [
+    { value: 'all', label: 'All Statuses' },
+    { value: 'planning', label: 'Planning' },
+    { value: 'active', label: 'Active' },
+    { value: 'paused', label: 'Paused' },
+    { value: 'completed', label: 'Completed' },
+    { value: 'cancelled', label: 'Cancelled' },
+  ];
+
+  const typeOptions = [
+    { value: 'all', label: 'All Types' },
+    { value: 'vmware_to_hyperv', label: 'VMware to Hyper-V' },
+    { value: 'vmware_to_azure_local', label: 'VMware to Azure Local' },
+    { value: 'general_migration', label: 'General Migration' },
+    { value: 'hardware_refresh', label: 'Hardware Refresh' },
+  ];
 
   // Mock data for demonstration
   useEffect(() => {
@@ -205,45 +217,38 @@ export const MigrationProjects: React.FC<MigrationProjectsProps> = ({ className 
 
       {/* Filters */}
       <div className="flex flex-wrap gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
-        <Field className="flex-1 min-w-64">
-          <Input
+        <div className="flex-1 min-w-64">
+          <PurpleGlassInput
+            label="Search"
             placeholder="Search projects..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            contentBefore={<Search24Regular />}
+            prefixIcon={<Search24Regular />}
+            glass="light"
           />
-        </Field>
-        
-        <Field>
-          <Dropdown
-            value={filterStatus}
-            selectedOptions={[filterStatus]}
-            onOptionSelect={(_, data) => setFilterStatus(data.optionValue || 'all')}
-            placeholder="Filter by status"
-          >
-            <Option value="all">All Statuses</Option>
-            <Option value="planning">Planning</Option>
-            <Option value="active">Active</Option>
-            <Option value="paused">Paused</Option>
-            <Option value="completed">Completed</Option>
-            <Option value="cancelled">Cancelled</Option>
-          </Dropdown>
-        </Field>
+        </div>
 
-        <Field>
-          <Dropdown
-            value={filterType}
-            selectedOptions={[filterType]}
-            onOptionSelect={(_, data) => setFilterType(data.optionValue || 'all')}
+        <div className="min-w-52">
+          <PurpleGlassDropdown
+            label="Status"
+            placeholder="Filter by status"
+            value={filterStatus}
+            onChange={(value) => setFilterStatus((value as string) || 'all')}
+            options={statusOptions}
+            glass="light"
+          />
+        </div>
+
+        <div className="min-w-52">
+          <PurpleGlassDropdown
+            label="Project Type"
             placeholder="Filter by type"
-          >
-            <Option value="all">All Types</Option>
-            <Option value="vmware_to_hyperv">VMware to Hyper-V</Option>
-            <Option value="vmware_to_azure_local">VMware to Azure Local</Option>
-            <Option value="general_migration">General Migration</Option>
-            <Option value="hardware_refresh">Hardware Refresh</Option>
-          </Dropdown>
-        </Field>
+            value={filterType}
+            onChange={(value) => setFilterType((value as string) || 'all')}
+            options={typeOptions}
+            glass="light"
+          />
+        </div>
       </div>
 
       {/* Projects Grid */}

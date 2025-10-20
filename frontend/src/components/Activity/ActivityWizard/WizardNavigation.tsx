@@ -11,7 +11,7 @@
  */
 
 import React, { useState } from 'react';
-import { Button } from '@fluentui/react-components';
+import { PurpleGlassButton } from '../../ui';
 import {
   ArrowLeftRegular,
   ArrowRightRegular,
@@ -107,48 +107,47 @@ const WizardNavigation: React.FC = () => {
     <div className={styles.navigation}>
       {/* Left Side - Back Button */}
       <div className={styles.navGroup}>
-        <Button
-          appearance="secondary"
+        <PurpleGlassButton
+          variant="secondary"
           icon={<ArrowLeftRegular />}
           onClick={handleBack}
           disabled={isFirstStep || isSaving || isSubmitting}
         >
           Back
-        </Button>
+        </PurpleGlassButton>
       </div>
 
       {/* Right Side - Save Draft, Next/Submit */}
       <div className={styles.navGroup}>
         {/* Save Draft Button */}
-        <Button
-          appearance="subtle"
+        <PurpleGlassButton
+          variant="ghost"
           icon={<SaveRegular />}
           onClick={handleSaveDraft}
           disabled={isSaving || isSubmitting}
         >
           {isSaving ? 'Saving...' : 'Save Draft'}
-        </Button>
+        </PurpleGlassButton>
 
         {/* Next or Submit Button */}
         {isLastStep ? (
-          <Button
-            appearance="primary"
+          <PurpleGlassButton
+            variant="primary"
             icon={<CheckmarkCircleFilled />}
             onClick={handleSubmit}
             disabled={!canGoNext() || isSubmitting}
           >
             {isSubmitting ? 'Submitting...' : 'Submit & Create Activity'}
-          </Button>
+          </PurpleGlassButton>
         ) : (
-          <Button
-            appearance="primary"
-            icon={<ArrowRightRegular />}
-            iconPosition="after"
+          <PurpleGlassButton
+            variant="primary"
+            iconEnd={<ArrowRightRegular />}
             onClick={handleNext}
             disabled={!canGoNext() || isSaving || isSubmitting}
           >
             Next
-          </Button>
+          </PurpleGlassButton>
         )}
       </div>
 

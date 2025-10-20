@@ -267,7 +267,7 @@ const HardwareBasketView: React.FC = () => {
         <div style={{ 
           fontSize: '18px',
           color: '#6366f1',
-          fontFamily: 'Montserrat, sans-serif',
+          fontFamily: 'Oxanium, sans-serif',
           textAlign: 'center'
         }}>
           🔄 Loading hardware baskets...
@@ -282,7 +282,7 @@ const HardwareBasketView: React.FC = () => {
         <div style={{ 
           color: '#ef4444',
           fontSize: '16px',
-          fontFamily: 'Montserrat, sans-serif'
+          fontFamily: 'Oxanium, sans-serif'
         }}>
           <ErrorCircleRegular style={{ marginRight: '8px' }} />Error: {error}
         </div>
@@ -327,7 +327,7 @@ const HardwareBasketView: React.FC = () => {
             fontWeight: '500',
             cursor: 'pointer',
             transition: 'all 0.3s ease',
-            fontFamily: 'Montserrat, sans-serif'
+            fontFamily: 'Oxanium, sans-serif'
           }}
           onMouseOver={(e) => {
             e.currentTarget.style.transform = 'translateY(-2px)';
@@ -369,7 +369,7 @@ const HardwareBasketView: React.FC = () => {
               ...DesignTokens.components.standardCard,
               padding: '14px 20px',
               fontSize: '14px',
-              fontFamily: 'Montserrat, sans-serif',
+              fontFamily: 'Oxanium, sans-serif',
               cursor: 'pointer',
               outline: 'none',
               color: '#1f2937',
@@ -392,7 +392,7 @@ const HardwareBasketView: React.FC = () => {
               ...DesignTokens.components.standardCard,
               padding: '14px 20px',
               fontSize: '14px',
-              fontFamily: 'Montserrat, sans-serif',
+              fontFamily: 'Oxanium, sans-serif',
               cursor: 'pointer',
               outline: 'none',
               color: '#1f2937',
@@ -421,7 +421,7 @@ const HardwareBasketView: React.FC = () => {
               fontSize: '14px',
               fontWeight: '500',
               cursor: 'pointer',
-              fontFamily: 'Montserrat, sans-serif'
+              fontFamily: 'Oxanium, sans-serif'
             }}
             onMouseEnter={(e) => {
               const target = e.currentTarget as HTMLElement;
@@ -436,7 +436,7 @@ const HardwareBasketView: React.FC = () => {
                 fontSize: '14px',
                 fontWeight: '500',
                 cursor: 'pointer',
-                fontFamily: 'Montserrat, sans-serif'
+                fontFamily: 'Oxanium, sans-serif'
               });
             }}
           >
@@ -462,7 +462,7 @@ const HardwareBasketView: React.FC = () => {
             fontSize: '14px',
             fontWeight: '500',
             color: '#6366f1',
-            fontFamily: 'Montserrat, sans-serif'
+            fontFamily: 'Oxanium, sans-serif'
           }}>
             <DataBarHorizontalRegular style={{ marginRight: '8px' }} />Showing {filteredBaskets.length} of {hardwareBaskets.length} baskets
             {(searchTerm || vendorFilter !== 'All' || yearFilter !== 'All') && (
@@ -476,7 +476,7 @@ const HardwareBasketView: React.FC = () => {
             display: 'flex',
             gap: '16px',
             fontSize: '12px',
-            fontFamily: 'Montserrat, sans-serif'
+            fontFamily: 'Oxanium, sans-serif'
           }}>
             <span style={{ color: '#007db8' }}>
               🔷 Dell: {filteredBaskets.filter(b => b.vendor === 'Dell').length}
@@ -511,7 +511,7 @@ const HardwareBasketView: React.FC = () => {
             fontWeight: '500',
             color: '#6366f1',
             marginBottom: '8px',
-            fontFamily: 'Montserrat, sans-serif'
+            fontFamily: 'Oxanium, sans-serif'
           }}>
             No Hardware Baskets Found
           </div>
@@ -519,7 +519,7 @@ const HardwareBasketView: React.FC = () => {
             fontSize: '14px',
             color: '#64748b',
             marginBottom: '24px',
-            fontFamily: 'Montserrat, sans-serif'
+            fontFamily: 'Oxanium, sans-serif'
           }}>
             Create your first hardware basket to get started with vendor data management.
           </div>
@@ -535,7 +535,7 @@ const HardwareBasketView: React.FC = () => {
               fontWeight: '500',
               cursor: 'pointer',
               transition: 'all 0.3s ease',
-              fontFamily: 'Montserrat, sans-serif'
+              fontFamily: 'Oxanium, sans-serif'
             }}
           >
             <span style={{ color: 'white' }}>+</span> Create Your First Basket
@@ -626,7 +626,7 @@ const HardwareBasketView: React.FC = () => {
                 fontWeight: '600',
                 color: '#1f2937',
                 marginBottom: '8px',
-                fontFamily: 'Montserrat, sans-serif',
+                fontFamily: 'Oxanium, sans-serif',
                 lineHeight: '1.4'
               }}>
                 {basket.name}
@@ -637,7 +637,7 @@ const HardwareBasketView: React.FC = () => {
                 fontSize: '13px',
                 color: '#64748b',
                 marginBottom: '12px',
-                fontFamily: 'Montserrat, sans-serif',
+                fontFamily: 'Oxanium, sans-serif',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '6px'
@@ -697,7 +697,7 @@ const HardwareBasketView: React.FC = () => {
               <div style={{
                 fontSize: '12px',
                 color: '#64748b',
-                fontFamily: 'Montserrat, sans-serif',
+                fontFamily: 'Oxanium, sans-serif',
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
@@ -736,7 +736,7 @@ const HardwareBasketView: React.FC = () => {
               fontWeight: '600',
               color: '#6366f1',
               marginBottom: '20px',
-              fontFamily: 'Montserrat, sans-serif'
+              fontFamily: 'Oxanium, sans-serif'
             }}>
               📦 Create Hardware Basket
             </h2>
@@ -923,7 +923,7 @@ const HardwareBasketView: React.FC = () => {
               fontWeight: '600',
               color: '#6366f1',
               marginBottom: '20px',
-              fontFamily: 'Montserrat, sans-serif'
+              fontFamily: 'Oxanium, sans-serif'
             }}>
               <ArrowUploadRegular style={{ marginRight: '8px' }} />Upload File to {selectedBasket.name}
             </h2>

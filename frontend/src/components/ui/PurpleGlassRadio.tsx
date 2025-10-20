@@ -154,6 +154,11 @@ export interface PurpleGlassRadioProps extends Omit<React.InputHTMLAttributes<HT
   cardDescription?: string;
 
   /**
+   * Visual icon displayed inside the card (only for card variant)
+   */
+  cardIcon?: React.ReactNode;
+
+  /**
    * Additional CSS class name for the wrapper
    */
   className?: string;
@@ -249,6 +254,7 @@ export const PurpleGlassRadio = forwardRef<HTMLInputElement, PurpleGlassRadioPro
       cardVariant = false,
       cardTitle,
       cardDescription,
+  cardIcon,
       disabled,
       className,
       labelClassName,
@@ -326,6 +332,11 @@ export const PurpleGlassRadio = forwardRef<HTMLInputElement, PurpleGlassRadioPro
         className
       );
 
+      const iconClasses = mergeClasses(
+        styles.cardIconWrapper,
+        isChecked && styles.cardIconChecked
+      );
+
       return (
         <label className={cardClasses} htmlFor={radioId}>
           <input
@@ -342,14 +353,25 @@ export const PurpleGlassRadio = forwardRef<HTMLInputElement, PurpleGlassRadioPro
             {...inputProps}
           />
 
-          <div className={styles.cardHeader}>
+          <div className={styles.cardIndicator}>
             <div className={getRadioClasses()}>
               <span className={mergeClasses(styles.innerDot, isChecked && styles.innerDotVisible)} />
             </div>
-            {cardTitle && <span className={styles.cardTitle}>{cardTitle}</span>}
           </div>
 
-          {cardDescription && <div className={styles.cardDescription}>{cardDescription}</div>}
+          {cardIcon && <div className={iconClasses}>{cardIcon}</div>}
+
+          {cardTitle && (
+            <div className={mergeClasses(styles.cardTitle, isChecked && styles.cardTitleChecked)}>
+              {cardTitle}
+            </div>
+          )}
+
+          {cardDescription && (
+            <div className={mergeClasses(styles.cardDescription, isChecked && styles.cardDescriptionChecked)}>
+              {cardDescription}
+            </div>
+          )}
         </label>
       );
     }

@@ -101,7 +101,7 @@ export const useCardStyles = makeStyles({
   },
 
   elevatedGlass: {
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    backgroundColor: tokens.components.card.elevatedGlassBackground,
     backdropFilter: tokens.blurHeavy,
     WebkitBackdropFilter: tokens.blurHeavy,
     boxShadow: `${tokens.shadow16}, ${tokens.glowSmall}`,
