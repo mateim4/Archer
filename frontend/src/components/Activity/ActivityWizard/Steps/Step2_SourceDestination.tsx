@@ -65,6 +65,7 @@ const useStyles = makeStyles({
     width: '100%',
   },
 
+
   label: {
     fontSize: tokens.fontSizeBase300,
     fontWeight: tokens.fontWeightSemibold,
@@ -326,15 +327,16 @@ const Step2_SourceDestination: React.FC = () => {
             Choose how you'll source hardware for this migration. This helps us plan procurement and timelines.
           </p>
 
-          <div className={styles.radioGrid}>
-            <PurpleGlassRadioGroup
-              value={migrationStrategy}
-              onChange={(value) => setMigrationStrategy(value as "domino_hardware_swap" | "new_hardware_purchase" | "existing_free_hardware")}
-            >
+          <PurpleGlassRadioGroup
+            value={migrationStrategy}
+            onChange={(value) => setMigrationStrategy(value as "domino_hardware_swap" | "new_hardware_purchase" | "existing_free_hardware")}
+            orientation="horizontal"
+          >
+            <div className={styles.radioGrid}>
               <PurpleGlassRadio
                 value="domino_hardware_swap"
                 cardVariant
-                cardTitle="⚡ Domino Hardware Swap"
+                cardTitle="Domino Hardware Swap"
                 cardDescription="Reuse hardware from another cluster being decommissioned"
                 cardIcon={<ArrowSyncRegular />}
                 glass="light"
@@ -342,7 +344,7 @@ const Step2_SourceDestination: React.FC = () => {
               <PurpleGlassRadio
                 value="new_hardware_purchase"
                 cardVariant
-                cardTitle="🛒 New Hardware Purchase"
+                cardTitle="New Hardware Purchase"
                 cardDescription="Order new servers from hardware basket"
                 cardIcon={<ShoppingBagRegular />}
                 glass="light"
@@ -350,13 +352,13 @@ const Step2_SourceDestination: React.FC = () => {
               <PurpleGlassRadio
                 value="existing_free_hardware"
                 cardVariant
-                cardTitle="📦 Use Existing Free Hardware"
+                cardTitle="Use Existing Free Hardware"
                 cardDescription="Allocate hardware from available pool"
                 cardIcon={<ArchiveRegular />}
                 glass="light"
               />
-            </PurpleGlassRadioGroup>
-          </div>
+            </div>
+          </PurpleGlassRadioGroup>
 
           {/* Domino Configuration (conditional) */}
           {migrationStrategy === 'domino_hardware_swap' && (

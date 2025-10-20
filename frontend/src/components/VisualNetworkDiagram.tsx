@@ -143,7 +143,7 @@ const VisualNetworkDiagram: React.FC<VisualNetworkDiagramProps> = ({
           fontSize={12}
           fontWeight="500"
           fill="#374151"
-          fontFamily="Montserrat, sans-serif"
+          fontFamily="Oxanium, sans-serif"
         >
           {node.name.length > 12 ? `${node.name.substring(0, 12)}...` : node.name}
         </text>
@@ -155,7 +155,7 @@ const VisualNetworkDiagram: React.FC<VisualNetworkDiagramProps> = ({
           textAnchor="middle"
           fontSize={10}
           fill="#6b7280"
-          fontFamily="Montserrat, sans-serif"
+          fontFamily="Oxanium, sans-serif"
         >
           {node.type}
         </text>
@@ -204,7 +204,7 @@ const VisualNetworkDiagram: React.FC<VisualNetworkDiagramProps> = ({
               textAnchor="middle"
               fontSize={10}
               fill="#374151"
-              fontFamily="Montserrat, sans-serif"
+              fontFamily="Oxanium, sans-serif"
             >
               {connection.label}
             </text>
@@ -264,7 +264,7 @@ const VisualNetworkDiagram: React.FC<VisualNetworkDiagramProps> = ({
           fontSize={16}
           fontWeight="600"
           fill="#374151"
-          fontFamily="Montserrat, sans-serif"
+          fontFamily="Oxanium, sans-serif"
         >
           {technology === 'vmware' ? 'VMware vSphere Infrastructure' : 
            technology === 'hyperv' ? 'Microsoft Hyper-V Infrastructure' : 

@@ -82,7 +82,7 @@ export const DesignTokens = {
   
   // Typography
   typography: {
-    fontFamily: "'Poppins', system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
+    fontFamily: "'Oxanium', system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
     
     // Font Sizes
     xs: '12px',
@@ -183,7 +183,7 @@ export const DesignTokens = {
         padding: '9px 18px',
         fontWeight: '600',
         fontSize: '14px',
-        fontFamily: "'Poppins', system-ui, sans-serif",
+        fontFamily: "'Oxanium', system-ui, sans-serif",
         transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
         boxShadow: '0 2px 8px rgba(99, 102, 241, 0.25)',
         cursor: 'pointer',
@@ -209,7 +209,7 @@ export const DesignTokens = {
         padding: '9px 18px',
         fontWeight: '600',
         fontSize: '14px',
-        fontFamily: "'Poppins', system-ui, sans-serif",
+        fontFamily: "'Oxanium', system-ui, sans-serif",
         transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
         backdropFilter: 'blur(10px)',
         cursor: 'pointer',
@@ -249,7 +249,7 @@ export const DesignTokens = {
         color: '#64748b',
         border: '1px solid rgba(203, 213, 225, 0.4)',
         borderRadius: '8px',
-        padding: '8px',
+  padding: '8px 8px 8px 6px',
         cursor: 'pointer',
         display: 'inline-flex',
         alignItems: 'center',
@@ -314,7 +314,7 @@ export const DesignTokens = {
         borderRadius: '9999px',
         fontSize: '14px',
         fontWeight: '600',
-        fontFamily: "'Poppins', sans-serif",
+        fontFamily: "'Oxanium', sans-serif",
         background: 'none',
         border: 'none',
         outline: 'none',
@@ -338,7 +338,7 @@ export const DesignTokens = {
       borderRadius: '8px',
       padding: '12px 16px',
       fontSize: '16px',
-      fontFamily: "'Poppins', system-ui, sans-serif",
+      fontFamily: "'Oxanium', system-ui, sans-serif",
       backdropFilter: 'blur(10px)',
       transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
     },
@@ -352,7 +352,7 @@ export const DesignTokens = {
       borderRadius: '30px',
       padding: '14px 20px 14px 68px', // Left padding for icon
       fontSize: '16px',
-      fontFamily: "'Poppins', system-ui, sans-serif",
+      fontFamily: "'Oxanium', system-ui, sans-serif",
       transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
       width: '440px',
       maxWidth: '100%',
@@ -394,14 +394,14 @@ export const DesignTokens = {
       color: '#1f2937',
       lineHeight: '24px',
       marginBottom: '8px',
-      fontFamily: "'Poppins', system-ui, sans-serif",
+      fontFamily: "'Oxanium', system-ui, sans-serif",
     },
     
     cardDescription: {
       fontSize: '14px',
       color: '#000000',
       lineHeight: '20px',
-      fontFamily: "'Poppins', system-ui, sans-serif",
+      fontFamily: "'Oxanium', system-ui, sans-serif",
     },
     
     sectionTitle: {
@@ -410,7 +410,7 @@ export const DesignTokens = {
       color: '#1f2937',
       lineHeight: '32px',
       marginBottom: '16px',
-      fontFamily: "'Poppins', system-ui, sans-serif",
+      fontFamily: "'Oxanium', system-ui, sans-serif",
     },
 
     // Standardized Card Header Styles
@@ -420,7 +420,7 @@ export const DesignTokens = {
       color: '#1f2937',
       lineHeight: '1.4',
       margin: '0',
-      fontFamily: "'Poppins', system-ui, sans-serif",
+      fontFamily: "'Oxanium', system-ui, sans-serif",
     },
 
     standardCardSubtitle: {
@@ -429,7 +429,7 @@ export const DesignTokens = {
       color: '#6b7280',
       lineHeight: '1.5',
       margin: '4px 0 0 0',
-      fontFamily: "'Poppins', system-ui, sans-serif",
+      fontFamily: "'Oxanium', system-ui, sans-serif",
     },
 
     standardCardIcon: {
@@ -446,7 +446,7 @@ export const DesignTokens = {
       fontWeight: '700',
       color: '#8b5cf6',
       lineHeight: '32px',
-      fontFamily: "'Poppins', system-ui, sans-serif",
+      fontFamily: "'Oxanium', system-ui, sans-serif",
     },
 
     standardSubtitle: {
@@ -455,7 +455,7 @@ export const DesignTokens = {
       color: '#000000',
       lineHeight: '24px',
       marginTop: '8px',
-      fontFamily: "'Poppins', system-ui, sans-serif",
+      fontFamily: "'Oxanium', system-ui, sans-serif",
     },
   },
   

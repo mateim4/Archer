@@ -100,7 +100,7 @@ const ConsistentCard: React.FC<ConsistentCardProps> = ({
                     fontSize: '18px',
                     fontWeight: '600',
                     color: '#1a202c',
-                    fontFamily: "'Poppins', system-ui, sans-serif",
+                    fontFamily: "'Oxanium', system-ui, sans-serif",
                     lineHeight: '1.4'
                   }}>
                     {title}
@@ -111,7 +111,7 @@ const ConsistentCard: React.FC<ConsistentCardProps> = ({
                     margin: title ? '4px 0 0 0' : 0,
                     fontSize: '14px',
                     color: '#6b7280',
-                    fontFamily: "'Poppins', system-ui, sans-serif",
+                    fontFamily: "'Oxanium', system-ui, sans-serif",
                     lineHeight: '1.5'
                   }}>
                     {subtitle}

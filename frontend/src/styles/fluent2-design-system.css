@@ -107,7 +107,7 @@
   
   /* === Fluent 2 Typography Scale === */
   --fluent-font-family-base: "Oxanium", "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
-  --fluent-font-family-heading: "Nasalization", "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
+  --fluent-font-family-heading: "Nasalization", "Oxanium", "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
   --fluent-font-size-100: 10px;   /* Caption 2 */
   --fluent-font-size-200: 12px;   /* Caption 1 */
   --fluent-font-size-300: 14px;   /* Body 1 */

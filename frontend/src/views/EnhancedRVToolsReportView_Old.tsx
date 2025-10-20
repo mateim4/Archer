@@ -297,7 +297,7 @@ export const EnhancedRVToolsReportView: React.FC<EnhancedRVToolsReportViewProps>
           fontWeight: '800',
           color: 'white',
           margin: '0 0 8px 0',
-          fontFamily: 'Montserrat, sans-serif',
+          fontFamily: 'Oxanium, sans-serif',
           textShadow: '0 2px 4px rgba(0,0,0,0.3)'
         }}>
           📊 Enhanced RVTools Reports
@@ -306,7 +306,7 @@ export const EnhancedRVToolsReportView: React.FC<EnhancedRVToolsReportViewProps>
           fontSize: '18px',
           color: 'rgba(255, 255, 255, 0.9)',
           margin: 0,
-          fontFamily: 'Montserrat, sans-serif'
+          fontFamily: 'Oxanium, sans-serif'
         }}>
           Generate comprehensive migration analysis reports from your RVTools data
         </p>

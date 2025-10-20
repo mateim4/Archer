@@ -320,6 +320,8 @@ All form components support:
 
 ### DO's ✅
 - ALWAYS use Purple Glass components for all forms, inputs, buttons, cards
+- ALWAYS rely on the shared design tokens for spacing, color, typography, and shadows instead of hardcoded or local overrides
+- ALWAYS inspect existing CSS or style overrides around a component when making UI changes; remove or align them with design tokens so they do not fight the new implementation
 - ALWAYS import from '@/components/ui' for form components
 - ALWAYS use standard CSS classes from design system
 - ALWAYS use Poppins family in styles
@@ -335,6 +337,7 @@ All form components support:
 - NEVER hardcode colors, spacing, or typography (use design tokens)
 - NEVER break the established design system
 - NEVER use or generate mock data unless explicitly asked to do so. In any other scenario it is strictly prohibited
+- NEVER rely on local style overrides unless every shared token and component prop has been exhausted (no overrides unless last resort)
 
 ### Git Workflow
 ```bash

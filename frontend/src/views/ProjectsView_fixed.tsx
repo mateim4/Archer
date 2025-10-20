@@ -658,7 +658,7 @@ export default function ProjectsView() {
             <div style={{ fontSize: '24px', fontWeight: '600', color: '#10b981' }}>
               {projects.filter(p => p.name).length}
             </div>
-            <div style={{ fontSize: '14px', color: '#6b7280', fontFamily: 'Montserrat, sans-serif' }}>Active Projects</div>
+            <div style={{ fontSize: '14px', color: '#6b7280', fontFamily: 'Oxanium, sans-serif' }}>Active Projects</div>
           </div>
           
           <div style={{
@@ -673,7 +673,7 @@ export default function ProjectsView() {
             <div style={{ fontSize: '24px', fontWeight: '600', color: '#6366f1' }}>
               {projects.length}
             </div>
-            <div style={{ fontSize: '14px', color: '#6b7280', fontFamily: 'Montserrat, sans-serif' }}>Total Projects</div>
+            <div style={{ fontSize: '14px', color: '#6b7280', fontFamily: 'Oxanium, sans-serif' }}>Total Projects</div>
           </div>
 
           <div style={{
@@ -688,7 +688,7 @@ export default function ProjectsView() {
             <div style={{ fontSize: '24px', fontWeight: '600', color: '#f59e0b' }}>
               {filteredAndSortedProjects.length}
             </div>
-            <div style={{ fontSize: '14px', color: '#6b7280', fontFamily: 'Montserrat, sans-serif' }}>Showing</div>
+            <div style={{ fontSize: '14px', color: '#6b7280', fontFamily: 'Oxanium, sans-serif' }}>Showing</div>
           </div>
         </div>
       )}

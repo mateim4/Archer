@@ -228,6 +228,20 @@ import { PurpleGlassButton } from '@/components/ui';
 - **Ghost**: Transparent background, border only
 - **Link**: Text-only, no background
 
+#### Button Type Reference
+
+| Button Type | Recommended Usage | `useButtonStyles` Classes | Token Highlights |
+|-------------|-------------------|---------------------------|------------------|
+| Primary     | High-emphasis actions (save, confirm) | `button`, `primary` / `primaryGlass` | `components.button.primary` gradient, brand focus outline |
+| Secondary   | Medium-emphasis actions, secondary choices | `button`, `secondary` / `secondaryGlass` | Neutral base with `colorBrandPrimary` text accents |
+| Danger      | Destructive or irreversible actions | `button`, `danger` | `colorStatusDanger` ramp + stronger shadow |
+| Ghost       | Low-emphasis inline actions | `button`, `ghost` / `ghostGlass` | Transparent backdrop with subtle hover tint |
+| Link        | Textual navigation or tertiary actions | `button`, `link` | Underline-only, no background |
+
+- **Sizing Classes**: stack `small`, `medium`, or `large` with the variant class.
+- **State Helpers**: append `loading`, `disabled`, or `elevated` to reflect async or high-visibility states.
+- **Icon Utilities**: add `iconOnly`, `iconStart`, or `iconEnd` when rendering glyphs beside button copy.
+
 ---
 
 ### PurpleGlassInput

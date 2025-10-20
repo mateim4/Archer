@@ -104,7 +104,7 @@ const HardwarePoolView: React.FC = () => {
         <div style={{ 
           fontSize: '18px',
           color: '#6366f1',
-          fontFamily: 'Montserrat, sans-serif',
+          fontFamily: 'Oxanium, sans-serif',
           textAlign: 'center'
         }}>
           <ArrowClockwiseRegular style={{ marginRight: '8px' }} />Loading hardware assets...
@@ -119,7 +119,7 @@ const HardwarePoolView: React.FC = () => {
         <div style={{ 
           color: '#ef4444',
           fontSize: '16px',
-          fontFamily: 'Montserrat, sans-serif'
+          fontFamily: 'Oxanium, sans-serif'
         }}>
           <ErrorCircleRegular style={{ marginRight: '8px' }} />Error: {error}
         </div>
@@ -180,7 +180,7 @@ const HardwarePoolView: React.FC = () => {
             fontWeight: '500',
             cursor: 'pointer',
             transition: 'all 0.3s ease',
-            fontFamily: 'Montserrat, sans-serif'
+            fontFamily: 'Oxanium, sans-serif'
           }}
           onMouseOver={(e) => {
             e.currentTarget.style.transform = 'translateY(-2px)';
@@ -222,7 +222,7 @@ const HardwarePoolView: React.FC = () => {
               ...DesignTokens.components.standardCard,
               padding: '14px 20px',
               fontSize: '14px',
-              fontFamily: 'Montserrat, sans-serif',
+              fontFamily: 'Oxanium, sans-serif',
               cursor: 'pointer',
               outline: 'none',
               color: '#1f2937',
@@ -247,7 +247,7 @@ const HardwarePoolView: React.FC = () => {
               ...DesignTokens.components.standardCard,
               padding: '14px 20px',
               fontSize: '14px',
-              fontFamily: 'Montserrat, sans-serif',
+              fontFamily: 'Oxanium, sans-serif',
               cursor: 'pointer',
               outline: 'none',
               color: '#1f2937',
@@ -276,7 +276,7 @@ const HardwarePoolView: React.FC = () => {
               fontSize: '14px',
               fontWeight: '500',
               cursor: 'pointer',
-              fontFamily: 'Montserrat, sans-serif'
+              fontFamily: 'Oxanium, sans-serif'
             }}
             onMouseEnter={(e) => {
               const target = e.currentTarget as HTMLElement;
@@ -291,7 +291,7 @@ const HardwarePoolView: React.FC = () => {
                 fontSize: '14px',
                 fontWeight: '500',
                 cursor: 'pointer',
-                fontFamily: 'Montserrat, sans-serif'
+                fontFamily: 'Oxanium, sans-serif'
               });
             }}
           >
@@ -317,7 +317,7 @@ const HardwarePoolView: React.FC = () => {
             fontSize: '14px',
             fontWeight: '500',
             color: '#6366f1',
-            fontFamily: 'Montserrat, sans-serif'
+            fontFamily: 'Oxanium, sans-serif'
           }}>
             <DataBarHorizontalRegular style={{ marginRight: '8px' }} />Showing {filteredAssets.length} of {hardwarePoolAssets.length} assets
             {(searchTerm || statusFilter !== 'All' || manufacturerFilter !== 'All') && (
@@ -331,7 +331,7 @@ const HardwarePoolView: React.FC = () => {
             display: 'flex',
             gap: '16px',
             fontSize: '12px',
-            fontFamily: 'Montserrat, sans-serif'
+            fontFamily: 'Oxanium, sans-serif'
           }}>
             <span style={{ color: '#10b981' }}>
               <CircleRegular style={{ marginRight: '4px', color: '#10b981' }} />Available: {filteredAssets.filter(a => a.status === 'Available').length}
@@ -356,7 +356,7 @@ const HardwarePoolView: React.FC = () => {
           padding: '40px',
           color: '#6b7280',
           fontSize: '16px',
-          fontFamily: 'Montserrat, sans-serif'
+          fontFamily: 'Oxanium, sans-serif'
         }}>
           <div style={{ fontSize: '48px', marginBottom: '16px' }}>�</div>
           No hardware assets found. Add your first asset to get started!
@@ -371,7 +371,7 @@ const HardwarePoolView: React.FC = () => {
           <table style={{ 
             width: '100%',
             borderCollapse: 'collapse',
-            fontFamily: 'Montserrat, sans-serif'
+            fontFamily: 'Oxanium, sans-serif'
           }}>
             <thead>
               <tr style={{ 

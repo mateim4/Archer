@@ -34,14 +34,14 @@ const useStyles = makeStyles({
     fontSize: tokens.fontSizeBase600,
     fontWeight: tokens.fontWeightSemibold,
     color: tokens.colorNeutralForeground1,
-    fontFamily: 'Poppins, Montserrat, system-ui, sans-serif',
+    fontFamily: 'Oxanium, system-ui, sans-serif',
     marginBottom: tokens.s,
   },
   subtitle: {
     fontSize: tokens.fontSizeBase400,
     fontWeight: tokens.fontWeightRegular,
     color: tokens.colorNeutralForeground2,
-    fontFamily: 'Poppins, Montserrat, system-ui, sans-serif',
+    fontFamily: 'Oxanium, system-ui, sans-serif',
     marginBottom: tokens.m,
   },
   formGrid: {
@@ -55,13 +55,13 @@ const useStyles = makeStyles({
     ...shorthands.gap(tokens.s),
   },
   label: {
-    fontFamily: 'Poppins, Montserrat, system-ui, sans-serif',
+    fontFamily: 'Oxanium, system-ui, sans-serif',
     fontWeight: tokens.fontWeightMedium,
     fontSize: tokens.fontSizeBase300,
     color: tokens.colorNeutralForeground1,
   },
   input: {
-    fontFamily: 'Poppins, Montserrat, system-ui, sans-serif',
+    fontFamily: 'Oxanium, system-ui, sans-serif',
   },
   milestonesSection: {
     display: 'flex',
@@ -74,7 +74,7 @@ const useStyles = makeStyles({
     justifyContent: 'space-between',
   },
   addButton: {
-    fontFamily: 'Poppins, Montserrat, system-ui, sans-serif',
+    fontFamily: 'Oxanium, system-ui, sans-serif',
     fontWeight: tokens.fontWeightSemibold,
   },
   milestonesList: {
@@ -110,7 +110,7 @@ const useStyles = makeStyles({
     fontSize: tokens.fontSizeBase500,
     fontWeight: tokens.fontWeightSemibold,
     color: '#3b82f6',
-    fontFamily: 'Poppins, Montserrat, system-ui, sans-serif',
+    fontFamily: 'Oxanium, system-ui, sans-serif',
   },
   deleteButton: {
     minWidth: 'auto',
@@ -128,7 +128,7 @@ const useStyles = makeStyles({
     ...shorthands.borderRadius(tokens.medium),
     backgroundColor: tokens.colorNeutralBackground3,
     ...shorthands.border('1px', 'solid', tokens.colorNeutralStroke2),
-    fontFamily: 'Poppins, Montserrat, system-ui, sans-serif',
+    fontFamily: 'Oxanium, system-ui, sans-serif',
     fontSize: tokens.fontSizeBase300,
     color: tokens.colorNeutralForeground2,
     lineHeight: '1.6',
@@ -147,7 +147,7 @@ const useStyles = makeStyles({
   emptyStateText: {
     fontSize: tokens.fontSizeBase400,
     color: tokens.colorNeutralForeground3,
-    fontFamily: 'Poppins, Montserrat, system-ui, sans-serif',
+    fontFamily: 'Oxanium, system-ui, sans-serif',
     marginTop: tokens.m,
   },
 });

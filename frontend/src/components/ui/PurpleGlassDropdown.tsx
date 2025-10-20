@@ -29,7 +29,8 @@
  * ```
  */
 
-import React, { useState, useRef, useEffect, forwardRef } from 'react';
+import React, { useState, useRef, useEffect, useMemo, forwardRef } from 'react';
+import { createPortal } from 'react-dom';
 import { mergeClasses } from '@fluentui/react-components';
 import { ChevronDownRegular, DismissRegular, CheckmarkRegular } from '@fluentui/react-icons';
 import { useDropdownStyles } from './styles/useDropdownStyles';
@@ -46,6 +47,30 @@ const parsePixelValue = (value?: string): number | undefined => {
   if (!value) return undefined;
   const parsed = Number.parseFloat(value.replace(/[^0-9.]/g, ''));
   return Number.isNaN(parsed) ? undefined : parsed;
+};
+
+const SCROLLABLE_OVERFLOW = ['auto', 'scroll', 'overlay'];
+
+const getScrollableAncestors = (element: HTMLElement | null): (HTMLElement | Window)[] => {
+  if (typeof window === 'undefined') {
+    return [];
+  }
+
+  const ancestors: (HTMLElement | Window)[] = [];
+  let parent = element?.parentElement ?? null;
+
+  while (parent) {
+    const styles = window.getComputedStyle(parent);
+    const overflowValues = [styles.overflow, styles.overflowY, styles.overflowX];
+    if (overflowValues.some((value) => SCROLLABLE_OVERFLOW.some((overflow) => value.includes(overflow)))) {
+      ancestors.push(parent);
+    }
+    parent = parent.parentElement;
+  }
+
+  ancestors.push(window);
+
+  return ancestors;
 };
 
 // ============================================================================
@@ -208,6 +233,13 @@ export const PurpleGlassDropdown = forwardRef<HTMLDivElement, PurpleGlassDropdow
     const [menuPosition, setMenuPosition] = useState<{ top: number; left: number; width: number } | null>(null);
     const triggerRef = useRef<HTMLButtonElement>(null);
     const menuRef = useRef<HTMLDivElement>(null);
+    const portalElement = useMemo(() => {
+      if (!isOpen || typeof document === 'undefined') {
+        return null;
+      }
+
+      return document.createElement('div');
+    }, [isOpen]);
 
     // Filter options based on search query
     const filteredOptions = searchable && searchQuery
@@ -245,9 +277,18 @@ export const PurpleGlassDropdown = forwardRef<HTMLDivElement, PurpleGlassDropdow
 
     // Calculate menu position when opened
     useEffect(() => {
-      if (!isOpen) {
+      if (!isOpen || typeof window === 'undefined') {
         return;
       }
+
+      const triggerElement = triggerRef.current;
+      if (!triggerElement) {
+        return;
+      }
+
+      const minWidth = parsePixelValue(dropdownTokens.menuMinWidth);
+      const maxWidth = parsePixelValue(dropdownTokens.menuMaxWidth);
+      const viewportPadding = parsePixelValue(dropdownTokens.menuViewportPadding) ?? 16;
 
       const updateMenuPosition = () => {
         if (!triggerRef.current) {
@@ -255,9 +296,6 @@ export const PurpleGlassDropdown = forwardRef<HTMLDivElement, PurpleGlassDropdow
         }
 
         const rect = triggerRef.current.getBoundingClientRect();
-        const minWidth = parsePixelValue(dropdownTokens.menuMinWidth);
-        const maxWidth = parsePixelValue(dropdownTokens.menuMaxWidth);
-        const viewportPadding = parsePixelValue(dropdownTokens.menuViewportPadding) ?? 16;
 
         let computedWidth = rect.width;
         if (minWidth !== undefined) {
@@ -289,17 +327,36 @@ export const PurpleGlassDropdown = forwardRef<HTMLDivElement, PurpleGlassDropdow
         });
       };
 
-      const scrollOptions: AddEventListenerOptions = { capture: true };
+      const scrollParents = getScrollableAncestors(triggerElement);
 
       updateMenuPosition();
       window.addEventListener('resize', updateMenuPosition);
-      window.addEventListener('scroll', updateMenuPosition, scrollOptions);
+      scrollParents.forEach((parent) => {
+        parent.addEventListener('scroll', updateMenuPosition, { passive: true });
+      });
 
       return () => {
         window.removeEventListener('resize', updateMenuPosition);
-        window.removeEventListener('scroll', updateMenuPosition, scrollOptions);
+        scrollParents.forEach((parent) => {
+          parent.removeEventListener('scroll', updateMenuPosition);
+        });
       };
     }, [isOpen]);
+
+    useEffect(() => {
+      if (!portalElement || typeof document === 'undefined') {
+        return;
+      }
+
+      portalElement.setAttribute('data-purpleglass-dropdown-portal', 'true');
+      document.body.appendChild(portalElement);
+
+      return () => {
+        if (portalElement.parentNode) {
+          portalElement.parentNode.removeChild(portalElement);
+        }
+      };
+    }, [portalElement]);
 
     // Toggle dropdown
     const handleToggle = () => {
@@ -444,73 +501,88 @@ export const PurpleGlassDropdown = forwardRef<HTMLDivElement, PurpleGlassDropdow
         </button>
 
         {/* Dropdown Menu (Portal-like) */}
-        {isOpen && menuPosition && (
-          <div
-            ref={menuRef}
-            className={mergeClasses(styles.menu, glass !== 'none' && styles.menuGlass)}
-            style={{
-              position: 'fixed',
-              top: `${menuPosition.top}px`,
-              left: `${menuPosition.left}px`,
-              width: `${menuPosition.width}px`,
-            }}
-            role="listbox"
-            aria-multiselectable={multiSelect}
-          >
-            {/* Search Input */}
-            {searchable && (
-              <div className={styles.searchWrapper}>
-                <input
-                  type="text"
-                  className={styles.searchInput}
-                  placeholder={searchPlaceholder}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  autoFocus
-                />
-              </div>
-            )}
+        {isOpen && menuPosition && portalElement &&
+          createPortal(
+            (
+              <div
+                ref={menuRef}
+                className={mergeClasses(styles.menu, glass !== 'none' && styles.menuGlass)}
+                style={{
+                  top: `${menuPosition.top}px`,
+                  left: `${menuPosition.left}px`,
+                  width: `${menuPosition.width}px`,
+                }}
+                role="listbox"
+                aria-multiselectable={multiSelect}
+              >
+                {/* Search Input */}
+                {searchable && (
+                  <div className={styles.searchWrapper}>
+                    <input
+                      type="text"
+                      className={styles.searchInput}
+                      data-testid="dropdown-search-input"
+                      style={{ paddingLeft: dropdownTokens.searchPaddingHorizontalPx, textIndent: dropdownTokens.searchPaddingHorizontalPx }}
+                      placeholder={searchPlaceholder}
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      autoFocus
+                    />
+                  </div>
+                )}
 
-            {/* Options */}
-            {filteredOptions.length > 0 ? (
-              filteredOptions.map((option) => {
-                const isSelected = selectedValues.includes(option.value);
-                const itemClasses = mergeClasses(
-                  styles.menuItem,
-                  isSelected && styles.menuItemSelected,
-                  option.disabled && styles.menuItemDisabled
-                );
+                {/* Options */}
+                {filteredOptions.length > 0 ? (
+                  filteredOptions.map((option) => {
+                    const isSelected = selectedValues.includes(option.value);
+                    const itemClasses = mergeClasses(
+                      styles.menuItem,
+                      isSelected && styles.menuItemSelected,
+                      option.disabled && styles.menuItemDisabled
+                    );
 
-                return (
-                  <button
-                    key={option.value}
-                    type="button"
-                    className={itemClasses}
-                    onClick={() => !option.disabled && handleSelectOption(option.value)}
-                    disabled={option.disabled}
-                    role="option"
-                    aria-selected={isSelected}
-                  >
-                    {multiSelect && (
-                      <span
-                        className={mergeClasses(
-                          styles.menuItemCheckbox,
-                          isSelected && styles.menuItemCheckboxChecked
-                        )}
+                    return (
+                      <button
+                        key={option.value}
+                        type="button"
+                        className={itemClasses}
+                        onClick={() => !option.disabled && handleSelectOption(option.value)}
+                        disabled={option.disabled}
+                        role="option"
+                        aria-selected={isSelected}
                       >
-                        {isSelected && <CheckmarkRegular />}
-                      </span>
-                    )}
-                    {option.icon && <span>{option.icon}</span>}
-                    {renderOption ? renderOption(option, isSelected) : option.label}
-                  </button>
-                );
-              })
-            ) : (
-              <div className={styles.emptyState}>{emptyText}</div>
-            )}
-          </div>
-        )}
+                        {multiSelect && (
+                          <span
+                            className={mergeClasses(
+                              styles.menuItemCheckbox,
+                              isSelected && styles.menuItemCheckboxChecked
+                            )}
+                          >
+                            {isSelected && <CheckmarkRegular />}
+                          </span>
+                        )}
+                        {option.icon && <span>{option.icon}</span>}
+                        {renderOption
+                          ? renderOption(option, isSelected)
+                          : (
+                            <span
+                              className={styles.menuItemLabel}
+                              data-testid="dropdown-option-label"
+                              style={{ paddingLeft: dropdownTokens.optionLabelPaddingLeftPx, marginLeft: dropdownTokens.optionLabelPaddingLeftPx }}
+                            >
+                              {option.label}
+                            </span>
+                          )}
+                      </button>
+                    );
+                  })
+                ) : (
+                  <div className={styles.emptyState}>{emptyText}</div>
+                )}
+              </div>
+            ),
+            portalElement
+          )}
 
         {/* Helper Text */}
         {helperText && (

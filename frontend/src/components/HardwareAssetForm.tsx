@@ -93,7 +93,7 @@ const HardwareAssetForm: React.FC<HardwareAssetFormProps> = ({
     border: '2px solid rgba(99, 102, 241, 0.2)',
     borderRadius: '8px',
     fontSize: '14px',
-    fontFamily: 'Montserrat, sans-serif',
+    fontFamily: 'Oxanium, sans-serif',
     transition: 'border-color 0.3s ease',
     background: 'rgba(255, 255, 255, 0.8)'
   };
@@ -149,7 +149,7 @@ const HardwareAssetForm: React.FC<HardwareAssetFormProps> = ({
               fontSize: '24px',
               fontWeight: '600',
               color: '#6366f1',
-              fontFamily: 'Montserrat, sans-serif'
+              fontFamily: 'Oxanium, sans-serif'
             }}>
               {asset ? '✏️ Edit Hardware Asset' : '<span style="color: white">+</span> Add Hardware Asset'}
             </h2>
@@ -388,7 +388,7 @@ const HardwareAssetForm: React.FC<HardwareAssetFormProps> = ({
                   fontWeight: '500',
                   cursor: 'pointer',
                   transition: 'all 0.3s ease',
-                  fontFamily: 'Montserrat, sans-serif'
+                  fontFamily: 'Oxanium, sans-serif'
                 }}
                 onMouseOver={(e) => {
                   e.currentTarget.style.background = 'rgba(99, 102, 241, 0.1)';
@@ -411,7 +411,7 @@ const HardwareAssetForm: React.FC<HardwareAssetFormProps> = ({
                   fontWeight: '500',
                   cursor: 'pointer',
                   transition: 'all 0.3s ease',
-                  fontFamily: 'Montserrat, sans-serif'
+                  fontFamily: 'Oxanium, sans-serif'
                 }}
                 onMouseOver={(e) => {
                   e.currentTarget.style.transform = 'translateY(-2px)';

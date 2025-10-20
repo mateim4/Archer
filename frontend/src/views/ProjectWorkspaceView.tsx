@@ -613,7 +613,7 @@ const ProjectWorkspaceView: React.FC = () => {
                   fontSize: '30px',
                   fontWeight: '700',
                   color: '#8b5cf6',
-                  fontFamily: "'Poppins', sans-serif",
+                  fontFamily: "'Oxanium', sans-serif",
                   margin: 0
                 }}>{project.name}</h1>
               </div>
@@ -671,7 +671,7 @@ const ProjectWorkspaceView: React.FC = () => {
                     <div className="flex flex-wrap items-center gap-3">
                       {/* Status Filter */}
                       <div className="flex items-center gap-2">
-                        <label className="text-xs font-semibold whitespace-nowrap" style={{ fontFamily: "'Poppins', sans-serif", color: '#1a202c' }}>
+                        <label className="text-xs font-semibold whitespace-nowrap" style={{ fontFamily: "'Oxanium', sans-serif", color: '#1a202c' }}>
                           Status:
                         </label>
                         <select
@@ -690,7 +690,7 @@ const ProjectWorkspaceView: React.FC = () => {
 
                   {/* Assignee Filter */}
                   <div className="flex items-center gap-2">
-                    <label className="text-xs font-semibold whitespace-nowrap" style={{ fontFamily: "'Poppins', sans-serif", color: '#1a202c' }}>
+                    <label className="text-xs font-semibold whitespace-nowrap" style={{ fontFamily: "'Oxanium', sans-serif", color: '#1a202c' }}>
                       Assignee:
                     </label>
                     <select
@@ -710,7 +710,7 @@ const ProjectWorkspaceView: React.FC = () => {
 
                   {/* Sort By */}
                   <div className="flex items-center gap-2">
-                    <label className="text-xs font-semibold whitespace-nowrap" style={{ fontFamily: "'Poppins', sans-serif", color: '#1a202c' }}>
+                    <label className="text-xs font-semibold whitespace-nowrap" style={{ fontFamily: "'Oxanium', sans-serif", color: '#1a202c' }}>
                       Sort:
                     </label>
                     <select

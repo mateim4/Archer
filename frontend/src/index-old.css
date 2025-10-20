@@ -1,5 +1,5 @@
-/* Import Google Fonts - Poppins for Fluent UI 2 */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+/* Import Google Fonts - Oxanium for Fluent UI 2 */
+@import url('https://fonts.googleapis.com/css2?family=Oxanium:wght@300;400;500;600;700&display=swap');
 
 /* Import ONLY Fluent UI 2 Design System */
 @import './styles/fluent2-design-system.css';
@@ -165,7 +165,7 @@ svg {
 
 /* Fluent 2 Button Styles */
 .fluent-button {
-  font-family: "Poppins", "Segoe UI Variable", "Segoe UI", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  font-family: "Oxanium", "Segoe UI Variable", "Segoe UI", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   font-size: var(--font-size-body);
   font-weight: var(--font-weight-semibold);
   padding: var(--spacing-md) var(--spacing-xl);
@@ -290,7 +290,7 @@ svg {
 
 /* Fluent 2 Input Styles */
 .fluent-input {
-  font-family: "Poppins", "Segoe UI Variable", "Segoe UI", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  font-family: "Oxanium", "Segoe UI Variable", "Segoe UI", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   font-size: var(--font-size-body);
   padding: 16px 20px;
   border: 2px solid var(--color-neutral-stroke);

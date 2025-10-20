@@ -100,7 +100,7 @@ const ConsistentButton: React.FC<ConsistentButtonProps> = ({
     padding: currentSize.padding,
     fontSize: currentSize.fontSize,
     fontWeight: '500',
-    fontFamily: "'Poppins', system-ui, sans-serif",
+    fontFamily: "'Oxanium', system-ui, sans-serif",
     borderRadius: '12px',
     cursor: disabled || loading ? 'not-allowed' : 'pointer',
     transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',

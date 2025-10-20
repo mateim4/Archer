@@ -123,6 +123,7 @@ export const useRadioStyles = makeStyles({
     WebkitBackdropFilter: designTokens.blurHeavy,
     ...shorthands.border('2px', 'solid', designTokens.components.radio.checkedBorder),
     boxShadow: designTokens.components.radio.checkedBoxShadow,
+    filter: 'brightness(1)',
 
     ':hover': {
       background: designTokens.components.radio.checkedBackgroundHover,
@@ -285,6 +286,10 @@ export const useRadioStyles = makeStyles({
   cardIndicator: {
     alignSelf: 'flex-start',
     marginBottom: designTokens.components.selectionCard.indicatorMarginBottom,
+    '& > div': {
+      ...shorthands.border('2px', 'solid', 'rgba(255, 255, 255, 0.95)'),
+      filter: 'brightness(1.5)',
+    },
   },
 
   cardIconWrapper: {
@@ -293,22 +298,27 @@ export const useRadioStyles = makeStyles({
     justifyContent: 'center',
     width: designTokens.components.selectionCard.iconWrapperSize,
     height: designTokens.components.selectionCard.iconWrapperSize,
-    marginBottom: designTokens.s,
+    margin: `0 auto ${designTokens.s}`,
     borderRadius: '50%',
-    backgroundColor: designTokens.components.selectionCard.iconWrapperBackground,
-    ...shorthands.border('none'),
+    background: designTokens.components.selectionCard.iconWrapperBackground,
+    border: designTokens.components.selectionCard.iconWrapperBorder,
     boxShadow: designTokens.components.selectionCard.iconWrapperBoxShadow,
     color: designTokens.components.selectionCard.iconColor,
     fontSize: designTokens.components.selectionCard.iconSize,
     transitionProperty: 'transform, color, box-shadow, background-color, border',
     transitionDuration: designTokens.components.selectionCard.transitionDuration,
     transitionTimingFunction: designTokens.components.selectionCard.transitionTimingFunction,
+
+    '& > svg': {
+      width: designTokens.components.selectionCard.iconSize,
+      height: designTokens.components.selectionCard.iconSize,
+    },
   },
 
   cardIconChecked: {
     background: designTokens.components.selectionCard.iconWrapperBackgroundChecked,
     color: designTokens.components.selectionCard.iconColorChecked,
-    ...shorthands.border(designTokens.components.selectionCard.iconWrapperBorderChecked),
+    border: designTokens.components.selectionCard.iconWrapperBorderChecked,
     boxShadow: designTokens.components.selectionCard.iconWrapperBoxShadowChecked,
     transform: designTokens.components.selectionCard.iconWrapperTransformChecked,
   },

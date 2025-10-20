@@ -13,6 +13,74 @@ import {
 } from '@fluentui/react-components';
 import { EditRegular, DeleteRegular } from '@fluentui/react-icons';
 
+type StatusStyle = {
+  background: string;
+  border: string;
+  text: string;
+  shadow: string;
+  badgeTint: string;
+};
+
+const statusPalette: Record<Activity['status'], StatusStyle> = {
+  completed: {
+    background: '#10f9bb',
+    border: 'rgba(16, 249, 187, 0.65)',
+    text: '#1f2937',
+    shadow: '0 8px 24px rgba(16, 249, 187, 0.35)',
+    badgeTint: 'rgba(16, 249, 187, 0.2)',
+  },
+  in_progress: {
+    background: '#56cbf9',
+    border: 'rgba(86, 203, 249, 0.65)',
+    text: '#1f2937',
+    shadow: '0 8px 24px rgba(86, 203, 249, 0.35)',
+    badgeTint: 'rgba(86, 203, 249, 0.25)',
+  },
+  pending: {
+    background: '#fcff47',
+    border: 'rgba(252, 255, 71, 0.65)',
+    text: '#1f2937',
+    shadow: '0 8px 24px rgba(252, 255, 71, 0.35)',
+    badgeTint: 'rgba(252, 255, 71, 0.25)',
+  },
+  pending_assignment: {
+    background: '#a682ff',
+    border: 'rgba(166, 130, 255, 0.65)',
+    text: '#1f2937',
+    shadow: '0 8px 24px rgba(166, 130, 255, 0.35)',
+    badgeTint: 'rgba(166, 130, 255, 0.25)',
+  },
+  blocked: {
+    background: '#ff8585',
+    border: 'rgba(255, 133, 133, 0.65)',
+    text: '#1f2937',
+    shadow: '0 8px 24px rgba(255, 133, 133, 0.35)',
+    badgeTint: 'rgba(255, 133, 133, 0.25)',
+  },
+  delayed: {
+    background: '#444b6e',
+    border: 'rgba(68, 75, 110, 0.75)',
+    text: '#fcefef',
+    shadow: '0 8px 24px rgba(68, 75, 110, 0.45)',
+    badgeTint: 'rgba(68, 75, 110, 0.35)',
+  },
+  canceled: {
+    background: '#38369a',
+    border: 'rgba(56, 54, 154, 0.75)',
+    text: '#fcefef',
+    shadow: '0 8px 24px rgba(56, 54, 154, 0.45)',
+    badgeTint: 'rgba(56, 54, 154, 0.35)',
+  },
+};
+
+const fallbackStatus: StatusStyle = {
+  background: '#416165',
+  border: 'rgba(65, 97, 101, 0.75)',
+  text: '#fcefef',
+  shadow: '0 8px 24px rgba(65, 97, 101, 0.45)',
+  badgeTint: 'rgba(65, 97, 101, 0.35)',
+};
+
 // FIX: TypeScript interfaces
 interface Activity {
   id: string;
@@ -43,13 +111,13 @@ const useGanttStyles = makeStyles({
     overflowX: 'auto',
     overflowY: 'hidden',
     position: 'relative',
-    background: 'rgba(255, 255, 255, 0.7)',
-    backdropFilter: 'blur(12px) saturate(150%)',
-    border: '1px solid rgba(139, 92, 246, 0.1)',
+    background: 'linear-gradient(180deg, rgba(65, 97, 101, 0.12) 0%, rgba(56, 54, 154, 0.08) 100%)',
+    backdropFilter: 'blur(16px) saturate(160%)',
+    border: '1px solid rgba(65, 97, 101, 0.25)',
     borderRadius: '8px',
-    boxShadow: 'none',
-    fontFamily: "'Poppins', system-ui, sans-serif",
-    outline: '1px solid rgba(255, 255, 255, 0.3)',
+    boxShadow: '0 18px 42px rgba(56, 54, 154, 0.18)',
+    fontFamily: "'Oxanium', system-ui, sans-serif",
+    outline: '1px solid rgba(252, 239, 239, 0.45)',
     outlineOffset: '-1px',
   },
 
@@ -57,15 +125,15 @@ const useGanttStyles = makeStyles({
     display: 'flex',
     alignItems: 'center',
     padding: tokens.spacingVerticalM,
-    borderBottom: '1px solid rgba(139, 92, 246, 0.15)',
-    background: 'rgba(255, 255, 255, 0.8)',
-    backdropFilter: 'blur(8px)',
+  borderBottom: '1px solid rgba(56, 54, 154, 0.2)',
+  background: 'rgba(65, 97, 101, 0.18)',
+  backdropFilter: 'blur(10px)',
     position: 'sticky',
     top: 0,
     zIndex: 2,
     borderTopLeftRadius: '8px',
     borderTopRightRadius: '8px',
-    fontFamily: "'Poppins', system-ui, sans-serif",
+    fontFamily: "'Oxanium', system-ui, sans-serif",
   },
 
   timelineGrid: {
@@ -79,19 +147,19 @@ const useGanttStyles = makeStyles({
     position: 'absolute',
     top: 0,
     height: '30px',
-    background: 'rgba(255, 255, 255, 0.7)',
-    backdropFilter: 'blur(8px) saturate(150%)',
-    border: '1px solid rgba(139, 92, 246, 0.2)',
+  background: 'rgba(65, 97, 101, 0.18)',
+  backdropFilter: 'blur(10px) saturate(160%)',
+  border: '1px solid rgba(56, 54, 154, 0.25)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     fontSize: tokens.fontSizeBase200,
     fontWeight: tokens.fontWeightSemibold,
-    fontFamily: "'Poppins', system-ui, sans-serif",
+    fontFamily: "'Oxanium', system-ui, sans-serif",
     color: '#4a5568',
-    borderRadius: '4px',
-    margin: '2px',
-    outline: '1px solid rgba(255, 255, 255, 0.3)',
+  borderRadius: '4px',
+  margin: '2px',
+  outline: '1px solid rgba(252, 239, 239, 0.35)',
     outlineOffset: '-1px',
   },
 
@@ -114,73 +182,27 @@ const useGanttStyles = makeStyles({
     padding: `0 ${tokens.spacingHorizontalM}`,
     fontSize: '14px',
     fontWeight: '700',
-    fontFamily: "'Poppins', system-ui, sans-serif",
-    color: tokens.colorNeutralForegroundOnBrand,
+    fontFamily: "'Oxanium', system-ui, sans-serif",
+    color: '#1f2937',
     cursor: 'pointer',
-    transition: 'all 0.2s ease',
-    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15), 0 2px 6px rgba(0, 0, 0, 0.1)',
+    transition: 'transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease',
+    backgroundColor: '#416165',
+    border: '1px solid rgba(65, 97, 101, 0.35)',
+    boxShadow: '0 6px 16px rgba(65, 97, 101, 0.3)',
+    filter: 'brightness(1)',
     maxWidth: '500px',
     minWidth: '180px',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
     textAlign: 'center',
-    outline: '1px solid rgba(255, 255, 255, 0.4)',
-    outlineOffset: '-1px',
+    outline: 'none',
 
     ':hover': {
-      boxShadow: '0 6px 16px rgba(0, 0, 0, 0.2), 0 4px 8px rgba(0, 0, 0, 0.15)',
       transform: 'translateY(-2px)',
-      outline: '1px solid rgba(255, 255, 255, 0.6)',
-    }
-  },
-
-  activityCompleted: {
-    background: 'rgba(97, 255, 181, 0.8)',
-    backdropFilter: 'blur(12px) saturate(180%)',
-    color: '#1E1E1E',
-    border: '1px solid rgba(97, 255, 181, 0.4)',
-    fontWeight: '600',
-  },
-
-  activityInProgress: {
-    background: 'rgba(255, 97, 171, 0.8)',
-    backdropFilter: 'blur(12px) saturate(180%)',
-    color: '#1E1E1E',
-    border: '1px solid rgba(255, 97, 171, 0.4)',
-    fontWeight: '600',
-  },
-
-  activityPending: {
-    background: 'rgba(255, 234, 98, 0.8)',
-    backdropFilter: 'blur(12px) saturate(180%)',
-    color: '#1E1E1E',
-    border: '1px solid rgba(255, 234, 98, 0.4)',
-    fontWeight: '600',
-  },
-
-  activityBlocked: {
-    background: 'rgba(255, 97, 118, 0.8)',
-    backdropFilter: 'blur(12px) saturate(180%)',
-    color: '#1E1E1E',
-    border: '1px solid rgba(255, 97, 118, 0.4)',
-    fontWeight: '600',
-  },
-
-  activityDelayed: {
-    background: 'rgba(255, 181, 97, 0.8)',
-    backdropFilter: 'blur(12px) saturate(180%)',
-    color: '#1E1E1E',
-    border: '1px solid rgba(255, 181, 97, 0.4)',
-    fontWeight: '600',
-  },
-
-  activityCanceled: {
-    background: 'rgba(223, 255, 97, 0.8)',
-    backdropFilter: 'blur(12px) saturate(180%)',
-    color: '#1E1E1E',
-    border: '1px solid rgba(223, 255, 97, 0.4)',
-    fontWeight: '600',
+      filter: 'brightness(1.1)',
+      boxShadow: '0 12px 28px rgba(24, 24, 31, 0.18)',
+    },
   },
 
   activityList: {
@@ -188,33 +210,33 @@ const useGanttStyles = makeStyles({
     left: 0,
     top: '40px',
     width: '250px',
-    background: 'rgba(255, 255, 255, 0.6)',
-    backdropFilter: 'blur(8px) saturate(120%)',
-    borderRight: '1px solid rgba(139, 92, 246, 0.2)',
+  background: 'rgba(59, 60, 100, 0.18)',
+  backdropFilter: 'blur(10px) saturate(150%)',
+  borderRight: '1px solid rgba(56, 54, 154, 0.25)',
     padding: tokens.spacingVerticalS,
     borderBottomLeftRadius: '8px',
-    fontFamily: "'Poppins', system-ui, sans-serif",
+    fontFamily: "'Oxanium', system-ui, sans-serif",
   },
 
   activityItem: {
     padding: tokens.spacingVerticalS,
     marginBottom: tokens.spacingVerticalXS,
-    background: 'rgba(255, 255, 255, 0.7)',
-    backdropFilter: 'blur(6px) saturate(150%)',
-    borderRadius: '6px',
-    border: '1px solid rgba(139, 92, 246, 0.15)',
+  background: 'rgba(252, 239, 239, 0.6)',
+  backdropFilter: 'blur(8px) saturate(160%)',
+  borderRadius: '6px',
+  border: '1px solid rgba(166, 130, 255, 0.2)',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
     transition: 'all 0.2s ease',
-    fontFamily: "'Poppins', system-ui, sans-serif",
-    outline: '1px solid rgba(255, 255, 255, 0.2)',
+    fontFamily: "'Oxanium', system-ui, sans-serif",
+  outline: '1px solid rgba(166, 130, 255, 0.25)',
     outlineOffset: '-1px',
     ':hover': {
-      background: 'rgba(255, 255, 255, 0.9)',
-      border: '1px solid rgba(139, 92, 246, 0.25)',
+      background: 'rgba(252, 239, 239, 0.9)',
+      border: '1px solid rgba(166, 130, 255, 0.35)',
       transform: 'translateX(2px)',
-      outline: '1px solid rgba(255, 255, 255, 0.4)',
+      outline: '1px solid rgba(166, 130, 255, 0.4)',
     }
   },
 
@@ -280,15 +302,8 @@ const GanttChart: React.FC<GanttChartProps> = ({
     return { months, activities: processedActivities, monthWidth };
   }, [activities]);
 
-  const getStatusColor = (status: Activity['status']) => {
-    switch (status) {
-      case 'completed': return styles.activityCompleted;
-      case 'in_progress': return styles.activityInProgress; 
-      case 'blocked': return styles.activityBlocked;
-  case 'delayed': return styles.activityDelayed;
-  case 'canceled': return styles.activityCanceled;
-      default: return styles.activityPending;
-    }
+  const resolveStatusStyle = (status: Activity['status']): StatusStyle => {
+    return statusPalette[status] ?? fallbackStatus;
   };
 
   return (
@@ -304,8 +319,11 @@ const GanttChart: React.FC<GanttChartProps> = ({
           <Caption1 style={{ fontWeight: tokens.fontWeightSemibold, marginBottom: tokens.spacingVerticalS }}>
             Activities
           </Caption1>
-          {timelineData.activities.map((activity) => (
-            <div key={activity.id} className={styles.activityItem}>
+          {timelineData.activities.map((activity) => {
+            const statusStyle = resolveStatusStyle(activity.status);
+
+            return (
+              <div key={activity.id} className={styles.activityItem}>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <Text size={200} style={{ 
                   display: 'block',
@@ -319,19 +337,9 @@ const GanttChart: React.FC<GanttChartProps> = ({
                   size="small"
                   appearance="outline"
                   style={{
-                    background: activity.status === 'completed' ? 'rgba(97, 255, 181, 0.3)' :
-                      activity.status === 'in_progress' ? 'rgba(255, 97, 171, 0.3)' :
-                      activity.status === 'blocked' ? 'rgba(255, 97, 118, 0.3)' :
-                      activity.status === 'delayed' ? 'rgba(255, 181, 97, 0.3)' :
-                      activity.status === 'canceled' ? 'rgba(223, 255, 97, 0.3)' :
-                      'rgba(255, 234, 98, 0.3)',
-                    color: '#1E1E1E',
-                    border: `1px solid ${activity.status === 'completed' ? 'rgba(97, 255, 181, 0.5)' :
-                      activity.status === 'in_progress' ? 'rgba(255, 97, 171, 0.5)' :
-                      activity.status === 'blocked' ? 'rgba(255, 97, 118, 0.5)' :
-                      activity.status === 'delayed' ? 'rgba(255, 181, 97, 0.5)' :
-                      activity.status === 'canceled' ? 'rgba(223, 255, 97, 0.5)' :
-                      'rgba(255, 234, 98, 0.5)'}`,
+                    background: statusStyle.badgeTint,
+                    color: statusStyle.text,
+                    border: `1px solid ${statusStyle.border}`,
                     fontWeight: '500',
                     backdropFilter: 'blur(4px)',
                   }}
@@ -355,8 +363,9 @@ const GanttChart: React.FC<GanttChartProps> = ({
                   aria-label={`Delete ${activity.name}`}
                 />
               </div>
-            </div>
-          ))}
+              </div>
+            );
+          })}
         </div>
 
         {/* Timeline Content */}
@@ -376,29 +385,37 @@ const GanttChart: React.FC<GanttChartProps> = ({
           ))}
 
           {/* Activity Bars */}
-          {timelineData.activities.map((activity) => (
-            <div
-              key={activity.id}
-              className={`${styles.activityBar} ${getStatusColor(activity.status)}`}
-              style={{
-                left: `${activity.leftPercent}%`,
-                width: `${activity.widthPercent}%`,
-                top: `${activity.topPosition}px`
-              }}
-              title={`${activity.name} - ${activity.status.replace('_', ' ')}`}
-            >
-              <span style={{ 
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-                width: '100%',
-                textAlign: 'center',
-                display: 'block'
-              }}>
-                {activity.name}
-              </span>
-            </div>
-          ))}
+          {timelineData.activities.map((activity) => {
+            const statusStyle = resolveStatusStyle(activity.status);
+
+            return (
+              <div
+                key={activity.id}
+                className={styles.activityBar}
+                style={{
+                  left: `${activity.leftPercent}%`,
+                  width: `${activity.widthPercent}%`,
+                  top: `${activity.topPosition}px`,
+                  backgroundColor: statusStyle.background,
+                  borderColor: statusStyle.border,
+                  color: statusStyle.text,
+                  boxShadow: statusStyle.shadow,
+                }}
+                title={`${activity.name} - ${activity.status.replace('_', ' ')}`}
+              >
+                <span style={{ 
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  width: '100%',
+                  textAlign: 'center',
+                  display: 'block'
+                }}>
+                  {activity.name}
+                </span>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

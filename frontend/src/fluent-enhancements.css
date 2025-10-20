@@ -2,9 +2,9 @@
 
 /* Update existing CSS variables and add new ones */
 :root {
-  /* Typography - Enhanced with Poppins font stack */
-  --fluent-font-family-base: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI Variable', 'Segoe UI', system-ui, ui-sans-serif, Helvetica, Arial, sans-serif;
-  --font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI Variable', 'Segoe UI', system-ui, ui-sans-serif, Helvetica, Arial, sans-serif;
+  /* Typography - Enhanced with Oxanium font stack */
+  --fluent-font-family-base: 'Oxanium', -apple-system, BlinkMacSystemFont, 'Segoe UI Variable', 'Segoe UI', system-ui, ui-sans-serif, Helvetica, Arial, sans-serif;
+  --font-family: 'Oxanium', -apple-system, BlinkMacSystemFont, 'Segoe UI Variable', 'Segoe UI', system-ui, ui-sans-serif, Helvetica, Arial, sans-serif;
   
   /* Standard Design System Colors */
   --lcm-primary: #8b5cf6;

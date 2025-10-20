@@ -21,6 +21,9 @@ export const useDropdownStyles = makeStyles({
     to: {
       opacity: 1,
       transform: 'translateY(0)',
+      background: dropdownTokens.menuBackground,
+      backdropFilter: dropdownTokens.menuBackdrop,
+      WebkitBackdropFilter: dropdownTokens.menuBackdrop,
     },
   },
 
@@ -52,7 +55,6 @@ export const useDropdownStyles = makeStyles({
     color: designTokens.colorNeutralForeground1,
     marginBottom: designTokens.xxs,
   },
-
   labelRequired: {
     color: designTokens.colorStatusDanger,
   },
@@ -98,6 +100,8 @@ export const useDropdownStyles = makeStyles({
   triggerOpen: {
     ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', dropdownTokens.triggerBorderOpen),
     boxShadow: dropdownTokens.triggerBoxShadowHover,
+    borderBottomLeftRadius: '0',
+    borderBottomRightRadius: '0',
   },
 
   // Glass variants for trigger
@@ -105,21 +109,21 @@ export const useDropdownStyles = makeStyles({
     backgroundColor: designTokens.colorGlassBackground,
     backdropFilter: designTokens.blurLight,
     WebkitBackdropFilter: designTokens.blurLight,
-    ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', 'rgba(255, 255, 255, 0.2)'),
+    ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', dropdownTokens.triggerBorder),
   },
 
   triggerGlassMedium: {
     backgroundColor: designTokens.colorGlassPurpleLight,
     backdropFilter: designTokens.blurMedium,
     WebkitBackdropFilter: designTokens.blurMedium,
-    ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', 'rgba(255, 255, 255, 0.28)'),
+    ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', dropdownTokens.triggerBorder),
   },
 
   triggerGlassHeavy: {
     backgroundColor: designTokens.colorGlassPurpleMedium,
     backdropFilter: designTokens.blurHeavy,
     WebkitBackdropFilter: designTokens.blurHeavy,
-    ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', 'rgba(255, 255, 255, 0.35)'),
+    ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', dropdownTokens.triggerBorder),
   },
 
   // Validation states for trigger
@@ -180,6 +184,7 @@ export const useDropdownStyles = makeStyles({
     alignItems: 'center',
     fontSize: designTokens.fontSizeBase400,
     color: dropdownTokens.triggerIconColor,
+    marginLeft: designTokens.s,
     ...shorthands.transition('transform', designTokens.durationNormal, designTokens.curveEasyEase),
   },
 
@@ -227,7 +232,7 @@ export const useDropdownStyles = makeStyles({
   // DROPDOWN MENU (Portal)
   // ============================================================================
   menu: {
-    position: 'absolute',
+    position: 'fixed',
     zIndex: designZIndex.dropdown,
     minWidth: dropdownTokens.menuMinWidth,
     maxWidth: dropdownTokens.menuMaxWidth,
@@ -237,7 +242,7 @@ export const useDropdownStyles = makeStyles({
     backdropFilter: dropdownTokens.menuBackdrop,
     WebkitBackdropFilter: dropdownTokens.menuBackdrop,
     ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', dropdownTokens.menuBorder),
-    borderRadius: designTokens.xxxLarge,
+    borderRadius: `0 0 ${designTokens.xxxLarge} ${designTokens.xxxLarge}`,
     boxShadow: dropdownTokens.menuBoxShadow,
     ...shorthands.padding(designTokens.xs, 0),
     marginTop: designTokens.xxs,
@@ -254,7 +259,7 @@ export const useDropdownStyles = makeStyles({
   },
 
   menuGlass: {
-    backgroundColor: designTokens.colorGlassPurpleLight,
+    backgroundColor: dropdownTokens.menuBackground,
     backdropFilter: designTokens.blurMedium,
     WebkitBackdropFilter: designTokens.blurMedium,
     ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', 'rgba(255, 255, 255, 0.3)'),
@@ -264,28 +269,39 @@ export const useDropdownStyles = makeStyles({
   // SEARCH INPUT (Inside menu)
   // ============================================================================
   searchWrapper: {
-    ...shorthands.padding(designTokens.xs, designTokens.l),
+    width: '100%',
+    maxWidth: '100%',
+    boxSizing: 'border-box',
+    // Only add vertical padding; horizontal padding is handled by the input itself
+    ...shorthands.padding(designTokens.xs, 0),
     ...shorthands.borderBottom(fluentTokens.strokeWidthThin, 'solid', dropdownTokens.menuDivider),
     marginBottom: designTokens.xs,
   },
 
   searchInput: {
     width: '100%',
-    ...shorthands.padding(designTokens.xs, designTokens.m),
+    maxWidth: '100%',
+    boxSizing: 'border-box',
+    ...shorthands.padding(dropdownTokens.searchPaddingVertical, dropdownTokens.searchPaddingHorizontal),
+  // Explicitly set left padding to ensure it isn’t overridden by global styles
+  paddingLeft: dropdownTokens.searchPaddingHorizontalPx,
+  textIndent: dropdownTokens.searchPaddingHorizontalPx,
     fontFamily: designTokens.fontFamilyBody,
     fontSize: designTokens.fontSizeBase300,
     color: designTokens.colorNeutralForeground1,
     background: dropdownTokens.searchBackground,
     ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', dropdownTokens.searchBorder),
-    borderRadius: designTokens.xLarge,
+    borderRadius: `0 0 ${designTokens.xLarge} ${designTokens.xLarge}`,
     ...shorthands.outline('none'),
-
-    ':focus': {
-      ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', designTokens.colorBrandPrimary),
-    },
-
+    outlineOffset: 0,
     '::placeholder': {
       color: dropdownTokens.searchPlaceholderColor,
+    },
+    ':focus': {
+      // Neutral focus to avoid red underline; keep subtle brand-neutral border
+      ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', dropdownTokens.searchBorder),
+      boxShadow: 'none',
+      outline: 'none',
     },
   },
 
@@ -297,7 +313,7 @@ export const useDropdownStyles = makeStyles({
     alignItems: 'center',
     ...shorthands.gap(designTokens.m),
     width: '100%',
-    ...shorthands.padding(designTokens.s, designTokens.l),
+    ...shorthands.padding(designTokens.s, dropdownTokens.optionPaddingHorizontal),
     fontFamily: designTokens.fontFamilyPrimary,
     fontSize: designTokens.fontSizeBase300,
     color: dropdownTokens.optionTextColor,
@@ -305,10 +321,11 @@ export const useDropdownStyles = makeStyles({
     cursor: 'pointer',
     ...shorthands.border('none'),
     textAlign: 'left',
-    ...shorthands.transition('background-color', designTokens.durationFast, designTokens.curveEasyEase),
+    ...shorthands.transition('all', designTokens.durationFast, designTokens.curveEasyEase),
 
     ':hover': {
       background: dropdownTokens.optionHoverBackground,
+      color: dropdownTokens.optionHoverTextColor,
     },
 
     ':focus-visible': {
@@ -351,6 +368,14 @@ export const useDropdownStyles = makeStyles({
     background: designTokens.colorBrandPrimary,
     ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', designTokens.colorBrandPrimary),
     color: '#ffffff',
+  },
+
+  menuItemLabel: {
+    display: 'inline-flex',
+    flex: 1,
+    paddingLeft: dropdownTokens.optionLabelPaddingLeftPx,
+    marginLeft: dropdownTokens.optionLabelPaddingLeftPx,
+    alignItems: 'center',
   },
 
   // ============================================================================

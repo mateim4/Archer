@@ -337,7 +337,7 @@ export const EnhancedModal: React.FC<EnhancedModalProps> = ({
       >
         <div className="flex items-center justify-between mb-6" style={{ flexShrink: 0 }}>
           {title && (
-            <h2 id={titleId} className="text-xl font-semibold text-gray-900" style={{ fontFamily: "'Poppins', sans-serif" }}>
+            <h2 id={titleId} className="text-xl font-semibold text-gray-900" style={{ fontFamily: "'Oxanium', sans-serif" }}>
               {title}
             </h2>
           )}
