@@ -26,9 +26,10 @@ import {
   MessageBar,
   MessageBarBody,
   makeStyles,
-  tokens,
+  tokens as fluentTokens,
   shorthands,
 } from '@fluentui/react-components';
+import { tokens as designTokens } from '@/styles/design-tokens';
 import {
   ArrowUpload24Regular,
   Database24Regular,
@@ -122,65 +123,65 @@ const useWizardStyles = makeStyles({
   stepHeader: {
     display: 'flex',
     alignItems: 'center',
-    gap: tokens.spacingHorizontalM,
-    marginBottom: tokens.spacingVerticalL,
-    paddingBottom: tokens.spacingVerticalM,
-    borderBottom: `1px solid ${tokens.colorNeutralStroke2}`,
+    gap: fluentTokens.spacingHorizontalM,
+    marginBottom: fluentTokens.spacingVerticalL,
+    paddingBottom: fluentTokens.spacingVerticalM,
+    borderBottom: `1px solid ${fluentTokens.colorNeutralStroke2}`,
   },
   stepContent: {
     minHeight: '400px',
-    padding: tokens.spacingVerticalL,
+    padding: fluentTokens.spacingVerticalL,
   },
   clusterGrid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
-    gap: tokens.spacingHorizontalL,
-    marginTop: tokens.spacingVerticalL,
+    gap: fluentTokens.spacingHorizontalL,
+    marginTop: fluentTokens.spacingVerticalL,
   },
   clusterCard: {
-    border: `2px solid ${tokens.colorNeutralStroke2}`,
-    borderRadius: tokens.borderRadiusMedium,
+    border: `2px solid ${fluentTokens.colorNeutralStroke2}`,
+    borderRadius: fluentTokens.borderRadiusMedium,
     transition: 'all 0.2s ease',
     cursor: 'pointer',
     '&:hover': {
-      border: `2px solid ${tokens.colorBrandStroke1}`,
+      border: `2px solid ${fluentTokens.colorBrandStroke1}`,
       transform: 'translateY(-2px)',
-      boxShadow: tokens.shadow8,
+      boxShadow: fluentTokens.shadow8,
     },
     '&.selected': {
-      border: `2px solid ${tokens.colorBrandStroke1}`,
-      backgroundColor: tokens.colorBrandBackground2,
+      border: `2px solid ${fluentTokens.colorBrandStroke1}`,
+      backgroundColor: fluentTokens.colorBrandBackground2,
     },
   },
   serverList: {
     maxHeight: '200px',
     overflowY: 'auto',
-    marginTop: tokens.spacingVerticalM,
-    ...shorthands.padding(tokens.spacingVerticalS),
-    backgroundColor: tokens.colorNeutralBackground2,
-    borderRadius: tokens.borderRadiusSmall,
+    marginTop: fluentTokens.spacingVerticalM,
+    ...shorthands.padding(fluentTokens.spacingVerticalS),
+    backgroundColor: fluentTokens.colorNeutralBackground2,
+    borderRadius: fluentTokens.borderRadiusSmall,
   },
   ratioControl: {
     display: 'flex',
     flexDirection: 'column',
-    gap: tokens.spacingVerticalM,
-    marginBottom: tokens.spacingVerticalL,
+    gap: fluentTokens.spacingVerticalM,
+    marginBottom: fluentTokens.spacingVerticalL,
   },
   chartContainer: {
-    background: tokens.colorNeutralBackground1,
-    borderRadius: tokens.borderRadiusMedium,
-    ...shorthands.padding(tokens.spacingVerticalL),
-    marginBottom: tokens.spacingVerticalL,
+    background: fluentTokens.colorNeutralBackground1,
+    borderRadius: fluentTokens.borderRadiusMedium,
+    ...shorthands.padding(fluentTokens.spacingVerticalL),
+    marginBottom: fluentTokens.spacingVerticalL,
   },
   resultsGrid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-    gap: tokens.spacingHorizontalL,
+    gap: fluentTokens.spacingHorizontalL,
   },
   actionButtons: {
     display: 'flex',
     justifyContent: 'space-between',
-    marginTop: tokens.spacingVerticalXL,
+    marginTop: fluentTokens.spacingVerticalXL,
   },
 });
 
@@ -217,7 +218,7 @@ const ClusterMetricsChart: React.FC<{ data: ClusterData[] }> = ({ data }) => {
               y={yScale(d.utilizationCPU)}
               width={(xScale.bandwidth() - 4) / 2}
               height={yMax - yScale(d.utilizationCPU)}
-              fill={tokens.colorBrandBackground}
+              fill={fluentTokens.colorBrandBackground}
               opacity={0.8}
             />
             <Bar
@@ -225,7 +226,7 @@ const ClusterMetricsChart: React.FC<{ data: ClusterData[] }> = ({ data }) => {
               y={yScale(d.utilizationMemory)}
               width={(xScale.bandwidth() - 4) / 2}
               height={yMax - yScale(d.utilizationMemory)}
-              fill={tokens.colorBrandBackground2}
+              fill={fluentTokens.colorBrandBackground2}
               opacity={0.8}
             />
           </Group>
@@ -251,9 +252,9 @@ const EOLStatusPieChart: React.FC<{ data: { current: number; nearEol: number; eo
   const radius = Math.min(width, height) / 2;
   
   const pieData = [
-    { label: 'Current', value: data.current, color: tokens.colorPaletteGreenForeground1 },
-    { label: 'Near EOL', value: data.nearEol, color: tokens.colorPaletteYellowForeground2 },
-    { label: 'EOL', value: data.eol, color: tokens.colorPaletteRedForeground1 },
+    { label: 'Current', value: data.current, color: designTokens.semanticColors.success.foreground },
+    { label: 'Near EOL', value: data.nearEol, color: designTokens.semanticColors.warning.foreground },
+    { label: 'EOL', value: data.eol, color: designTokens.semanticColors.error.foreground },
   ].filter(d => d.value > 0);
   
   return (
@@ -451,7 +452,7 @@ export const HardwareRefreshWizard: React.FC<HardwareRefreshWizardProps> = ({
         return (
           <div>
             <Title3>Select RVTools Export File</Title3>
-            <Body2 style={{ marginBottom: tokens.spacingVerticalL }}>
+            <Body2 style={{ marginBottom: fluentTokens.spacingVerticalL }}>
               Choose a processed RVTools file to analyze for hardware lifecycle planning.
             </Body2>
             
@@ -460,7 +461,7 @@ export const HardwareRefreshWizard: React.FC<HardwareRefreshWizardProps> = ({
                 key={file.id}
                 className={`${styles.clusterCard} ${selectedFile?.id === file.id ? 'selected' : ''}`}
                 onClick={() => setSelectedFile(file)}
-                style={{ marginBottom: tokens.spacingVerticalM }}
+                style={{ marginBottom: fluentTokens.spacingVerticalM }}
               >
                 <CardHeader
                   header={<Text weight="semibold">{file.name}</Text>}
@@ -475,7 +476,7 @@ export const HardwareRefreshWizard: React.FC<HardwareRefreshWizardProps> = ({
                   }
                 />
                 <CardPreview>
-                  <div style={{ display: 'flex', gap: tokens.spacingHorizontalL }}>
+                  <div style={{ display: 'flex', gap: fluentTokens.spacingHorizontalL }}>
                     <div>
                       <Caption1>VMs</Caption1>
                       <Text weight="semibold">{file.totalVMs}</Text>
@@ -499,12 +500,12 @@ export const HardwareRefreshWizard: React.FC<HardwareRefreshWizardProps> = ({
         return (
           <div>
             <Title3>Select Clusters for Analysis</Title3>
-            <Body2 style={{ marginBottom: tokens.spacingVerticalL }}>
+            <Body2 style={{ marginBottom: fluentTokens.spacingVerticalL }}>
               Choose which clusters you want to include in the hardware refresh analysis.
             </Body2>
             
             <div className={styles.chartContainer}>
-              <Caption1 style={{ marginBottom: tokens.spacingVerticalM }}>Cluster Utilization Overview</Caption1>
+              <Caption1 style={{ marginBottom: fluentTokens.spacingVerticalM }}>Cluster Utilization Overview</Caption1>
               <ClusterMetricsChart data={clusterData} />
             </div>
             
@@ -523,7 +524,7 @@ export const HardwareRefreshWizard: React.FC<HardwareRefreshWizardProps> = ({
                 >
                   <CardHeader
                     header={
-                      <div style={{ display: 'flex', alignItems: 'center', gap: tokens.spacingHorizontalS }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: fluentTokens.spacingHorizontalS }}>
                         <Checkbox
                           checked={selectedClusters.includes(cluster.name)}
                           onChange={() => {}}
@@ -540,7 +541,7 @@ export const HardwareRefreshWizard: React.FC<HardwareRefreshWizardProps> = ({
                     }
                   />
                   <CardPreview>
-                    <div style={{ display: 'flex', gap: tokens.spacingHorizontalL, marginBottom: tokens.spacingVerticalM }}>
+                    <div style={{ display: 'flex', gap: fluentTokens.spacingHorizontalL, marginBottom: fluentTokens.spacingVerticalM }}>
                       <div>
                         <Caption1>Hosts</Caption1>
                         <Text weight="semibold">{cluster.hostCount}</Text>
@@ -560,13 +561,13 @@ export const HardwareRefreshWizard: React.FC<HardwareRefreshWizardProps> = ({
                     </div>
                     
                     <div className={styles.serverList}>
-                      <Caption1 style={{ marginBottom: tokens.spacingVerticalS }}>Servers:</Caption1>
+                      <Caption1 style={{ marginBottom: fluentTokens.spacingVerticalS }}>Servers:</Caption1>
                       {cluster.servers.map(server => (
                         <div key={server.hostname} style={{ 
                           display: 'flex', 
                           justifyContent: 'space-between', 
                           alignItems: 'center',
-                          marginBottom: tokens.spacingVerticalXS 
+                          marginBottom: fluentTokens.spacingVerticalXS 
                         }}>
                           <div>
                             <Text style={{ fontSize: '12px' }}>{server.hostname}</Text>
@@ -596,14 +597,14 @@ export const HardwareRefreshWizard: React.FC<HardwareRefreshWizardProps> = ({
         return (
           <div>
             <Title3>Configure Overcommit Ratios</Title3>
-            <Body2 style={{ marginBottom: tokens.spacingVerticalL }}>
+            <Body2 style={{ marginBottom: fluentTokens.spacingVerticalL }}>
               Set the vCPU to pCPU and vMemory to pMemory ratios for capacity planning.
             </Body2>
             
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: tokens.spacingHorizontalXXL }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: fluentTokens.spacingHorizontalXXL }}>
               <div className={styles.ratioControl}>
                 <Field label="vCPU to pCPU Ratio">
-                  <div style={{ display: 'flex', alignItems: 'center', gap: tokens.spacingHorizontalM }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: fluentTokens.spacingHorizontalM }}>
                     <Slider
                       value={overcommitRatios.cpu}
                       min={1}
@@ -618,7 +619,7 @@ export const HardwareRefreshWizard: React.FC<HardwareRefreshWizardProps> = ({
                 </Field>
                 
                 <Field label="vMemory to pMemory Ratio">
-                  <div style={{ display: 'flex', alignItems: 'center', gap: tokens.spacingHorizontalM }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: fluentTokens.spacingHorizontalM }}>
                     <Slider
                       value={overcommitRatios.memory}
                       min={1}
@@ -635,19 +636,19 @@ export const HardwareRefreshWizard: React.FC<HardwareRefreshWizardProps> = ({
               
               <div>
                 <Caption1>EOL Status Distribution</Caption1>
-                <div style={{ display: 'flex', alignItems: 'center', gap: tokens.spacingHorizontalL }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: fluentTokens.spacingHorizontalL }}>
                   <EOLStatusPieChart data={eolSummary} />
                   <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: tokens.spacingHorizontalS, marginBottom: tokens.spacingVerticalS }}>
-                      <div style={{ width: '12px', height: '12px', backgroundColor: tokens.colorPaletteGreenForeground1, borderRadius: '2px' }} />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: fluentTokens.spacingHorizontalS, marginBottom: fluentTokens.spacingVerticalS }}>
+                      <div style={{ width: '12px', height: '12px', backgroundColor: designTokens.semanticColors.success.foreground, borderRadius: '2px' }} />
                       <Text>Current: {eolSummary.current}</Text>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: tokens.spacingHorizontalS, marginBottom: tokens.spacingVerticalS }}>
-                      <div style={{ width: '12px', height: '12px', backgroundColor: tokens.colorPaletteYellowForeground2, borderRadius: '2px' }} />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: fluentTokens.spacingHorizontalS, marginBottom: fluentTokens.spacingVerticalS }}>
+                      <div style={{ width: '12px', height: '12px', backgroundColor: designTokens.semanticColors.warning.foreground, borderRadius: '2px' }} />
                       <Text>Near EOL: {eolSummary.nearEol}</Text>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: tokens.spacingHorizontalS }}>
-                      <div style={{ width: '12px', height: '12px', backgroundColor: tokens.colorPaletteRedForeground1, borderRadius: '2px' }} />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: fluentTokens.spacingHorizontalS }}>
+                      <div style={{ width: '12px', height: '12px', backgroundColor: designTokens.semanticColors.error.foreground, borderRadius: '2px' }} />
                       <Text>EOL: {eolSummary.eol}</Text>
                     </div>
                   </div>
@@ -661,21 +662,21 @@ export const HardwareRefreshWizard: React.FC<HardwareRefreshWizardProps> = ({
         return (
           <div style={{ textAlign: 'center' }}>
             <Title3>Execute Hardware Lifecycle Analysis</Title3>
-            <Body2 style={{ marginBottom: tokens.spacingVerticalXL }}>
+            <Body2 style={{ marginBottom: fluentTokens.spacingVerticalXL }}>
               Ready to analyze {selectedClusters.length} clusters with {overcommitRatios.cpu}:1 CPU and {overcommitRatios.memory.toFixed(1)}:1 memory ratios.
             </Body2>
             
             {isAnalyzing ? (
               <div>
-                <Spinner size="extra-large" style={{ marginBottom: tokens.spacingVerticalL }} />
+                <Spinner size="extra-large" style={{ marginBottom: fluentTokens.spacingVerticalL }} />
                 <Text>Analyzing hardware lifecycle data...</Text>
-                <ProgressBar style={{ marginTop: tokens.spacingVerticalM, maxWidth: '400px', margin: '0 auto' }} />
+                <ProgressBar style={{ marginTop: fluentTokens.spacingVerticalM, maxWidth: '400px', margin: '0 auto' }} />
               </div>
             ) : analysisResults ? (
               <div>
-                <CheckmarkCircle24Regular style={{ fontSize: '64px', color: tokens.colorPaletteGreenForeground1, marginBottom: tokens.spacingVerticalL }} />
+                <CheckmarkCircle24Regular style={{ fontSize: '64px', color: designTokens.componentSemantics.icon.success, marginBottom: fluentTokens.spacingVerticalL }} />
                 <Text>Analysis completed successfully!</Text>
-                <div style={{ marginTop: tokens.spacingVerticalL }}>
+                <div style={{ marginTop: fluentTokens.spacingVerticalL }}>
                   <Button appearance="primary" onClick={() => setCurrentStep(5)}>
                     View Results
                   </Button>
@@ -683,7 +684,7 @@ export const HardwareRefreshWizard: React.FC<HardwareRefreshWizardProps> = ({
               </div>
             ) : (
               <div>
-                <Play24Regular style={{ fontSize: '64px', color: tokens.colorBrandForeground1, marginBottom: tokens.spacingVerticalL }} />
+                <Play24Regular style={{ fontSize: '64px', color: fluentTokens.colorBrandForeground1, marginBottom: fluentTokens.spacingVerticalL }} />
                 <Button appearance="primary" size="large" onClick={runAnalysis}>
                   Start Analysis
                 </Button>
@@ -696,7 +697,7 @@ export const HardwareRefreshWizard: React.FC<HardwareRefreshWizardProps> = ({
         return (
           <div>
             <Title3>Hardware Refresh Analysis Results</Title3>
-            <Body2 style={{ marginBottom: tokens.spacingVerticalL }}>
+            <Body2 style={{ marginBottom: fluentTokens.spacingVerticalL }}>
               Review the analysis results and recommendations for your hardware refresh project.
             </Body2>
             
@@ -705,20 +706,20 @@ export const HardwareRefreshWizard: React.FC<HardwareRefreshWizardProps> = ({
                 <Card>
                   <CardHeader header={<Text weight="semibold">Analysis Summary</Text>} />
                   <CardPreview>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: tokens.spacingVerticalS }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: fluentTokens.spacingVerticalS }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                         <Caption1>Total Hosts Analyzed:</Caption1>
                         <Text weight="semibold">{analysisResults.totalHostsAnalyzed}</Text>
                       </div>
                       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                         <Caption1>EOL Hosts:</Caption1>
-                        <Text weight="semibold" style={{ color: tokens.colorPaletteRedForeground1 }}>
+                        <Text weight="semibold" style={{ color: designTokens.semanticColors.error.foreground }}>
                           {analysisResults.eolHosts}
                         </Text>
                       </div>
                       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                         <Caption1>Near EOL Hosts:</Caption1>
-                        <Text weight="semibold" style={{ color: tokens.colorPaletteYellowForeground2 }}>
+                        <Text weight="semibold" style={{ color: designTokens.semanticColors.warning.foreground }}>
                           {analysisResults.nearEolHosts}
                         </Text>
                       </div>
@@ -731,16 +732,16 @@ export const HardwareRefreshWizard: React.FC<HardwareRefreshWizardProps> = ({
                   <CardPreview>
                     {analysisResults.recommendedReplacements.map(rec => (
                       <div key={rec.cluster} style={{ 
-                        marginBottom: tokens.spacingVerticalM,
-                        paddingBottom: tokens.spacingVerticalM,
-                        borderBottom: `1px solid ${tokens.colorNeutralStroke2}`
+                        marginBottom: fluentTokens.spacingVerticalM,
+                        paddingBottom: fluentTokens.spacingVerticalM,
+                        borderBottom: `1px solid ${fluentTokens.colorNeutralStroke2}`
                       }}>
                         <Text weight="semibold">{rec.cluster}</Text>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: tokens.spacingVerticalXS }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: fluentTokens.spacingVerticalXS }}>
                           <Caption1>Replace {rec.eolHosts} of {rec.currentHosts} hosts</Caption1>
                           <Caption1>Est. ${rec.estimatedCost.toLocaleString()}</Caption1>
                         </div>
-                        <Caption1 style={{ color: tokens.colorBrandForeground1 }}>
+                        <Caption1 style={{ color: fluentTokens.colorBrandForeground1 }}>
                           → {rec.recommendedModel}
                         </Caption1>
                       </div>
@@ -767,9 +768,9 @@ export const HardwareRefreshWizard: React.FC<HardwareRefreshWizardProps> = ({
             <div style={{ 
               display: 'flex', 
               justifyContent: 'space-between', 
-              marginBottom: tokens.spacingVerticalXL,
-              paddingBottom: tokens.spacingVerticalL,
-              borderBottom: `2px solid ${tokens.colorNeutralStroke2}`
+              marginBottom: fluentTokens.spacingVerticalXL,
+              paddingBottom: fluentTokens.spacingVerticalL,
+              borderBottom: `2px solid ${fluentTokens.colorNeutralStroke2}`
             }}>
               {steps.map((step, index) => (
                 <div
@@ -785,17 +786,17 @@ export const HardwareRefreshWizard: React.FC<HardwareRefreshWizardProps> = ({
                     width: '40px',
                     height: '40px',
                     borderRadius: '50%',
-                    backgroundColor: currentStep >= step.number ? tokens.colorBrandBackground : tokens.colorNeutralBackground3,
+                    backgroundColor: currentStep >= step.number ? fluentTokens.colorBrandBackground : fluentTokens.colorNeutralBackground3,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    marginBottom: tokens.spacingVerticalS,
+                    marginBottom: fluentTokens.spacingVerticalS,
                   }}>
                     {currentStep > step.number ? (
                       <CheckmarkCircle24Regular style={{ color: 'white' }} />
                     ) : (
                       React.cloneElement(step.icon, { 
-                        style: { color: currentStep >= step.number ? 'white' : tokens.colorNeutralForeground3 } 
+                        style: { color: currentStep >= step.number ? 'white' : fluentTokens.colorNeutralForeground3 } 
                       })
                     )}
                   </div>
@@ -822,7 +823,7 @@ export const HardwareRefreshWizard: React.FC<HardwareRefreshWizardProps> = ({
               </Button>
             </div>
             
-            <div style={{ display: 'flex', gap: tokens.spacingHorizontalM }}>
+            <div style={{ display: 'flex', gap: fluentTokens.spacingHorizontalM }}>
               <Button appearance="secondary" onClick={onClose}>
                 Cancel
               </Button>

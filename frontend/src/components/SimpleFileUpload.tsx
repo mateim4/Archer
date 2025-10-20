@@ -3,6 +3,7 @@ import { useAppStore } from '../store/useAppStore';
 import { openFileDialog, readFileContent, getFileName, isFileTypeSupported, isTauriEnvironment } from '../utils/fileUpload';
 import WebFileProcessor from '../utils/webFileProcessor';
 import { parseHardwareBasket } from '../utils/hardwareBasketParser';
+import { tokens, colors } from '@/styles/design-tokens';
 
 interface SimpleFileUploadProps {
   onFileProcessed?: (result: any) => void;
@@ -155,7 +156,7 @@ const SimpleFileUpload: React.FC<SimpleFileUploadProps> = ({
                 animation: 'spin 1s linear infinite'
               }}
             />
-            <span style={{ fontSize: '12px', color: '#6b7280', fontWeight: '500' }}>
+            <span style={{ fontSize: '12px', color: tokens.semanticColors.neutral.foregroundSubtle, fontWeight: '500' }}>
               Processing...
             </span>
           </>
@@ -166,7 +167,7 @@ const SimpleFileUpload: React.FC<SimpleFileUploadProps> = ({
               height="20"
               viewBox="0 0 24 24"
               fill="none"
-              stroke="#6b7280"
+              stroke={tokens.semanticColors.neutral.foregroundSubtle}
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -175,7 +176,7 @@ const SimpleFileUpload: React.FC<SimpleFileUploadProps> = ({
               <polyline points="7,10 12,15 17,10" />
               <line x1="12" y1="15" x2="12" y2="3" />
             </svg>
-            <span style={{ fontSize: '14px', color: '#374151', fontWeight: '500' }}>
+            <span style={{ fontSize: '14px', color: colors.gray700, fontWeight: '500' }}>
               {label}
             </span>
           </>
@@ -184,7 +185,7 @@ const SimpleFileUpload: React.FC<SimpleFileUploadProps> = ({
 
       {/* Description and Format Info */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span style={{ fontSize: '11px', color: '#6b7280' }}>
+        <span style={{ fontSize: '11px', color: tokens.semanticColors.neutral.foregroundSubtle }}>
           {description}
         </span>
         <span style={{ fontSize: '10px', color: '#9ca3af' }}>

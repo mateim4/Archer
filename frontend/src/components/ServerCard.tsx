@@ -12,6 +12,7 @@ import {
   ErrorCircleRegular,
   InfoRegular
 } from '@fluentui/react-icons';
+import { tokens, colors } from '@/styles/design-tokens';
 
 interface HardwareSpecifications {
   processor: {
@@ -79,25 +80,25 @@ const ServerCard: React.FC<ServerCardProps> = ({
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'available': 
-        return <CheckmarkCircleRegular style={{ color: '#10b981', fontSize: '16px' }} />;
+        return <CheckmarkCircleRegular style={{ color: tokens.componentSemantics.icon.success, fontSize: '16px' }} />;
       case 'in_use': 
-        return <ClockRegular style={{ color: '#3b82f6', fontSize: '16px' }} />;
+        return <ClockRegular style={{ color: tokens.componentSemantics.icon.info, fontSize: '16px' }} />;
       case 'maintenance': 
-        return <SettingsRegular style={{ color: '#f59e0b', fontSize: '16px' }} />;
+        return <SettingsRegular style={{ color: tokens.componentSemantics.icon.warning, fontSize: '16px' }} />;
       case 'decommissioned': 
-        return <ErrorCircleRegular style={{ color: '#ef4444', fontSize: '16px' }} />;
+        return <ErrorCircleRegular style={{ color: tokens.componentSemantics.icon.error, fontSize: '16px' }} />;
       default: 
-        return <InfoRegular style={{ color: '#6b7280', fontSize: '16px' }} />;
+        return <InfoRegular style={{ color: tokens.componentSemantics.icon.neutral, fontSize: '16px' }} />;
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'available': return '#10b981';
-      case 'in_use': return '#3b82f6';
-      case 'maintenance': return '#f59e0b';
-      case 'decommissioned': return '#ef4444';
-      default: return '#6b7280';
+      case 'available': return tokens.semanticColors.success.foreground;
+      case 'in_use': return tokens.semanticColors.info.foreground;
+      case 'maintenance': return tokens.semanticColors.warning.foreground;
+      case 'decommissioned': return tokens.semanticColors.error.foreground;
+      default: return tokens.semanticColors.neutral.foreground;
     }
   };
 
@@ -107,7 +108,7 @@ const ServerCard: React.FC<ServerCardProps> = ({
       case 'hp':
       case 'hpe': return '#01A982';
       case 'lenovo': return '#E31837';
-      default: return '#8b5cf6';
+      default: return colors.purple600;
     }
   };
 
@@ -125,11 +126,11 @@ const ServerCard: React.FC<ServerCardProps> = ({
 
   const getSourceBadge = (source: string) => {
     const badges = {
-      rvtools: { label: 'RVTools', color: '#3b82f6' },
-      manual: { label: 'Manual', color: '#8b5cf6' },
-      hardware_basket: { label: 'Purchased', color: '#10b981' }
+      rvtools: { label: 'RVTools', color: tokens.semanticColors.info.foreground },
+      manual: { label: 'Manual', color: tokens.colorBrandPrimary },
+      hardware_basket: { label: 'Purchased', color: tokens.semanticColors.success.foreground }
     };
-    return badges[source as keyof typeof badges] || { label: source, color: '#6b7280' };
+    return badges[source as keyof typeof badges] || { label: source, color: tokens.semanticColors.neutral.foreground };
   };
 
   const isWarrantyExpiring = () => {
@@ -175,7 +176,7 @@ const ServerCard: React.FC<ServerCardProps> = ({
         cursor: 'pointer',
         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         border: isSelected 
-          ? '2px solid #8b5cf6' 
+          ? `2px solid ${colors.purple600}` 
           : '1px solid rgba(139, 92, 246, 0.2)',
         background: isSelected 
           ? 'rgba(139, 92, 246, 0.05)' 
@@ -210,7 +211,7 @@ const ServerCard: React.FC<ServerCardProps> = ({
           left: '12px',
           width: '6px',
           height: '6px',
-          background: '#8b5cf6',
+          background: colors.purple600,
           borderRadius: '50%',
           boxShadow: '0 0 0 3px rgba(139, 92, 246, 0.2)'
         }} />
@@ -229,7 +230,7 @@ const ServerCard: React.FC<ServerCardProps> = ({
               margin: '0', 
               fontSize: '16px', 
               fontWeight: '600', 
-              color: '#111827',
+              color: colors.gray900,
               overflow: 'hidden',
               textOverflow: 'ellipsis',
               whiteSpace: 'nowrap'
@@ -252,7 +253,7 @@ const ServerCard: React.FC<ServerCardProps> = ({
           
           <div style={{ 
             fontSize: '12px', 
-            color: '#6b7280',
+            color: tokens.semanticColors.neutral.foregroundSubtle,
             display: 'flex',
             alignItems: 'center',
             gap: '8px'
@@ -302,7 +303,7 @@ const ServerCard: React.FC<ServerCardProps> = ({
                   borderRadius: '4px',
                   padding: '4px',
                   cursor: 'pointer',
-                  color: '#6b7280',
+                  color: tokens.semanticColors.neutral.foregroundSubtle,
                   transition: 'all 0.2s ease'
                 }}
               >
@@ -358,7 +359,7 @@ const ServerCard: React.FC<ServerCardProps> = ({
                       textAlign: 'left',
                       cursor: 'pointer',
                       fontSize: '12px',
-                      color: '#ef4444'
+                      color: tokens.semanticColors.error.foreground
                     }}
                   >
                     <DeleteRegular style={{ fontSize: '12px', marginRight: '6px' }} />
@@ -383,7 +384,7 @@ const ServerCard: React.FC<ServerCardProps> = ({
           <div style={{ 
             fontSize: '11px', 
             fontWeight: '600', 
-            color: '#6b7280', 
+            color: tokens.semanticColors.neutral.foregroundSubtle, 
             textTransform: 'uppercase',
             marginBottom: '4px'
           }}>
@@ -391,7 +392,7 @@ const ServerCard: React.FC<ServerCardProps> = ({
           </div>
           <div style={{ 
             fontSize: '13px', 
-            color: '#111827', 
+            color: colors.gray900, 
             fontWeight: '500',
             overflow: 'hidden',
             textOverflow: 'ellipsis'
@@ -404,7 +405,7 @@ const ServerCard: React.FC<ServerCardProps> = ({
           <div style={{ 
             fontSize: '11px', 
             fontWeight: '600', 
-            color: '#6b7280', 
+            color: tokens.semanticColors.neutral.foregroundSubtle, 
             textTransform: 'uppercase',
             marginBottom: '4px'
           }}>
@@ -412,7 +413,7 @@ const ServerCard: React.FC<ServerCardProps> = ({
           </div>
           <div style={{ 
             fontSize: '13px', 
-            color: '#111827', 
+            color: colors.gray900, 
             fontWeight: '500'
           }}>
             {specs.memory}
@@ -423,7 +424,7 @@ const ServerCard: React.FC<ServerCardProps> = ({
           <div style={{ 
             fontSize: '11px', 
             fontWeight: '600', 
-            color: '#6b7280', 
+            color: tokens.semanticColors.neutral.foregroundSubtle, 
             textTransform: 'uppercase',
             marginBottom: '4px'
           }}>
@@ -431,7 +432,7 @@ const ServerCard: React.FC<ServerCardProps> = ({
           </div>
           <div style={{ 
             fontSize: '13px', 
-            color: '#111827', 
+            color: colors.gray900, 
             fontWeight: '500'
           }}>
             {specs.storage}
@@ -442,7 +443,7 @@ const ServerCard: React.FC<ServerCardProps> = ({
           <div style={{ 
             fontSize: '11px', 
             fontWeight: '600', 
-            color: '#6b7280', 
+            color: tokens.semanticColors.neutral.foregroundSubtle, 
             textTransform: 'uppercase',
             marginBottom: '4px'
           }}>
@@ -450,7 +451,7 @@ const ServerCard: React.FC<ServerCardProps> = ({
           </div>
           <div style={{ 
             fontSize: '13px', 
-            color: '#111827', 
+            color: colors.gray900, 
             fontWeight: '500'
           }}>
             {specs.network}
@@ -469,13 +470,13 @@ const ServerCard: React.FC<ServerCardProps> = ({
           <div style={{ 
             fontSize: '11px', 
             fontWeight: '600', 
-            color: '#3b82f6', 
+            color: tokens.semanticColors.info.foreground, 
             textTransform: 'uppercase',
             marginBottom: '2px'
           }}>
             Currently Assigned
           </div>
-          <div style={{ fontSize: '12px', color: '#1e40af' }}>
+          <div style={{ fontSize: '12px', color: tokens.semanticColors.info.foregroundSubtle }}>
             {server.assigned_project && `Project: ${server.assigned_project}`}
             {server.assigned_activity && ` • Activity: ${server.assigned_activity}`}
           </div>
@@ -493,7 +494,7 @@ const ServerCard: React.FC<ServerCardProps> = ({
           <div style={{ 
             fontSize: '11px', 
             fontWeight: '600', 
-            color: isWarrantyExpired() ? '#ef4444' : '#f59e0b', 
+            color: isWarrantyExpired() ? tokens.semanticColors.error.foreground : tokens.semanticColors.warning.foreground, 
             textTransform: 'uppercase',
             marginBottom: '2px'
           }}>
@@ -501,7 +502,7 @@ const ServerCard: React.FC<ServerCardProps> = ({
           </div>
           <div style={{ 
             fontSize: '12px', 
-            color: isWarrantyExpired() ? '#dc2626' : '#d97706' 
+            color: isWarrantyExpired() ? tokens.semanticColors.error.foregroundSubtle : tokens.semanticColors.warning.foregroundSubtle 
           }}>
             {server.warranty_end?.toLocaleDateString()}
           </div>
@@ -542,7 +543,7 @@ const ServerCard: React.FC<ServerCardProps> = ({
           background: 'rgba(139, 92, 246, 0.05)',
           borderRadius: '4px',
           fontSize: '11px',
-          color: '#6b7280',
+          color: tokens.semanticColors.neutral.foregroundSubtle,
           fontStyle: 'italic',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
