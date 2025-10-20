@@ -8,6 +8,46 @@
    FLUENT 2 PROVIDER & THEME SYSTEM
    =================== */
 
+/* Force font overrides for FluentProvider components */
+.fui-FluentProvider {
+  font-family: "Oxanium", "Segoe UI Variable", "Segoe UI", system-ui, sans-serif !important;
+}
+
+.fui-FluentProvider h1,
+.fui-FluentProvider h2,
+.fui-FluentProvider h3,
+.fui-FluentProvider h4,
+.fui-FluentProvider h5,
+.fui-FluentProvider h6,
+.fui-FluentProvider strong,
+.fui-FluentProvider b,
+.fui-FluentProvider th {
+  font-family: "Nasalization", "Oxanium", "Segoe UI Variable", "Segoe UI", system-ui, sans-serif !important;
+}
+
+/* Override Fluent UI Typography components */
+.fui-Title1,
+.fui-Title2,
+.fui-Title3,
+.fui-Subtitle1,
+.fui-Subtitle2,
+.fui-Display,
+.fui-LargeTitle {
+  font-family: "Nasalization", "Oxanium", "Segoe UI Variable", "Segoe UI", system-ui, sans-serif !important;
+}
+
+.fui-Body1,
+.fui-Body1Strong,
+.fui-Body1Stronger,
+.fui-Body2,
+.fui-Caption1,
+.fui-Caption1Strong,
+.fui-Caption1Stronger,
+.fui-Caption2,
+.fui-Text {
+  font-family: "Oxanium", "Segoe UI Variable", "Segoe UI", system-ui, sans-serif !important;
+}
+
 /* Provider and Theme System */
 .fluent-provider {
   /* Base provider setup */
