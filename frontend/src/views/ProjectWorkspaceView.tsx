@@ -40,6 +40,7 @@ import { ViewToggleSlider } from '../components/ViewToggleSlider';
 import { useEnhancedUX } from '../hooks/useEnhancedUX';
 import { DesignTokens } from '../styles/designSystem';
 import { ActivityWizardModal } from '../components/Activity/ActivityWizardModal';
+import { tokens, colors } from '@/styles/design-tokens';
 
 interface Activity {
   id: string;
@@ -612,8 +613,8 @@ const ProjectWorkspaceView: React.FC = () => {
                 <h1 style={{
                   fontSize: '30px',
                   fontWeight: '700',
-                  color: '#8b5cf6',
-                  fontFamily: "'Oxanium', sans-serif",
+                  color: colors.purple600,
+                  fontFamily: tokens.fontFamilyBody,
                   margin: 0
                 }}>{project.name}</h1>
               </div>
@@ -671,7 +672,7 @@ const ProjectWorkspaceView: React.FC = () => {
                     <div className="flex flex-wrap items-center gap-3">
                       {/* Status Filter */}
                       <div className="flex items-center gap-2">
-                        <label className="text-xs font-semibold whitespace-nowrap" style={{ fontFamily: "'Oxanium', sans-serif", color: '#1a202c' }}>
+                        <label className="text-xs font-semibold whitespace-nowrap" style={{ fontFamily: tokens.fontFamilyBody, color: colors.gray900 }}>
                           Status:
                         </label>
                         <select
@@ -690,7 +691,7 @@ const ProjectWorkspaceView: React.FC = () => {
 
                   {/* Assignee Filter */}
                   <div className="flex items-center gap-2">
-                    <label className="text-xs font-semibold whitespace-nowrap" style={{ fontFamily: "'Oxanium', sans-serif", color: '#1a202c' }}>
+                    <label className="text-xs font-semibold whitespace-nowrap" style={{ fontFamily: tokens.fontFamilyBody, color: colors.gray900 }}>
                       Assignee:
                     </label>
                     <select
@@ -710,7 +711,7 @@ const ProjectWorkspaceView: React.FC = () => {
 
                   {/* Sort By */}
                   <div className="flex items-center gap-2">
-                    <label className="text-xs font-semibold whitespace-nowrap" style={{ fontFamily: "'Oxanium', sans-serif", color: '#1a202c' }}>
+                    <label className="text-xs font-semibold whitespace-nowrap" style={{ fontFamily: tokens.fontFamilyBody, color: colors.gray900 }}>
                       Sort:
                     </label>
                     <select

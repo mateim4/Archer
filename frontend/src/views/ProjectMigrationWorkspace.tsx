@@ -26,7 +26,7 @@ import {
   Spinner,
   makeStyles,
   shorthands,
-  tokens,
+  tokens as fluentTokens,
 } from '@fluentui/react-components';
 import {
   ChartMultiple24Regular,
@@ -42,6 +42,7 @@ import {
 } from '@fluentui/react-icons';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ClusterStrategyModal, ClusterStrategyFormData, ClusterStrategyList } from '../components/ClusterStrategy';
+import { tokens } from '@/styles/design-tokens';
 
 // Types
 interface MigrationProject {
@@ -86,43 +87,43 @@ const useStyles = makeStyles({
   workspace: {
     display: 'flex',
     flexDirection: 'column',
-    ...shorthands.gap(tokens.spacingVerticalXL),
-    ...shorthands.padding(tokens.spacingVerticalXL, tokens.spacingHorizontalXL),
-    backgroundColor: tokens.colorNeutralBackground3,
+    ...shorthands.gap(fluentTokens.spacingVerticalXL),
+    ...shorthands.padding(fluentTokens.spacingVerticalXL, fluentTokens.spacingHorizontalXL),
+    backgroundColor: fluentTokens.colorNeutralBackground3,
     minHeight: '100vh',
-    fontFamily: 'Oxanium, Oxanium, system-ui, -apple-system, sans-serif',
+    fontFamily: tokens.fontFamilyBody,
   },
   
   header: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    ...shorthands.padding(tokens.spacingVerticalL, tokens.spacingHorizontalXL),
+    ...shorthands.padding(fluentTokens.spacingVerticalL, fluentTokens.spacingHorizontalXL),
     backgroundColor: 'rgba(255, 255, 255, 0.7)',
     backdropFilter: 'blur(20px)',
-    ...shorthands.borderRadius(tokens.borderRadiusXLarge),
-    boxShadow: tokens.shadow8,
+    ...shorthands.borderRadius(fluentTokens.borderRadiusXLarge),
+    boxShadow: fluentTokens.shadow8,
   },
   
   headerTitle: {
     display: 'flex',
     flexDirection: 'column',
-    ...shorthands.gap(tokens.spacingVerticalXS),
+    ...shorthands.gap(fluentTokens.spacingVerticalXS),
   },
   
   overviewSection: {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-    ...shorthands.gap(tokens.spacingHorizontalL),
+    ...shorthands.gap(fluentTokens.spacingHorizontalL),
   },
   
   glassCard: {
     backgroundColor: 'rgba(255, 255, 255, 0.8)',
     backdropFilter: 'blur(20px)',
-    ...shorthands.borderRadius(tokens.borderRadiusXLarge),
+    ...shorthands.borderRadius(fluentTokens.borderRadiusXLarge),
     ...shorthands.border('1px', 'solid', 'rgba(255, 255, 255, 0.3)'),
     boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.15)',
-    ...shorthands.padding(tokens.spacingVerticalL),
+    ...shorthands.padding(fluentTokens.spacingVerticalL),
     ...shorthands.transition('all', '0.3s', 'ease'),
     ':hover': {
       boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.25)',
@@ -133,31 +134,31 @@ const useStyles = makeStyles({
   cardContent: {
     display: 'flex',
     flexDirection: 'column',
-    ...shorthands.gap(tokens.spacingVerticalM),
+    ...shorthands.gap(fluentTokens.spacingVerticalM),
   },
   
   cardIcon: {
     fontSize: '32px',
-    color: tokens.colorBrandForeground1,
+    color: fluentTokens.colorBrandForeground1,
   },
   
   metricValue: {
     fontSize: '28px',
     fontWeight: '600',
-    color: tokens.colorNeutralForeground1,
-    fontFamily: 'Oxanium, sans-serif',
+    color: fluentTokens.colorNeutralForeground1,
+    fontFamily: tokens.fontFamilyBody,
   },
   
   metricLabel: {
     fontSize: '13px',
-    color: tokens.colorNeutralForeground3,
-    fontFamily: 'Oxanium, sans-serif',
+    color: fluentTokens.colorNeutralForeground3,
+    fontFamily: tokens.fontFamilyBody,
   },
   
   section: {
     display: 'flex',
     flexDirection: 'column',
-    ...shorthands.gap(tokens.spacingVerticalL),
+    ...shorthands.gap(fluentTokens.spacingVerticalL),
   },
   
   sectionHeader: {
@@ -169,14 +170,14 @@ const useStyles = makeStyles({
   clusterList: {
     display: 'flex',
     flexDirection: 'column',
-    ...shorthands.gap(tokens.spacingVerticalM),
+    ...shorthands.gap(fluentTokens.spacingVerticalM),
   },
   
   clusterCard: {
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
     backdropFilter: 'blur(20px)',
-    ...shorthands.borderRadius(tokens.borderRadiusLarge),
-    ...shorthands.padding(tokens.spacingVerticalL, tokens.spacingHorizontalL),
+    ...shorthands.borderRadius(fluentTokens.borderRadiusLarge),
+    ...shorthands.padding(fluentTokens.spacingVerticalL, fluentTokens.spacingHorizontalL),
     ...shorthands.border('1px', 'solid', 'rgba(255, 255, 255, 0.3)'),
     boxShadow: '0 4px 16px 0 rgba(31, 38, 135, 0.1)',
     ...shorthands.transition('all', '0.2s', 'ease'),
@@ -190,32 +191,32 @@ const useStyles = makeStyles({
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    ...shorthands.gap(tokens.spacingHorizontalL),
+    ...shorthands.gap(fluentTokens.spacingHorizontalL),
   },
   
   clusterInfo: {
     display: 'flex',
     flexDirection: 'column',
-    ...shorthands.gap(tokens.spacingVerticalS),
+    ...shorthands.gap(fluentTokens.spacingVerticalS),
     flex: 1,
   },
   
   clusterMeta: {
     display: 'flex',
-    ...shorthands.gap(tokens.spacingHorizontalM),
+    ...shorthands.gap(fluentTokens.spacingHorizontalM),
     alignItems: 'center',
     flexWrap: 'wrap',
   },
   
   clusterActions: {
     display: 'flex',
-    ...shorthands.gap(tokens.spacingHorizontalS),
+    ...shorthands.gap(fluentTokens.spacingHorizontalS),
   },
   
   statusBadge: {
     display: 'flex',
     alignItems: 'center',
-    ...shorthands.gap(tokens.spacingHorizontalXS),
+    ...shorthands.gap(fluentTokens.spacingHorizontalXS),
   },
   
   loadingContainer: {
@@ -230,8 +231,8 @@ const useStyles = makeStyles({
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    ...shorthands.padding(tokens.spacingVerticalXXXL),
-    ...shorthands.gap(tokens.spacingVerticalL),
+    ...shorthands.padding(fluentTokens.spacingVerticalXXXL),
+    ...shorthands.gap(fluentTokens.spacingVerticalL),
     textAlign: 'center',
   },
 });
@@ -311,15 +312,15 @@ const ProjectMigrationWorkspace: React.FC = () => {
   const getStatusIcon = (status: ClusterMigrationPlan['status']) => {
     switch (status) {
       case 'completed':
-        return <CheckmarkCircle24Regular style={{ color: tokens.colorPaletteGreenForeground1 }} />;
+        return <CheckmarkCircle24Regular style={{ color: fluentTokens.colorPaletteGreenForeground1 }} />;
       case 'in_progress':
-        return <Clock24Regular style={{ color: tokens.colorPaletteBlueForeground2 }} />;
+        return <Clock24Regular style={{ color: fluentTokens.colorPaletteBlueForeground2 }} />;
       case 'awaiting_hardware':
-        return <Warning24Regular style={{ color: tokens.colorPaletteYellowForeground1 }} />;
+        return <Warning24Regular style={{ color: fluentTokens.colorPaletteYellowForeground1 }} />;
       case 'not_configured':
-        return <Settings24Regular style={{ color: tokens.colorNeutralForeground3 }} />;
+        return <Settings24Regular style={{ color: fluentTokens.colorNeutralForeground3 }} />;
       default:
-        return <CheckmarkCircle24Regular style={{ color: tokens.colorNeutralForeground3 }} />;
+        return <CheckmarkCircle24Regular style={{ color: fluentTokens.colorNeutralForeground3 }} />;
     }
   };
   
@@ -460,7 +461,7 @@ const ProjectMigrationWorkspace: React.FC = () => {
     return (
       <div className={styles.workspace}>
         <div className={styles.emptyState}>
-          <Server24Regular style={{ fontSize: '64px', color: tokens.colorNeutralForeground3 }} />
+          <Server24Regular style={{ fontSize: '64px', color: fluentTokens.colorNeutralForeground3 }} />
           <Title2>Project Not Found</Title2>
           <Body1>The requested migration project could not be found.</Body1>
           <Button appearance="primary" onClick={() => navigate('/projects')}>
@@ -548,7 +549,7 @@ const ProjectMigrationWorkspace: React.FC = () => {
       <div className={styles.section}>
         <div className={styles.sectionHeader}>
           <Title2>🎯 Cluster Migration Strategy</Title2>
-          <div style={{ display: 'flex', gap: tokens.spacingHorizontalM }}>
+          <div style={{ display: 'flex', gap: fluentTokens.spacingHorizontalM }}>
             <Button
               appearance="subtle"
               onClick={handleValidateDependencies}
@@ -567,7 +568,7 @@ const ProjectMigrationWorkspace: React.FC = () => {
         
         {clusterStrategies.length === 0 ? (
           <div className={styles.emptyState}>
-            <Server24Regular style={{ fontSize: '48px', color: tokens.colorNeutralForeground3 }} />
+            <Server24Regular style={{ fontSize: '48px', color: fluentTokens.colorNeutralForeground3 }} />
             <Title3>No Cluster Strategies Configured</Title3>
             <Body1>Configure migration strategies for your clusters to get started.</Body1>
             <Button
@@ -590,7 +591,7 @@ const ProjectMigrationWorkspace: React.FC = () => {
       {/* Quick Actions */}
       <div className={styles.section}>
         <Title2>🚀 Quick Actions</Title2>
-        <div style={{ display: 'flex', gap: tokens.spacingHorizontalL }}>
+        <div style={{ display: 'flex', gap: fluentTokens.spacingHorizontalL }}>
           <div className={styles.glassCard} style={{ flex: 1, cursor: 'pointer' }} onClick={handleOpenCapacityVisualizer}>
             <div className={styles.cardContent}>
               <ChartMultiple24Regular className={styles.cardIcon} />

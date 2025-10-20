@@ -23,6 +23,7 @@ import {
 } from '../components/EnhancedUXComponents';
 import { useEnhancedUX } from '../hooks/useEnhancedUX';
 import { DesignTokens } from '../styles/designSystem';
+import { tokens } from '@/styles/design-tokens';
 
 interface Activity {
   id: string;
@@ -363,7 +364,7 @@ const ClusterStrategyManagerView: React.FC = () => {
       }}>
         <div className="px-8 py-6">
           {/* Breadcrumbs */}
-          <div className="flex items-center gap-2 text-sm mb-4" style={{ fontFamily: 'Oxanium, system-ui, -apple-system, sans-serif' }}>
+          <div className="flex items-center gap-2 text-sm mb-4" style={{ fontFamily: tokens.fontFamilyBody }}>
             <button
               onClick={() => navigate('/app/projects')}
               className="text-gray-600 hover:text-indigo-600 transition-colors font-medium"
@@ -394,7 +395,7 @@ const ClusterStrategyManagerView: React.FC = () => {
               
               <div>
                 <div className="flex items-center gap-3 mb-2">
-                  <h1 className="text-2xl font-bold" style={{ fontFamily: 'Oxanium, system-ui, -apple-system, sans-serif' }}>
+                  <h1 className="text-2xl font-bold" style={{ fontFamily: tokens.fontFamilyBody }}>
                     {activity.name}
                   </h1>
                   {getStatusBadge(activity.status)}
@@ -451,7 +452,7 @@ const ClusterStrategyManagerView: React.FC = () => {
         {strategies.length === 0 ? (
           <EnhancedCard className="text-center py-16">
             <ServerRegular className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2" style={{ fontFamily: 'Oxanium, system-ui, -apple-system, sans-serif' }}>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2" style={{ fontFamily: tokens.fontFamilyBody }}>
               No Cluster Strategies Yet
             </h3>
             <p className="text-gray-600 mb-6 max-w-md mx-auto">
