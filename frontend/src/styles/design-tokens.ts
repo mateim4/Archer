@@ -429,6 +429,159 @@ const componentTokens = {
 } as const;
 
 // ============================================================================
+// SEMANTIC COLOR SYSTEM
+// ============================================================================
+
+/**
+ * SEMANTIC COLOR SYSTEM
+ * 
+ * Usage Examples:
+ * 
+ * // Status icon
+ * <CheckmarkCircleRegular style={{ color: tokens.semanticColors.success.foregroundSubtle }} />
+ * 
+ * // Error message
+ * <div style={{ color: tokens.semanticColors.error.foreground }}>Error message</div>
+ * 
+ * // Success badge
+ * <Badge style={{
+ *   backgroundColor: tokens.componentSemantics.badge.success.backgroundColor,
+ *   color: tokens.componentSemantics.badge.success.color,
+ *   border: `1px solid ${tokens.componentSemantics.badge.success.borderColor}`,
+ * }}>Success</Badge>
+ * 
+ * // Info alert background
+ * <div style={{ backgroundColor: tokens.componentSemantics.alert.info.background }}>
+ *   <Info24Regular style={{ color: tokens.componentSemantics.alert.info.icon }} />
+ *   <span style={{ color: tokens.componentSemantics.alert.info.text }}>Info message</span>
+ * </div>
+ */
+
+const semanticColors = {
+  // Success (Green) - For positive states, completed actions, healthy status
+  success: {
+    background: '#ecfdf5',        // Light green bg
+    backgroundHover: '#d1fae5',   // Hover state
+    foreground: '#065f46',        // Dark green text
+    foregroundSubtle: '#10b981',  // Medium green for icons
+    border: '#34d399',            // Green border
+    borderSubtle: '#6ee7b7',      // Light green border
+  },
+
+  // Warning (Yellow/Orange) - For caution, in-progress states
+  warning: {
+    background: '#fffbeb',        // Light yellow bg
+    backgroundHover: '#fef3c7',   // Hover state
+    foreground: '#92400e',        // Dark orange text
+    foregroundSubtle: '#f59e0b',  // Medium orange for icons
+    border: '#fbbf24',            // Orange border
+    borderSubtle: '#fcd34d',      // Light orange border
+  },
+
+  // Error (Red) - For errors, failures, critical states
+  error: {
+    background: '#fef2f2',        // Light red bg
+    backgroundHover: '#fee2e2',   // Hover state
+    foreground: '#991b1b',        // Dark red text
+    foregroundSubtle: '#ef4444',  // Medium red for icons
+    border: '#f87171',            // Red border
+    borderSubtle: '#fca5a5',      // Light red border
+  },
+
+  // Info (Blue) - For informational states, pending actions
+  info: {
+    background: '#eff6ff',        // Light blue bg
+    backgroundHover: '#dbeafe',   // Hover state
+    foreground: '#1e40af',        // Dark blue text
+    foregroundSubtle: '#3b82f6',  // Medium blue for icons
+    border: '#60a5fa',            // Blue border
+    borderSubtle: '#93c5fd',      // Light blue border
+  },
+
+  // Neutral - For inactive, disabled, or neutral states
+  neutral: {
+    background: '#f9fafb',        // Light gray bg
+    backgroundHover: '#f3f4f6',   // Hover state
+    foreground: '#374151',        // Dark gray text
+    foregroundSubtle: '#6b7280',  // Medium gray for icons
+    border: '#d1d5db',            // Gray border
+    borderSubtle: '#e5e7eb',      // Light gray border
+  },
+} as const;
+
+// ============================================================================
+// COMPONENT SEMANTIC TOKENS
+// ============================================================================
+
+const componentSemantics = {
+  // Status Badges
+  badge: {
+    success: {
+      backgroundColor: semanticColors.success.background,
+      color: semanticColors.success.foreground,
+      borderColor: semanticColors.success.border,
+    },
+    warning: {
+      backgroundColor: semanticColors.warning.background,
+      color: semanticColors.warning.foreground,
+      borderColor: semanticColors.warning.border,
+    },
+    error: {
+      backgroundColor: semanticColors.error.background,
+      color: semanticColors.error.foreground,
+      borderColor: semanticColors.error.border,
+    },
+    info: {
+      backgroundColor: semanticColors.info.background,
+      color: semanticColors.info.foreground,
+      borderColor: semanticColors.info.border,
+    },
+    neutral: {
+      backgroundColor: semanticColors.neutral.background,
+      color: semanticColors.neutral.foreground,
+      borderColor: semanticColors.neutral.border,
+    },
+  },
+
+  // Status Icons
+  icon: {
+    success: semanticColors.success.foregroundSubtle,
+    warning: semanticColors.warning.foregroundSubtle,
+    error: semanticColors.error.foregroundSubtle,
+    info: semanticColors.info.foregroundSubtle,
+    neutral: semanticColors.neutral.foregroundSubtle,
+  },
+
+  // Alert/Banner components
+  alert: {
+    success: {
+      background: semanticColors.success.background,
+      text: semanticColors.success.foreground,
+      icon: semanticColors.success.foregroundSubtle,
+      border: semanticColors.success.borderSubtle,
+    },
+    warning: {
+      background: semanticColors.warning.background,
+      text: semanticColors.warning.foreground,
+      icon: semanticColors.warning.foregroundSubtle,
+      border: semanticColors.warning.borderSubtle,
+    },
+    error: {
+      background: semanticColors.error.background,
+      text: semanticColors.error.foreground,
+      icon: semanticColors.error.foregroundSubtle,
+      border: semanticColors.error.borderSubtle,
+    },
+    info: {
+      background: semanticColors.info.background,
+      text: semanticColors.info.foreground,
+      icon: semanticColors.info.foregroundSubtle,
+      border: semanticColors.info.borderSubtle,
+    },
+  },
+} as const;
+
+// ============================================================================
 // SEMANTIC TOKENS (Mapped to our purple theme)
 // ============================================================================
 
@@ -485,6 +638,10 @@ export const tokens = {
 
   // Component specific design tokens
   components: componentTokens,
+
+  // Semantic color system
+  semanticColors,
+  componentSemantics,
 } as const;
 
 // ============================================================================
@@ -544,4 +701,9 @@ export {
   componentTokens as components,
   zIndex,
   breakpoints,
+  semanticColors,
+  componentSemantics,
 };
+
+// Type helper for autocomplete
+export type DesignTokens = typeof tokens;
