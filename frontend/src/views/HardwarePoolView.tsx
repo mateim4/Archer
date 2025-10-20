@@ -131,31 +131,33 @@ const HardwarePoolView: React.FC = () => {
     <div style={DesignTokens.components.pageContainer}>
       {/* Header */}
       <div style={{ 
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
         marginBottom: '24px',
         borderBottom: '2px solid rgba(99, 102, 241, 0.1)',
         paddingBottom: '16px'
       }}>
-        <h1 style={{ 
-          fontSize: DesignTokens.typography.xxxl,
-          fontWeight: DesignTokens.typography.semibold,
-          color: '#8b5cf6',
-          margin: '0',
-          fontFamily: DesignTokens.typography.fontFamily,
+        <div style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '12px'
+          gap: '12px',
+          marginBottom: '8px'
         }}>
           <ServerRegular style={{ fontSize: '32px', color: '#000000' }} />
-          Hardware Pool
-        </h1>
+          <h1 style={{ 
+            fontSize: DesignTokens.typography.xxxl,
+            fontWeight: DesignTokens.typography.semibold,
+            color: '#8b5cf6',
+            margin: '0',
+            fontFamily: DesignTokens.typography.fontFamily
+          }}>
+            Hardware Pool
+          </h1>
+        </div>
         <p style={{
-          fontSize: '18px',
+          fontSize: '16px',
           color: '#64748b',
           margin: 0,
-          fontFamily: DesignTokens.typography.fontFamily
+          fontFamily: DesignTokens.typography.fontFamily,
+          paddingLeft: '44px'
         }}>
           Track and allocate hardware assets
         </p>
