@@ -1,32 +1,18 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { DESIGN_TOKENS } from './DesignSystem';
+import { tokens, colors, glassEffects, gradients, zIndex } from '@/styles/design-tokens';
 import { 
   DatabaseRegular,
   DatabaseFilled,
   ServerRegular,
   ServerFilled,
-  ArrowSyncRegular,
-  ArrowSyncFilled,
-  ResizeRegular,
-  ResizeFilled,
-  GlobeRegular,
-  GlobeFilled,
-  CalendarRegular,
-  CalendarFilled,
   DocumentRegular,
   DocumentFilled,
   FolderRegular,
   FolderFilled,
-  FlashRegular,
-  FlashFilled,
   SettingsRegular,
   SettingsFilled,
   NavigationRegular,
-  DataUsageRegular,
-  DataUsageFilled,
-  ChartMultipleRegular,
-  ChartMultipleFilled,
   TableRegular,
   TableFilled
 } from '@fluentui/react-icons';
@@ -49,8 +35,7 @@ interface MenuItem {
 
 const NavigationSidebar: React.FC<NavigationSidebarProps> = ({ 
   isOpen, 
-  onToggle,
-  isProjectOpen = false 
+  onToggle 
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -111,9 +96,6 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
     }
   ];
 
-  // Remove redundant project menu items - everything should be handled within the main Projects flow
-  const projectMenuItems: MenuItem[] = [];
-
   const handleItemClick = (path: string) => {
     navigate(path);
   };
@@ -130,57 +112,56 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
         left: 0,
         width: isOpen ? '280px' : '60px',
         height: '100vh',
-        background: 'rgba(255, 255, 255, 0.40)',
+        background: glassEffects.backgroundMedium,
         backdropFilter: 'blur(30px) saturate(35%) brightness(145%) contrast(85%)',
         WebkitBackdropFilter: 'blur(30px) saturate(35%) brightness(145%) contrast(85%)',
-        borderRight: '1px solid rgba(139, 92, 246, 0.2)',
-        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-        zIndex: 1000,
+        borderRight: `1px solid ${colors.purple200}`,
+        transition: `all ${tokens.durationNormal} ${tokens.curveEasyEase}`,
+        zIndex: zIndex.sticky,
         display: 'flex',
         flexDirection: 'column',
-        boxShadow: '0 8px 32px rgba(139, 92, 246, 0.1)',
+        boxShadow: tokens.shadow16,
         overflow: 'hidden'
       }}
     >
       {/* Header */}
-            {/* Header */}
       <div style={{ 
-        padding: '20px 16px',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.2)',
-        background: 'rgba(255, 255, 255, 0.3)',
-        backdropFilter: 'blur(10px)'
+        padding: `${tokens.xl} ${tokens.l}`,
+        borderBottom: `1px solid ${colors.purple100}`,
+        background: glassEffects.backgroundLight,
+        backdropFilter: glassEffects.blurLight
       }}>
         <div style={{ 
           display: 'flex', 
           alignItems: 'center', 
-          gap: '12px',
+          gap: tokens.m,
           justifyContent: isOpen ? 'space-between' : 'center'
         }}>
           <button
             onClick={onToggle}
             style={{
-              padding: '8px',
-              borderRadius: '8px',
+              padding: tokens.s,
+              borderRadius: tokens.large,
               border: 'none',
-              background: 'rgba(255, 255, 255, 0.2)',
-              color: '#8b5cf6',
+              background: colors.purple100,
+              color: tokens.colorBrandPrimary,
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              transition: 'all 0.2s ease',
-              backdropFilter: 'blur(10px)',
+              transition: `all ${tokens.durationFast} ease`,
+              backdropFilter: glassEffects.blurLight,
               fontSize: '18px',
               width: '36px',
               height: '36px'
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(139, 92, 246, 0.2)';
+              e.currentTarget.style.background = colors.purple200;
               e.currentTarget.style.transform = 'scale(1.05)';
-              e.currentTarget.style.boxShadow = '0 4px 12px rgba(139, 92, 246, 0.3)';
+              e.currentTarget.style.boxShadow = tokens.glowSmall;
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
+              e.currentTarget.style.background = colors.purple100;
               e.currentTarget.style.transform = 'scale(1)';
               e.currentTarget.style.boxShadow = 'none';
             }}
@@ -192,22 +173,22 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
             <div style={{ flex: 1 }}>
               <div role="heading" aria-level={2} style={{ 
                 margin: 0,
-                fontSize: '18px',
-                fontWeight: '700',
-                background: 'linear-gradient(135deg, #8b5cf6, #6366f1)',
+                fontSize: tokens.fontSizeBase500,
+                fontWeight: tokens.fontWeightBold,
+                background: gradients.purplePrimary,
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
-                fontFamily: "'Oxanium', system-ui, sans-serif"
+                fontFamily: tokens.fontFamilyHeading
               }}>
                 LCM Designer
               </div>
               <p style={{ 
                 margin: 0,
-                fontSize: '12px',
-                color: 'rgba(44, 44, 44, 0.8)',
-                fontWeight: '400',
-                fontFamily: "'Oxanium', system-ui, sans-serif"
+                fontSize: tokens.fontSizeBase200,
+                color: tokens.colorNeutralForeground2,
+                fontWeight: tokens.fontWeightRegular,
+                fontFamily: tokens.fontFamilyBody
               }}>
                 Infrastructure Planning
               </p>
@@ -218,18 +199,18 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
 
       {/* Main Navigation */}
       <div style={{ 
-        padding: '24px 16px',
+        padding: `${tokens.xxl} ${tokens.l}`,
         flex: 1,
         display: 'flex',
         flexDirection: 'column',
-        gap: '16px',
+        gap: tokens.l,
         overflow: 'hidden'
       }}>
         {/* Main Menu */}
         <div style={{ 
           display: 'flex', 
           flexDirection: 'column', 
-          gap: '6px',
+          gap: tokens.sNudge,
           flex: 1
         }}>
           {mainMenuItems.map((item) => (
@@ -239,36 +220,36 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
               style={{
                 width: '100%',
                 padding: isOpen ? '14px 20px' : '14px 10px',
-                borderRadius: '12px',
+                borderRadius: tokens.xxLarge,
                 border: 'none',
                 background: isItemActive(item.path) 
-                  ? 'linear-gradient(135deg, rgba(139, 92, 246, 0.9), rgba(99, 102, 241, 0.9))'
+                  ? gradients.buttonPrimary
                   : 'transparent',
-                color: isItemActive(item.path) ? '#ffffff' : '#2c2c2c',
+                color: isItemActive(item.path) ? '#ffffff' : tokens.colorNeutralForeground1,
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '12px',
+                gap: tokens.m,
                 justifyContent: isOpen ? 'flex-start' : 'center',
                 position: 'relative',
                 minHeight: '48px',
-                fontFamily: "'Oxanium', system-ui, sans-serif",
-                fontSize: '14px',
-                fontWeight: '500',
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                backdropFilter: isItemActive(item.path) ? 'blur(10px)' : 'none',
+                fontFamily: tokens.fontFamilyBody,
+                fontSize: tokens.fontSizeBase300,
+                fontWeight: tokens.fontWeightMedium,
+                transition: `all ${tokens.durationNormal} ${tokens.curveEasyEase}`,
+                backdropFilter: isItemActive(item.path) ? glassEffects.blurLight : 'none',
                 boxShadow: isItemActive(item.path) 
-                  ? '0 4px 16px rgba(255, 255, 255, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3)' 
+                  ? `0 4px 16px ${colors.purple200}, inset 0 1px 0 ${colors.purple50}` 
                   : 'none',
                 textShadow: isItemActive(item.path) ? '0 1px 2px rgba(0, 0, 0, 0.1)' : 'none'
               }}
               onMouseEnter={(e) => {
                 const target = e.currentTarget as HTMLElement;
                 if (!isItemActive(item.path)) {
-                  target.style.background = 'rgba(255, 255, 255, 0.15)';
-                  target.style.backdropFilter = 'blur(8px)';
+                  target.style.background = glassEffects.purpleGlassLight;
+                  target.style.backdropFilter = glassEffects.blurMedium;
                   target.style.transform = 'translateY(-2px)';
-                  target.style.boxShadow = '0 6px 20px rgba(255, 255, 255, 0.15)';
+                  target.style.boxShadow = `0 6px 20px ${colors.purple100}`;
                 }
               }}
               onMouseLeave={(e) => {
@@ -304,16 +285,16 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
                   
                   {item.badge && (
                     <span style={{
-                      padding: '4px 8px',
-                      borderRadius: '6px',
-                      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.6))',
-                      color: '#8b5cf6',
-                      fontSize: '10px',
-                      fontWeight: '700',
+                      padding: `${tokens.xs} ${tokens.s}`,
+                      borderRadius: tokens.sNudge,
+                      background: gradients.glassOverlay,
+                      color: tokens.colorBrandPrimary,
+                      fontSize: tokens.fontSizeBase100,
+                      fontWeight: tokens.fontWeightBold,
                       textTransform: 'uppercase',
                       letterSpacing: '0.5px',
-                      backdropFilter: 'blur(10px)',
-                      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+                      backdropFilter: glassEffects.blurLight,
+                      boxShadow: tokens.shadow2
                     }}>
                       {item.badge}
                     </span>
@@ -327,10 +308,10 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
         {/* Divider */}
         {isOpen && (
           <div style={{ 
-            margin: '20px 16px',
+            margin: `${tokens.xl} ${tokens.l}`,
             height: '1px',
-            background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent)',
-            boxShadow: '0 1px 0 rgba(255, 255, 255, 0.1)'
+            background: gradients.glassOverlay,
+            boxShadow: `0 1px 0 ${colors.purple50}`
           }} />
         )}
 

@@ -1,5 +1,6 @@
 import React from 'react';
 import { BarChart3, Activity } from 'lucide-react';
+import { tokens, colors, gradients } from '@/styles/design-tokens';
 
 interface ViewToggleSliderProps {
   /** Current view: 'timeline' or 'list' */
@@ -14,7 +15,7 @@ interface ViewToggleSliderProps {
  * ViewToggleSlider - A reusable glassmorphic toggle slider for switching between Timeline and List views.
  * 
  * Design: Fluent UI 2 glassmorphic style with purple gradient active thumb and smooth animation.
- * Typography: Poppins font family.
+ * Typography: Oxanium + Nasalization font family.
  */
 export const ViewToggleSlider: React.FC<ViewToggleSliderProps> = ({
   value,
@@ -26,9 +27,9 @@ export const ViewToggleSlider: React.FC<ViewToggleSliderProps> = ({
       <div 
         className="relative flex items-center rounded-full p-1"
         style={{
-          background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.6) 0%, rgba(139, 92, 246, 0.08) 100%)',
-          backdropFilter: 'blur(20px)',
-          border: '1px solid rgba(99, 102, 241, 0.12)',
+          background: gradients.purpleSubtle,
+          backdropFilter: tokens.blurMedium,
+          border: `1px solid ${colors.indigo200}`,
           boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.04)',
           width: '220px',
           height: '42px'
@@ -42,10 +43,10 @@ export const ViewToggleSlider: React.FC<ViewToggleSliderProps> = ({
             left: String(value) === 'timeline' ? '4px' : 'calc(50% + 2px)',
             width: 'calc(50% - 6px)',
             height: 'calc(100% - 8px)',
-            background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-            borderRadius: '9999px',
-            boxShadow: '0 4px 12px rgba(99, 102, 241, 0.2)',
-            transition: 'all 0.24s cubic-bezier(0.4, 0, 0.2, 1)',
+            background: gradients.purplePrimary,
+            borderRadius: tokens.circular,
+            boxShadow: `0 4px 12px ${colors.indigo400}`,
+            transition: `all ${tokens.durationGentle} ${tokens.curveEasyEase}`,
             zIndex: 0
           }}
         />
@@ -56,9 +57,9 @@ export const ViewToggleSlider: React.FC<ViewToggleSliderProps> = ({
           className="relative z-10 flex items-center justify-center px-3 py-1 rounded-full text-sm font-semibold transition-all"
           style={{
             flex: 1,
-            color: String(value) === 'timeline' ? '#ffffff' : '#6b7280',
-            fontFamily: "'Oxanium', sans-serif",
-            fontWeight: '600',
+            color: String(value) === 'timeline' ? '#ffffff' : tokens.colorNeutralForeground3,
+            fontFamily: tokens.fontFamilyBody,
+            fontWeight: tokens.fontWeightSemibold,
             background: 'none',
             border: 'none',
             outline: 'none',
@@ -77,9 +78,9 @@ export const ViewToggleSlider: React.FC<ViewToggleSliderProps> = ({
           className="relative z-10 flex items-center justify-center px-3 py-1 rounded-full text-sm font-semibold transition-all"
           style={{
             flex: 1,
-            color: String(value) === 'list' ? '#ffffff' : '#6b7280',
-            fontFamily: "'Oxanium', sans-serif",
-            fontWeight: '600',
+            color: String(value) === 'list' ? '#ffffff' : tokens.colorNeutralForeground3,
+            fontFamily: tokens.fontFamilyBody,
+            fontWeight: tokens.fontWeightSemibold,
             background: 'none',
             border: 'none',
             outline: 'none',

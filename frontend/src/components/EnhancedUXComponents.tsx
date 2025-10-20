@@ -1,5 +1,5 @@
 import React from 'react';
-import { useEnhancedUX, useFormValidation, useEnhancedSearch, useModal, useA11y, useResponsive } from '../hooks/useEnhancedUX';
+import { useEnhancedUX, useEnhancedSearch, useA11y, useResponsive } from '../hooks/useEnhancedUX';
 import { DesignTokens } from '../styles/designSystem';
 import '../ux-enhancements.css';
 
