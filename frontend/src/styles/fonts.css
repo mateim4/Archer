@@ -3,8 +3,8 @@
  * Self-hosted fonts for LCMDesigner
  */
 
-/* Import Google Fonts for body text */
-@import url('https://fonts.googleapis.com/css2?family=Jura:wght@300;400;500;600;700&display=swap');
+/* Import Google Fonts for body text (weights 500-800 for thicker appearance) */
+@import url('https://fonts.googleapis.com/css2?family=Jura:wght@500;600;700;800&display=swap');
 
 /* Nasalization - Futuristic display font for headings */
 @font-face {
