@@ -12,6 +12,7 @@ import {
   ProgressBar
 } from '@fluentui/react-components';
 import { EditRegular, DeleteRegular } from '@fluentui/react-icons';
+import { tokens as designTokens } from '@/styles/design-tokens';
 
 type StatusStyle = {
   background: string;
@@ -116,7 +117,7 @@ const useGanttStyles = makeStyles({
     border: '1px solid rgba(65, 97, 101, 0.25)',
     borderRadius: '8px',
     boxShadow: '0 18px 42px rgba(56, 54, 154, 0.18)',
-    fontFamily: "'Oxanium', system-ui, sans-serif",
+    fontFamily: designTokens.fontFamilyBody,
     outline: '1px solid rgba(252, 239, 239, 0.45)',
     outlineOffset: '-1px',
   },
@@ -133,7 +134,7 @@ const useGanttStyles = makeStyles({
     zIndex: 2,
     borderTopLeftRadius: '8px',
     borderTopRightRadius: '8px',
-    fontFamily: "'Oxanium', system-ui, sans-serif",
+    fontFamily: designTokens.fontFamilyBody,
   },
 
   timelineGrid: {
@@ -155,7 +156,7 @@ const useGanttStyles = makeStyles({
     justifyContent: 'center',
     fontSize: tokens.fontSizeBase200,
     fontWeight: tokens.fontWeightSemibold,
-    fontFamily: "'Oxanium', system-ui, sans-serif",
+    fontFamily: designTokens.fontFamilyBody,
     color: '#4a5568',
   borderRadius: '4px',
   margin: '2px',
@@ -182,7 +183,7 @@ const useGanttStyles = makeStyles({
     padding: `0 ${tokens.spacingHorizontalM}`,
     fontSize: '14px',
     fontWeight: '700',
-    fontFamily: "'Oxanium', system-ui, sans-serif",
+    fontFamily: designTokens.fontFamilyBody,
     color: '#1f2937',
     cursor: 'pointer',
     transition: 'transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease',
@@ -215,7 +216,7 @@ const useGanttStyles = makeStyles({
   borderRight: '1px solid rgba(56, 54, 154, 0.25)',
     padding: tokens.spacingVerticalS,
     borderBottomLeftRadius: '8px',
-    fontFamily: "'Oxanium', system-ui, sans-serif",
+    fontFamily: designTokens.fontFamilyBody,
   },
 
   activityItem: {
@@ -229,7 +230,7 @@ const useGanttStyles = makeStyles({
     justifyContent: 'space-between',
     alignItems: 'center',
     transition: 'all 0.2s ease',
-    fontFamily: "'Oxanium', system-ui, sans-serif",
+    fontFamily: designTokens.fontFamilyBody,
   outline: '1px solid rgba(166, 130, 255, 0.25)',
     outlineOffset: '-1px',
     ':hover': {

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback, memo } from 'react';
 import { DesignTokens } from '../../styles/designSystem';
+import { tokens } from '@/styles/design-tokens';
 import { Pie } from '@visx/shape';
 import { Group } from '@visx/group';
 import { scaleOrdinal } from '@visx/scale';
@@ -295,7 +296,7 @@ const SimpleVisualizer: React.FC<SimpleVisualizerProps> = ({
             margin: '0 0 8px 0',
             textTransform: 'uppercase',
             letterSpacing: '0.5px',
-            fontFamily: 'Oxanium, Segoe UI, system-ui, sans-serif'
+            fontFamily: tokens.fontFamilyBody
           }}>
             {side === 'source' ? 'Source Clusters' : 'Destination Clusters'}
           </h3>
@@ -311,7 +312,7 @@ const SimpleVisualizer: React.FC<SimpleVisualizerProps> = ({
               fontWeight: '700',
               color: colors.text,
               margin: 0,
-              fontFamily: 'Oxanium, Segoe UI, system-ui, sans-serif'
+              fontFamily: tokens.fontFamilyBody
             }}>
               {cluster.name}
             </h2>
@@ -364,7 +365,7 @@ const SimpleVisualizer: React.FC<SimpleVisualizerProps> = ({
                   fontSize: '16px',
                   fontWeight: '600',
                   color: colors.text,
-                  fontFamily: 'Oxanium, Segoe UI, system-ui, sans-serif'
+                  fontFamily: tokens.fontFamilyBody
                 }}>
                   {visualizationMode.toUpperCase()} Capacity
                 </span>
@@ -472,7 +473,7 @@ const SimpleVisualizer: React.FC<SimpleVisualizerProps> = ({
                   fontWeight: '700', 
                   margin: 0,
                   color: colors.text,
-                  fontFamily: 'Oxanium, Segoe UI, system-ui, sans-serif'
+                  fontFamily: tokens.fontFamilyBody
                 }}>
                   Virtual Machines
                 </h3>
@@ -511,7 +512,7 @@ const SimpleVisualizer: React.FC<SimpleVisualizerProps> = ({
                     fontWeight: '600',
                     cursor: 'pointer',
                     transition: 'all 0.2s',
-                    fontFamily: 'Oxanium, Segoe UI, system-ui, sans-serif'
+                    fontFamily: tokens.fontFamilyBody
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.transform = 'scale(1.05)';
@@ -532,7 +533,7 @@ const SimpleVisualizer: React.FC<SimpleVisualizerProps> = ({
                   fontSize: '11px',
                   fontWeight: '600',
                   color: colors.text,
-                  fontFamily: 'Oxanium, Segoe UI, system-ui, sans-serif'
+                  fontFamily: tokens.fontFamilyBody
                 }}>
                   {cluster.hosts.flatMap(host => host.vms).length} Total
                 </div>
@@ -776,7 +777,7 @@ const SimpleVisualizer: React.FC<SimpleVisualizerProps> = ({
                 fontWeight: '700', 
                 margin: 0,
                 color: colors.text,
-                fontFamily: 'Oxanium, Segoe UI, system-ui, sans-serif'
+                fontFamily: tokens.fontFamilyBody
               }}>
                 Hosts ({cluster.hosts.length})
               </h3>
@@ -796,7 +797,7 @@ const SimpleVisualizer: React.FC<SimpleVisualizerProps> = ({
                   color: colors.text,
                   marginBottom: '8px',
                   fontSize: '14px',
-                  fontFamily: 'Oxanium, Segoe UI, system-ui, sans-serif'
+                  fontFamily: tokens.fontFamilyBody
                 }}>
                   {host.name}
                 </div>

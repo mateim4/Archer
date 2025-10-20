@@ -3,6 +3,7 @@ import * as d3 from 'd3';
 import { renderToString } from 'react-dom/server';
 import { PremiumColor, EyeRegular, EyeOffRegular, AddRegular } from '@fluentui/react-icons';
 import { DesignTokens } from '../../styles/designSystem';
+import { tokens } from '@/styles/design-tokens';
 import SearchWithDropdown from '../SearchWithDropdown';
 import SimpleVisualizer from './SimpleVisualizer';
 import { ClusterData, HostData, VMData } from '../../types/capacityVisualizer';
@@ -2328,7 +2329,7 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
               fontSize: '12px',
               fontWeight: 500,
               color: '#1a202c',
-              fontFamily: 'Oxanium, Segoe UI, system-ui, sans-serif'
+              fontFamily: tokens.fontFamilyBody
             }}>
               Advanced Visualizer
             </span>
@@ -2397,7 +2398,7 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
               fontSize: '12px',
               fontWeight: 500,
               color: advancedVisualizer ? '#1a202c' : '#9ca3af',
-              fontFamily: 'Oxanium, Segoe UI, system-ui, sans-serif'
+              fontFamily: tokens.fontFamilyBody
             }}>
               Free Space
             </span>
@@ -2468,7 +2469,7 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
               fontSize: '12px',
               fontWeight: 500,
               color: '#1a202c',
-              fontFamily: 'Oxanium, Segoe UI, system-ui, sans-serif'
+              fontFamily: tokens.fontFamilyBody
             }}>
               Visualization Mode
             </span>
@@ -2506,7 +2507,7 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
               fontSize: '12px',
               fontWeight: 500,
               color: '#1a202c',
-              fontFamily: 'Oxanium, Segoe UI, system-ui, sans-serif'
+              fontFamily: tokens.fontFamilyBody
             }}>
               OC Ratios
             </span>
@@ -2519,7 +2520,7 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
                 <span style={{
                   fontSize: '11px',
                   color: '#6b7280',
-                  fontFamily: 'Oxanium, Segoe UI, system-ui, sans-serif'
+                  fontFamily: tokens.fontFamilyBody
                 }}>
                   CPU
                 </span>
@@ -2541,7 +2542,7 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
                     borderRadius: '4px',
                     background: 'rgba(255, 255, 255, 0.9)',
                     textAlign: 'center',
-                    fontFamily: 'Oxanium, Segoe UI, system-ui, sans-serif'
+                    fontFamily: tokens.fontFamilyBody
                   }}
                 />
                 <span style={{ fontSize: '10px', color: '#6b7280' }}>x</span>
@@ -2551,7 +2552,7 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
                 <span style={{
                   fontSize: '11px',
                   color: '#6b7280',
-                  fontFamily: 'Oxanium, Segoe UI, system-ui, sans-serif'
+                  fontFamily: tokens.fontFamilyBody
                 }}>
                   Memory
                 </span>
@@ -2573,7 +2574,7 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
                     borderRadius: '4px',
                     background: 'rgba(255, 255, 255, 0.9)',
                     textAlign: 'center',
-                    fontFamily: 'Oxanium, Segoe UI, system-ui, sans-serif'
+                    fontFamily: tokens.fontFamilyBody
                   }}
                 />
                 <span style={{ fontSize: '10px', color: '#6b7280' }}>x</span>
@@ -2583,7 +2584,7 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
                 <span style={{
                   fontSize: '11px',
                   color: '#6b7280',
-                  fontFamily: 'Oxanium, Segoe UI, system-ui, sans-serif'
+                  fontFamily: tokens.fontFamilyBody
                 }}>
                   Storage
                 </span>
@@ -2605,7 +2606,7 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
                     borderRadius: '4px',
                     background: 'rgba(255, 255, 255, 0.9)',
                     textAlign: 'center',
-                    fontFamily: 'Oxanium, Segoe UI, system-ui, sans-serif'
+                    fontFamily: tokens.fontFamilyBody
                   }}
                 />
                 <span style={{ fontSize: '10px', color: '#6b7280' }}>x</span>
@@ -2629,7 +2630,7 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
                 fontSize: '12px',
                 fontWeight: 600,
                 color: '#8b5cf6',
-                fontFamily: 'Oxanium, Segoe UI, system-ui, sans-serif'
+                fontFamily: tokens.fontFamilyBody
               }}>
                 {state.clusters.reduce((total: number, cluster: any) => 
                   total + cluster.hosts.reduce((hostTotal: number, host: any) => 
@@ -2638,7 +2639,7 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
               <span style={{
                 fontSize: '11px',
                 color: '#6b7280',
-                fontFamily: 'Oxanium, Segoe UI, system-ui, sans-serif'
+                fontFamily: tokens.fontFamilyBody
               }}>
                 VMs
               </span>
@@ -2652,14 +2653,14 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
                 fontSize: '12px',
                 fontWeight: 600,
                 color: '#8b5cf6',
-                fontFamily: 'Oxanium, Segoe UI, system-ui, sans-serif'
+                fontFamily: tokens.fontFamilyBody
               }}>
                 {state.clusters.reduce((total: number, cluster: any) => total + cluster.hosts.length, 0)}
               </span>
               <span style={{
                 fontSize: '11px',
                 color: '#6b7280',
-                fontFamily: 'Oxanium, Segoe UI, system-ui, sans-serif'
+                fontFamily: tokens.fontFamilyBody
               }}>
                 Hosts
               </span>
@@ -2673,14 +2674,14 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
                 fontSize: '12px',
                 fontWeight: 600,
                 color: '#8b5cf6',
-                fontFamily: 'Oxanium, Segoe UI, system-ui, sans-serif'
+                fontFamily: tokens.fontFamilyBody
               }}>
                 {state.clusters.length}
               </span>
               <span style={{
                 fontSize: '11px',
                 color: '#6b7280',
-                fontFamily: 'Oxanium, Segoe UI, system-ui, sans-serif'
+                fontFamily: tokens.fontFamilyBody
               }}>
                 Clusters
               </span>
@@ -2694,14 +2695,14 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
                 fontSize: '12px',
                 fontWeight: 600,
                 color: '#8b5cf6',
-                fontFamily: 'Oxanium, Segoe UI, system-ui, sans-serif'
+                fontFamily: tokens.fontFamilyBody
               }}>
                 13%
               </span>
               <span style={{
                 fontSize: '11px',
                 color: '#6b7280',
-                fontFamily: 'Oxanium, Segoe UI, system-ui, sans-serif'
+                fontFamily: tokens.fontFamilyBody
               }}>
                 Avg Util
               </span>
@@ -2723,7 +2724,7 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
           style={{
             display: 'block',
             marginTop: '0px', // Container already has paddingTop
-            fontFamily: 'Segoe UI, system-ui, sans-serif'
+            fontFamily: tokens.fontFamilyBody
           }}
         />
       ) : (
