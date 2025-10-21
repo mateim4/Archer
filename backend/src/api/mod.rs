@@ -3,6 +3,7 @@ pub mod cluster_strategy;
 pub mod destination_clusters;
 pub mod hardware_baskets;
 pub mod hardware_pool;
+pub mod migration_wizard; // Migration Planning Wizard API
 pub mod project_lifecycle;
 pub mod project_workflow;
 pub mod rvtools;
@@ -47,7 +48,8 @@ pub fn api_router(state: AppState) -> Router {
         )
         .nest("/vm-placement", vm_placement::create_vm_placement_router(state.clone()))
         .nest("/network-templates", network_templates::create_network_templates_router(state.clone()))
-        .nest("/hld", hld::create_hld_router(state.clone()));
+        .nest("/hld", hld::create_hld_router(state.clone()))
+        .nest("/migration-wizard", migration_wizard::create_migration_wizard_router(state.clone()));
 
     Router::new()
         .route("/health", get(health_check))
