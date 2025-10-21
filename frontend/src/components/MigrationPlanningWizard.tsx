@@ -11,7 +11,7 @@
  * Design: Purple Glass components with step progression
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogSurface,
@@ -28,7 +28,17 @@ import {
   ChevronLeftRegular,
   ChevronRightRegular,
   CheckmarkCircleRegular,
+  DatabaseRegular,
+  FilterRegular,
+  DocumentBulletListRegular,
 } from '@fluentui/react-icons';
+import {
+  PurpleGlassDropdown,
+  PurpleGlassInput,
+  PurpleGlassCard,
+  PurpleGlassCheckbox,
+  type DropdownOption,
+} from '@/components/ui';
 
 const useStyles = makeStyles({
   dialogSurface: {
@@ -164,6 +174,38 @@ export const MigrationPlanningWizard: React.FC<MigrationWizardProps> = ({
   const styles = useStyles();
   const [currentStep, setCurrentStep] = useState(1);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
+  
+  // Step 1: Source Selection State
+  const [selectedRVTools, setSelectedRVTools] = useState<string>('');
+  const [clusterFilter, setClusterFilter] = useState<string>('');
+  const [vmNamePattern, setVMNamePattern] = useState<string>('');
+  const [includePoweredOff, setIncludePoweredOff] = useState<boolean>(true);
+  const [workloadSummary, setWorkloadSummary] = useState({
+    totalVMs: 0,
+    totalCPU: 0,
+    totalMemoryGB: 0,
+    totalStorageGB: 0,
+    filteredVMs: 0,
+  });
+  
+  // Load workload summary when filters change
+  useEffect(() => {
+    if (selectedRVTools) {
+      loadWorkloadSummary();
+    }
+  }, [selectedRVTools, clusterFilter, vmNamePattern, includePoweredOff]);
+  
+  const loadWorkloadSummary = async () => {
+    // TODO: Replace with actual API call to get filtered VM summary
+    // For now, using mock data
+    setWorkloadSummary({
+      totalVMs: 250,
+      totalCPU: 1200,
+      totalMemoryGB: 4800,
+      totalStorageGB: 85000,
+      filteredVMs: clusterFilter || vmNamePattern ? 125 : 250,
+    });
+  };
 
   const handleNext = () => {
     if (currentStep < WIZARD_STEPS.length) {
@@ -188,27 +230,200 @@ export const MigrationPlanningWizard: React.FC<MigrationWizardProps> = ({
   const renderStepContent = () => {
     switch (currentStep) {
       case 1:
+        // Prepare dropdown options
+        const rvtoolsOptions: DropdownOption[] = rvtoolsUploads.length > 0
+          ? rvtoolsUploads.map(upload => ({
+              value: upload.id,
+              label: `${upload.filename} (${new Date(upload.uploadedAt).toLocaleDateString()})`,
+            }))
+          : [
+              { value: 'demo1', label: 'rvtools_export_2025-10-15.xlsx (Oct 15, 2025)' },
+              { value: 'demo2', label: 'rvtools_datacenter_2025-10-01.xlsx (Oct 1, 2025)' },
+            ];
+        
+        const clusterOptions: DropdownOption[] = [
+          { value: '', label: 'All Clusters' },
+          { value: 'cluster1', label: 'Production Cluster 01' },
+          { value: 'cluster2', label: 'Production Cluster 02' },
+          { value: 'cluster3', label: 'Dev/Test Cluster' },
+        ];
+        
         return (
           <div>
-            <h3 style={{ fontFamily: 'Poppins, sans-serif', marginBottom: '16px' }}>
-              Step 1: Source Selection
-            </h3>
-            <p style={{ color: tokens.colorNeutralForeground3 }}>
-              Select the RVTools upload and filter VMs to include in this migration.
-            </p>
-            {/* Content will be implemented in next tasks */}
-            <div style={{ 
-              padding: '40px', 
-              textAlign: 'center', 
-              background: 'rgba(139, 92, 246, 0.05)',
-              borderRadius: '12px',
-              marginTop: '24px'
+            <h3 style={{ 
+              fontFamily: 'Poppins, sans-serif', 
+              marginBottom: '24px',
+              fontSize: '20px',
+              fontWeight: '600',
+              color: tokens.colorNeutralForeground1,
             }}>
-              <p style={{ fontSize: '48px', margin: '0 0 16px 0' }}>📊</p>
-              <p style={{ color: tokens.colorNeutralForeground2 }}>
-                Source selection UI will be implemented here
-              </p>
+              <DatabaseRegular style={{ marginRight: '8px', verticalAlign: 'middle' }} />
+              Source Selection
+            </h3>
+            
+            {/* RVTools Selection */}
+            <div style={{ marginBottom: '32px' }}>
+              <PurpleGlassDropdown
+                label="RVTools Upload"
+                options={rvtoolsOptions}
+                value={selectedRVTools}
+                onChange={(value) => setSelectedRVTools(value as string)}
+                required
+                helperText="Select the RVTools export file containing VMs to migrate"
+                glass="light"
+              />
             </div>
+            
+            {selectedRVTools && (
+              <>
+                {/* VM Filtering Section */}
+                <PurpleGlassCard
+                  header="VM Filtering"
+                  variant="outlined"
+                  glass
+                  style={{ marginBottom: '32px' }}
+                >
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                      <PurpleGlassDropdown
+                        label="Source Cluster"
+                        options={clusterOptions}
+                        value={clusterFilter}
+                        onChange={(value) => setClusterFilter(value as string)}
+                        helperText="Filter by source cluster"
+                        glass="none"
+                      />
+                      
+                      <PurpleGlassInput
+                        label="VM Name Pattern"
+                        value={vmNamePattern}
+                        onChange={(e) => setVMNamePattern(e.target.value)}
+                        placeholder="e.g., PROD-*, *-WEB-*"
+                        helperText="Use * for wildcards"
+                        glass="none"
+                      />
+                    </div>
+                    
+                    <PurpleGlassCheckbox
+                      label="Include powered-off VMs"
+                      checked={includePoweredOff}
+                      onChange={(e) => setIncludePoweredOff(e.target.checked)}
+                    />
+                  </div>
+                </PurpleGlassCard>
+                
+                {/* Workload Summary */}
+                <PurpleGlassCard
+                  header="Workload Summary"
+                  variant="elevated"
+                  glass
+                >
+                  <div style={{ 
+                    display: 'grid', 
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                    gap: '24px',
+                  }}>
+                    <div>
+                      <div style={{ 
+                        fontSize: '32px', 
+                        fontWeight: '700',
+                        color: '#8b5cf6',
+                        fontFamily: 'Poppins, sans-serif',
+                      }}>
+                        {workloadSummary.filteredVMs}
+                      </div>
+                      <div style={{ 
+                        fontSize: '14px',
+                        color: tokens.colorNeutralForeground2,
+                        marginTop: '4px',
+                      }}>
+                        VMs Selected
+                      </div>
+                      {workloadSummary.filteredVMs !== workloadSummary.totalVMs && (
+                        <div style={{ 
+                          fontSize: '12px',
+                          color: tokens.colorNeutralForeground3,
+                          marginTop: '2px',
+                        }}>
+                          of {workloadSummary.totalVMs} total
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div>
+                      <div style={{ 
+                        fontSize: '32px', 
+                        fontWeight: '700',
+                        color: '#3b82f6',
+                        fontFamily: 'Poppins, sans-serif',
+                      }}>
+                        {workloadSummary.totalCPU}
+                      </div>
+                      <div style={{ 
+                        fontSize: '14px',
+                        color: tokens.colorNeutralForeground2,
+                        marginTop: '4px',
+                      }}>
+                        vCPUs
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <div style={{ 
+                        fontSize: '32px', 
+                        fontWeight: '700',
+                        color: '#10b981',
+                        fontFamily: 'Poppins, sans-serif',
+                      }}>
+                        {workloadSummary.totalMemoryGB}
+                      </div>
+                      <div style={{ 
+                        fontSize: '14px',
+                        color: tokens.colorNeutralForeground2,
+                        marginTop: '4px',
+                      }}>
+                        GB Memory
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <div style={{ 
+                        fontSize: '32px', 
+                        fontWeight: '700',
+                        color: '#f59e0b',
+                        fontFamily: 'Poppins, sans-serif',
+                      }}>
+                        {(workloadSummary.totalStorageGB / 1024).toFixed(1)}
+                      </div>
+                      <div style={{ 
+                        fontSize: '14px',
+                        color: tokens.colorNeutralForeground2,
+                        marginTop: '4px',
+                      }}>
+                        TB Storage
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {workloadSummary.filteredVMs > 0 && (
+                    <div style={{ 
+                      marginTop: '24px',
+                      padding: '16px',
+                      background: 'rgba(59, 130, 246, 0.1)',
+                      borderRadius: '8px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px',
+                    }}>
+                      <DocumentBulletListRegular style={{ fontSize: '20px', color: '#3b82f6' }} />
+                      <div style={{ fontSize: '14px', color: tokens.colorNeutralForeground2 }}>
+                        {workloadSummary.filteredVMs} VMs ready for capacity analysis. Click <strong>Next</strong> to configure destination clusters.
+                      </div>
+                    </div>
+                  )}
+                </PurpleGlassCard>
+              </>
+            )}
           </div>
         );
       
