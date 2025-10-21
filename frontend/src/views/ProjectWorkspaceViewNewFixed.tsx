@@ -50,9 +50,11 @@ import {
   ClockRegular,
   TaskListAddRegular,
   DocumentPdfRegular,
-  ShareScreenPersonRegular
+  ShareScreenPersonRegular,
+  FlowRegular
 } from '@fluentui/react-icons';
 import { apiClient, Project } from '../utils/apiClient';
+import { MigrationPlanningWizard } from '../components/MigrationPlanningWizard';
 
 interface Workflow {
   id: string;
@@ -217,6 +219,7 @@ const ProjectWorkspaceView: React.FC = () => {
   const [workflows, setWorkflows] = useState<Workflow[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'overview' | 'workflows' | 'timeline' | 'documents'>('overview');
+  const [isWizardOpen, setIsWizardOpen] = useState(false);
 
   useEffect(() => {
     if (projectId) {
@@ -554,6 +557,13 @@ const ProjectWorkspaceView: React.FC = () => {
               Add Workflow
             </Button>
             <Button
+              appearance="primary"
+              icon={<TaskListAddRegular />}
+              onClick={() => setIsWizardOpen(true)}
+            >
+              Schedule Migration
+            </Button>
+            <Button
               appearance="secondary"
               icon={<CalendarRegular />}
               onClick={() => navigate(`/projects/${projectId}/timeline`)}
@@ -690,6 +700,14 @@ const ProjectWorkspaceView: React.FC = () => {
           </div>
         )}
       </div>
+      
+      {/* Migration Planning Wizard */}
+      <MigrationPlanningWizard
+        open={isWizardOpen}
+        onClose={() => setIsWizardOpen(false)}
+        projectId={projectId!}
+        rvtoolsUploads={[]} // Will be populated from API later
+      />
     </div>
   );
 };
