@@ -1660,3 +1660,75 @@ pub struct HardwareFilter {
     pub min_cpu_cores: Option<i32>,
     pub min_memory_gb: Option<i32>,
 }
+
+// =============================================================================
+// MIGRATION WIZARD MODELS (Activity-Driven)
+// =============================================================================
+
+/// Migration Project - represents a complete migration planning project
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct MigrationProject {
+    pub id: String,
+    pub project_name: String,
+    pub description: Option<String>,
+    pub source_environment: Option<String>,
+    pub target_platform: Option<String>,
+    pub migration_strategy: Option<String>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+/// Migration Cluster - destination cluster configuration
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct MigrationCluster {
+    pub id: String,
+    pub project_id: String,
+    pub cluster_name: String,
+    pub hypervisor: String,
+    pub storage_type: String,
+    pub location: Option<String>,
+    pub total_cpu: f64,
+    pub total_memory_gb: f64,
+    pub total_storage_gb: f64,
+    pub created_at: DateTime<Utc>,
+}
+
+/// VM Placement - assignment of VMs to clusters
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct VMPlacement {
+    pub id: String,
+    pub project_id: String,
+    pub vm_id: String,
+    pub vm_name: String,
+    pub source_cluster: Option<String>,
+    pub cluster_id: String,
+    pub cluster_name: String,
+    pub assigned_cpu: f64,
+    pub assigned_memory_gb: f64,
+    pub assigned_storage_gb: f64,
+    pub placement_reason: String,
+    pub placement_score: Option<f64>,
+    pub affinity_group: Option<String>,
+    pub anti_affinity_group: Option<String>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+/// Network Template - reusable network mapping configuration
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct NetworkTemplate {
+    pub id: String,
+    pub name: String,
+    pub description: Option<String>,
+    pub created_by: String,
+    pub source_network: String,
+    pub destination_network: String,
+    pub vlan_mapping: Option<serde_json::Value>,
+    pub subnet_mapping: Option<serde_json::Value>,
+    pub gateway: Option<String>,
+    pub dns_servers: Option<Vec<String>>,
+    pub is_global: bool,
+    pub tags: Option<Vec<String>>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}

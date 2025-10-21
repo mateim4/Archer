@@ -13,3 +13,6 @@ pub mod capacity_planner_service;
 pub mod hardware_compatibility_service;
 pub mod timeline_estimation_service;
 pub mod wizard_service;
+pub mod vm_placement_service;
+pub mod network_template_service;
+pub mod hld_generation_service;
