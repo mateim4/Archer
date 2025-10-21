@@ -43,6 +43,9 @@ import {
   InfoRegular,
   PlugConnectedRegular,
   DiagramRegular,
+  DocumentRegular,
+  ArrowDownloadRegular,
+  DocumentPdfRegular,
 } from '@fluentui/react-icons';
 import {
   PurpleGlassDropdown,
@@ -250,6 +253,11 @@ export const MigrationPlanningWizard: React.FC<MigrationWizardProps> = ({
   const [networkMappings, setNetworkMappings] = useState<NetworkMapping[]>([]);
   const [showNetworkDiagram, setShowNetworkDiagram] = useState(false);
   
+  // Step 5: HLD Generation State
+  const [generatingHLD, setGeneratingHLD] = useState(false);
+  const [hldGenerated, setHldGenerated] = useState(false);
+  const [hldDocumentUrl, setHldDocumentUrl] = useState<string | null>(null);
+  
   // Load workload summary when filters change
   useEffect(() => {
     if (selectedRVTools) {
@@ -432,6 +440,25 @@ export const MigrationPlanningWizard: React.FC<MigrationWizardProps> = ({
     });
     
     return diagram;
+  };
+  
+  // HLD generation function
+  const handleGenerateHLD = async () => {
+    setGeneratingHLD(true);
+    
+    try {
+      // TODO: Replace with actual API call to HLD generation service
+      // Simulating document generation
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      
+      // Mock document URL (would be returned from API)
+      setHldDocumentUrl(`/api/documents/hld-${projectId}-${Date.now()}.docx`);
+      setHldGenerated(true);
+    } catch (error) {
+      console.error('HLD generation failed:', error);
+    } finally {
+      setGeneratingHLD(false);
+    }
   };
 
   const handleNext = () => {
@@ -1518,24 +1545,344 @@ export const MigrationPlanningWizard: React.FC<MigrationWizardProps> = ({
       case 5:
         return (
           <div>
-            <h3 style={{ fontFamily: 'Poppins, sans-serif', marginBottom: '16px' }}>
-              Step 5: Review & Generate HLD
-            </h3>
-            <p style={{ color: tokens.colorNeutralForeground3 }}>
-              Review your migration plan and generate the High-Level Design document.
-            </p>
-            <div style={{ 
-              padding: '40px', 
-              textAlign: 'center', 
-              background: 'rgba(236, 72, 153, 0.05)',
-              borderRadius: '12px',
-              marginTop: '24px'
+            <h3 style={{ 
+              fontFamily: 'Poppins, sans-serif', 
+              marginBottom: '24px',
+              fontSize: '20px',
+              fontWeight: '600',
+              color: tokens.colorNeutralForeground1,
             }}>
-              <p style={{ fontSize: '48px', margin: '0 0 16px 0' }}>📄</p>
-              <p style={{ color: tokens.colorNeutralForeground2 }}>
-                Review and HLD generation UI will be implemented here
-              </p>
+              <DocumentRegular style={{ marginRight: '8px', verticalAlign: 'middle' }} />
+              Review & Generate HLD
+            </h3>
+            
+            {/* Migration Plan Summary */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', marginBottom: '32px' }}>
+              
+              {/* Step 1 Summary: Source Selection */}
+              <PurpleGlassCard
+                header="Source Selection"
+                variant="outlined"
+                glass
+              >
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
+                  <div>
+                    <div style={{ fontSize: '12px', color: tokens.colorNeutralForeground3, marginBottom: '4px' }}>
+                      RVTools Upload
+                    </div>
+                    <div style={{ fontWeight: '600' }}>
+                      {selectedRVTools || 'Not selected'}
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <div style={{ fontSize: '12px', color: tokens.colorNeutralForeground3, marginBottom: '4px' }}>
+                      VMs Selected
+                    </div>
+                    <div style={{ fontWeight: '600' }}>
+                      {workloadSummary.filteredVMs} VMs
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <div style={{ fontSize: '12px', color: tokens.colorNeutralForeground3, marginBottom: '4px' }}>
+                      Total Resources
+                    </div>
+                    <div style={{ fontWeight: '600' }}>
+                      {workloadSummary.totalCPU} vCPU • {workloadSummary.totalMemoryGB} GB RAM • {(workloadSummary.totalStorageGB / 1024).toFixed(1)} TB Storage
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <div style={{ fontSize: '12px', color: tokens.colorNeutralForeground3, marginBottom: '4px' }}>
+                      Filters Applied
+                    </div>
+                    <div style={{ fontWeight: '600' }}>
+                      {clusterFilter || vmNamePattern ? 'Yes' : 'None'}
+                      {clusterFilter && ` (Cluster: ${clusterFilter})`}
+                      {vmNamePattern && ` (Pattern: ${vmNamePattern})`}
+                    </div>
+                  </div>
+                </div>
+              </PurpleGlassCard>
+              
+              {/* Step 2 Summary: Destination Clusters */}
+              <PurpleGlassCard
+                header="Destination Clusters"
+                variant="outlined"
+                glass
+              >
+                {clusters.length === 0 ? (
+                  <div style={{ color: tokens.colorNeutralForeground3, fontStyle: 'italic' }}>
+                    No destination clusters configured
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    {clusters.map((cluster, index) => (
+                      <div 
+                        key={cluster.id}
+                        style={{ 
+                          padding: '12px',
+                          background: 'rgba(139, 92, 246, 0.05)',
+                          borderRadius: '8px',
+                          border: '1px solid rgba(139, 92, 246, 0.2)',
+                        }}
+                      >
+                        <div style={{ fontWeight: '600', marginBottom: '8px', color: '#8b5cf6' }}>
+                          {index + 1}. {cluster.name}
+                        </div>
+                        <div style={{ fontSize: '14px', color: tokens.colorNeutralForeground2 }}>
+                          {cluster.hypervisorType.toUpperCase()} • {cluster.storageType.toUpperCase()} • {cluster.nodes.length} Nodes
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </PurpleGlassCard>
+              
+              {/* Step 3 Summary: Capacity Analysis */}
+              <PurpleGlassCard
+                header="Capacity Analysis"
+                variant="outlined"
+                glass
+              >
+                {!capacityAnalysis ? (
+                  <div style={{ color: tokens.colorNeutralForeground3, fontStyle: 'italic' }}>
+                    Capacity analysis not performed
+                  </div>
+                ) : (
+                  <>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '16px' }}>
+                      <div>
+                        <div style={{ fontSize: '12px', color: tokens.colorNeutralForeground3, marginBottom: '4px' }}>
+                          CPU Utilization
+                        </div>
+                        <div style={{ 
+                          fontWeight: '700',
+                          fontSize: '24px',
+                          color: capacityAnalysis.cpuUtilization >= 90 ? '#ef4444' : 
+                                 capacityAnalysis.cpuUtilization >= 80 ? '#f59e0b' : '#10b981',
+                        }}>
+                          {capacityAnalysis.cpuUtilization.toFixed(1)}%
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <div style={{ fontSize: '12px', color: tokens.colorNeutralForeground3, marginBottom: '4px' }}>
+                          Memory Utilization
+                        </div>
+                        <div style={{ 
+                          fontWeight: '700',
+                          fontSize: '24px',
+                          color: capacityAnalysis.memoryUtilization >= 90 ? '#ef4444' : 
+                                 capacityAnalysis.memoryUtilization >= 80 ? '#f59e0b' : '#10b981',
+                        }}>
+                          {capacityAnalysis.memoryUtilization.toFixed(1)}%
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <div style={{ fontSize: '12px', color: tokens.colorNeutralForeground3, marginBottom: '4px' }}>
+                          Storage Utilization
+                        </div>
+                        <div style={{ 
+                          fontWeight: '700',
+                          fontSize: '24px',
+                          color: capacityAnalysis.storageUtilization >= 90 ? '#ef4444' : 
+                                 capacityAnalysis.storageUtilization >= 85 ? '#f59e0b' : '#10b981',
+                        }}>
+                          {capacityAnalysis.storageUtilization.toFixed(1)}%
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div style={{ 
+                      padding: '12px',
+                      borderRadius: '8px',
+                      background: capacityAnalysis.isSufficient 
+                        ? 'rgba(16, 185, 129, 0.1)' 
+                        : 'rgba(239, 68, 68, 0.1)',
+                      border: `1px solid ${capacityAnalysis.isSufficient ? '#10b981' : '#ef4444'}`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                    }}>
+                      {capacityAnalysis.isSufficient ? (
+                        <CheckmarkCircleRegular style={{ color: '#10b981' }} />
+                      ) : (
+                        <ErrorCircleRegular style={{ color: '#ef4444' }} />
+                      )}
+                      <span style={{ fontWeight: '600' }}>
+                        {capacityAnalysis.isSufficient ? 'Capacity Sufficient' : 'Capacity Insufficient'}
+                      </span>
+                      {capacityAnalysis.bottlenecks.length > 0 && (
+                        <span style={{ marginLeft: 'auto', fontSize: '14px', color: tokens.colorNeutralForeground2 }}>
+                          {capacityAnalysis.bottlenecks.length} warning(s)
+                        </span>
+                      )}
+                    </div>
+                  </>
+                )}
+              </PurpleGlassCard>
+              
+              {/* Step 4 Summary: Network Mappings */}
+              <PurpleGlassCard
+                header="Network Mappings"
+                variant="outlined"
+                glass
+              >
+                {networkMappings.length === 0 ? (
+                  <div style={{ color: tokens.colorNeutralForeground3, fontStyle: 'italic' }}>
+                    No network mappings configured
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {networkMappings.map((mapping, index) => (
+                      <div 
+                        key={mapping.id}
+                        style={{ 
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '12px',
+                          padding: '8px 12px',
+                          background: 'rgba(59, 130, 246, 0.05)',
+                          borderRadius: '6px',
+                          fontSize: '14px',
+                        }}
+                      >
+                        <span style={{ fontWeight: '600' }}>{index + 1}.</span>
+                        <span>VLAN {mapping.sourceVlan} ({mapping.sourceSubnet})</span>
+                        <span style={{ color: '#8b5cf6', fontSize: '18px' }}>→</span>
+                        <span>VLAN {mapping.destinationVlan} ({mapping.destinationSubnet})</span>
+                        <span style={{ 
+                          marginLeft: 'auto',
+                          padding: '2px 8px',
+                          borderRadius: '4px',
+                          background: 'rgba(139, 92, 246, 0.15)',
+                          fontSize: '12px',
+                          fontWeight: '600',
+                          color: '#8b5cf6',
+                        }}>
+                          {mapping.ipStrategy.toUpperCase()}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </PurpleGlassCard>
             </div>
+            
+            {/* HLD Generation Section */}
+            <PurpleGlassCard
+              header="High-Level Design Document"
+              variant="elevated"
+              glass
+            >
+              {!hldGenerated ? (
+                <>
+                  {generatingHLD ? (
+                    <div style={{ textAlign: 'center', padding: '40px' }}>
+                      <Spinner size="large" />
+                      <div style={{ marginTop: '16px', fontSize: '16px', fontWeight: '600' }}>
+                        Generating HLD Document...
+                      </div>
+                      <div style={{ marginTop: '8px', fontSize: '14px', color: tokens.colorNeutralForeground2 }}>
+                        Creating comprehensive migration design document with all configurations
+                      </div>
+                    </div>
+                  ) : (
+                    <div style={{ textAlign: 'center', padding: '40px' }}>
+                      <DocumentPdfRegular style={{ fontSize: '64px', color: '#8b5cf6', marginBottom: '16px' }} />
+                      <div style={{ fontSize: '18px', fontWeight: '600', marginBottom: '8px' }}>
+                        Ready to Generate HLD
+                      </div>
+                      <div style={{ 
+                        fontSize: '14px', 
+                        color: tokens.colorNeutralForeground2,
+                        marginBottom: '24px',
+                        maxWidth: '500px',
+                        margin: '0 auto 24px',
+                      }}>
+                        The High-Level Design document will include:
+                        <ul style={{ textAlign: 'left', marginTop: '12px' }}>
+                          <li>Executive summary</li>
+                          <li>Source environment inventory</li>
+                          <li>Destination architecture design</li>
+                          <li>Capacity analysis and recommendations</li>
+                          <li>Network topology diagrams</li>
+                          <li>Migration runbook</li>
+                        </ul>
+                      </div>
+                      <PurpleGlassButton
+                        variant="primary"
+                        size="large"
+                        onClick={handleGenerateHLD}
+                        disabled={!selectedRVTools || clusters.length === 0}
+                      >
+                        Generate HLD Document
+                      </PurpleGlassButton>
+                      
+                      {(!selectedRVTools || clusters.length === 0) && (
+                        <div style={{ 
+                          marginTop: '16px',
+                          fontSize: '13px',
+                          color: '#ef4444',
+                        }}>
+                          ⚠️ Complete Steps 1 and 2 before generating HLD
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div style={{ textAlign: 'center', padding: '40px' }}>
+                  <CheckmarkCircleRegular style={{ fontSize: '64px', color: '#10b981', marginBottom: '16px' }} />
+                  <div style={{ fontSize: '18px', fontWeight: '600', marginBottom: '8px', color: '#10b981' }}>
+                    HLD Document Generated Successfully!
+                  </div>
+                  <div style={{ 
+                    fontSize: '14px', 
+                    color: tokens.colorNeutralForeground2,
+                    marginBottom: '24px',
+                  }}>
+                    Your migration High-Level Design document is ready to download.
+                  </div>
+                  
+                  <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+                    <PurpleGlassButton
+                      variant="primary"
+                      size="medium"
+                      icon={<ArrowDownloadRegular />}
+                      onClick={() => {
+                        // TODO: Implement actual download
+                        console.log('Download HLD:', hldDocumentUrl);
+                      }}
+                    >
+                      Download HLD Document
+                    </PurpleGlassButton>
+                    
+                    <Button
+                      appearance="subtle"
+                      icon={<DocumentRegular />}
+                      onClick={handleGenerateHLD}
+                    >
+                      Regenerate
+                    </Button>
+                  </div>
+                  
+                  <div style={{ 
+                    marginTop: '24px',
+                    padding: '16px',
+                    background: 'rgba(59, 130, 246, 0.1)',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    color: tokens.colorNeutralForeground2,
+                  }}>
+                    💡 The migration plan has been saved to the project. You can close this wizard and view the plan in the project workspace.
+                  </div>
+                </div>
+              )}
+            </PurpleGlassCard>
           </div>
         );
       
