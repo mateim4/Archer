@@ -39,7 +39,7 @@ async fn create_project(
 ) -> Result<impl IntoResponse, (StatusCode, Json<serde_json::Value>)> {
     tracing::info!("Creating migration wizard project: {}", payload.name);
 
-    let service = MigrationWizardService::new((**db).clone());
+    let service = MigrationWizardService::new(db.as_ref().clone());
     
     match service.create_project(payload.name, payload.description).await {
         Ok(project) => {
@@ -80,7 +80,7 @@ async fn list_projects(
 ) -> Result<impl IntoResponse, (StatusCode, Json<serde_json::Value>)> {
     tracing::info!("Listing migration wizard projects");
 
-    let service = MigrationWizardService::new((**db).clone());
+    let service = MigrationWizardService::new(db.as_ref().clone());
     
     match service.list_projects(Some(filter)).await {
         Ok(projects) => {
@@ -113,7 +113,7 @@ async fn get_project(
 ) -> Result<impl IntoResponse, (StatusCode, Json<serde_json::Value>)> {
     tracing::info!("Getting migration wizard project: {}", project_id);
 
-    let service = MigrationWizardService::new((**db).clone());
+    let service = MigrationWizardService::new(db.as_ref().clone());
     
     match service.get_project(&project_id).await {
         Ok(project) => {
@@ -161,7 +161,7 @@ async fn upload_rvtools(
     tracing::info!("Uploading RVTools file for project: {}", project_id);
 
     // Verify project exists
-    let service = MigrationWizardService::new((**db).clone());
+    let service = MigrationWizardService::new(db.as_ref().clone());
     if service.get_project(&project_id).await.is_err() {
         return Err((
             StatusCode::NOT_FOUND,
@@ -292,7 +292,7 @@ async fn get_project_vms(
 ) -> Result<impl IntoResponse, (StatusCode, Json<serde_json::Value>)> {
     tracing::info!("Getting VMs for project: {}", project_id);
 
-    let service = MigrationWizardService::new((**db).clone());
+    let service = MigrationWizardService::new(db.as_ref().clone());
     
     match service.get_project_vms(&project_id, Some(filter)).await {
         Ok(vms) => {

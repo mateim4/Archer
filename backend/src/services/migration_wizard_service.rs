@@ -1,6 +1,6 @@
 // Migration Wizard Service - RVTools Processing and Project Management
 use anyhow::{Result, Context};
-use calamine::{Reader, Xlsx, open_workbook_auto, DataType};
+use calamine::{Reader, Xlsx, open_workbook, DataType};
 use chrono::Utc;
 use std::path::Path;
 use surrealdb::sql::Thing;
@@ -187,7 +187,7 @@ impl MigrationWizardService {
 
     /// Parse RVTools Excel file using calamine
     fn parse_rvtools_excel(&self, file_path: &Path) -> Result<Vec<MigrationWizardVM>> {
-        let mut workbook: Xlsx<_> = open_workbook_auto(file_path)
+        let mut workbook: Xlsx<_> = open_workbook(file_path)
             .context("Failed to open Excel file")?;
 
         // RVTools typically has multiple sheets: tabvInfo, tabvCPU, tabvMemory, etc.
