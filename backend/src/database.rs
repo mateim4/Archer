@@ -75,7 +75,7 @@ pub async fn init_database_with_config(config: DatabaseConfig) -> Result<AppStat
 }
 
 /// Create a test database instance (for testing only)
-#[cfg(test)]
+#[cfg(any(test, feature = "test-utils"))]
 pub async fn new_test() -> Result<Database, DatabaseError> {
     let db = Surreal::new::<Mem>(())
         .await

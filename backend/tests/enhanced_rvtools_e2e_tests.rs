@@ -1,9 +1,12 @@
 #[cfg(test)]
 mod enhanced_rvtools_e2e_tests {
-    use backend::api::enhanced_rvtools::create_enhanced_rvtools_router;
-    use backend::database::Database;
     use axum::body::Body;
     use axum::http::{Method, Request, StatusCode};
+    use axum::Router;
+    use axum_test::TestServer;
+    use backend::api::enhanced_rvtools::create_enhanced_rvtools_router;
+    use backend::database::Database;
+    use bytes::{Bytes, BytesMut};
     use serde_json::{json, Value};
     use std::sync::Arc;
     use tower::ServiceExt; // for `oneshot`
@@ -16,12 +19,27 @@ mod enhanced_rvtools_e2e_tests {
             .expect("Failed to create test database")
     }
 
+    async fn setup_test_app() -> Router {
+        let db = setup_test_database().await;
+        let app_state = Arc::new(db);
+        create_enhanced_rvtools_router(app_state)
+    }
+
+    async fn body_to_bytes(body: axum::body::BoxBody) -> Result<Bytes, Box<dyn std::error::Error>> {
+        use hyper::body::HttpBody;
+        let mut body = body;
+        let mut bytes = bytes::BytesMut::new();
+        while let Some(chunk) = body.data().await {
+            bytes.extend_from_slice(&chunk?);
+        }
+        Ok(bytes.freeze())
+    }
+
     fn create_mock_excel_file() -> Vec<u8> {
         // In a real E2E test, this would be actual Excel binary data
         // For testing purposes, we create mock data that represents an Excel file structure
-        let mock_excel_content = include_bytes!("../test_data/mock_rvtools.xlsx");
-        // If file doesn't exist, return placeholder
-        b"PK\x03\x04Mock Excel File Data".to_vec() // Excel files start with PK (ZIP format)
+        // Excel files start with PK (ZIP format)
+        b"PK\x03\x04Mock Excel File Data".to_vec()
     }
 
     fn create_multipart_form_data(filename: &str, file_data: &[u8]) -> (Vec<u8>, String) {
@@ -83,9 +101,7 @@ mod enhanced_rvtools_e2e_tests {
         let response = app.oneshot(request).await.unwrap();
         assert_eq!(response.status(), StatusCode::OK);
 
-        let body = axum::body::to_bytes(response.into_body(), usize::MAX)
-            .await
-            .unwrap();
+        let body = body_to_bytes(response.into_body()).await.unwrap();
         let response_data: Value = serde_json::from_slice(&body).unwrap();
 
         assert!(response_data["success"].as_bool().unwrap_or(false));
@@ -135,9 +151,7 @@ mod enhanced_rvtools_e2e_tests {
         let response = app.oneshot(request).await.unwrap();
         assert_eq!(response.status(), StatusCode::OK);
 
-        let body = axum::body::to_bytes(response.into_body(), usize::MAX)
-            .await
-            .unwrap();
+        let body = body_to_bytes(response.into_body()).await.unwrap();
         let response_data: Value = serde_json::from_slice(&body).unwrap();
 
         assert!(response_data["success"].as_bool().unwrap_or(false));
@@ -157,9 +171,7 @@ mod enhanced_rvtools_e2e_tests {
         let response = app.oneshot(request).await.unwrap();
         assert_eq!(response.status(), StatusCode::OK);
 
-        let body = axum::body::to_bytes(response.into_body(), usize::MAX)
-            .await
-            .unwrap();
+        let body = body_to_bytes(response.into_body()).await.unwrap();
         let response_data: Value = serde_json::from_slice(&body).unwrap();
 
         assert!(response_data["upload_id"].is_string());
@@ -180,9 +192,7 @@ mod enhanced_rvtools_e2e_tests {
         let response = app.oneshot(request).await.unwrap();
         assert_eq!(response.status(), StatusCode::OK);
 
-        let body = axum::body::to_bytes(response.into_body(), usize::MAX)
-            .await
-            .unwrap();
+        let body = body_to_bytes(response.into_body()).await.unwrap();
         let response_data: Value = serde_json::from_slice(&body).unwrap();
 
         assert!(response_data["upload_id"].is_string());
@@ -203,9 +213,7 @@ mod enhanced_rvtools_e2e_tests {
         let response = app.oneshot(request).await.unwrap();
         assert_eq!(response.status(), StatusCode::OK);
 
-        let body = axum::body::to_bytes(response.into_body(), usize::MAX)
-            .await
-            .unwrap();
+        let body = body_to_bytes(response.into_body()).await.unwrap();
         let response_data: Value = serde_json::from_slice(&body).unwrap();
 
         assert!(response_data["rules"].is_array());
@@ -233,9 +241,7 @@ mod enhanced_rvtools_e2e_tests {
         let response = app.oneshot(request).await.unwrap();
         assert_eq!(response.status(), StatusCode::OK);
 
-        let body = axum::body::to_bytes(response.into_body(), usize::MAX)
-            .await
-            .unwrap();
+        let body = body_to_bytes(response.into_body()).await.unwrap();
         let response_data: Value = serde_json::from_slice(&body).unwrap();
 
         assert!(response_data["upload_id"].is_string());
@@ -432,9 +438,7 @@ mod enhanced_rvtools_e2e_tests {
                 cluster
             );
 
-            let body = axum::body::to_bytes(response.into_body(), usize::MAX)
-                .await
-                .unwrap();
+            let body = body_to_bytes(response.into_body()).await.unwrap();
             let response_data: Value = serde_json::from_slice(&body).unwrap();
 
             // Should have compliance results for the specific cluster
@@ -474,9 +478,7 @@ mod enhanced_rvtools_e2e_tests {
                 endpoint
             );
 
-            let body = axum::body::to_bytes(response.into_body(), usize::MAX)
-                .await
-                .unwrap();
+            let body = body_to_bytes(response.into_body()).await.unwrap();
             let response_data: Value = serde_json::from_slice(&body).unwrap();
 
             // All responses should be valid JSON objects

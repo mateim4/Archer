@@ -130,7 +130,7 @@ mod tests {
         assert!(validate_project_name("project-123"));
         assert!(validate_project_name("Project_v2.0"));
         assert!(!validate_project_name("")); // too short
-    assert!(!validate_project_name(&"a".repeat(101))); // too long
+        assert!(!validate_project_name(&"a".repeat(101))); // too long
     }
 
     #[test]
