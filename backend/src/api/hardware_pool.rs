@@ -33,7 +33,10 @@ pub fn create_hardware_pool_router(db: Arc<Database>) -> Router {
         )
         .route("/search", post(search_servers))
         .route("/allocate", post(allocate_servers))
+        .route("/allocations", post(create_allocation))
         .route("/allocations", get(list_allocations))
+        .route("/allocations/:allocation_id", get(get_allocation))
+        .route("/allocations/:allocation_id", patch(update_allocation_status))
         .route("/allocations/:allocation_id", delete(release_allocation))
         .route("/analytics", get(get_analytics))
         .route("/procurement/:procurement_id/track", get(track_procurement))
@@ -354,6 +357,136 @@ async fn release_allocation(
     }
 }
 
+/// Create a new hardware allocation (direct reservation)
+async fn create_allocation(
+    State(db): State<Arc<Database>>,
+    Json(request): Json<CreateAllocationRequest>,
+) -> Result<impl IntoResponse, ApiError> {
+    // Validate server exists and is available
+    let server: Result<Option<HardwarePool>, _> = db
+        .select(("hardware_pool", request.server_id.as_str()))
+        .await;
+
+    let server = match server {
+        Ok(Some(s)) => s,
+        Ok(None) => return Err(ApiError::NotFound("Server not found".to_string())),
+        Err(e) => return Err(ApiError::InternalError(e.to_string())),
+    };
+
+    if server.availability_status != "available" {
+        return Err(ApiError::Conflict(format!(
+            "Server is not available (status: {})",
+            server.availability_status
+        )));
+    }
+
+    // Create allocation record
+    let allocation = HardwareAllocation {
+        id: None,
+        server_id: surrealdb::sql::Thing::from(("hardware_pool", request.server_id.as_str())),
+        project_id: surrealdb::sql::Thing::from(("project", request.project_id.as_str())),
+        allocated_by: request.allocated_by,
+        allocation_start: request.allocation_start.unwrap_or_else(Utc::now),
+        allocation_end: request.allocation_end,
+        allocation_purpose: request.allocation_purpose,
+        status: "reserved".to_string(),
+        metadata: request.metadata,
+        created_at: Utc::now(),
+        updated_at: Utc::now(),
+    };
+
+    let created: Result<Vec<HardwareAllocation>, _> = db
+        .create("hardware_allocation")
+        .content(allocation)
+        .await;
+
+    match created {
+        Ok(mut allocations) if !allocations.is_empty() => {
+            let allocation = allocations.remove(0);
+
+            // Update server status
+            let _: Result<Option<HardwarePool>, _> = db
+                .update(("hardware_pool", request.server_id.as_str()))
+                .merge(serde_json::json!({
+                    "availability_status": "reserved",
+                    "updated_at": Utc::now()
+                }))
+                .await;
+
+            Ok((StatusCode::CREATED, Json(allocation)))
+        }
+        Ok(_) => Err(ApiError::InternalError(
+            "Failed to create allocation".to_string(),
+        )),
+        Err(e) => Err(ApiError::InternalError(e.to_string())),
+    }
+}
+
+/// Get a specific allocation by ID
+async fn get_allocation(
+    State(db): State<Arc<Database>>,
+    Path(allocation_id): Path<String>,
+) -> Result<impl IntoResponse, ApiError> {
+    let allocation: Result<Option<HardwareAllocation>, _> = db
+        .select(("hardware_allocation", allocation_id.as_str()))
+        .await;
+
+    match allocation {
+        Ok(Some(allocation)) => Ok(Json(allocation)),
+        Ok(None) => Err(ApiError::NotFound("Allocation not found".to_string())),
+        Err(e) => Err(ApiError::InternalError(e.to_string())),
+    }
+}
+
+/// Update allocation status (for tracking migration progress)
+async fn update_allocation_status(
+    State(db): State<Arc<Database>>,
+    Path(allocation_id): Path<String>,
+    Json(update): Json<UpdateAllocationStatusRequest>,
+) -> Result<impl IntoResponse, ApiError> {
+    // Get current allocation
+    let allocation: Result<Option<HardwareAllocation>, _> = db
+        .select(("hardware_allocation", allocation_id.as_str()))
+        .await;
+
+    let allocation = match allocation {
+        Ok(Some(a)) => a,
+        Ok(None) => return Err(ApiError::NotFound("Allocation not found".to_string())),
+        Err(e) => return Err(ApiError::InternalError(e.to_string())),
+    };
+
+    // Update allocation
+    let updated: Result<Option<HardwareAllocation>, _> = db
+        .update(("hardware_allocation", allocation_id.as_str()))
+        .merge(serde_json::json!({
+            "status": update.status,
+            "metadata": update.metadata,
+            "updated_at": Utc::now()
+        }))
+        .await;
+
+    match updated {
+        Ok(Some(allocation)) => {
+            // If status is "completed" or "released", update server status
+            if update.status == "completed" || update.status == "released" {
+                if let surrealdb::sql::Thing { id, .. } = &allocation.server_id {
+                    let _: Result<Option<HardwarePool>, _> = db
+                        .update(("hardware_pool", id.to_raw().as_str()))
+                        .merge(serde_json::json!({
+                            "availability_status": "available",
+                            "updated_at": Utc::now()
+                        }))
+                        .await;
+                }
+            }
+
+            Ok(Json(allocation))
+        }
+        Ok(None) => Err(ApiError::NotFound("Allocation not found".to_string())),
+        Err(e) => Err(ApiError::InternalError(e.to_string())),
+    }
+}
+
 // =============================================================================
 // ANALYTICS AND REPORTING
 // =============================================================================
@@ -421,6 +554,25 @@ struct ServerSearchResponse {
 struct SearchMetadata {
     searched_at: DateTime<Utc>,
     total_pool_servers: usize,
+}
+
+/// Request to create a direct hardware allocation
+#[derive(Debug, Deserialize)]
+struct CreateAllocationRequest {
+    server_id: String,
+    project_id: String,
+    allocated_by: String,
+    allocation_start: Option<DateTime<Utc>>,
+    allocation_end: Option<DateTime<Utc>>,
+    allocation_purpose: String,
+    metadata: Option<HashMap<String, String>>,
+}
+
+/// Request to update allocation status
+#[derive(Debug, Deserialize)]
+struct UpdateAllocationStatusRequest {
+    status: String,
+    metadata: Option<HashMap<String, String>>,
 }
 
 #[derive(Debug, Serialize)]

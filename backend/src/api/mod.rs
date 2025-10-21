@@ -1,4 +1,6 @@
+pub mod capacity;
 pub mod cluster_strategy;
+pub mod destination_clusters;
 pub mod hardware_baskets;
 pub mod hardware_pool;
 pub mod project_lifecycle;
@@ -26,6 +28,11 @@ pub fn api_router(state: AppState) -> Router {
             "/hardware-pool",
             hardware_pool::create_hardware_pool_router(state.clone()),
         )
+        .nest(
+            "/destination-clusters",
+            destination_clusters::create_destination_clusters_router(state.clone()),
+        )
+        .nest("/capacity", capacity::create_capacity_router(state.clone()))
         .nest("/rvtools", rvtools::create_rvtools_router(state.clone()))
         .nest(
             "/enhanced-rvtools",

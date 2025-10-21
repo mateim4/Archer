@@ -9,6 +9,7 @@ pub mod rvtools_service;
 
 // Activity Wizard Services
 pub mod capacity_validation_service;
+pub mod capacity_planner_service;
 pub mod hardware_compatibility_service;
 pub mod timeline_estimation_service;
 pub mod wizard_service;
