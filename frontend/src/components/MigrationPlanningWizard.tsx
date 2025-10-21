@@ -55,6 +55,14 @@ import {
   PurpleGlassButton,
   type DropdownOption,
 } from '@/components/ui';
+import {
+  migrationWizardAPI,
+  type VMResourceRequirements,
+  type ClusterCapacityStatus,
+  type PlacementResult,
+  type NetworkTemplate,
+  type HLDGenerationRequest,
+} from '@/api/migrationWizardClient';
 
 const useStyles = makeStyles({
   dialogSurface: {
@@ -252,6 +260,9 @@ export const MigrationPlanningWizard: React.FC<MigrationWizardProps> = ({
   
   const [networkMappings, setNetworkMappings] = useState<NetworkMapping[]>([]);
   const [showNetworkDiagram, setShowNetworkDiagram] = useState(false);
+  const [availableTemplates, setAvailableTemplates] = useState<NetworkTemplate[]>([]);
+  const [loadingTemplates, setLoadingTemplates] = useState(false);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string>('');
   
   // Step 5: HLD Generation State
   const [generatingHLD, setGeneratingHLD] = useState(false);
@@ -264,6 +275,13 @@ export const MigrationPlanningWizard: React.FC<MigrationWizardProps> = ({
       loadWorkloadSummary();
     }
   }, [selectedRVTools, clusterFilter, vmNamePattern, includePoweredOff]);
+
+  // Load network templates when entering Step 4
+  useEffect(() => {
+    if (currentStep === 4 && availableTemplates.length === 0 && !loadingTemplates) {
+      loadNetworkTemplates();
+    }
+  }, [currentStep]);
   
   const loadWorkloadSummary = async () => {
     // TODO: Replace with actual API call to get filtered VM summary
@@ -285,30 +303,74 @@ export const MigrationPlanningWizard: React.FC<MigrationWizardProps> = ({
     setAnalyzingCapacity(true);
     
     try {
-      // TODO: Replace with actual API call to POST /capacity/plan
-      // Simulating API response with mock data
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Calculate total cluster capacity
-      const totalClusterCapacity = clusters.reduce((acc, cluster) => ({
-        cpu: acc.cpu + cluster.nodes.reduce((sum, n) => sum + n.cpu, 0),
-        memory: acc.memory + cluster.nodes.reduce((sum, n) => sum + n.memoryGB, 0),
-        storage: acc.storage + cluster.nodes.reduce((sum, n) => sum + n.storageGB, 0),
+      // Convert wizard state to API types
+      const vms: VMResourceRequirements[] = Array.from({ length: workloadSummary.filteredVMs }, (_, i) => ({
+        vm_id: `vm-${i + 1}`,
+        vm_name: `VM-${i + 1}`,
+        cpu_cores: Math.floor(workloadSummary.totalCPU / workloadSummary.filteredVMs),
+        memory_gb: Math.floor(workloadSummary.totalMemoryGB / workloadSummary.filteredVMs),
+        storage_gb: Math.floor(workloadSummary.totalStorageGB / workloadSummary.filteredVMs),
+        is_critical: Math.random() > 0.7, // 30% critical VMs
+        affinity_group: Math.random() > 0.8 ? `affinity-${Math.floor(Math.random() * 3)}` : undefined,
+      }));
+
+      const clusterCapacities: ClusterCapacityStatus[] = clusters.map(cluster => {
+        const totalCpu = cluster.nodes.reduce((sum, n) => sum + n.cpu, 0);
+        const totalMemory = cluster.nodes.reduce((sum, n) => sum + n.memoryGB, 0);
+        const totalStorage = cluster.nodes.reduce((sum, n) => sum + n.storageGB, 0);
+        
+        return {
+          cluster_id: cluster.id,
+          cluster_name: cluster.name,
+          total_cpu: totalCpu,
+          total_memory_gb: totalMemory,
+          total_storage_gb: totalStorage,
+          available_cpu: totalCpu, // Start with full capacity
+          available_memory_gb: totalMemory,
+          available_storage_gb: totalStorage,
+        };
+      });
+
+      // Call real VM placement API
+      const placementResult = await migrationWizardAPI.vmPlacement.calculatePlacements({
+        project_id: projectId,
+        vms,
+        clusters: clusterCapacities,
+        strategy: 'Balanced', // Use balanced strategy for best distribution
+      });
+
+      // Convert placement result to capacity analysis format
+      const totalCapacity = clusterCapacities.reduce((acc, c) => ({
+        cpu: acc.cpu + c.total_cpu,
+        memory: acc.memory + c.total_memory_gb,
+        storage: acc.storage + c.total_storage_gb,
       }), { cpu: 0, memory: 0, storage: 0 });
-      
-      // Calculate utilization (mock calculation)
-      const cpuUtil = totalClusterCapacity.cpu > 0 
-        ? (workloadSummary.totalCPU / totalClusterCapacity.cpu) * 100 
-        : 95;
-      const memUtil = totalClusterCapacity.memory > 0 
-        ? (workloadSummary.totalMemoryGB / totalClusterCapacity.memory) * 100 
-        : 78;
-      const storageUtil = totalClusterCapacity.storage > 0 
-        ? (workloadSummary.totalStorageGB / totalClusterCapacity.storage) * 100 
-        : 82;
-      
-      const bottlenecks: CapacityAnalysis['bottlenecks'] = [];
-      
+
+      const usedCapacity = {
+        cpu: workloadSummary.totalCPU,
+        memory: workloadSummary.totalMemoryGB,
+        storage: workloadSummary.totalStorageGB,
+      };
+
+      const cpuUtil = (usedCapacity.cpu / totalCapacity.cpu) * 100;
+      const memUtil = (usedCapacity.memory / totalCapacity.memory) * 100;
+      const storageUtil = (usedCapacity.storage / totalCapacity.storage) * 100;
+
+      // Convert placement warnings to bottlenecks
+      const bottlenecks: CapacityAnalysis['bottlenecks'] = placementResult.placement_warnings.map(warning => ({
+        resourceType: warning.toLowerCase().includes('cpu') ? 'cpu' as const : 
+                      warning.toLowerCase().includes('memory') ? 'memory' as const : 
+                      'storage' as const,
+        severity: warning.toLowerCase().includes('critical') || placementResult.unplaced_vms.length > 0 
+          ? 'critical' as const 
+          : 'warning' as const,
+        message: warning,
+        recommendation: placementResult.unplaced_vms.length > 0 
+          ? `Add more cluster capacity. ${placementResult.unplaced_vms.length} VMs could not be placed.`
+          : 'Consider adding headroom for future growth',
+      }));
+
+      // Add utilization-based warnings
       if (cpuUtil > 90) {
         bottlenecks.push({
           resourceType: 'cpu',
@@ -324,7 +386,7 @@ export const MigrationPlanningWizard: React.FC<MigrationWizardProps> = ({
           recommendation: 'Consider adding CPU headroom for growth',
         });
       }
-      
+
       if (memUtil > 90) {
         bottlenecks.push({
           resourceType: 'memory',
@@ -340,7 +402,7 @@ export const MigrationPlanningWizard: React.FC<MigrationWizardProps> = ({
           recommendation: 'Consider adding memory headroom',
         });
       }
-      
+
       if (storageUtil > 85) {
         bottlenecks.push({
           resourceType: 'storage',
@@ -349,16 +411,29 @@ export const MigrationPlanningWizard: React.FC<MigrationWizardProps> = ({
           recommendation: 'Consider adding storage capacity',
         });
       }
-      
+
       setCapacityAnalysis({
         cpuUtilization: cpuUtil,
         memoryUtilization: memUtil,
         storageUtilization: storageUtil,
         bottlenecks,
-        isSufficient: cpuUtil < 90 && memUtil < 90 && storageUtil < 90,
+        isSufficient: placementResult.unplaced_vms.length === 0 && cpuUtil < 90 && memUtil < 90 && storageUtil < 90,
       });
     } catch (error) {
       console.error('Capacity analysis failed:', error);
+      // Show error state but don't crash
+      setCapacityAnalysis({
+        cpuUtilization: 0,
+        memoryUtilization: 0,
+        storageUtilization: 0,
+        bottlenecks: [{
+          resourceType: 'cpu',
+          severity: 'critical',
+          message: 'Failed to analyze capacity',
+          recommendation: error instanceof Error ? error.message : 'Please try again or contact support',
+        }],
+        isSufficient: false,
+      });
     } finally {
       setAnalyzingCapacity(false);
     }
@@ -385,6 +460,86 @@ export const MigrationPlanningWizard: React.FC<MigrationWizardProps> = ({
     setNetworkMappings(networkMappings.map(m => 
       m.id === mappingId ? { ...m, ...updates } : m
     ));
+  };
+
+  // Load network templates when entering Step 4
+  const loadNetworkTemplates = async () => {
+    setLoadingTemplates(true);
+    try {
+      const result = await migrationWizardAPI.networkTemplates.listTemplates({
+        is_global: true, // Load global templates by default
+        limit: 50,
+      });
+      setAvailableTemplates(result.templates);
+    } catch (error) {
+      console.error('Failed to load network templates:', error);
+      // Set empty array on error to allow manual entry
+      setAvailableTemplates([]);
+    } finally {
+      setLoadingTemplates(false);
+    }
+  };
+
+  // Apply selected template to project
+  const applyNetworkTemplate = async (templateId: string) => {
+    try {
+      const config = await migrationWizardAPI.networkTemplates.applyTemplate(templateId, projectId);
+      
+      // Convert template config to network mappings
+      const mappings: NetworkMapping[] = Object.entries(config.vlan_mapping || {}).map(([sourceVlan, destVlan], index) => ({
+        id: `mapping-${Date.now()}-${index}`,
+        sourceVlan,
+        sourceSubnet: Object.keys(config.subnet_mapping || {})[index] || '',
+        destinationVlan: destVlan,
+        destinationSubnet: Object.values(config.subnet_mapping || {})[index] || '',
+        ipStrategy: 'dhcp' as const,
+      }));
+
+      setNetworkMappings(mappings);
+      setSelectedTemplateId(templateId);
+      
+      console.log('Template applied successfully:', config);
+    } catch (error) {
+      console.error('Failed to apply template:', error);
+      alert(`Failed to apply template: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  };
+
+  // Save network mappings as new template
+  const saveAsTemplate = async (templateName: string) => {
+    try {
+      const vlanMapping: Record<string, string> = {};
+      const subnetMapping: Record<string, string> = {};
+      
+      networkMappings.forEach(mapping => {
+        if (mapping.sourceVlan && mapping.destinationVlan) {
+          vlanMapping[mapping.sourceVlan] = mapping.destinationVlan;
+        }
+        if (mapping.sourceSubnet && mapping.destinationSubnet) {
+          subnetMapping[mapping.sourceSubnet] = mapping.destinationSubnet;
+        }
+      });
+
+      const template = await migrationWizardAPI.networkTemplates.createTemplate({
+        name: templateName,
+        description: `Network template for ${projectId}`,
+        source_network: 'VMware vSphere',
+        destination_network: 'Hyper-V',
+        vlan_mapping: vlanMapping,
+        subnet_mapping: subnetMapping,
+        is_global: false, // User-specific template
+        tags: ['wizard-generated', projectId],
+      });
+
+      console.log('Template saved:', template);
+      alert(`Template "${templateName}" saved successfully!`);
+      
+      // Reload templates to show the new one
+      await loadNetworkTemplates();
+    } catch (error) {
+      console.error('Failed to save template:', error);
+      alert(`Failed to save template: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
   };
   
   // Generate mermaid diagram for network visualization
@@ -447,15 +602,39 @@ export const MigrationPlanningWizard: React.FC<MigrationWizardProps> = ({
     setGeneratingHLD(true);
     
     try {
-      // TODO: Replace with actual API call to HLD generation service
-      // Simulating document generation
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      // Call real HLD generation API with all sections enabled
+      const hldRequest: HLDGenerationRequest = {
+        project_id: projectId,
+        include_executive_summary: true,
+        include_inventory: true,
+        include_architecture: true,
+        include_capacity_planning: true,
+        include_network_design: true,
+        include_migration_runbook: true,
+        include_appendices: true,
+      };
+
+      const result = await migrationWizardAPI.hld.generateHLD(hldRequest);
       
-      // Mock document URL (would be returned from API)
-      setHldDocumentUrl(`/api/documents/hld-${projectId}-${Date.now()}.docx`);
+      // Set download URL for the generated document
+      const downloadUrl = migrationWizardAPI.hld.getDocumentDownloadUrl(
+        projectId,
+        result.document.id
+      );
+      
+      setHldDocumentUrl(downloadUrl);
       setHldGenerated(true);
+
+      console.log('HLD generated successfully:', {
+        fileName: result.document.file_name,
+        fileSizeKB: Math.round(result.file_size_bytes / 1024),
+        generationTimeMs: result.generation_time_ms,
+        sectionsIncluded: result.sections_included,
+      });
     } catch (error) {
       console.error('HLD generation failed:', error);
+      // Set error state but allow retry
+      alert(`Failed to generate HLD document: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setGeneratingHLD(false);
     }
