@@ -31,12 +31,17 @@ import {
   DatabaseRegular,
   FilterRegular,
   DocumentBulletListRegular,
+  ServerRegular,
+  AddRegular,
+  DeleteRegular,
+  StorageRegular,
 } from '@fluentui/react-icons';
 import {
   PurpleGlassDropdown,
   PurpleGlassInput,
   PurpleGlassCard,
   PurpleGlassCheckbox,
+  PurpleGlassButton,
   type DropdownOption,
 } from '@/components/ui';
 
@@ -187,6 +192,25 @@ export const MigrationPlanningWizard: React.FC<MigrationWizardProps> = ({
     totalStorageGB: 0,
     filteredVMs: 0,
   });
+  
+  // Step 2: Destination Configuration State
+  interface ClusterConfig {
+    id: string;
+    name: string;
+    hypervisorType: string;
+    storageType: string;
+    nodes: Array<{
+      id: string;
+      model: string;
+      cpu: number;
+      memoryGB: number;
+      storageGB: number;
+      source: 'pool' | 'new';
+    }>;
+  }
+  
+  const [clusters, setClusters] = useState<ClusterConfig[]>([]);
+  const [editingCluster, setEditingCluster] = useState<ClusterConfig | null>(null);
   
   // Load workload summary when filters change
   useEffect(() => {
@@ -428,26 +452,261 @@ export const MigrationPlanningWizard: React.FC<MigrationWizardProps> = ({
         );
       
       case 2:
+        const hypervisorOptions: DropdownOption[] = [
+          { value: 'hyperv', label: 'Microsoft Hyper-V' },
+          { value: 'vmware', label: 'VMware vSphere' },
+          { value: 'kvm', label: 'KVM' },
+        ];
+        
+        const storageOptions: DropdownOption[] = [
+          { value: 'local', label: 'Local Storage' },
+          { value: 'san', label: 'SAN (Fiber Channel)' },
+          { value: 'nas', label: 'NAS (iSCSI/NFS)' },
+          { value: 's2d', label: 'Storage Spaces Direct (S2D)' },
+          { value: 'vsan', label: 'VMware vSAN' },
+        ];
+        
+        const handleAddCluster = () => {
+          const newCluster: ClusterConfig = {
+            id: `cluster-${Date.now()}`,
+            name: `Cluster ${clusters.length + 1}`,
+            hypervisorType: 'hyperv',
+            storageType: 's2d',
+            nodes: [],
+          };
+          setClusters([...clusters, newCluster]);
+          setEditingCluster(newCluster);
+        };
+        
+        const handleRemoveCluster = (clusterId: string) => {
+          setClusters(clusters.filter(c => c.id !== clusterId));
+          if (editingCluster?.id === clusterId) {
+            setEditingCluster(null);
+          }
+        };
+        
+        const handleUpdateCluster = (clusterId: string, updates: Partial<ClusterConfig>) => {
+          setClusters(clusters.map(c => 
+            c.id === clusterId ? { ...c, ...updates } : c
+          ));
+          if (editingCluster?.id === clusterId) {
+            setEditingCluster({ ...editingCluster, ...updates });
+          }
+        };
+        
+        const getTotalClusterCapacity = (cluster: ClusterConfig) => {
+          return cluster.nodes.reduce((acc, node) => ({
+            cpu: acc.cpu + node.cpu,
+            memory: acc.memory + node.memoryGB,
+            storage: acc.storage + node.storageGB,
+          }), { cpu: 0, memory: 0, storage: 0 });
+        };
+        
         return (
           <div>
-            <h3 style={{ fontFamily: 'Poppins, sans-serif', marginBottom: '16px' }}>
-              Step 2: Destination Configuration
-            </h3>
-            <p style={{ color: tokens.colorNeutralForeground3 }}>
-              Configure target clusters using hardware from the pool or procurement.
-            </p>
-            <div style={{ 
-              padding: '40px', 
-              textAlign: 'center', 
-              background: 'rgba(59, 130, 246, 0.05)',
-              borderRadius: '12px',
-              marginTop: '24px'
+            <h3 style={{ 
+              fontFamily: 'Poppins, sans-serif', 
+              marginBottom: '24px',
+              fontSize: '20px',
+              fontWeight: '600',
+              color: tokens.colorNeutralForeground1,
             }}>
-              <p style={{ fontSize: '48px', margin: '0 0 16px 0' }}>🖥️</p>
-              <p style={{ color: tokens.colorNeutralForeground2 }}>
-                Cluster builder UI will be implemented here
-              </p>
+              <ServerRegular style={{ marginRight: '8px', verticalAlign: 'middle' }} />
+              Destination Configuration
+            </h3>
+            
+            {/* Cluster List */}
+            <div style={{ marginBottom: '24px' }}>
+              <div style={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center',
+                marginBottom: '16px',
+              }}>
+                <div style={{ fontSize: '16px', fontWeight: '600' }}>
+                  Destination Clusters ({clusters.length})
+                </div>
+                <Button
+                  appearance="primary"
+                  icon={<AddRegular />}
+                  onClick={handleAddCluster}
+                >
+                  Add Cluster
+                </Button>
+              </div>
+              
+              {clusters.length === 0 ? (
+                <PurpleGlassCard variant="outlined" glass>
+                  <div style={{ 
+                    textAlign: 'center', 
+                    padding: '40px',
+                    color: tokens.colorNeutralForeground3,
+                  }}>
+                    <ServerRegular style={{ fontSize: '48px', marginBottom: '16px' }} />
+                    <p>No destination clusters configured yet.</p>
+                    <p style={{ fontSize: '14px', marginTop: '8px' }}>
+                      Click "Add Cluster" to configure your first destination cluster.
+                    </p>
+                  </div>
+                </PurpleGlassCard>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  {clusters.map((cluster) => {
+                    const capacity = getTotalClusterCapacity(cluster);
+                    const isEditing = editingCluster?.id === cluster.id;
+                    
+                    return (
+                      <PurpleGlassCard
+                        key={cluster.id}
+                        variant={isEditing ? 'elevated' : 'interactive'}
+                        glass
+                        onClick={() => setEditingCluster(cluster)}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ 
+                              fontWeight: '600', 
+                              fontSize: '16px',
+                              marginBottom: '8px',
+                              color: isEditing ? '#8b5cf6' : tokens.colorNeutralForeground1,
+                            }}>
+                              {cluster.name}
+                            </div>
+                            <div style={{ 
+                              display: 'grid', 
+                              gridTemplateColumns: 'repeat(3, 1fr)', 
+                              gap: '16px',
+                              fontSize: '14px',
+                              color: tokens.colorNeutralForeground2,
+                            }}>
+                              <div>
+                                <div style={{ fontWeight: '600', color: tokens.colorNeutralForeground1 }}>
+                                  {cluster.hypervisorType.toUpperCase()}
+                                </div>
+                                <div style={{ fontSize: '12px' }}>Hypervisor</div>
+                              </div>
+                              <div>
+                                <div style={{ fontWeight: '600', color: tokens.colorNeutralForeground1 }}>
+                                  {cluster.storageType.toUpperCase()}
+                                </div>
+                                <div style={{ fontSize: '12px' }}>Storage</div>
+                              </div>
+                              <div>
+                                <div style={{ fontWeight: '600', color: tokens.colorNeutralForeground1 }}>
+                                  {cluster.nodes.length} Nodes
+                                </div>
+                                <div style={{ fontSize: '12px' }}>
+                                  {capacity.cpu} vCPU | {capacity.memory}GB RAM | {(capacity.storage / 1024).toFixed(1)}TB
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <Button
+                            appearance="subtle"
+                            icon={<DeleteRegular />}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRemoveCluster(cluster.id);
+                            }}
+                          />
+                        </div>
+                      </PurpleGlassCard>
+                    );
+                  })}
+                </div>
+              )}
             </div>
+            
+            {/* Cluster Configuration Panel */}
+            {editingCluster && (
+              <PurpleGlassCard
+                header={`Configure: ${editingCluster.name}`}
+                variant="elevated"
+                glass
+              >
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                  {/* Basic Configuration */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
+                    <PurpleGlassInput
+                      label="Cluster Name"
+                      value={editingCluster.name}
+                      onChange={(e) => handleUpdateCluster(editingCluster.id, { name: e.target.value })}
+                      required
+                      glass="none"
+                    />
+                    
+                    <PurpleGlassDropdown
+                      label="Hypervisor Type"
+                      options={hypervisorOptions}
+                      value={editingCluster.hypervisorType}
+                      onChange={(value) => handleUpdateCluster(editingCluster.id, { hypervisorType: value as string })}
+                      required
+                      glass="none"
+                    />
+                    
+                    <PurpleGlassDropdown
+                      label="Storage Type"
+                      options={storageOptions}
+                      value={editingCluster.storageType}
+                      onChange={(value) => handleUpdateCluster(editingCluster.id, { storageType: value as string })}
+                      required
+                      glass="none"
+                    />
+                  </div>
+                  
+                  {/* Hardware Pool Integration */}
+                  <div>
+                    <div style={{ 
+                      fontWeight: '600', 
+                      marginBottom: '12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                    }}>
+                      <StorageRegular />
+                      Hardware Nodes
+                    </div>
+                    
+                    <div style={{ 
+                      padding: '20px',
+                      background: 'rgba(139, 92, 246, 0.05)',
+                      borderRadius: '8px',
+                      border: '1px dashed rgba(139, 92, 246, 0.3)',
+                      textAlign: 'center',
+                    }}>
+                      <p style={{ 
+                        color: tokens.colorNeutralForeground2,
+                        margin: '0 0 12px 0',
+                      }}>
+                        Node selection from hardware pool will be implemented here.
+                      </p>
+                      <p style={{ 
+                        fontSize: '12px',
+                        color: tokens.colorNeutralForeground3,
+                        margin: 0,
+                      }}>
+                        Features: Browse hardware pool, select nodes, add new hardware specifications
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </PurpleGlassCard>
+            )}
+            
+            {clusters.length > 0 && (
+              <div style={{ 
+                marginTop: '24px',
+                padding: '16px',
+                background: 'rgba(59, 130, 246, 0.1)',
+                borderRadius: '8px',
+                fontSize: '14px',
+                color: tokens.colorNeutralForeground2,
+              }}>
+                <strong>{clusters.length}</strong> destination cluster{clusters.length !== 1 ? 's' : ''} configured. 
+                Click <strong>Next</strong> to proceed to capacity analysis.
+              </div>
+            )}
           </div>
         );
       
