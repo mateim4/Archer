@@ -2,6 +2,18 @@ import { create } from 'zustand';
 import { invoke } from '@tauri-apps/api/tauri';
 import WebFileProcessor, { UniversalServer, VMwareEnvironment } from '../utils/webFileProcessor';
 import ServerFileProcessor from '../utils/serverFileProcessor';
+import {
+  BackendClient,
+  BackendApiError,
+  buildCreateHardwarePayload,
+  buildUpdateHardwarePayload,
+  type CreateHardwareAssetInput,
+  type NormalizedHardwarePoolServer,
+  type RvToolsUploadSummary,
+  type RvToolsUploadRecord,
+  type ListRvToolsUploadsFilters,
+  type UploadRvToolsOptions,
+} from '../api/backendClient';
 
 // Check if we're running in Tauri environment
 const isTauri = typeof window !== 'undefined' && 
@@ -138,6 +150,56 @@ export interface HardwareAsset {
   updated_at: string; // ISO 8601 date string
 }
 
+export type RvToolsUpload = RvToolsUploadRecord;
+
+export type RvToolsUploadFilters = ListRvToolsUploadsFilters;
+
+const toCreateHardwareInput = (
+  asset: Pick<HardwareAsset, 'name' | 'manufacturer' | 'model' | 'cpu_cores' | 'memory_gb' | 'storage_capacity_gb' | 'location'>,
+): CreateHardwareAssetInput => ({
+  name: asset.name,
+  manufacturer: asset.manufacturer,
+  model: asset.model,
+  cpuCores: asset.cpu_cores,
+  memoryGb: asset.memory_gb,
+  storageCapacityGb: asset.storage_capacity_gb,
+  location: asset.location,
+});
+
+const adaptStatusToEnum = (status: string): AssetStatus => {
+  if (status in AssetStatus) {
+    return AssetStatus[status as keyof typeof AssetStatus];
+  }
+  return AssetStatus.Locked;
+};
+
+const mapServerToHardwareAsset = (server: NormalizedHardwarePoolServer): HardwareAsset => {
+  const base = BackendClient.mapToStoreAsset(server);
+  return {
+    id: base.id,
+    name: base.name,
+    manufacturer: base.manufacturer,
+    model: base.model,
+    cpu_cores: base.cpu_cores,
+    memory_gb: base.memory_gb,
+    storage_capacity_gb: base.storage_capacity_gb,
+    status: adaptStatusToEnum(base.status),
+    location: base.location,
+    created_at: base.created_at,
+    updated_at: base.updated_at,
+  };
+};
+
+const toErrorMessage = (error: unknown): string => {
+  if (error instanceof BackendApiError) {
+    return error.message;
+  }
+  if (error instanceof Error) {
+    return error.message;
+  }
+  return String(error);
+};
+
 export interface AssetLock {
   id: string; // uuid
   asset_id: string; // uuid
@@ -254,6 +316,9 @@ interface AppState {
   
   // Hardware Pool
   hardwarePoolAssets: HardwareAsset[];
+  rvToolsUploads: RvToolsUpload[];
+  latestRvToolsUpload: RvToolsUploadSummary | null;
+  rvToolsLoading: boolean;
   
   // Translation and migration
   translationRules: any | null;
@@ -307,6 +372,8 @@ interface AppState {
   updateHardwareAsset: (asset: HardwareAsset) => Promise<void>;
   deleteHardwareAsset: (id: string) => Promise<void>;
   lockHardwareAsset: (assetId: string, projectId: string, startDate: string, endDate: string) => Promise<void>;
+  uploadRvToolsReport: (file: File, options?: UploadRvToolsOptions) => Promise<void>;
+  fetchRvToolsUploads: (filters?: RvToolsUploadFilters) => Promise<void>;
   
   // Translation actions
   getTranslationRules: () => Promise<void>;
@@ -342,6 +409,9 @@ export const useAppStore = create<AppState>((set, get) => ({
   hardwareBasket: [],
   sizingResults: [],
   hardwarePoolAssets: [],
+  rvToolsUploads: [],
+  latestRvToolsUpload: null,
+  rvToolsLoading: false,
   translationRules: null,
   translationResult: null,
   tcoParameters: null,
@@ -814,44 +884,99 @@ export const useAppStore = create<AppState>((set, get) => ({
   listHardwareAssets: async () => {
     set({ loading: true, error: null });
     try {
-      const assets = await safeInvoke<HardwareAsset[]>('list_hardware_assets');
+      const { servers } = await BackendClient.listHardwarePoolServers();
+      const assets = servers.map(mapServerToHardwareAsset);
       set({ hardwarePoolAssets: assets, loading: false });
     } catch (error) {
-      console.error('Failed to list hardware assets:', error);
-      set({ error: error instanceof Error ? error.message : String(error), loading: false });
+      console.error('Failed to list hardware assets via API:', error);
+
+      if (isTauri) {
+        try {
+          const fallbackAssets = await safeInvoke<HardwareAsset[]>('list_hardware_assets');
+          set({ hardwarePoolAssets: fallbackAssets, loading: false });
+          return;
+        } catch (fallbackError) {
+          console.error('Tauri fallback failed to list hardware assets:', fallbackError);
+          set({ error: toErrorMessage(fallbackError), loading: false });
+          return;
+        }
+      }
+
+      set({ error: toErrorMessage(error), loading: false });
     }
   },
 
   createHardwareAsset: async (asset) => {
     set({ loading: true, error: null });
     try {
-      await safeInvoke('create_hardware_asset', { asset });
+      const apiPayload = buildCreateHardwarePayload(toCreateHardwareInput(asset));
+      await BackendClient.createHardwarePoolServer(apiPayload);
       await get().listHardwareAssets();
     } catch (error) {
-      console.error('Failed to create hardware asset:', error);
-      set({ error: error instanceof Error ? error.message : String(error), loading: false });
+      console.error('Failed to create hardware asset via API:', error);
+
+      if (isTauri) {
+        try {
+          await safeInvoke('create_hardware_asset', { asset });
+          await get().listHardwareAssets();
+        } catch (fallbackError) {
+          console.error('Tauri fallback failed to create hardware asset:', fallbackError);
+          set({ error: toErrorMessage(fallbackError) });
+        }
+      } else {
+        set({ error: toErrorMessage(error) });
+      }
+    } finally {
+      set({ loading: false });
     }
   },
 
   updateHardwareAsset: async (asset) => {
     set({ loading: true, error: null });
     try {
-      await safeInvoke('update_hardware_asset', { id: asset.id, asset });
+      const apiPayload = buildUpdateHardwarePayload(toCreateHardwareInput(asset));
+      await BackendClient.updateHardwarePoolServer(asset.id, apiPayload);
       await get().listHardwareAssets();
     } catch (error) {
-      console.error('Failed to update hardware asset:', error);
-      set({ error: error instanceof Error ? error.message : String(error), loading: false });
+      console.error('Failed to update hardware asset via API:', error);
+
+      if (isTauri) {
+        try {
+          await safeInvoke('update_hardware_asset', { id: asset.id, asset });
+          await get().listHardwareAssets();
+        } catch (fallbackError) {
+          console.error('Tauri fallback failed to update hardware asset:', fallbackError);
+          set({ error: toErrorMessage(fallbackError) });
+        }
+      } else {
+        set({ error: toErrorMessage(error) });
+      }
+    } finally {
+      set({ loading: false });
     }
   },
 
   deleteHardwareAsset: async (id) => {
     set({ loading: true, error: null });
     try {
-      await safeInvoke('delete_hardware_asset', { id });
+      await BackendClient.deleteHardwarePoolServer(id);
       await get().listHardwareAssets();
     } catch (error) {
-      console.error('Failed to delete hardware asset:', error);
-      set({ error: error instanceof Error ? error.message : String(error), loading: false });
+      console.error('Failed to delete hardware asset via API:', error);
+
+      if (isTauri) {
+        try {
+          await safeInvoke('delete_hardware_asset', { id });
+          await get().listHardwareAssets();
+        } catch (fallbackError) {
+          console.error('Tauri fallback failed to delete hardware asset:', fallbackError);
+          set({ error: toErrorMessage(fallbackError) });
+        }
+      } else {
+        set({ error: toErrorMessage(error) });
+      }
+    } finally {
+      set({ loading: false });
     }
   },
 
@@ -863,6 +988,45 @@ export const useAppStore = create<AppState>((set, get) => ({
     } catch (error) {
       console.error('Failed to lock hardware asset:', error);
       set({ error: error instanceof Error ? error.message : String(error), loading: false });
+    }
+  },
+
+  uploadRvToolsReport: async (file, options: UploadRvToolsOptions = {}) => {
+    if (isTauri) {
+      console.warn('RVTools web upload is not yet wired for the desktop runtime.');
+      set({ error: 'RVTools upload via web flow is not available in the desktop build yet.' });
+      return;
+    }
+
+    set({ rvToolsLoading: true, error: null });
+
+    try {
+      const summary = await BackendClient.uploadRvToolsReport(file, options);
+      set({ latestRvToolsUpload: summary });
+
+      await get().fetchRvToolsUploads({ projectId: options.projectId });
+    } catch (error) {
+      console.error('Failed to upload RVTools report via API:', error);
+      set({ error: toErrorMessage(error) });
+    } finally {
+      set({ rvToolsLoading: false });
+    }
+  },
+
+  fetchRvToolsUploads: async (filters: RvToolsUploadFilters = {}) => {
+    if (isTauri) {
+      console.warn('RVTools upload listing is not yet implemented for the desktop runtime.');
+      return;
+    }
+
+    set({ rvToolsLoading: true, error: null });
+
+    try {
+      const uploads = await BackendClient.listRvToolsUploads(filters);
+      set({ rvToolsUploads: uploads, rvToolsLoading: false });
+    } catch (error) {
+      console.error('Failed to fetch RVTools uploads via API:', error);
+      set({ error: toErrorMessage(error), rvToolsLoading: false });
     }
   },
 }));

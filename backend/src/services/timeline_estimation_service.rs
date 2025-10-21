@@ -14,7 +14,7 @@ use crate::models::workflow::{
 };
 
 /// Request for timeline estimation
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TimelineEstimationRequest {
     pub vm_count: u32,
     pub host_count: u32,
@@ -99,8 +99,8 @@ impl TimelineEstimationService {
         // Adjust rate based on infrastructure type
         let vm_rate = match request.infrastructure_type {
             InfrastructureType::Traditional => base_vm_rate,
-            InfrastructureType::HciS2d => base_vm_rate * 1.5,       // Faster with S2D
-            InfrastructureType::AzureLocal => base_vm_rate * 1.3,   // Slightly faster
+            InfrastructureType::HciS2d => base_vm_rate * 1.5, // Faster with S2D
+            InfrastructureType::AzureLocal => base_vm_rate * 1.3, // Slightly faster
         };
 
         // Calculate base days
@@ -268,6 +268,9 @@ mod tests {
         let traditional_prep = TimelineEstimationService::calculate_prep_time(&traditional_req);
         let hci_prep = TimelineEstimationService::calculate_prep_time(&hci_req);
 
-        assert!(hci_prep > traditional_prep, "HCI should take longer to prepare");
+        assert!(
+            hci_prep > traditional_prep,
+            "HCI should take longer to prepare"
+        );
     }
 }

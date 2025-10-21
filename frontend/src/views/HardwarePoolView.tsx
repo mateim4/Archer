@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { useAppStore } from '../store/useAppStore';
 import type { HardwareAsset, AssetStatus } from '../store/useAppStore';
 import HardwareAssetForm from '../components/HardwareAssetForm';
@@ -14,8 +14,10 @@ import {
   BroomRegular,
   DataBarHorizontalRegular,
   CircleRegular,
-  AddRegular
+  AddRegular,
+  ArrowUploadRegular
 } from '@fluentui/react-icons';
+import { PurpleGlassButton, PurpleGlassCard } from '../components/ui';
 
 const HardwarePoolView: React.FC = () => {
   const {
@@ -24,6 +26,11 @@ const HardwarePoolView: React.FC = () => {
     createHardwareAsset,
     updateHardwareAsset,
     deleteHardwareAsset,
+    uploadRvToolsReport,
+    fetchRvToolsUploads,
+    rvToolsLoading,
+    latestRvToolsUpload,
+    rvToolsUploads,
     loading,
     error
   } = useAppStore();
@@ -33,10 +40,33 @@ const HardwarePoolView: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<AssetStatus | 'All'>('All');
   const [manufacturerFilter, setManufacturerFilter] = useState<string>('All');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    listHardwareAssets();
+    void listHardwareAssets();
   }, [listHardwareAssets]);
+
+  useEffect(() => {
+    void fetchRvToolsUploads();
+  }, [fetchRvToolsUploads]);
+
+  const handleRvToolsImportClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleRvToolsFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    try {
+      await uploadRvToolsReport(file);
+      await listHardwareAssets();
+    } finally {
+      event.target.value = '';
+    }
+  };
 
   // Filter and search logic
   const filteredAssets = useMemo(() => {
@@ -167,35 +197,143 @@ const HardwarePoolView: React.FC = () => {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: DesignTokens.spacing.xl
+        marginBottom: DesignTokens.spacing.xl,
+        gap: DesignTokens.spacing.md
       }}>
-        <div></div>
-        <button
-          onClick={handleCreate}
-          style={{
-            background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            padding: '12px 24px',
-            fontSize: '14px',
-            fontWeight: '500',
-            cursor: 'pointer',
-            transition: 'all 0.3s ease',
-            fontFamily: 'Oxanium, sans-serif'
-          }}
-          onMouseOver={(e) => {
-            e.currentTarget.style.transform = 'translateY(-2px)';
-            e.currentTarget.style.boxShadow = '0 8px 25px rgba(99, 102, 241, 0.3)';
-          }}
-          onMouseOut={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow = 'none';
-          }}
-        >
-          <AddRegular style={{ marginRight: '8px' }} />Add Hardware Asset
-        </button>
+        <div style={{ display: 'flex', gap: DesignTokens.spacing.sm }}>
+          <PurpleGlassButton
+            variant="primary"
+            glass
+            icon={<AddRegular />}
+            onClick={handleCreate}
+          >
+            Add Hardware Asset
+          </PurpleGlassButton>
+          <PurpleGlassButton
+            variant="secondary"
+            glass
+            icon={<ArrowUploadRegular />}
+            loading={rvToolsLoading}
+            onClick={handleRvToolsImportClick}
+          >
+            Import from RVTools
+          </PurpleGlassButton>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".csv,.xlsx"
+            onChange={handleRvToolsFileChange}
+            style={{ display: 'none' }}
+          />
+        </div>
+        <div style={{ color: DesignTokens.colors.textSecondary, fontSize: '14px', fontFamily: DesignTokens.typography.fontFamily }}>
+          {rvToolsUploads.length > 0 ? `${rvToolsUploads.length} RVTools uploads processed` : 'Upload RVTools CSV or XLSX exports to populate the hardware pool.'}
+        </div>
       </div>
+
+      {latestRvToolsUpload && (
+        <PurpleGlassCard
+          variant="elevated"
+          glass
+          padding="large"
+          header="Latest RVTools Import"
+          style={{ marginBottom: DesignTokens.spacing.lg }}
+        >
+          <div style={{ display: 'grid', gap: DesignTokens.spacing.sm }}>
+            <div style={{ fontSize: DesignTokens.typography.lg, fontWeight: DesignTokens.typography.semibold, color: DesignTokens.colors.textPrimary }}>
+              Added {latestRvToolsUpload.serversAddedToPool} of {latestRvToolsUpload.serversProcessed} servers
+            </div>
+            <div style={{ color: DesignTokens.colors.textSecondary, fontSize: DesignTokens.typography.sm }}>
+              Upload ID: {latestRvToolsUpload.uploadId} · Processed at {new Date(latestRvToolsUpload.uploadTimestamp).toLocaleString()}
+            </div>
+            <div style={{ display: 'flex', gap: DesignTokens.spacing.lg, flexWrap: 'wrap' }}>
+              <div>
+                <strong>Total CPU:</strong> {latestRvToolsUpload.summary.totalCpuCores} cores
+              </div>
+              <div>
+                <strong>Total Memory:</strong> {latestRvToolsUpload.summary.totalMemoryGb} GB
+              </div>
+              <div>
+                <strong>Vendors:</strong> {latestRvToolsUpload.summary.uniqueVendors.join(', ') || 'n/a'}
+              </div>
+            </div>
+            {latestRvToolsUpload.processingErrors.length > 0 && (
+              <div>
+                <div style={{ fontWeight: DesignTokens.typography.medium, color: DesignTokens.colors.error, marginBottom: DesignTokens.spacing.xs }}>
+                  Processing Issues ({latestRvToolsUpload.processingErrors.length})
+                </div>
+                <ul style={{ margin: 0, paddingLeft: DesignTokens.spacing.lg, color: DesignTokens.colors.gray600, fontSize: DesignTokens.typography.sm }}>
+                  {latestRvToolsUpload.processingErrors.slice(0, 3).map((issue, index) => (
+                    <li key={`${issue.serverName}-${issue.lineNumber}-${index}`}>
+                      Line {issue.lineNumber}: {issue.serverName} – {issue.error}
+                    </li>
+                  ))}
+                  {latestRvToolsUpload.processingErrors.length > 3 && (
+                    <li>…and {latestRvToolsUpload.processingErrors.length - 3} more</li>
+                  )}
+                </ul>
+              </div>
+            )}
+            <div style={{ color: DesignTokens.colors.textSecondary, fontSize: DesignTokens.typography.sm }}>
+              Recommendations: {latestRvToolsUpload.summary.deploymentRecommendations.join('; ') || 'No recommendations generated'}
+            </div>
+          </div>
+        </PurpleGlassCard>
+      )}
+
+      {rvToolsUploads.length > 0 && (
+        <PurpleGlassCard
+          variant="default"
+          glass
+          padding="medium"
+          header="RVTools Import History"
+          style={{ marginBottom: DesignTokens.spacing.xl }}
+        >
+          <div style={{ overflowX: 'auto' }}>
+            <table
+              style={{
+                width: '100%',
+                borderCollapse: 'separate',
+                borderSpacing: 0,
+                fontFamily: DesignTokens.typography.fontFamily,
+                fontSize: DesignTokens.typography.sm,
+                color: DesignTokens.colors.textPrimary
+              }}
+            >
+              <thead>
+                <tr style={{ textAlign: 'left', color: DesignTokens.colors.textSecondary }}>
+                  <th style={{ padding: DesignTokens.spacing.sm }}>File</th>
+                  <th style={{ padding: DesignTokens.spacing.sm }}>Status</th>
+                  <th style={{ padding: DesignTokens.spacing.sm }}>Processed</th>
+                  <th style={{ padding: DesignTokens.spacing.sm }}>Uploaded</th>
+                  <th style={{ padding: DesignTokens.spacing.sm }}>Processed</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rvToolsUploads.slice(0, 5).map(upload => (
+                  <tr key={upload.id} style={{ borderTop: `1px solid ${DesignTokens.colors.gray200}` }}>
+                    <td style={{ padding: DesignTokens.spacing.sm, fontWeight: DesignTokens.typography.medium }}>
+                      {upload.fileName}
+                    </td>
+                    <td style={{ padding: DesignTokens.spacing.sm, textTransform: 'capitalize' }}>
+                      {upload.status}
+                    </td>
+                    <td style={{ padding: DesignTokens.spacing.sm }}>
+                      {upload.totalHosts ?? 0} hosts · {upload.totalVms ?? 0} VMs
+                    </td>
+                    <td style={{ padding: DesignTokens.spacing.sm }}>
+                      {new Date(upload.uploadedAt).toLocaleString()}
+                    </td>
+                    <td style={{ padding: DesignTokens.spacing.sm }}>
+                      {upload.processedAt ? new Date(upload.processedAt).toLocaleString() : 'Pending'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </PurpleGlassCard>
+      )}
 
       {/* Search and Filter Controls */}
       <div style={{

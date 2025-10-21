@@ -1,13 +1,13 @@
+use axum::middleware::from_fn;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr, TcpListener as StdTcpListener};
 use tower_http::{cors::CorsLayer, trace::TraceLayer};
-use axum::middleware::from_fn;
 
 mod api;
-mod models;
 mod database;
+mod middleware;
+mod models;
 mod services;
 mod utils;
-mod middleware;
 // mod hardware_basket_api; // Disabled - using new api/hardware_baskets.rs
 // mod parser; // Disabled - using new parser in core-engine
 
@@ -18,14 +18,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         std::env::set_var("RUST_LOG", "info,tower_http=info,backend=info");
     }
     tracing_subscriber::fmt::init();
-    
+
     // Initialize document storage
     if let Err(e) = services::document_service::DocumentService::init_storage() {
         tracing::warn!("Failed to initialize document storage: {}", e);
     } else {
         tracing::info!("📁 Document storage initialized");
     }
-    
+
     // Initialize database with enhanced error handling
     let db_state = match database::init_database().await {
         Ok(state) => {
@@ -37,7 +37,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             return Err(e.into());
         }
     };
-    
+
     // build our application with the API router and middleware
     let app = api::api_router(db_state)
         .layer(from_fn(middleware::error_handler))
@@ -85,12 +85,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("🔧 API endpoints:");
     println!("   • Health check: http://{}:{}/health", host, chosen_port);
     println!("   • API v1: http://{}:{}/api/v1", host, chosen_port);
-    println!("   • Hardware baskets: http://{}:{}/api/v1/hardware-baskets", host, chosen_port);
-    println!("   • Projects: http://{}:{}/api/v1/projects", host, chosen_port);
+    println!(
+        "   • Hardware baskets: http://{}:{}/api/v1/hardware-baskets",
+        host, chosen_port
+    );
+    println!(
+        "   • Projects: http://{}:{}/api/v1/projects",
+        host, chosen_port
+    );
 
     axum::Server::from_tcp(std_listener)?
         .serve(app.into_make_service())
         .await?;
-        
+
     Ok(())
 }

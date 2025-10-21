@@ -1,20 +1,17 @@
 use axum::{
+    body::Body,
+    extract::FromRequest,
     http::{Request, StatusCode},
     middleware::Next,
-    response::{Response, IntoResponse},
-    extract::FromRequest,
-    body::Body,
+    response::{IntoResponse, Response},
 };
 use serde_json::Value;
 use std::collections::HashMap;
 
-use crate::utils::api_response::{ApiResponse, helpers};
+use crate::utils::api_response::{helpers, ApiResponse};
 
 /// Input validation middleware
-pub async fn validate_json_content_type<B>(
-    request: Request<B>,
-    next: Next<B>,
-) -> Response {
+pub async fn validate_json_content_type<B>(request: Request<B>, next: Next<B>) -> Response {
     let content_type = request
         .headers()
         .get("content-type")
@@ -49,19 +46,21 @@ pub async fn validate_json_content_type<B>(
 }
 
 /// Request size validation middleware
-pub async fn validate_request_size<B>(
-    request: Request<B>,
-    next: Next<B>,
-) -> Response {
+pub async fn validate_request_size<B>(request: Request<B>, next: Next<B>) -> Response {
     const MAX_BODY_SIZE: u64 = 50 * 1024 * 1024; // 50MB
 
     if let Some(content_length) = request.headers().get("content-length") {
         if let Ok(length_str) = content_length.to_str() {
             if let Ok(length) = length_str.parse::<u64>() {
                 if length > MAX_BODY_SIZE {
-                    return ApiResponse::<()>::error("PAYLOAD_TOO_LARGE", 
-                        &format!("Request body too large. Maximum size: {} bytes", MAX_BODY_SIZE))
-                        .into_response();
+                    return ApiResponse::<()>::error(
+                        "PAYLOAD_TOO_LARGE",
+                        &format!(
+                            "Request body too large. Maximum size: {} bytes",
+                            MAX_BODY_SIZE
+                        ),
+                    )
+                    .into_response();
                 }
             }
         }
@@ -72,19 +71,18 @@ pub async fn validate_request_size<B>(
 
 /// Common input validation functions
 pub mod validators {
-    use regex::Regex;
     use once_cell::sync::Lazy;
+    use regex::Regex;
 
-    static EMAIL_REGEX: Lazy<Regex> = Lazy::new(|| {
-        Regex::new(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$").unwrap()
-    });
+    static EMAIL_REGEX: Lazy<Regex> =
+        Lazy::new(|| Regex::new(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$").unwrap());
 
-    static PROJECT_NAME_REGEX: Lazy<Regex> = Lazy::new(|| {
-        Regex::new(r"^[a-zA-Z0-9\s\-_\.]{1,100}$").unwrap()
-    });
+    static PROJECT_NAME_REGEX: Lazy<Regex> =
+        Lazy::new(|| Regex::new(r"^[a-zA-Z0-9\s\-_\.]{1,100}$").unwrap());
 
     static UUID_REGEX: Lazy<Regex> = Lazy::new(|| {
-        Regex::new(r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$").unwrap()
+        Regex::new(r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
+            .unwrap()
     });
 
     pub fn validate_email(email: &str) -> bool {
@@ -132,7 +130,7 @@ mod tests {
         assert!(validate_project_name("project-123"));
         assert!(validate_project_name("Project_v2.0"));
         assert!(!validate_project_name("")); // too short
-        assert!(!validate_project_name("a".repeat(101))); // too long
+    assert!(!validate_project_name(&"a".repeat(101))); // too long
     }
 
     #[test]

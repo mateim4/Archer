@@ -1,13 +1,13 @@
 use crate::database::AppState;
 use crate::models::workflow::*;
+use chrono::Utc;
+use docx_rs::*;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
-use chrono::Utc;
 use surrealdb::sql::Thing;
 use uuid::Uuid;
-use docx_rs::*;
 
 /// Document generation service for project workflow system
 pub struct DocumentService;
@@ -95,37 +95,24 @@ impl DocumentService {
     ) -> anyhow::Result<ProjectDocument> {
         // Create unique filename
         let file_id = Uuid::new_v4().to_string();
-        let file_name = format!("{}-{}.docx", 
-            request.document_name.replace(' ', "_").to_lowercase(), 
+        let file_name = format!(
+            "{}-{}.docx",
+            request.document_name.replace(' ', "_").to_lowercase(),
             file_id
         );
-        
+
         let documents_path = Self::get_documents_base_path().join("generated");
         let file_path = documents_path.join(&file_name);
 
         // Generate document content based on type
         let document_bytes = match request.document_type {
-            DocumentType::Hld => {
-                Self::generate_hld_document(&request).await?
-            },
-            DocumentType::Lld => {
-                Self::generate_lld_document(&request).await?
-            },
-            DocumentType::HardwareBoM => {
-                Self::generate_bom_document(&request).await?
-            },
-            DocumentType::MigrationPlan => {
-                Self::generate_migration_plan(&request).await?
-            },
-            DocumentType::NetworkDiagram => {
-                Self::generate_network_diagram(&request).await?
-            },
-            DocumentType::DeploymentPlan => {
-                Self::generate_deployment_plan(&request).await?
-            },
-            DocumentType::Custom => {
-                Self::generate_custom_document(&request).await?
-            },
+            DocumentType::Hld => Self::generate_hld_document(&request).await?,
+            DocumentType::Lld => Self::generate_lld_document(&request).await?,
+            DocumentType::HardwareBoM => Self::generate_bom_document(&request).await?,
+            DocumentType::MigrationPlan => Self::generate_migration_plan(&request).await?,
+            DocumentType::NetworkDiagram => Self::generate_network_diagram(&request).await?,
+            DocumentType::DeploymentPlan => Self::generate_deployment_plan(&request).await?,
+            DocumentType::Custom => Self::generate_custom_document(&request).await?,
         };
 
         // Write document to file
@@ -170,7 +157,7 @@ impl DocumentService {
     async fn generate_hld_document(request: &DocumentGenerationRequest) -> anyhow::Result<Vec<u8>> {
         // For now, create a simple HLD template
         // In a real implementation, this would parse RVTools data and generate using the core engine
-        
+
         if let Some(source_data) = &request.source_data {
             // If we have real data, try to use core engine (would need data conversion)
             // For now, generate a basic document
@@ -197,22 +184,30 @@ impl DocumentService {
     }
 
     /// Generate Migration Plan document
-    async fn generate_migration_plan(request: &DocumentGenerationRequest) -> anyhow::Result<Vec<u8>> {
+    async fn generate_migration_plan(
+        request: &DocumentGenerationRequest,
+    ) -> anyhow::Result<Vec<u8>> {
         Self::generate_migration_plan_document(request).await
     }
 
     /// Generate Network Diagram
-    async fn generate_network_diagram(request: &DocumentGenerationRequest) -> anyhow::Result<Vec<u8>> {
+    async fn generate_network_diagram(
+        request: &DocumentGenerationRequest,
+    ) -> anyhow::Result<Vec<u8>> {
         Self::generate_network_diagram_document(request).await
     }
 
     /// Generate Deployment Plan
-    async fn generate_deployment_plan(request: &DocumentGenerationRequest) -> anyhow::Result<Vec<u8>> {
+    async fn generate_deployment_plan(
+        request: &DocumentGenerationRequest,
+    ) -> anyhow::Result<Vec<u8>> {
         Self::generate_deployment_plan_document(request).await
     }
 
     /// Generate Custom document
-    async fn generate_custom_document(request: &DocumentGenerationRequest) -> anyhow::Result<Vec<u8>> {
+    async fn generate_custom_document(
+        request: &DocumentGenerationRequest,
+    ) -> anyhow::Result<Vec<u8>> {
         Self::generate_custom_template(request).await
     }
 
@@ -227,10 +222,8 @@ impl DocumentService {
             .await
             .map_err(|e| anyhow::anyhow!("Failed to query documents: {}", e))?
             .into_iter()
-            .filter(|doc: &ProjectDocument| {
-                match &doc.project_id {
-                    Thing { tb: _, id } => id.to_string() == project_id,
-                }
+            .filter(|doc: &ProjectDocument| match &doc.project_id {
+                Thing { tb: _, id } => id.to_string() == project_id,
             })
             .collect();
 
@@ -252,10 +245,7 @@ impl DocumentService {
     }
 
     /// Delete document
-    pub async fn delete_document(
-        app_state: &AppState,
-        document_id: &str,
-    ) -> anyhow::Result<()> {
+    pub async fn delete_document(app_state: &AppState, document_id: &str) -> anyhow::Result<()> {
         // Get document to get file path
         if let Some(document) = Self::get_document(app_state, document_id).await? {
             // Delete file
@@ -275,8 +265,11 @@ impl DocumentService {
     }
 
     // Helper methods for generating specific document types
-    
-    async fn generate_basic_hld(request: &DocumentGenerationRequest, source_data: &DocumentSourceData) -> anyhow::Result<Vec<u8>> {
+
+    async fn generate_basic_hld(
+        request: &DocumentGenerationRequest,
+        source_data: &DocumentSourceData,
+    ) -> anyhow::Result<Vec<u8>> {
         if let Some(capacity_data) = &source_data.capacity_analysis {
             Self::generate_professional_hld_with_data(request, capacity_data).await
         } else {
@@ -303,9 +296,9 @@ impl DocumentService {
                         .add_text("High-Level Design")
                         .size(36)
                         .bold()
-                        .color("2E86C1")
+                        .color("2E86C1"),
                 )
-                .align(AlignmentType::Center)
+                .align(AlignmentType::Center),
         );
 
         doc = doc.add_paragraph(
@@ -314,20 +307,23 @@ impl DocumentService {
                     Run::new()
                         .add_text("Infrastructure Migration Project")
                         .size(24)
-                        .bold()
+                        .bold(),
                 )
-                .align(AlignmentType::Center)
+                .align(AlignmentType::Center),
         );
 
         doc = doc.add_paragraph(
             Paragraph::new()
                 .add_run(
                     Run::new()
-                        .add_text(&format!("Generated: {}", chrono::Utc::now().format("%B %d, %Y")))
+                        .add_text(&format!(
+                            "Generated: {}",
+                            chrono::Utc::now().format("%B %d, %Y")
+                        ))
                         .size(14)
-                        .italic()
+                        .italic(),
                 )
-                .align(AlignmentType::Center)
+                .align(AlignmentType::Center),
         );
 
         // Add page break
@@ -335,14 +331,13 @@ impl DocumentService {
 
         // Add executive summary
         doc = doc.add_paragraph(
-            Paragraph::new()
-                .add_run(
-                    Run::new()
-                        .add_text("Executive Summary")
-                        .size(20)
-                        .bold()
-                        .color("2E86C1")
-                )
+            Paragraph::new().add_run(
+                Run::new()
+                    .add_text("Executive Summary")
+                    .size(20)
+                    .bold()
+                    .color("2E86C1"),
+            ),
         );
 
         doc = doc.add_paragraph(
@@ -368,16 +363,15 @@ impl DocumentService {
 
         // Add architecture overview
         doc = doc.add_paragraph(Paragraph::new().add_run(Run::new().add_break(BreakType::Page)));
-        
+
         doc = doc.add_paragraph(
-            Paragraph::new()
-                .add_run(
-                    Run::new()
-                        .add_text("Target Architecture Overview")
-                        .size(20)
-                        .bold()
-                        .color("2E86C1")
-                )
+            Paragraph::new().add_run(
+                Run::new()
+                    .add_text("Target Architecture Overview")
+                    .size(20)
+                    .bold()
+                    .color("2E86C1"),
+            ),
         );
 
         doc = doc.add_paragraph(
@@ -403,7 +397,7 @@ impl DocumentService {
             doc = doc.add_paragraph(
                 Paragraph::new()
                     .add_run(Run::new().add_text(&format!("• {}", component)))
-                    .indent(Some(720), None, None, None)
+                    .indent(Some(720), None, None, None),
             );
         }
 
@@ -434,83 +428,90 @@ impl DocumentService {
     }
 
     /// Add a professional capacity summary table
-    fn add_capacity_summary_table(mut doc: Docx, capacity_data: &CapacityAnalysisData) -> anyhow::Result<Docx> {
+    fn add_capacity_summary_table(
+        mut doc: Docx,
+        capacity_data: &CapacityAnalysisData,
+    ) -> anyhow::Result<Docx> {
         doc = doc.add_paragraph(
-            Paragraph::new()
-                .add_run(
-                    Run::new()
-                        .add_text("Current Environment Summary")
-                        .size(16)
-                        .bold()
-                )
+            Paragraph::new().add_run(
+                Run::new()
+                    .add_text("Current Environment Summary")
+                    .size(16)
+                    .bold(),
+            ),
         );
 
         let table = Table::new(vec![
             TableRow::new(vec![
                 TableCell::new().add_paragraph(
-                    Paragraph::new().add_run(Run::new().add_text("Resource").bold())
+                    Paragraph::new().add_run(Run::new().add_text("Resource").bold()),
                 ),
                 TableCell::new().add_paragraph(
-                    Paragraph::new().add_run(Run::new().add_text("Current Capacity").bold())
+                    Paragraph::new().add_run(Run::new().add_text("Current Capacity").bold()),
                 ),
                 TableCell::new().add_paragraph(
-                    Paragraph::new().add_run(Run::new().add_text("Target Capacity").bold())
+                    Paragraph::new().add_run(Run::new().add_text("Target Capacity").bold()),
                 ),
             ]),
             TableRow::new(vec![
                 TableCell::new().add_paragraph(
-                    Paragraph::new().add_run(Run::new().add_text("Virtual Machines"))
+                    Paragraph::new().add_run(Run::new().add_text("Virtual Machines")),
                 ),
                 TableCell::new().add_paragraph(
-                    Paragraph::new().add_run(Run::new().add_text(&capacity_data.vm_count.to_string()))
+                    Paragraph::new()
+                        .add_run(Run::new().add_text(&capacity_data.vm_count.to_string())),
                 ),
                 TableCell::new().add_paragraph(
-                    Paragraph::new().add_run(Run::new().add_text(&capacity_data.vm_count.to_string()))
+                    Paragraph::new()
+                        .add_run(Run::new().add_text(&capacity_data.vm_count.to_string())),
                 ),
             ]),
             TableRow::new(vec![
+                TableCell::new()
+                    .add_paragraph(Paragraph::new().add_run(Run::new().add_text("Physical Hosts"))),
                 TableCell::new().add_paragraph(
-                    Paragraph::new().add_run(Run::new().add_text("Physical Hosts"))
+                    Paragraph::new()
+                        .add_run(Run::new().add_text(&capacity_data.host_count.to_string())),
                 ),
                 TableCell::new().add_paragraph(
-                    Paragraph::new().add_run(Run::new().add_text(&capacity_data.host_count.to_string()))
-                ),
-                TableCell::new().add_paragraph(
-                    Paragraph::new().add_run(Run::new().add_text(&(capacity_data.host_count + 1).to_string()))
-                ),
-            ]),
-            TableRow::new(vec![
-                TableCell::new().add_paragraph(
-                    Paragraph::new().add_run(Run::new().add_text("vCPU Cores"))
-                ),
-                TableCell::new().add_paragraph(
-                    Paragraph::new().add_run(Run::new().add_text(&capacity_data.total_vcpus.to_string()))
-                ),
-                TableCell::new().add_paragraph(
-                    Paragraph::new().add_run(Run::new().add_text(&(capacity_data.total_vcpus + 64).to_string()))
+                    Paragraph::new()
+                        .add_run(Run::new().add_text(&(capacity_data.host_count + 1).to_string())),
                 ),
             ]),
             TableRow::new(vec![
+                TableCell::new()
+                    .add_paragraph(Paragraph::new().add_run(Run::new().add_text("vCPU Cores"))),
                 TableCell::new().add_paragraph(
-                    Paragraph::new().add_run(Run::new().add_text("Memory (GB)"))
+                    Paragraph::new()
+                        .add_run(Run::new().add_text(&capacity_data.total_vcpus.to_string())),
                 ),
                 TableCell::new().add_paragraph(
-                    Paragraph::new().add_run(Run::new().add_text(&capacity_data.total_memory_gb.to_string()))
-                ),
-                TableCell::new().add_paragraph(
-                    Paragraph::new().add_run(Run::new().add_text(&(capacity_data.total_memory_gb + 512).to_string()))
+                    Paragraph::new().add_run(
+                        Run::new().add_text(&(capacity_data.total_vcpus + 64).to_string()),
+                    ),
                 ),
             ]),
             TableRow::new(vec![
+                TableCell::new()
+                    .add_paragraph(Paragraph::new().add_run(Run::new().add_text("Memory (GB)"))),
                 TableCell::new().add_paragraph(
-                    Paragraph::new().add_run(Run::new().add_text("Storage (GB)"))
+                    Paragraph::new()
+                        .add_run(Run::new().add_text(&capacity_data.total_memory_gb.to_string())),
                 ),
+                TableCell::new().add_paragraph(Paragraph::new().add_run(
+                    Run::new().add_text(&(capacity_data.total_memory_gb + 512).to_string()),
+                )),
+            ]),
+            TableRow::new(vec![
+                TableCell::new()
+                    .add_paragraph(Paragraph::new().add_run(Run::new().add_text("Storage (GB)"))),
                 TableCell::new().add_paragraph(
-                    Paragraph::new().add_run(Run::new().add_text(&capacity_data.total_storage_gb.to_string()))
+                    Paragraph::new()
+                        .add_run(Run::new().add_text(&capacity_data.total_storage_gb.to_string())),
                 ),
-                TableCell::new().add_paragraph(
-                    Paragraph::new().add_run(Run::new().add_text(&(capacity_data.total_storage_gb + 2048).to_string()))
-                ),
+                TableCell::new().add_paragraph(Paragraph::new().add_run(
+                    Run::new().add_text(&(capacity_data.total_storage_gb + 2048).to_string()),
+                )),
             ]),
         ]);
 
@@ -518,7 +519,10 @@ impl DocumentService {
         Ok(doc)
     }
 
-    async fn generate_basic_lld(request: &DocumentGenerationRequest, source_data: &DocumentSourceData) -> anyhow::Result<Vec<u8>> {
+    async fn generate_basic_lld(
+        request: &DocumentGenerationRequest,
+        source_data: &DocumentSourceData,
+    ) -> anyhow::Result<Vec<u8>> {
         if let Some(capacity_data) = &source_data.capacity_analysis {
             Self::generate_professional_lld_with_data(request, capacity_data).await
         } else {
@@ -545,9 +549,9 @@ impl DocumentService {
                         .add_text("Low-Level Design")
                         .size(36)
                         .bold()
-                        .color("E74C3C")
+                        .color("E74C3C"),
                 )
-                .align(AlignmentType::Center)
+                .align(AlignmentType::Center),
         );
 
         doc = doc.add_paragraph(
@@ -556,20 +560,23 @@ impl DocumentService {
                     Run::new()
                         .add_text("Technical Implementation Details")
                         .size(24)
-                        .bold()
+                        .bold(),
                 )
-                .align(AlignmentType::Center)
+                .align(AlignmentType::Center),
         );
 
         doc = doc.add_paragraph(
             Paragraph::new()
                 .add_run(
                     Run::new()
-                        .add_text(&format!("Generated: {}", chrono::Utc::now().format("%B %d, %Y")))
+                        .add_text(&format!(
+                            "Generated: {}",
+                            chrono::Utc::now().format("%B %d, %Y")
+                        ))
                         .size(14)
-                        .italic()
+                        .italic(),
                 )
-                .align(AlignmentType::Center)
+                .align(AlignmentType::Center),
         );
 
         // Add page break
@@ -577,14 +584,13 @@ impl DocumentService {
 
         // Add detailed configuration sections
         doc = doc.add_paragraph(
-            Paragraph::new()
-                .add_run(
-                    Run::new()
-                        .add_text("Server Configuration Details")
-                        .size(20)
-                        .bold()
-                        .color("E74C3C")
-                )
+            Paragraph::new().add_run(
+                Run::new()
+                    .add_text("Server Configuration Details")
+                    .size(20)
+                    .bold()
+                    .color("E74C3C"),
+            ),
         );
 
         // Add server configuration table
@@ -592,16 +598,15 @@ impl DocumentService {
 
         // Add network configuration section
         doc = doc.add_paragraph(Paragraph::new().add_run(Run::new().add_break(BreakType::Page)));
-        
+
         doc = doc.add_paragraph(
-            Paragraph::new()
-                .add_run(
-                    Run::new()
-                        .add_text("Network Configuration")
-                        .size(20)
-                        .bold()
-                        .color("E74C3C")
-                )
+            Paragraph::new().add_run(
+                Run::new()
+                    .add_text("Network Configuration")
+                    .size(20)
+                    .bold()
+                    .color("E74C3C"),
+            ),
         );
 
         doc = doc.add_paragraph(
@@ -641,35 +646,38 @@ impl DocumentService {
     }
 
     /// Add a server configuration table
-    fn add_server_configuration_table(mut doc: Docx, capacity_data: &CapacityAnalysisData) -> anyhow::Result<Docx> {
+    fn add_server_configuration_table(
+        mut doc: Docx,
+        capacity_data: &CapacityAnalysisData,
+    ) -> anyhow::Result<Docx> {
         let table = Table::new(vec![
             TableRow::new(vec![
                 TableCell::new().add_paragraph(
-                    Paragraph::new().add_run(Run::new().add_text("Server Role").bold())
+                    Paragraph::new().add_run(Run::new().add_text("Server Role").bold()),
                 ),
                 TableCell::new().add_paragraph(
-                    Paragraph::new().add_run(Run::new().add_text("Quantity").bold())
+                    Paragraph::new().add_run(Run::new().add_text("Quantity").bold()),
                 ),
                 TableCell::new().add_paragraph(
-                    Paragraph::new().add_run(Run::new().add_text("vCPU per Host").bold())
+                    Paragraph::new().add_run(Run::new().add_text("vCPU per Host").bold()),
                 ),
                 TableCell::new().add_paragraph(
-                    Paragraph::new().add_run(Run::new().add_text("Memory per Host (GB)").bold())
+                    Paragraph::new().add_run(Run::new().add_text("Memory per Host (GB)").bold()),
                 ),
             ]),
             TableRow::new(vec![
+                TableCell::new()
+                    .add_paragraph(Paragraph::new().add_run(Run::new().add_text("Compute Hosts"))),
                 TableCell::new().add_paragraph(
-                    Paragraph::new().add_run(Run::new().add_text("Compute Hosts"))
+                    Paragraph::new()
+                        .add_run(Run::new().add_text(&capacity_data.host_count.to_string())),
                 ),
-                TableCell::new().add_paragraph(
-                    Paragraph::new().add_run(Run::new().add_text(&capacity_data.host_count.to_string()))
-                ),
-                TableCell::new().add_paragraph(
-                    Paragraph::new().add_run(Run::new().add_text(&(capacity_data.total_vcpus / capacity_data.host_count).to_string()))
-                ),
-                TableCell::new().add_paragraph(
-                    Paragraph::new().add_run(Run::new().add_text(&(capacity_data.total_memory_gb / capacity_data.host_count).to_string()))
-                ),
+                TableCell::new().add_paragraph(Paragraph::new().add_run(Run::new().add_text(
+                    &(capacity_data.total_vcpus / capacity_data.host_count).to_string(),
+                ))),
+                TableCell::new().add_paragraph(Paragraph::new().add_run(Run::new().add_text(
+                    &(capacity_data.total_memory_gb / capacity_data.host_count).to_string(),
+                ))),
             ]),
         ]);
 
@@ -677,34 +685,39 @@ impl DocumentService {
         Ok(doc)
     }
 
-    async fn generate_bom_from_hardware_selection(_request: &DocumentGenerationRequest) -> anyhow::Result<Vec<u8>> {
+    async fn generate_bom_from_hardware_selection(
+        _request: &DocumentGenerationRequest,
+    ) -> anyhow::Result<Vec<u8>> {
         Ok(b"BoM Document Placeholder - Hardware selection integration needed".to_vec())
     }
 
-    async fn generate_migration_plan_document(_request: &DocumentGenerationRequest) -> anyhow::Result<Vec<u8>> {
+    async fn generate_migration_plan_document(
+        _request: &DocumentGenerationRequest,
+    ) -> anyhow::Result<Vec<u8>> {
         Ok(b"Migration Plan Placeholder - Workflow integration needed".to_vec())
     }
 
-    async fn generate_network_diagram_document(_request: &DocumentGenerationRequest) -> anyhow::Result<Vec<u8>> {
+    async fn generate_network_diagram_document(
+        _request: &DocumentGenerationRequest,
+    ) -> anyhow::Result<Vec<u8>> {
         Ok(b"Network Diagram Placeholder - Network config integration needed".to_vec())
     }
 
-    async fn generate_deployment_plan_document(_request: &DocumentGenerationRequest) -> anyhow::Result<Vec<u8>> {
+    async fn generate_deployment_plan_document(
+        _request: &DocumentGenerationRequest,
+    ) -> anyhow::Result<Vec<u8>> {
         Ok(b"Deployment Plan Placeholder - Workflow integration needed".to_vec())
     }
 
-    async fn generate_custom_template(_request: &DocumentGenerationRequest) -> anyhow::Result<Vec<u8>> {
+    async fn generate_custom_template(
+        _request: &DocumentGenerationRequest,
+    ) -> anyhow::Result<Vec<u8>> {
         let mut doc = Docx::new();
 
         doc = doc.add_paragraph(
             Paragraph::new()
-                .add_run(
-                    Run::new()
-                        .add_text("Custom Document")
-                        .size(24)
-                        .bold()
-                )
-                .align(AlignmentType::Center)
+                .add_run(Run::new().add_text("Custom Document").size(24).bold())
+                .align(AlignmentType::Center),
         );
 
         doc = doc.add_paragraph(

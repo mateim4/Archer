@@ -2,7 +2,7 @@ use axum::{
     extract::{Path, Query, State},
     http::StatusCode,
     response::Json,
-    routing::{get, post, put, delete},
+    routing::{delete, get, post, put},
     Router,
 };
 use serde::{Deserialize, Serialize};
@@ -13,8 +13,8 @@ use surrealdb::sql::Thing;
 
 use crate::database::Database;
 use crate::models::project_models::*;
+use crate::services::document_service::{DocumentGenerationRequest, DocumentService};
 use crate::services::project_management_service::ProjectManagementService;
-use crate::services::document_service::{DocumentService, DocumentGenerationRequest};
 
 // Simple request type for workflow step updates
 #[derive(Debug, Deserialize)]
@@ -36,10 +36,10 @@ pub async fn create_project(
     Json(request): Json<CreateProjectRequest>,
 ) -> Result<Json<serde_json::Value>, StatusCode> {
     let project_service = ProjectManagementService::new((*state).clone());
-    
+
     // For demo purposes, using a dummy user ID
     let created_by = "system".to_string();
-    
+
     match project_service.create_project(request, created_by).await {
         Ok(project) => Ok(Json(json!({
             "status": "success",
@@ -57,7 +57,7 @@ pub async fn list_projects(
     Query(query): Query<HashMap<String, String>>,
 ) -> Result<Json<serde_json::Value>, StatusCode> {
     let project_service = ProjectManagementService::new((*state).clone());
-    
+
     // For now, pass None filter - can be enhanced later
     match project_service.list_projects(None).await {
         Ok(projects) => Ok(Json(json!({
@@ -76,7 +76,7 @@ pub async fn get_project(
     Path(project_id): Path<String>,
 ) -> Result<Json<serde_json::Value>, StatusCode> {
     let project_service = ProjectManagementService::new((*state).clone());
-    
+
     match project_service.get_project(&project_id).await {
         Ok(Some(project)) => Ok(Json(json!({
             "status": "success",
@@ -96,7 +96,7 @@ pub async fn update_project(
     Json(request): Json<UpdateProjectRequest>,
 ) -> Result<Json<serde_json::Value>, StatusCode> {
     let project_service = ProjectManagementService::new((*state).clone());
-    
+
     match project_service.update_project(&project_id, request).await {
         Ok(project) => Ok(Json(json!({
             "status": "success",
@@ -114,7 +114,7 @@ pub async fn delete_project(
     Path(project_id): Path<String>,
 ) -> Result<Json<serde_json::Value>, StatusCode> {
     let project_service = ProjectManagementService::new((*state).clone());
-    
+
     match project_service.delete_project(&project_id).await {
         Ok(_) => Ok(Json(json!({
             "status": "success",
@@ -133,7 +133,7 @@ pub async fn create_workflow(
     Json(request): Json<CreateWorkflowRequest>,
 ) -> Result<Json<serde_json::Value>, StatusCode> {
     let project_service = ProjectManagementService::new((*state).clone());
-    
+
     match project_service.create_workflow(&project_id, request).await {
         Ok(workflow) => Ok(Json(json!({
             "status": "success",
@@ -175,7 +175,7 @@ pub async fn get_workflow_analytics(
 ) -> Result<Json<serde_json::Value>, StatusCode> {
     // Stub implementation
     Ok(Json(json!({
-        "status": "success", 
+        "status": "success",
         "data": {
             "total_workflows": 0,
             "workflows_by_status": {},
@@ -216,13 +216,23 @@ pub fn routes() -> Router<Arc<Database>> {
         .route("/projects/:project_id", get(get_project))
         .route("/projects/:project_id", put(update_project))
         .route("/projects/:project_id", delete(delete_project))
-        
         // Workflow management routes
         .route("/projects/:project_id/workflows", post(create_workflow))
-        .route("/projects/:project_id/workflows", get(get_project_workflows))
-        .route("/workflows/:workflow_id/steps/:step_index", put(update_workflow_step))
-        .route("/projects/:project_id/analytics", get(get_workflow_analytics))
-        
+        .route(
+            "/projects/:project_id/workflows",
+            get(get_project_workflows),
+        )
+        .route(
+            "/workflows/:workflow_id/steps/:step_index",
+            put(update_workflow_step),
+        )
+        .route(
+            "/projects/:project_id/analytics",
+            get(get_workflow_analytics),
+        )
         // Document generation routes
-        .route("/projects/:project_id/generate-document", post(generate_document))
+        .route(
+            "/projects/:project_id/generate-document",
+            post(generate_document),
+        )
 }

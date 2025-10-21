@@ -1,3 +1,4 @@
+use anyhow::Result;
 use axum::{
     extract::{Path, Query, State},
     http::StatusCode,
@@ -5,16 +6,15 @@ use axum::{
     routing::{get, post},
     Router,
 };
-use anyhow::Result;
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use surrealdb::sql::Thing;
-use chrono::{DateTime, Utc};
 
 use crate::database::AppState;
+use crate::models::project_models::*;
 use crate::services::enhanced_rvtools_service::{EnhancedRvToolsService, RvToolsExcelUploadData};
 use crate::services::project_management_service::ProjectManagementService;
-use crate::models::project_models::*;
 // use crate::migration_models::*; // TODO: Fix migration_models imports
 
 // Note: S2dComplianceCheck types are defined in RVTools service
@@ -298,8 +298,14 @@ pub fn create_project_lifecycle_router(state: AppState) -> Router {
         .route("/", get(list_lifecycle_analyses))
         .route("/:analysis_id", get(get_lifecycle_analysis))
         .route("/:analysis_id/results", get(get_analysis_results))
-        .route("/:analysis_id/recommendations", get(get_analysis_recommendations))
-        .route("/:analysis_id/report/:report_type", get(generate_analysis_report))
+        .route(
+            "/:analysis_id/recommendations",
+            get(get_analysis_recommendations),
+        )
+        .route(
+            "/:analysis_id/report/:report_type",
+            get(generate_analysis_report),
+        )
         .with_state(state)
 }
 
@@ -662,9 +668,11 @@ async fn perform_lifecycle_analysis(
     // Cluster Analysis
     let mut cluster_analyses = Vec::new();
     for cluster_name in &request.target_clusters {
-        let s2d_compliance = rvtools_result.s2d_compliance.get(cluster_name)
+        let s2d_compliance = rvtools_result
+            .s2d_compliance
+            .get(cluster_name)
             .map(|compliance| serde_json::to_value(compliance).unwrap_or(serde_json::Value::Null));
-        
+
         let storage_type = if let Some(storage_analysis) = &rvtools_result.storage_analysis {
             // Use the storage analysis result
             storage_analysis.storage_type.clone()
@@ -674,12 +682,15 @@ async fn perform_lifecycle_analysis(
 
         let cluster_analysis = ClusterAnalysis {
             cluster_name: cluster_name.clone(),
-            current_vms: 0, // TODO: Count VMs in this cluster
+            current_vms: 0,   // TODO: Count VMs in this cluster
             current_hosts: 0, // TODO: Count hosts in this cluster
             storage_type,
             s2d_compliance,
             migration_recommendation: generate_cluster_migration_recommendation(cluster_name),
-            required_hardware: calculate_cluster_hardware_requirements(cluster_name, &request.overcommit_ratios),
+            required_hardware: calculate_cluster_hardware_requirements(
+                cluster_name,
+                &request.overcommit_ratios,
+            ),
         };
 
         cluster_analyses.push(cluster_analysis);
@@ -690,7 +701,11 @@ async fn perform_lifecycle_analysis(
 
     // Storage Architecture Results
     let storage_architecture = StorageArchitectureResults {
-        confirmed_vsan_clusters: vec!["ASNCLUBA0001".to_string(), "ASNCLUHRK001".to_string(), "PLBYDCL03".to_string()],
+        confirmed_vsan_clusters: vec![
+            "ASNCLUBA0001".to_string(),
+            "ASNCLUHRK001".to_string(),
+            "PLBYDCL03".to_string(),
+        ],
         san_consumer_clusters: cluster_analyses
             .iter()
             .filter(|c| matches!(c.storage_type, StorageType::FcSan | StorageType::IscsiSan))
@@ -701,10 +716,15 @@ async fn perform_lifecycle_analysis(
     };
 
     // Migration Complexity
-    let migration_complexity = calculate_migration_complexity(&cluster_analyses, &infrastructure_summary);
+    let migration_complexity =
+        calculate_migration_complexity(&cluster_analyses, &infrastructure_summary);
 
     // Generate recommendations
-    let recommendations = generate_lifecycle_recommendations(&cluster_analyses, &storage_architecture, &migration_complexity);
+    let recommendations = generate_lifecycle_recommendations(
+        &cluster_analyses,
+        &storage_architecture,
+        &migration_complexity,
+    );
 
     let results = LifecycleAnalysisResults {
         infrastructure_summary,
@@ -736,7 +756,10 @@ fn generate_cluster_migration_recommendation(cluster_name: &str) -> ClusterMigra
     }
 }
 
-fn calculate_cluster_hardware_requirements(cluster_name: &str, ratios: &OvercommitRatios) -> ClusterHardwareRequirement {
+fn calculate_cluster_hardware_requirements(
+    cluster_name: &str,
+    ratios: &OvercommitRatios,
+) -> ClusterHardwareRequirement {
     // Simplified calculation - would be more sophisticated in real implementation
     ClusterHardwareRequirement {
         required_hosts: 4,
@@ -755,30 +778,34 @@ fn calculate_cluster_hardware_requirements(cluster_name: &str, ratios: &Overcomm
     }
 }
 
-fn calculate_total_hardware_requirements(cluster_analyses: &[ClusterAnalysis]) -> HardwareRequirements {
-    let total_hosts: i32 = cluster_analyses.iter().map(|c| c.required_hardware.required_hosts).sum();
-    
+fn calculate_total_hardware_requirements(
+    cluster_analyses: &[ClusterAnalysis],
+) -> HardwareRequirements {
+    let total_hosts: i32 = cluster_analyses
+        .iter()
+        .map(|c| c.required_hardware.required_hosts)
+        .sum();
+
     HardwareRequirements {
         total_new_hosts: total_hosts,
-        server_specifications: vec![
-            ServerSpecification {
-                model_type: "Hyper-V S2D Node".to_string(),
-                quantity: total_hosts,
-                cpu_cores: 32,
-                memory_gb: 512,
-                drive_bays: 24,
-                purpose: "Storage Spaces Direct Provider".to_string(),
-            }
-        ],
-        network_equipment: vec![
-            NetworkEquipment {
-                equipment_type: "25GbE Switch".to_string(),
-                quantity: 2,
-                specifications: "48-port RDMA-capable".to_string(),
-                purpose: "S2D dedicated networking".to_string(),
-            }
-        ],
-        storage_requirements: cluster_analyses.iter().map(|c| c.required_hardware.storage_requirements.clone()).collect(),
+        server_specifications: vec![ServerSpecification {
+            model_type: "Hyper-V S2D Node".to_string(),
+            quantity: total_hosts,
+            cpu_cores: 32,
+            memory_gb: 512,
+            drive_bays: 24,
+            purpose: "Storage Spaces Direct Provider".to_string(),
+        }],
+        network_equipment: vec![NetworkEquipment {
+            equipment_type: "25GbE Switch".to_string(),
+            quantity: 2,
+            specifications: "48-port RDMA-capable".to_string(),
+            purpose: "S2D dedicated networking".to_string(),
+        }],
+        storage_requirements: cluster_analyses
+            .iter()
+            .map(|c| c.required_hardware.storage_requirements.clone())
+            .collect(),
     }
 }
 
@@ -787,14 +814,14 @@ fn calculate_s2d_readiness(cluster_analyses: &[ClusterAnalysis]) -> S2dReadiness
         .iter()
         .filter(|c| matches!(c.storage_type, StorageType::VsanProvider))
         .count() as i32;
-    
+
     let requires_audit = cluster_analyses
         .iter()
         .filter(|c| matches!(c.storage_type, StorageType::Unknown))
         .count() as i32;
-    
+
     let non_compliant = cluster_analyses.len() as i32 - ready_clusters - requires_audit;
-    
+
     S2dReadinessSummary {
         ready_clusters,
         requires_hardware_audit: requires_audit,
@@ -809,46 +836,68 @@ fn generate_storage_migration_plan(cluster_analyses: &[ClusterAnalysis]) -> Stor
         .filter(|c| matches!(c.storage_type, StorageType::VsanProvider))
         .map(|c| c.cluster_name.clone())
         .collect();
-    
+
     let san_clusters: Vec<String> = cluster_analyses
         .iter()
         .filter(|c| matches!(c.storage_type, StorageType::FcSan | StorageType::IscsiSan))
         .map(|c| c.cluster_name.clone())
         .collect();
-    
+
     StorageMigrationPlan {
         vsan_to_s2d_migrations: vsan_clusters.clone(),
         san_connectivity_preservations: san_clusters,
-        storage_phases: vec![
-            StoragePhase {
-                phase_name: "S2D Deployment".to_string(),
-                clusters: vsan_clusters,
-                approach: "vSAN to S2D conversion".to_string(),
-                estimated_duration_days: 30,
-            }
-        ],
+        storage_phases: vec![StoragePhase {
+            phase_name: "S2D Deployment".to_string(),
+            clusters: vsan_clusters,
+            approach: "vSAN to S2D conversion".to_string(),
+            estimated_duration_days: 30,
+        }],
     }
 }
 
-fn calculate_migration_complexity(cluster_analyses: &[ClusterAnalysis], infrastructure: &InfrastructureSummary) -> MigrationComplexity {
-    let vm_count_factor = if infrastructure.total_vms > 1000 { 0.8 } else if infrastructure.total_vms > 500 { 0.6 } else { 0.4 };
-    let cluster_count_factor = if infrastructure.total_clusters > 10 { 0.7 } else { 0.5 };
-    let storage_complexity = if cluster_analyses.iter().any(|c| matches!(c.storage_type, StorageType::Unknown)) { 0.8 } else { 0.5 };
-    
+fn calculate_migration_complexity(
+    cluster_analyses: &[ClusterAnalysis],
+    infrastructure: &InfrastructureSummary,
+) -> MigrationComplexity {
+    let vm_count_factor = if infrastructure.total_vms > 1000 {
+        0.8
+    } else if infrastructure.total_vms > 500 {
+        0.6
+    } else {
+        0.4
+    };
+    let cluster_count_factor = if infrastructure.total_clusters > 10 {
+        0.7
+    } else {
+        0.5
+    };
+    let storage_complexity = if cluster_analyses
+        .iter()
+        .any(|c| matches!(c.storage_type, StorageType::Unknown))
+    {
+        0.8
+    } else {
+        0.5
+    };
+
     let overall_score = (vm_count_factor + cluster_count_factor + storage_complexity) / 3.0;
-    
+
     MigrationComplexity {
         overall_score,
-        complexity_factors: vec![
-            ComplexityFactor {
-                factor: "VM Count".to_string(),
-                impact: vm_count_factor,
-                description: format!("{} VMs to migrate", infrastructure.total_vms),
-                mitigation: "Phased migration approach".to_string(),
-            }
-        ],
+        complexity_factors: vec![ComplexityFactor {
+            factor: "VM Count".to_string(),
+            impact: vm_count_factor,
+            description: format!("{} VMs to migrate", infrastructure.total_vms),
+            mitigation: "Phased migration approach".to_string(),
+        }],
         estimated_timeline_weeks: (infrastructure.total_clusters * 2) + 4,
-        risk_level: if overall_score > 0.7 { RiskLevel::High } else if overall_score > 0.5 { RiskLevel::Medium } else { RiskLevel::Low },
+        risk_level: if overall_score > 0.7 {
+            RiskLevel::High
+        } else if overall_score > 0.5 {
+            RiskLevel::Medium
+        } else {
+            RiskLevel::Low
+        },
     }
 }
 
@@ -858,16 +907,22 @@ fn generate_lifecycle_recommendations(
     migration_complexity: &MigrationComplexity,
 ) -> Vec<LifecycleRecommendation> {
     let mut recommendations = Vec::new();
-    
+
     recommendations.push(LifecycleRecommendation {
         category: "Storage Architecture".to_string(),
         priority: "High".to_string(),
         recommendation: "Deploy Storage Spaces Direct for vSAN provider clusters".to_string(),
-        rationale: format!("Found {} clusters suitable for S2D deployment", storage_architecture.s2d_readiness_summary.ready_clusters),
+        rationale: format!(
+            "Found {} clusters suitable for S2D deployment",
+            storage_architecture.s2d_readiness_summary.ready_clusters
+        ),
         timeline: "Phase 1 (Months 1-3)".to_string(),
-        dependencies: vec!["Hardware procurement".to_string(), "Network setup".to_string()],
+        dependencies: vec![
+            "Hardware procurement".to_string(),
+            "Network setup".to_string(),
+        ],
     });
-    
+
     if migration_complexity.risk_level == RiskLevel::High {
         recommendations.push(LifecycleRecommendation {
             category: "Risk Mitigation".to_string(),
@@ -878,6 +933,6 @@ fn generate_lifecycle_recommendations(
             dependencies: vec!["Test environment setup".to_string()],
         });
     }
-    
+
     recommendations
 }

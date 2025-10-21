@@ -1,7 +1,7 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use surrealdb::sql::Thing;
 use std::collections::HashMap;
+use surrealdb::sql::Thing;
 
 // =============================================================================
 // PROJECT MANAGEMENT MODELS
@@ -274,7 +274,7 @@ pub struct RvToolsExcelData {
     pub created_at: DateTime<Utc>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub enum RvToolsDataType {
     #[serde(rename = "string")]
     String,
@@ -314,7 +314,7 @@ pub enum MetricCategory {
     VmMetrics,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub enum ValidationStatus {
     #[serde(rename = "valid")]
     Valid,
@@ -733,7 +733,7 @@ pub struct HardwarePool {
     pub network_ports: Option<i32>,
     pub power_consumption_watts: Option<i32>,
     pub rack_units: i32,
-    
+
     // Availability and Status
     pub availability_status: AvailabilityStatus,
     pub location: Option<String>,
@@ -742,13 +742,13 @@ pub struct HardwarePool {
     pub available_from_date: DateTime<Utc>,
     pub available_until_date: Option<DateTime<Utc>>,
     pub maintenance_schedule: Vec<MaintenanceWindow>,
-    
+
     // Financial Information
     pub acquisition_cost: Option<f64>,
     pub monthly_cost: Option<f64>,
     pub warranty_expires: Option<DateTime<Utc>>,
     pub support_level: Option<String>,
-    
+
     pub metadata: HashMap<String, serde_json::Value>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,

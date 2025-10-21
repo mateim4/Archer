@@ -17,7 +17,7 @@
 use axum::{
     extract::{Path, State},
     http::StatusCode,
-    routing::{get, post, put, delete},
+    routing::{delete, get, post, put},
     Json, Router,
 };
 use chrono::Utc;
@@ -25,9 +25,8 @@ use serde::{Deserialize, Serialize};
 use surrealdb::sql::Thing;
 
 use crate::{
-    models::migration_models::*,
+    database::AppState, models::migration_models::*,
     services::dependency_validator::DependencyValidator,
-    database::AppState,
 };
 
 /// API response wrapper
@@ -74,25 +73,25 @@ pub struct ConfigureStrategyRequest {
     pub source_cluster_name: String,
     pub target_cluster_name: String,
     pub strategy_type: MigrationStrategyType,
-    
+
     // NEW: Activity linking
     #[serde(skip_serializing_if = "Option::is_none")]
     pub activity_id: Option<String>,
-    
+
     // Optional fields based on strategy type
     pub domino_source_cluster: Option<String>,
     pub hardware_basket_items: Option<Vec<String>>,
     pub hardware_pool_allocations: Option<Vec<String>>,
-    
+
     // Capacity requirements
     pub required_cpu_cores: Option<u32>,
     pub required_memory_gb: Option<u32>,
     pub required_storage_tb: Option<f64>,
-    
+
     // Timeline
     pub planned_start_date: Option<String>,
     pub planned_completion_date: Option<String>,
-    
+
     pub notes: Option<String>,
 }
 
@@ -182,7 +181,7 @@ pub async fn configure_cluster_strategy(
 
     // Set strategy type and related fields
     plan.strategy_type = request.strategy_type.clone();
-    
+
     match request.strategy_type {
         MigrationStrategyType::DominoHardwareSwap => {
             plan.domino_source_cluster = request.domino_source_cluster;
@@ -225,10 +224,7 @@ pub async fn configure_cluster_strategy(
     plan.notes = request.notes.unwrap_or_default();
 
     // Save to database
-    let created = state
-        .create("cluster_migration_plans")
-        .content(&plan)
-        .await;
+    let created = state.create("cluster_migration_plans").content(&plan).await;
 
     match created {
         Ok(mut plans) if !plans.is_empty() => {
@@ -257,8 +253,9 @@ pub async fn list_cluster_strategies(
     let project_thing = Thing::from(("projects", project_id.as_str()));
 
     let query = "SELECT * FROM cluster_migration_plans WHERE project_id = $project_id ORDER BY created_at DESC";
-    
-    let mut result = state.query(query)
+
+    let mut result = state
+        .query(query)
         .bind(("project_id", project_thing))
         .await
         .map_err(|e| {
@@ -281,10 +278,8 @@ pub async fn get_cluster_strategy(
 ) -> Result<Json<ApiResponse<ClusterMigrationPlan>>, StatusCode> {
     let strategy_thing = Thing::from(("cluster_migration_plans", strategy_id.as_str()));
 
-    let strategy: Option<ClusterMigrationPlan> = state
-        .select(strategy_thing)
-        .await
-        .map_err(|e| {
+    let strategy: Option<ClusterMigrationPlan> =
+        state.select(strategy_thing).await.map_err(|e| {
             eprintln!("Database error fetching cluster strategy: {:?}", e);
             StatusCode::INTERNAL_SERVER_ERROR
         })?;
@@ -312,10 +307,8 @@ pub async fn update_cluster_strategy(
     let strategy_thing = Thing::from(("cluster_migration_plans", strategy_id.as_str()));
 
     // Fetch existing strategy
-    let existing: Option<ClusterMigrationPlan> = state
-        .select(strategy_thing.clone())
-        .await
-        .map_err(|e| {
+    let existing: Option<ClusterMigrationPlan> =
+        state.select(strategy_thing.clone()).await.map_err(|e| {
             eprintln!("Database error fetching strategy: {:?}", e);
             StatusCode::INTERNAL_SERVER_ERROR
         })?;
@@ -371,10 +364,8 @@ pub async fn update_cluster_strategy(
     plan.notes = request.notes.unwrap_or_default();
 
     // Update in database
-    let updated: Result<Option<ClusterMigrationPlan>, _> = state
-        .update(strategy_thing)
-        .content(&plan)
-        .await;
+    let updated: Result<Option<ClusterMigrationPlan>, _> =
+        state.update(strategy_thing).content(&plan).await;
 
     match updated {
         Ok(_) => Ok(Json(ApiResponse::success_with_message(
@@ -398,10 +389,8 @@ pub async fn delete_cluster_strategy(
 ) -> Result<Json<ApiResponse<String>>, StatusCode> {
     let strategy_thing = Thing::from(("cluster_migration_plans", strategy_id.as_str()));
 
-    let _deleted: Option<ClusterMigrationPlan> = state
-        .delete(strategy_thing)
-        .await
-        .map_err(|e| {
+    let _deleted: Option<ClusterMigrationPlan> =
+        state.delete(strategy_thing).await.map_err(|e| {
             eprintln!("Database error deleting cluster strategy: {:?}", e);
             StatusCode::INTERNAL_SERVER_ERROR
         })?;
@@ -426,8 +415,9 @@ pub async fn validate_dependencies(
 
     // Fetch all cluster strategies for this project
     let query = "SELECT * FROM cluster_migration_plans WHERE project_id = $project_id";
-    
-    let mut result = state.query(query)
+
+    let mut result = state
+        .query(query)
         .bind(("project_id", project_thing))
         .await
         .map_err(|e| {
@@ -461,7 +451,8 @@ pub async fn get_hardware_timeline(
 
     // Fetch all cluster strategies
     let strategies_query = "SELECT * FROM cluster_migration_plans WHERE project_id = $project_id";
-    let mut strategies_result = state.query(strategies_query)
+    let mut strategies_result = state
+        .query(strategies_query)
         .bind(("project_id", project_thing.clone()))
         .await
         .map_err(|e| {
@@ -476,7 +467,8 @@ pub async fn get_hardware_timeline(
 
     // Fetch procurement orders
     let procurement_query = "SELECT * FROM procurement_orders WHERE project_id = $project_id";
-    let mut procurement_result = state.query(procurement_query)
+    let mut procurement_result = state
+        .query(procurement_query)
         .bind(("project_id", project_thing.clone()))
         .await
         .map_err(|e| {
@@ -521,16 +513,23 @@ pub async fn get_hardware_timeline(
 
         timeline_entries.push(HardwareTimelineEntry {
             available_date: order.expected_delivery_date,
-                source: HardwareSource::Procurement {
-                    order_number: order.order_number.clone().unwrap_or_else(|| "N/A".to_string()),
-                },
-                hardware_items,
-                allocated_to_clusters: order.allocated_to_clusters.clone(),
-                description: format!(
-                    "Procurement order {} delivery expected",
-                    order.order_number.as_ref().map(|s| s.as_str()).unwrap_or("N/A")
-                ),
-            });
+            source: HardwareSource::Procurement {
+                order_number: order
+                    .order_number
+                    .clone()
+                    .unwrap_or_else(|| "N/A".to_string()),
+            },
+            hardware_items,
+            allocated_to_clusters: order.allocated_to_clusters.clone(),
+            description: format!(
+                "Procurement order {} delivery expected",
+                order
+                    .order_number
+                    .as_ref()
+                    .map(|s| s.as_str())
+                    .unwrap_or("N/A")
+            ),
+        });
     }
 
     // Add existing pool entries
@@ -556,7 +555,7 @@ pub async fn get_hardware_timeline(
         project_id: project_thing,
         timeline: timeline_entries.clone(),
         timeline_entries,
-        total_domino_chains: 0, // TODO: Calculate actual domino chains
+        total_domino_chains: 0,  // TODO: Calculate actual domino chains
         longest_chain_length: 0, // TODO: Calculate actual chain length
         generated_at: Utc::now(),
     };
@@ -575,10 +574,8 @@ pub async fn validate_capacity(
     let strategy_thing = Thing::from(("cluster_migration_plans", strategy_id.as_str()));
 
     // Fetch strategy
-    let strategy: Option<ClusterMigrationPlan> = state
-        .select(strategy_thing)
-        .await
-        .map_err(|e| {
+    let strategy: Option<ClusterMigrationPlan> =
+        state.select(strategy_thing).await.map_err(|e| {
             eprintln!("Database error fetching strategy: {:?}", e);
             StatusCode::INTERNAL_SERVER_ERROR
         })?;
@@ -613,7 +610,7 @@ pub async fn validate_capacity(
     // CPU validation
     let cpu_utilization = (strategy.required_cpu_cores as f64 / effective_cpu) * 100.0;
     let cpu_meets_requirement = strategy.required_cpu_cores as f64 <= effective_cpu;
-    
+
     let cpu_validation = ResourceValidation {
         resource_type: "CPU".to_string(),
         required: strategy.required_cpu_cores as f64,
@@ -621,7 +618,10 @@ pub async fn validate_capacity(
         utilization_percent: cpu_utilization,
         meets_requirement: cpu_meets_requirement,
         message: if cpu_meets_requirement {
-            format!("CPU capacity sufficient ({:.1}% utilization)", cpu_utilization)
+            format!(
+                "CPU capacity sufficient ({:.1}% utilization)",
+                cpu_utilization
+            )
         } else {
             format!(
                 "CPU capacity insufficient: need {} vCPU, have {:.0} effective vCPU",
@@ -640,7 +640,7 @@ pub async fn validate_capacity(
     // Memory validation
     let memory_utilization = (strategy.required_memory_gb as f64 / effective_memory) * 100.0;
     let memory_meets_requirement = strategy.required_memory_gb as f64 <= effective_memory;
-    
+
     let memory_validation = ResourceValidation {
         resource_type: "Memory".to_string(),
         required: strategy.required_memory_gb as f64,
@@ -648,7 +648,10 @@ pub async fn validate_capacity(
         utilization_percent: memory_utilization,
         meets_requirement: memory_meets_requirement,
         message: if memory_meets_requirement {
-            format!("Memory capacity sufficient ({:.1}% utilization)", memory_utilization)
+            format!(
+                "Memory capacity sufficient ({:.1}% utilization)",
+                memory_utilization
+            )
         } else {
             format!(
                 "Memory capacity insufficient: need {}GB, have {:.0}GB effective",
@@ -667,7 +670,7 @@ pub async fn validate_capacity(
     // Storage validation
     let storage_utilization = (strategy.required_storage_tb / effective_storage) * 100.0;
     let storage_meets_requirement = strategy.required_storage_tb <= effective_storage;
-    
+
     let storage_validation = ResourceValidation {
         resource_type: "Storage".to_string(),
         required: strategy.required_storage_tb,
@@ -675,7 +678,10 @@ pub async fn validate_capacity(
         utilization_percent: storage_utilization,
         meets_requirement: storage_meets_requirement,
         message: if storage_meets_requirement {
-            format!("Storage capacity sufficient ({:.1}% utilization)", storage_utilization)
+            format!(
+                "Storage capacity sufficient ({:.1}% utilization)",
+                storage_utilization
+            )
         } else {
             format!(
                 "Storage capacity insufficient: need {:.1}TB, have {:.1}TB",
@@ -693,7 +699,7 @@ pub async fn validate_capacity(
 
     // Determine overall status
     let is_valid = cpu_meets_requirement && memory_meets_requirement && storage_meets_requirement;
-    
+
     let status = if !is_valid {
         CapacityValidationStatus::Critical
     } else if cpu_utilization > 90.0 || memory_utilization > 90.0 || storage_utilization > 90.0 {
@@ -749,21 +755,35 @@ fn validate_strategy_request(request: &ConfigureStrategyRequest) -> Result<(), S
     match request.strategy_type {
         MigrationStrategyType::DominoHardwareSwap => {
             if request.domino_source_cluster.is_none() {
-                return Err("Domino source cluster must be specified for domino hardware swap strategy".to_string());
+                return Err(
+                    "Domino source cluster must be specified for domino hardware swap strategy"
+                        .to_string(),
+                );
             }
         }
         MigrationStrategyType::NewHardwarePurchase => {
-            if request.hardware_basket_items.is_none() || request.hardware_basket_items.as_ref().unwrap().is_empty() {
-                return Err("Hardware basket items must be specified for new hardware purchase strategy".to_string());
+            if request.hardware_basket_items.is_none()
+                || request.hardware_basket_items.as_ref().unwrap().is_empty()
+            {
+                return Err(
+                    "Hardware basket items must be specified for new hardware purchase strategy"
+                        .to_string(),
+                );
             }
         }
         MigrationStrategyType::ExistingFreeHardware => {
-            if request.hardware_pool_allocations.is_none() || request.hardware_pool_allocations.as_ref().unwrap().is_empty() {
+            if request.hardware_pool_allocations.is_none()
+                || request
+                    .hardware_pool_allocations
+                    .as_ref()
+                    .unwrap()
+                    .is_empty()
+            {
                 return Err("Hardware pool allocations must be specified for existing free hardware strategy".to_string());
             }
         }
     }
-    
+
     Ok(())
 }
 
@@ -777,6 +797,7 @@ mod tests {
             source_cluster_name: "TEST-01".to_string(),
             target_cluster_name: "HYPERV-01".to_string(),
             strategy_type: MigrationStrategyType::DominoHardwareSwap,
+            activity_id: None,
             domino_source_cluster: Some("DEV-01".to_string()),
             hardware_basket_items: None,
             hardware_pool_allocations: None,
@@ -797,6 +818,7 @@ mod tests {
             source_cluster_name: "TEST-01".to_string(),
             target_cluster_name: "HYPERV-01".to_string(),
             strategy_type: MigrationStrategyType::DominoHardwareSwap,
+            activity_id: None,
             domino_source_cluster: None,
             hardware_basket_items: None,
             hardware_pool_allocations: None,
@@ -834,13 +856,9 @@ pub async fn configure_cluster_strategy_for_activity(
 ) -> Result<Json<ApiResponse<ClusterMigrationPlan>>, StatusCode> {
     // Add activity_id to the request
     request.activity_id = Some(activity_id.clone());
-    
+
     // Reuse existing configure_cluster_strategy logic
-    configure_cluster_strategy(
-        Path(project_id),
-        State(state),
-        Json(request),
-    ).await
+    configure_cluster_strategy(Path(project_id), State(state), Json(request)).await
 }
 
 /// List all cluster strategies for a specific activity
@@ -856,29 +874,38 @@ pub async fn list_cluster_strategies_for_activity(
     Path((project_id, activity_id)): Path<(String, String)>,
     State(state): State<AppState>,
 ) -> Result<Json<ApiResponse<Vec<ClusterMigrationPlan>>>, (StatusCode, Json<ApiResponse<()>>)> {
-    match state.select::<Vec<ClusterMigrationPlan>>("cluster_migration_plans").await {
+    match state
+        .select::<Vec<ClusterMigrationPlan>>("cluster_migration_plans")
+        .await
+    {
         Ok(all_strategies) => {
             // Filter strategies by project_id and activity_id
             let filtered_strategies: Vec<ClusterMigrationPlan> = all_strategies
                 .into_iter()
                 .filter(|s| {
                     // Check if project_id matches
-                    let project_matches = s.project_id.to_string() == format!("projects:{}", project_id);
+                    let project_matches =
+                        s.project_id.to_string() == format!("projects:{}", project_id);
                     // Check if activity_id matches
-                    let activity_matches = s.activity_id.as_ref()
+                    let activity_matches = s
+                        .activity_id
+                        .as_ref()
                         .map(|aid| aid == &activity_id)
                         .unwrap_or(false);
                     project_matches && activity_matches
                 })
                 .collect();
-            
+
             Ok(Json(ApiResponse::success(filtered_strategies)))
         }
         Err(e) => {
             eprintln!("Failed to fetch cluster strategies: {}", e);
             Err((
                 StatusCode::INTERNAL_SERVER_ERROR,
-                Json(ApiResponse::error(format!("Failed to fetch strategies: {}", e))),
+                Json(ApiResponse::error(format!(
+                    "Failed to fetch strategies: {}",
+                    e
+                ))),
             ))
         }
     }

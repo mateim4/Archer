@@ -44,7 +44,7 @@ pub struct NetworkAdapter {
 pub struct StorageController {
     pub name: String,
     pub controller_type: String, // "RAID", "HBA", "NVMe"
-    pub mode: String,             // "RAID", "HBA/JBOD", "Passthrough"
+    pub mode: String,            // "RAID", "HBA/JBOD", "Passthrough"
     pub model: String,
 }
 
@@ -247,10 +247,7 @@ impl HardwareCompatibilityService {
         } else {
             CheckResult {
                 status: CheckStatus::Passed,
-                message: format!(
-                    "JBOD/HBA mode confirmed: {}",
-                    jbod_controllers.join(", ")
-                ),
+                message: format!("JBOD/HBA mode confirmed: {}", jbod_controllers.join(", ")),
                 details: Some(serde_json::json!({
                     "controllers": jbod_controllers
                 })),
@@ -281,7 +278,10 @@ impl HardwareCompatibilityService {
         if max_speed < 10 {
             CheckResult {
                 status: CheckStatus::Failed,
-                message: format!("Network speed too slow: {} Gbps (minimum 10 Gbps)", max_speed),
+                message: format!(
+                    "Network speed too slow: {} Gbps (minimum 10 Gbps)",
+                    max_speed
+                ),
                 details: Some(serde_json::json!({
                     "max_speed_gbps": max_speed,
                     "minimum_required_gbps": 10,
@@ -405,12 +405,10 @@ impl HardwareCompatibilityService {
 
         // HBA recommendations
         if hba_check.status == CheckStatus::Warning {
-            recommendations.push(
-                "Configure storage controllers in HBA/JBOD mode instead of RAID".to_string(),
-            );
-            recommendations.push(
-                "Storage Spaces Direct manages redundancy in software".to_string(),
-            );
+            recommendations
+                .push("Configure storage controllers in HBA/JBOD mode instead of RAID".to_string());
+            recommendations
+                .push("Storage Spaces Direct manages redundancy in software".to_string());
         }
 
         // Network recommendations
@@ -422,13 +420,13 @@ impl HardwareCompatibilityService {
                     "Consider upgrading to 25 Gbps networking for better performance".to_string(),
                 );
             }
-            recommendations
-                .push("Use dedicated network adapters for storage traffic".to_string());
+            recommendations.push("Use dedicated network adapters for storage traffic".to_string());
         }
 
         // Disk recommendations
         if disk_check.status != CheckStatus::Passed {
-            recommendations.push("Ensure sufficient SSD/NVMe drives for cache and capacity tiers".to_string());
+            recommendations
+                .push("Ensure sufficient SSD/NVMe drives for cache and capacity tiers".to_string());
             recommendations.push("Minimum 2 drives per node, 4+ recommended".to_string());
         }
 

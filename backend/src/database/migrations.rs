@@ -17,7 +17,8 @@ impl EnhancedRvToolsMigrations {
     /// Create tables for enhanced RVTools functionality
     async fn create_enhanced_rvtools_tables(db: &Database) -> Result<()> {
         // Enhanced RVTools Excel Data table
-        db.query(r#"
+        db.query(
+            r#"
             DEFINE TABLE rvtools_excel_data SCHEMAFULL;
             DEFINE FIELD upload_id ON rvtools_excel_data TYPE record(rvtools_upload);
             DEFINE FIELD sheet_name ON rvtools_excel_data TYPE string;
@@ -33,10 +34,13 @@ impl EnhancedRvToolsMigrations {
             DEFINE FIELD validation_errors ON rvtools_excel_data TYPE array<string>;
             DEFINE FIELD metadata ON rvtools_excel_data TYPE object;
             DEFINE FIELD created_at ON rvtools_excel_data TYPE datetime;
-        "#).await?;
+        "#,
+        )
+        .await?;
 
         // Storage Architecture Analysis table
-        db.query(r#"
+        db.query(
+            r#"
             DEFINE TABLE storage_architecture_analysis SCHEMAFULL;
             DEFINE FIELD upload_id ON storage_architecture_analysis TYPE record(rvtools_upload);
             DEFINE FIELD cluster_name ON storage_architecture_analysis TYPE string;
@@ -48,10 +52,13 @@ impl EnhancedRvToolsMigrations {
             DEFINE FIELD s2d_compliance ON storage_architecture_analysis TYPE object;
             DEFINE FIELD metadata ON storage_architecture_analysis TYPE object;
             DEFINE FIELD analyzed_at ON storage_architecture_analysis TYPE datetime;
-        "#).await?;
+        "#,
+        )
+        .await?;
 
         // Report Generation table
-        db.query(r#"
+        db.query(
+            r#"
             DEFINE TABLE report_generation SCHEMAFULL;
             DEFINE FIELD upload_id ON report_generation TYPE record(rvtools_upload);
             DEFINE FIELD template_id ON report_generation TYPE string;
@@ -63,10 +70,13 @@ impl EnhancedRvToolsMigrations {
             DEFINE FIELD generation_status ON report_generation TYPE string;
             DEFINE FIELD generated_at ON report_generation TYPE datetime;
             DEFINE FIELD generated_by ON report_generation TYPE string;
-        "#).await?;
+        "#,
+        )
+        .await?;
 
         // Report Template table
-        db.query(r#"
+        db.query(
+            r#"
             DEFINE TABLE report_template SCHEMAFULL;
             DEFINE FIELD name ON report_template TYPE string;
             DEFINE FIELD description ON report_template TYPE string;
@@ -82,10 +92,13 @@ impl EnhancedRvToolsMigrations {
             DEFINE FIELD created_at ON report_template TYPE datetime DEFAULT time::now();
             DEFINE FIELD created_by ON report_template TYPE string;
             DEFINE FIELD updated_at ON report_template TYPE datetime DEFAULT time::now();
-        "#).await?;
+        "#,
+        )
+        .await?;
 
         // Report Section table
-        db.query(r#"
+        db.query(
+            r#"
             DEFINE TABLE report_section SCHEMAFULL;
             DEFINE FIELD title ON report_section TYPE string;
             DEFINE FIELD description ON report_section TYPE string;
@@ -95,10 +108,13 @@ impl EnhancedRvToolsMigrations {
             DEFINE FIELD is_required ON report_section TYPE bool;
             DEFINE FIELD layout_config ON report_section TYPE object;
             DEFINE FIELD subsections ON report_section TYPE array;
-        "#).await?;
+        "#,
+        )
+        .await?;
 
         // Data Variable Schema table
-        db.query(r#"
+        db.query(
+            r#"
             DEFINE TABLE data_variable_schema SCHEMAFULL;
             DEFINE FIELD variable_name ON data_variable_schema TYPE string;
             DEFINE FIELD display_name ON data_variable_schema TYPE string;
@@ -110,7 +126,9 @@ impl EnhancedRvToolsMigrations {
             DEFINE FIELD formatting_rules ON data_variable_schema TYPE object;
             DEFINE FIELD validation_rules ON data_variable_schema TYPE array;
             DEFINE FIELD category ON data_variable_schema TYPE string;
-        "#).await?;
+        "#,
+        )
+        .await?;
 
         println!("✅ Enhanced RVTools tables created successfully");
         Ok(())
@@ -119,10 +137,16 @@ impl EnhancedRvToolsMigrations {
     /// Create indexes for performance
     async fn create_indexes(db: &Database) -> Result<()> {
         // Indexes for rvtools_excel_data
-        db.query("DEFINE INDEX idx_excel_data_upload ON rvtools_excel_data FIELDS upload_id;").await?;
-        db.query("DEFINE INDEX idx_excel_data_sheet ON rvtools_excel_data FIELDS sheet_name;").await?;
-        db.query("DEFINE INDEX idx_excel_data_column ON rvtools_excel_data FIELDS column_name;").await?;
-        db.query("DEFINE INDEX idx_excel_data_confidence ON rvtools_excel_data FIELDS confidence_score;").await?;
+        db.query("DEFINE INDEX idx_excel_data_upload ON rvtools_excel_data FIELDS upload_id;")
+            .await?;
+        db.query("DEFINE INDEX idx_excel_data_sheet ON rvtools_excel_data FIELDS sheet_name;")
+            .await?;
+        db.query("DEFINE INDEX idx_excel_data_column ON rvtools_excel_data FIELDS column_name;")
+            .await?;
+        db.query(
+            "DEFINE INDEX idx_excel_data_confidence ON rvtools_excel_data FIELDS confidence_score;",
+        )
+        .await?;
         db.query("DEFINE INDEX idx_excel_data_validation ON rvtools_excel_data FIELDS validation_status;").await?;
 
         // Indexes for storage_architecture_analysis
@@ -131,17 +155,32 @@ impl EnhancedRvToolsMigrations {
         db.query("DEFINE INDEX idx_storage_analysis_type ON storage_architecture_analysis FIELDS storage_type;").await?;
 
         // Indexes for report_generation
-        db.query("DEFINE INDEX idx_report_gen_upload ON report_generation FIELDS upload_id;").await?;
-        db.query("DEFINE INDEX idx_report_gen_template ON report_generation FIELDS template_id;").await?;
-        db.query("DEFINE INDEX idx_report_gen_status ON report_generation FIELDS generation_status;").await?;
+        db.query("DEFINE INDEX idx_report_gen_upload ON report_generation FIELDS upload_id;")
+            .await?;
+        db.query("DEFINE INDEX idx_report_gen_template ON report_generation FIELDS template_id;")
+            .await?;
+        db.query(
+            "DEFINE INDEX idx_report_gen_status ON report_generation FIELDS generation_status;",
+        )
+        .await?;
 
         // Indexes for report_template
-        db.query("DEFINE INDEX idx_report_template_type ON report_template FIELDS report_type;").await?;
-        db.query("DEFINE INDEX idx_report_template_standard ON report_template FIELDS is_standard;").await?;
+        db.query("DEFINE INDEX idx_report_template_type ON report_template FIELDS report_type;")
+            .await?;
+        db.query(
+            "DEFINE INDEX idx_report_template_standard ON report_template FIELDS is_standard;",
+        )
+        .await?;
 
         // Indexes for data_variable_schema
-        db.query("DEFINE INDEX idx_data_variable_name ON data_variable_schema FIELDS variable_name;").await?;
-        db.query("DEFINE INDEX idx_data_variable_category ON data_variable_schema FIELDS category;").await?;
+        db.query(
+            "DEFINE INDEX idx_data_variable_name ON data_variable_schema FIELDS variable_name;",
+        )
+        .await?;
+        db.query(
+            "DEFINE INDEX idx_data_variable_category ON data_variable_schema FIELDS category;",
+        )
+        .await?;
 
         println!("✅ Enhanced RVTools indexes created successfully");
         Ok(())
@@ -195,7 +234,7 @@ impl EnhancedRvToolsMigrations {
                 required_data_categories = ['infrastructure'],
                 created_by = 'system',
                 branding_config = {}
-            "#
+            "#,
         ];
 
         for query in template_queries {
@@ -204,7 +243,7 @@ impl EnhancedRvToolsMigrations {
                 Err(e) => println!("⚠️ Template creation error: {}", e),
             }
         }
-        
+
         println!("✅ Real report templates seeded successfully");
 
         // Seed data variable schemas
@@ -223,7 +262,7 @@ impl EnhancedRvToolsMigrations {
             json!({
                 "variable_name": "total_hosts",
                 "display_name": "Total ESXi Hosts",
-                "data_type": "integer", 
+                "data_type": "integer",
                 "description": "Total number of ESXi hosts in the environment",
                 "source_sheets": ["vHost"],
                 "source_columns": ["Host", "Name"],
@@ -235,7 +274,7 @@ impl EnhancedRvToolsMigrations {
                 "variable_name": "total_clusters",
                 "display_name": "Total Clusters",
                 "data_type": "integer",
-                "description": "Total number of clusters in the environment", 
+                "description": "Total number of clusters in the environment",
                 "source_sheets": ["vCluster"],
                 "source_columns": ["Cluster", "Name"],
                 "aggregation_method": "count",
@@ -263,14 +302,12 @@ impl EnhancedRvToolsMigrations {
                 "aggregation_method": "s2d_compliance_analysis",
                 "formatting_rules": {"format": "compliance_summary"},
                 "category": "compliance"
-            })
+            }),
         ];
 
         for variable in data_variables {
-            let _: Vec<serde_json::Value> = db
-                .create("data_variable_schema")
-                .content(variable)
-                .await?;
+            let _: Vec<serde_json::Value> =
+                db.create("data_variable_schema").content(variable).await?;
         }
 
         println!("✅ Enhanced RVTools validation rules and templates seeded successfully");
@@ -280,7 +317,8 @@ impl EnhancedRvToolsMigrations {
     /// Update existing RVTools upload table to be compatible
     pub async fn update_existing_rvtools_table(db: &Database) -> Result<()> {
         // Add new fields to existing rvtools_upload table if they don't exist
-        db.query(r#"
+        db.query(
+            r#"
             DEFINE FIELD processing_results ON rvtools_upload TYPE object;
             DEFINE FIELD total_vms ON rvtools_upload TYPE int;
             DEFINE FIELD total_hosts ON rvtools_upload TYPE int;  
@@ -288,7 +326,9 @@ impl EnhancedRvToolsMigrations {
             DEFINE FIELD vcenter_version ON rvtools_upload TYPE string;
             DEFINE FIELD environment_name ON rvtools_upload TYPE string;
             DEFINE FIELD metadata ON rvtools_upload TYPE object;
-        "#).await?;
+        "#,
+        )
+        .await?;
 
         println!("✅ Existing RVTools upload table updated for compatibility");
         Ok(())
@@ -299,7 +339,7 @@ impl EnhancedRvToolsMigrations {
     pub async fn rollback(db: &Database) -> Result<()> {
         let tables_to_drop = vec![
             "rvtools_excel_data",
-            "storage_architecture_analysis", 
+            "storage_architecture_analysis",
             "report_generation",
             "report_template",
             "report_section",

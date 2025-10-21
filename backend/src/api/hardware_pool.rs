@@ -12,11 +12,11 @@ use std::sync::Arc;
 
 use crate::{
     database::Database,
-    services::hardware_pool_service::{
-        HardwarePoolService, CreateHardwarePoolRequest, UpdateHardwareRequest, 
-        HardwareRequirements, AllocationRequest, AllocationResult
-    },
     models::project_models::*,
+    services::hardware_pool_service::{
+        AllocationRequest, AllocationResult, CreateHardwarePoolRequest, HardwarePoolService,
+        HardwareRequirements, UpdateHardwareRequest,
+    },
 };
 
 pub fn create_hardware_pool_router(db: Arc<Database>) -> Router {
@@ -27,7 +27,10 @@ pub fn create_hardware_pool_router(db: Arc<Database>) -> Router {
         .route("/servers/:server_id", patch(update_server))
         .route("/servers/:server_id", delete(remove_server))
         .route("/servers/:server_id/availability", get(check_availability))
-        .route("/servers/:server_id/maintenance", post(schedule_maintenance))
+        .route(
+            "/servers/:server_id/maintenance",
+            post(schedule_maintenance),
+        )
         .route("/search", post(search_servers))
         .route("/allocate", post(allocate_servers))
         .route("/allocations", get(list_allocations))
@@ -46,7 +49,7 @@ async fn add_server(
     Json(server_request): Json<CreateHardwarePoolRequest>,
 ) -> Result<impl IntoResponse, ApiError> {
     let service = HardwarePoolService::new((*db).clone());
-    
+
     match service.add_server_to_pool(server_request).await {
         Ok(server) => Ok((StatusCode::CREATED, Json(server))),
         Err(e) => Err(ApiError::InternalError(e.to_string())),
@@ -67,7 +70,7 @@ async fn list_servers(
     Query(query): Query<ListServersQuery>,
 ) -> Result<impl IntoResponse, ApiError> {
     let mut conditions = Vec::new();
-    
+
     if let Some(status) = query.status {
         conditions.push(format!("availability_status = '{}'", status));
     }
@@ -79,13 +82,13 @@ async fn list_servers(
     }
 
     let mut query_str = "SELECT * FROM hardware_pool".to_string();
-    
+
     if !conditions.is_empty() {
         query_str.push_str(&format!(" WHERE {}", conditions.join(" AND ")));
     }
-    
+
     query_str.push_str(" ORDER BY created_at DESC");
-    
+
     if let Some(limit) = query.limit {
         query_str.push_str(&format!(" LIMIT {}", limit));
         if let Some(offset) = query.offset {
@@ -102,11 +105,8 @@ async fn list_servers(
     match servers {
         Ok(servers) => {
             let total = servers.len();
-            Ok(Json(ServersListResponse {
-                servers,
-                total,
-            }))
-        },
+            Ok(Json(ServersListResponse { servers, total }))
+        }
         Err(e) => Err(ApiError::InternalError(e.to_string())),
     }
 }
@@ -115,9 +115,8 @@ async fn get_server(
     State(db): State<Arc<Database>>,
     Path(server_id): Path<String>,
 ) -> Result<impl IntoResponse, ApiError> {
-    let server: Result<Option<HardwarePool>, _> = db
-        .select(("hardware_pool", server_id.as_str()))
-        .await;
+    let server: Result<Option<HardwarePool>, _> =
+        db.select(("hardware_pool", server_id.as_str())).await;
 
     match server {
         Ok(Some(server)) => Ok(Json(server)),
@@ -132,8 +131,11 @@ async fn update_server(
     Json(updates): Json<UpdateHardwareRequest>,
 ) -> Result<impl IntoResponse, ApiError> {
     let service = HardwarePoolService::new((*db).clone());
-    
-    match service.update_server_specifications(&server_id, updates).await {
+
+    match service
+        .update_server_specifications(&server_id, updates)
+        .await
+    {
         Ok(server) => Ok(Json(server)),
         Err(e) => Err(ApiError::InternalError(e.to_string())),
     }
@@ -152,21 +154,20 @@ async fn remove_server(
         .and_then(|result| result);
 
     match active_allocations {
-        Ok(allocations) if !allocations.is_empty() => {
-            Err(ApiError::Conflict("Server has active allocations and cannot be removed".to_string()))
-        },
+        Ok(allocations) if !allocations.is_empty() => Err(ApiError::Conflict(
+            "Server has active allocations and cannot be removed".to_string(),
+        )),
         Ok(_) => {
             // Safe to remove
-            let deleted: Result<Option<HardwarePool>, _> = db
-                .delete(("hardware_pool", server_id.as_str()))
-                .await;
+            let deleted: Result<Option<HardwarePool>, _> =
+                db.delete(("hardware_pool", server_id.as_str())).await;
 
             match deleted {
                 Ok(Some(_)) => Ok((StatusCode::NO_CONTENT, ())),
                 Ok(None) => Err(ApiError::NotFound("Server not found".to_string())),
                 Err(e) => Err(ApiError::InternalError(e.to_string())),
             }
-        },
+        }
         Err(e) => Err(ApiError::InternalError(e.to_string())),
     }
 }
@@ -187,8 +188,11 @@ async fn check_availability(
     Query(query): Query<AvailabilityQuery>,
 ) -> Result<impl IntoResponse, ApiError> {
     let service = HardwarePoolService::new((*db).clone());
-    
-    match service.get_server_availability(&server_id, query.start_date, query.end_date).await {
+
+    match service
+        .get_server_availability(&server_id, query.start_date, query.end_date)
+        .await
+    {
         Ok(availability) => Ok(Json(availability)),
         Err(e) => Err(ApiError::InternalError(e.to_string())),
     }
@@ -200,9 +204,12 @@ async fn schedule_maintenance(
     Json(maintenance): Json<MaintenanceWindow>,
 ) -> Result<impl IntoResponse, ApiError> {
     let service = HardwarePoolService::new((*db).clone());
-    
+
     match service.schedule_maintenance(&server_id, maintenance).await {
-        Ok(_) => Ok((StatusCode::CREATED, Json(serde_json::json!({"message": "Maintenance scheduled"})))),
+        Ok(_) => Ok((
+            StatusCode::CREATED,
+            Json(serde_json::json!({"message": "Maintenance scheduled"})),
+        )),
         Err(e) => Err(ApiError::InternalError(e.to_string())),
     }
 }
@@ -216,7 +223,7 @@ async fn search_servers(
     Json(requirements): Json<HardwareRequirements>,
 ) -> Result<impl IntoResponse, ApiError> {
     let service = HardwarePoolService::new((*db).clone());
-    
+
     match service.find_optimal_servers(requirements).await {
         Ok(recommendations) => Ok(Json(ServerSearchResponse {
             recommendations,
@@ -234,29 +241,35 @@ async fn allocate_servers(
     Json(request): Json<AllocationRequest>,
 ) -> Result<impl IntoResponse, ApiError> {
     let service = HardwarePoolService::new((*db).clone());
-    
+
     // Extract user from request context (in a real app, this would come from auth)
     let requested_by = "system".to_string(); // TODO: Get from authentication context
-    
-    match service.create_allocation_with_approval(request, requested_by).await {
-        Ok(AllocationResult::Success(allocations)) => {
-            Ok((StatusCode::CREATED, Json(AllocationResponse::Success {
+
+    match service
+        .create_allocation_with_approval(request, requested_by)
+        .await
+    {
+        Ok(AllocationResult::Success(allocations)) => Ok((
+            StatusCode::CREATED,
+            Json(AllocationResponse::Success {
                 allocations,
                 message: "Servers successfully allocated".to_string(),
-            })))
-        },
-        Ok(AllocationResult::PendingApproval(pending)) => {
-            Ok((StatusCode::ACCEPTED, Json(AllocationResponse::PendingApproval {
+            }),
+        )),
+        Ok(AllocationResult::PendingApproval(pending)) => Ok((
+            StatusCode::ACCEPTED,
+            Json(AllocationResponse::PendingApproval {
                 pending_request_id: pending.id.unwrap(),
                 message: "Allocation requires approval".to_string(),
-            })))
-        },
-        Ok(AllocationResult::Conflicts(conflicts)) => {
-            Ok((StatusCode::CONFLICT, Json(AllocationResponse::Conflicts {
+            }),
+        )),
+        Ok(AllocationResult::Conflicts(conflicts)) => Ok((
+            StatusCode::CONFLICT,
+            Json(AllocationResponse::Conflicts {
                 conflicts,
                 message: "Server conflicts detected".to_string(),
-            })))
-        },
+            }),
+        )),
         Err(e) => Err(ApiError::InternalError(e.to_string())),
     }
 }
@@ -266,7 +279,7 @@ async fn list_allocations(
     Query(query): Query<ListAllocationsQuery>,
 ) -> Result<impl IntoResponse, ApiError> {
     let mut conditions = Vec::new();
-    
+
     if let Some(project_id) = query.project_id {
         conditions.push(format!("project_id = project:{}", project_id));
     }
@@ -278,13 +291,13 @@ async fn list_allocations(
     }
 
     let mut query_str = "SELECT * FROM hardware_allocation".to_string();
-    
+
     if !conditions.is_empty() {
         query_str.push_str(&format!(" WHERE {}", conditions.join(" AND ")));
     }
-    
+
     query_str.push_str(" ORDER BY allocation_start DESC");
-    
+
     if let Some(limit) = query.limit {
         query_str.push_str(&format!(" LIMIT {}", limit));
     }
@@ -298,11 +311,8 @@ async fn list_allocations(
     match allocations {
         Ok(allocations) => {
             let total = allocations.len();
-            Ok(Json(AllocationsListResponse {
-                allocations,
-                total,
-            }))
-        },
+            Ok(Json(AllocationsListResponse { allocations, total }))
+        }
         Err(e) => Err(ApiError::InternalError(e.to_string())),
     }
 }
@@ -338,7 +348,7 @@ async fn release_allocation(
             }
 
             Ok((StatusCode::NO_CONTENT, ()))
-        },
+        }
         Ok(None) => Err(ApiError::NotFound("Allocation not found".to_string())),
         Err(e) => Err(ApiError::InternalError(e.to_string())),
     }
@@ -348,11 +358,9 @@ async fn release_allocation(
 // ANALYTICS AND REPORTING
 // =============================================================================
 
-async fn get_analytics(
-    State(db): State<Arc<Database>>,
-) -> Result<impl IntoResponse, ApiError> {
+async fn get_analytics(State(db): State<Arc<Database>>) -> Result<impl IntoResponse, ApiError> {
     let service = HardwarePoolService::new((*db).clone());
-    
+
     match service.get_pool_analytics().await {
         Ok(analytics) => Ok(Json(analytics)),
         Err(e) => Err(ApiError::InternalError(e.to_string())),
@@ -368,7 +376,7 @@ async fn track_procurement(
     Path(procurement_id): Path<String>,
 ) -> Result<impl IntoResponse, ApiError> {
     let service = HardwarePoolService::new((*db).clone());
-    
+
     match service.track_procurement_to_pool(&procurement_id).await {
         Ok(status) => Ok(Json(ProcurementTrackingResponse {
             procurement_id,
@@ -389,7 +397,8 @@ async fn get_total_servers(db: &Database) -> Result<usize, Box<dyn std::error::E
         .await?
         .take(0)?;
 
-    Ok(count.first()
+    Ok(count
+        .first()
         .and_then(|v| v.get("total"))
         .and_then(|v| v.as_u64())
         .unwrap_or(0) as usize)
@@ -468,8 +477,12 @@ impl IntoResponse for ApiError {
             ApiError::InternalError(msg) => (StatusCode::INTERNAL_SERVER_ERROR, msg),
         };
 
-        (status, Json(serde_json::json!({
-            "error": message
-        }))).into_response()
+        (
+            status,
+            Json(serde_json::json!({
+                "error": message
+            })),
+        )
+            .into_response()
     }
 }

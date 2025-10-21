@@ -1,8 +1,8 @@
+use crate::utils::api_response::{helpers, ApiResponse};
 use std::sync::Arc;
 use surrealdb::engine::local::{Db, Mem};
 use surrealdb::Surreal;
-use tracing::{info, warn, error};
-use crate::utils::api_response::{ApiResponse, helpers};
+use tracing::{error, info, warn};
 
 pub mod migrations;
 
@@ -37,17 +37,22 @@ pub async fn init_database() -> Result<AppState, DatabaseError> {
 
 /// Initialize database with custom configuration
 pub async fn init_database_with_config(config: DatabaseConfig) -> Result<AppState, DatabaseError> {
-    info!("🗄️  Initializing SurrealDB with namespace: {} database: {}", 
-          config.namespace, config.database);
+    info!(
+        "🗄️  Initializing SurrealDB with namespace: {} database: {}",
+        config.namespace, config.database
+    );
 
     // Initialize SurrealDB connection
-    let db = Surreal::new::<Mem>(()).await
+    let db = Surreal::new::<Mem>(())
+        .await
         .map_err(|e| DatabaseError::ConnectionFailed(e.to_string()))?;
-    
+
     // Set namespace and database
-    db.use_ns(&config.namespace).use_db(&config.database).await
+    db.use_ns(&config.namespace)
+        .use_db(&config.database)
+        .await
         .map_err(|e| DatabaseError::NamespaceSetupFailed(e.to_string()))?;
-    
+
     info!("✅ Database connection established");
 
     // Run migrations if enabled
@@ -67,6 +72,21 @@ pub async fn init_database_with_config(config: DatabaseConfig) -> Result<AppStat
 
     info!("🚀 Database initialization complete");
     Ok(Arc::new(db))
+}
+
+/// Create a test database instance (for testing only)
+#[cfg(test)]
+pub async fn new_test() -> Result<Database, DatabaseError> {
+    let db = Surreal::new::<Mem>(())
+        .await
+        .map_err(|e| DatabaseError::ConnectionFailed(e.to_string()))?;
+
+    db.use_ns("test_namespace")
+        .use_db("test_db")
+        .await
+        .map_err(|e| DatabaseError::NamespaceSetupFailed(e.to_string()))?;
+
+    Ok(db)
 }
 
 /// Run all database migrations
@@ -120,7 +140,8 @@ async fn run_hardware_basket_migrations(db: &Database) -> Result<(), DatabaseErr
         DEFINE INDEX hardware_basket_status_idx ON TABLE hardware_basket COLUMNS status;
     "#;
 
-    db.query(basket_schema).await
+    db.query(basket_schema)
+        .await
         .map_err(|e| DatabaseError::MigrationFailed(format!("Hardware basket schema: {}", e)))?;
 
     // Create hardware model table
@@ -140,7 +161,8 @@ async fn run_hardware_basket_migrations(db: &Database) -> Result<(), DatabaseErr
         DEFINE INDEX hardware_model_sku_idx ON TABLE hardware_model COLUMNS sku;
     "#;
 
-    db.query(model_schema).await
+    db.query(model_schema)
+        .await
         .map_err(|e| DatabaseError::MigrationFailed(format!("Hardware model schema: {}", e)))?;
 
     // Create pricing table
@@ -158,7 +180,8 @@ async fn run_hardware_basket_migrations(db: &Database) -> Result<(), DatabaseErr
         DEFINE INDEX hardware_pricing_valid_idx ON TABLE hardware_pricing COLUMNS valid_from, valid_until;
     "#;
 
-    db.query(pricing_schema).await
+    db.query(pricing_schema)
+        .await
         .map_err(|e| DatabaseError::MigrationFailed(format!("Hardware pricing schema: {}", e)))?;
 
     Ok(())
@@ -183,7 +206,8 @@ async fn run_project_management_migrations(db: &Database) -> Result<(), Database
         DEFINE INDEX project_created_idx ON TABLE project COLUMNS created_at;
     "#;
 
-    db.query(project_schema).await
+    db.query(project_schema)
+        .await
         .map_err(|e| DatabaseError::MigrationFailed(format!("Project schema: {}", e)))?;
 
     Ok(())
@@ -194,7 +218,9 @@ async fn test_database_connection(db: &Database) -> Result<(), DatabaseError> {
     info!("Testing database connection...");
 
     // Test basic query
-    let _result = db.query("SELECT * FROM hardware_basket LIMIT 1").await
+    let _result = db
+        .query("SELECT * FROM hardware_basket LIMIT 1")
+        .await
         .map_err(|e| DatabaseError::ConnectionTestFailed(e.to_string()))?;
 
     info!("✅ Database connection test passed");
@@ -206,19 +232,19 @@ async fn test_database_connection(db: &Database) -> Result<(), DatabaseError> {
 pub enum DatabaseError {
     #[error("Database connection failed: {0}")]
     ConnectionFailed(String),
-    
+
     #[error("Namespace setup failed: {0}")]
     NamespaceSetupFailed(String),
-    
+
     #[error("Migration failed: {0}")]
     MigrationFailed(String),
-    
+
     #[error("Connection test failed: {0}")]
     ConnectionTestFailed(String),
-    
+
     #[error("Query execution failed: {0}")]
     QueryFailed(String),
-    
+
     #[error("Transaction failed: {0}")]
     TransactionFailed(String),
 }
@@ -226,18 +252,20 @@ pub enum DatabaseError {
 impl DatabaseError {
     pub fn to_api_response(&self) -> ApiResponse<()> {
         match self {
-            DatabaseError::ConnectionFailed(_) => 
-                helpers::internal_error("Database connection unavailable"),
-            DatabaseError::NamespaceSetupFailed(_) => 
-                helpers::internal_error("Database configuration error"),
-            DatabaseError::MigrationFailed(_) => 
-                helpers::internal_error("Database schema error"),
-            DatabaseError::ConnectionTestFailed(_) => 
-                helpers::internal_error("Database health check failed"),
-            DatabaseError::QueryFailed(_) => 
-                helpers::bad_request("Invalid database query"),
-            DatabaseError::TransactionFailed(_) => 
-                helpers::internal_error("Database transaction failed"),
+            DatabaseError::ConnectionFailed(_) => {
+                helpers::internal_error("Database connection unavailable")
+            }
+            DatabaseError::NamespaceSetupFailed(_) => {
+                helpers::internal_error("Database configuration error")
+            }
+            DatabaseError::MigrationFailed(_) => helpers::internal_error("Database schema error"),
+            DatabaseError::ConnectionTestFailed(_) => {
+                helpers::internal_error("Database health check failed")
+            }
+            DatabaseError::QueryFailed(_) => helpers::bad_request("Invalid database query"),
+            DatabaseError::TransactionFailed(_) => {
+                helpers::internal_error("Database transaction failed")
+            }
         }
     }
 }
@@ -245,7 +273,7 @@ impl DatabaseError {
 /// Database utilities and helper functions
 pub mod utils {
     use super::*;
-    use surrealdb::sql::{Thing, Id};
+    use surrealdb::sql::{Id, Thing};
     use uuid::Uuid;
 
     /// Generate a new Thing ID with UUID

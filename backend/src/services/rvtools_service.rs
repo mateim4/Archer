@@ -19,11 +19,17 @@ impl RvToolsService {
     // RVTOOLS DATA PROCESSING
     // =============================================================================
 
-    pub async fn process_rvtools_upload(&self, upload_data: RvToolsUploadData) -> Result<RvToolsProcessingResult> {
+    pub async fn process_rvtools_upload(
+        &self,
+        upload_data: RvToolsUploadData,
+    ) -> Result<RvToolsProcessingResult> {
         // Create upload record
         let upload = RvToolsUpload {
             id: None,
-            project_id: upload_data.project_id.clone().unwrap_or_else(|| Thing::from(("project", "default"))),
+            project_id: upload_data
+                .project_id
+                .clone()
+                .unwrap_or_else(|| Thing::from(("project", "default"))),
             workflow_id: None,
             file_name: upload_data.filename.clone(),
             file_path: format!("/tmp/{}", upload_data.filename), // Simplified path
@@ -42,7 +48,8 @@ impl RvToolsService {
             uploaded_by: "system".to_string(),
         };
 
-        let created_upload: Vec<RvToolsUpload> = self.db
+        let created_upload: Vec<RvToolsUpload> = self
+            .db
             .create("rvtools_upload")
             .content(&upload)
             .await
@@ -51,10 +58,14 @@ impl RvToolsService {
         let upload_id = created_upload[0].id.as_ref().unwrap().clone();
 
         // Process the CSV data
-        match self.parse_and_store_rvtools_data(&upload_data, &upload_id).await {
+        match self
+            .parse_and_store_rvtools_data(&upload_data, &upload_id)
+            .await
+        {
             Ok(result) => {
                 // Update upload record as completed
-                let _: Option<RvToolsUpload> = self.db
+                let _: Option<RvToolsUpload> = self
+                    .db
                     .update(&upload_id)
                     .merge(json!({
                         "upload_status": "processed",
@@ -72,7 +83,8 @@ impl RvToolsService {
             }
             Err(e) => {
                 // Update upload record with error
-                let _: Option<RvToolsUpload> = self.db
+                let _: Option<RvToolsUpload> = self
+                    .db
                     .update(&upload_id)
                     .merge(json!({
                         "upload_status": "failed",
@@ -88,21 +100,28 @@ impl RvToolsService {
         }
     }
 
-    async fn parse_and_store_rvtools_data(&self, upload_data: &RvToolsUploadData, upload_id: &surrealdb::sql::Thing) -> Result<RvToolsProcessingResult> {
+    async fn parse_and_store_rvtools_data(
+        &self,
+        upload_data: &RvToolsUploadData,
+        upload_id: &surrealdb::sql::Thing,
+    ) -> Result<RvToolsProcessingResult> {
         let mut servers_processed = 0;
         let mut servers_added_to_pool = 0;
         let mut processing_errors = Vec::new();
 
         // Parse CSV data (simplified - in real implementation, use proper CSV parser)
         let lines: Vec<&str> = upload_data.csv_content.lines().collect();
-        
+
         if lines.is_empty() {
             return Err(anyhow::anyhow!("Empty RVTools CSV file"));
         }
 
         // Skip header row, process data rows
         for (line_num, line) in lines.iter().skip(1).enumerate() {
-            match self.process_rvtools_line(line, upload_id, line_num + 2).await {
+            match self
+                .process_rvtools_line(line, upload_id, line_num + 2)
+                .await
+            {
                 Ok(added_to_pool) => {
                     servers_processed += 1;
                     if added_to_pool {
@@ -112,7 +131,9 @@ impl RvToolsService {
                 Err(e) => {
                     processing_errors.push(RvToolsProcessingError {
                         line_number: line_num + 2,
-                        server_name: self.extract_server_name(line).unwrap_or_else(|| format!("Line {}", line_num + 2)),
+                        server_name: self
+                            .extract_server_name(line)
+                            .unwrap_or_else(|| format!("Line {}", line_num + 2)),
                         error: e.to_string(),
                     });
                 }
@@ -128,15 +149,22 @@ impl RvToolsService {
                 total_cpu_cores: self.calculate_total_cpu_cores(upload_id).await?,
                 total_memory_gb: self.calculate_total_memory_gb(upload_id).await?,
                 unique_vendors: self.get_unique_vendors(upload_id).await?,
-                deployment_recommendations: self.generate_deployment_recommendations(upload_id).await?,
+                deployment_recommendations: self
+                    .generate_deployment_recommendations(upload_id)
+                    .await?,
             },
         })
     }
 
-    async fn process_rvtools_line(&self, line: &str, upload_id: &surrealdb::sql::Thing, line_number: usize) -> Result<bool> {
+    async fn process_rvtools_line(
+        &self,
+        line: &str,
+        upload_id: &surrealdb::sql::Thing,
+        line_number: usize,
+    ) -> Result<bool> {
         // Parse RVTools CSV line (simplified parsing)
         let fields: Vec<&str> = line.split(',').collect();
-        
+
         if fields.len() < 10 {
             return Err(anyhow::anyhow!("Insufficient fields in RVTools data"));
         }
@@ -175,16 +203,14 @@ impl RvToolsService {
             created_at: Utc::now(),
         };
 
-        let _: Vec<RvToolsData> = self.db
-            .create("rvtools_data")
-            .content(rvtools_data)
-            .await?;
+        let _: Vec<RvToolsData> = self.db.create("rvtools_data").content(rvtools_data).await?;
 
         // Determine if this should be added to hardware pool
         let should_add_to_pool = self.should_add_to_hardware_pool(&server_info).await;
 
         if should_add_to_pool {
-            self.create_hardware_pool_entry(&server_info, &upload_id.id.to_string()).await?;
+            self.create_hardware_pool_entry(&server_info, &upload_id.id.to_string())
+                .await?;
             return Ok(true);
         }
 
@@ -194,14 +220,18 @@ impl RvToolsService {
     async fn should_add_to_hardware_pool(&self, server_info: &RvToolsServerInfo) -> bool {
         // Business logic to determine if a server should be added to hardware pool
         // For example, only add powered-off servers with sufficient resources
-        
-        server_info.power_state.to_lowercase() == "poweredoff" &&
-        server_info.cpu_cores >= 4 &&
-        server_info.memory_gb >= 8.0 &&
-        !server_info.vm_name.is_empty()
+
+        server_info.power_state.to_lowercase() == "poweredoff"
+            && server_info.cpu_cores >= 4
+            && server_info.memory_gb >= 8.0
+            && !server_info.vm_name.is_empty()
     }
 
-    async fn create_hardware_pool_entry(&self, server_info: &RvToolsServerInfo, upload_id: &str) -> Result<()> {
+    async fn create_hardware_pool_entry(
+        &self,
+        server_info: &RvToolsServerInfo,
+        upload_id: &str,
+    ) -> Result<()> {
         let hardware_pool_entry = HardwarePool {
             id: None,
             asset_tag: format!("RV-{}", server_info.vm_name),
@@ -210,7 +240,7 @@ impl RvToolsService {
             vendor: "VMware".to_string(), // Detected from RVTools
             model: server_info.host_name.clone(),
             form_factor: Some("Virtual".to_string()),
-            
+
             cpu_sockets: Some(1), // Default for VMs
             cpu_cores_total: Some(server_info.cpu_cores),
             memory_gb: Some(server_info.memory_gb as i32),
@@ -219,7 +249,7 @@ impl RvToolsService {
             network_ports: Some(server_info.network_adapters),
             power_consumption_watts: None,
             rack_units: 0, // Virtual servers don't take rack space
-            
+
             availability_status: AvailabilityStatus::Available,
             location: Some(server_info.cluster.clone()),
             datacenter: Some(server_info.datacenter.clone()),
@@ -227,26 +257,30 @@ impl RvToolsService {
             available_from_date: Utc::now(),
             available_until_date: None,
             maintenance_schedule: Vec::new(),
-            
+
             acquisition_cost: None,
             monthly_cost: None,
             warranty_expires: None,
             support_level: Some("Standard".to_string()),
-            
+
             metadata: {
                 let mut map = HashMap::new();
                 map.insert("source".to_string(), json!("rvtools"));
                 map.insert("upload_id".to_string(), json!(upload_id));
                 map.insert("original_vm_name".to_string(), json!(server_info.vm_name));
                 map.insert("original_host".to_string(), json!(server_info.host_name));
-                map.insert("operating_system".to_string(), json!(server_info.operating_system));
+                map.insert(
+                    "operating_system".to_string(),
+                    json!(server_info.operating_system),
+                );
                 map
             },
             created_at: Utc::now(),
             updated_at: Utc::now(),
         };
 
-        let _: Vec<HardwarePool> = self.db
+        let _: Vec<HardwarePool> = self
+            .db
             .create("hardware_pool")
             .content(hardware_pool_entry)
             .await?;
@@ -264,26 +298,30 @@ impl RvToolsService {
     // =============================================================================
 
     async fn calculate_total_cpu_cores(&self, upload_id: &surrealdb::sql::Thing) -> Result<i32> {
-        let result: Vec<serde_json::Value> = self.db
+        let result: Vec<serde_json::Value> = self
+            .db
             .query("SELECT SUM(cpu_cores) as total FROM rvtools_data WHERE upload_id = $upload_id")
             .bind(("upload_id", upload_id))
             .await?
             .take(0)?;
 
-        Ok(result.first()
+        Ok(result
+            .first()
             .and_then(|v| v.get("total"))
             .and_then(|v| v.as_i64())
             .unwrap_or(0) as i32)
     }
 
     async fn calculate_total_memory_gb(&self, upload_id: &surrealdb::sql::Thing) -> Result<i32> {
-        let result: Vec<serde_json::Value> = self.db
+        let result: Vec<serde_json::Value> = self
+            .db
             .query("SELECT SUM(memory_gb) as total FROM rvtools_data WHERE upload_id = $upload_id")
             .bind(("upload_id", upload_id))
             .await?
             .take(0)?;
 
-        Ok(result.first()
+        Ok(result
+            .first()
             .and_then(|v| v.get("total"))
             .and_then(|v| v.as_i64())
             .unwrap_or(0) as i32)
@@ -296,50 +334,76 @@ impl RvToolsService {
             .await?
             .take(0)?;
 
-        Ok(result.first()
+        Ok(result
+            .first()
             .and_then(|v| v.get("vendors"))
             .and_then(|v| v.as_array())
-            .map(|arr| arr.iter()
-                .filter_map(|v| v.as_str())
-                .map(|s| s.to_string())
-                .collect())
+            .map(|arr| {
+                arr.iter()
+                    .filter_map(|v| v.as_str())
+                    .map(|s| s.to_string())
+                    .collect()
+            })
             .unwrap_or_default())
     }
 
-    async fn generate_deployment_recommendations(&self, upload_id: &surrealdb::sql::Thing) -> Result<Vec<String>> {
+    async fn generate_deployment_recommendations(
+        &self,
+        upload_id: &surrealdb::sql::Thing,
+    ) -> Result<Vec<String>> {
         let mut recommendations = Vec::new();
 
         // Get server statistics
-        let stats: Vec<serde_json::Value> = self.db
-            .query("SELECT 
+        let stats: Vec<serde_json::Value> = self
+            .db
+            .query(
+                "SELECT 
                 COUNT() as total_servers,
                 AVG(cpu_cores) as avg_cpu_cores,
                 AVG(memory_gb) as avg_memory_gb,
                 SUM(case when power_state = 'poweredOff' then 1 else 0 end) as powered_off_servers
-                FROM rvtools_data WHERE upload_id = $upload_id")
+                FROM rvtools_data WHERE upload_id = $upload_id",
+            )
             .bind(("upload_id", upload_id))
             .await?
             .take(0)?;
 
         if let Some(stats) = stats.first() {
-            let total = stats.get("total_servers").and_then(|v| v.as_u64()).unwrap_or(0);
-            let powered_off = stats.get("powered_off_servers").and_then(|v| v.as_u64()).unwrap_or(0);
-            let avg_cpu = stats.get("avg_cpu_cores").and_then(|v| v.as_f64()).unwrap_or(0.0);
-            let avg_memory = stats.get("avg_memory_gb").and_then(|v| v.as_f64()).unwrap_or(0.0);
+            let total = stats
+                .get("total_servers")
+                .and_then(|v| v.as_u64())
+                .unwrap_or(0);
+            let powered_off = stats
+                .get("powered_off_servers")
+                .and_then(|v| v.as_u64())
+                .unwrap_or(0);
+            let avg_cpu = stats
+                .get("avg_cpu_cores")
+                .and_then(|v| v.as_f64())
+                .unwrap_or(0.0);
+            let avg_memory = stats
+                .get("avg_memory_gb")
+                .and_then(|v| v.as_f64())
+                .unwrap_or(0.0);
 
             if powered_off > 0 {
                 recommendations.push(format!(
-                    "Consider decommissioning {} powered-off servers to reduce costs", 
+                    "Consider decommissioning {} powered-off servers to reduce costs",
                     powered_off
                 ));
             }
 
             if avg_cpu < 2.0 {
-                recommendations.push("Many VMs are under-utilizing CPU resources. Consider consolidation.".to_string());
+                recommendations.push(
+                    "Many VMs are under-utilizing CPU resources. Consider consolidation."
+                        .to_string(),
+                );
             }
 
             if avg_memory < 4.0 {
-                recommendations.push("VMs have low memory allocation. Review memory requirements.".to_string());
+                recommendations.push(
+                    "VMs have low memory allocation. Review memory requirements.".to_string(),
+                );
             }
 
             if total > 100 {
@@ -348,7 +412,8 @@ impl RvToolsService {
         }
 
         if recommendations.is_empty() {
-            recommendations.push("Environment appears well-optimized. Continue monitoring.".to_string());
+            recommendations
+                .push("Environment appears well-optimized. Continue monitoring.".to_string());
         }
 
         Ok(recommendations)
@@ -358,7 +423,11 @@ impl RvToolsService {
     // HARDWARE POOL INTEGRATION
     // =============================================================================
 
-    pub async fn sync_rvtools_to_hardware_pool(&self, upload_id: String, sync_options: RvToolsSyncOptions) -> Result<RvToolsSyncResult> {
+    pub async fn sync_rvtools_to_hardware_pool(
+        &self,
+        upload_id: String,
+        sync_options: RvToolsSyncOptions,
+    ) -> Result<RvToolsSyncResult> {
         let upload_thing = surrealdb::sql::Thing::from(("rvtools_upload", upload_id.as_str()));
 
         // Get all RVTools data for this upload
@@ -377,9 +446,10 @@ impl RvToolsService {
                 match self.sync_server_to_pool(&data).await {
                     Ok(server_id) => {
                         synced_servers.push(server_id);
-                        
+
                         // Mark as processed
-                        let _: Option<RvToolsData> = self.db
+                        let _: Option<RvToolsData> = self
+                            .db
                             .update(&data.id.unwrap())
                             .merge(json!({
                                 "processed_to_pool": true
@@ -433,7 +503,8 @@ impl RvToolsService {
 
     async fn sync_server_to_pool(&self, data: &RvToolsData) -> Result<surrealdb::sql::Thing> {
         // Check if already exists in hardware pool
-        let existing: Vec<HardwarePool> = self.db
+        let existing: Vec<HardwarePool> = self
+            .db
             .query("SELECT * FROM hardware_pool WHERE metadata.original_vm_name = $vm_name")
             .bind(("vm_name", &data.vm_name))
             .await?
@@ -457,15 +528,22 @@ impl RvToolsService {
             network_adapters: data.network_adapters.unwrap_or(1),
         };
 
-        self.create_hardware_pool_entry(&server_info, &data.upload_id).await?;
+        self.create_hardware_pool_entry(&server_info, &data.upload_id)
+            .await?;
 
         // Get the created server ID (simplified - in real implementation, return the actual ID)
-        Ok(surrealdb::sql::Thing::from(("hardware_pool", format!("rv-{}", data.vm_name).as_str())))
+        Ok(surrealdb::sql::Thing::from((
+            "hardware_pool",
+            format!("rv-{}", data.vm_name).as_str(),
+        )))
     }
 
-    pub async fn get_rvtools_analytics(&self, project_id: Option<String>) -> Result<RvToolsAnalytics> {
+    pub async fn get_rvtools_analytics(
+        &self,
+        project_id: Option<String>,
+    ) -> Result<RvToolsAnalytics> {
         let mut conditions = Vec::new();
-        
+
         if let Some(project_id) = project_id {
             conditions.push(format!("project_id = project:{}", project_id));
         }
@@ -477,39 +555,50 @@ impl RvToolsService {
         };
 
         // Get upload statistics
-        let upload_stats: Vec<serde_json::Value> = self.db
-            .query(format!("SELECT 
+        let upload_stats: Vec<serde_json::Value> = self
+            .db
+            .query(format!(
+                "SELECT 
                 COUNT() as total_uploads,
                 SUM(total_servers) as total_servers_processed,
                 AVG(total_servers) as avg_servers_per_upload
-                FROM rvtools_upload {}", condition_str))
+                FROM rvtools_upload {}",
+                condition_str
+            ))
             .await?
             .take(0)?;
 
         // Get processing trends
-        let processing_trends: Vec<serde_json::Value> = self.db
-            .query(format!("SELECT 
+        let processing_trends: Vec<serde_json::Value> = self
+            .db
+            .query(format!(
+                "SELECT 
                 time::group(upload_timestamp, '1d') as date,
                 COUNT() as uploads,
                 SUM(total_servers) as servers_processed
                 FROM rvtools_upload {} 
                 WHERE upload_timestamp >= (time::now() - 30d)
                 GROUP BY date
-                ORDER BY date", condition_str))
+                ORDER BY date",
+                condition_str
+            ))
             .await?
             .take(0)?;
 
         // Get resource distribution
-        let resource_stats: Vec<serde_json::Value> = self.db
-            .query(format!("SELECT 
+        let resource_stats: Vec<serde_json::Value> = self
+            .db
+            .query(format!(
+                "SELECT 
                 SUM(cpu_cores) as total_cpu_cores,
                 SUM(memory_gb) as total_memory_gb,
                 SUM(disk_gb) as total_storage_gb,
                 COUNT() as total_vms,
                 array::group(datacenter) as datacenters
                 FROM rvtools_data 
-                JOIN rvtools_upload ON rvtools_data.upload_id = rvtools_upload.id {}", 
-                &condition_str))
+                JOIN rvtools_upload ON rvtools_data.upload_id = rvtools_upload.id {}",
+                &condition_str
+            ))
             .await?
             .take(0)?;
 
@@ -530,7 +619,8 @@ impl RvToolsService {
             .await?
             .take(0)?;
 
-        let recent_count = recent_uploads.first()
+        let recent_count = recent_uploads
+            .first()
             .and_then(|v| v.get("count"))
             .and_then(|v| v.as_u64())
             .unwrap_or(0);
@@ -540,10 +630,15 @@ impl RvToolsService {
         }
 
         if recent_count > 10 {
-            recommendations.push("High frequency of RVTools uploads detected. Consider automating the process.".to_string());
+            recommendations.push(
+                "High frequency of RVTools uploads detected. Consider automating the process."
+                    .to_string(),
+            );
         }
 
-        recommendations.push("Regular RVTools analysis helps maintain optimal resource allocation.".to_string());
+        recommendations.push(
+            "Regular RVTools analysis helps maintain optimal resource allocation.".to_string(),
+        );
 
         Ok(recommendations)
     }

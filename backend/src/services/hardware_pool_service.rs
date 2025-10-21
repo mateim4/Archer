@@ -2,9 +2,9 @@ use crate::database::Database;
 use crate::models::project_models::*;
 use anyhow::{Context, Result};
 use chrono::{DateTime, Utc};
-use surrealdb::sql::Thing;
-use std::collections::HashMap;
 use serde_json::{json, Value};
+use std::collections::HashMap;
+use surrealdb::sql::Thing;
 
 pub struct HardwarePoolService {
     db: Database,
@@ -19,7 +19,10 @@ impl HardwarePoolService {
     // HARDWARE INVENTORY MANAGEMENT
     // =============================================================================
 
-    pub async fn add_server_to_pool(&self, server: CreateHardwarePoolRequest) -> Result<HardwarePool> {
+    pub async fn add_server_to_pool(
+        &self,
+        server: CreateHardwarePoolRequest,
+    ) -> Result<HardwarePool> {
         let hardware = HardwarePool {
             id: None,
             asset_tag: server.asset_tag,
@@ -36,7 +39,7 @@ impl HardwarePoolService {
             network_ports: server.network_ports,
             power_consumption_watts: server.power_consumption_watts,
             rack_units: server.rack_units.unwrap_or(1),
-            
+
             availability_status: AvailabilityStatus::Available,
             location: server.location,
             datacenter: server.datacenter,
@@ -44,28 +47,35 @@ impl HardwarePoolService {
             available_from_date: Utc::now(),
             available_until_date: server.available_until_date,
             maintenance_schedule: Vec::new(),
-            
+
             acquisition_cost: server.acquisition_cost,
             monthly_cost: server.monthly_cost,
             warranty_expires: server.warranty_expires,
             support_level: server.support_level,
-            
+
             metadata: HashMap::new(),
             created_at: Utc::now(),
             updated_at: Utc::now(),
         };
 
-        let created: Vec<HardwarePool> = self.db
+        let created: Vec<HardwarePool> = self
+            .db
             .create("hardware_pool")
             .content(hardware)
             .await
             .context("Failed to add server to pool")?;
 
-        created.into_iter().next()
+        created
+            .into_iter()
+            .next()
             .ok_or_else(|| anyhow::anyhow!("No server returned from database"))
     }
 
-    pub async fn update_server_specifications(&self, server_id: &str, updates: UpdateHardwareRequest) -> Result<HardwarePool> {
+    pub async fn update_server_specifications(
+        &self,
+        server_id: &str,
+        updates: UpdateHardwareRequest,
+    ) -> Result<HardwarePool> {
         let mut update_fields = HashMap::new();
 
         if let Some(cpu_cores) = updates.cpu_cores_total {
@@ -86,7 +96,8 @@ impl HardwarePoolService {
 
         update_fields.insert("updated_at", json!(Utc::now()));
 
-        let updated: Option<HardwarePool> = self.db
+        let updated: Option<HardwarePool> = self
+            .db
             .update(("hardware_pool", server_id))
             .merge(update_fields)
             .await
@@ -95,20 +106,26 @@ impl HardwarePoolService {
         updated.ok_or_else(|| anyhow::anyhow!("Server not found"))
     }
 
-    pub async fn get_server_availability(&self, server_id: &str, start_date: DateTime<Utc>, end_date: DateTime<Utc>) -> Result<AvailabilityInfo> {
+    pub async fn get_server_availability(
+        &self,
+        server_id: &str,
+        start_date: DateTime<Utc>,
+        end_date: DateTime<Utc>,
+    ) -> Result<AvailabilityInfo> {
         // Check if server exists and get its details
-        let server: Option<HardwarePool> = self.db
-            .select(("hardware_pool", server_id))
-            .await?;
+        let server: Option<HardwarePool> = self.db.select(("hardware_pool", server_id)).await?;
 
         let server = server.ok_or_else(|| anyhow::anyhow!("Server not found"))?;
 
         // Check for existing allocations in the requested time period
-        let conflicting_allocations: Vec<HardwareAllocation> = self.db
-            .query("SELECT * FROM hardware_allocation 
+        let conflicting_allocations: Vec<HardwareAllocation> = self
+            .db
+            .query(
+                "SELECT * FROM hardware_allocation 
                    WHERE server_id = $server_id 
                    AND allocation_start < $end_date 
-                   AND (allocation_end IS NONE OR allocation_end > $start_date)")
+                   AND (allocation_end IS NONE OR allocation_end > $start_date)",
+            )
             .bind(("server_id", Thing::from(("hardware_pool", server_id))))
             .bind(("start_date", start_date))
             .bind(("end_date", end_date))
@@ -116,14 +133,15 @@ impl HardwarePoolService {
             .take(0)?;
 
         // Check maintenance windows
-        let maintenance_conflicts: Vec<MaintenanceWindow> = server.maintenance_schedule
+        let maintenance_conflicts: Vec<MaintenanceWindow> = server
+            .maintenance_schedule
             .into_iter()
             .filter(|m| m.start_time < end_date && m.end_time > start_date)
             .collect();
 
-        let is_available = conflicting_allocations.is_empty() && 
-                          maintenance_conflicts.is_empty() && 
-                          server.availability_status == AvailabilityStatus::Available;
+        let is_available = conflicting_allocations.is_empty()
+            && maintenance_conflicts.is_empty()
+            && server.availability_status == AvailabilityStatus::Available;
 
         Ok(AvailabilityInfo {
             server_id: server.id.unwrap(),
@@ -136,11 +154,13 @@ impl HardwarePoolService {
         })
     }
 
-    pub async fn schedule_maintenance(&self, server_id: &str, maintenance: MaintenanceWindow) -> Result<()> {
+    pub async fn schedule_maintenance(
+        &self,
+        server_id: &str,
+        maintenance: MaintenanceWindow,
+    ) -> Result<()> {
         // Get current server
-        let server: Option<HardwarePool> = self.db
-            .select(("hardware_pool", server_id))
-            .await?;
+        let server: Option<HardwarePool> = self.db.select(("hardware_pool", server_id)).await?;
 
         let mut server = server.ok_or_else(|| anyhow::anyhow!("Server not found"))?;
 
@@ -148,7 +168,8 @@ impl HardwarePoolService {
         server.maintenance_schedule.push(maintenance);
 
         // Update server in database
-        let _: Option<HardwarePool> = self.db
+        let _: Option<HardwarePool> = self
+            .db
             .update(("hardware_pool", server_id))
             .merge(json!({
                 "maintenance_schedule": server.maintenance_schedule,
@@ -163,8 +184,12 @@ impl HardwarePoolService {
     // INTELLIGENT HARDWARE ALLOCATION
     // =============================================================================
 
-    pub async fn find_optimal_servers(&self, requirements: HardwareRequirements) -> Result<Vec<ServerRecommendation>> {
-        let mut query = "SELECT * FROM hardware_pool WHERE availability_status = 'available'".to_string();
+    pub async fn find_optimal_servers(
+        &self,
+        requirements: HardwareRequirements,
+    ) -> Result<Vec<ServerRecommendation>> {
+        let mut query =
+            "SELECT * FROM hardware_pool WHERE availability_status = 'available'".to_string();
         let mut conditions = Vec::new();
 
         // Add requirement filters
@@ -185,16 +210,15 @@ impl HardwarePoolService {
             query.push_str(&format!(" AND {}", conditions.join(" AND ")));
         }
 
-        let servers: Vec<HardwarePool> = self.db
-            .query(query)
-            .await?
-            .take(0)?;
+        let servers: Vec<HardwarePool> = self.db.query(query).await?.take(0)?;
 
         let mut recommendations = Vec::new();
 
         for server in servers {
-            let score = self.calculate_suitability_score(&server, &requirements).await;
-            
+            let score = self
+                .calculate_suitability_score(&server, &requirements)
+                .await;
+
             recommendations.push(ServerRecommendation {
                 server_id: server.id.clone().unwrap(),
                 asset_tag: server.asset_tag.clone(),
@@ -216,17 +240,30 @@ impl HardwarePoolService {
         }
 
         // Sort by suitability score (highest first)
-        recommendations.sort_by(|a, b| b.suitability_score.partial_cmp(&a.suitability_score).unwrap());
+        recommendations.sort_by(|a, b| {
+            b.suitability_score
+                .partial_cmp(&a.suitability_score)
+                .unwrap()
+        });
 
         // Return top recommendations
-        Ok(recommendations.into_iter().take(requirements.max_results.unwrap_or(10)).collect())
+        Ok(recommendations
+            .into_iter()
+            .take(requirements.max_results.unwrap_or(10))
+            .collect())
     }
 
-    async fn calculate_suitability_score(&self, server: &HardwarePool, requirements: &HardwareRequirements) -> f64 {
+    async fn calculate_suitability_score(
+        &self,
+        server: &HardwarePool,
+        requirements: &HardwareRequirements,
+    ) -> f64 {
         let mut score = 0.0;
 
         // Base score for meeting requirements
-        if let (Some(min_cores), Some(server_cores)) = (requirements.min_cpu_cores, server.cpu_cores_total) {
+        if let (Some(min_cores), Some(server_cores)) =
+            (requirements.min_cpu_cores, server.cpu_cores_total)
+        {
             if server_cores >= min_cores {
                 score += 20.0;
                 // Bonus for having exactly what's needed (not over-provisioned)
@@ -236,7 +273,9 @@ impl HardwarePoolService {
             }
         }
 
-        if let (Some(min_memory), Some(server_memory)) = (requirements.min_memory_gb, server.memory_gb) {
+        if let (Some(min_memory), Some(server_memory)) =
+            (requirements.min_memory_gb, server.memory_gb)
+        {
             if server_memory >= min_memory {
                 score += 20.0;
                 // Bonus for efficient memory allocation
@@ -247,7 +286,9 @@ impl HardwarePoolService {
         }
 
         // Datacenter preference bonus
-        if let (Some(ref preferred_dc), Some(server_dc)) = (&requirements.preferred_datacenter, &server.datacenter) {
+        if let (Some(ref preferred_dc), Some(server_dc)) =
+            (&requirements.preferred_datacenter, &server.datacenter)
+        {
             if preferred_dc == server_dc {
                 score += 15.0;
             }
@@ -267,16 +308,24 @@ impl HardwarePoolService {
         score
     }
 
-    pub async fn create_allocation_with_approval(&self, request: AllocationRequest, requested_by: String) -> Result<AllocationResult> {
+    pub async fn create_allocation_with_approval(
+        &self,
+        request: AllocationRequest,
+        requested_by: String,
+    ) -> Result<AllocationResult> {
         // Check if servers are available
         let mut allocation_conflicts = Vec::new();
-        
+
         for server_id in &request.server_ids {
-            let availability = self.get_server_availability(
-                server_id,
-                request.allocation_start,
-                request.allocation_end.unwrap_or_else(|| Utc::now() + chrono::Duration::days(30))
-            ).await?;
+            let availability = self
+                .get_server_availability(
+                    server_id,
+                    request.allocation_start,
+                    request
+                        .allocation_end
+                        .unwrap_or_else(|| Utc::now() + chrono::Duration::days(30)),
+                )
+                .await?;
 
             if !availability.is_available {
                 allocation_conflicts.push(AllocationConflict {
@@ -299,7 +348,11 @@ impl HardwarePoolService {
             let pending_request = PendingAllocation {
                 id: None,
                 project_id: Thing::from(("project", request.project_id.as_str())),
-                server_ids: request.server_ids.iter().map(|id| Thing::from(("hardware_pool", id.as_str()))).collect(),
+                server_ids: request
+                    .server_ids
+                    .iter()
+                    .map(|id| Thing::from(("hardware_pool", id.as_str())))
+                    .collect(),
                 allocation_start: request.allocation_start,
                 allocation_end: request.allocation_end,
                 purpose: request.purpose,
@@ -309,12 +362,15 @@ impl HardwarePoolService {
                 status: "pending_approval".to_string(),
             };
 
-            let created: Vec<PendingAllocation> = self.db
+            let created: Vec<PendingAllocation> = self
+                .db
                 .create("pending_allocation")
                 .content(pending_request)
                 .await?;
 
-            return Ok(AllocationResult::PendingApproval(created.into_iter().next().unwrap()));
+            return Ok(AllocationResult::PendingApproval(
+                created.into_iter().next().unwrap(),
+            ));
         }
 
         // Proceed with immediate allocation
@@ -324,7 +380,10 @@ impl HardwarePoolService {
             let allocation = HardwareAllocation {
                 id: None,
                 project_id: Thing::from(("project", request.project_id.as_str())),
-                workflow_id: request.workflow_id.as_ref().map(|id| Thing::from(("project_workflow", id.as_str()))),
+                workflow_id: request
+                    .workflow_id
+                    .as_ref()
+                    .map(|id| Thing::from(("project_workflow", id.as_str()))),
                 server_id: Thing::from(("hardware_pool", server_id.as_str())),
                 allocation_type: AllocationType::Allocated,
                 allocation_start: request.allocation_start,
@@ -337,14 +396,16 @@ impl HardwarePoolService {
                 created_at: Utc::now(),
             };
 
-            let created: Vec<HardwareAllocation> = self.db
+            let created: Vec<HardwareAllocation> = self
+                .db
                 .create("hardware_allocation")
                 .content(allocation)
                 .await?;
 
             if let Some(allocation) = created.into_iter().next() {
                 // Update server status
-                let _: Option<HardwarePool> = self.db
+                let _: Option<HardwarePool> = self
+                    .db
                     .update(("hardware_pool", &server_id))
                     .merge(json!({
                         "availability_status": "allocated",
@@ -362,18 +423,20 @@ impl HardwarePoolService {
     async fn allocation_requires_approval(&self, request: &AllocationRequest) -> Result<bool> {
         // Check if any server has high value or if duration is long
         for server_id in &request.server_ids {
-            let server: Option<HardwarePool> = self.db
+            let server: Option<HardwarePool> = self
+                .db
                 .select(("hardware_pool", server_id.as_str()))
                 .await?;
 
             if let Some(server) = server {
                 // Require approval for expensive servers
                 if let Some(cost) = server.acquisition_cost {
-                    if cost > 50000.0 { // $50k threshold
+                    if cost > 50000.0 {
+                        // $50k threshold
                         return Ok(true);
                     }
                 }
-                
+
                 // Require approval for monthly cost over $5k
                 if let Some(monthly_cost) = server.monthly_cost {
                     if monthly_cost > 5000.0 {
@@ -398,18 +461,23 @@ impl HardwarePoolService {
     // PROCUREMENT PIPELINE INTEGRATION
     // =============================================================================
 
-    pub async fn track_procurement_to_pool(&self, procurement_id: &str) -> Result<ProcurementStatus> {
-        let procurement: Option<ProcurementPipeline> = self.db
+    pub async fn track_procurement_to_pool(
+        &self,
+        procurement_id: &str,
+    ) -> Result<ProcurementStatus> {
+        let procurement: Option<ProcurementPipeline> = self
+            .db
             .select(("procurement_pipeline", procurement_id))
             .await?;
 
-        let procurement = procurement.ok_or_else(|| anyhow::anyhow!("Procurement record not found"))?;
+        let procurement =
+            procurement.ok_or_else(|| anyhow::anyhow!("Procurement record not found"))?;
 
         match procurement.procurement_status {
             ProcurementStatus::Available => {
                 // Move servers from procurement to hardware pool
                 self.move_to_hardware_pool(procurement_id).await?;
-            },
+            }
             _ => {
                 // Still in procurement pipeline
             }
@@ -419,16 +487,17 @@ impl HardwarePoolService {
     }
 
     async fn move_to_hardware_pool(&self, procurement_id: &str) -> Result<Vec<HardwarePool>> {
-        let procurement: Option<ProcurementPipeline> = self.db
+        let procurement: Option<ProcurementPipeline> = self
+            .db
             .select(("procurement_pipeline", procurement_id))
             .await?;
 
-        let procurement = procurement.ok_or_else(|| anyhow::anyhow!("Procurement record not found"))?;
+        let procurement =
+            procurement.ok_or_else(|| anyhow::anyhow!("Procurement record not found"))?;
 
         // Get hardware lot details
-        let hardware_lot: Option<serde_json::Value> = self.db
-            .select(&procurement.hardware_lot_id)
-            .await?;
+        let hardware_lot: Option<serde_json::Value> =
+            self.db.select(&procurement.hardware_lot_id).await?;
 
         let hardware_lot = hardware_lot.ok_or_else(|| anyhow::anyhow!("Hardware lot not found"))?;
 
@@ -438,13 +507,27 @@ impl HardwarePoolService {
         for i in 0..procurement.quantity {
             let server = HardwarePool {
                 id: None,
-                asset_tag: format!("{}-{:03}", hardware_lot.get("lot_code").and_then(|v| v.as_str()).unwrap_or("SRV"), i + 1),
+                asset_tag: format!(
+                    "{}-{:03}",
+                    hardware_lot
+                        .get("lot_code")
+                        .and_then(|v| v.as_str())
+                        .unwrap_or("SRV"),
+                    i + 1
+                ),
                 serial_number: None, // Will be updated when physically received
                 hardware_lot_id: Some(procurement.hardware_lot_id.clone()),
                 vendor: procurement.vendor.clone(),
-                model: hardware_lot.get("lot_description").and_then(|v| v.as_str()).unwrap_or("Unknown").to_string(),
-                form_factor: hardware_lot.get("form_factor").and_then(|v| v.as_str()).map(|s| s.to_string()),
-                
+                model: hardware_lot
+                    .get("lot_description")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("Unknown")
+                    .to_string(),
+                form_factor: hardware_lot
+                    .get("form_factor")
+                    .and_then(|v| v.as_str())
+                    .map(|s| s.to_string()),
+
                 // Default specs - will be updated from hardware lot data
                 cpu_sockets: None,
                 cpu_cores_total: None,
@@ -454,7 +537,7 @@ impl HardwarePoolService {
                 network_ports: None,
                 power_consumption_watts: None,
                 rack_units: 1,
-                
+
                 availability_status: AvailabilityStatus::Available,
                 location: procurement.delivery_location.clone(),
                 datacenter: None,
@@ -462,26 +545,29 @@ impl HardwarePoolService {
                 available_from_date: procurement.actual_delivery.unwrap_or_else(|| Utc::now()),
                 available_until_date: None,
                 maintenance_schedule: Vec::new(),
-                
-                acquisition_cost: procurement.total_cost.map(|c| c / procurement.quantity as f64),
+
+                acquisition_cost: procurement
+                    .total_cost
+                    .map(|c| c / procurement.quantity as f64),
                 monthly_cost: None,
                 warranty_expires: None,
                 support_level: None,
-                
+
                 metadata: {
                     let mut map = HashMap::new();
                     map.insert("procurement_id".to_string(), json!(procurement_id));
-                    map.insert("procurement_order".to_string(), json!(procurement.order_number));
+                    map.insert(
+                        "procurement_order".to_string(),
+                        json!(procurement.order_number),
+                    );
                     map
                 },
                 created_at: Utc::now(),
                 updated_at: Utc::now(),
             };
 
-            let created: Vec<HardwarePool> = self.db
-                .create("hardware_pool")
-                .content(server)
-                .await?;
+            let created: Vec<HardwarePool> =
+                self.db.create("hardware_pool").content(server).await?;
 
             if let Some(server) = created.into_iter().next() {
                 servers.push(server);
@@ -489,7 +575,8 @@ impl HardwarePoolService {
         }
 
         // Update procurement status to completed
-        let _: Option<ProcurementPipeline> = self.db
+        let _: Option<ProcurementPipeline> = self
+            .db
             .update(("procurement_pipeline", procurement_id))
             .merge(json!({
                 "procurement_status": "completed",
@@ -506,14 +593,17 @@ impl HardwarePoolService {
 
     pub async fn get_pool_analytics(&self) -> Result<HardwarePoolAnalytics> {
         // Get overall pool statistics
-        let pool_stats: Vec<serde_json::Value> = self.db
-            .query("SELECT 
+        let pool_stats: Vec<serde_json::Value> = self
+            .db
+            .query(
+                "SELECT 
                 availability_status, 
                 COUNT() as count,
                 AVG(monthly_cost) as avg_monthly_cost,
                 SUM(monthly_cost) as total_monthly_cost
                 FROM hardware_pool 
-                GROUP BY availability_status")
+                GROUP BY availability_status",
+            )
             .await?
             .take(0)?;
 
@@ -565,25 +655,40 @@ impl HardwarePoolService {
         let data = cost_data.into_iter().next().unwrap_or_default();
 
         Ok(CostAnalysis {
-            total_acquisition_cost: data.get("total_acquisition_cost").and_then(|v| v.as_f64()).unwrap_or(0.0),
-            total_monthly_cost: data.get("total_monthly_cost").and_then(|v| v.as_f64()).unwrap_or(0.0),
-            allocated_monthly_cost: data.get("allocated_monthly_cost").and_then(|v| v.as_f64()).unwrap_or(0.0),
-            available_monthly_cost: data.get("available_monthly_cost").and_then(|v| v.as_f64()).unwrap_or(0.0),
+            total_acquisition_cost: data
+                .get("total_acquisition_cost")
+                .and_then(|v| v.as_f64())
+                .unwrap_or(0.0),
+            total_monthly_cost: data
+                .get("total_monthly_cost")
+                .and_then(|v| v.as_f64())
+                .unwrap_or(0.0),
+            allocated_monthly_cost: data
+                .get("allocated_monthly_cost")
+                .and_then(|v| v.as_f64())
+                .unwrap_or(0.0),
+            available_monthly_cost: data
+                .get("available_monthly_cost")
+                .and_then(|v| v.as_f64())
+                .unwrap_or(0.0),
             cost_efficiency_ratio: 0.0, // Calculate based on utilization
         })
     }
 
     async fn generate_capacity_forecast(&self) -> Result<CapacityForecast> {
         // Get historical allocation patterns
-        let allocation_trends: Vec<serde_json::Value> = self.db
-            .query("SELECT 
+        let allocation_trends: Vec<serde_json::Value> = self
+            .db
+            .query(
+                "SELECT 
                 allocation_start,
                 allocation_end,
                 COUNT() as servers_allocated
                 FROM hardware_allocation 
                 WHERE allocation_start >= (time::now() - 90d)
                 GROUP BY time::group(allocation_start, '1w')
-                ORDER BY allocation_start")
+                ORDER BY allocation_start",
+            )
             .await?
             .take(0)?;
 

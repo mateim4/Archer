@@ -1,9 +1,5 @@
-pub mod error_handling;
 pub mod api_response;
+pub mod error_handling;
 
 // Re-export commonly used error types and utilities
-pub use error_handling::{
-    EnhancedRvToolsError, 
-    EnhancedRvToolsResult, 
-    EnhancedRvToolsLogger
-};
+pub use error_handling::{EnhancedRvToolsError, EnhancedRvToolsLogger, EnhancedRvToolsResult};

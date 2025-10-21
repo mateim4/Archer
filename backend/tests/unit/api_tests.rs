@@ -1,8 +1,8 @@
 use axum::http::StatusCode;
 use axum_test::TestServer;
 use serde_json::{json, Value};
-use crate::api::hardware_baskets::*;
-use crate::database::DatabaseManager;
+use backend::api::hardware_baskets::*;
+use backend::database::DatabaseManager;
 
 mod test_helpers;
 use test_helpers::*;

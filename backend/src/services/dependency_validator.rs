@@ -13,6 +13,7 @@ use chrono::Utc;
 use std::collections::{HashMap, HashSet};
 
 use crate::models::migration_models::*;
+use surrealdb::sql::Thing;
 
 /// Service for validating cluster migration dependencies
 pub struct DependencyValidator {
@@ -44,17 +45,29 @@ impl DependencyValidator {
         let execution_order = match circular_dependencies.is_empty() {
             true => self.topological_sort(&graph),
             false => {
-                errors.push("Cannot generate execution order due to circular dependencies".to_string());
+                errors.push(
+                    "Cannot generate execution order due to circular dependencies".to_string(),
+                );
                 Vec::new()
             }
         };
 
-        // Calculate critical path
-        let critical_path = if execution_order.is_empty() {
-            None
+        // Calculate critical path and convert results to Thing identifiers for compatibility with API models
+        let critical_path_names = if execution_order.is_empty() {
+            Vec::new()
         } else {
-            Some(self.calculate_critical_path(&graph, &execution_order))
+            self.calculate_critical_path(&graph, &execution_order)
         };
+
+        let topological_order: Vec<Thing> = execution_order
+            .iter()
+            .map(|cluster| Thing::from(("clusters", cluster.as_str())))
+            .collect();
+
+        let critical_path: Vec<Thing> = critical_path_names
+            .iter()
+            .map(|cluster| Thing::from(("clusters", cluster.as_str())))
+            .collect();
 
         let is_valid = errors.is_empty() && circular_dependencies.is_empty();
         let has_circular_dependencies = !circular_dependencies.is_empty();
@@ -63,9 +76,9 @@ impl DependencyValidator {
             is_valid,
             has_circular_dependencies,
             circular_dependencies,
-            topological_order: Vec::new(), // Converted from execution_order strings
+            topological_order,
             execution_order,
-            critical_path: Vec::new(), // TODO: Convert from string names to Thing IDs
+            critical_path,
             warnings,
             errors,
             validated_at: Utc::now(),
@@ -82,14 +95,15 @@ impl DependencyValidator {
 
         for strategy in &self.strategies {
             let cluster_name = strategy.target_cluster_name.clone();
-            
+
             // Initialize entry for this cluster
             graph.entry(cluster_name.clone()).or_insert_with(Vec::new);
 
             // Add domino dependency if present
             if strategy.strategy_type == MigrationStrategyType::DominoHardwareSwap {
                 if let Some(ref domino_source) = strategy.domino_source_cluster {
-                    graph.entry(cluster_name.clone())
+                    graph
+                        .entry(cluster_name.clone())
                         .or_insert_with(Vec::new)
                         .push(domino_source.clone());
                 }
@@ -103,7 +117,10 @@ impl DependencyValidator {
     }
 
     /// Detect circular dependencies using depth-first search
-    fn detect_circular_dependencies(&self, graph: &HashMap<String, Vec<String>>) -> Vec<CircularDependency> {
+    fn detect_circular_dependencies(
+        &self,
+        graph: &HashMap<String, Vec<String>>,
+    ) -> Vec<CircularDependency> {
         let mut circular_deps = Vec::new();
         let mut visited = HashSet::new();
         let mut rec_stack = HashSet::new();
@@ -142,14 +159,7 @@ impl DependencyValidator {
         if let Some(neighbors) = graph.get(node) {
             for neighbor in neighbors {
                 if !visited.contains(neighbor) {
-                    self.dfs_detect_cycle(
-                        neighbor,
-                        graph,
-                        visited,
-                        rec_stack,
-                        path,
-                        circular_deps,
-                    );
+                    self.dfs_detect_cycle(neighbor, graph, visited, rec_stack, path, circular_deps);
                 } else if rec_stack.contains(neighbor) {
                     // Cycle detected - extract the cycle path
                     if let Some(cycle_start_idx) = path.iter().position(|n| n == neighbor) {
@@ -308,48 +318,35 @@ impl DependencyValidator {
 mod tests {
     use super::*;
     use chrono::Utc;
-    use surrealdb::sql::Thing;
+    use surrealdb::sql::{Id, Thing};
 
     fn create_test_strategy(
         source_name: &str,
         target_name: &str,
         domino_source: Option<String>,
     ) -> ClusterMigrationPlan {
-        ClusterMigrationPlan {
-            id: None,
-            project_id: Thing::from(("projects", "test")),
-            source_cluster_name: source_name.to_string(),
-            target_cluster_name: target_name.to_string(),
-            strategy_type: if domino_source.is_some() {
-                MigrationStrategyType::DominoHardwareSwap
-            } else {
-                MigrationStrategyType::NewHardwarePurchase
-            },
-            domino_source_cluster: domino_source,
-            hardware_available_date: None,
-            domino_hardware_items: None,
-            procurement_order_id: None,
-            hardware_basket_items: Vec::new(),
-            hardware_pool_allocations: Vec::new(),
-            required_cpu_cores: 0,
-            required_memory_gb: 0,
-            required_storage_tb: 0.0,
-            overcommit_ratios: None,
-            vm_mappings: Vec::new(),
-            total_vms: 0,
-            mapped_vms: 0,
-            status: ClusterMigrationStatus::Configured,
-            dependencies: Vec::new(),
-            dependency_validation: None,
-            planned_start_date: None,
-            planned_completion_date: None,
-            actual_start_date: None,
-            actual_completion_date: None,
-            notes: None,
-            created_at: Utc::now(),
-            updated_at: Utc::now(),
-            created_by: "test".to_string(),
+        let strategy_type = if domino_source.is_some() {
+            MigrationStrategyType::DominoHardwareSwap
+        } else {
+            MigrationStrategyType::NewHardwarePurchase
+        };
+
+        let mut plan = ClusterMigrationPlan::new(
+            Thing::from(("projects", "test")),
+            target_name.to_string(),
+            strategy_type.clone(),
+            Thing::from(("users", "tester")),
+        );
+
+        plan.source_cluster_name = Some(source_name.to_string());
+        plan.domino_source_cluster = domino_source;
+        plan.strategy_type = strategy_type;
+
+        if plan.strategy_type == MigrationStrategyType::DominoHardwareSwap {
+            plan.hardware_available_date = Some(Utc::now());
         }
+
+        plan
     }
 
     #[test]
@@ -369,7 +366,7 @@ mod tests {
 
     #[test]
     fn test_circular_dependency_detection() {
-        let mut strategies = vec![
+        let strategies = vec![
             create_test_strategy("CLUSTER-A", "HYPERV-A", Some("CLUSTER-B".to_string())),
             create_test_strategy("CLUSTER-B", "HYPERV-B", Some("CLUSTER-A".to_string())),
         ];
@@ -394,7 +391,7 @@ mod tests {
 
         assert!(result.is_valid);
         assert_eq!(result.execution_order.len(), 3);
-        
+
         // DEV-01 should be first, PROD-01 should be last
         assert_eq!(result.execution_order[0], "HYPERV-DEV-01");
         assert_eq!(result.execution_order[2], "HYPERV-PROD-01");
@@ -413,12 +410,20 @@ mod tests {
         let result = validator.validate();
 
         assert!(result.is_valid);
-        assert!(result.critical_path.is_some());
-        
-        let critical_path = result.critical_path.unwrap();
+        assert!(!result.critical_path.is_empty());
+
+        let critical_path_names: Vec<String> = result
+            .critical_path
+            .iter()
+            .map(|thing| match &thing.id {
+                Id::String(value) => value.clone(),
+                other => other.to_string(),
+            })
+            .collect();
+
         // Critical path should be DEV-01 → TEST-01 → PROD-01 (length 3)
-        assert_eq!(critical_path.len(), 3);
-        assert_eq!(critical_path[0], "HYPERV-DEV-01");
-        assert_eq!(critical_path[2], "HYPERV-PROD-01");
+        assert_eq!(critical_path_names.len(), 3);
+        assert_eq!(critical_path_names[0], "HYPERV-DEV-01");
+        assert_eq!(critical_path_names[2], "HYPERV-PROD-01");
     }
 }

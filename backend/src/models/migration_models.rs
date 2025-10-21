@@ -1,6 +1,6 @@
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use surrealdb::sql::Thing;
-use chrono::{DateTime, Utc};
 
 /// Enhanced migration project extending the base Project model
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -17,17 +17,17 @@ pub struct MigrationProject {
     pub actual_end_date: Option<DateTime<Utc>>,
     pub budget: Option<f64>,
     pub priority: TaskPriority,
-    
+
     // Migration-specific fields
     pub source_environment: SourceEnvironment,
     pub target_environment: TargetEnvironment,
     pub rvtools_data_id: Option<Thing>, // Reference to parsed RVTools data
-    
+
     // Project metadata
     pub tags: Vec<String>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
-    
+
     // Analytics
     pub total_tasks: u32,
     pub completed_tasks: u32,
@@ -108,9 +108,9 @@ pub enum StorageType {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum NetworkComplexity {
-    Simple,      // Single network, minimal VLANs
-    Moderate,    // Multiple networks, some VLANs
-    Complex,     // Many VLANs, multiple switches, advanced features
+    Simple,   // Single network, minimal VLANs
+    Moderate, // Multiple networks, some VLANs
+    Complex,  // Many VLANs, multiple switches, advanced features
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -335,14 +335,14 @@ pub struct MigrationTask {
     pub notes: Option<String>,
     pub resources: Vec<String>,
     pub completion_percentage: u8,
-    
+
     // Migration-specific fields
     pub hardware_requirements: Vec<HardwareRequirement>,
     pub network_requirements: Vec<NetworkRequirement>,
     pub validation_criteria: Vec<ValidationCriteria>,
     pub risk_level: RiskLevel,
     pub rollback_plan: Option<String>,
-    
+
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
@@ -532,53 +532,53 @@ pub struct ClusterMigrationPlan {
     pub activity_id: Option<String>, // NEW: Link to parent migration activity
     pub target_cluster_name: String,
     pub strategy_type: MigrationStrategyType,
-    
+
     // VM Migration Details
     pub source_vms: Vec<VMMigrationMapping>,
     pub total_vms: u32,
     pub total_vcpu: u32,
     pub total_memory_gb: f64,
     pub total_storage_tb: f64,
-    
+
     // Hardware Strategy Details
     pub hardware_basket_id: Option<Thing>, // For NewHardwarePurchase or ExistingFreeHardware
     pub hardware_basket_items: Vec<String>, // Hardware basket item IDs for new purchase
     pub hardware_pool_allocations: Vec<String>, // Hardware pool allocation IDs for existing hardware
-    pub source_cluster_id: Option<Thing>, // For DominoHardwareSwap
-    pub source_cluster_name: Option<String>, // Alternative name for domino_source_cluster
-    pub domino_source_cluster: Option<String>, // Source cluster name for domino swap
+    pub source_cluster_id: Option<Thing>,       // For DominoHardwareSwap
+    pub source_cluster_name: Option<String>,    // Alternative name for domino_source_cluster
+    pub domino_source_cluster: Option<String>,  // Source cluster name for domino swap
     pub domino_hardware_items: Option<Vec<String>>, // Hardware items freed from domino source
-    pub procurement_order_id: Option<Thing>, // For NewHardwarePurchase
-    
+    pub procurement_order_id: Option<Thing>,    // For NewHardwarePurchase
+
     // Domino-specific fields
     pub depends_on_cluster_ids: Vec<Thing>, // Other clusters this depends on (domino chain)
-    pub dependencies: Vec<Thing>, // Alternative name for depends_on_cluster_ids
+    pub dependencies: Vec<Thing>,           // Alternative name for depends_on_cluster_ids
     pub frees_hardware_for_cluster_ids: Vec<Thing>, // Clusters that will use this hardware
-    
+
     // Capacity Requirements
     pub required_cpu_cores: u32,
     pub required_memory_gb: u32,
     pub required_storage_tb: f64,
-    
+
     // Target Environment Configuration
     pub target_config: TargetClusterConfiguration,
-    
+
     // Capacity Validation
     pub capacity_validation: Option<CapacityValidationResult>,
     pub overcommit_ratios: OvercommitRatios,
-    
+
     // Timeline
     pub planned_migration_date: DateTime<Utc>,
     pub planned_start_date: Option<DateTime<Utc>>,
     pub planned_completion_date: Option<DateTime<Utc>>,
     pub hardware_available_date: Option<DateTime<Utc>>, // When hardware becomes available
     pub estimated_duration_hours: u32,
-    
+
     // Status
     pub status: MigrationPlanStatus,
     pub validation_status: ClusterValidationStatus,
     pub notes: String,
-    
+
     // Metadata
     pub created_by: Thing,
     pub created_at: DateTime<Utc>,
@@ -587,7 +587,12 @@ pub struct ClusterMigrationPlan {
 
 impl ClusterMigrationPlan {
     /// Create a new ClusterMigrationPlan with default values
-    pub fn new(project_id: Thing, target_cluster_name: String, strategy_type: MigrationStrategyType, created_by: Thing) -> Self {
+    pub fn new(
+        project_id: Thing,
+        target_cluster_name: String,
+        strategy_type: MigrationStrategyType,
+        created_by: Thing,
+    ) -> Self {
         let now = Utc::now();
         Self {
             id: None,
@@ -740,8 +745,8 @@ pub struct ExternalStorageConfig {
 /// Overcommit ratios for capacity planning
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct OvercommitRatios {
-    pub cpu: f64, // e.g., 2.0 = 2:1 overcommit
-    pub memory: f64, // e.g., 1.0 = no overcommit
+    pub cpu: f64,     // e.g., 2.0 = 2:1 overcommit
+    pub memory: f64,  // e.g., 1.0 = no overcommit
     pub storage: f64, // e.g., 0.85 = 15% overhead
 }
 
@@ -780,10 +785,10 @@ pub enum ValidationSeverity {
 /// Capacity validation status levels
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum CapacityValidationStatus {
-    Optimal,     // < 80% utilization
-    Acceptable,  // 80-90% utilization
-    Warning,     // 90-100% utilization
-    Critical,    // Over 100% utilization
+    Optimal,    // < 80% utilization
+    Acceptable, // 80-90% utilization
+    Warning,    // 90-100% utilization
+    Critical,   // Over 100% utilization
 }
 
 /// Migration plan status
@@ -814,27 +819,27 @@ pub struct ProcurementOrder {
     pub project_id: Thing,
     pub cluster_migration_plan_id: Thing,
     pub hardware_basket_id: Thing,
-    
+
     // Order Details
     pub order_number: Option<String>,
     pub vendor: String,
     pub total_cost: f64,
     pub currency: String,
-    
+
     // Items
     pub line_items: Vec<ProcurementLineItem>,
     pub hardware_items: Vec<ProcurementLineItem>, // Alternative name
-    pub allocated_to_clusters: Vec<String>, // Cluster names this hardware is for
-    
+    pub allocated_to_clusters: Vec<String>,       // Cluster names this hardware is for
+
     // Timeline
     pub order_date: Option<DateTime<Utc>>,
     pub expected_delivery_date: DateTime<Utc>,
     pub actual_delivery_date: Option<DateTime<Utc>>,
-    
+
     // Status
     pub status: ProcurementStatus,
     pub notes: String,
-    
+
     // Metadata
     pub created_by: Thing,
     pub created_at: DateTime<Utc>,
@@ -872,8 +877,8 @@ pub struct DependencyValidationResult {
     pub has_circular_dependencies: bool,
     pub circular_dependencies: Vec<CircularDependency>,
     pub topological_order: Vec<Thing>, // Cluster IDs in valid execution order
-    pub execution_order: Vec<String>, // Cluster names in execution order (alternative)
-    pub critical_path: Vec<Thing>, // Longest dependency chain
+    pub execution_order: Vec<String>,  // Cluster names in execution order (alternative)
+    pub critical_path: Vec<Thing>,     // Longest dependency chain
     pub warnings: Vec<String>,
     pub errors: Vec<String>,
     pub validated_at: DateTime<Utc>,
@@ -885,7 +890,7 @@ pub struct CircularDependency {
     pub cycle: Vec<String>, // Cluster names in the cycle
     pub cluster_ids: Vec<Thing>,
     pub cluster_chain: Vec<String>, // Alternative name for cycle
-    pub description: String, // Human-readable description
+    pub description: String,        // Human-readable description
 }
 
 /// Hardware source for timeline tracking
@@ -916,4 +921,3 @@ pub struct HardwareAvailabilityTimeline {
     pub longest_chain_length: u32,
     pub generated_at: DateTime<Utc>,
 }
-

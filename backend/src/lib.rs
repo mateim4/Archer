@@ -3,11 +3,11 @@
 // Provides modular access to all backend services
 
 pub mod api;
-pub mod services;
-pub mod utils;
-pub mod models;
 pub mod database;
 pub mod middleware;
+pub mod models;
+pub mod services;
+pub mod utils;
 
 // Re-export main services
 // pub use services::enhanced_rvtools_service::EnhancedRvToolsService; // TODO: Fix compilation errors
@@ -21,7 +21,7 @@ pub mod middleware;
 // pub use api::analytics_api::AnalyticsAPI;
 
 // Re-export common utilities
-pub use utils::api_response::{ApiResponse, helpers};
+pub use utils::api_response::{helpers, ApiResponse};
 
 // Common types used across the backend
 // TODO: Re-enable when analytics and hardware_pool models are created

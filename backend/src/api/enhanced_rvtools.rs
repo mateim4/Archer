@@ -12,8 +12,8 @@ use std::sync::Arc;
 
 use crate::{
     database::Database,
-    services::enhanced_rvtools_service::{EnhancedRvToolsService, RvToolsExcelUploadData},
     models::project_models::*,
+    services::enhanced_rvtools_service::{EnhancedRvToolsService, RvToolsExcelUploadData},
 };
 use serde_json::json;
 
@@ -47,20 +47,33 @@ async fn upload_rvtools_excel(
     let mut excel_data = None;
     let mut project_id = None;
 
-    while let Some(field) = multipart.next_field().await.map_err(|e| ApiError::BadRequest(e.to_string()))? {
+    while let Some(field) = multipart
+        .next_field()
+        .await
+        .map_err(|e| ApiError::BadRequest(e.to_string()))?
+    {
         let name = field.name().unwrap_or("").to_string();
-        
+
         match name.as_str() {
             "file" => {
                 filename = field.file_name().map(|s| s.to_string());
-                let data = field.bytes().await.map_err(|e| ApiError::BadRequest(e.to_string()))?;
+                let data = field
+                    .bytes()
+                    .await
+                    .map_err(|e| ApiError::BadRequest(e.to_string()))?;
                 excel_data = Some(data.to_vec());
             }
             "project_id" => {
-                let data = field.bytes().await.map_err(|e| ApiError::BadRequest(e.to_string()))?;
+                let data = field
+                    .bytes()
+                    .await
+                    .map_err(|e| ApiError::BadRequest(e.to_string()))?;
                 let project_id_str = String::from_utf8_lossy(&data).to_string();
                 if !project_id_str.is_empty() {
-                    project_id = Some(surrealdb::sql::Thing::from(("project", project_id_str.as_str())));
+                    project_id = Some(surrealdb::sql::Thing::from((
+                        "project",
+                        project_id_str.as_str(),
+                    )));
                 }
             }
             _ => {}
@@ -68,10 +81,13 @@ async fn upload_rvtools_excel(
     }
 
     let filename = filename.ok_or_else(|| ApiError::BadRequest("No file uploaded".to_string()))?;
-    let excel_data = excel_data.ok_or_else(|| ApiError::BadRequest("No file content".to_string()))?;
+    let excel_data =
+        excel_data.ok_or_else(|| ApiError::BadRequest("No file content".to_string()))?;
 
     if !filename.to_lowercase().ends_with(".xlsx") && !filename.to_lowercase().ends_with(".xls") {
-        return Err(ApiError::BadRequest("Only Excel files (.xlsx, .xls) are supported".to_string()));
+        return Err(ApiError::BadRequest(
+            "Only Excel files (.xlsx, .xls) are supported".to_string(),
+        ));
     }
 
     let upload_data = RvToolsExcelUploadData {
@@ -81,27 +97,30 @@ async fn upload_rvtools_excel(
     };
 
     let service = EnhancedRvToolsService::new((*db).clone());
-    
+
     match service.process_rvtools_excel(upload_data).await {
-        Ok(result) => Ok((StatusCode::CREATED, Json(EnhancedRvToolsUploadResponse {
-            upload_id: result.upload_id,
-            sheets_processed: result.sheets_processed,
-            total_rows_processed: result.total_rows_processed,
-            total_vms: result.total_vms,
-            total_hosts: result.total_hosts,
-            total_clusters: result.total_clusters,
-            processing_errors: result.processing_errors,
-            warnings: result.warnings,
-            storage_analysis: result.storage_analysis.is_some(),
-            s2d_compliance_clusters: result.s2d_compliance.keys().cloned().collect(),
-            upload_timestamp: Utc::now(),
-        }))),
+        Ok(result) => Ok((
+            StatusCode::CREATED,
+            Json(EnhancedRvToolsUploadResponse {
+                upload_id: result.upload_id,
+                sheets_processed: result.sheets_processed,
+                total_rows_processed: result.total_rows_processed,
+                total_vms: result.total_vms,
+                total_hosts: result.total_hosts,
+                total_clusters: result.total_clusters,
+                processing_errors: result.processing_errors,
+                warnings: result.warnings,
+                storage_analysis: result.storage_analysis.is_some(),
+                s2d_compliance_clusters: result.s2d_compliance.keys().cloned().collect(),
+                upload_timestamp: Utc::now(),
+            }),
+        )),
         Err(e) => Err(ApiError::InternalError(e.to_string())),
     }
 }
 
 // =============================================================================
-// UPLOAD MANAGEMENT ENDPOINTS  
+// UPLOAD MANAGEMENT ENDPOINTS
 // =============================================================================
 
 async fn get_rvtools_uploads(
@@ -110,24 +129,24 @@ async fn get_rvtools_uploads(
 ) -> Result<impl IntoResponse, ApiError> {
     let mut query_str = "SELECT * FROM rvtools_upload".to_string();
     let mut conditions = Vec::new();
-    
+
     if let Some(project_id) = query.get("project_id") {
         conditions.push(format!("project_id = project:{}", project_id));
     }
-    
+
     if !conditions.is_empty() {
         query_str.push_str(&format!(" WHERE {}", conditions.join(" AND ")));
     }
-    
+
     query_str.push_str(" ORDER BY upload_date DESC");
-    
+
     let uploads: Vec<RvToolsUpload> = db
         .query(&query_str)
         .await
         .map_err(|e| ApiError::InternalError(e.to_string()))?
         .take(0)
         .map_err(|e| ApiError::InternalError(e.to_string()))?;
-    
+
     Ok(Json(uploads))
 }
 
@@ -140,30 +159,32 @@ async fn get_project_clusters(
         "SELECT * FROM rvtools_upload WHERE project_id = type::thing('project', '{}') ORDER BY upload_date DESC LIMIT 1",
         project_id
     );
-    
+
     let uploads: Vec<RvToolsUpload> = db
         .query(&query_str)
         .await
         .map_err(|e| ApiError::InternalError(e.to_string()))?
         .take(0)
         .map_err(|e| ApiError::InternalError(e.to_string()))?;
-    
+
     if uploads.is_empty() {
         // No RVTools upload found for this project
         return Ok(Json(json!({ "clusters": [] })));
     }
-    
+
     let upload = &uploads[0];
     let upload_id = match &upload.id {
         Some(id) => id,
         None => return Err(ApiError::InternalError("Upload ID missing".to_string())),
     };
-    
+
     // Extract cluster list from the upload
     let service = EnhancedRvToolsService::new((*db).clone());
-    let clusters = service.extract_cluster_list_public(upload_id).await
+    let clusters = service
+        .extract_cluster_list_public(upload_id)
+        .await
         .map_err(|e| ApiError::InternalError(e.to_string()))?;
-    
+
     Ok(Json(json!({ "clusters": clusters })))
 }
 
@@ -172,8 +193,11 @@ async fn generate_report_data(
     Json(request): Json<GenerateReportDataRequest>,
 ) -> Result<impl IntoResponse, ApiError> {
     let service = EnhancedRvToolsService::new((*db).clone());
-    
-    match service.generate_report_data(&request.upload_id, &request.report_type).await {
+
+    match service
+        .generate_report_data(&request.upload_id, &request.report_type)
+        .await
+    {
         Ok(report_data) => Ok(Json(GeneratedReportData {
             upload_id: request.upload_id,
             report_type: request.report_type,
@@ -189,8 +213,11 @@ async fn export_report_file(
     Json(request): Json<ExportReportFileRequest>,
 ) -> Result<impl IntoResponse, ApiError> {
     let service = ReportGenerationService::new((*db).clone());
-    
-    match service.export_report_file(&request.report_id, &request.format).await {
+
+    match service
+        .export_report_file(&request.report_id, &request.format)
+        .await
+    {
         Ok(file_data) => Ok(Json(ExportedFileData {
             report_id: request.report_id,
             format: request.format,
@@ -212,7 +239,7 @@ async fn generate_standard_reports(
     Json(request): Json<GenerateReportsRequest>,
 ) -> Result<impl IntoResponse, ApiError> {
     let service = ReportGenerationService::new((*db).clone());
-    
+
     match service.generate_standard_reports(request).await {
         Ok(reports) => Ok(Json(GenerateReportsResponse {
             reports,
@@ -227,7 +254,7 @@ async fn customize_report(
     Json(customization): Json<ReportCustomizationRequest>,
 ) -> Result<impl IntoResponse, ApiError> {
     let service = ReportGenerationService::new((*db).clone());
-    
+
     match service.customize_report(customization).await {
         Ok(customized_report) => Ok(Json(customized_report)),
         Err(e) => Err(ApiError::InternalError(e.to_string())),
@@ -239,21 +266,21 @@ async fn list_report_templates(
     Query(query): Query<ListTemplatesQuery>,
 ) -> Result<impl IntoResponse, ApiError> {
     let mut conditions = Vec::new();
-    
+
     if let Some(report_type) = query.report_type {
         conditions.push(format!("report_type = '{}'", report_type));
     }
-    
+
     if let Some(is_standard) = query.is_standard {
         conditions.push(format!("is_standard = {}", is_standard));
     }
 
     let mut query_str = "SELECT * FROM report_template".to_string();
-    
+
     if !conditions.is_empty() {
         query_str.push_str(&format!(" WHERE {}", conditions.join(" AND ")));
     }
-    
+
     query_str.push_str(" ORDER BY created_at DESC");
 
     // Use raw JSON response to avoid struct conversion issues
@@ -271,7 +298,7 @@ async fn list_report_templates(
                 "total": total
             });
             Ok(Json(response))
-        },
+        }
         Err(e) => Err(ApiError::InternalError(e.to_string())),
     }
 }
@@ -282,7 +309,7 @@ async fn export_report(
     Json(export_config): Json<ExportReportRequest>,
 ) -> Result<impl IntoResponse, ApiError> {
     let service = ReportExportService::new((*db).clone());
-    
+
     match service.export_report(report_id, export_config).await {
         Ok(exported_data) => Ok(Json(ExportReportResponse {
             export_url: exported_data.export_url,
@@ -305,7 +332,10 @@ async fn get_storage_analysis(
 ) -> Result<impl IntoResponse, ApiError> {
     let storage_analyses: Result<Vec<StorageArchitectureAnalysis>, _> = db
         .query("SELECT * FROM storage_architecture_analysis WHERE upload_id = $upload_id")
-        .bind(("upload_id", surrealdb::sql::Thing::from(("rvtools_upload", upload_id.as_str()))))
+        .bind((
+            "upload_id",
+            surrealdb::sql::Thing::from(("rvtools_upload", upload_id.as_str())),
+        ))
         .await
         .map(|mut response| response.take(0))
         .and_then(|result| result);
@@ -327,10 +357,13 @@ async fn get_s2d_compliance(
 ) -> Result<impl IntoResponse, ApiError> {
     let service = EnhancedRvToolsService::new((*db).clone());
     let upload_thing = surrealdb::sql::Thing::from(("rvtools_upload", upload_id.as_str()));
-    
+
     let compliance_results = if let Some(cluster_name) = query.cluster_name {
         // Get compliance for specific cluster
-        match service.check_s2d_compliance(&upload_thing, &cluster_name).await {
+        match service
+            .check_s2d_compliance(&upload_thing, &cluster_name)
+            .await
+        {
             Ok(compliance) => HashMap::from([(cluster_name, compliance)]),
             Err(e) => return Err(ApiError::InternalError(e.to_string())),
         }
@@ -338,7 +371,7 @@ async fn get_s2d_compliance(
         // Get compliance for all confirmed vSAN clusters
         let mut results = HashMap::new();
         let vsan_clusters = vec!["ASNCLUBA0001", "ASNCLUHRK001", "PLBYDCL03"];
-        
+
         for cluster in vsan_clusters {
             if let Ok(compliance) = service.check_s2d_compliance(&upload_thing, cluster).await {
                 results.insert(cluster.to_string(), compliance);
@@ -396,11 +429,11 @@ async fn get_data_traceability(
     Query(query): Query<DataTraceabilityQuery>,
 ) -> Result<impl IntoResponse, ApiError> {
     let mut conditions = vec![format!("upload_id = $upload_id")];
-    
+
     if let Some(sheet_name) = &query.sheet_name {
         conditions.push(format!("sheet_name = '{}'", sheet_name));
     }
-    
+
     if let Some(confidence_threshold) = query.confidence_threshold {
         conditions.push(format!("confidence_score >= {}", confidence_threshold));
     }
@@ -409,10 +442,13 @@ async fn get_data_traceability(
         "SELECT * FROM rvtools_excel_data WHERE {} ORDER BY sheet_name, row_number, column_index",
         conditions.join(" AND ")
     );
-    
+
     let mut query_builder = db.query(query_str);
-    query_builder = query_builder.bind(("upload_id", surrealdb::sql::Thing::from(("rvtools_upload", upload_id.as_str()))));
-    
+    query_builder = query_builder.bind((
+        "upload_id",
+        surrealdb::sql::Thing::from(("rvtools_upload", upload_id.as_str())),
+    ));
+
     if let Some(limit) = query.limit {
         query_builder = query_builder.bind(("limit", limit));
     }
@@ -618,17 +654,27 @@ impl ReportGenerationService {
         Self { db }
     }
 
-    pub async fn generate_standard_reports(&self, _request: GenerateReportsRequest) -> Result<Vec<GeneratedReport>, anyhow::Error> {
+    pub async fn generate_standard_reports(
+        &self,
+        _request: GenerateReportsRequest,
+    ) -> Result<Vec<GeneratedReport>, anyhow::Error> {
         // TODO: Implement report generation logic
         Ok(Vec::new())
     }
 
-    pub async fn customize_report(&self, _customization: ReportCustomizationRequest) -> Result<GeneratedReport, anyhow::Error> {
+    pub async fn customize_report(
+        &self,
+        _customization: ReportCustomizationRequest,
+    ) -> Result<GeneratedReport, anyhow::Error> {
         // TODO: Implement report customization logic
         todo!("Report customization not yet implemented")
     }
 
-    pub async fn export_report_file(&self, _report_id: &str, _format: &str) -> Result<ExportedFileData, anyhow::Error> {
+    pub async fn export_report_file(
+        &self,
+        _report_id: &str,
+        _format: &str,
+    ) -> Result<ExportedFileData, anyhow::Error> {
         // TODO: Implement report file export logic
         Ok(ExportedFileData {
             report_id: _report_id.to_string(),
@@ -650,7 +696,11 @@ impl ReportExportService {
         Self { db }
     }
 
-    pub async fn export_report(&self, _report_id: String, _config: ExportReportRequest) -> Result<ExportedReportData, anyhow::Error> {
+    pub async fn export_report(
+        &self,
+        _report_id: String,
+        _config: ExportReportRequest,
+    ) -> Result<ExportedReportData, anyhow::Error> {
         // TODO: Implement report export logic
         todo!("Report export not yet implemented")
     }
@@ -683,8 +733,12 @@ impl IntoResponse for ApiError {
             ApiError::InternalError(msg) => (StatusCode::INTERNAL_SERVER_ERROR, msg),
         };
 
-        (status, Json(serde_json::json!({
-            "error": message
-        }))).into_response()
+        (
+            status,
+            Json(serde_json::json!({
+                "error": message
+            })),
+        )
+            .into_response()
     }
 }

@@ -1,14 +1,14 @@
 use axum::{
     http::{Request, StatusCode},
     middleware::Next,
-    response::{Response, IntoResponse},
+    response::{IntoResponse, Response},
 };
 use std::collections::HashMap;
+use std::net::IpAddr;
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
-use std::net::IpAddr;
 
-use crate::utils::api_response::{ApiResponse, helpers};
+use crate::utils::api_response::{helpers, ApiResponse};
 
 /// Rate limiter configuration
 #[derive(Clone, Debug)]
@@ -55,11 +55,13 @@ impl RateLimiter {
         let now = Instant::now();
         let mut clients = self.clients.lock().unwrap();
 
-        let entry = clients.entry(client_id.to_string()).or_insert(RateLimitEntry {
-            requests: 0,
-            window_start: now,
-            last_request: now,
-        });
+        let entry = clients
+            .entry(client_id.to_string())
+            .or_insert(RateLimitEntry {
+                requests: 0,
+                window_start: now,
+                last_request: now,
+            });
 
         // Reset window if expired
         if now.duration_since(entry.window_start) >= self.config.window_duration {
@@ -89,7 +91,7 @@ impl RateLimiter {
     pub fn cleanup_old_entries(&self) {
         let now = Instant::now();
         let mut clients = self.clients.lock().unwrap();
-        
+
         clients.retain(|_, entry| {
             now.duration_since(entry.last_request) < Duration::from_secs(300) // 5 minutes
         });
@@ -105,30 +107,36 @@ pub enum RateLimitError {
 /// Rate limiting middleware
 pub fn create_rate_limit_middleware(
     config: RateLimitConfig,
-) -> impl Fn(Request<axum::body::Body>, Next<axum::body::Body>) -> std::pin::Pin<Box<dyn std::future::Future<Output = Response> + Send>> + Clone {
+) -> impl Fn(
+    Request<axum::body::Body>,
+    Next<axum::body::Body>,
+) -> std::pin::Pin<Box<dyn std::future::Future<Output = Response> + Send>>
+       + Clone {
     let rate_limiter = RateLimiter::new(config);
-    
+
     move |request: Request<axum::body::Body>, next: Next<axum::body::Body>| {
         let rate_limiter = rate_limiter.clone();
-        
+
         Box::pin(async move {
             // Extract client identifier (IP address or user ID if authenticated)
             let client_id = extract_client_id(&request);
-            
+
             match rate_limiter.check_rate_limit(&client_id) {
                 Ok(()) => {
                     // Add rate limit headers to response
                     let response = next.run(request).await;
                     add_rate_limit_headers(response, &rate_limiter.config)
                 }
-                Err(RateLimitError::RateLimitExceeded) => {
-                    ApiResponse::<()>::error("RATE_LIMITED", "Rate limit exceeded. Please try again later.")
-                        .into_response()
-                }
-                Err(RateLimitError::BurstLimitExceeded) => {
-                    ApiResponse::<()>::error("RATE_LIMITED", "Burst limit exceeded. Please slow down.")
-                        .into_response()
-                }
+                Err(RateLimitError::RateLimitExceeded) => ApiResponse::<()>::error(
+                    "RATE_LIMITED",
+                    "Rate limit exceeded. Please try again later.",
+                )
+                .into_response(),
+                Err(RateLimitError::BurstLimitExceeded) => ApiResponse::<()>::error(
+                    "RATE_LIMITED",
+                    "Burst limit exceeded. Please slow down.",
+                )
+                .into_response(),
             }
         })
     }
@@ -158,17 +166,22 @@ fn extract_client_id(request: &Request<axum::body::Body>) -> String {
 
 fn add_rate_limit_headers(mut response: Response, config: &RateLimitConfig) -> Response {
     let headers = response.headers_mut();
-    
+
     headers.insert(
         "X-RateLimit-Limit",
         config.requests_per_minute.to_string().parse().unwrap(),
     );
-    
+
     headers.insert(
         "X-RateLimit-Window",
-        config.window_duration.as_secs().to_string().parse().unwrap(),
+        config
+            .window_duration
+            .as_secs()
+            .to_string()
+            .parse()
+            .unwrap(),
     );
-    
+
     response
 }
 
@@ -240,7 +253,7 @@ mod tests {
         // Allow first requests
         assert!(limiter.check_rate_limit("test_client").is_ok());
         assert!(limiter.check_rate_limit("test_client").is_ok());
-        
+
         // Should block the third request
         assert!(limiter.check_rate_limit("test_client").is_err());
     }

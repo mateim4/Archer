@@ -283,7 +283,10 @@ pub fn wizard_routes() -> Router<AppState> {
         .route("/api/v1/wizard/:id/progress", put(save_progress))
         .route("/api/v1/wizard/:id/draft", get(get_draft))
         .route("/api/v1/wizard/:id/complete", post(complete_wizard))
-        .route("/api/v1/wizard/:id/compatibility", post(check_compatibility))
+        .route(
+            "/api/v1/wizard/:id/compatibility",
+            post(check_compatibility),
+        )
         .route("/api/v1/wizard/:id/capacity", post(check_capacity))
         .route("/api/v1/wizard/:id/timeline", post(estimate_timeline))
 }

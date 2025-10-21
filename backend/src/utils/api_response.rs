@@ -1,8 +1,8 @@
-use axum::response::{Json, IntoResponse, Response};
 use axum::http::StatusCode;
-use serde::{Serialize, Deserialize};
+use axum::response::{IntoResponse, Json, Response};
+use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
-use chrono::{Utc, DateTime};
 
 /// Standard API response format for all endpoints
 #[derive(Serialize, Deserialize, Debug)]
@@ -189,7 +189,7 @@ mod tests {
         assert!(!response.success);
         assert!(response.data.is_none());
         assert!(response.error.is_some());
-        
+
         let error = response.error.unwrap();
         assert_eq!(error.code, "TEST_ERROR");
         assert_eq!(error.message, "Test error message");

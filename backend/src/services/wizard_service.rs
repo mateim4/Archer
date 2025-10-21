@@ -10,13 +10,13 @@
 use chrono::{DateTime, Duration, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use surrealdb::{engine::local::Db, Surreal};
 use surrealdb::sql::Thing;
+use surrealdb::{engine::local::Db, Surreal};
 
+use crate::database::AppState;
 use crate::models::workflow::{
     Activity, ActivityStatus, ActivityType, MigrationMetadata, WizardState,
 };
-use crate::database::AppState;
 
 /// Request to start a new wizard session
 #[derive(Debug, Serialize, Deserialize)]
@@ -102,10 +102,7 @@ impl WizardService {
         };
 
         // Insert into database
-        let created: Vec<Activity> = db
-            .create("activity")
-            .content(activity)
-            .await?;
+        let created: Vec<Activity> = db.create("activity").content(activity).await?;
 
         let activity_id = created
             .first()
@@ -157,7 +154,10 @@ impl WizardService {
         activity.updated_at = now;
 
         // Update in database
-        let _: Option<Activity> = db.update(("activity", activity_id)).content(activity).await?;
+        let _: Option<Activity> = db
+            .update(("activity", activity_id))
+            .content(activity)
+            .await?;
 
         Ok(())
     }
@@ -231,8 +231,7 @@ impl WizardService {
             if let Some(duration) = step6.get("estimatedDuration").and_then(|v| v.as_u64()) {
                 activity.estimated_duration_days = Some(duration as u32);
                 if let Some(start) = activity.estimated_start_date {
-                    activity.estimated_end_date =
-                        Some(start + Duration::days(duration as i64));
+                    activity.estimated_end_date = Some(start + Duration::days(duration as i64));
                 }
             }
         }

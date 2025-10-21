@@ -1,7 +1,7 @@
-use serde::{Deserialize, Serialize};
-use surrealdb::sql::Thing;
 use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use surrealdb::sql::Thing;
 
 /// Enhanced Project model with workflow management capabilities
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -20,8 +20,8 @@ pub struct ProjectWorkflow {
     pub created_by: String,
     pub assigned_team: Vec<String>,
     pub metadata: HashMap<String, serde_json::Value>,
-    pub workflows: Vec<Thing>, // References to workflow records
-    pub documents: Vec<Thing>, // References to document records
+    pub workflows: Vec<Thing>,         // References to workflow records
+    pub documents: Vec<Thing>,         // References to document records
     pub rvtools_import: Option<Thing>, // Reference to RVTools import
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
@@ -155,8 +155,8 @@ pub struct HardwareRequirement {
     pub network_ports_required: u32,
     pub server_count_required: u32,
     pub form_factor_preference: Option<String>, // "1U", "2U", "Blade"
-    pub vendor_preference: Option<String>, // "Dell", "Lenovo", "HPE"
-    pub special_requirements: Vec<String>, // "RDMA", "GPU", "High Memory"
+    pub vendor_preference: Option<String>,      // "Dell", "Lenovo", "HPE"
+    pub special_requirements: Vec<String>,      // "RDMA", "GPU", "High Memory"
     pub estimated_cost: Option<f64>,
 }
 
@@ -246,7 +246,7 @@ pub struct RVToolsImport {
     pub imported_by: String,
     pub processing_status: ProcessingStatus,
     pub error_message: Option<String>,
-    
+
     // Parsed data summary
     pub total_vms: u32,
     pub total_hosts: u32,
@@ -256,7 +256,7 @@ pub struct RVToolsImport {
     pub selected_clusters: Vec<String>,
     pub capacity_analysis: Option<CapacityAnalysis>,
     pub hardware_recommendations: Vec<HardwareRecommendation>,
-    
+
     pub raw_data_path: String, // File system path to raw data
     pub created_at: DateTime<Utc>,
 }
@@ -318,7 +318,7 @@ pub struct CapacityAnalysis {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OvercommitRatios {
-    pub cpu_ratio: f32, // Default 3:1
+    pub cpu_ratio: f32,    // Default 3:1
     pub memory_ratio: f32, // Default 1.5:1
 }
 
@@ -481,33 +481,33 @@ pub struct Activity {
     pub description: Option<String>,
     pub activity_type: ActivityType,
     pub status: ActivityStatus,
-    
+
     // Strategy references - One activity can have multiple strategies
     pub strategy_ids: Vec<Thing>,
-    
+
     // Wizard state management
     pub wizard_state: Option<WizardState>,
-    
+
     // Migration-specific metadata
     pub migration_metadata: Option<MigrationMetadata>,
-    
+
     // Timeline
     pub estimated_start_date: Option<DateTime<Utc>>,
     pub estimated_end_date: Option<DateTime<Utc>>,
     pub actual_start_date: Option<DateTime<Utc>>,
     pub actual_end_date: Option<DateTime<Utc>>,
     pub estimated_duration_days: Option<u32>,
-    
+
     // Team assignment
     pub assigned_users: Vec<String>,
     pub team_lead: Option<String>,
-    
+
     // Progress tracking
     pub progress_percentage: u8,
-    
+
     // Draft expiration (30 days)
     pub expires_at: Option<DateTime<Utc>>,
-    
+
     // Audit fields
     pub created_by: String,
     pub created_at: DateTime<Utc>,
@@ -529,13 +529,13 @@ pub enum ActivityType {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum ActivityStatus {
-    Draft,        // Being created in wizard
-    Planned,      // Wizard completed, not started
-    InProgress,   // Activity is underway
-    OnHold,       // Temporarily paused
-    Completed,    // Successfully finished
-    Blocked,      // Blocked by dependencies
-    Cancelled,    // Cancelled before completion
+    Draft,      // Being created in wizard
+    Planned,    // Wizard completed, not started
+    InProgress, // Activity is underway
+    OnHold,     // Temporarily paused
+    Completed,  // Successfully finished
+    Blocked,    // Blocked by dependencies
+    Cancelled,  // Cancelled before completion
 }
 
 /// Migration-specific metadata
@@ -613,10 +613,10 @@ pub struct CapacityValidationResult {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum ValidationStatus {
-    Optimal,     // <60% utilization
-    Acceptable,  // 60-80% utilization
-    Warning,     // 80-95% utilization
-    Critical,    // >95% utilization
+    Optimal,    // <60% utilization
+    Acceptable, // 60-80% utilization
+    Warning,    // 80-95% utilization
+    Critical,   // >95% utilization
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -656,7 +656,7 @@ pub struct TaskEstimate {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum EstimationConfidence {
-    High,    // 90%+ confidence
-    Medium,  // 70-89% confidence
-    Low,     // <70% confidence
+    High,   // 90%+ confidence
+    Medium, // 70-89% confidence
+    Low,    // <70% confidence
 }

@@ -27,7 +27,7 @@ pub struct CapacityValidationRequest {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TargetHardware {
     pub host_count: u32,
-    pub cpu_per_host: u32,       // Physical cores
+    pub cpu_per_host: u32, // Physical cores
     pub memory_per_host_gb: u32,
     pub storage_per_host_tb: f64,
 }
@@ -240,9 +240,8 @@ impl CapacityValidationService {
                 ));
             }
         } else if cpu.utilization_percent < 40.0 {
-            recommendations.push(
-                "✅ CPU: Excellent headroom for growth and burst workloads".to_string(),
-            );
+            recommendations
+                .push("✅ CPU: Excellent headroom for growth and burst workloads".to_string());
         }
 
         // Memory recommendations
@@ -332,10 +331,7 @@ impl CapacityValidationService {
         // This is a placeholder implementation
 
         // Query for cluster data
-        let query = format!(
-            "SELECT * FROM cluster WHERE id = 'cluster:{}'",
-            cluster_id
-        );
+        let query = format!("SELECT * FROM cluster WHERE id = 'cluster:{}'", cluster_id);
         let mut response = db.query(&query).await?;
         let _clusters: Vec<serde_json::Value> = response.take(0)?;
 
@@ -364,19 +360,16 @@ impl CapacityValidationService {
         // Calculate hosts needed for each resource
         let hosts_for_cpu = (workload.total_cpu_cores as f64
             / (cpu_per_host as f64 * overcommit.cpu))
-        .ceil() as u32;
+            .ceil() as u32;
 
         let hosts_for_memory = (workload.total_memory_gb as f64
             / (memory_per_host_gb as f64 * overcommit.memory))
-        .ceil() as u32;
+            .ceil() as u32;
 
-        let hosts_for_storage =
-            (workload.total_storage_tb / storage_per_host_tb).ceil() as u32;
+        let hosts_for_storage = (workload.total_storage_tb / storage_per_host_tb).ceil() as u32;
 
         // Take the maximum
-        let base_hosts = hosts_for_cpu
-            .max(hosts_for_memory)
-            .max(hosts_for_storage);
+        let base_hosts = hosts_for_cpu.max(hosts_for_memory).max(hosts_for_storage);
 
         // Add 1 for HA (N+1)
         let recommended = base_hosts + 1;
@@ -402,10 +395,9 @@ mod tests {
         };
 
         let validation = CapacityValidationService::validate_resource(
-            100.0,  // required
-            200.0,  // available (50% utilization)
-            "CPU",
-            &workload,
+            100.0, // required
+            200.0, // available (50% utilization)
+            "CPU", &workload,
         );
 
         assert_eq!(validation.status, ResourceStatus::Ok);
@@ -424,10 +416,9 @@ mod tests {
         };
 
         let validation = CapacityValidationService::validate_resource(
-            180.0,  // required
-            200.0,  // available (90% utilization)
-            "CPU",
-            &workload,
+            180.0, // required
+            200.0, // available (90% utilization)
+            "CPU", &workload,
         );
 
         assert_eq!(validation.status, ResourceStatus::Warning);
@@ -446,10 +437,9 @@ mod tests {
         };
 
         let validation = CapacityValidationService::validate_resource(
-            250.0,  // required
-            200.0,  // available (125% utilization - insufficient!)
-            "CPU",
-            &workload,
+            250.0, // required
+            200.0, // available (125% utilization - insufficient!)
+            "CPU", &workload,
         );
 
         assert_eq!(validation.status, ResourceStatus::Critical);
