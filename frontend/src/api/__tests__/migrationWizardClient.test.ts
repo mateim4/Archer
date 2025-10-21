@@ -15,12 +15,11 @@ import {
 } from '../migrationWizardClient';
 import { BackendApiError } from '../backendClient';
 
-// Mock fetch globally
-global.fetch = vi.fn();
-
 describe('Migration Wizard API Client', () => {
   beforeEach(() => {
+    // Reset and recreate mock for each test
     vi.clearAllMocks();
+    global.fetch = vi.fn() as any;
   });
 
   // ========================================================================
@@ -271,9 +270,9 @@ describe('Migration Wizard API Client', () => {
         expect(result.templates).toHaveLength(1);
         expect(result.total).toBe(1);
         
-        // Verify query parameters
+        // Verify query parameters (offset=0 is omitted when it's 0)
         expect(global.fetch).toHaveBeenCalledWith(
-          '/api/v1/network-templates?is_global=true&limit=10&offset=0'
+          '/api/v1/network-templates?is_global=true&limit=10'
         );
       });
 
