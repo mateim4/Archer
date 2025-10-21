@@ -41,21 +41,32 @@ pub fn create_destination_clusters_router(db: Arc<Database>) -> Router {
 pub struct CreateClusterRequest {
     pub project_id: String,
     pub name: String,
-    pub hypervisor_type: HypervisorType,
+    pub description: Option<String>,
+    pub hypervisor: HypervisorType,
     pub storage_type: DestinationStorageType,
     pub nodes: Vec<String>, // Hardware pool IDs
     pub ha_policy: HaPolicy,
-    pub network_configs: Vec<NetworkConfig>,
-    pub metadata: Option<HashMap<String, String>>,
+    pub overcommit_ratios: OvercommitRatios,
+    pub management_network: NetworkConfig,
+    pub workload_network: NetworkConfig,
+    pub storage_network: Option<NetworkConfig>,
+    pub migration_network: Option<NetworkConfig>,
+    pub metadata: Option<HashMap<String, serde_json::Value>>,
+    pub created_by: String,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct UpdateClusterRequest {
     pub name: Option<String>,
+    pub description: Option<String>,
     pub nodes: Option<Vec<String>>,
     pub ha_policy: Option<HaPolicy>,
-    pub network_configs: Option<Vec<NetworkConfig>>,
-    pub metadata: Option<HashMap<String, String>>,
+    pub overcommit_ratios: Option<OvercommitRatios>,
+    pub management_network: Option<NetworkConfig>,
+    pub workload_network: Option<NetworkConfig>,
+    pub storage_network: Option<NetworkConfig>,
+    pub migration_network: Option<NetworkConfig>,
+    pub metadata: Option<HashMap<String, serde_json::Value>>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -83,7 +94,6 @@ pub struct ValidationSummary {
 #[derive(Debug, Deserialize)]
 pub struct UpdateBuildStatusRequest {
     pub build_status: BuildStatus,
-    pub build_notes: Option<String>,
 }
 
 // =============================================================================
@@ -122,10 +132,11 @@ async fn create_cluster(
         match node {
             Ok(Some(node)) => {
                 // Aggregate capacity
-                total_capacity.cpu_cores += node.cpu_cores;
-                total_capacity.cpu_ghz += node.cpu_ghz.unwrap_or(0.0);
-                total_capacity.memory_gb += node.memory_gb;
-                total_capacity.storage_gb += node.storage_capacity_gb;
+                total_capacity.cpu_cores += node.cpu_cores_total.unwrap_or(0);
+                // cpu_ghz not available in HardwarePool, set to 0 or estimate
+                total_capacity.cpu_ghz += 0.0; // Will need to calculate from CPU model later
+                total_capacity.memory_gb += node.memory_gb.unwrap_or(0);
+                total_capacity.storage_gb += node.storage_capacity_gb.unwrap_or(0) as i64;
 
                 node_things.push(Thing::from(("hardware_pool", node_id.as_str())));
             }
@@ -140,11 +151,15 @@ async fn create_cluster(
     let cluster = DestinationCluster {
         id: None,
         project_id: Thing::from(("project", request.project_id.as_str())),
+        activity_id: None,
         name: request.name,
-        hypervisor_type: request.hypervisor_type,
+        description: request.description,
+        hypervisor: request.hypervisor,
         storage_type: request.storage_type,
         nodes: node_things,
         node_count: request.nodes.len() as i32,
+        overcommit_ratios: request.overcommit_ratios,
+        ha_policy: request.ha_policy,
         capacity_totals: total_capacity.clone(),
         capacity_available: total_capacity.clone(),
         capacity_reserved: ClusterCapacity {
@@ -154,15 +169,18 @@ async fn create_cluster(
             storage_gb: 0,
             storage_iops: Some(0),
         },
-        ha_policy: request.ha_policy,
-        network_configs: request.network_configs,
+        network_profile_id: None,
+        management_network: request.management_network,
+        workload_network: request.workload_network,
+        storage_network: request.storage_network,
+        migration_network: request.migration_network,
         validation_results: Vec::new(),
-        cluster_status: ClusterStatus::Planning,
+        status: ClusterStatus::Planning,
         build_status: BuildStatus::NotStarted,
-        build_notes: None,
-        metadata: request.metadata,
+        metadata: request.metadata.unwrap_or_default(),
         created_at: Utc::now(),
         updated_at: Utc::now(),
+        created_by: request.created_by,
     };
 
     let created: Result<Vec<DestinationCluster>, _> = db
@@ -288,16 +306,36 @@ async fn update_cluster(
         cluster.name = name;
     }
 
+    if let Some(description) = request.description {
+        cluster.description = Some(description);
+    }
+
     if let Some(ha_policy) = request.ha_policy {
         cluster.ha_policy = ha_policy;
     }
 
-    if let Some(network_configs) = request.network_configs {
-        cluster.network_configs = network_configs;
+    if let Some(overcommit_ratios) = request.overcommit_ratios {
+        cluster.overcommit_ratios = overcommit_ratios;
+    }
+
+    if let Some(management_network) = request.management_network {
+        cluster.management_network = management_network;
+    }
+
+    if let Some(workload_network) = request.workload_network {
+        cluster.workload_network = workload_network;
+    }
+
+    if let Some(storage_network) = request.storage_network {
+        cluster.storage_network = Some(storage_network);
+    }
+
+    if let Some(migration_network) = request.migration_network {
+        cluster.migration_network = Some(migration_network);
     }
 
     if let Some(metadata) = request.metadata {
-        cluster.metadata = Some(metadata);
+        cluster.metadata = metadata;
     }
 
     // Handle node updates with capacity recalculation
@@ -318,10 +356,10 @@ async fn update_cluster(
 
             match node {
                 Ok(Some(node)) => {
-                    total_capacity.cpu_cores += node.cpu_cores;
-                    total_capacity.cpu_ghz += node.cpu_ghz.unwrap_or(0.0);
-                    total_capacity.memory_gb += node.memory_gb;
-                    total_capacity.storage_gb += node.storage_capacity_gb;
+                    total_capacity.cpu_cores += node.cpu_cores_total.unwrap_or(0);
+                    total_capacity.cpu_ghz += 0.0; // cpu_ghz not in HardwarePool
+                    total_capacity.memory_gb += node.memory_gb.unwrap_or(0);
+                    total_capacity.storage_gb += node.storage_capacity_gb.unwrap_or(0) as i64;
 
                     node_things.push(Thing::from(("hardware_pool", node_id.as_str())));
                 }
@@ -371,14 +409,14 @@ async fn delete_cluster(
 
     match cluster {
         Ok(Some(cluster)) => {
-            // Don't allow deletion if cluster is in building or deployed state
+            // Don't allow deletion if cluster is in building or active state
             if matches!(
-                cluster.cluster_status,
-                ClusterStatus::Building | ClusterStatus::Deployed
+                cluster.status,
+                ClusterStatus::Building | ClusterStatus::Active
             ) {
                 return Err(ApiError::Conflict(format!(
                     "Cannot delete cluster with status: {:?}",
-                    cluster.cluster_status
+                    cluster.status
                 )));
             }
 
@@ -421,7 +459,7 @@ async fn validate_cluster(
             severity: ValidationSeverity::Warning,
             category: "High Availability".to_string(),
             message: "Cluster has fewer than 2 nodes - HA not possible".to_string(),
-            affected_resources: vec![cluster.name.clone()],
+            recommendation: Some("Add more nodes to enable HA".to_string()),
         });
     }
 
@@ -440,28 +478,28 @@ async fn validate_cluster(
                 "HA policy {:?} requires at least {} nodes, but only {} provided",
                 cluster.ha_policy, required_nodes, cluster.node_count
             ),
-            affected_resources: vec![cluster.name.clone()],
+            recommendation: Some(format!("Add {} more nodes", required_nodes - cluster.node_count)),
         });
     }
 
-    // Validate network configs
-    if cluster.network_configs.is_empty() {
+    // Validate network configs - check if management network is configured
+    if cluster.management_network.vlan_id.is_none() {
         validation_results.push(ValidationIssue {
             severity: ValidationSeverity::Critical,
             category: "Network Configuration".to_string(),
-            message: "No network configurations defined".to_string(),
-            affected_resources: vec![cluster.name.clone()],
+            message: "Management network VLAN not configured".to_string(),
+            recommendation: Some("Configure management network VLAN".to_string()),
         });
     }
 
     // Validate storage type compatibility with hypervisor
-    match (&cluster.hypervisor_type, &cluster.storage_type) {
+    match (&cluster.hypervisor, &cluster.storage_type) {
         (HypervisorType::AzureLocal, DestinationStorageType::Traditional) => {
             validation_results.push(ValidationIssue {
                 severity: ValidationSeverity::Critical,
                 category: "Storage Configuration".to_string(),
                 message: "Azure Local requires Azure Local storage, not Traditional".to_string(),
-                affected_resources: vec![cluster.name.clone()],
+                recommendation: Some("Change storage type to Azure Local".to_string()),
             });
         }
         _ => {}
@@ -469,13 +507,13 @@ async fn validate_cluster(
 
     // Update cluster status
     cluster.validation_results = validation_results.clone();
-    cluster.cluster_status = if validation_results
+    cluster.status = if validation_results
         .iter()
         .any(|v| matches!(v.severity, ValidationSeverity::Critical))
     {
-        ClusterStatus::ValidationFailed
+        ClusterStatus::Planning
     } else {
-        ClusterStatus::ReadyToBuild
+        ClusterStatus::Validated
     };
     cluster.updated_at = Utc::now();
 
@@ -515,15 +553,15 @@ async fn update_build_status(
     };
 
     cluster.build_status = request.build_status;
-    cluster.build_notes = request.build_notes;
     cluster.updated_at = Utc::now();
 
     // Update cluster status based on build status
-    cluster.cluster_status = match cluster.build_status {
-        BuildStatus::NotStarted => ClusterStatus::ReadyToBuild,
-        BuildStatus::InProgress => ClusterStatus::Building,
-        BuildStatus::Completed => ClusterStatus::Deployed,
-        BuildStatus::Failed => ClusterStatus::ValidationFailed,
+    cluster.status = match cluster.build_status {
+        BuildStatus::NotStarted => ClusterStatus::Validated,
+        BuildStatus::HardwareOrdered | BuildStatus::HardwareReceived | BuildStatus::Racking | 
+        BuildStatus::Cabling | BuildStatus::OsInstallation | BuildStatus::ClusterConfiguration | 
+        BuildStatus::Validation => ClusterStatus::Building,
+        BuildStatus::Completed => ClusterStatus::Ready,
     };
 
     let updated: Result<Option<DestinationCluster>, _> = db
@@ -556,6 +594,7 @@ fn compute_validation_summary(validation_results: &[ValidationIssue]) -> Validat
     for issue in validation_results {
         match issue.severity {
             ValidationSeverity::Critical => critical_issues += 1,
+            ValidationSeverity::Error => critical_issues += 1, // Treat errors as critical
             ValidationSeverity::Warning => warnings += 1,
             ValidationSeverity::Info => info_messages += 1,
         }

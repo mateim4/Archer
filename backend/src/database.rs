@@ -114,6 +114,13 @@ async fn run_all_migrations(db: &Database) -> Result<(), DatabaseError> {
         info!("✅ Project management migrations completed");
     }
 
+    // Migration planning migrations (new)
+    if let Err(e) = migrations::MigrationPlanningMigrations::run_all(db).await {
+        warn!("Migration planning migrations failed: {}", e);
+    } else {
+        info!("✅ Migration planning migrations completed");
+    }
+
     Ok(())
 }
 

@@ -373,9 +373,9 @@ async fn create_allocation(
         Err(e) => return Err(ApiError::InternalError(e.to_string())),
     };
 
-    if server.availability_status != "available" {
+    if !matches!(server.availability_status, AvailabilityStatus::Available) {
         return Err(ApiError::Conflict(format!(
-            "Server is not available (status: {})",
+            "Server is not available (status: {:?})",
             server.availability_status
         )));
     }
@@ -385,14 +385,16 @@ async fn create_allocation(
         id: None,
         server_id: surrealdb::sql::Thing::from(("hardware_pool", request.server_id.as_str())),
         project_id: surrealdb::sql::Thing::from(("project", request.project_id.as_str())),
+        workflow_id: request.workflow_id.map(|id| surrealdb::sql::Thing::from(("workflow", id.as_str()))),
         allocated_by: request.allocated_by,
         allocation_start: request.allocation_start.unwrap_or_else(Utc::now),
         allocation_end: request.allocation_end,
-        allocation_purpose: request.allocation_purpose,
-        status: "reserved".to_string(),
-        metadata: request.metadata,
+        allocation_type: AllocationType::Reserved,
+        purpose: request.purpose,
+        configuration_notes: request.configuration_notes,
+        approved_by: None,
+        metadata: request.metadata.unwrap_or_default(),
         created_at: Utc::now(),
-        updated_at: Utc::now(),
     };
 
     let created: Result<Vec<HardwareAllocation>, _> = db
@@ -408,8 +410,7 @@ async fn create_allocation(
             let _: Result<Option<HardwarePool>, _> = db
                 .update(("hardware_pool", request.server_id.as_str()))
                 .merge(serde_json::json!({
-                    "availability_status": "reserved",
-                    "updated_at": Utc::now()
+                    "availability_status": "reserved"
                 }))
                 .await;
 
@@ -459,22 +460,21 @@ async fn update_allocation_status(
     let updated: Result<Option<HardwareAllocation>, _> = db
         .update(("hardware_allocation", allocation_id.as_str()))
         .merge(serde_json::json!({
-            "status": update.status,
-            "metadata": update.metadata,
-            "updated_at": Utc::now()
+            "allocation_type": update.allocation_type,
+            "configuration_notes": update.configuration_notes,
+            "metadata": update.metadata
         }))
         .await;
 
     match updated {
         Ok(Some(allocation)) => {
-            // If status is "completed" or "released", update server status
-            if update.status == "completed" || update.status == "released" {
+            // If allocation type is "deployed", update server status to allocated
+            if matches!(update.allocation_type, AllocationType::Deployed) {
                 if let surrealdb::sql::Thing { id, .. } = &allocation.server_id {
                     let _: Result<Option<HardwarePool>, _> = db
                         .update(("hardware_pool", id.to_raw().as_str()))
                         .merge(serde_json::json!({
-                            "availability_status": "available",
-                            "updated_at": Utc::now()
+                            "availability_status": "allocated"
                         }))
                         .await;
                 }
@@ -561,18 +561,21 @@ struct SearchMetadata {
 struct CreateAllocationRequest {
     server_id: String,
     project_id: String,
+    workflow_id: Option<String>,
     allocated_by: String,
     allocation_start: Option<DateTime<Utc>>,
     allocation_end: Option<DateTime<Utc>>,
-    allocation_purpose: String,
-    metadata: Option<HashMap<String, String>>,
+    purpose: String,
+    configuration_notes: Option<String>,
+    metadata: Option<HashMap<String, serde_json::Value>>,
 }
 
 /// Request to update allocation status
 #[derive(Debug, Deserialize)]
 struct UpdateAllocationStatusRequest {
-    status: String,
-    metadata: Option<HashMap<String, String>>,
+    allocation_type: AllocationType,
+    configuration_notes: Option<String>,
+    metadata: Option<HashMap<String, serde_json::Value>>,
 }
 
 #[derive(Debug, Serialize)]

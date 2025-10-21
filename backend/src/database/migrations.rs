@@ -354,3 +354,351 @@ impl EnhancedRvToolsMigrations {
         Ok(())
     }
 }
+
+/// Migrations for Migration Planning and Capacity features
+pub struct MigrationPlanningMigrations;
+
+impl MigrationPlanningMigrations {
+    /// Run all migration planning migrations
+    pub async fn run_all(db: &Database) -> Result<()> {
+        Self::create_destination_cluster_tables(db).await?;
+        Self::create_placement_tables(db).await?;
+        Self::create_capacity_tables(db).await?;
+        Self::create_network_profile_tables(db).await?;
+        Self::create_document_template_tables(db).await?;
+        Self::create_indexes(db).await?;
+        Self::seed_network_templates(db).await?;
+        Ok(())
+    }
+
+    /// Create destination cluster tables
+    async fn create_destination_cluster_tables(db: &Database) -> Result<()> {
+        db.query(
+            r#"
+            DEFINE TABLE destination_cluster SCHEMAFULL;
+            DEFINE FIELD project_id ON destination_cluster TYPE record(project);
+            DEFINE FIELD activity_id ON destination_cluster TYPE option<record(activity)>;
+            DEFINE FIELD name ON destination_cluster TYPE string;
+            DEFINE FIELD description ON destination_cluster TYPE option<string>;
+            DEFINE FIELD hypervisor ON destination_cluster TYPE string;
+            DEFINE FIELD storage_type ON destination_cluster TYPE string;
+            DEFINE FIELD nodes ON destination_cluster TYPE array<record(hardware_pool)>;
+            DEFINE FIELD node_count ON destination_cluster TYPE int;
+            DEFINE FIELD overcommit_ratios ON destination_cluster TYPE object;
+            DEFINE FIELD ha_policy ON destination_cluster TYPE string;
+            DEFINE FIELD capacity_totals ON destination_cluster TYPE object;
+            DEFINE FIELD capacity_available ON destination_cluster TYPE object;
+            DEFINE FIELD capacity_reserved ON destination_cluster TYPE object;
+            DEFINE FIELD network_profile_id ON destination_cluster TYPE option<record(network_profile_instance)>;
+            DEFINE FIELD management_network ON destination_cluster TYPE object;
+            DEFINE FIELD workload_network ON destination_cluster TYPE object;
+            DEFINE FIELD storage_network ON destination_cluster TYPE option<object>;
+            DEFINE FIELD migration_network ON destination_cluster TYPE option<object>;
+            DEFINE FIELD status ON destination_cluster TYPE string;
+            DEFINE FIELD build_status ON destination_cluster TYPE string;
+            DEFINE FIELD validation_results ON destination_cluster TYPE array;
+            DEFINE FIELD metadata ON destination_cluster TYPE object;
+            DEFINE FIELD created_at ON destination_cluster TYPE datetime;
+            DEFINE FIELD updated_at ON destination_cluster TYPE datetime;
+            DEFINE FIELD created_by ON destination_cluster TYPE string;
+        "#,
+        )
+        .await?;
+
+        println!("✅ Destination cluster tables created");
+        Ok(())
+    }
+
+    /// Create VM placement tables
+    async fn create_placement_tables(db: &Database) -> Result<()> {
+        db.query(
+            r#"
+            DEFINE TABLE vm_placement_plan SCHEMAFULL;
+            DEFINE FIELD project_id ON vm_placement_plan TYPE record(project);
+            DEFINE FIELD activity_id ON vm_placement_plan TYPE record(activity);
+            DEFINE FIELD rvtools_upload_id ON vm_placement_plan TYPE record(rvtools_upload);
+            DEFINE FIELD source_cluster_names ON vm_placement_plan TYPE array<string>;
+            DEFINE FIELD source_vm_filter ON vm_placement_plan TYPE option<object>;
+            DEFINE FIELD total_vms_selected ON vm_placement_plan TYPE int;
+            DEFINE FIELD placements ON vm_placement_plan TYPE array;
+            DEFINE FIELD spillover_vms ON vm_placement_plan TYPE array;
+            DEFINE FIELD unplaced_vms ON vm_placement_plan TYPE array;
+            DEFINE FIELD strategy ON vm_placement_plan TYPE string;
+            DEFINE FIELD constraints ON vm_placement_plan TYPE object;
+            DEFINE FIELD status ON vm_placement_plan TYPE string;
+            DEFINE FIELD warnings ON vm_placement_plan TYPE array<string>;
+            DEFINE FIELD metadata ON vm_placement_plan TYPE object;
+            DEFINE FIELD created_at ON vm_placement_plan TYPE datetime;
+            DEFINE FIELD updated_at ON vm_placement_plan TYPE datetime;
+        "#,
+        )
+        .await?;
+
+        println!("✅ VM placement tables created");
+        Ok(())
+    }
+
+    /// Create capacity snapshot tables
+    async fn create_capacity_tables(db: &Database) -> Result<()> {
+        db.query(
+            r#"
+            DEFINE TABLE capacity_snapshot SCHEMAFULL;
+            DEFINE FIELD project_id ON capacity_snapshot TYPE record(project);
+            DEFINE FIELD activity_id ON capacity_snapshot TYPE record(activity);
+            DEFINE FIELD name ON capacity_snapshot TYPE string;
+            DEFINE FIELD description ON capacity_snapshot TYPE option<string>;
+            DEFINE FIELD source_upload_id ON capacity_snapshot TYPE record(rvtools_upload);
+            DEFINE FIELD source_summary ON capacity_snapshot TYPE object;
+            DEFINE FIELD target_clusters ON capacity_snapshot TYPE array<record(destination_cluster)>;
+            DEFINE FIELD overcommit_ratios ON capacity_snapshot TYPE object;
+            DEFINE FIELD ha_policy ON capacity_snapshot TYPE string;
+            DEFINE FIELD headroom_percentage ON capacity_snapshot TYPE float;
+            DEFINE FIELD total_capacity ON capacity_snapshot TYPE object;
+            DEFINE FIELD used_capacity ON capacity_snapshot TYPE object;
+            DEFINE FIELD available_capacity ON capacity_snapshot TYPE object;
+            DEFINE FIELD reserved_capacity ON capacity_snapshot TYPE object;
+            DEFINE FIELD bottlenecks ON capacity_snapshot TYPE array;
+            DEFINE FIELD recommendations ON capacity_snapshot TYPE array<string>;
+            DEFINE FIELD risk_assessment ON capacity_snapshot TYPE object;
+            DEFINE FIELD is_valid ON capacity_snapshot TYPE bool;
+            DEFINE FIELD validation_errors ON capacity_snapshot TYPE array<string>;
+            DEFINE FIELD metadata ON capacity_snapshot TYPE object;
+            DEFINE FIELD created_at ON capacity_snapshot TYPE datetime;
+        "#,
+        )
+        .await?;
+
+        println!("✅ Capacity snapshot tables created");
+        Ok(())
+    }
+
+    /// Create network profile tables
+    async fn create_network_profile_tables(db: &Database) -> Result<()> {
+        db.query(
+            r#"
+            DEFINE TABLE network_profile_template SCHEMAFULL;
+            DEFINE FIELD name ON network_profile_template TYPE string;
+            DEFINE FIELD description ON network_profile_template TYPE string;
+            DEFINE FIELD hypervisor ON network_profile_template TYPE string;
+            DEFINE FIELD storage_type ON network_profile_template TYPE string;
+            DEFINE FIELD required_nics ON network_profile_template TYPE int;
+            DEFINE FIELD recommended_nics ON network_profile_template TYPE int;
+            DEFINE FIELD requires_rdma ON network_profile_template TYPE bool;
+            DEFINE FIELD requires_teaming ON network_profile_template TYPE bool;
+            DEFINE FIELD min_bandwidth_gbps ON network_profile_template TYPE float;
+            DEFINE FIELD network_topology ON network_profile_template TYPE string;
+            DEFINE FIELD vlan_requirements ON network_profile_template TYPE array;
+            DEFINE FIELD validation_rules ON network_profile_template TYPE array;
+            DEFINE FIELD example_configuration ON network_profile_template TYPE option<string>;
+            DEFINE FIELD documentation_url ON network_profile_template TYPE option<string>;
+            DEFINE FIELD is_standard ON network_profile_template TYPE bool;
+            DEFINE FIELD is_active ON network_profile_template TYPE bool;
+            DEFINE FIELD metadata ON network_profile_template TYPE object;
+            DEFINE FIELD created_at ON network_profile_template TYPE datetime;
+            DEFINE FIELD updated_at ON network_profile_template TYPE datetime;
+
+            DEFINE TABLE network_profile_instance SCHEMAFULL;
+            DEFINE FIELD project_id ON network_profile_instance TYPE record(project);
+            DEFINE FIELD activity_id ON network_profile_instance TYPE record(activity);
+            DEFINE FIELD template_id ON network_profile_instance TYPE record(network_profile_template);
+            DEFINE FIELD vlan_mappings ON network_profile_instance TYPE object;
+            DEFINE FIELD nic_assignments ON network_profile_instance TYPE object;
+            DEFINE FIELD custom_settings ON network_profile_instance TYPE object;
+            DEFINE FIELD is_valid ON network_profile_instance TYPE bool;
+            DEFINE FIELD validation_results ON network_profile_instance TYPE array;
+            DEFINE FIELD warnings ON network_profile_instance TYPE array<string>;
+            DEFINE FIELD metadata ON network_profile_instance TYPE object;
+            DEFINE FIELD created_at ON network_profile_instance TYPE datetime;
+            DEFINE FIELD updated_at ON network_profile_instance TYPE datetime;
+        "#,
+        )
+        .await?;
+
+        println!("✅ Network profile tables created");
+        Ok(())
+    }
+
+    /// Create document template tables
+    async fn create_document_template_tables(db: &Database) -> Result<()> {
+        db.query(
+            r#"
+            DEFINE TABLE document_template SCHEMAFULL;
+            DEFINE FIELD name ON document_template TYPE string;
+            DEFINE FIELD description ON document_template TYPE string;
+            DEFINE FIELD document_type ON document_template TYPE string;
+            DEFINE FIELD hypervisor ON document_template TYPE option<string>;
+            DEFINE FIELD storage_type ON document_template TYPE option<string>;
+            DEFINE FIELD file_path ON document_template TYPE string;
+            DEFINE FIELD file_size_bytes ON document_template TYPE int;
+            DEFINE FIELD file_hash ON document_template TYPE string;
+            DEFINE FIELD variables_schema ON document_template TYPE array;
+            DEFINE FIELD sections ON document_template TYPE array;
+            DEFINE FIELD version ON document_template TYPE string;
+            DEFINE FIELD is_standard ON document_template TYPE bool;
+            DEFINE FIELD is_active ON document_template TYPE bool;
+            DEFINE FIELD author ON document_template TYPE string;
+            DEFINE FIELD tags ON document_template TYPE array<string>;
+            DEFINE FIELD created_at ON document_template TYPE datetime;
+            DEFINE FIELD updated_at ON document_template TYPE datetime;
+
+            DEFINE TABLE generated_document SCHEMAFULL;
+            DEFINE FIELD project_id ON generated_document TYPE record(project);
+            DEFINE FIELD activity_id ON generated_document TYPE record(activity);
+            DEFINE FIELD template_id ON generated_document TYPE record(document_template);
+            DEFINE FIELD document_name ON generated_document TYPE string;
+            DEFINE FIELD document_type ON generated_document TYPE string;
+            DEFINE FIELD file_path ON generated_document TYPE string;
+            DEFINE FIELD file_size_bytes ON generated_document TYPE int;
+            DEFINE FIELD file_format ON generated_document TYPE string;
+            DEFINE FIELD variables_snapshot ON generated_document TYPE object;
+            DEFINE FIELD data_sources ON generated_document TYPE array<record>;
+            DEFINE FIELD generation_status ON generated_document TYPE string;
+            DEFINE FIELD error_message ON generated_document TYPE option<string>;
+            DEFINE FIELD metadata ON generated_document TYPE object;
+            DEFINE FIELD generated_at ON generated_document TYPE datetime;
+            DEFINE FIELD generated_by ON generated_document TYPE string;
+            DEFINE FIELD expires_at ON generated_document TYPE option<datetime>;
+        "#,
+        )
+        .await?;
+
+        println!("✅ Document template tables created");
+        Ok(())
+    }
+
+    /// Create indexes for performance
+    async fn create_indexes(db: &Database) -> Result<()> {
+        db.query(
+            r#"
+            DEFINE INDEX destination_cluster_project_idx ON destination_cluster FIELDS project_id;
+            DEFINE INDEX destination_cluster_activity_idx ON destination_cluster FIELDS activity_id;
+            DEFINE INDEX vm_placement_activity_idx ON vm_placement_plan FIELDS activity_id;
+            DEFINE INDEX capacity_snapshot_activity_idx ON capacity_snapshot FIELDS activity_id;
+            DEFINE INDEX network_instance_activity_idx ON network_profile_instance FIELDS activity_id;
+            DEFINE INDEX generated_doc_activity_idx ON generated_document FIELDS activity_id;
+        "#,
+        )
+        .await?;
+
+        println!("✅ Migration planning indexes created");
+        Ok(())
+    }
+
+    /// Seed standard network profile templates
+    async fn seed_network_templates(db: &Database) -> Result<()> {
+        let templates = vec![
+            json!({
+                "name": "Hyper-V S2D Converged",
+                "description": "Converged network for Hyper-V with Storage Spaces Direct",
+                "hypervisor": "hyper-v",
+                "storage_type": "s2d",
+                "required_nics": 4,
+                "recommended_nics": 6,
+                "requires_rdma": true,
+                "requires_teaming": true,
+                "min_bandwidth_gbps": 10.0,
+                "network_topology": "converged",
+                "vlan_requirements": [
+                    {
+                        "purpose": "management",
+                        "vlan_id_range": {"min": 100, "max": 199},
+                        "is_required": true,
+                        "description": "Management network for cluster communication"
+                    },
+                    {
+                        "purpose": "workload",
+                        "vlan_id_range": {"min": 200, "max": 299},
+                        "is_required": true,
+                        "description": "VM workload network"
+                    },
+                    {
+                        "purpose": "storage",
+                        "vlan_id_range": {"min": 300, "max": 399},
+                        "is_required": true,
+                        "description": "Storage network for S2D"
+                    }
+                ],
+                "validation_rules": [],
+                "is_standard": true,
+                "is_active": true,
+                "metadata": {}
+            }),
+            json!({
+                "name": "Hyper-V Traditional Storage",
+                "description": "Separated network for Hyper-V with traditional SAN storage",
+                "hypervisor": "hyper-v",
+                "storage_type": "traditional",
+                "required_nics": 4,
+                "recommended_nics": 4,
+                "requires_rdma": false,
+                "requires_teaming": true,
+                "min_bandwidth_gbps": 1.0,
+                "network_topology": "separated",
+                "vlan_requirements": [
+                    {
+                        "purpose": "management",
+                        "vlan_id_range": {"min": 100, "max": 199},
+                        "is_required": true,
+                        "description": "Management network"
+                    },
+                    {
+                        "purpose": "workload",
+                        "vlan_id_range": {"min": 200, "max": 299},
+                        "is_required": true,
+                        "description": "VM workload network"
+                    }
+                ],
+                "validation_rules": [],
+                "is_standard": true,
+                "is_active": true,
+                "metadata": {}
+            }),
+            json!({
+                "name": "Azure Local (HCI)",
+                "description": "Network profile for Azure Local (Azure Stack HCI)",
+                "hypervisor": "azure-local",
+                "storage_type": "azure_local",
+                "required_nics": 6,
+                "recommended_nics": 8,
+                "requires_rdma": true,
+                "requires_teaming": false,
+                "min_bandwidth_gbps": 25.0,
+                "network_topology": "fully_converged",
+                "vlan_requirements": [
+                    {
+                        "purpose": "management",
+                        "vlan_id_range": {"min": 100, "max": 199},
+                        "is_required": true,
+                        "description": "Management and cluster communication"
+                    },
+                    {
+                        "purpose": "workload",
+                        "vlan_id_range": {"min": 200, "max": 299},
+                        "is_required": true,
+                        "description": "VM workload network"
+                    },
+                    {
+                        "purpose": "storage",
+                        "vlan_id_range": {"min": 300, "max": 399},
+                        "is_required": true,
+                        "description": "RDMA storage network"
+                    }
+                ],
+                "validation_rules": [],
+                "is_standard": true,
+                "is_active": true,
+                "metadata": {}
+            })
+        ];
+
+        for template in templates {
+            let _: Vec<serde_json::Value> = db
+                .create("network_profile_template")
+                .content(template)
+                .await?;
+        }
+
+        println!("✅ Standard network templates seeded");
+        Ok(())
+    }
+}

@@ -268,8 +268,8 @@ impl CapacityPlannerService {
 
         // Calculate available capacity with overcommit
         let mut available_capacity = cluster.capacity_totals.clone();
-        available_capacity.cpu_cores = ((available_capacity.cpu_cores - ha_reserved.cpu_cores) as f64 * overcommit.cpu_ratio) as i32;
-        available_capacity.memory_gb = ((available_capacity.memory_gb - ha_reserved.memory_gb) as f64 * overcommit.memory_ratio) as i32;
+        available_capacity.cpu_cores = ((available_capacity.cpu_cores - ha_reserved.cpu_cores) as f32 * overcommit.cpu_ratio) as i32;
+        available_capacity.memory_gb = ((available_capacity.memory_gb - ha_reserved.memory_gb) as f32 * overcommit.memory_ratio) as i32;
         available_capacity.storage_gb -= ha_reserved.storage_gb;
 
         Ok(ClusterCapacityDetail {

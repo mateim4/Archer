@@ -1037,6 +1037,612 @@ pub struct HardwarePoolResponse {
     pub available_until_date: Option<DateTime<Utc>>,
 }
 
+// =============================================================================
+// DESTINATION CLUSTER MODELS
+// =============================================================================
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DestinationCluster {
+    pub id: Option<Thing>,
+    pub project_id: Thing,
+    pub activity_id: Option<Thing>,
+    pub name: String,
+    pub description: Option<String>,
+    
+    // Cluster Configuration
+    pub hypervisor: HypervisorType,
+    pub storage_type: DestinationStorageType,
+    pub nodes: Vec<Thing>, // References to hardware_pool servers
+    pub node_count: i32,
+    
+    // Capacity Configuration
+    pub overcommit_ratios: OvercommitRatios,
+    pub ha_policy: HaPolicy,
+    pub capacity_totals: ClusterCapacity,
+    pub capacity_available: ClusterCapacity,
+    pub capacity_reserved: ClusterCapacity,
+    
+    // Network Configuration
+    pub network_profile_id: Option<Thing>,
+    pub management_network: NetworkConfig,
+    pub workload_network: NetworkConfig,
+    pub storage_network: Option<NetworkConfig>,
+    pub migration_network: Option<NetworkConfig>,
+    
+    // Status and Lifecycle
+    pub status: ClusterStatus,
+    pub build_status: BuildStatus,
+    pub validation_results: Vec<ValidationIssue>,
+    
+    pub metadata: HashMap<String, serde_json::Value>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub created_by: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum HypervisorType {
+    #[serde(rename = "hyper-v")]
+    HyperV,
+    #[serde(rename = "vmware")]
+    VMware,
+    #[serde(rename = "azure-local")]
+    AzureLocal,
+    #[serde(rename = "kvm")]
+    Kvm,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum DestinationStorageType {
+    #[serde(rename = "s2d")]
+    S2D,
+    #[serde(rename = "traditional")]
+    Traditional,
+    #[serde(rename = "azure_local")]
+    AzureLocal,
+    #[serde(rename = "vsan")]
+    VSan,
+    #[serde(rename = "san")]
+    San,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum HaPolicy {
+    #[serde(rename = "n+0")]
+    NPlusZero,
+    #[serde(rename = "n+1")]
+    NPlusOne,
+    #[serde(rename = "n+2")]
+    NPlusTwo,
+    #[serde(rename = "none")]
+    None,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ClusterCapacity {
+    pub cpu_cores: i32,
+    pub cpu_ghz: f64,
+    pub memory_gb: i32,
+    pub storage_gb: i64,
+    pub storage_iops: Option<i32>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct NetworkConfig {
+    pub vlan_id: Option<i32>,
+    pub subnet: Option<String>,
+    pub gateway: Option<String>,
+    pub dns_servers: Vec<String>,
+    pub mtu: Option<i32>,
+    pub nic_teaming: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum ClusterStatus {
+    #[serde(rename = "planning")]
+    Planning,
+    #[serde(rename = "validated")]
+    Validated,
+    #[serde(rename = "building")]
+    Building,
+    #[serde(rename = "ready")]
+    Ready,
+    #[serde(rename = "active")]
+    Active,
+    #[serde(rename = "decommissioned")]
+    Decommissioned,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum BuildStatus {
+    #[serde(rename = "not_started")]
+    NotStarted,
+    #[serde(rename = "hardware_ordered")]
+    HardwareOrdered,
+    #[serde(rename = "hardware_received")]
+    HardwareReceived,
+    #[serde(rename = "racking")]
+    Racking,
+    #[serde(rename = "cabling")]
+    Cabling,
+    #[serde(rename = "os_installation")]
+    OsInstallation,
+    #[serde(rename = "cluster_configuration")]
+    ClusterConfiguration,
+    #[serde(rename = "validation")]
+    Validation,
+    #[serde(rename = "completed")]
+    Completed,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ValidationIssue {
+    pub severity: ValidationSeverity,
+    pub category: String,
+    pub message: String,
+    pub recommendation: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum ValidationSeverity {
+    #[serde(rename = "info")]
+    Info,
+    #[serde(rename = "warning")]
+    Warning,
+    #[serde(rename = "error")]
+    Error,
+    #[serde(rename = "critical")]
+    Critical,
+}
+
+// =============================================================================
+// VM PLACEMENT MODELS
+// =============================================================================
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct VmPlacementPlan {
+    pub id: Option<Thing>,
+    pub project_id: Thing,
+    pub activity_id: Thing,
+    pub rvtools_upload_id: Thing,
+    
+    // Source Selection
+    pub source_cluster_names: Vec<String>,
+    pub source_vm_filter: Option<VmFilter>,
+    pub total_vms_selected: i32,
+    
+    // Placement Results
+    pub placements: Vec<VmPlacement>,
+    pub spillover_vms: Vec<SpilloverVm>,
+    pub unplaced_vms: Vec<UnplacedVm>,
+    
+    // Placement Strategy
+    pub strategy: PlacementStrategy,
+    pub constraints: PlacementConstraints,
+    
+    // Status and Metadata
+    pub status: PlacementStatus,
+    pub warnings: Vec<String>,
+    pub metadata: HashMap<String, serde_json::Value>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct VmPlacement {
+    pub vm_name: String,
+    pub vm_id: Option<Thing>,
+    pub source_cluster: String,
+    pub destination_cluster_id: Thing,
+    pub destination_host_id: Option<Thing>,
+    pub placement_reason: String,
+    pub confidence_score: f32,
+    pub resources_allocated: VmResources,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct VmResources {
+    pub vcpu: i32,
+    pub cpu_ghz: f64,
+    pub memory_gb: i32,
+    pub storage_gb: i64,
+    pub network_mbps: Option<i32>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SpilloverVm {
+    pub vm_name: String,
+    pub source_cluster: String,
+    pub reason: String,
+    pub required_resources: VmResources,
+    pub suggested_cluster_id: Option<Thing>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct UnplacedVm {
+    pub vm_name: String,
+    pub source_cluster: String,
+    pub reason: String,
+    pub required_resources: VmResources,
+    pub blocking_constraints: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct VmFilter {
+    pub cluster_names: Option<Vec<String>>,
+    pub vm_name_pattern: Option<String>,
+    pub min_cpu: Option<i32>,
+    pub min_memory_gb: Option<i32>,
+    pub power_state: Option<String>,
+    pub tags: Option<Vec<String>>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum PlacementStrategy {
+    #[serde(rename = "balanced")]
+    Balanced,
+    #[serde(rename = "fill_first")]
+    FillFirst,
+    #[serde(rename = "performance")]
+    Performance,
+    #[serde(rename = "custom")]
+    Custom,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PlacementConstraints {
+    pub enforce_anti_affinity: bool,
+    pub max_vms_per_host: Option<i32>,
+    pub require_same_storage_tier: bool,
+    pub network_requirements: Vec<NetworkRequirement>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct NetworkRequirement {
+    pub vlan_id: i32,
+    pub bandwidth_mbps: Option<i32>,
+    pub required: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum PlacementStatus {
+    #[serde(rename = "draft")]
+    Draft,
+    #[serde(rename = "validated")]
+    Validated,
+    #[serde(rename = "approved")]
+    Approved,
+    #[serde(rename = "executing")]
+    Executing,
+    #[serde(rename = "completed")]
+    Completed,
+}
+
+// =============================================================================
+// CAPACITY SNAPSHOT MODELS
+// =============================================================================
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CapacitySnapshot {
+    pub id: Option<Thing>,
+    pub project_id: Thing,
+    pub activity_id: Thing,
+    pub name: String,
+    pub description: Option<String>,
+    
+    // Input Parameters
+    pub source_upload_id: Thing,
+    pub source_summary: SourceCapacitySummary,
+    pub target_clusters: Vec<Thing>,
+    pub overcommit_ratios: OvercommitRatios,
+    pub ha_policy: HaPolicy,
+    pub headroom_percentage: f32,
+    
+    // Computed Results
+    pub total_capacity: ClusterCapacity,
+    pub used_capacity: ClusterCapacity,
+    pub available_capacity: ClusterCapacity,
+    pub reserved_capacity: ClusterCapacity,
+    
+    // Analysis Results
+    pub bottlenecks: Vec<CapacityBottleneck>,
+    pub recommendations: Vec<String>,
+    pub risk_assessment: RiskAssessment,
+    
+    // Status
+    pub is_valid: bool,
+    pub validation_errors: Vec<String>,
+    
+    pub metadata: HashMap<String, serde_json::Value>,
+    pub created_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SourceCapacitySummary {
+    pub total_vms: i32,
+    pub total_cpu_cores: i32,
+    pub total_cpu_ghz: f64,
+    pub total_memory_gb: i32,
+    pub total_storage_gb: i64,
+    pub avg_cpu_utilization: Option<f32>,
+    pub avg_memory_utilization: Option<f32>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CapacityBottleneck {
+    pub resource_type: ResourceType,
+    pub severity: ValidationSeverity,
+    pub current_usage_percent: f32,
+    pub projected_usage_percent: f32,
+    pub message: String,
+    pub recommendation: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum ResourceType {
+    #[serde(rename = "cpu")]
+    Cpu,
+    #[serde(rename = "memory")]
+    Memory,
+    #[serde(rename = "storage")]
+    Storage,
+    #[serde(rename = "network")]
+    Network,
+    #[serde(rename = "iops")]
+    Iops,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RiskAssessment {
+    pub overall_risk: RiskLevel,
+    pub risk_factors: Vec<RiskFactor>,
+    pub mitigation_strategies: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RiskFactor {
+    pub category: String,
+    pub severity: ValidationSeverity,
+    pub description: String,
+    pub impact: String,
+}
+
+// =============================================================================
+// NETWORK PROFILE MODELS
+// =============================================================================
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct NetworkProfileTemplate {
+    pub id: Option<Thing>,
+    pub name: String,
+    pub description: String,
+    pub hypervisor: HypervisorType,
+    pub storage_type: DestinationStorageType,
+    
+    // Requirements
+    pub required_nics: i32,
+    pub recommended_nics: i32,
+    pub requires_rdma: bool,
+    pub requires_teaming: bool,
+    pub min_bandwidth_gbps: f64,
+    
+    // Network Topology
+    pub network_topology: NetworkTopology,
+    pub vlan_requirements: Vec<VlanRequirement>,
+    
+    // Validation Rules
+    pub validation_rules: Vec<NetworkValidationRule>,
+    
+    // Examples and Documentation
+    pub example_configuration: Option<String>,
+    pub documentation_url: Option<String>,
+    
+    pub is_standard: bool,
+    pub is_active: bool,
+    pub metadata: HashMap<String, serde_json::Value>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum NetworkTopology {
+    #[serde(rename = "converged")]
+    Converged,
+    #[serde(rename = "separated")]
+    Separated,
+    #[serde(rename = "fully_converged")]
+    FullyConverged,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct VlanRequirement {
+    pub purpose: NetworkPurpose,
+    pub vlan_id_range: Option<VlanRange>,
+    pub is_required: bool,
+    pub description: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct VlanRange {
+    pub min: i32,
+    pub max: i32,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
+pub enum NetworkPurpose {
+    #[serde(rename = "management")]
+    Management,
+    #[serde(rename = "workload")]
+    Workload,
+    #[serde(rename = "storage")]
+    Storage,
+    #[serde(rename = "migration")]
+    Migration,
+    #[serde(rename = "backup")]
+    Backup,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct NetworkValidationRule {
+    pub rule_type: NetworkRuleType,
+    pub parameters: HashMap<String, serde_json::Value>,
+    pub error_message: String,
+    pub severity: ValidationSeverity,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum NetworkRuleType {
+    #[serde(rename = "min_bandwidth")]
+    MinBandwidth,
+    #[serde(rename = "rdma_support")]
+    RdmaSupport,
+    #[serde(rename = "vlan_separation")]
+    VlanSeparation,
+    #[serde(rename = "nic_count")]
+    NicCount,
+    #[serde(rename = "teaming_config")]
+    TeamingConfig,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct NetworkProfileInstance {
+    pub id: Option<Thing>,
+    pub project_id: Thing,
+    pub activity_id: Thing,
+    pub template_id: Thing,
+    
+    // User Configuration
+    pub vlan_mappings: HashMap<NetworkPurpose, i32>,
+    pub nic_assignments: HashMap<NetworkPurpose, Vec<String>>,
+    pub custom_settings: HashMap<String, serde_json::Value>,
+    
+    // Validation Results
+    pub is_valid: bool,
+    pub validation_results: Vec<NetworkValidationResult>,
+    pub warnings: Vec<String>,
+    
+    pub metadata: HashMap<String, serde_json::Value>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct NetworkValidationResult {
+    pub rule_name: String,
+    pub passed: bool,
+    pub message: String,
+    pub severity: ValidationSeverity,
+    pub recommendation: Option<String>,
+}
+
+// =============================================================================
+// DOCUMENT TEMPLATE MODELS (for HLD Generation)
+// =============================================================================
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DocumentTemplate {
+    pub id: Option<Thing>,
+    pub name: String,
+    pub description: String,
+    pub document_type: DocumentType,
+    pub hypervisor: Option<HypervisorType>,
+    pub storage_type: Option<DestinationStorageType>,
+    
+    // Template File
+    pub file_path: String,
+    pub file_size_bytes: i64,
+    pub file_hash: String,
+    
+    // Template Structure
+    pub variables_schema: Vec<TemplateVariable>,
+    pub sections: Vec<TemplateSection>,
+    pub version: String,
+    
+    // Metadata
+    pub is_standard: bool,
+    pub is_active: bool,
+    pub author: String,
+    pub tags: Vec<String>,
+    
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum DocumentType {
+    #[serde(rename = "hld")]
+    Hld,
+    #[serde(rename = "lld")]
+    Lld,
+    #[serde(rename = "migration_plan")]
+    MigrationPlan,
+    #[serde(rename = "runbook")]
+    Runbook,
+    #[serde(rename = "custom")]
+    Custom,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TemplateSection {
+    pub id: String,
+    pub title: String,
+    pub order: i32,
+    pub is_required: bool,
+    pub variables: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct GeneratedDocument {
+    pub id: Option<Thing>,
+    pub project_id: Thing,
+    pub activity_id: Thing,
+    pub template_id: Thing,
+    
+    // Document Information
+    pub document_name: String,
+    pub document_type: DocumentType,
+    pub file_path: String,
+    pub file_size_bytes: i64,
+    pub file_format: DocumentFormat,
+    
+    // Generation Context
+    pub variables_snapshot: HashMap<String, serde_json::Value>,
+    pub data_sources: Vec<Thing>, // RVTools uploads, capacity snapshots, etc.
+    
+    // Status
+    pub generation_status: DocumentGenerationStatus,
+    pub error_message: Option<String>,
+    
+    pub metadata: HashMap<String, serde_json::Value>,
+    pub generated_at: DateTime<Utc>,
+    pub generated_by: String,
+    pub expires_at: Option<DateTime<Utc>>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum DocumentFormat {
+    #[serde(rename = "docx")]
+    Docx,
+    #[serde(rename = "pdf")]
+    Pdf,
+    #[serde(rename = "html")]
+    Html,
+    #[serde(rename = "markdown")]
+    Markdown,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum DocumentGenerationStatus {
+    #[serde(rename = "queued")]
+    Queued,
+    #[serde(rename = "generating")]
+    Generating,
+    #[serde(rename = "completed")]
+    Completed,
+    #[serde(rename = "failed")]
+    Failed,
+}
+
 // Filter structs for queries
 #[derive(Debug, Deserialize)]
 pub struct ProjectFilter {
