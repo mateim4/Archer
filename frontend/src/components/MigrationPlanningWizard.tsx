@@ -11,7 +11,7 @@
  * Design: Purple Glass components with step progression
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Dialog,
   DialogSurface,
@@ -24,6 +24,7 @@ import {
   tokens,
   Spinner,
 } from '@fluentui/react-components';
+import mermaid from 'mermaid';
 import {
   DismissRegular,
   ChevronLeftRegular,
@@ -40,6 +41,8 @@ import {
   ErrorCircleRegular,
   WarningRegular,
   InfoRegular,
+  PlugConnectedRegular,
+  DiagramRegular,
 } from '@fluentui/react-icons';
 import {
   PurpleGlassDropdown,
@@ -234,6 +237,19 @@ export const MigrationPlanningWizard: React.FC<MigrationWizardProps> = ({
   const [capacityAnalysis, setCapacityAnalysis] = useState<CapacityAnalysis | null>(null);
   const [analyzingCapacity, setAnalyzingCapacity] = useState(false);
   
+  // Step 4: Network Configuration State
+  interface NetworkMapping {
+    id: string;
+    sourceVlan: string;
+    sourceSubnet: string;
+    destinationVlan: string;
+    destinationSubnet: string;
+    ipStrategy: 'dhcp' | 'static' | 'preserve';
+  }
+  
+  const [networkMappings, setNetworkMappings] = useState<NetworkMapping[]>([]);
+  const [showNetworkDiagram, setShowNetworkDiagram] = useState(false);
+  
   // Load workload summary when filters change
   useEffect(() => {
     if (selectedRVTools) {
@@ -338,6 +354,84 @@ export const MigrationPlanningWizard: React.FC<MigrationWizardProps> = ({
     } finally {
       setAnalyzingCapacity(false);
     }
+  };
+  
+  // Network mapping functions
+  const handleAddNetworkMapping = () => {
+    const newMapping: NetworkMapping = {
+      id: `mapping-${Date.now()}`,
+      sourceVlan: '',
+      sourceSubnet: '',
+      destinationVlan: '',
+      destinationSubnet: '',
+      ipStrategy: 'dhcp',
+    };
+    setNetworkMappings([...networkMappings, newMapping]);
+  };
+  
+  const handleRemoveNetworkMapping = (mappingId: string) => {
+    setNetworkMappings(networkMappings.filter(m => m.id !== mappingId));
+  };
+  
+  const handleUpdateNetworkMapping = (mappingId: string, updates: Partial<NetworkMapping>) => {
+    setNetworkMappings(networkMappings.map(m => 
+      m.id === mappingId ? { ...m, ...updates } : m
+    ));
+  };
+  
+  // Generate mermaid diagram for network visualization
+  const generateNetworkDiagram = () => {
+    if (networkMappings.length === 0) {
+      return `graph LR
+        A[Source Network] --> B[No Mappings Configured]
+        B --> C[Destination Network]
+        style A fill:#3b82f6,stroke:#2563eb,color:#fff
+        style C fill:#8b5cf6,stroke:#7c3aed,color:#fff
+        style B fill:#f59e0b,stroke:#d97706,color:#fff`;
+    }
+    
+    let diagram = `graph TB
+      subgraph Source["Source VMware Networks"]
+`;
+    
+    networkMappings.forEach((mapping, index) => {
+      if (mapping.sourceVlan && mapping.sourceSubnet) {
+        diagram += `        SRC${index}["VLAN ${mapping.sourceVlan}<br/>${mapping.sourceSubnet}"]\n`;
+      }
+    });
+    
+    diagram += `      end
+      
+      subgraph Destination["Destination Hyper-V Networks"]
+`;
+    
+    networkMappings.forEach((mapping, index) => {
+      if (mapping.destinationVlan && mapping.destinationSubnet) {
+        diagram += `        DST${index}["VLAN ${mapping.destinationVlan}<br/>${mapping.destinationSubnet}<br/>(${mapping.ipStrategy.toUpperCase()})"]\n`;
+      }
+    });
+    
+    diagram += `      end
+      
+`;
+    
+    networkMappings.forEach((mapping, index) => {
+      if (mapping.sourceVlan && mapping.destinationVlan) {
+        diagram += `      SRC${index} -.->|"Migration"| DST${index}\n`;
+      }
+    });
+    
+    diagram += `
+      style Source fill:#3b82f620,stroke:#3b82f6,stroke-width:2px
+      style Destination fill:#8b5cf620,stroke:#8b5cf6,stroke-width:2px
+`;
+    
+    networkMappings.forEach((_, index) => {
+      diagram += `      style SRC${index} fill:#3b82f6,stroke:#2563eb,stroke-width:2px,color:#fff\n`;
+      diagram += `      style DST${index} fill:#8b5cf6,stroke:#7c3aed,stroke-width:2px,color:#fff\n`;
+    });
+    
+    return diagram;
   };
 
   const handleNext = () => {
@@ -1172,26 +1266,252 @@ export const MigrationPlanningWizard: React.FC<MigrationWizardProps> = ({
         );
       
       case 4:
+        const ipStrategyOptions: DropdownOption[] = [
+          { value: 'dhcp', label: 'DHCP (Dynamic)' },
+          { value: 'static', label: 'Static IP Assignment' },
+          { value: 'preserve', label: 'Preserve Source IPs' },
+        ];
+        
+        // Initialize mermaid for diagram rendering
+        useEffect(() => {
+          mermaid.initialize({
+            startOnLoad: true,
+            theme: 'base',
+            themeVariables: {
+              primaryColor: '#e1f5fe',
+              primaryTextColor: '#1a202c',
+              primaryBorderColor: '#3b82f6',
+              lineColor: '#8b5cf6',
+              fontFamily: 'Poppins, sans-serif',
+            },
+          });
+        }, []);
+        
+        // Render mermaid diagram
+        useEffect(() => {
+          if (showNetworkDiagram) {
+            const renderDiagram = async () => {
+              const element = document.getElementById('network-mermaid-diagram');
+              if (element) {
+                try {
+                  element.innerHTML = '';
+                  const diagramCode = generateNetworkDiagram();
+                  const uniqueId = `mermaid-network-${Date.now()}`;
+                  const tempDiv = document.createElement('div');
+                  tempDiv.className = 'mermaid';
+                  tempDiv.textContent = diagramCode;
+                  tempDiv.id = uniqueId;
+                  element.appendChild(tempDiv);
+                  await mermaid.run({ nodes: [tempDiv] });
+                } catch (error) {
+                  console.error('Mermaid rendering error:', error);
+                }
+              }
+            };
+            renderDiagram();
+          }
+        }, [showNetworkDiagram, networkMappings]);
+        
         return (
           <div>
-            <h3 style={{ fontFamily: 'Poppins, sans-serif', marginBottom: '16px' }}>
-              Step 4: Network Setup
-            </h3>
-            <p style={{ color: tokens.colorNeutralForeground3 }}>
-              Configure network profiles and VLAN mappings for the migration.
-            </p>
-            <div style={{ 
-              padding: '40px', 
-              textAlign: 'center', 
-              background: 'rgba(245, 158, 11, 0.05)',
-              borderRadius: '12px',
-              marginTop: '24px'
+            <h3 style={{ 
+              fontFamily: 'Poppins, sans-serif', 
+              marginBottom: '24px',
+              fontSize: '20px',
+              fontWeight: '600',
+              color: tokens.colorNeutralForeground1,
             }}>
-              <p style={{ fontSize: '48px', margin: '0 0 16px 0' }}>🌐</p>
-              <p style={{ color: tokens.colorNeutralForeground2 }}>
-                Network configuration UI will be implemented here
-              </p>
+              <PlugConnectedRegular style={{ marginRight: '8px', verticalAlign: 'middle' }} />
+              Network Configuration
+            </h3>
+            
+            {/* Network Mappings Table */}
+            <div style={{ marginBottom: '24px' }}>
+              <div style={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center',
+                marginBottom: '16px',
+              }}>
+                <div style={{ fontSize: '16px', fontWeight: '600' }}>
+                  Network Mappings ({networkMappings.length})
+                </div>
+                <div style={{ display: 'flex', gap: '12px' }}>
+                  <Button
+                    appearance="subtle"
+                    icon={<DiagramRegular />}
+                    onClick={() => setShowNetworkDiagram(!showNetworkDiagram)}
+                  >
+                    {showNetworkDiagram ? 'Hide' : 'Show'} Network Diagram
+                  </Button>
+                  <Button
+                    appearance="primary"
+                    icon={<AddRegular />}
+                    onClick={handleAddNetworkMapping}
+                  >
+                    Add Mapping
+                  </Button>
+                </div>
+              </div>
+              
+              {/* Network Diagram */}
+              {showNetworkDiagram && networkMappings.length > 0 && (
+                <PurpleGlassCard
+                  variant="elevated"
+                  glass
+                  style={{ marginBottom: '24px', padding: '24px' }}
+                >
+                  <div style={{ 
+                    textAlign: 'center',
+                    background: '#ffffff',
+                    borderRadius: '8px',
+                    padding: '24px',
+                    minHeight: '300px',
+                  }}>
+                    <div 
+                      id="network-mermaid-diagram"
+                      style={{ 
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                      }}
+                    />
+                  </div>
+                </PurpleGlassCard>
+              )}
+              
+              {networkMappings.length === 0 ? (
+                <PurpleGlassCard variant="outlined" glass>
+                  <div style={{ 
+                    textAlign: 'center', 
+                    padding: '40px',
+                    color: tokens.colorNeutralForeground3,
+                  }}>
+                    <PlugConnectedRegular style={{ fontSize: '48px', marginBottom: '16px' }} />
+                    <p>No network mappings configured yet.</p>
+                    <p style={{ fontSize: '14px', marginTop: '8px' }}>
+                      Click "Add Mapping" to configure source-to-destination network mappings.
+                    </p>
+                  </div>
+                </PurpleGlassCard>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  {networkMappings.map((mapping) => (
+                    <PurpleGlassCard
+                      key={mapping.id}
+                      variant="interactive"
+                      glass
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px' }}>
+                        <div style={{ flex: 1, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+                          {/* Source Network */}
+                          <div>
+                            <div style={{ 
+                              fontSize: '12px', 
+                              fontWeight: '600', 
+                              marginBottom: '8px',
+                              color: tokens.colorNeutralForeground2,
+                              textTransform: 'uppercase',
+                            }}>
+                              Source (VMware)
+                            </div>
+                            <PurpleGlassInput
+                              label="VLAN ID"
+                              value={mapping.sourceVlan}
+                              onChange={(e) => handleUpdateNetworkMapping(mapping.id, { sourceVlan: e.target.value })}
+                              placeholder="e.g., 100"
+                              glass="none"
+                            />
+                            <div style={{ marginTop: '8px' }}>
+                              <PurpleGlassInput
+                                label="Subnet"
+                                value={mapping.sourceSubnet}
+                                onChange={(e) => handleUpdateNetworkMapping(mapping.id, { sourceSubnet: e.target.value })}
+                                placeholder="e.g., 192.168.100.0/24"
+                                glass="none"
+                              />
+                            </div>
+                          </div>
+                          
+                          {/* Arrow Indicator */}
+                          <div style={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            justifyContent: 'center',
+                            fontSize: '32px',
+                            color: '#8b5cf6',
+                            paddingTop: '20px',
+                          }}>
+                            →
+                          </div>
+                          
+                          {/* Destination Network */}
+                          <div>
+                            <div style={{ 
+                              fontSize: '12px', 
+                              fontWeight: '600', 
+                              marginBottom: '8px',
+                              color: tokens.colorNeutralForeground2,
+                              textTransform: 'uppercase',
+                            }}>
+                              Destination (Hyper-V)
+                            </div>
+                            <PurpleGlassInput
+                              label="VLAN ID"
+                              value={mapping.destinationVlan}
+                              onChange={(e) => handleUpdateNetworkMapping(mapping.id, { destinationVlan: e.target.value })}
+                              placeholder="e.g., 200"
+                              glass="none"
+                            />
+                            <div style={{ marginTop: '8px' }}>
+                              <PurpleGlassInput
+                                label="Subnet"
+                                value={mapping.destinationSubnet}
+                                onChange={(e) => handleUpdateNetworkMapping(mapping.id, { destinationSubnet: e.target.value })}
+                                placeholder="e.g., 10.0.200.0/24"
+                                glass="none"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', minWidth: '200px' }}>
+                          <PurpleGlassDropdown
+                            label="IP Strategy"
+                            options={ipStrategyOptions}
+                            value={mapping.ipStrategy}
+                            onChange={(value) => handleUpdateNetworkMapping(mapping.id, { ipStrategy: value as 'dhcp' | 'static' | 'preserve' })}
+                            glass="none"
+                          />
+                          <Button
+                            appearance="subtle"
+                            icon={<DeleteRegular />}
+                            onClick={() => handleRemoveNetworkMapping(mapping.id)}
+                            style={{ marginTop: '8px' }}
+                          >
+                            Remove
+                          </Button>
+                        </div>
+                      </div>
+                    </PurpleGlassCard>
+                  ))}
+                </div>
+              )}
             </div>
+            
+            {networkMappings.length > 0 && (
+              <div style={{ 
+                marginTop: '24px',
+                padding: '16px',
+                background: 'rgba(59, 130, 246, 0.1)',
+                borderRadius: '8px',
+                fontSize: '14px',
+                color: tokens.colorNeutralForeground2,
+              }}>
+                <strong>{networkMappings.length}</strong> network mapping{networkMappings.length !== 1 ? 's' : ''} configured. 
+                Click <strong>Next</strong> to review your complete migration plan.
+              </div>
+            )}
           </div>
         );
       
