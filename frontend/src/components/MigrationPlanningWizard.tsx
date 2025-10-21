@@ -22,6 +22,7 @@ import {
   makeStyles,
   shorthands,
   tokens,
+  Spinner,
 } from '@fluentui/react-components';
 import {
   DismissRegular,
@@ -35,6 +36,10 @@ import {
   AddRegular,
   DeleteRegular,
   StorageRegular,
+  ChartMultipleRegular,
+  ErrorCircleRegular,
+  WarningRegular,
+  InfoRegular,
 } from '@fluentui/react-icons';
 import {
   PurpleGlassDropdown,
@@ -212,6 +217,23 @@ export const MigrationPlanningWizard: React.FC<MigrationWizardProps> = ({
   const [clusters, setClusters] = useState<ClusterConfig[]>([]);
   const [editingCluster, setEditingCluster] = useState<ClusterConfig | null>(null);
   
+  // Step 3: Capacity Analysis State
+  interface CapacityAnalysis {
+    cpuUtilization: number;
+    memoryUtilization: number;
+    storageUtilization: number;
+    bottlenecks: Array<{
+      resourceType: 'cpu' | 'memory' | 'storage';
+      severity: 'critical' | 'warning' | 'info';
+      message: string;
+      recommendation: string;
+    }>;
+    isSufficient: boolean;
+  }
+  
+  const [capacityAnalysis, setCapacityAnalysis] = useState<CapacityAnalysis | null>(null);
+  const [analyzingCapacity, setAnalyzingCapacity] = useState(false);
+  
   // Load workload summary when filters change
   useEffect(() => {
     if (selectedRVTools) {
@@ -229,6 +251,93 @@ export const MigrationPlanningWizard: React.FC<MigrationWizardProps> = ({
       totalStorageGB: 85000,
       filteredVMs: clusterFilter || vmNamePattern ? 125 : 250,
     });
+  };
+  
+  const analyzeCapacity = async () => {
+    if (clusters.length === 0) {
+      return;
+    }
+    
+    setAnalyzingCapacity(true);
+    
+    try {
+      // TODO: Replace with actual API call to POST /capacity/plan
+      // Simulating API response with mock data
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Calculate total cluster capacity
+      const totalClusterCapacity = clusters.reduce((acc, cluster) => ({
+        cpu: acc.cpu + cluster.nodes.reduce((sum, n) => sum + n.cpu, 0),
+        memory: acc.memory + cluster.nodes.reduce((sum, n) => sum + n.memoryGB, 0),
+        storage: acc.storage + cluster.nodes.reduce((sum, n) => sum + n.storageGB, 0),
+      }), { cpu: 0, memory: 0, storage: 0 });
+      
+      // Calculate utilization (mock calculation)
+      const cpuUtil = totalClusterCapacity.cpu > 0 
+        ? (workloadSummary.totalCPU / totalClusterCapacity.cpu) * 100 
+        : 95;
+      const memUtil = totalClusterCapacity.memory > 0 
+        ? (workloadSummary.totalMemoryGB / totalClusterCapacity.memory) * 100 
+        : 78;
+      const storageUtil = totalClusterCapacity.storage > 0 
+        ? (workloadSummary.totalStorageGB / totalClusterCapacity.storage) * 100 
+        : 82;
+      
+      const bottlenecks: CapacityAnalysis['bottlenecks'] = [];
+      
+      if (cpuUtil > 90) {
+        bottlenecks.push({
+          resourceType: 'cpu',
+          severity: 'critical',
+          message: `CPU capacity insufficient: ${cpuUtil.toFixed(1)}% utilization`,
+          recommendation: 'Add more CPU cores or reduce CPU overcommit ratio',
+        });
+      } else if (cpuUtil > 80) {
+        bottlenecks.push({
+          resourceType: 'cpu',
+          severity: 'warning',
+          message: `CPU capacity approaching limit: ${cpuUtil.toFixed(1)}%`,
+          recommendation: 'Consider adding CPU headroom for growth',
+        });
+      }
+      
+      if (memUtil > 90) {
+        bottlenecks.push({
+          resourceType: 'memory',
+          severity: 'critical',
+          message: `Memory capacity insufficient: ${memUtil.toFixed(1)}% utilization`,
+          recommendation: 'Add more memory or reduce memory overcommit ratio',
+        });
+      } else if (memUtil > 80) {
+        bottlenecks.push({
+          resourceType: 'memory',
+          severity: 'warning',
+          message: `Memory capacity approaching limit: ${memUtil.toFixed(1)}%`,
+          recommendation: 'Consider adding memory headroom',
+        });
+      }
+      
+      if (storageUtil > 85) {
+        bottlenecks.push({
+          resourceType: 'storage',
+          severity: 'warning',
+          message: `Storage capacity high: ${storageUtil.toFixed(1)}% utilization`,
+          recommendation: 'Consider adding storage capacity',
+        });
+      }
+      
+      setCapacityAnalysis({
+        cpuUtilization: cpuUtil,
+        memoryUtilization: memUtil,
+        storageUtilization: storageUtil,
+        bottlenecks,
+        isSufficient: cpuUtil < 90 && memUtil < 90 && storageUtil < 90,
+      });
+    } catch (error) {
+      console.error('Capacity analysis failed:', error);
+    } finally {
+      setAnalyzingCapacity(false);
+    }
   };
 
   const handleNext = () => {
@@ -711,26 +820,354 @@ export const MigrationPlanningWizard: React.FC<MigrationWizardProps> = ({
         );
       
       case 3:
+        const getSeverityColor = (severity: string) => {
+          switch (severity) {
+            case 'critical': return '#ef4444';
+            case 'warning': return '#f59e0b';
+            case 'info': return '#3b82f6';
+            default: return tokens.colorNeutralForeground2;
+          }
+        };
+        
+        const getSeverityIcon = (severity: string) => {
+          switch (severity) {
+            case 'critical': return <ErrorCircleRegular style={{ color: '#ef4444' }} />;
+            case 'warning': return <WarningRegular style={{ color: '#f59e0b' }} />;
+            case 'info': return <InfoRegular style={{ color: '#3b82f6' }} />;
+            default: return null;
+          }
+        };
+        
+        const getUtilizationColor = (percent: number) => {
+          if (percent >= 90) return '#ef4444';
+          if (percent >= 80) return '#f59e0b';
+          if (percent >= 70) return '#eab308';
+          return '#10b981';
+        };
+        
+        const getUtilizationLabel = (percent: number) => {
+          if (percent >= 90) return 'Critical';
+          if (percent >= 80) return 'High';
+          if (percent >= 70) return 'Moderate';
+          return 'Healthy';
+        };
+        
         return (
           <div>
-            <h3 style={{ fontFamily: 'Poppins, sans-serif', marginBottom: '16px' }}>
-              Step 3: Capacity Analysis
-            </h3>
-            <p style={{ color: tokens.colorNeutralForeground3 }}>
-              Review capacity requirements and identify potential bottlenecks.
-            </p>
-            <div style={{ 
-              padding: '40px', 
-              textAlign: 'center', 
-              background: 'rgba(16, 185, 129, 0.05)',
-              borderRadius: '12px',
-              marginTop: '24px'
+            <h3 style={{ 
+              fontFamily: 'Poppins, sans-serif', 
+              marginBottom: '24px',
+              fontSize: '20px',
+              fontWeight: '600',
+              color: tokens.colorNeutralForeground1,
             }}>
-              <p style={{ fontSize: '48px', margin: '0 0 16px 0' }}>📈</p>
-              <p style={{ color: tokens.colorNeutralForeground2 }}>
-                Capacity visualizer will be implemented here
-              </p>
-            </div>
+              <ChartMultipleRegular style={{ marginRight: '8px', verticalAlign: 'middle' }} />
+              Capacity Analysis
+            </h3>
+            
+            {clusters.length === 0 ? (
+              <PurpleGlassCard variant="outlined" glass>
+                <div style={{ 
+                  textAlign: 'center', 
+                  padding: '40px',
+                  color: tokens.colorNeutralForeground3,
+                }}>
+                  <ServerRegular style={{ fontSize: '48px', marginBottom: '16px' }} />
+                  <p>No destination clusters configured.</p>
+                  <p style={{ fontSize: '14px', marginTop: '8px' }}>
+                    Go back to Step 2 to configure destination clusters first.
+                  </p>
+                </div>
+              </PurpleGlassCard>
+            ) : (
+              <>
+                {/* Analysis Trigger */}
+                {!capacityAnalysis && !analyzingCapacity && (
+                  <PurpleGlassCard variant="elevated" glass>
+                    <div style={{ textAlign: 'center', padding: '40px' }}>
+                      <ChartMultipleRegular style={{ fontSize: '64px', color: '#8b5cf6', marginBottom: '16px' }} />
+                      <div style={{ fontSize: '18px', fontWeight: '600', marginBottom: '8px' }}>
+                        Ready for Capacity Analysis
+                      </div>
+                      <div style={{ 
+                        color: tokens.colorNeutralForeground2, 
+                        marginBottom: '24px',
+                        fontSize: '14px',
+                      }}>
+                        Analyze capacity requirements for {workloadSummary.filteredVMs} VMs across {clusters.length} destination cluster{clusters.length !== 1 ? 's' : ''}
+                      </div>
+                      <PurpleGlassButton
+                        variant="primary"
+                        size="large"
+                        onClick={analyzeCapacity}
+                      >
+                        Run Capacity Analysis
+                      </PurpleGlassButton>
+                    </div>
+                  </PurpleGlassCard>
+                )}
+                
+                {/* Analysis In Progress */}
+                {analyzingCapacity && (
+                  <PurpleGlassCard variant="elevated" glass>
+                    <div style={{ textAlign: 'center', padding: '40px' }}>
+                      <div style={{ marginBottom: '16px' }}>
+                        <Spinner size="large" />
+                      </div>
+                      <div style={{ fontSize: '16px', fontWeight: '600', marginBottom: '8px' }}>
+                        Analyzing Capacity...
+                      </div>
+                      <div style={{ color: tokens.colorNeutralForeground2, fontSize: '14px' }}>
+                        Calculating resource utilization and identifying bottlenecks
+                      </div>
+                    </div>
+                  </PurpleGlassCard>
+                )}
+                
+                {/* Analysis Results */}
+                {capacityAnalysis && !analyzingCapacity && (
+                  <>
+                    {/* Utilization Summary */}
+                    <PurpleGlassCard
+                      header="Resource Utilization"
+                      variant="elevated"
+                      glass
+                      style={{ marginBottom: '24px' }}
+                    >
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
+                        {/* CPU Utilization */}
+                        <div>
+                          <div style={{ 
+                            display: 'flex', 
+                            justifyContent: 'space-between', 
+                            alignItems: 'center',
+                            marginBottom: '8px',
+                          }}>
+                            <span style={{ fontWeight: '600' }}>CPU</span>
+                            <span style={{ 
+                              fontSize: '12px',
+                              padding: '2px 8px',
+                              borderRadius: '4px',
+                              backgroundColor: `${getUtilizationColor(capacityAnalysis.cpuUtilization)}22`,
+                              color: getUtilizationColor(capacityAnalysis.cpuUtilization),
+                              fontWeight: '600',
+                            }}>
+                              {getUtilizationLabel(capacityAnalysis.cpuUtilization)}
+                            </span>
+                          </div>
+                          <div style={{ 
+                            height: '8px', 
+                            backgroundColor: tokens.colorNeutralBackground3,
+                            borderRadius: '4px',
+                            overflow: 'hidden',
+                            marginBottom: '8px',
+                          }}>
+                            <div style={{ 
+                              height: '100%',
+                              width: `${Math.min(capacityAnalysis.cpuUtilization, 100)}%`,
+                              backgroundColor: getUtilizationColor(capacityAnalysis.cpuUtilization),
+                              transition: 'width 0.5s ease',
+                            }} />
+                          </div>
+                          <div style={{ 
+                            fontSize: '24px', 
+                            fontWeight: '700',
+                            color: getUtilizationColor(capacityAnalysis.cpuUtilization),
+                          }}>
+                            {capacityAnalysis.cpuUtilization.toFixed(1)}%
+                          </div>
+                        </div>
+                        
+                        {/* Memory Utilization */}
+                        <div>
+                          <div style={{ 
+                            display: 'flex', 
+                            justifyContent: 'space-between', 
+                            alignItems: 'center',
+                            marginBottom: '8px',
+                          }}>
+                            <span style={{ fontWeight: '600' }}>Memory</span>
+                            <span style={{ 
+                              fontSize: '12px',
+                              padding: '2px 8px',
+                              borderRadius: '4px',
+                              backgroundColor: `${getUtilizationColor(capacityAnalysis.memoryUtilization)}22`,
+                              color: getUtilizationColor(capacityAnalysis.memoryUtilization),
+                              fontWeight: '600',
+                            }}>
+                              {getUtilizationLabel(capacityAnalysis.memoryUtilization)}
+                            </span>
+                          </div>
+                          <div style={{ 
+                            height: '8px', 
+                            backgroundColor: tokens.colorNeutralBackground3,
+                            borderRadius: '4px',
+                            overflow: 'hidden',
+                            marginBottom: '8px',
+                          }}>
+                            <div style={{ 
+                              height: '100%',
+                              width: `${Math.min(capacityAnalysis.memoryUtilization, 100)}%`,
+                              backgroundColor: getUtilizationColor(capacityAnalysis.memoryUtilization),
+                              transition: 'width 0.5s ease',
+                            }} />
+                          </div>
+                          <div style={{ 
+                            fontSize: '24px', 
+                            fontWeight: '700',
+                            color: getUtilizationColor(capacityAnalysis.memoryUtilization),
+                          }}>
+                            {capacityAnalysis.memoryUtilization.toFixed(1)}%
+                          </div>
+                        </div>
+                        
+                        {/* Storage Utilization */}
+                        <div>
+                          <div style={{ 
+                            display: 'flex', 
+                            justifyContent: 'space-between', 
+                            alignItems: 'center',
+                            marginBottom: '8px',
+                          }}>
+                            <span style={{ fontWeight: '600' }}>Storage</span>
+                            <span style={{ 
+                              fontSize: '12px',
+                              padding: '2px 8px',
+                              borderRadius: '4px',
+                              backgroundColor: `${getUtilizationColor(capacityAnalysis.storageUtilization)}22`,
+                              color: getUtilizationColor(capacityAnalysis.storageUtilization),
+                              fontWeight: '600',
+                            }}>
+                              {getUtilizationLabel(capacityAnalysis.storageUtilization)}
+                            </span>
+                          </div>
+                          <div style={{ 
+                            height: '8px', 
+                            backgroundColor: tokens.colorNeutralBackground3,
+                            borderRadius: '4px',
+                            overflow: 'hidden',
+                            marginBottom: '8px',
+                          }}>
+                            <div style={{ 
+                              height: '100%',
+                              width: `${Math.min(capacityAnalysis.storageUtilization, 100)}%`,
+                              backgroundColor: getUtilizationColor(capacityAnalysis.storageUtilization),
+                              transition: 'width 0.5s ease',
+                            }} />
+                          </div>
+                          <div style={{ 
+                            fontSize: '24px', 
+                            fontWeight: '700',
+                            color: getUtilizationColor(capacityAnalysis.storageUtilization),
+                          }}>
+                            {capacityAnalysis.storageUtilization.toFixed(1)}%
+                          </div>
+                        </div>
+                      </div>
+                    </PurpleGlassCard>
+                    
+                    {/* Bottlenecks & Warnings */}
+                    {capacityAnalysis.bottlenecks.length > 0 && (
+                      <PurpleGlassCard
+                        header="Capacity Warnings & Recommendations"
+                        variant="outlined"
+                        glass
+                        style={{ marginBottom: '24px' }}
+                      >
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                          {capacityAnalysis.bottlenecks.map((bottleneck, index) => (
+                            <div
+                              key={index}
+                              style={{
+                                padding: '16px',
+                                borderRadius: '8px',
+                                border: `2px solid ${getSeverityColor(bottleneck.severity)}22`,
+                                backgroundColor: `${getSeverityColor(bottleneck.severity)}11`,
+                              }}
+                            >
+                              <div style={{ 
+                                display: 'flex', 
+                                alignItems: 'flex-start', 
+                                gap: '12px',
+                              }}>
+                                <div style={{ paddingTop: '2px' }}>
+                                  {getSeverityIcon(bottleneck.severity)}
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                  <div style={{ 
+                                    fontWeight: '600', 
+                                    marginBottom: '4px',
+                                    color: getSeverityColor(bottleneck.severity),
+                                    textTransform: 'uppercase',
+                                    fontSize: '12px',
+                                  }}>
+                                    {bottleneck.severity} - {bottleneck.resourceType.toUpperCase()}
+                                  </div>
+                                  <div style={{ 
+                                    marginBottom: '8px',
+                                    color: tokens.colorNeutralForeground1,
+                                  }}>
+                                    {bottleneck.message}
+                                  </div>
+                                  <div style={{ 
+                                    fontSize: '13px',
+                                    color: tokens.colorNeutralForeground2,
+                                    fontStyle: 'italic',
+                                  }}>
+                                    💡 {bottleneck.recommendation}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </PurpleGlassCard>
+                    )}
+                    
+                    {/* Overall Status */}
+                    <div style={{ 
+                      padding: '16px',
+                      borderRadius: '8px',
+                      background: capacityAnalysis.isSufficient 
+                        ? 'rgba(16, 185, 129, 0.1)' 
+                        : 'rgba(239, 68, 68, 0.1)',
+                      border: `2px solid ${capacityAnalysis.isSufficient ? '#10b981' : '#ef4444'}33`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px',
+                    }}>
+                      {capacityAnalysis.isSufficient ? (
+                        <CheckmarkCircleRegular style={{ fontSize: '24px', color: '#10b981' }} />
+                      ) : (
+                        <ErrorCircleRegular style={{ fontSize: '24px', color: '#ef4444' }} />
+                      )}
+                      <div>
+                        <div style={{ fontWeight: '600', marginBottom: '4px' }}>
+                          {capacityAnalysis.isSufficient 
+                            ? 'Capacity Sufficient' 
+                            : 'Capacity Insufficient'}
+                        </div>
+                        <div style={{ fontSize: '14px', color: tokens.colorNeutralForeground2 }}>
+                          {capacityAnalysis.isSufficient 
+                            ? 'The configured clusters have sufficient capacity for the migration. Click Next to configure network settings.' 
+                            : 'The configured clusters do not have sufficient capacity. Review the warnings above and adjust your cluster configuration.'}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Re-analyze Button */}
+                    <div style={{ marginTop: '16px', textAlign: 'center' }}>
+                      <Button
+                        appearance="subtle"
+                        onClick={analyzeCapacity}
+                      >
+                        Re-analyze Capacity
+                      </Button>
+                    </div>
+                  </>
+                )}
+              </>
+            )}
           </div>
         );
       
