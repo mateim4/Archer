@@ -1,8 +1,7 @@
 use serde::{Deserialize, Serialize};
-use surrealdb::engine::remote::ws::Client;
-use surrealdb::Surreal;
 use std::error::Error;
 use crate::models::project_models::NetworkTemplate;
+use crate::database::Database;
 
 /// Network Template Service
 /// 
@@ -10,7 +9,7 @@ use crate::models::project_models::NetworkTemplate;
 /// Templates allow users to save and reuse common network configurations
 /// across multiple projects.
 pub struct NetworkTemplateService {
-    db: Surreal<Client>,
+    db: Database,
 }
 
 /// Network Template Creation Request
@@ -55,7 +54,7 @@ pub struct NetworkTemplateFilters {
 
 impl NetworkTemplateService {
     /// Create a new Network Template Service
-    pub fn new(db: Surreal<Client>) -> Self {
+    pub fn new(db: Database) -> Self {
         Self { db }
     }
 

@@ -7,6 +7,9 @@ pub mod project_lifecycle;
 pub mod project_workflow;
 pub mod rvtools;
 pub mod wizard; // Activity wizard API
+pub mod vm_placement; // VM placement API
+pub mod network_templates; // Network templates API
+pub mod hld; // HLD generation API
                 // pub mod analytics; // TODO: Convert from actix_web to axum
 pub mod enhanced_rvtools; // TODO: Fix compilation errors
                           // pub mod migration; // TODO: Fix migration_models imports
@@ -41,7 +44,10 @@ pub fn api_router(state: AppState) -> Router {
         .nest(
             "/project-lifecycle",
             project_lifecycle::create_project_lifecycle_router(state.clone()),
-        );
+        )
+        .nest("/vm-placement", vm_placement::create_vm_placement_router(state.clone()))
+        .nest("/network-templates", network_templates::create_network_templates_router(state.clone()))
+        .nest("/hld", hld::create_hld_router(state.clone()));
 
     Router::new()
         .route("/health", get(health_check))

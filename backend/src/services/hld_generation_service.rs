@@ -1,9 +1,8 @@
 use serde::{Deserialize, Serialize};
-use surrealdb::engine::remote::ws::Client;
-use surrealdb::Surreal;
 use std::error::Error;
 use std::path::PathBuf;
 use crate::models::project_models::{GeneratedDocument, MigrationProject, MigrationCluster, VMPlacement};
+use crate::database::Database;
 use docx_rs::*;
 
 /// HLD Generation Service
@@ -17,7 +16,7 @@ use docx_rs::*;
 /// - Network Design
 /// - Migration Approach & Runbook
 pub struct HLDGenerationService {
-    db: Surreal<Client>,
+    db: Database,
     output_dir: PathBuf,
 }
 
@@ -68,7 +67,7 @@ struct HLDSection {
 
 impl HLDGenerationService {
     /// Create a new HLD Generation Service
-    pub fn new(db: Surreal<Client>, output_dir: PathBuf) -> Self {
+    pub fn new(db: Database, output_dir: PathBuf) -> Self {
         Self { db, output_dir }
     }
 
