@@ -461,6 +461,156 @@ impl MigrationWizardService {
         self.update_project(project_id, update_data).await?;
         Ok(())
     }
+
+    // =========================================================================
+    // STRATEGY ANALYSIS
+    // =========================================================================
+
+    /// Analyze a single VM and recommend migration strategy
+    pub async fn analyze_vm_strategy(&self, vm: &MigrationWizardVM) -> Result<StrategyRecommendation> {
+        let mut score = 100.0;
+        let mut warnings = Vec::new();
+        let mut recommendations = Vec::new();
+
+        // Analyze OS compatibility
+        if let Some(os) = &vm.os {
+            let os_lower = os.to_lowercase();
+            
+            // Check for known incompatible or legacy OS
+            if os_lower.contains("windows xp") || os_lower.contains("windows 2003") {
+                score -= 50.0;
+                warnings.push("Legacy OS detected - may require upgrade before migration".to_string());
+                recommendations.push("Consider upgrading OS to supported version".to_string());
+            } else if os_lower.contains("windows server 2008") {
+                score -= 30.0;
+                warnings.push("End-of-life OS - upgrade recommended".to_string());
+                recommendations.push("Upgrade to Windows Server 2019 or 2022".to_string());
+            } else if os_lower.contains("windows server") && (os_lower.contains("2012") || os_lower.contains("2016") || os_lower.contains("2019") || os_lower.contains("2022")) {
+                score += 0.0; // Fully compatible
+                recommendations.push("OS is compatible with Hyper-V - can proceed with Lift & Shift".to_string());
+            } else if os_lower.contains("linux") {
+                // Linux VMs - check for Integration Services compatibility
+                if os_lower.contains("ubuntu") || os_lower.contains("rhel") || os_lower.contains("centos") {
+                    score -= 5.0; // Minimal adjustment needed
+                    recommendations.push("Ensure Linux Integration Services are installed post-migration".to_string());
+                } else {
+                    score -= 15.0;
+                    warnings.push("Linux distribution may require manual configuration".to_string());
+                    recommendations.push("Verify Hyper-V Integration Services compatibility".to_string());
+                }
+            }
+        } else {
+            score -= 20.0;
+            warnings.push("OS information not available - manual review required".to_string());
+        }
+
+        // Analyze resource configuration
+        if vm.cpus > 32 {
+            score -= 10.0;
+            warnings.push(format!("High CPU count ({}) - verify Hyper-V host capacity", vm.cpus));
+        }
+        
+        if vm.memory_mb > 512_000 { // > 500 GB
+            score -= 10.0;
+            warnings.push(format!("High memory allocation ({} MB) - verify host capacity", vm.memory_mb));
+        }
+
+        // Analyze storage
+        if vm.num_disks > 8 {
+            score -= 5.0;
+            warnings.push(format!("Multiple disks ({}) - may require storage redesign", vm.num_disks));
+            recommendations.push("Consider consolidating disks during migration".to_string());
+        }
+
+        // Analyze network configuration
+        if vm.num_nics > 4 {
+            score -= 5.0;
+            warnings.push(format!("Multiple NICs ({}) - ensure network mapping is complete", vm.num_nics));
+        }
+
+        // Determine strategy based on score
+        let strategy = if score >= 85.0 {
+            "lift_shift"
+        } else if score >= 60.0 {
+            "replatform"
+        } else {
+            "rehost"
+        };
+
+        // Add strategy-specific recommendations
+        match strategy {
+            "lift_shift" => {
+                recommendations.push("VM can be migrated as-is with minimal changes".to_string());
+                recommendations.push("Install Hyper-V Integration Services post-migration".to_string());
+            }
+            "replatform" => {
+                recommendations.push("Modernize during migration for better compatibility".to_string());
+                recommendations.push("Update guest OS and drivers".to_string());
+                recommendations.push("Review and optimize VM configuration".to_string());
+            }
+            "rehost" => {
+                recommendations.push("Significant changes required - detailed planning needed".to_string());
+                recommendations.push("Consider application-level migration instead of VM lift".to_string());
+            }
+            _ => {}
+        }
+
+        Ok(StrategyRecommendation {
+            vm_name: vm.name.clone(),
+            strategy: strategy.to_string(),
+            confidence_score: score,
+            warnings,
+            recommendations,
+        })
+    }
+
+    /// Analyze all VMs in a project and generate strategy recommendations
+    pub async fn analyze_project_strategy(&self, project_id: &str) -> Result<Vec<StrategyRecommendation>> {
+        let vms = self.get_project_vms(project_id, None).await?;
+        
+        let mut recommendations = Vec::new();
+        for vm in vms {
+            let recommendation = self.analyze_vm_strategy(&vm).await?;
+            recommendations.push(recommendation);
+        }
+
+        Ok(recommendations)
+    }
+
+    /// Get strategy statistics for a project
+    pub async fn get_project_strategy_stats(&self, project_id: &str) -> Result<StrategyStats> {
+        let recommendations = self.analyze_project_strategy(project_id).await?;
+        
+        let mut lift_shift_count = 0;
+        let mut replatform_count = 0;
+        let mut rehost_count = 0;
+        let mut total_warnings = 0;
+        let mut avg_confidence = 0.0;
+
+        for rec in &recommendations {
+            match rec.strategy.as_str() {
+                "lift_shift" => lift_shift_count += 1,
+                "replatform" => replatform_count += 1,
+                "rehost" => rehost_count += 1,
+                _ => {}
+            }
+            total_warnings += rec.warnings.len();
+            avg_confidence += rec.confidence_score;
+        }
+
+        if !recommendations.is_empty() {
+            avg_confidence /= recommendations.len() as f64;
+        }
+
+        Ok(StrategyStats {
+            total_vms: recommendations.len(),
+            lift_shift_count,
+            replatform_count,
+            rehost_count,
+            average_confidence_score: avg_confidence,
+            total_warnings,
+        })
+    }
 }
 
 #[cfg(test)]

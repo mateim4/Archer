@@ -267,3 +267,32 @@ pub struct VMFilter {
     pub limit: Option<usize>,
     pub offset: Option<usize>,
 }
+
+// =============================================================================
+// STRATEGY ANALYSIS MODELS
+// =============================================================================
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct StrategyRecommendation {
+    pub vm_name: String,
+    pub strategy: String, // "lift_shift", "replatform", "rehost"
+    pub confidence_score: f64, // 0-100
+    pub warnings: Vec<String>,
+    pub recommendations: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct StrategyStats {
+    pub total_vms: usize,
+    pub lift_shift_count: usize,
+    pub replatform_count: usize,
+    pub rehost_count: usize,
+    pub average_confidence_score: f64,
+    pub total_warnings: usize,
+}
+
+#[derive(Debug, Serialize)]
+pub struct AnalyzeProjectStrategyResponse {
+    pub recommendations: Vec<StrategyRecommendation>,
+    pub stats: StrategyStats,
+}

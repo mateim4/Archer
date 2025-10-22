@@ -24,6 +24,8 @@ pub fn create_migration_wizard_router(db: Arc<Database>) -> Router {
         .route("/projects/:id", get(get_project))
         .route("/projects/:id/rvtools", post(upload_rvtools))
         .route("/projects/:id/vms", get(get_project_vms))
+        .route("/projects/:id/strategy-analysis", get(analyze_project_strategy))
+        .route("/projects/:id/strategy-stats", get(get_project_strategy_stats))
         .route("/projects/:id/clusters", post(create_cluster))
         .route("/projects/:id/clusters", get(get_project_clusters))
         .route("/clusters/:id", get(get_cluster))
@@ -311,6 +313,88 @@ async fn get_project_vms(
         }
         Err(e) => {
             tracing::error!("Failed to get VMs: {}", e);
+            Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(json!({
+                    "success": false,
+                    "error": e.to_string()
+                }))
+            ))
+        }
+    }
+}
+
+// =============================================================================
+// STRATEGY ANALYSIS
+// =============================================================================
+
+/// Analyze all VMs in a project and recommend migration strategies
+/// GET /api/v1/migration-wizard/projects/:id/strategy-analysis
+async fn analyze_project_strategy(
+    State(db): State<Arc<Database>>,
+    Path(project_id): Path<String>,
+) -> Result<impl IntoResponse, (StatusCode, Json<serde_json::Value>)> {
+    tracing::info!("Analyzing migration strategy for project: {}", project_id);
+
+    let service = MigrationWizardService::new(db.as_ref().clone());
+    
+    match service.analyze_project_strategy(&project_id).await {
+        Ok(recommendations) => {
+            // Calculate stats
+            match service.get_project_strategy_stats(&project_id).await {
+                Ok(stats) => {
+                    Ok((StatusCode::OK, Json(json!({
+                        "success": true,
+                        "result": {
+                            "recommendations": recommendations,
+                            "stats": stats
+                        }
+                    }))))
+                }
+                Err(e) => {
+                    tracing::error!("Failed to calculate stats: {}", e);
+                    // Return recommendations without stats
+                    Ok((StatusCode::OK, Json(json!({
+                        "success": true,
+                        "result": {
+                            "recommendations": recommendations,
+                        }
+                    }))))
+                }
+            }
+        }
+        Err(e) => {
+            tracing::error!("Failed to analyze strategy: {}", e);
+            Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(json!({
+                    "success": false,
+                    "error": e.to_string()
+                }))
+            ))
+        }
+    }
+}
+
+/// Get strategy statistics for a project
+/// GET /api/v1/migration-wizard/projects/:id/strategy-stats
+async fn get_project_strategy_stats(
+    State(db): State<Arc<Database>>,
+    Path(project_id): Path<String>,
+) -> Result<impl IntoResponse, (StatusCode, Json<serde_json::Value>)> {
+    tracing::info!("Getting strategy statistics for project: {}", project_id);
+
+    let service = MigrationWizardService::new(db.as_ref().clone());
+    
+    match service.get_project_strategy_stats(&project_id).await {
+        Ok(stats) => {
+            Ok((StatusCode::OK, Json(json!({
+                "success": true,
+                "result": stats
+            }))))
+        }
+        Err(e) => {
+            tracing::error!("Failed to get strategy stats: {}", e);
             Err((
                 StatusCode::INTERNAL_SERVER_ERROR,
                 Json(json!({
