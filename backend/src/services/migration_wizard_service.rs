@@ -922,6 +922,429 @@ impl MigrationWizardService {
 
         Ok(result)
     }
+
+    // =========================================================================
+    // NETWORK CONFIGURATION METHODS
+    // =========================================================================
+
+    /// Create a network mapping
+    pub async fn create_network_mapping(
+        &self,
+        project_id: &str,
+        request: crate::models::migration_wizard_models::CreateNetworkMappingRequest,
+    ) -> Result<crate::models::migration_wizard_models::MigrationWizardNetworkMapping> {
+        use crate::models::migration_wizard_models::MigrationWizardNetworkMapping;
+        
+        // Build project Thing reference
+        let project_thing = surrealdb::sql::Thing {
+            tb: "migration_wizard_project".to_string(),
+            id: surrealdb::sql::Id::String(project_id.to_string()),
+        };
+
+        // Validate the mapping
+        let (is_valid, validation_errors) = self.validate_single_mapping(&request).await;
+
+        let mapping = MigrationWizardNetworkMapping {
+            id: None,
+            project_id: project_thing,
+            source_vlan_name: request.source_vlan_name,
+            source_vlan_id: request.source_vlan_id,
+            source_subnet: request.source_subnet,
+            destination_vlan_name: request.destination_vlan_name,
+            destination_vlan_id: request.destination_vlan_id,
+            destination_subnet: request.destination_subnet,
+            destination_gateway: request.destination_gateway,
+            destination_dns: request.destination_dns,
+            is_valid,
+            validation_errors: if validation_errors.is_empty() {
+                None
+            } else {
+                Some(validation_errors)
+            },
+            created_at: Utc::now(),
+        };
+
+        let created: Vec<MigrationWizardNetworkMapping> = self
+            .db
+            .create("migration_wizard_network_mapping")
+            .content(mapping)
+            .await
+            .context("Failed to create network mapping")?;
+
+        created
+            .into_iter()
+            .next()
+            .ok_or_else(|| anyhow::anyhow!("No network mapping returned after creation"))
+    }
+
+    /// Get all network mappings for a project
+    pub async fn get_project_network_mappings(
+        &self,
+        project_id: &str,
+    ) -> Result<Vec<crate::models::migration_wizard_models::MigrationWizardNetworkMapping>> {
+        let query = format!(
+            "SELECT * FROM migration_wizard_network_mapping WHERE project_id = migration_wizard_project:{} ORDER BY created_at ASC",
+            project_id
+        );
+
+        let mappings: Vec<crate::models::migration_wizard_models::MigrationWizardNetworkMapping> = self
+            .db
+            .query(&query)
+            .await
+            .context("Failed to query network mappings")?
+            .take(0)
+            .context("Failed to parse network mappings")?;
+
+        Ok(mappings)
+    }
+
+    /// Update a network mapping
+    pub async fn update_network_mapping(
+        &self,
+        mapping_id: &str,
+        updates: serde_json::Value,
+    ) -> Result<crate::models::migration_wizard_models::MigrationWizardNetworkMapping> {
+        // First get the existing mapping to ensure it exists
+        let query = format!(
+            "SELECT * FROM migration_wizard_network_mapping WHERE id = migration_wizard_network_mapping:{}",
+            mapping_id
+        );
+
+        let mut existing: Vec<crate::models::migration_wizard_models::MigrationWizardNetworkMapping> = self
+            .db
+            .query(&query)
+            .await
+            .context("Failed to query existing network mapping")?
+            .take(0)
+            .context("Failed to parse existing network mapping")?;
+
+        let mapping = existing
+            .pop()
+            .ok_or_else(|| anyhow::anyhow!("Network mapping not found"))?;
+
+        // Now update with merge
+        let mapping_thing = surrealdb::sql::Thing {
+            tb: "migration_wizard_network_mapping".to_string(),
+            id: surrealdb::sql::Id::String(mapping_id.to_string()),
+        };
+
+        let updated: Option<crate::models::migration_wizard_models::MigrationWizardNetworkMapping> = self
+            .db
+            .update(mapping_thing)
+            .merge(updates)
+            .await
+            .context("Failed to update network mapping")?;
+
+        updated.ok_or_else(|| anyhow::anyhow!("Network mapping update failed"))
+    }
+
+    /// Delete a network mapping
+    pub async fn delete_network_mapping(&self, mapping_id: &str) -> Result<()> {
+        let mapping_thing = surrealdb::sql::Thing {
+            tb: "migration_wizard_network_mapping".to_string(),
+            id: surrealdb::sql::Id::String(mapping_id.to_string()),
+        };
+
+        let _deleted: Option<crate::models::migration_wizard_models::MigrationWizardNetworkMapping> = self
+            .db
+            .delete(mapping_thing)
+            .await
+            .context("Failed to delete network mapping")?;
+
+        Ok(())
+    }
+
+    /// Validate all network mappings for a project
+    pub async fn validate_network_mappings(
+        &self,
+        project_id: &str,
+    ) -> Result<crate::models::migration_wizard_models::NetworkValidationResult> {
+        use crate::models::migration_wizard_models::{NetworkValidationResult, NetworkValidationError, NetworkErrorType};
+        
+        let mappings = self.get_project_network_mappings(project_id).await?;
+        
+        let mut errors = Vec::new();
+        let mut warnings = Vec::new();
+        let mut valid_count = 0;
+
+        // Check for duplicate source VLANs
+        let mut seen_vlans = std::collections::HashMap::new();
+        for mapping in &mappings {
+            if let Some(vlan_id) = mapping.source_vlan_id {
+                if let Some(first_id) = seen_vlans.get(&vlan_id) {
+                    let mapping_id = mapping.id.as_ref()
+                        .and_then(|t| match &t.id {
+                            surrealdb::sql::Id::String(s) => Some(s.clone()),
+                            surrealdb::sql::Id::Number(n) => Some(n.to_string()),
+                            _ => None
+                        })
+                        .unwrap_or_else(|| "unknown".to_string());
+                    
+                    errors.push(NetworkValidationError {
+                        mapping_id: mapping_id.clone(),
+                        error_type: NetworkErrorType::VlanConflict,
+                        message: format!("VLAN {} is mapped multiple times", vlan_id),
+                        affected_field: "source_vlan_id".to_string(),
+                    });
+                } else {
+                    seen_vlans.insert(vlan_id, mapping.source_vlan_name.clone());
+                }
+            }
+        }
+
+        // Check for subnet overlaps
+        for (i, mapping1) in mappings.iter().enumerate() {
+            if let Some(ref subnet1) = mapping1.destination_subnet {
+                for mapping2 in mappings.iter().skip(i + 1) {
+                    if let Some(ref subnet2) = mapping2.destination_subnet {
+                        if self.subnets_overlap(subnet1, subnet2) {
+                            let mapping_id = mapping1.id.as_ref()
+                                .and_then(|t| match &t.id {
+                                    surrealdb::sql::Id::String(s) => Some(s.clone()),
+                                    surrealdb::sql::Id::Number(n) => Some(n.to_string()),
+                                    _ => None
+                                })
+                                .unwrap_or_else(|| "unknown".to_string());
+                            
+                            errors.push(NetworkValidationError {
+                                mapping_id,
+                                error_type: NetworkErrorType::SubnetOverlap,
+                                message: format!("Subnet overlap detected: {} and {}", subnet1, subnet2),
+                                affected_field: "destination_subnet".to_string(),
+                            });
+                        }
+                    }
+                }
+            }
+        }
+
+        // Check individual mapping validity
+        for mapping in &mappings {
+            if mapping.is_valid {
+                valid_count += 1;
+            } else {
+                if let Some(ref errs) = mapping.validation_errors {
+                    warnings.extend(errs.iter().map(|e| format!("{}: {}", mapping.source_vlan_name, e)));
+                }
+            }
+        }
+
+        let total = mappings.len();
+        let invalid_count = total - valid_count;
+
+        Ok(NetworkValidationResult {
+            is_valid: errors.is_empty(),
+            total_mappings: total,
+            valid_mappings: valid_count,
+            invalid_mappings: invalid_count,
+            errors,
+            warnings,
+        })
+    }
+
+    /// Validate a single network mapping (internal helper)
+    async fn validate_single_mapping(
+        &self,
+        request: &crate::models::migration_wizard_models::CreateNetworkMappingRequest,
+    ) -> (bool, Vec<String>) {
+        let mut errors = Vec::new();
+
+        // Validate source subnet if provided
+        if let Some(ref subnet) = request.source_subnet {
+            if !self.is_valid_cidr(subnet) {
+                errors.push(format!("Invalid source subnet CIDR notation: {}", subnet));
+            }
+        }
+
+        // Validate destination subnet if provided
+        if let Some(ref subnet) = request.destination_subnet {
+            if !self.is_valid_cidr(subnet) {
+                errors.push(format!("Invalid destination subnet CIDR notation: {}", subnet));
+            }
+        }
+
+        // Validate destination gateway if provided
+        if let Some(ref gateway) = request.destination_gateway {
+            if !self.is_valid_ip(gateway) {
+                errors.push(format!("Invalid destination gateway IP: {}", gateway));
+            }
+        }
+
+        // Validate DNS servers if provided
+        if let Some(ref dns_servers) = request.destination_dns {
+            for dns in dns_servers {
+                if !self.is_valid_ip(dns) {
+                    errors.push(format!("Invalid DNS server IP: {}", dns));
+                }
+            }
+        }
+
+        (errors.is_empty(), errors)
+    }
+
+    /// Check if two subnets overlap
+    fn subnets_overlap(&self, subnet1: &str, subnet2: &str) -> bool {
+        // Simple overlap check (for production, use ipnetwork crate)
+        // This is a simplified version
+        if let (Some(net1), Some(net2)) = (self.parse_cidr(subnet1), self.parse_cidr(subnet2)) {
+            // Check if network addresses match (simplified check)
+            net1.0 == net2.0 && net1.1 == net2.1
+        } else {
+            false
+        }
+    }
+
+    /// Parse CIDR notation (simplified)
+    fn parse_cidr(&self, cidr: &str) -> Option<(String, u8)> {
+        let parts: Vec<&str> = cidr.split('/').collect();
+        if parts.len() == 2 {
+            if let Ok(prefix) = parts[1].parse::<u8>() {
+                return Some((parts[0].to_string(), prefix));
+            }
+        }
+        None
+    }
+
+    /// Validate CIDR notation
+    fn is_valid_cidr(&self, cidr: &str) -> bool {
+        self.parse_cidr(cidr).is_some()
+    }
+
+    /// Validate IP address (simplified)
+    fn is_valid_ip(&self, ip: &str) -> bool {
+        ip.split('.').count() == 4 && ip.split('.').all(|part| {
+            part.parse::<u8>().is_ok()
+        })
+    }
+
+    /// Get network topology for visualization
+    pub async fn get_network_topology(
+        &self,
+        project_id: &str,
+    ) -> Result<crate::models::migration_wizard_models::NetworkTopology> {
+        use crate::models::migration_wizard_models::{NetworkTopology, NetworkStatistics, NetworkVendor};
+        
+        // For now, return a basic topology structure
+        // In production, this would parse RVTools vSwitch, vNic, vPort, vHost tabs
+        
+        Ok(NetworkTopology {
+            project_id: project_id.to_string(),
+            vendor: NetworkVendor::Vmware, // Default, should detect from RVTools
+            vswitches: Vec::new(),
+            port_groups: Vec::new(),
+            physical_nics: Vec::new(),
+            vmkernel_ports: Vec::new(),
+            vm_adapters: Vec::new(),
+            statistics: NetworkStatistics {
+                total_vswitches: 0,
+                total_port_groups: 0,
+                total_vlans: 0,
+                total_physical_nics: 0,
+                total_vmkernel_ports: 0,
+                total_vm_adapters: 0,
+                total_unique_ips: 0,
+            },
+            generated_at: Utc::now(),
+        })
+    }
+
+    /// Generate network visualization data for visx
+    pub async fn generate_network_visualization(
+        &self,
+        project_id: &str,
+    ) -> Result<crate::models::migration_wizard_models::NetworkVisualizationData> {
+        use crate::models::migration_wizard_models::{
+            NetworkVisualizationData, NetworkNode, NetworkLink, VisualizationMetadata,
+            NodeType, NetworkNodeData, NodePosition, LinkType
+        };
+        
+        let topology = self.get_network_topology(project_id).await?;
+        
+        let mut nodes = Vec::new();
+        let mut links = Vec::new();
+
+        // Convert topology to visualization nodes/links
+        // This is a placeholder - real implementation would build from topology data
+        
+        let metadata = VisualizationMetadata {
+            source_vendor: "VMware".to_string(),
+            dest_vendor: Some("Hyper-V".to_string()),
+            total_vlans: topology.statistics.total_vlans,
+            total_ips: topology.statistics.total_unique_ips,
+            total_nodes: nodes.len() as i32,
+            total_links: links.len() as i32,
+        };
+
+        Ok(NetworkVisualizationData {
+            nodes,
+            links,
+            metadata,
+        })
+    }
+
+    /// Generate Mermaid diagram code
+    pub async fn generate_mermaid_diagram(
+        &self,
+        project_id: &str,
+    ) -> Result<String> {
+        let topology = self.get_network_topology(project_id).await?;
+        
+        let mut mermaid = String::from("graph TB\n");
+        mermaid.push_str("    %% Network Topology Diagram\n");
+        mermaid.push_str("    %% Generated from RVTools data\n\n");
+
+        // Add vSwitches
+        for vswitch in &topology.vswitches {
+            mermaid.push_str(&format!(
+                "    {}[\"{}\"]\n",
+                sanitize_mermaid_id(&vswitch.name),
+                vswitch.name
+            ));
+        }
+
+        // Add port groups
+        for pg in &topology.port_groups {
+            mermaid.push_str(&format!(
+                "    {}[\"VLAN {}: {}<br/>{:?}\"]\n",
+                sanitize_mermaid_id(&pg.name),
+                pg.vlan_id,
+                pg.name,
+                pg.purpose
+            ));
+        }
+
+        // Add physical NICs
+        for nic in &topology.physical_nics {
+            mermaid.push_str(&format!(
+                "    {}[\"{}
+<br/>{}Mbps\"]\n",
+                sanitize_mermaid_id(&nic.name),
+                nic.name,
+                nic.speed_mbps
+            ));
+        }
+
+        // Add connections (links)
+        // This would connect physical NICs → vSwitches → Port Groups → VMs
+        
+        mermaid.push_str("\n    %% Style definitions\n");
+        mermaid.push_str("    classDef vswitchStyle fill:#e1f5ff,stroke:#01579b,stroke-width:2px\n");
+        mermaid.push_str("    classDef portGroupStyle fill:#fff9c4,stroke:#f57f17,stroke-width:2px\n");
+        mermaid.push_str("    classDef nicStyle fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px\n");
+
+        Ok(mermaid)
+    }
+}
+
+/// Sanitize string for Mermaid ID usage
+fn sanitize_mermaid_id(s: &str) -> String {
+    s.replace(" ", "_")
+        .replace("-", "_")
+        .replace(".", "_")
+        .replace("/", "_")
+        .chars()
+        .filter(|c| c.is_alphanumeric() || *c == '_')
+        .collect()
 }
 
 #[cfg(test)]

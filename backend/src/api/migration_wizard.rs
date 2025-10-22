@@ -32,10 +32,18 @@ pub fn create_migration_wizard_router(db: Arc<Database>) -> Router {
         .route("/projects/:id/placements", post(create_manual_placement))
         .route("/projects/:id/placements", get(get_project_placements))
         .route("/projects/:id/cluster-utilization", get(get_cluster_utilization))
+        .route("/projects/:id/network-mappings", post(create_network_mapping))
+        .route("/projects/:id/network-mappings", get(get_project_network_mappings))
+        .route("/projects/:id/network-mappings/validate", post(validate_network_mappings))
+        .route("/projects/:id/network-topology", get(get_network_topology))
+        .route("/projects/:id/network-topology/mermaid", get(get_network_mermaid))
+        .route("/projects/:id/network-topology/visualization", get(get_network_visualization))
         .route("/clusters/:id", get(get_cluster))
         .route("/clusters/:id", put(update_cluster))
         .route("/clusters/:id", delete(delete_cluster))
         .route("/placements/:id", delete(delete_placement))
+        .route("/network-mappings/:id", put(update_network_mapping))
+        .route("/network-mappings/:id", delete(delete_network_mapping))
         .with_state(db)
 }
 
@@ -834,6 +842,315 @@ async fn get_cluster_utilization(
         }
         Err(e) => {
             tracing::error!("Failed to get cluster utilization: {}", e);
+            Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(json!({
+                    "success": false,
+                    "error": e.to_string()
+                }))
+            ))
+        }
+    }
+}
+
+// =============================================================================
+// NETWORK CONFIGURATION ENDPOINTS
+// =============================================================================
+
+/// Create a network mapping
+/// POST /api/v1/migration-wizard/projects/:id/network-mappings
+async fn create_network_mapping(
+    State(db): State<Arc<Database>>,
+    Path(project_id): Path<String>,
+    Json(payload): Json<CreateNetworkMappingRequest>,
+) -> Result<impl IntoResponse, (StatusCode, Json<serde_json::Value>)> {
+    tracing::info!("Creating network mapping for project: {}", project_id);
+
+    let service = MigrationWizardService::new(db.as_ref().clone());
+    
+    match service.create_network_mapping(&project_id, payload).await {
+        Ok(mapping) => {
+            let mapping_id = mapping.id.as_ref()
+                .map(|thing| {
+                    match &thing.id {
+                        surrealdb::sql::Id::String(s) => s.clone(),
+                        surrealdb::sql::Id::Number(n) => n.to_string(),
+                        _ => format!("{:?}", thing.id)
+                    }
+                })
+                .unwrap_or_else(|| "unknown".to_string());
+
+            let response = NetworkMappingResponse {
+                id: mapping_id,
+                project_id: project_id.clone(),
+                source_vlan_name: mapping.source_vlan_name,
+                source_vlan_id: mapping.source_vlan_id,
+                source_subnet: mapping.source_subnet,
+                destination_vlan_name: mapping.destination_vlan_name,
+                destination_vlan_id: mapping.destination_vlan_id,
+                destination_subnet: mapping.destination_subnet,
+                destination_gateway: mapping.destination_gateway,
+                destination_dns: mapping.destination_dns,
+                is_valid: mapping.is_valid,
+                validation_errors: mapping.validation_errors,
+                created_at: mapping.created_at,
+            };
+
+            Ok((StatusCode::CREATED, Json(json!({
+                "success": true,
+                "result": response
+            }))))
+        }
+        Err(e) => {
+            tracing::error!("Failed to create network mapping: {}", e);
+            Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(json!({
+                    "success": false,
+                    "error": e.to_string()
+                }))
+            ))
+        }
+    }
+}
+
+/// Get all network mappings for a project
+/// GET /api/v1/migration-wizard/projects/:id/network-mappings
+async fn get_project_network_mappings(
+    State(db): State<Arc<Database>>,
+    Path(project_id): Path<String>,
+) -> Result<impl IntoResponse, (StatusCode, Json<serde_json::Value>)> {
+    tracing::info!("Getting network mappings for project: {}", project_id);
+
+    let service = MigrationWizardService::new(db.as_ref().clone());
+    
+    match service.get_project_network_mappings(&project_id).await {
+        Ok(mappings) => {
+            let response_mappings: Vec<NetworkMappingResponse> = mappings.iter().map(|m| {
+                let mapping_id = m.id.as_ref()
+                    .map(|thing| {
+                        match &thing.id {
+                            surrealdb::sql::Id::String(s) => s.clone(),
+                            surrealdb::sql::Id::Number(n) => n.to_string(),
+                            _ => format!("{:?}", thing.id)
+                        }
+                    })
+                    .unwrap_or_else(|| "unknown".to_string());
+
+                NetworkMappingResponse {
+                    id: mapping_id,
+                    project_id: project_id.clone(),
+                    source_vlan_name: m.source_vlan_name.clone(),
+                    source_vlan_id: m.source_vlan_id,
+                    source_subnet: m.source_subnet.clone(),
+                    destination_vlan_name: m.destination_vlan_name.clone(),
+                    destination_vlan_id: m.destination_vlan_id,
+                    destination_subnet: m.destination_subnet.clone(),
+                    destination_gateway: m.destination_gateway.clone(),
+                    destination_dns: m.destination_dns.clone(),
+                    is_valid: m.is_valid,
+                    validation_errors: m.validation_errors.clone(),
+                    created_at: m.created_at,
+                }
+            }).collect();
+
+            Ok((StatusCode::OK, Json(json!({
+                "success": true,
+                "result": {
+                    "mappings": response_mappings,
+                    "total": response_mappings.len()
+                }
+            }))))
+        }
+        Err(e) => {
+            tracing::error!("Failed to get network mappings: {}", e);
+            Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(json!({
+                    "success": false,
+                    "error": e.to_string()
+                }))
+            ))
+        }
+    }
+}
+
+/// Update a network mapping
+/// PUT /api/v1/migration-wizard/network-mappings/:id
+async fn update_network_mapping(
+    State(db): State<Arc<Database>>,
+    Path(mapping_id): Path<String>,
+    Json(payload): Json<serde_json::Value>,
+) -> Result<impl IntoResponse, (StatusCode, Json<serde_json::Value>)> {
+    tracing::info!("Updating network mapping: {}", mapping_id);
+
+    let service = MigrationWizardService::new(db.as_ref().clone());
+    
+    match service.update_network_mapping(&mapping_id, payload).await {
+        Ok(mapping) => {
+            Ok((StatusCode::OK, Json(json!({
+                "success": true,
+                "result": mapping
+            }))))
+        }
+        Err(e) => {
+            tracing::error!("Failed to update network mapping: {}", e);
+            Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(json!({
+                    "success": false,
+                    "error": e.to_string()
+                }))
+            ))
+        }
+    }
+}
+
+/// Delete a network mapping
+/// DELETE /api/v1/migration-wizard/network-mappings/:id
+async fn delete_network_mapping(
+    State(db): State<Arc<Database>>,
+    Path(mapping_id): Path<String>,
+) -> Result<impl IntoResponse, (StatusCode, Json<serde_json::Value>)> {
+    tracing::info!("Deleting network mapping: {}", mapping_id);
+
+    let service = MigrationWizardService::new(db.as_ref().clone());
+    
+    match service.delete_network_mapping(&mapping_id).await {
+        Ok(_) => {
+            Ok((StatusCode::OK, Json(json!({
+                "success": true,
+                "message": "Network mapping deleted successfully"
+            }))))
+        }
+        Err(e) => {
+            tracing::error!("Failed to delete network mapping: {}", e);
+            Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(json!({
+                    "success": false,
+                    "error": e.to_string()
+                }))
+            ))
+        }
+    }
+}
+
+/// Validate all network mappings for a project
+/// POST /api/v1/migration-wizard/projects/:id/network-mappings/validate
+async fn validate_network_mappings(
+    State(db): State<Arc<Database>>,
+    Path(project_id): Path<String>,
+) -> Result<impl IntoResponse, (StatusCode, Json<serde_json::Value>)> {
+    tracing::info!("Validating network mappings for project: {}", project_id);
+
+    let service = MigrationWizardService::new(db.as_ref().clone());
+    
+    match service.validate_network_mappings(&project_id).await {
+        Ok(validation_result) => {
+            Ok((StatusCode::OK, Json(json!({
+                "success": true,
+                "result": validation_result
+            }))))
+        }
+        Err(e) => {
+            tracing::error!("Failed to validate network mappings: {}", e);
+            Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(json!({
+                    "success": false,
+                    "error": e.to_string()
+                }))
+            ))
+        }
+    }
+}
+
+/// Get network topology for a project
+/// GET /api/v1/migration-wizard/projects/:id/network-topology
+async fn get_network_topology(
+    State(db): State<Arc<Database>>,
+    Path(project_id): Path<String>,
+) -> Result<impl IntoResponse, (StatusCode, Json<serde_json::Value>)> {
+    tracing::info!("Getting network topology for project: {}", project_id);
+
+    let service = MigrationWizardService::new(db.as_ref().clone());
+    
+    match service.get_network_topology(&project_id).await {
+        Ok(topology) => {
+            Ok((StatusCode::OK, Json(json!({
+                "success": true,
+                "result": {
+                    "topology": topology
+                }
+            }))))
+        }
+        Err(e) => {
+            tracing::error!("Failed to get network topology: {}", e);
+            Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(json!({
+                    "success": false,
+                    "error": e.to_string()
+                }))
+            ))
+        }
+    }
+}
+
+/// Get network visualization data (visx-compatible)
+/// GET /api/v1/migration-wizard/projects/:id/network-topology/visualization
+async fn get_network_visualization(
+    State(db): State<Arc<Database>>,
+    Path(project_id): Path<String>,
+) -> Result<impl IntoResponse, (StatusCode, Json<serde_json::Value>)> {
+    tracing::info!("Generating network visualization for project: {}", project_id);
+
+    let service = MigrationWizardService::new(db.as_ref().clone());
+    
+    match service.generate_network_visualization(&project_id).await {
+        Ok(viz_data) => {
+            Ok((StatusCode::OK, Json(json!({
+                "success": true,
+                "result": viz_data
+            }))))
+        }
+        Err(e) => {
+            tracing::error!("Failed to generate network visualization: {}", e);
+            Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(json!({
+                    "success": false,
+                    "error": e.to_string()
+                }))
+            ))
+        }
+    }
+}
+
+/// Get network topology as Mermaid diagram
+/// GET /api/v1/migration-wizard/projects/:id/network-topology/mermaid
+async fn get_network_mermaid(
+    State(db): State<Arc<Database>>,
+    Path(project_id): Path<String>,
+) -> Result<impl IntoResponse, (StatusCode, Json<serde_json::Value>)> {
+    tracing::info!("Generating Mermaid diagram for project: {}", project_id);
+
+    let service = MigrationWizardService::new(db.as_ref().clone());
+    
+    match service.generate_mermaid_diagram(&project_id).await {
+        Ok(diagram_code) => {
+            Ok((StatusCode::OK, Json(json!({
+                "success": true,
+                "result": {
+                    "diagram_code": diagram_code,
+                    "diagram_type": "graph",
+                    "generated_at": chrono::Utc::now()
+                }
+            }))))
+        }
+        Err(e) => {
+            tracing::error!("Failed to generate Mermaid diagram: {}", e);
             Err((
                 StatusCode::INTERNAL_SERVER_ERROR,
                 Json(json!({
