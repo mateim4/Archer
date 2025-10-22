@@ -118,13 +118,13 @@ const spacing = {
 // ============================================================================
 
 const typography = {
-  // Font Families
-  fontFamilyBody: '"Jura", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-  fontFamilyHeading: '"Nasalization", "Jura", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+  // Font Families (Jura with no Roboto in fallback)
+  fontFamilyBody: '"Jura", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+  fontFamilyHeading: '"Nasalization", "Jura", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
   fontFamilyMonospace: '"Fira Code", "Consolas", "Monaco", monospace',
   
   // Legacy alias for backward compatibility
-  fontFamilyPrimary: '"Jura", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+  fontFamilyPrimary: '"Jura", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
 
   // Font Sizes (Fluent Type Ramp)
   fontSizeBase100: fluentTokens.fontSizeBase100, // 10px
@@ -139,11 +139,11 @@ const typography = {
   fontSizeHero900: fluentTokens.fontSizeHero900, // 40px
   fontSizeHero1000: fluentTokens.fontSizeHero1000, // 68px
 
-  // Font Weights (significantly thicker for better presence with Jura)
-  fontWeightRegular: fluentTokens.fontWeightSemibold,    // 600 (was 400, then 500)
-  fontWeightMedium: fluentTokens.fontWeightBold,         // 700 (was 500, then 600)
-  fontWeightSemibold: '800',                              // 800 (was 600, then 700)
-  fontWeightBold: '900',                                  // 900 (was 700, then 800)
+  // Font Weights (increased by 200+ for Jura - minimum 600)
+  fontWeightRegular: '600',      // 600 (was 400, increased by 200+)
+  fontWeightMedium: '700',       // 700 (was 500, increased by 200+)
+  fontWeightSemibold: '800',     // 800 (was 600, increased by 200+)
+  fontWeightBold: '900',         // 900 (was 700, increased by 200+)
 
   // Line Heights
   lineHeightBase100: fluentTokens.lineHeightBase100, // 14px

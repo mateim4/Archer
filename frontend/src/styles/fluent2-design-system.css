@@ -159,11 +159,11 @@
   --fluent-font-size-900: 32px;   /* Title 2 */
   --fluent-font-size-1000: 40px;  /* Title 1 */
   
-  /* === Fluent 2 Font Weights === */
-  --fluent-font-weight-regular: 400;
-  --fluent-font-weight-medium: 500;
-  --fluent-font-weight-semibold: 600;
-  --fluent-font-weight-bold: 700;
+  /* === Fluent 2 Font Weights (increased by 200+ for Jura) === */
+  --fluent-font-weight-regular: 600;
+  --fluent-font-weight-medium: 700;
+  --fluent-font-weight-semibold: 800;
+  --fluent-font-weight-bold: 900;
   
   /* === Fluent 2 Line Heights === */
   --fluent-line-height-100: 14px;
