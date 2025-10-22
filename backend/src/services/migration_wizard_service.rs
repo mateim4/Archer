@@ -1235,6 +1235,10 @@ impl MigrationWizardService {
             physical_nics: Vec::new(),
             vmkernel_ports: Vec::new(),
             vm_adapters: Vec::new(),
+            nutanix_bonds: None,
+            nutanix_bridges: None,
+            nutanix_flow_networks: None,
+            nutanix_ipam_pools: None,
             statistics: NetworkStatistics {
                 total_vswitches: 0,
                 total_port_groups: 0,
@@ -1243,6 +1247,10 @@ impl MigrationWizardService {
                 total_vmkernel_ports: 0,
                 total_vm_adapters: 0,
                 total_unique_ips: 0,
+                total_nutanix_bonds: None,
+                total_nutanix_bridges: None,
+                total_nutanix_flow_networks: None,
+                total_nutanix_ipam_pools: None,
             },
             generated_at: Utc::now(),
         })
@@ -1334,6 +1342,177 @@ impl MigrationWizardService {
 
         Ok(mermaid)
     }
+    
+    // =========================================================================
+    // ICON/STENCIL MAPPING SERVICE
+    // =========================================================================
+    
+    /// Resolve icon URL for network component
+    pub fn resolve_icon_url(&self, vendor: &NetworkVendor, node_type: &NodeType) -> String {
+        match (vendor, node_type) {
+            // VMware vSphere icons
+            (NetworkVendor::Vmware, NodeType::VSwitch) => "/icons/vmware/vswitch-standard.svg".to_string(),
+            (NetworkVendor::Vmware, NodeType::PortGroup) => "/icons/vmware/port-group.svg".to_string(),
+            (NetworkVendor::Vmware, NodeType::PhysicalNic) => "/icons/vmware/pnic.svg".to_string(),
+            (NetworkVendor::Vmware, NodeType::VmKernelPort) => "/icons/vmware/vmkernel.svg".to_string(),
+            (NetworkVendor::Vmware, NodeType::VmNic) => "/icons/vmware/vnic.svg".to_string(),
+            (NetworkVendor::Vmware, NodeType::Host) => "/icons/vmware/esxi-host.svg".to_string(),
+            (NetworkVendor::Vmware, NodeType::Vm) => "/icons/vmware/vm.svg".to_string(),
+            
+            // Hyper-V icons
+            (NetworkVendor::HyperV, NodeType::VSwitch) => "/icons/hyperv/vswitch-external.svg".to_string(),
+            (NetworkVendor::HyperV, NodeType::PortGroup) => "/icons/hyperv/vlan.svg".to_string(),
+            (NetworkVendor::HyperV, NodeType::PhysicalNic) => "/icons/hyperv/pnic.svg".to_string(),
+            (NetworkVendor::HyperV, NodeType::VmKernelPort) => "/icons/hyperv/management-vnic.svg".to_string(),
+            (NetworkVendor::HyperV, NodeType::VmNic) => "/icons/hyperv/vm-vnic.svg".to_string(),
+            (NetworkVendor::HyperV, NodeType::Host) => "/icons/hyperv/hyperv-host.svg".to_string(),
+            (NetworkVendor::HyperV, NodeType::Vm) => "/icons/hyperv/vm.svg".to_string(),
+            
+            // Nutanix AHV icons
+            (NetworkVendor::Nutanix, NodeType::VSwitch) => "/icons/nutanix/ovs-bridge.svg".to_string(),
+            (NetworkVendor::Nutanix, NodeType::NutanixBond) => "/icons/nutanix/bond.svg".to_string(),
+            (NetworkVendor::Nutanix, NodeType::NutanixOvsBridge) => "/icons/nutanix/ovs-bridge.svg".to_string(),
+            (NetworkVendor::Nutanix, NodeType::PortGroup) => "/icons/nutanix/virtual-network.svg".to_string(),
+            (NetworkVendor::Nutanix, NodeType::NutanixFlowNetwork) => "/icons/nutanix/flow.svg".to_string(),
+            (NetworkVendor::Nutanix, NodeType::NutanixIpamPool) => "/icons/nutanix/ipam.svg".to_string(),
+            (NetworkVendor::Nutanix, NodeType::PhysicalNic) => "/icons/nutanix/pnic.svg".to_string(),
+            (NetworkVendor::Nutanix, NodeType::VmNic) => "/icons/nutanix/vm-vnic.svg".to_string(),
+            (NetworkVendor::Nutanix, NodeType::Host) => "/icons/nutanix/ahv-host.svg".to_string(),
+            (NetworkVendor::Nutanix, NodeType::Vm) => "/icons/nutanix/vm.svg".to_string(),
+            
+            // Generic fallback icons
+            _ => "/icons/generic/network-component.svg".to_string(),
+        }
+    }
+    
+    /// Get stencil reference name for documentation
+    pub fn get_stencil_reference(&self, vendor: &NetworkVendor, node_type: &NodeType) -> String {
+        match (vendor, node_type) {
+            // VMware stencils
+            (NetworkVendor::Vmware, NodeType::VSwitch) => "VMware Official - vSphere Standard Switch".to_string(),
+            (NetworkVendor::Vmware, NodeType::PortGroup) => "VMware Official - Port Group".to_string(),
+            (NetworkVendor::Vmware, NodeType::PhysicalNic) => "VMware Official - Physical NIC".to_string(),
+            (NetworkVendor::Vmware, NodeType::VmKernelPort) => "VMware Official - VMkernel Adapter".to_string(),
+            (NetworkVendor::Vmware, NodeType::VmNic) => "VMware Official - Virtual NIC".to_string(),
+            (NetworkVendor::Vmware, NodeType::Host) => "VMware Official - ESXi Host".to_string(),
+            (NetworkVendor::Vmware, NodeType::Vm) => "VMware Official - Virtual Machine".to_string(),
+            
+            // Hyper-V stencils
+            (NetworkVendor::HyperV, NodeType::VSwitch) => "Microsoft - Hyper-V Virtual Switch".to_string(),
+            (NetworkVendor::HyperV, NodeType::PortGroup) => "Microsoft - VLAN".to_string(),
+            (NetworkVendor::HyperV, NodeType::PhysicalNic) => "Microsoft - Network Adapter".to_string(),
+            (NetworkVendor::HyperV, NodeType::VmKernelPort) => "Microsoft - Management vNIC".to_string(),
+            (NetworkVendor::HyperV, NodeType::VmNic) => "Microsoft - VM Network Adapter".to_string(),
+            (NetworkVendor::HyperV, NodeType::Host) => "Microsoft - Hyper-V Host".to_string(),
+            (NetworkVendor::HyperV, NodeType::Vm) => "Microsoft - Virtual Machine".to_string(),
+            
+            // Nutanix stencils
+            (NetworkVendor::Nutanix, NodeType::VSwitch) => "Nutanix Official - OVS Bridge".to_string(),
+            (NetworkVendor::Nutanix, NodeType::NutanixBond) => "Nutanix Official - Network Bond".to_string(),
+            (NetworkVendor::Nutanix, NodeType::NutanixOvsBridge) => "Nutanix Official - OVS Bridge".to_string(),
+            (NetworkVendor::Nutanix, NodeType::PortGroup) => "Nutanix Official - Virtual Network".to_string(),
+            (NetworkVendor::Nutanix, NodeType::NutanixFlowNetwork) => "Nutanix Official - Flow Networking".to_string(),
+            (NetworkVendor::Nutanix, NodeType::NutanixIpamPool) => "Nutanix Official - IPAM".to_string(),
+            (NetworkVendor::Nutanix, NodeType::PhysicalNic) => "Nutanix Official - Physical NIC".to_string(),
+            (NetworkVendor::Nutanix, NodeType::VmNic) => "Nutanix Official - VM vNIC".to_string(),
+            (NetworkVendor::Nutanix, NodeType::Host) => "Nutanix Official - AHV Host".to_string(),
+            (NetworkVendor::Nutanix, NodeType::Vm) => "Nutanix Official - Virtual Machine".to_string(),
+            
+            // Generic
+            _ => "Generic - Network Component".to_string(),
+        }
+    }
+    
+    /// Get icon category for organization
+    pub fn get_icon_category(&self, node_type: &NodeType) -> String {
+        match node_type {
+            NodeType::VSwitch | NodeType::NutanixOvsBridge => "network/virtual-switch".to_string(),
+            NodeType::NutanixBond => "network/bond".to_string(),
+            NodeType::PortGroup | NodeType::NutanixFlowNetwork => "network/virtual-network".to_string(),
+            NodeType::NutanixIpamPool => "network/ipam".to_string(),
+            NodeType::PhysicalNic => "network/physical-nic".to_string(),
+            NodeType::VmKernelPort => "network/vmkernel".to_string(),
+            NodeType::VmNic => "network/vm-nic".to_string(),
+            NodeType::Host => "infrastructure/host".to_string(),
+            NodeType::Vm => "infrastructure/vm".to_string(),
+        }
+    }
+    
+    /// Get all icon mappings for documentation
+    pub fn get_all_icon_mappings(&self) -> Vec<IconMapping> {
+        let mut mappings = Vec::new();
+        
+        // VMware mappings
+        let vmware_types = vec![
+            NodeType::VSwitch,
+            NodeType::PortGroup,
+            NodeType::PhysicalNic,
+            NodeType::VmKernelPort,
+            NodeType::VmNic,
+            NodeType::Host,
+            NodeType::Vm,
+        ];
+        
+        for node_type in vmware_types {
+            mappings.push(IconMapping {
+                vendor: NetworkVendor::Vmware,
+                node_type: node_type.clone(),
+                icon_url: self.resolve_icon_url(&NetworkVendor::Vmware, &node_type),
+                stencil_reference: self.get_stencil_reference(&NetworkVendor::Vmware, &node_type),
+                icon_category: self.get_icon_category(&node_type),
+                description: get_node_type_description(&NetworkVendor::Vmware, &node_type),
+            });
+        }
+        
+        // Hyper-V mappings
+        let hyperv_types = vec![
+            NodeType::VSwitch,
+            NodeType::PortGroup,
+            NodeType::PhysicalNic,
+            NodeType::VmKernelPort,
+            NodeType::VmNic,
+            NodeType::Host,
+            NodeType::Vm,
+        ];
+        
+        for node_type in hyperv_types {
+            mappings.push(IconMapping {
+                vendor: NetworkVendor::HyperV,
+                node_type: node_type.clone(),
+                icon_url: self.resolve_icon_url(&NetworkVendor::HyperV, &node_type),
+                stencil_reference: self.get_stencil_reference(&NetworkVendor::HyperV, &node_type),
+                icon_category: self.get_icon_category(&node_type),
+                description: get_node_type_description(&NetworkVendor::HyperV, &node_type),
+            });
+        }
+        
+        // Nutanix mappings (comprehensive)
+        let nutanix_types = vec![
+            NodeType::VSwitch,
+            NodeType::NutanixBond,
+            NodeType::NutanixOvsBridge,
+            NodeType::PortGroup,
+            NodeType::NutanixFlowNetwork,
+            NodeType::NutanixIpamPool,
+            NodeType::PhysicalNic,
+            NodeType::VmNic,
+            NodeType::Host,
+            NodeType::Vm,
+        ];
+        
+        for node_type in nutanix_types {
+            mappings.push(IconMapping {
+                vendor: NetworkVendor::Nutanix,
+                node_type: node_type.clone(),
+                icon_url: self.resolve_icon_url(&NetworkVendor::Nutanix, &node_type),
+                stencil_reference: self.get_stencil_reference(&NetworkVendor::Nutanix, &node_type),
+                icon_category: self.get_icon_category(&node_type),
+                description: get_node_type_description(&NetworkVendor::Nutanix, &node_type),
+            });
+        }
+        
+        mappings
+    }
 }
 
 /// Sanitize string for Mermaid ID usage
@@ -1345,6 +1524,44 @@ fn sanitize_mermaid_id(s: &str) -> String {
         .chars()
         .filter(|c| c.is_alphanumeric() || *c == '_')
         .collect()
+}
+
+/// Get description for node type (used in icon mappings)
+pub fn get_node_type_description(vendor: &NetworkVendor, node_type: &NodeType) -> String {
+    match (vendor, node_type) {
+        // VMware descriptions
+        (NetworkVendor::Vmware, NodeType::VSwitch) => "VMware vSphere Standard or Distributed Switch for network virtualization".to_string(),
+        (NetworkVendor::Vmware, NodeType::PortGroup) => "VMware Port Group - Virtual network segment on vSwitch".to_string(),
+        (NetworkVendor::Vmware, NodeType::PhysicalNic) => "VMware Physical NIC (vmnic) - Physical network adapter in ESXi host".to_string(),
+        (NetworkVendor::Vmware, NodeType::VmKernelPort) => "VMware VMkernel Port - ESXi host interface for management and services".to_string(),
+        (NetworkVendor::Vmware, NodeType::VmNic) => "VMware Virtual NIC - VM network adapter (vmxnet3, E1000, etc.)".to_string(),
+        (NetworkVendor::Vmware, NodeType::Host) => "VMware ESXi Host - Hypervisor server".to_string(),
+        (NetworkVendor::Vmware, NodeType::Vm) => "VMware Virtual Machine".to_string(),
+        
+        // Hyper-V descriptions
+        (NetworkVendor::HyperV, NodeType::VSwitch) => "Hyper-V Virtual Switch - External, Internal, or Private switch".to_string(),
+        (NetworkVendor::HyperV, NodeType::PortGroup) => "Hyper-V VLAN Configuration on Virtual Switch".to_string(),
+        (NetworkVendor::HyperV, NodeType::PhysicalNic) => "Hyper-V Physical Network Adapter bound to virtual switch".to_string(),
+        (NetworkVendor::HyperV, NodeType::VmKernelPort) => "Hyper-V Management vNIC - Host virtual adapter for management".to_string(),
+        (NetworkVendor::HyperV, NodeType::VmNic) => "Hyper-V VM Network Adapter - Synthetic or Legacy adapter".to_string(),
+        (NetworkVendor::HyperV, NodeType::Host) => "Hyper-V Host Server - Microsoft hypervisor".to_string(),
+        (NetworkVendor::HyperV, NodeType::Vm) => "Hyper-V Virtual Machine".to_string(),
+        
+        // Nutanix descriptions
+        (NetworkVendor::Nutanix, NodeType::VSwitch) => "Nutanix Open vSwitch (OVS) - Software-based virtual switch".to_string(),
+        (NetworkVendor::Nutanix, NodeType::NutanixBond) => "Nutanix Network Bond - Aggregated physical NICs for redundancy and bandwidth (bond0, bond1)".to_string(),
+        (NetworkVendor::Nutanix, NodeType::NutanixOvsBridge) => "Nutanix OVS Bridge - Software bridge in Open vSwitch architecture (br0, br1, br0-int)".to_string(),
+        (NetworkVendor::Nutanix, NodeType::PortGroup) => "Nutanix Virtual Network - Logical network segment with VLAN configuration".to_string(),
+        (NetworkVendor::Nutanix, NodeType::NutanixFlowNetwork) => "Nutanix Flow Virtual Network - Advanced networking with microsegmentation and security policies".to_string(),
+        (NetworkVendor::Nutanix, NodeType::NutanixIpamPool) => "Nutanix IPAM Pool - Centralized IP address management for VMs".to_string(),
+        (NetworkVendor::Nutanix, NodeType::PhysicalNic) => "Nutanix Physical NIC (eth) - Physical network interface on AHV host".to_string(),
+        (NetworkVendor::Nutanix, NodeType::VmNic) => "Nutanix VM vNIC - Virtual network adapter (Virtio, E1000) for VM".to_string(),
+        (NetworkVendor::Nutanix, NodeType::Host) => "Nutanix AHV Host - Acropolis Hypervisor node".to_string(),
+        (NetworkVendor::Nutanix, NodeType::Vm) => "Nutanix Virtual Machine on AHV".to_string(),
+        
+        // Generic fallback
+        _ => "Network component".to_string(),
+    }
 }
 
 #[cfg(test)]

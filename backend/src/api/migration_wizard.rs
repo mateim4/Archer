@@ -38,6 +38,8 @@ pub fn create_migration_wizard_router(db: Arc<Database>) -> Router {
         .route("/projects/:id/network-topology", get(get_network_topology))
         .route("/projects/:id/network-topology/mermaid", get(get_network_mermaid))
         .route("/projects/:id/network-topology/visualization", get(get_network_visualization))
+        .route("/network-icons", get(get_all_icon_mappings))
+        .route("/network-icons/:vendor/:node_type", get(get_icon_mapping))
         .route("/clusters/:id", get(get_cluster))
         .route("/clusters/:id", put(update_cluster))
         .route("/clusters/:id", delete(delete_cluster))
@@ -1160,4 +1162,103 @@ async fn get_network_mermaid(
             ))
         }
     }
+}
+
+// =============================================================================
+// ICON/STENCIL MAPPING ENDPOINTS
+// =============================================================================
+
+/// Get all icon mappings for network components
+/// GET /api/v1/migration-wizard/network-icons
+async fn get_all_icon_mappings(
+    State(db): State<Arc<Database>>,
+) -> Result<impl IntoResponse, (StatusCode, Json<serde_json::Value>)> {
+    tracing::info!("Retrieving all network icon mappings");
+
+    let service = MigrationWizardService::new(db.as_ref().clone());
+    let mappings = service.get_all_icon_mappings();
+    
+    let response = IconMappingResponse {
+        total: mappings.len(),
+        mappings,
+    };
+
+    Ok((StatusCode::OK, Json(json!({
+        "success": true,
+        "result": response
+    }))))
+}
+
+/// Get icon mapping for specific vendor and node type
+/// GET /api/v1/migration-wizard/network-icons/:vendor/:node_type
+async fn get_icon_mapping(
+    State(db): State<Arc<Database>>,
+    Path((vendor_str, node_type_str)): Path<(String, String)>,
+) -> Result<impl IntoResponse, (StatusCode, Json<serde_json::Value>)> {
+    tracing::info!("Retrieving icon mapping for {} - {}", vendor_str, node_type_str);
+
+    let service = MigrationWizardService::new(db.as_ref().clone());
+    
+    // Parse vendor
+    let vendor = match vendor_str.to_lowercase().as_str() {
+        "vmware" => NetworkVendor::Vmware,
+        "hyperv" | "hyper-v" => NetworkVendor::HyperV,
+        "nutanix" => NetworkVendor::Nutanix,
+        "generic" => NetworkVendor::Generic,
+        _ => {
+            return Err((
+                StatusCode::BAD_REQUEST,
+                Json(json!({
+                    "success": false,
+                    "error": format!("Invalid vendor: {}. Valid options: vmware, hyperv, nutanix, generic", vendor_str)
+                }))
+            ));
+        }
+    };
+    
+    // Parse node type
+    let node_type = match node_type_str.to_lowercase().as_str() {
+        "physical_nic" | "physicalnic" => NodeType::PhysicalNic,
+        "vswitch" => NodeType::VSwitch,
+        "port_group" | "portgroup" => NodeType::PortGroup,
+        "vmkernel_port" | "vmkernelport" => NodeType::VmKernelPort,
+        "vm_nic" | "vmnic" => NodeType::VmNic,
+        "host" => NodeType::Host,
+        "vm" => NodeType::Vm,
+        "nutanix_bond" | "nutanixbond" => NodeType::NutanixBond,
+        "nutanix_ovs_bridge" | "nutanixovsbridge" => NodeType::NutanixOvsBridge,
+        "nutanix_flow_network" | "nutanixflownetwork" => NodeType::NutanixFlowNetwork,
+        "nutanix_ipam_pool" | "nutanixipampool" => NodeType::NutanixIpamPool,
+        _ => {
+            return Err((
+                StatusCode::BAD_REQUEST,
+                Json(json!({
+                    "success": false,
+                    "error": format!("Invalid node type: {}", node_type_str)
+                }))
+            ));
+        }
+    };
+    
+    let icon_url = service.resolve_icon_url(&vendor, &node_type);
+    let stencil_reference = service.get_stencil_reference(&vendor, &node_type);
+    let icon_category = service.get_icon_category(&node_type);
+    
+    // Get description from helper
+    use crate::services::migration_wizard_service::get_node_type_description;
+    let description = get_node_type_description(&vendor, &node_type);
+    
+    let response = SingleIconResponse {
+        vendor: format!("{:?}", vendor),
+        node_type: format!("{:?}", node_type),
+        icon_url,
+        stencil_reference,
+        icon_category,
+        description,
+    };
+
+    Ok((StatusCode::OK, Json(json!({
+        "success": true,
+        "result": response
+    }))))
 }

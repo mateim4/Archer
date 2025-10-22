@@ -215,7 +215,7 @@ pub struct VirtualSwitch {
     pub num_ports: i32,
     
     // Physical uplinks
-    pub uplinks: Vec<String>,              // vmnic0, vmnic1, etc.
+    pub uplinks: Vec<String>,              // vmnic0, vmnic1, eth0, eth1, etc.
     
     // Port groups/networks
     pub port_groups: Vec<String>,
@@ -226,19 +226,35 @@ pub struct VirtualSwitch {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub failover_order: Option<Vec<String>>,
     
+    // Icon/Stencil integration
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub icon_url: Option<String>,          // e.g., "/icons/vmware/vswitch-standard.svg"
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub stencil_reference: Option<String>, // e.g., "VMware Official - vSphere Standard Switch"
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub icon_category: Option<String>,     // e.g., "network/virtual-switch"
+    
     pub created_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum SwitchType {
-    VmwareStandard,
-    VmwareDistributed,
-    HyperVExternal,
-    HyperVInternal,
-    HyperVPrivate,
-    HyperVSet,                            // Switch Embedded Teaming
-    NutanixOvs,                           // Open vSwitch
+    // VMware vSphere
+    VmwareStandard,                       // Standard vSwitch (vSS)
+    VmwareDistributed,                    // Distributed vSwitch (vDS)
+    
+    // Microsoft Hyper-V
+    HyperVExternal,                       // External vSwitch (binds to physical NIC)
+    HyperVInternal,                       // Internal vSwitch (host + VMs)
+    HyperVPrivate,                        // Private vSwitch (VMs only)
+    HyperVSet,                            // Switch Embedded Teaming (NIC teaming)
+    
+    // Nutanix AHV - Open vSwitch (OVS) based
+    NutanixOvsBridge,                     // Open vSwitch bridge (br0, br1, etc.)
+    NutanixOvsIntegration,                // OVS integration bridge (br0-int)
+    NutanixBond,                          // Network Bond (bond0, bond1 - aggregated NICs)
+    NutanixFlowVirtualNetwork,            // Flow Virtual Network with microsegmentation
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -262,7 +278,7 @@ pub struct PortGroup {
     pub vlan_id: i32,
     
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub vlan_type: Option<String>,        // None, VLAN, PVLAN, Trunk
+    pub vlan_type: Option<String>,        // None, VLAN, PVLAN, Trunk, VXLAN
     
     #[serde(skip_serializing_if = "Option::is_none")]
     pub subnet: Option<String>,           // 192.168.1.0/24
@@ -272,6 +288,25 @@ pub struct PortGroup {
     
     pub num_vms: i32,
     pub purpose: NetworkPurpose,
+    
+    // Nutanix-specific fields
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub is_managed: Option<bool>,         // Nutanix: IPAM-enabled network
+    
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub vni: Option<i32>,                 // Nutanix: VXLAN Network Identifier (Flow Networking)
+    
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub ip_pool_start: Option<String>,    // Nutanix: IPAM pool start
+    
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub ip_pool_end: Option<String>,      // Nutanix: IPAM pool end
+    
+    // Icon/Stencil integration
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub icon_url: Option<String>,          // e.g., "/icons/vmware/port-group.svg"
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub stencil_reference: Option<String>, // e.g., "VMware Official - Port Group"
     
     pub created_at: DateTime<Utc>,
 }
@@ -289,15 +324,15 @@ pub enum NetworkPurpose {
     Other,
 }
 
-/// Physical NIC (vmnic for VMware, NIC for Hyper-V)
+/// Physical NIC (vmnic for VMware, NIC for Hyper-V, eth for Nutanix)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PhysicalNIC {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<Thing>,
     pub project_id: Thing,
     
-    pub name: String,                     // vmnic0, Ethernet 1, etc.
-    pub host_name: String,                // ESXi host or Hyper-V host
+    pub name: String,                     // vmnic0, Ethernet 1, eth0, etc.
+    pub host_name: String,                // ESXi host, Hyper-V host, or AHV host
     
     #[serde(skip_serializing_if = "Option::is_none")]
     pub mac_address: Option<String>,
@@ -309,9 +344,15 @@ pub struct PhysicalNIC {
     pub driver: Option<String>,           // ixgbe, vmxnet3, etc.
     
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub vswitch_name: Option<String>,     // Connected vSwitch
+    pub vswitch_name: Option<String>,     // Connected vSwitch or bond
     
-    pub status: String,                   // Connected, Disconnected
+    pub status: String,                   // Connected, Disconnected, Up, Down
+    
+    // Icon/Stencil integration
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub icon_url: Option<String>,          // e.g., "/icons/vmware/pnic.svg"
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub stencil_reference: Option<String>, // e.g., "VMware Official - Physical NIC"
     
     pub created_at: DateTime<Utc>,
 }
@@ -345,6 +386,12 @@ pub struct VMKernelPort {
     pub vsan_enabled: bool,
     pub replication_enabled: bool,
     
+    // Icon/Stencil integration
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub icon_url: Option<String>,          // e.g., "/icons/vmware/vmkernel.svg"
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub stencil_reference: Option<String>, // e.g., "VMware Official - VMkernel Adapter"
+    
     pub created_at: DateTime<Utc>,
 }
 
@@ -368,9 +415,183 @@ pub struct VMNetworkAdapter {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub vlan_id: Option<i32>,
     
-    pub adapter_type: String,             // vmxnet3, E1000, Synthetic, etc.
+    pub adapter_type: String,             // vmxnet3, E1000, Synthetic, Virtio, etc.
     pub connected: bool,
     pub started: bool,
+    
+    // Icon/Stencil integration
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub icon_url: Option<String>,          // e.g., "/icons/vmware/vnic.svg"
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub stencil_reference: Option<String>, // e.g., "VMware Official - Virtual NIC"
+    
+    pub created_at: DateTime<Utc>,
+}
+
+// =============================================================================
+// NUTANIX AHV SPECIFIC NETWORK MODELS
+// =============================================================================
+
+/// Nutanix Network Bond (aggregated physical NICs)
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct NutanixNetworkBond {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<Thing>,
+    pub project_id: Thing,
+    
+    pub name: String,                     // bond0, bond1, etc.
+    pub bond_mode: NutanixBondMode,
+    pub member_nics: Vec<String>,         // eth0, eth1, eth2, etc.
+    
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub lacp_rate: Option<String>,        // slow, fast (for balance-tcp mode)
+    
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub link_monitoring: Option<String>,  // mii, arp
+    
+    pub bridge_name: String,              // br0, br1 (associated OVS bridge)
+    pub mtu: i32,
+    pub status: String,                   // active, down
+    
+    // Icon/Stencil integration
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub icon_url: Option<String>,          // e.g., "/icons/nutanix/bond.svg"
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub stencil_reference: Option<String>, // e.g., "Nutanix Official - Network Bond"
+    
+    pub created_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum NutanixBondMode {
+    ActiveBackup,      // active-backup: One active NIC, others standby
+    BalanceSlb,        // balance-slb: Source Load Balancing
+    BalanceTcp,        // balance-tcp: Full LACP support (requires switch config)
+}
+
+/// Nutanix OVS Bridge (br0, br1, etc.)
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct NutanixOVSBridge {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<Thing>,
+    pub project_id: Thing,
+    
+    pub name: String,                     // br0, br1, br0-int (integration bridge)
+    pub bridge_type: NutanixBridgeType,
+    pub datapath_id: String,              // OpenFlow datapath ID
+    
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub controller: Option<String>,       // OVS controller connection
+    
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub openflow_version: Option<String>, // OpenFlow version
+    
+    pub ports: Vec<String>,               // Port names connected to bridge
+    pub uplinks: Vec<String>,             // Physical uplink ports (eth0, eth1, bond0)
+    pub virtual_networks: Vec<String>,    // Virtual networks on this bridge
+    
+    // Icon/Stencil integration
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub icon_url: Option<String>,          // e.g., "/icons/nutanix/ovs-bridge.svg"
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub stencil_reference: Option<String>, // e.g., "Nutanix Official - OVS Bridge"
+    
+    pub created_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum NutanixBridgeType {
+    Standard,          // br0, br1 (standard OVS bridge)
+    Integration,       // br0-int (internal integration bridge)
+}
+
+/// Nutanix Flow Virtual Network (Advanced networking with microsegmentation)
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct NutanixFlowNetwork {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<Thing>,
+    pub project_id: Thing,
+    
+    pub name: String,                     // User-defined network name
+    pub network_uuid: String,             // Nutanix UUID
+    
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub vlan_id: Option<i32>,             // VLAN ID (if VLAN-backed)
+    
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub vni: Option<i32>,                 // VXLAN Network Identifier (VNI)
+    
+    // Flow Networking specific
+    pub flow_enabled: bool,               // Microsegmentation enabled
+    pub security_policies: Vec<String>,   // Applied security policy names
+    
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub categories: Option<Vec<String>>,  // Category tags (e.g., Environment:Production)
+    
+    // IPAM configuration
+    pub is_managed: bool,                 // IPAM-managed network
+    
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub subnet: Option<String>,           // IP subnet (CIDR)
+    
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub gateway: Option<String>,          // Gateway IP
+    
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub dns_servers: Option<Vec<String>>, // DNS servers
+    
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub domain_name: Option<String>,      // DNS domain
+    
+    // Icon/Stencil integration
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub icon_url: Option<String>,          // e.g., "/icons/nutanix/flow.svg"
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub stencil_reference: Option<String>, // e.g., "Nutanix Official - Flow Networking"
+    
+    pub created_at: DateTime<Utc>,
+}
+
+/// Nutanix IPAM Pool (IP Address Management)
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct NutanixIPAMPool {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<Thing>,
+    pub project_id: Thing,
+    
+    pub network_uuid: String,             // Associated network UUID
+    pub network_name: String,             // Virtual network name
+    
+    pub pool_name: String,                // User-defined pool name
+    pub ip_range_start: String,           // Pool start IP (e.g., 192.168.1.100)
+    pub ip_range_end: String,             // Pool end IP (e.g., 192.168.1.200)
+    
+    pub total_ips: i32,                   // Total IPs in pool
+    pub allocated_ips: i32,               // Currently allocated IPs
+    pub available_ips: i32,               // Available IPs
+    
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reserved_ips: Option<Vec<String>>, // Reserved IP addresses
+    
+    // DHCP configuration
+    pub dhcp_enabled: bool,
+    
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub dhcp_server_address: Option<String>,
+    
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub domain_name: Option<String>,
+    
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub dns_servers: Option<Vec<String>>,
+    
+    // Icon/Stencil integration
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub icon_url: Option<String>,          // e.g., "/icons/nutanix/ipam.svg"
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub stencil_reference: Option<String>, // e.g., "Nutanix Official - IPAM"
     
     pub created_at: DateTime<Utc>,
 }
@@ -381,11 +602,25 @@ pub struct NetworkTopology {
     pub project_id: String,
     pub vendor: NetworkVendor,
     
+    // Core network elements (all vendors)
     pub vswitches: Vec<VirtualSwitch>,
     pub port_groups: Vec<PortGroup>,
     pub physical_nics: Vec<PhysicalNIC>,
     pub vmkernel_ports: Vec<VMKernelPort>,
     pub vm_adapters: Vec<VMNetworkAdapter>,
+    
+    // Nutanix-specific elements
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub nutanix_bonds: Option<Vec<NutanixNetworkBond>>,
+    
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub nutanix_bridges: Option<Vec<NutanixOVSBridge>>,
+    
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub nutanix_flow_networks: Option<Vec<NutanixFlowNetwork>>,
+    
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub nutanix_ipam_pools: Option<Vec<NutanixIPAMPool>>,
     
     pub statistics: NetworkStatistics,
     pub generated_at: DateTime<Utc>,
@@ -393,6 +628,7 @@ pub struct NetworkTopology {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct NetworkStatistics {
+    // Core statistics (all vendors)
     pub total_vswitches: i32,
     pub total_port_groups: i32,
     pub total_vlans: i32,
@@ -400,6 +636,19 @@ pub struct NetworkStatistics {
     pub total_vmkernel_ports: i32,
     pub total_vm_adapters: i32,
     pub total_unique_ips: i32,
+    
+    // Nutanix-specific statistics
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub total_nutanix_bonds: Option<i32>,
+    
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub total_nutanix_bridges: Option<i32>,
+    
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub total_nutanix_flow_networks: Option<i32>,
+    
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub total_nutanix_ipam_pools: Option<i32>,
 }
 
 // =============================================================================
@@ -423,11 +672,16 @@ pub struct NetworkNode {
     pub position: NodePosition,
     pub color: String,
     pub size: f64,
+    
+    // Icon/Stencil for visualization
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub icon_url: Option<String>,          // e.g., "/icons/vmware/vswitch-standard.svg"
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum NodeType {
+    // Core types (all vendors)
     PhysicalNic,
     VSwitch,
     PortGroup,
@@ -435,6 +689,12 @@ pub enum NodeType {
     VmNic,
     Host,
     Vm,
+    
+    // Nutanix-specific types
+    NutanixBond,
+    NutanixOvsBridge,
+    NutanixFlowNetwork,
+    NutanixIpamPool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -753,4 +1013,33 @@ pub struct MermaidDiagramResponse {
     pub generated_at: DateTime<Utc>,
 }
 
+// =============================================================================
+// ICON/STENCIL MAPPING MODELS
+// =============================================================================
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct IconMapping {
+    pub vendor: NetworkVendor,
+    pub node_type: NodeType,
+    pub icon_url: String,
+    pub stencil_reference: String,
+    pub icon_category: String,
+    pub description: String,
+}
+
+#[derive(Debug, Serialize)]
+pub struct IconMappingResponse {
+    pub mappings: Vec<IconMapping>,
+    pub total: usize,
+}
+
+#[derive(Debug, Serialize)]
+pub struct SingleIconResponse {
+    pub vendor: String,
+    pub node_type: String,
+    pub icon_url: String,
+    pub stencil_reference: String,
+    pub icon_category: String,
+    pub description: String,
+}
 
