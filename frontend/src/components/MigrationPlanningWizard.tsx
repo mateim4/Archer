@@ -63,6 +63,13 @@ import {
   type NetworkTemplate,
   type HLDGenerationRequest,
 } from '@/api/migrationWizardClient';
+import {
+  calculateUtilization,
+  getUtilizationColor as getCapacityColor,
+  getUtilizationLabel as getCapacityLabel,
+  type VMResourceRequirements as CapacityVM,
+  type ClusterCapacity,
+} from '@/utils/capacityCalculations';
 
 const useStyles = makeStyles({
   dialogSurface: {
@@ -303,121 +310,50 @@ export const MigrationPlanningWizard: React.FC<MigrationWizardProps> = ({
     setAnalyzingCapacity(true);
     
     try {
-      // Convert wizard state to API types
-      const vms: VMResourceRequirements[] = Array.from({ length: workloadSummary.filteredVMs }, (_, i) => ({
-        vm_id: `vm-${i + 1}`,
-        vm_name: `VM-${i + 1}`,
-        cpu_cores: Math.floor(workloadSummary.totalCPU / workloadSummary.filteredVMs),
-        memory_gb: Math.floor(workloadSummary.totalMemoryGB / workloadSummary.filteredVMs),
-        storage_gb: Math.floor(workloadSummary.totalStorageGB / workloadSummary.filteredVMs),
-        is_critical: Math.random() > 0.7, // 30% critical VMs
-        affinity_group: Math.random() > 0.8 ? `affinity-${Math.floor(Math.random() * 3)}` : undefined,
-      }));
-
-      const clusterCapacities: ClusterCapacityStatus[] = clusters.map(cluster => {
+      // Convert wizard clusters to shared utility format
+      const clusterCapacities: ClusterCapacity[] = clusters.map(cluster => {
         const totalCpu = cluster.nodes.reduce((sum, n) => sum + n.cpu, 0);
         const totalMemory = cluster.nodes.reduce((sum, n) => sum + n.memoryGB, 0);
-        const totalStorage = cluster.nodes.reduce((sum, n) => sum + n.storageGB, 0);
+        const totalStorage = cluster.nodes.reduce((sum, n) => sum + n.storageGB / 1024, 0); // Convert GB to TB
         
         return {
-          cluster_id: cluster.id,
-          cluster_name: cluster.name,
-          total_cpu: totalCpu,
-          total_memory_gb: totalMemory,
-          total_storage_gb: totalStorage,
-          available_cpu: totalCpu, // Start with full capacity
-          available_memory_gb: totalMemory,
-          available_storage_gb: totalStorage,
+          id: cluster.id,
+          name: cluster.name,
+          cpuGhz: 2.5, // Default CPU GHz, can be made configurable later
+          totalCores: totalCpu,
+          memoryGB: totalMemory,
+          storageTB: totalStorage,
+          cpuOvercommit: 1.0, // Default, can be configured per cluster
+          memoryOvercommit: 1.0,
+          storageOvercommit: 1.0,
         };
       });
 
-      // Call real VM placement API
-      const placementResult = await migrationWizardAPI.vmPlacement.calculatePlacements({
-        project_id: projectId,
-        vms,
-        clusters: clusterCapacities,
-        strategy: 'Balanced', // Use balanced strategy for best distribution
-      });
-
-      // Convert placement result to capacity analysis format
-      const totalCapacity = clusterCapacities.reduce((acc, c) => ({
-        cpu: acc.cpu + c.total_cpu,
-        memory: acc.memory + c.total_memory_gb,
-        storage: acc.storage + c.total_storage_gb,
-      }), { cpu: 0, memory: 0, storage: 0 });
-
-      const usedCapacity = {
-        cpu: workloadSummary.totalCPU,
-        memory: workloadSummary.totalMemoryGB,
-        storage: workloadSummary.totalStorageGB,
-      };
-
-      const cpuUtil = (usedCapacity.cpu / totalCapacity.cpu) * 100;
-      const memUtil = (usedCapacity.memory / totalCapacity.memory) * 100;
-      const storageUtil = (usedCapacity.storage / totalCapacity.storage) * 100;
-
-      // Convert placement warnings to bottlenecks
-      const bottlenecks: CapacityAnalysis['bottlenecks'] = placementResult.placement_warnings.map(warning => ({
-        resourceType: warning.toLowerCase().includes('cpu') ? 'cpu' as const : 
-                      warning.toLowerCase().includes('memory') ? 'memory' as const : 
-                      'storage' as const,
-        severity: warning.toLowerCase().includes('critical') || placementResult.unplaced_vms.length > 0 
-          ? 'critical' as const 
-          : 'warning' as const,
-        message: warning,
-        recommendation: placementResult.unplaced_vms.length > 0 
-          ? `Add more cluster capacity. ${placementResult.unplaced_vms.length} VMs could not be placed.`
-          : 'Consider adding headroom for future growth',
+      // Convert workload summary to VM resource requirements
+      const vms: CapacityVM[] = Array.from({ length: workloadSummary.filteredVMs }, (_, i) => ({
+        id: `vm-${i + 1}`,
+        name: `VM-${i + 1}`,
+        cpus: Math.max(1, Math.floor(workloadSummary.totalCPU / workloadSummary.filteredVMs)),
+        memoryMB: Math.max(512, Math.floor((workloadSummary.totalMemoryGB * 1024) / workloadSummary.filteredVMs)),
+        provisionedMB: Math.max(10240, Math.floor((workloadSummary.totalStorageGB * 1024) / workloadSummary.filteredVMs)),
+        cpuGhz: 2.5, // Default CPU GHz
       }));
 
-      // Add utilization-based warnings
-      if (cpuUtil > 90) {
-        bottlenecks.push({
-          resourceType: 'cpu',
-          severity: 'critical',
-          message: `CPU capacity insufficient: ${cpuUtil.toFixed(1)}% utilization`,
-          recommendation: 'Add more CPU cores or reduce CPU overcommit ratio',
-        });
-      } else if (cpuUtil > 80) {
-        bottlenecks.push({
-          resourceType: 'cpu',
-          severity: 'warning',
-          message: `CPU capacity approaching limit: ${cpuUtil.toFixed(1)}%`,
-          recommendation: 'Consider adding CPU headroom for growth',
-        });
-      }
+      // Use shared utility for consistent calculation
+      const analysis = calculateUtilization(vms, clusterCapacities);
 
-      if (memUtil > 90) {
-        bottlenecks.push({
-          resourceType: 'memory',
-          severity: 'critical',
-          message: `Memory capacity insufficient: ${memUtil.toFixed(1)}% utilization`,
-          recommendation: 'Add more memory or reduce memory overcommit ratio',
-        });
-      } else if (memUtil > 80) {
-        bottlenecks.push({
-          resourceType: 'memory',
-          severity: 'warning',
-          message: `Memory capacity approaching limit: ${memUtil.toFixed(1)}%`,
-          recommendation: 'Consider adding memory headroom',
-        });
-      }
-
-      if (storageUtil > 85) {
-        bottlenecks.push({
-          resourceType: 'storage',
-          severity: 'warning',
-          message: `Storage capacity high: ${storageUtil.toFixed(1)}% utilization`,
-          recommendation: 'Consider adding storage capacity',
-        });
-      }
-
+      // Convert to wizard format
       setCapacityAnalysis({
-        cpuUtilization: cpuUtil,
-        memoryUtilization: memUtil,
-        storageUtilization: storageUtil,
-        bottlenecks,
-        isSufficient: placementResult.unplaced_vms.length === 0 && cpuUtil < 90 && memUtil < 90 && storageUtil < 90,
+        cpuUtilization: analysis.cpuUtilization,
+        memoryUtilization: analysis.memoryUtilization,
+        storageUtilization: analysis.storageUtilization,
+        bottlenecks: analysis.bottlenecks.map(b => ({
+          resourceType: b.resource.toLowerCase() as 'cpu' | 'memory' | 'storage',
+          severity: b.severity,
+          message: b.message,
+          recommendation: b.recommendation,
+        })),
+        isSufficient: analysis.overallStatus !== 'critical' && analysis.overallStatus !== 'error',
       });
     } catch (error) {
       console.error('Capacity analysis failed:', error);
@@ -598,6 +534,61 @@ export const MigrationPlanningWizard: React.FC<MigrationWizardProps> = ({
   };
   
   // HLD generation function
+  // Validate HLD readiness and return warnings/errors
+  const validateHLDReadiness = (): { canGenerate: boolean; warnings: string[]; errors: string[] } => {
+    const warnings: string[] = [];
+    const errors: string[] = [];
+    
+    // Check Step 1: RVTools and VMs
+    if (!selectedRVTools) {
+      errors.push('No RVTools data selected. HLD will have no source environment information.');
+    }
+    
+    if (workloadSummary.filteredVMs === 0) {
+      warnings.push(`No VMs selected for migration. HLD will show an empty VM inventory.`);
+    } else if (workloadSummary.filteredVMs < workloadSummary.totalVMs / 2) {
+      warnings.push(`Only ${workloadSummary.filteredVMs} of ${workloadSummary.totalVMs} VMs selected. Consider if filters are too restrictive.`);
+    }
+    
+    // Check Step 2: Clusters
+    if (clusters.length === 0) {
+      errors.push('No destination clusters configured. HLD will have no target architecture.');
+    } else {
+      // Validate cluster configurations
+      const incompleteClusters = clusters.filter(c => 
+        !c.name || c.nodes.length === 0
+      );
+      if (incompleteClusters.length > 0) {
+        warnings.push(`${incompleteClusters.length} cluster(s) have incomplete configurations.`);
+      }
+    }
+    
+    // Check Step 3: Capacity Analysis
+    if (!capacityAnalysis) {
+      warnings.push('Capacity analysis not performed. HLD will lack capacity recommendations.');
+    } else if (!capacityAnalysis.isSufficient) {
+      warnings.push('Current capacity may be insufficient for workload. Review bottleneck warnings.');
+    }
+    
+    // Check Step 4: Network Mappings
+    if (networkMappings.length === 0) {
+      warnings.push('No network mappings configured. HLD network design section will be empty.');
+    } else {
+      const incompleteMappings = networkMappings.filter(m => 
+        !m.sourceVlan || !m.destinationVlan
+      );
+      if (incompleteMappings.length > 0) {
+        warnings.push(`${incompleteMappings.length} network mapping(s) are incomplete.`);
+      }
+    }
+    
+    return {
+      canGenerate: errors.length === 0, // Can generate if no errors (warnings are OK)
+      warnings,
+      errors,
+    };
+  };
+  
   const handleGenerateHLD = async () => {
     setGeneratingHLD(true);
     
@@ -1138,19 +1129,9 @@ export const MigrationPlanningWizard: React.FC<MigrationWizardProps> = ({
           }
         };
         
-        const getUtilizationColor = (percent: number) => {
-          if (percent >= 90) return '#ef4444';
-          if (percent >= 80) return '#f59e0b';
-          if (percent >= 70) return '#eab308';
-          return '#10b981';
-        };
-        
-        const getUtilizationLabel = (percent: number) => {
-          if (percent >= 90) return 'Critical';
-          if (percent >= 80) return 'High';
-          if (percent >= 70) return 'Moderate';
-          return 'Healthy';
-        };
+        // Use shared utility functions for consistency
+        const getUtilizationColor = getCapacityColor;
+        const getUtilizationLabel = getCapacityLabel;
         
         return (
           <div>
@@ -1985,29 +1966,125 @@ export const MigrationPlanningWizard: React.FC<MigrationWizardProps> = ({
                         The High-Level Design document will include:
                         <ul style={{ textAlign: 'left', marginTop: '12px' }}>
                           <li>Executive summary</li>
-                          <li>Source environment inventory</li>
-                          <li>Destination architecture design</li>
+                          <li>Source environment inventory ({workloadSummary.filteredVMs} VMs)</li>
+                          <li>Destination architecture design ({clusters.length} cluster{clusters.length !== 1 ? 's' : ''})</li>
                           <li>Capacity analysis and recommendations</li>
-                          <li>Network topology diagrams</li>
+                          <li>Network topology diagrams ({networkMappings.length} mapping{networkMappings.length !== 1 ? 's' : ''})</li>
                           <li>Migration runbook</li>
                         </ul>
                       </div>
+                      
+                      {/* Pre-flight Validation */}
+                      {(() => {
+                        const validation = validateHLDReadiness();
+                        
+                        return (
+                          <>
+                            {/* Errors (blocking) */}
+                            {validation.errors.length > 0 && (
+                              <PurpleGlassCard
+                                variant="outlined"
+                                style={{ 
+                                  marginBottom: '16px',
+                                  maxWidth: '600px',
+                                  marginLeft: 'auto',
+                                  marginRight: 'auto',
+                                  border: '2px solid #ef4444',
+                                }}
+                              >
+                                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                                  <ErrorCircleRegular style={{ fontSize: '24px', color: '#ef4444', flexShrink: 0, marginTop: '2px' }} />
+                                  <div style={{ flex: 1, textAlign: 'left' }}>
+                                    <div style={{ fontWeight: '600', color: '#ef4444', marginBottom: '8px' }}>
+                                      Cannot Generate HLD - Missing Required Data
+                                    </div>
+                                    <ul style={{ margin: 0, paddingLeft: '20px', color: tokens.colorNeutralForeground2 }}>
+                                      {validation.errors.map((error, idx) => (
+                                        <li key={idx} style={{ marginBottom: '4px' }}>{error}</li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                </div>
+                              </PurpleGlassCard>
+                            )}
+                            
+                            {/* Warnings (non-blocking) */}
+                            {validation.warnings.length > 0 && validation.errors.length === 0 && (
+                              <PurpleGlassCard
+                                variant="outlined"
+                                style={{ 
+                                  marginBottom: '16px',
+                                  maxWidth: '600px',
+                                  marginLeft: 'auto',
+                                  marginRight: 'auto',
+                                  border: '2px solid #f59e0b',
+                                }}
+                              >
+                                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                                  <WarningRegular style={{ fontSize: '24px', color: '#f59e0b', flexShrink: 0, marginTop: '2px' }} />
+                                  <div style={{ flex: 1, textAlign: 'left' }}>
+                                    <div style={{ fontWeight: '600', color: '#f59e0b', marginBottom: '8px' }}>
+                                      HLD Generation Warnings
+                                    </div>
+                                    <div style={{ fontSize: '13px', color: tokens.colorNeutralForeground2, marginBottom: '8px' }}>
+                                      The HLD can be generated but may have incomplete sections:
+                                    </div>
+                                    <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '13px', color: tokens.colorNeutralForeground2 }}>
+                                      {validation.warnings.map((warning, idx) => (
+                                        <li key={idx} style={{ marginBottom: '4px' }}>{warning}</li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                </div>
+                              </PurpleGlassCard>
+                            )}
+                            
+                            {/* Success (all good) */}
+                            {validation.errors.length === 0 && validation.warnings.length === 0 && (
+                              <PurpleGlassCard
+                                variant="outlined"
+                                style={{ 
+                                  marginBottom: '16px',
+                                  maxWidth: '600px',
+                                  marginLeft: 'auto',
+                                  marginRight: 'auto',
+                                  border: '2px solid #10b981',
+                                }}
+                              >
+                                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                                  <CheckmarkCircleRegular style={{ fontSize: '24px', color: '#10b981', flexShrink: 0, marginTop: '2px' }} />
+                                  <div style={{ flex: 1, textAlign: 'left' }}>
+                                    <div style={{ fontWeight: '600', color: '#10b981', marginBottom: '4px' }}>
+                                      All Prerequisites Met
+                                    </div>
+                                    <div style={{ fontSize: '13px', color: tokens.colorNeutralForeground2 }}>
+                                      Your migration planning data is complete. The HLD will include all recommended sections.
+                                    </div>
+                                  </div>
+                                </div>
+                              </PurpleGlassCard>
+                            )}
+                          </>
+                        );
+                      })()}
+                      
                       <PurpleGlassButton
                         variant="primary"
                         size="large"
                         onClick={handleGenerateHLD}
-                        disabled={!selectedRVTools || clusters.length === 0}
+                        disabled={!validateHLDReadiness().canGenerate}
                       >
                         Generate HLD Document
                       </PurpleGlassButton>
                       
-                      {(!selectedRVTools || clusters.length === 0) && (
+                      {!validateHLDReadiness().canGenerate && (
                         <div style={{ 
-                          marginTop: '16px',
+                          marginTop: '12px',
                           fontSize: '13px',
                           color: '#ef4444',
+                          fontWeight: '600',
                         }}>
-                          ⚠️ Complete Steps 1 and 2 before generating HLD
+                          ⚠️ Fix the errors above before generating HLD
                         </div>
                       )}
                     </div>
