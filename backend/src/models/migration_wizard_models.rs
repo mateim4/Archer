@@ -296,3 +296,51 @@ pub struct AnalyzeProjectStrategyResponse {
     pub recommendations: Vec<StrategyRecommendation>,
     pub stats: StrategyStats,
 }
+
+// =============================================================================
+// PLACEMENT REQUEST/RESPONSE MODELS
+// =============================================================================
+
+#[derive(Debug, Deserialize)]
+pub struct AutoPlacementRequest {
+    pub strategy: Option<String>, // Optional: prefer specific strategy
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ManualPlacementRequest {
+    pub vm_id: String,
+    pub cluster_id: String,
+    pub strategy: Option<String>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct PlacementResult {
+    pub placement: MigrationWizardPlacement,
+    pub is_valid: bool,
+    pub warnings: Vec<String>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct AutoPlacementResponse {
+    pub placements: Vec<PlacementResult>,
+    pub total_placed: usize,
+    pub total_unplaced: usize,
+    pub cluster_utilization: Vec<ClusterUtilization>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct ClusterUtilization {
+    pub cluster_id: String,
+    pub cluster_name: String,
+    pub cpu_used: i32,
+    pub cpu_total: i32,
+    pub cpu_percent: f64,
+    pub memory_used_mb: i32,
+    pub memory_total_mb: i32,
+    pub memory_percent: f64,
+    pub storage_used_gb: f64,
+    pub storage_total_gb: f64,
+    pub storage_percent: f64,
+    pub vm_count: usize,
+}
+

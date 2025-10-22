@@ -28,9 +28,14 @@ pub fn create_migration_wizard_router(db: Arc<Database>) -> Router {
         .route("/projects/:id/strategy-stats", get(get_project_strategy_stats))
         .route("/projects/:id/clusters", post(create_cluster))
         .route("/projects/:id/clusters", get(get_project_clusters))
+        .route("/projects/:id/auto-place", post(auto_place_vms))
+        .route("/projects/:id/placements", post(create_manual_placement))
+        .route("/projects/:id/placements", get(get_project_placements))
+        .route("/projects/:id/cluster-utilization", get(get_cluster_utilization))
         .route("/clusters/:id", get(get_cluster))
         .route("/clusters/:id", put(update_cluster))
         .route("/clusters/:id", delete(delete_cluster))
+        .route("/placements/:id", delete(delete_placement))
         .with_state(db)
 }
 
@@ -50,8 +55,16 @@ async fn create_project(
     
     match service.create_project(payload.name, payload.description).await {
         Ok(project) => {
+            // Extract project ID from Thing (format: migration_wizard_project:abc123)
             let project_id = project.id.as_ref()
-                .and_then(|thing| thing.id.to_string().split(':').nth(1).map(|s| s.to_string()))
+                .map(|thing| {
+                    // Convert the Thing ID to string
+                    match &thing.id {
+                        surrealdb::sql::Id::String(s) => s.clone(),
+                        surrealdb::sql::Id::Number(n) => n.to_string(),
+                        _ => format!("{:?}", thing.id)
+                    }
+                })
                 .unwrap_or_else(|| "unknown".to_string());
 
             let response = CreateProjectResponse {
@@ -581,6 +594,246 @@ async fn delete_cluster(
         }
         Err(e) => {
             tracing::error!("Failed to delete cluster: {}", e);
+            Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(json!({
+                    "success": false,
+                    "error": e.to_string()
+                }))
+            ))
+        }
+    }
+}
+
+// =============================================================================
+// VM PLACEMENT
+// =============================================================================
+
+/// Automatic VM placement using bin-packing algorithm
+/// POST /api/v1/migration-wizard/projects/:id/auto-place
+async fn auto_place_vms(
+    State(db): State<Arc<Database>>,
+    Path(project_id): Path<String>,
+) -> Result<impl IntoResponse, (StatusCode, Json<serde_json::Value>)> {
+    tracing::info!("Running automatic VM placement for project: {}", project_id);
+
+    let service = MigrationWizardService::new(db.as_ref().clone());
+    
+    match service.auto_place_vms(&project_id).await {
+        Ok((placements, warnings)) => {
+            // Get cluster utilization stats
+            let utilization = service.get_cluster_utilization(&project_id).await
+                .unwrap_or_default();
+            
+            let cluster_util: Vec<serde_json::Value> = utilization.iter().map(|(cluster, cpu, memory, storage, vm_count)| {
+                let cluster_id = cluster.id.as_ref()
+                    .and_then(|thing| thing.id.to_string().split(':').nth(1).map(|s| s.to_string()))
+                    .unwrap_or_default();
+                
+                let cpu_total = (cluster.total_cores as f64 * cluster.cpu_oversubscription_ratio) as i32;
+                let memory_total = (cluster.memory_gb as f64 * 1024.0 * cluster.memory_oversubscription_ratio) as i32;
+                let storage_total = cluster.storage_tb * 1024.0;
+                
+                json!({
+                    "cluster_id": cluster_id,
+                    "cluster_name": cluster.name,
+                    "cpu_used": cpu,
+                    "cpu_total": cpu_total,
+                    "cpu_percent": (*cpu as f64 / cpu_total as f64) * 100.0,
+                    "memory_used_mb": memory,
+                    "memory_total_mb": memory_total,
+                    "memory_percent": (*memory as f64 / memory_total as f64) * 100.0,
+                    "storage_used_gb": storage,
+                    "storage_total_gb": storage_total,
+                    "storage_percent": (storage / storage_total) * 100.0,
+                    "vm_count": vm_count
+                })
+            }).collect();
+
+            Ok((StatusCode::OK, Json(json!({
+                "success": true,
+                "result": {
+                    "placements": placements,
+                    "total_placed": placements.len(),
+                    "warnings": warnings,
+                    "cluster_utilization": cluster_util
+                }
+            }))))
+        }
+        Err(e) => {
+            tracing::error!("Failed to auto-place VMs: {}", e);
+            Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(json!({
+                    "success": false,
+                    "error": e.to_string()
+                }))
+            ))
+        }
+    }
+}
+
+/// Manual VM placement - create or update placement for a specific VM
+/// POST /api/v1/migration-wizard/projects/:id/placements
+async fn create_manual_placement(
+    State(db): State<Arc<Database>>,
+    Path(project_id): Path<String>,
+    Json(payload): Json<serde_json::Value>,
+) -> Result<impl IntoResponse, (StatusCode, Json<serde_json::Value>)> {
+    tracing::info!("Creating manual placement for project: {}", project_id);
+
+    let vm_id = payload.get("vm_id")
+        .and_then(|v| v.as_str())
+        .ok_or_else(|| (
+            StatusCode::BAD_REQUEST,
+            Json(json!({ "success": false, "error": "Missing 'vm_id' field" }))
+        ))?;
+
+    let cluster_id = payload.get("cluster_id")
+        .and_then(|v| v.as_str())
+        .ok_or_else(|| (
+            StatusCode::BAD_REQUEST,
+            Json(json!({ "success": false, "error": "Missing 'cluster_id' field" }))
+        ))?;
+
+    let strategy = payload.get("strategy")
+        .and_then(|v| v.as_str())
+        .map(|s| s.to_string());
+
+    let service = MigrationWizardService::new(db.as_ref().clone());
+    
+    match service.create_manual_placement(&project_id, vm_id, cluster_id, strategy).await {
+        Ok((placement, warnings)) => {
+            Ok((StatusCode::CREATED, Json(json!({
+                "success": true,
+                "result": {
+                    "placement": placement,
+                    "warnings": warnings
+                }
+            }))))
+        }
+        Err(e) => {
+            tracing::error!("Failed to create placement: {}", e);
+            Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(json!({
+                    "success": false,
+                    "error": e.to_string()
+                }))
+            ))
+        }
+    }
+}
+
+/// Get all placements for a project
+/// GET /api/v1/migration-wizard/projects/:id/placements
+async fn get_project_placements(
+    State(db): State<Arc<Database>>,
+    Path(project_id): Path<String>,
+) -> Result<impl IntoResponse, (StatusCode, Json<serde_json::Value>)> {
+    tracing::info!("Getting placements for project: {}", project_id);
+
+    let service = MigrationWizardService::new(db.as_ref().clone());
+    
+    match service.get_project_placements(&project_id).await {
+        Ok(placements) => {
+            Ok((StatusCode::OK, Json(json!({
+                "success": true,
+                "result": {
+                    "placements": placements,
+                    "total": placements.len()
+                }
+            }))))
+        }
+        Err(e) => {
+            tracing::error!("Failed to get placements: {}", e);
+            Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(json!({
+                    "success": false,
+                    "error": e.to_string()
+                }))
+            ))
+        }
+    }
+}
+
+/// Delete a placement
+/// DELETE /api/v1/migration-wizard/placements/:id
+async fn delete_placement(
+    State(db): State<Arc<Database>>,
+    Path(placement_id): Path<String>,
+) -> Result<impl IntoResponse, (StatusCode, Json<serde_json::Value>)> {
+    tracing::info!("Deleting placement: {}", placement_id);
+
+    let service = MigrationWizardService::new(db.as_ref().clone());
+    
+    match service.delete_placement(&placement_id).await {
+        Ok(()) => {
+            Ok((StatusCode::OK, Json(json!({
+                "success": true,
+                "result": {
+                    "message": "Placement deleted successfully"
+                }
+            }))))
+        }
+        Err(e) => {
+            tracing::error!("Failed to delete placement: {}", e);
+            Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(json!({
+                    "success": false,
+                    "error": e.to_string()
+                }))
+            ))
+        }
+    }
+}
+
+/// Get cluster utilization statistics
+/// GET /api/v1/migration-wizard/projects/:id/cluster-utilization
+async fn get_cluster_utilization(
+    State(db): State<Arc<Database>>,
+    Path(project_id): Path<String>,
+) -> Result<impl IntoResponse, (StatusCode, Json<serde_json::Value>)> {
+    tracing::info!("Getting cluster utilization for project: {}", project_id);
+
+    let service = MigrationWizardService::new(db.as_ref().clone());
+    
+    match service.get_cluster_utilization(&project_id).await {
+        Ok(utilization) => {
+            let result: Vec<serde_json::Value> = utilization.iter().map(|(cluster, cpu, memory, storage, vm_count)| {
+                let cluster_id = cluster.id.as_ref()
+                    .and_then(|thing| thing.id.to_string().split(':').nth(1).map(|s| s.to_string()))
+                    .unwrap_or_default();
+                
+                let cpu_total = (cluster.total_cores as f64 * cluster.cpu_oversubscription_ratio) as i32;
+                let memory_total = (cluster.memory_gb as f64 * 1024.0 * cluster.memory_oversubscription_ratio) as i32;
+                let storage_total = cluster.storage_tb * 1024.0;
+                
+                json!({
+                    "cluster_id": cluster_id,
+                    "cluster_name": cluster.name,
+                    "cpu_used": cpu,
+                    "cpu_total": cpu_total,
+                    "cpu_percent": (*cpu as f64 / cpu_total as f64) * 100.0,
+                    "memory_used_mb": memory,
+                    "memory_total_mb": memory_total,
+                    "memory_percent": (*memory as f64 / memory_total as f64) * 100.0,
+                    "storage_used_gb": storage,
+                    "storage_total_gb": storage_total,
+                    "storage_percent": (storage / storage_total) * 100.0,
+                    "vm_count": vm_count
+                })
+            }).collect();
+
+            Ok((StatusCode::OK, Json(json!({
+                "success": true,
+                "result": result
+            }))))
+        }
+        Err(e) => {
+            tracing::error!("Failed to get cluster utilization: {}", e);
             Err((
                 StatusCode::INTERNAL_SERVER_ERROR,
                 Json(json!({

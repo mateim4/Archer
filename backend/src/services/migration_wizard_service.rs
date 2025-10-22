@@ -611,6 +611,317 @@ impl MigrationWizardService {
             total_warnings,
         })
     }
+
+    // =========================================================================
+    // VM PLACEMENT
+    // =========================================================================
+
+    /// Create or update a manual VM placement
+    pub async fn create_manual_placement(
+        &self,
+        project_id: &str,
+        vm_id: &str,
+        cluster_id: &str,
+        strategy: Option<String>,
+    ) -> Result<(MigrationWizardPlacement, Vec<String>)> {
+        let mut warnings = Vec::new();
+
+        // Verify VM and cluster exist and belong to the project
+        let vm = self.get_vm_by_id(vm_id).await?;
+        let cluster = self.get_cluster(cluster_id).await?;
+        
+        // Verify they belong to the same project
+        let vm_project_id = vm.project_id.id.to_string();
+        let cluster_project_id = cluster.project_id.id.to_string();
+        
+        if !vm_project_id.contains(project_id) || !cluster_project_id.contains(project_id) {
+            return Err(anyhow::anyhow!("VM and cluster must belong to the same project"));
+        }
+
+        // Check if placement already exists and delete it
+        let existing_query = format!(
+            "SELECT * FROM migration_wizard_placement WHERE project_id = type::thing('migration_wizard_project', '{}') AND vm_id = type::thing('migration_wizard_vm', '{}')",
+            project_id, vm_id
+        );
+        
+        let existing: Vec<MigrationWizardPlacement> = self.db.query(&existing_query).await?.take(0)?;
+        
+        if let Some(old_placement) = existing.first() {
+            if let Some(ref old_id) = old_placement.id {
+                let id_str = old_id.id.to_string();
+                let _: Option<MigrationWizardPlacement> = self.db.delete(("migration_wizard_placement", id_str.as_str())).await?;
+            }
+        }
+
+        // Validate capacity (check current utilization)
+        let (capacity_ok, capacity_warnings) = self.validate_cluster_capacity(cluster_id, &vm).await?;
+        warnings.extend(capacity_warnings);
+
+        // Create placement
+        let placement = MigrationWizardPlacement {
+            id: None,
+            project_id: Thing::from(("migration_wizard_project", project_id)),
+            vm_id: Thing::from(("migration_wizard_vm", vm_id)),
+            cluster_id: Thing::from(("migration_wizard_cluster", cluster_id)),
+            strategy: strategy.unwrap_or_else(|| "manual".to_string()),
+            confidence_score: Some(if capacity_ok { 100.0 } else { 70.0 }),
+            warnings: if warnings.is_empty() { None } else { Some(warnings.clone()) },
+            allocated_cpu: vm.cpus,
+            allocated_memory_mb: vm.memory_mb,
+            allocated_storage_gb: (vm.provisioned_mb.unwrap_or(vm.memory_mb) as f64) / 1024.0,
+            created_at: Utc::now(),
+        };
+
+        let created: Vec<MigrationWizardPlacement> = self
+            .db
+            .create("migration_wizard_placement")
+            .content(placement)
+            .await?;
+
+        let created_placement = created
+            .into_iter()
+            .next()
+            .ok_or_else(|| anyhow::anyhow!("No placement returned after creation"))?;
+
+        Ok((created_placement, warnings))
+    }
+
+    /// Delete a VM placement
+    pub async fn delete_placement(&self, placement_id: &str) -> Result<()> {
+        let _: Option<MigrationWizardPlacement> = self
+            .db
+            .delete(("migration_wizard_placement", placement_id))
+            .await?;
+        Ok(())
+    }
+
+    /// Get all placements for a project
+    pub async fn get_project_placements(&self, project_id: &str) -> Result<Vec<MigrationWizardPlacement>> {
+        let query = format!(
+            "SELECT * FROM migration_wizard_placement WHERE project_id = type::thing('migration_wizard_project', '{}')",
+            project_id
+        );
+        let mut result = self.db.query(&query).await?;
+        let placements: Vec<MigrationWizardPlacement> = result.take(0)?;
+        Ok(placements)
+    }
+
+    /// Get a single VM by ID
+    async fn get_vm_by_id(&self, vm_id: &str) -> Result<MigrationWizardVM> {
+        let vm: Option<MigrationWizardVM> = self
+            .db
+            .select(("migration_wizard_vm", vm_id))
+            .await?;
+        vm.ok_or_else(|| anyhow::anyhow!("VM not found"))
+    }
+
+    /// Validate if a cluster has capacity for a VM
+    async fn validate_cluster_capacity(&self, cluster_id: &str, vm: &MigrationWizardVM) -> Result<(bool, Vec<String>)> {
+        let mut warnings = Vec::new();
+        let cluster = self.get_cluster(cluster_id).await?;
+        
+        // Get current placements for this cluster
+        let cluster_id_str = cluster.id.as_ref()
+            .and_then(|thing| thing.id.to_string().split(':').nth(1).map(|s| s.to_string()))
+            .unwrap_or_else(|| cluster_id.to_string());
+        
+        let query = format!(
+            "SELECT * FROM migration_wizard_placement WHERE cluster_id = type::thing('migration_wizard_cluster', '{}')",
+            cluster_id_str
+        );
+        
+        let mut result = self.db.query(&query).await?;
+        let placements: Vec<MigrationWizardPlacement> = result.take(0)?;
+        
+        // Calculate current utilization
+        let mut total_cpu = 0;
+        let mut total_memory = 0;
+        let mut total_storage = 0.0;
+        
+        for p in &placements {
+            total_cpu += p.allocated_cpu;
+            total_memory += p.allocated_memory_mb;
+            total_storage += p.allocated_storage_gb;
+        }
+        
+        // Apply oversubscription
+        let available_cpu = (cluster.total_cores as f64 * cluster.cpu_oversubscription_ratio) as i32;
+        let available_memory = (cluster.memory_gb as f64 * 1024.0 * cluster.memory_oversubscription_ratio) as i32;
+        let available_storage = cluster.storage_tb * 1024.0;
+        
+        // Check capacity
+        let mut capacity_ok = true;
+        
+        if total_cpu + vm.cpus > available_cpu {
+            warnings.push(format!(
+                "CPU capacity warning: {} + {} > {} (with {}x oversubscription)",
+                total_cpu, vm.cpus, available_cpu, cluster.cpu_oversubscription_ratio
+            ));
+            capacity_ok = false;
+        }
+        
+        if total_memory + vm.memory_mb > available_memory {
+            warnings.push(format!(
+                "Memory capacity warning: {} MB + {} MB > {} MB (with {}x oversubscription)",
+                total_memory, vm.memory_mb, available_memory, cluster.memory_oversubscription_ratio
+            ));
+            capacity_ok = false;
+        }
+        
+        let vm_storage = (vm.provisioned_mb.unwrap_or(vm.memory_mb) as f64) / 1024.0;
+        if total_storage + vm_storage > available_storage {
+            warnings.push(format!(
+                "Storage capacity warning: {:.2} GB + {:.2} GB > {:.2} GB",
+                total_storage, vm_storage, available_storage
+            ));
+            capacity_ok = false;
+        }
+        
+        Ok((capacity_ok, warnings))
+    }
+
+    /// Automatic VM placement using Best Fit Decreasing bin-packing algorithm
+    pub async fn auto_place_vms(&self, project_id: &str) -> Result<(Vec<MigrationWizardPlacement>, Vec<String>)> {
+        let mut all_warnings = Vec::new();
+        let mut placements = Vec::new();
+
+        // Get all VMs and clusters for the project
+        let vms = self.get_project_vms(project_id, None).await?;
+        let clusters = self.get_project_clusters(project_id).await?;
+
+        if clusters.is_empty() {
+            return Err(anyhow::anyhow!("No destination clusters defined for this project"));
+        }
+
+        // Sort VMs by resource requirements (descending) - Best Fit Decreasing
+        let mut sorted_vms = vms.clone();
+        sorted_vms.sort_by(|a, b| {
+            let a_score = a.cpus * 1000 + a.memory_mb;
+            let b_score = b.cpus * 1000 + b.memory_mb;
+            b_score.cmp(&a_score)
+        });
+
+        // Track cluster utilization
+        let mut cluster_usage: std::collections::HashMap<String, (i32, i32, f64)> = std::collections::HashMap::new();
+        for cluster in &clusters {
+            let cluster_id = cluster.id.as_ref()
+                .and_then(|thing| thing.id.to_string().split(':').nth(1).map(|s| s.to_string()))
+                .unwrap_or_default();
+            cluster_usage.insert(cluster_id, (0, 0, 0.0));
+        }
+
+        // Load existing placements to track current usage
+        let existing_placements = self.get_project_placements(project_id).await?;
+        for placement in &existing_placements {
+            let cluster_id = placement.cluster_id.id.to_string().split(':').nth(1).unwrap_or("").to_string();
+            if let Some(usage) = cluster_usage.get_mut(&cluster_id) {
+                usage.0 += placement.allocated_cpu;
+                usage.1 += placement.allocated_memory_mb;
+                usage.2 += placement.allocated_storage_gb;
+            }
+        }
+
+        // Place each VM in the best-fit cluster
+        for vm in &sorted_vms {
+            let vm_id = vm.id.as_ref()
+                .and_then(|thing| thing.id.to_string().split(':').nth(1).map(|s| s.to_string()))
+                .unwrap_or_default();
+
+            // Skip if already placed
+            if existing_placements.iter().any(|p| {
+                p.vm_id.id.to_string().contains(&vm_id)
+            }) {
+                continue;
+            }
+
+            // Find best-fit cluster (cluster with minimum remaining capacity after placing this VM)
+            let mut best_cluster: Option<(&MigrationWizardCluster, String)> = None;
+            let mut best_score = f64::MAX;
+
+            for cluster in &clusters {
+                let cluster_id = cluster.id.as_ref()
+                    .and_then(|thing| thing.id.to_string().split(':').nth(1).map(|s| s.to_string()))
+                    .unwrap_or_default();
+
+                let usage = cluster_usage.get(&cluster_id).unwrap_or(&(0, 0, 0.0));
+                
+                let available_cpu = (cluster.total_cores as f64 * cluster.cpu_oversubscription_ratio) as i32;
+                let available_memory = (cluster.memory_gb as f64 * 1024.0 * cluster.memory_oversubscription_ratio) as i32;
+                let available_storage = cluster.storage_tb * 1024.0;
+
+                let vm_storage = (vm.provisioned_mb.unwrap_or(vm.memory_mb) as f64) / 1024.0;
+
+                // Check if VM fits
+                if usage.0 + vm.cpus <= available_cpu &&
+                   usage.1 + vm.memory_mb <= available_memory &&
+                   usage.2 + vm_storage <= available_storage {
+                    
+                    // Calculate fit score (lower is better - tighter fit)
+                    let cpu_remaining = available_cpu - (usage.0 + vm.cpus);
+                    let memory_remaining = available_memory - (usage.1 + vm.memory_mb);
+                    let fit_score = (cpu_remaining as f64 / available_cpu as f64) + 
+                                   (memory_remaining as f64 / available_memory as f64);
+
+                    if fit_score < best_score {
+                        best_score = fit_score;
+                        best_cluster = Some((cluster, cluster_id.clone()));
+                    }
+                }
+            }
+
+            // Place VM in best-fit cluster
+            if let Some((cluster, cluster_id)) = best_cluster {
+                match self.create_manual_placement(project_id, &vm_id, &cluster_id, Some("auto_placement".to_string())).await {
+                    Ok((placement, warnings)) => {
+                        // Update usage tracking
+                        if let Some(usage) = cluster_usage.get_mut(&cluster_id) {
+                            usage.0 += vm.cpus;
+                            usage.1 += vm.memory_mb;
+                            usage.2 += (vm.provisioned_mb.unwrap_or(vm.memory_mb) as f64) / 1024.0;
+                        }
+                        
+                        placements.push(placement);
+                        all_warnings.extend(warnings);
+                    }
+                    Err(e) => {
+                        all_warnings.push(format!("Failed to place VM {}: {}", vm.name, e));
+                    }
+                }
+            } else {
+                all_warnings.push(format!("No suitable cluster found for VM: {} (CPU: {}, Memory: {} MB)", 
+                    vm.name, vm.cpus, vm.memory_mb));
+            }
+        }
+
+        Ok((placements, all_warnings))
+    }
+
+    /// Get cluster utilization statistics
+    pub async fn get_cluster_utilization(&self, project_id: &str) -> Result<Vec<(MigrationWizardCluster, i32, i32, f64, usize)>> {
+        let clusters = self.get_project_clusters(project_id).await?;
+        let placements = self.get_project_placements(project_id).await?;
+
+        let mut result = Vec::new();
+
+        for cluster in clusters {
+            let cluster_id = cluster.id.as_ref()
+                .and_then(|thing| thing.id.to_string().split(':').nth(1).map(|s| s.to_string()))
+                .unwrap_or_default();
+
+            let cluster_placements: Vec<_> = placements.iter()
+                .filter(|p| p.cluster_id.id.to_string().contains(&cluster_id))
+                .collect();
+
+            let total_cpu: i32 = cluster_placements.iter().map(|p| p.allocated_cpu).sum();
+            let total_memory: i32 = cluster_placements.iter().map(|p| p.allocated_memory_mb).sum();
+            let total_storage: f64 = cluster_placements.iter().map(|p| p.allocated_storage_gb).sum();
+            let vm_count = cluster_placements.len();
+
+            result.push((cluster, total_cpu, total_memory, total_storage, vm_count));
+        }
+
+        Ok(result)
+    }
 }
 
 #[cfg(test)]
