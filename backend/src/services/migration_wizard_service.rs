@@ -1305,7 +1305,7 @@ impl MigrationWizardService {
         for vswitch in &topology.vswitches {
             mermaid.push_str(&format!(
                 "    {}[\"{}\"]\n",
-                sanitize_mermaid_id(&vswitch.name),
+                Self::sanitize_mermaid_id(&vswitch.name),
                 vswitch.name
             ));
         }
@@ -1314,7 +1314,7 @@ impl MigrationWizardService {
         for pg in &topology.port_groups {
             mermaid.push_str(&format!(
                 "    {}[\"VLAN {}: {}<br/>{:?}\"]\n",
-                sanitize_mermaid_id(&pg.name),
+                Self::sanitize_mermaid_id(&pg.name),
                 pg.vlan_id,
                 pg.name,
                 pg.purpose
@@ -1326,7 +1326,7 @@ impl MigrationWizardService {
             mermaid.push_str(&format!(
                 "    {}[\"{}
 <br/>{}Mbps\"]\n",
-                sanitize_mermaid_id(&nic.name),
+                Self::sanitize_mermaid_id(&nic.name),
                 nic.name,
                 nic.speed_mbps
             ));
@@ -1460,7 +1460,7 @@ impl MigrationWizardService {
                 icon_url: self.resolve_icon_url(&NetworkVendor::Vmware, &node_type),
                 stencil_reference: self.get_stencil_reference(&NetworkVendor::Vmware, &node_type),
                 icon_category: self.get_icon_category(&node_type),
-                description: get_node_type_description(&NetworkVendor::Vmware, &node_type),
+                description: Self::get_node_type_description(&NetworkVendor::Vmware, &node_type),
             });
         }
         
@@ -1482,7 +1482,7 @@ impl MigrationWizardService {
                 icon_url: self.resolve_icon_url(&NetworkVendor::HyperV, &node_type),
                 stencil_reference: self.get_stencil_reference(&NetworkVendor::HyperV, &node_type),
                 icon_category: self.get_icon_category(&node_type),
-                description: get_node_type_description(&NetworkVendor::HyperV, &node_type),
+                description: Self::get_node_type_description(&NetworkVendor::HyperV, &node_type),
             });
         }
         
@@ -1507,28 +1507,27 @@ impl MigrationWizardService {
                 icon_url: self.resolve_icon_url(&NetworkVendor::Nutanix, &node_type),
                 stencil_reference: self.get_stencil_reference(&NetworkVendor::Nutanix, &node_type),
                 icon_category: self.get_icon_category(&node_type),
-                description: get_node_type_description(&NetworkVendor::Nutanix, &node_type),
+                description: Self::get_node_type_description(&NetworkVendor::Nutanix, &node_type),
             });
         }
         
         mappings
     }
-}
 
-/// Sanitize string for Mermaid ID usage
-fn sanitize_mermaid_id(s: &str) -> String {
-    s.replace(" ", "_")
-        .replace("-", "_")
-        .replace(".", "_")
-        .replace("/", "_")
-        .chars()
-        .filter(|c| c.is_alphanumeric() || *c == '_')
-        .collect()
-}
+    /// Sanitize string for Mermaid ID usage
+    fn sanitize_mermaid_id(s: &str) -> String {
+        s.replace(" ", "_")
+            .replace("-", "_")
+            .replace(".", "_")
+            .replace("/", "_")
+            .chars()
+            .filter(|c| c.is_alphanumeric() || *c == '_')
+            .collect()
+    }
 
-/// Get description for node type (used in icon mappings)
-pub fn get_node_type_description(vendor: &NetworkVendor, node_type: &NodeType) -> String {
-    match (vendor, node_type) {
+    /// Get description for node type (used in icon mappings)
+    pub fn get_node_type_description(vendor: &NetworkVendor, node_type: &NodeType) -> String {
+        match (vendor, node_type) {
         // VMware descriptions
         (NetworkVendor::Vmware, NodeType::VSwitch) => "VMware vSphere Standard or Distributed Switch for network virtualization".to_string(),
         (NetworkVendor::Vmware, NodeType::PortGroup) => "VMware Port Group - Virtual network segment on vSwitch".to_string(),
@@ -1564,13 +1563,238 @@ pub fn get_node_type_description(vendor: &NetworkVendor, node_type: &NodeType) -
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[tokio::test]
-    async fn test_create_project() {
-        // This would require test database setup
-        // Placeholder for now
+    // =========================================================================
+    // HLD DOCUMENT GENERATION
+    // =========================================================================
+    
+    /// Generate High-Level Design document for migration project
+    pub async fn generate_hld_document(
+        &self,
+        project_id: &str,
+        include_network_topology: bool,
+        include_vm_placements: bool,
+    ) -> Result<String> {
+        use crate::models::migration_wizard_models::MigrationWizardProject;
+        
+        // Fetch project
+        let project_thing = Thing::from(("migration_wizard_project", project_id));
+        let projects: Vec<MigrationWizardProject> = self
+            .db
+            .select("migration_wizard_project")
+            .await
+            .context("Failed to query project")?;
+        
+        let project = projects.into_iter()
+            .find(|p| p.id.as_ref().map(|id| format!("{:?}", id)).unwrap_or_default().contains(project_id))
+            .context("Project not found")?;
+        
+        // Build HLD document in Markdown format
+        let mut hld = String::new();
+        
+        // Title page
+        hld.push_str("# High-Level Design Document\n\n");
+        hld.push_str(&format!("## {}\n\n", project.name));
+        hld.push_str(&format!("**Status:** {:?}\n\n", project.status));
+        hld.push_str(&format!("**Created:** {}\n\n", project.created_at.format("%Y-%m-%d")));
+        if let Some(desc) = &project.description {
+            hld.push_str(&format!("**Description:** {}\n\n", desc));
+        }
+        hld.push_str("---\n\n");
+        
+        // Table of Contents
+        hld.push_str("## Table of Contents\n\n");
+        hld.push_str("1. Executive Summary\n");
+        hld.push_str("2. Current State Analysis\n");
+        hld.push_str("3. Target Architecture\n");
+        if include_vm_placements {
+            hld.push_str("4. VM Placement Strategy\n");
+        }
+        if include_network_topology {
+            hld.push_str("5. Network Design\n");
+        }
+        hld.push_str("6. Migration Approach\n");
+        hld.push_str("7. Risks and Mitigation\n\n");
+        hld.push_str("---\n\n");
+        
+        // Executive Summary
+        hld.push_str("## 1. Executive Summary\n\n");
+        hld.push_str(&format!("This document outlines the high-level design for migrating **{}** virtual machines ", project.total_vms));
+        hld.push_str(&format!("across **{}** destination clusters.\n\n", project.total_clusters));
+        
+        if let Some(filename) = &project.rvtools_filename {
+            hld.push_str(&format!("**Source Data:** {}\n\n", filename));
+        }
+        
+        hld.push_str("### Project Scope\n\n");
+        hld.push_str(&format!("- **Total VMs:** {}\n", project.total_vms));
+        hld.push_str(&format!("- **Destination Clusters:** {}\n", project.total_clusters));
+        hld.push_str(&format!("- **Project Status:** {:?}\n\n", project.status));
+        
+        // Current State Analysis
+        hld.push_str("---\n\n");
+        hld.push_str("## 2. Current State Analysis\n\n");
+        
+        if project.total_vms > 0 {
+            // Fetch VMs
+            let vms = self.get_project_vms(project_id, None).await?;
+            
+            hld.push_str("### Virtual Machine Inventory\n\n");
+            hld.push_str(&format!("Total VMs discovered: **{}**\n\n", vms.len()));
+            
+            // Calculate totals
+            let total_cpu: i32 = vms.iter().map(|vm| vm.cpus).sum();
+            let total_memory_gb: f64 = vms.iter().map(|vm| vm.memory_mb as f64 / 1024.0).sum();
+            let total_storage_gb: f64 = vms.iter().map(|vm| vm.provisioned_mb.unwrap_or(0) as f64 / 1024.0).sum();
+            
+            hld.push_str("#### Resource Summary\n\n");
+            hld.push_str(&format!("- **Total vCPUs:** {} cores\n", total_cpu));
+            hld.push_str(&format!("- **Total Memory:** {:.2} GB\n", total_memory_gb));
+            hld.push_str(&format!("- **Total Storage:** {:.2} GB\n\n", total_storage_gb));
+            
+            // Power state breakdown
+            let powered_on = vms.iter().filter(|vm| vm.powerstate.as_deref() == Some("poweredOn")).count();
+            let powered_off = vms.iter().filter(|vm| vm.powerstate.as_deref() == Some("poweredOff")).count();
+            
+            hld.push_str("#### Power State Distribution\n\n");
+            hld.push_str(&format!("- **Powered On:** {}\n", powered_on));
+            hld.push_str(&format!("- **Powered Off:** {}\n\n", powered_off));
+        }
+        
+        // Target Architecture
+        hld.push_str("---\n\n");
+        hld.push_str("## 3. Target Architecture\n\n");
+        
+        if project.total_clusters > 0 {
+            // Fetch clusters
+            let clusters = self.get_project_clusters(project_id).await?;
+            
+            hld.push_str("### Destination Clusters\n\n");
+            
+            for (idx, cluster) in clusters.iter().enumerate() {
+                hld.push_str(&format!("#### Cluster {}: {}\n\n", idx + 1, cluster.name));
+                
+                if let Some(desc) = &cluster.description {
+                    hld.push_str(&format!("**Description:** {}\n\n", desc));
+                }
+                
+                hld.push_str(&format!("**Strategy:** {}\n\n", cluster.strategy));
+                
+                hld.push_str("**Resources:**\n\n");
+                hld.push_str(&format!("- CPU: {} GHz, {} cores\n", cluster.cpu_ghz, cluster.total_cores));
+                hld.push_str(&format!("- Memory: {} GB\n", cluster.memory_gb));
+                hld.push_str(&format!("- Storage: {} TB\n\n", cluster.storage_tb));
+                
+                hld.push_str("**Oversubscription Ratios:**\n\n");
+                hld.push_str(&format!("- CPU: {}:1\n", cluster.cpu_oversubscription_ratio));
+                hld.push_str(&format!("- Memory: {}:1\n\n", cluster.memory_oversubscription_ratio));
+            }
+        }
+        
+        // VM Placement Strategy
+        if include_vm_placements {
+            hld.push_str("---\n\n");
+            hld.push_str("## 4. VM Placement Strategy\n\n");
+            
+            let placements = self.get_project_placements(project_id).await?;
+            
+            if !placements.is_empty() {
+                hld.push_str(&format!("Total VM placements: **{}**\n\n", placements.len()));
+                
+                // Group by cluster
+                let mut cluster_placements: std::collections::HashMap<String, Vec<_>> = std::collections::HashMap::new();
+                for placement in &placements {
+                    let cluster_id = format!("{:?}", placement.cluster_id);
+                    cluster_placements.entry(cluster_id).or_default().push(placement);
+                }
+                
+                hld.push_str("### Placements by Cluster\n\n");
+                for (cluster_id, cluster_vms) in cluster_placements {
+                    hld.push_str(&format!("**Cluster {}:** {} VMs\n", cluster_id, cluster_vms.len()));
+                }
+                hld.push_str("\n");
+            } else {
+                hld.push_str("*No VM placements defined yet.*\n\n");
+            }
+        }
+        
+        // Network Design
+        if include_network_topology {
+            hld.push_str("---\n\n");
+            hld.push_str("## 5. Network Design\n\n");
+            
+            // Network mappings
+            let mappings = self.get_project_network_mappings(project_id).await?;
+            
+            if !mappings.is_empty() {
+                hld.push_str("### Network Mappings\n\n");
+                hld.push_str("| Source VLAN | Source Subnet | Destination VLAN | Destination Subnet | Gateway | Status |\n");
+                hld.push_str("|-------------|---------------|------------------|--------------------|---------|--------|\n");
+                
+                for mapping in &mappings {
+                    let source_subnet = mapping.source_subnet.as_deref().unwrap_or("N/A");
+                    let dest_subnet = mapping.destination_subnet.as_deref().unwrap_or("N/A");
+                    let gateway = mapping.destination_gateway.as_deref().unwrap_or("N/A");
+                    let status = if mapping.is_valid { "✅ Valid" } else { "❌ Invalid" };
+                    
+                    hld.push_str(&format!(
+                        "| {} | {} | {} | {} | {} | {} |\n",
+                        mapping.source_vlan_name,
+                        source_subnet,
+                        mapping.destination_vlan_name,
+                        dest_subnet,
+                        gateway,
+                        status
+                    ));
+                }
+                hld.push_str("\n");
+                
+                // Network topology visualization
+                hld.push_str("### Network Topology\n\n");
+                let mermaid_diagram = self.generate_mermaid_diagram(project_id).await?;
+                hld.push_str("```mermaid\n");
+                hld.push_str(&mermaid_diagram);
+                hld.push_str("\n```\n\n");
+            } else {
+                hld.push_str("*No network mappings defined yet.*\n\n");
+            }
+        }
+        
+        // Migration Approach
+        hld.push_str("---\n\n");
+        hld.push_str("## 6. Migration Approach\n\n");
+        hld.push_str("### Migration Phases\n\n");
+        hld.push_str("1. **Pre-Migration Assessment**\n");
+        hld.push_str("   - Validate source VM configurations\n");
+        hld.push_str("   - Verify destination cluster capacity\n");
+        hld.push_str("   - Test network connectivity\n\n");
+        hld.push_str("2. **Pilot Migration**\n");
+        hld.push_str("   - Select 5-10 non-critical VMs\n");
+        hld.push_str("   - Perform test migrations\n");
+        hld.push_str("   - Validate functionality\n\n");
+        hld.push_str("3. **Phased Production Migration**\n");
+        hld.push_str("   - Migrate in scheduled waves\n");
+        hld.push_str("   - Monitor performance\n");
+        hld.push_str("   - Rollback plan ready\n\n");
+        hld.push_str("4. **Post-Migration Validation**\n");
+        hld.push_str("   - Application testing\n");
+        hld.push_str("   - Performance benchmarking\n");
+        hld.push_str("   - Documentation updates\n\n");
+        
+        // Risks and Mitigation
+        hld.push_str("---\n\n");
+        hld.push_str("## 7. Risks and Mitigation\n\n");
+        hld.push_str("| Risk | Impact | Likelihood | Mitigation Strategy |\n");
+        hld.push_str("|------|--------|------------|---------------------|\n");
+        hld.push_str("| Network connectivity issues | High | Medium | Pre-migration network testing and validation |\n");
+        hld.push_str("| Capacity constraints | High | Low | Oversubscription ratios and capacity monitoring |\n");
+        hld.push_str("| Application compatibility | Medium | Medium | Pilot migration and thorough testing |\n");
+        hld.push_str("| Data loss during migration | High | Low | Backup verification and rollback procedures |\n");
+        hld.push_str("| Extended downtime | Medium | Medium | Migration windows and phased approach |\n\n");
+        
+        // Footer
+        hld.push_str("---\n\n");
+        hld.push_str(&format!("*Document generated: {}*\n", Utc::now().format("%Y-%m-%d %H:%M:%S UTC")));
+        
+        Ok(hld)
     }
 }

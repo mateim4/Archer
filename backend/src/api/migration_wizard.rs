@@ -38,6 +38,7 @@ pub fn create_migration_wizard_router(db: Arc<Database>) -> Router {
         .route("/projects/:id/network-topology", get(get_network_topology))
         .route("/projects/:id/network-topology/mermaid", get(get_network_mermaid))
         .route("/projects/:id/network-topology/visualization", get(get_network_visualization))
+        .route("/projects/:id/hld", post(generate_hld))
         .route("/network-icons", get(get_all_icon_mappings))
         .route("/network-icons/:vendor/:node_type", get(get_icon_mapping))
         .route("/clusters/:id", get(get_cluster))
@@ -1189,6 +1190,53 @@ async fn get_all_icon_mappings(
     }))))
 }
 
+// =============================================================================
+// HLD GENERATION ENDPOINT
+// =============================================================================
+
+/// Generate High-Level Design document for migration project
+/// POST /api/v1/migration-wizard/projects/:id/hld
+async fn generate_hld(
+    State(db): State<Arc<Database>>,
+    Path(project_id): Path<String>,
+    Json(payload): Json<serde_json::Value>,
+) -> Result<impl IntoResponse, (StatusCode, Json<serde_json::Value>)> {
+    tracing::info!("Generating HLD document for project: {}", project_id);
+
+    let service = MigrationWizardService::new(db.as_ref().clone());
+    
+    // Parse options from payload
+    let include_network = payload.get("include_network_topology")
+        .and_then(|v| v.as_bool())
+        .unwrap_or(true);
+    let include_placements = payload.get("include_vm_placements")
+        .and_then(|v| v.as_bool())
+        .unwrap_or(true);
+    
+    match service.generate_hld_document(&project_id, include_network, include_placements).await {
+        Ok(hld_markdown) => {
+            Ok((StatusCode::OK, Json(json!({
+                "success": true,
+                "result": {
+                    "document_format": "markdown",
+                    "content": hld_markdown,
+                    "generated_at": chrono::Utc::now(),
+                    "project_id": project_id
+                }
+            }))))
+        }
+        Err(e) => {
+            tracing::error!("Failed to generate HLD document: {}", e);
+            Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(json!({
+                    "success": false,
+                    "error": e.to_string()
+                }))
+            ))
+        }
+    }
+}
 /// Get icon mapping for specific vendor and node type
 /// GET /api/v1/migration-wizard/network-icons/:vendor/:node_type
 async fn get_icon_mapping(
@@ -1244,9 +1292,9 @@ async fn get_icon_mapping(
     let stencil_reference = service.get_stencil_reference(&vendor, &node_type);
     let icon_category = service.get_icon_category(&node_type);
     
-    // Get description from helper
-    use crate::services::migration_wizard_service::get_node_type_description;
-    let description = get_node_type_description(&vendor, &node_type);
+    // Get description from service method
+    use crate::services::migration_wizard_service::MigrationWizardService;
+    let description = MigrationWizardService::get_node_type_description(&vendor, &node_type);
     
     let response = SingleIconResponse {
         vendor: format!("{:?}", vendor),
