@@ -3,7 +3,7 @@ use axum::{
     extract::{Multipart, Path, Query, State},
     http::StatusCode,
     response::{IntoResponse, Json},
-    routing::{get, post},
+    routing::{delete, get, post, put},
     Router,
 };
 use chrono::Utc;
@@ -24,6 +24,11 @@ pub fn create_migration_wizard_router(db: Arc<Database>) -> Router {
         .route("/projects/:id", get(get_project))
         .route("/projects/:id/rvtools", post(upload_rvtools))
         .route("/projects/:id/vms", get(get_project_vms))
+        .route("/projects/:id/clusters", post(create_cluster))
+        .route("/projects/:id/clusters", get(get_project_clusters))
+        .route("/clusters/:id", get(get_cluster))
+        .route("/clusters/:id", put(update_cluster))
+        .route("/clusters/:id", delete(delete_cluster))
         .with_state(db)
 }
 
@@ -306,6 +311,192 @@ async fn get_project_vms(
         }
         Err(e) => {
             tracing::error!("Failed to get VMs: {}", e);
+            Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(json!({
+                    "success": false,
+                    "error": e.to_string()
+                }))
+            ))
+        }
+    }
+}
+
+// =============================================================================
+// CLUSTER MANAGEMENT
+// =============================================================================
+
+/// Create a new destination cluster
+/// POST /api/v1/migration-wizard/projects/:id/clusters
+async fn create_cluster(
+    State(db): State<Arc<Database>>,
+    Path(project_id): Path<String>,
+    Json(payload): Json<serde_json::Value>,
+) -> Result<impl IntoResponse, (StatusCode, Json<serde_json::Value>)> {
+    tracing::info!("Creating cluster for project: {}", project_id);
+
+    let service = MigrationWizardService::new(db.as_ref().clone());
+
+    // Parse cluster data
+    let name = payload.get("name")
+        .and_then(|v| v.as_str())
+        .ok_or_else(|| (
+            StatusCode::BAD_REQUEST,
+            Json(json!({ "success": false, "error": "Missing 'name' field" }))
+        ))?;
+
+    let cluster = MigrationWizardCluster {
+        id: None,
+        project_id: surrealdb::sql::Thing::from(("migration_wizard_project", project_id.as_str())),
+        name: name.to_string(),
+        description: payload.get("description").and_then(|v| v.as_str()).map(|s| s.to_string()),
+        cpu_ghz: payload.get("cpu_ghz").and_then(|v| v.as_f64()).unwrap_or(2.4),
+        total_cores: payload.get("total_cores").and_then(|v| v.as_i64()).unwrap_or(128) as i32,
+        memory_gb: payload.get("memory_gb").and_then(|v| v.as_i64()).unwrap_or(512) as i32,
+        storage_tb: payload.get("storage_tb").and_then(|v| v.as_f64()).unwrap_or(10.0),
+        network_bandwidth_gbps: payload.get("network_bandwidth_gbps").and_then(|v| v.as_f64()).unwrap_or(10.0),
+        cpu_oversubscription_ratio: payload.get("cpu_oversubscription_ratio").and_then(|v| v.as_f64()).unwrap_or(1.0),
+        memory_oversubscription_ratio: payload.get("memory_oversubscription_ratio").and_then(|v| v.as_f64()).unwrap_or(1.0),
+        strategy: payload.get("strategy").and_then(|v| v.as_str()).unwrap_or("lift-shift").to_string(),
+        created_at: Utc::now(),
+        updated_at: Utc::now(),
+    };
+
+    match service.create_cluster(&project_id, cluster).await {
+        Ok(created_cluster) => {
+            Ok((StatusCode::CREATED, Json(json!({
+                "success": true,
+                "result": created_cluster
+            }))))
+        }
+        Err(e) => {
+            tracing::error!("Failed to create cluster: {}", e);
+            Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(json!({
+                    "success": false,
+                    "error": e.to_string()
+                }))
+            ))
+        }
+    }
+}
+
+/// Get clusters for a project
+/// GET /api/v1/migration-wizard/projects/:id/clusters
+async fn get_project_clusters(
+    State(db): State<Arc<Database>>,
+    Path(project_id): Path<String>,
+) -> Result<impl IntoResponse, (StatusCode, Json<serde_json::Value>)> {
+    tracing::info!("Getting clusters for project: {}", project_id);
+
+    let service = MigrationWizardService::new(db.as_ref().clone());
+
+    match service.get_project_clusters(&project_id).await {
+        Ok(clusters) => {
+            Ok((StatusCode::OK, Json(json!({
+                "success": true,
+                "result": {
+                    "clusters": clusters,
+                    "total": clusters.len()
+                }
+            }))))
+        }
+        Err(e) => {
+            tracing::error!("Failed to get clusters: {}", e);
+            Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(json!({
+                    "success": false,
+                    "error": e.to_string()
+                }))
+            ))
+        }
+    }
+}
+
+/// Get a single cluster by ID
+/// GET /api/v1/migration-wizard/clusters/:id
+async fn get_cluster(
+    State(db): State<Arc<Database>>,
+    Path(cluster_id): Path<String>,
+) -> Result<impl IntoResponse, (StatusCode, Json<serde_json::Value>)> {
+    tracing::info!("Getting cluster: {}", cluster_id);
+
+    let service = MigrationWizardService::new(db.as_ref().clone());
+
+    match service.get_cluster(&cluster_id).await {
+        Ok(cluster) => {
+            Ok((StatusCode::OK, Json(json!({
+                "success": true,
+                "result": cluster
+            }))))
+        }
+        Err(e) => {
+            tracing::error!("Failed to get cluster: {}", e);
+            Err((
+                StatusCode::NOT_FOUND,
+                Json(json!({
+                    "success": false,
+                    "error": "Cluster not found"
+                }))
+            ))
+        }
+    }
+}
+
+/// Update a cluster
+/// PUT /api/v1/migration-wizard/clusters/:id
+async fn update_cluster(
+    State(db): State<Arc<Database>>,
+    Path(cluster_id): Path<String>,
+    Json(updates): Json<serde_json::Value>,
+) -> Result<impl IntoResponse, (StatusCode, Json<serde_json::Value>)> {
+    tracing::info!("Updating cluster: {}", cluster_id);
+
+    let service = MigrationWizardService::new(db.as_ref().clone());
+
+    match service.update_cluster(&cluster_id, updates).await {
+        Ok(cluster) => {
+            Ok((StatusCode::OK, Json(json!({
+                "success": true,
+                "result": cluster
+            }))))
+        }
+        Err(e) => {
+            tracing::error!("Failed to update cluster: {}", e);
+            Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(json!({
+                    "success": false,
+                    "error": e.to_string()
+                }))
+            ))
+        }
+    }
+}
+
+/// Delete a cluster
+/// DELETE /api/v1/migration-wizard/clusters/:id
+async fn delete_cluster(
+    State(db): State<Arc<Database>>,
+    Path(cluster_id): Path<String>,
+) -> Result<impl IntoResponse, (StatusCode, Json<serde_json::Value>)> {
+    tracing::info!("Deleting cluster: {}", cluster_id);
+
+    let service = MigrationWizardService::new(db.as_ref().clone());
+
+    match service.delete_cluster(&cluster_id).await {
+        Ok(()) => {
+            Ok((StatusCode::OK, Json(json!({
+                "success": true,
+                "result": {
+                    "message": "Cluster deleted successfully"
+                }
+            }))))
+        }
+        Err(e) => {
+            tracing::error!("Failed to delete cluster: {}", e);
             Err((
                 StatusCode::INTERNAL_SERVER_ERROR,
                 Json(json!({

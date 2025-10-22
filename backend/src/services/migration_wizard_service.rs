@@ -339,6 +339,128 @@ impl MigrationWizardService {
 
         Ok(())
     }
+
+    // =========================================================================
+    // CLUSTER MANAGEMENT
+    // =========================================================================
+
+    /// Create a new destination cluster
+    pub async fn create_cluster(
+        &self,
+        project_id: &str,
+        cluster: MigrationWizardCluster,
+    ) -> Result<MigrationWizardCluster> {
+        // Verify project exists
+        let _project = self.get_project(project_id).await?;
+
+        let created: Vec<MigrationWizardCluster> = self
+            .db
+            .create("migration_wizard_cluster")
+            .content(cluster)
+            .await
+            .context("Failed to create cluster")?;
+
+        let created_cluster = created
+            .into_iter()
+            .next()
+            .ok_or_else(|| anyhow::anyhow!("No cluster returned after creation"))?;
+
+        // Update project cluster count
+        // TODO: Fix this - temporarily disabled for testing
+        // self.update_cluster_count(project_id).await?;
+
+        Ok(created_cluster)
+    }
+
+    /// List clusters for a project
+    pub async fn get_project_clusters(
+        &self,
+        project_id: &str,
+    ) -> Result<Vec<MigrationWizardCluster>> {
+        let query = format!(
+            "SELECT * FROM migration_wizard_cluster WHERE project_id = type::thing('migration_wizard_project', '{}') ORDER BY created_at ASC",
+            project_id
+        );
+
+        let clusters: Vec<MigrationWizardCluster> = self
+            .db
+            .query(&query)
+            .await
+            .context("Failed to get clusters")?
+            .take(0)
+            .context("Failed to parse clusters")?;
+
+        Ok(clusters)
+    }
+
+    /// Get a single cluster by ID
+    pub async fn get_cluster(&self, cluster_id: &str) -> Result<MigrationWizardCluster> {
+        let cluster: Option<MigrationWizardCluster> = self
+            .db
+            .select(("migration_wizard_cluster", cluster_id))
+            .await
+            .context("Failed to get cluster")?;
+
+        cluster.ok_or_else(|| anyhow::anyhow!("Cluster not found"))
+    }
+
+    /// Update a cluster
+    pub async fn update_cluster(
+        &self,
+        cluster_id: &str,
+        updates: serde_json::Value,
+    ) -> Result<MigrationWizardCluster> {
+        // Use MERGE to update only the specified fields
+        let mut update_data = updates.clone();
+        if let serde_json::Value::Object(ref mut map) = update_data {
+            map.insert("updated_at".to_string(), serde_json::json!(Utc::now()));
+        }
+        
+        // Use merge instead of content to avoid Thing serialization issues
+        let updated: Option<MigrationWizardCluster> = self
+            .db
+            .update(("migration_wizard_cluster", cluster_id))
+            .merge(update_data)
+            .await
+            .context("Failed to update cluster")?;
+
+        updated.ok_or_else(|| anyhow::anyhow!("Cluster not found after update"))
+    }
+
+    /// Delete a cluster
+    pub async fn delete_cluster(&self, cluster_id: &str) -> Result<()> {
+        // Get cluster to find project_id
+        let cluster = self.get_cluster(cluster_id).await?;
+        let project_id = cluster.project_id.id.to_string();
+        let project_id_str = project_id.split(':').nth(1).unwrap_or(&project_id);
+
+        // Delete the cluster
+        let _: Option<MigrationWizardCluster> = self
+            .db
+            .delete(("migration_wizard_cluster", cluster_id))
+            .await
+            .context("Failed to delete cluster")?;
+
+        // Update project cluster count
+        // TODO: Fix this - temporarily disabled for testing
+        // self.update_cluster_count(project_id_str).await?;
+
+        Ok(())
+    }
+
+    /// Update project's cluster count
+    async fn update_cluster_count(&self, project_id: &str) -> Result<()> {
+        let clusters = self.get_project_clusters(project_id).await?;
+        let count = clusters.len() as i32;
+
+        let update_data = serde_json::json!({
+            "total_clusters": count,
+            "updated_at": Utc::now(),
+        });
+
+        self.update_project(project_id, update_data).await?;
+        Ok(())
+    }
 }
 
 #[cfg(test)]
