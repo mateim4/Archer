@@ -1291,56 +1291,121 @@ impl MigrationWizardService {
     }
 
     /// Generate Mermaid diagram code
+    /// Enhanced to generate simple diagrams from VLAN mappings when topology data is unavailable
     pub async fn generate_mermaid_diagram(
         &self,
         project_id: &str,
     ) -> Result<String> {
         let topology = self.get_network_topology(project_id).await?;
         
-        let mut mermaid = String::from("graph TB\n");
-        mermaid.push_str("    %% Network Topology Diagram\n");
-        mermaid.push_str("    %% Generated from RVTools data\n\n");
-
-        // Add vSwitches
-        for vswitch in &topology.vswitches {
-            mermaid.push_str(&format!(
-                "    {}[\"{}\"]\n",
-                Self::sanitize_mermaid_id(&vswitch.name),
-                vswitch.name
-            ));
-        }
-
-        // Add port groups
-        for pg in &topology.port_groups {
-            mermaid.push_str(&format!(
-                "    {}[\"VLAN {}: {}<br/>{:?}\"]\n",
-                Self::sanitize_mermaid_id(&pg.name),
-                pg.vlan_id,
-                pg.name,
-                pg.purpose
-            ));
-        }
-
-        // Add physical NICs
-        for nic in &topology.physical_nics {
-            mermaid.push_str(&format!(
-                "    {}[\"{}
-<br/>{}Mbps\"]\n",
-                Self::sanitize_mermaid_id(&nic.name),
-                nic.name,
-                nic.speed_mbps
-            ));
-        }
-
-        // Add connections (links)
-        // This would connect physical NICs → vSwitches → Port Groups → VMs
+        // Check if topology has actual data
+        let has_topology_data = !topology.vswitches.is_empty() 
+            || !topology.port_groups.is_empty() 
+            || !topology.physical_nics.is_empty();
         
-        mermaid.push_str("\n    %% Style definitions\n");
-        mermaid.push_str("    classDef vswitchStyle fill:#e1f5ff,stroke:#01579b,stroke-width:2px\n");
-        mermaid.push_str("    classDef portGroupStyle fill:#fff9c4,stroke:#f57f17,stroke-width:2px\n");
-        mermaid.push_str("    classDef nicStyle fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px\n");
+        if has_topology_data {
+            // Generate full topology diagram
+            let mut mermaid = String::from("graph TB\n");
+            mermaid.push_str("    %% Network Topology Diagram\n");
+            mermaid.push_str("    %% Generated from RVTools data\n\n");
 
-        Ok(mermaid)
+            // Add vSwitches
+            for vswitch in &topology.vswitches {
+                mermaid.push_str(&format!(
+                    "    {}[\"{}\"]\n",
+                    Self::sanitize_mermaid_id(&vswitch.name),
+                    vswitch.name
+                ));
+            }
+
+            // Add port groups
+            for pg in &topology.port_groups {
+                mermaid.push_str(&format!(
+                    "    {}[\"VLAN {}: {}<br/>{:?}\"]\n",
+                    Self::sanitize_mermaid_id(&pg.name),
+                    pg.vlan_id,
+                    pg.name,
+                    pg.purpose
+                ));
+            }
+
+            // Add physical NICs
+            for nic in &topology.physical_nics {
+                mermaid.push_str(&format!(
+                    "    {}[\"{}
+<br/>{}Mbps\"]\n",
+                    Self::sanitize_mermaid_id(&nic.name),
+                    nic.name,
+                    nic.speed_mbps
+                ));
+            }
+
+            // Add connections (links)
+            // This would connect physical NICs → vSwitches → Port Groups → VMs
+            
+            mermaid.push_str("\n    %% Style definitions\n");
+            mermaid.push_str("    classDef vswitchStyle fill:#e1f5ff,stroke:#01579b,stroke-width:2px\n");
+            mermaid.push_str("    classDef portGroupStyle fill:#fff9c4,stroke:#f57f17,stroke-width:2px\n");
+            mermaid.push_str("    classDef nicStyle fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px\n");
+
+            Ok(mermaid)
+        } else {
+            // Fallback: Generate simple diagram from VLAN mappings
+            tracing::info!("No topology data available, generating diagram from VLAN mappings");
+            
+            let mappings = self.get_project_network_mappings(project_id).await?;
+            
+            if mappings.is_empty() {
+                // Return empty placeholder
+                return Ok(String::from("graph LR\n    A[\"No Network Data\"] --> B[\"Add VLAN mappings<br/>or upload RVTools\"]"));
+            }
+            
+            // Generate simple VLAN mapping diagram
+            let mut mermaid = String::from("graph TB\n");
+            mermaid.push_str("    %% Network Mapping Diagram\n");
+            mermaid.push_str("    %% Generated from VLAN mappings\n\n");
+            
+            // Source subgraph
+            mermaid.push_str("    subgraph Source[\"Source VMware Networks\"]\n");
+            for (idx, mapping) in mappings.iter().enumerate() {
+                let source_id = format!("SRC{}", idx);
+                let source_label = if let Some(subnet) = &mapping.source_subnet {
+                    format!("VLAN {}<br/>{}", mapping.source_vlan, subnet)
+                } else {
+                    format!("VLAN {}", mapping.source_vlan)
+                };
+                mermaid.push_str(&format!("        {}[\"{}\"]\n", source_id, source_label));
+            }
+            mermaid.push_str("    end\n\n");
+            
+            // Destination subgraph
+            mermaid.push_str("    subgraph Dest[\"Destination Hyper-V Networks\"]\n");
+            for (idx, mapping) in mappings.iter().enumerate() {
+                let dest_id = format!("DST{}", idx);
+                let dest_label = if let Some(subnet) = &mapping.dest_subnet {
+                    format!("VLAN {}<br/>{}<br/>({})", 
+                        mapping.dest_vlan, 
+                        subnet,
+                        mapping.dest_ip_strategy.as_deref().unwrap_or("DHCP")
+                    )
+                } else {
+                    format!("VLAN {}", mapping.dest_vlan)
+                };
+                mermaid.push_str(&format!("        {}[\"{}\"]\n", dest_id, dest_label));
+            }
+            mermaid.push_str("    end\n\n");
+            
+            // Add mapping connections
+            for idx in 0..mappings.len() {
+                mermaid.push_str(&format!("    SRC{} -.->|\"Migration\"| DST{}\n", idx, idx));
+            }
+            
+            // Style definitions
+            mermaid.push_str("\n    style Source fill:#3b82f620,stroke:#3b82f6,stroke-width:2px\n");
+            mermaid.push_str("    style Dest fill:#8b5cf620,stroke:#8b5cf6,stroke-width:2px\n");
+            
+            Ok(mermaid)
+        }
     }
     
     // =========================================================================

@@ -267,6 +267,8 @@ export const MigrationPlanningWizard: React.FC<MigrationWizardProps> = ({
   
   const [networkMappings, setNetworkMappings] = useState<NetworkMapping[]>([]);
   const [showNetworkDiagram, setShowNetworkDiagram] = useState(false);
+  const [diagramRenderState, setDiagramRenderState] = useState<'idle' | 'rendering' | 'success' | 'error'>('idle');
+  const [diagramErrorMessage, setDiagramErrorMessage] = useState<string>('');
   const [availableTemplates, setAvailableTemplates] = useState<NetworkTemplate[]>([]);
   const [loadingTemplates, setLoadingTemplates] = useState(false);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>('');
@@ -1474,28 +1476,68 @@ export const MigrationPlanningWizard: React.FC<MigrationWizardProps> = ({
           });
         }, []);
         
-        // Render mermaid diagram
+        // Render mermaid diagram with proper error handling and state tracking
         useEffect(() => {
-          if (showNetworkDiagram) {
+          if (showNetworkDiagram && networkMappings.length > 0) {
             const renderDiagram = async () => {
               const element = document.getElementById('network-mermaid-diagram');
-              if (element) {
-                try {
-                  element.innerHTML = '';
-                  const diagramCode = generateNetworkDiagram();
-                  const uniqueId = `mermaid-network-${Date.now()}`;
-                  const tempDiv = document.createElement('div');
-                  tempDiv.className = 'mermaid';
-                  tempDiv.textContent = diagramCode;
-                  tempDiv.id = uniqueId;
-                  element.appendChild(tempDiv);
-                  await mermaid.run({ nodes: [tempDiv] });
-                } catch (error) {
-                  console.error('Mermaid rendering error:', error);
+              if (!element) {
+                console.warn('Diagram container not found in DOM');
+                return;
+              }
+              
+              setDiagramRenderState('rendering');
+              setDiagramErrorMessage('');
+              
+              try {
+                // Clear previous diagram
+                element.innerHTML = '';
+                
+                // Generate diagram code
+                const diagramCode = generateNetworkDiagram();
+                
+                // Validate diagram code is not empty
+                if (!diagramCode || diagramCode.trim().length === 0) {
+                  throw new Error('Generated diagram code is empty');
                 }
+                
+                // Create unique ID for Mermaid
+                const uniqueId = `mermaid-network-${Date.now()}`;
+                
+                // Render diagram
+                const { svg } = await mermaid.render(uniqueId, diagramCode);
+                
+                // Insert rendered SVG
+                element.innerHTML = svg;
+                
+                setDiagramRenderState('success');
+                console.log('✅ Mermaid diagram rendered successfully');
+              } catch (error) {
+                console.error('❌ Mermaid rendering error:', error);
+                setDiagramRenderState('error');
+                
+                const errorMsg = error instanceof Error ? error.message : 'Unknown rendering error';
+                setDiagramErrorMessage(errorMsg);
+                
+                // Show fallback message in container
+                element.innerHTML = `
+                  <div style="padding: 40px; text-align: center; color: #ef4444;">
+                    <div style="font-size: 48px; margin-bottom: 16px;">⚠️</div>
+                    <div style="font-weight: 600; margin-bottom: 8px;">Diagram Rendering Failed</div>
+                    <div style="font-size: 14px; color: #6b7280;">${errorMsg}</div>
+                    <div style="font-size: 12px; color: #9ca3af; margin-top: 8px;">
+                      Check browser console for details
+                    </div>
+                  </div>
+                `;
               }
             };
-            renderDiagram();
+            
+            // Small delay to ensure DOM is ready
+            const timeoutId = setTimeout(renderDiagram, 100);
+            return () => clearTimeout(timeoutId);
+          } else if (showNetworkDiagram && networkMappings.length === 0) {
+            setDiagramRenderState('idle');
           }
         }, [showNetworkDiagram, networkMappings]);
         
@@ -1554,15 +1596,69 @@ export const MigrationPlanningWizard: React.FC<MigrationWizardProps> = ({
                     borderRadius: '8px',
                     padding: '24px',
                     minHeight: '300px',
+                    position: 'relative',
                   }}>
+                    {/* Loading State */}
+                    {diagramRenderState === 'rendering' && (
+                      <div style={{ padding: '40px' }}>
+                        <Spinner size="large" />
+                        <div style={{ marginTop: '16px', fontSize: '14px', color: tokens.colorNeutralForeground2 }}>
+                          Rendering network diagram...
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Success State - Diagram Container */}
                     <div 
                       id="network-mermaid-diagram"
                       style={{ 
-                        display: 'flex',
+                        display: diagramRenderState === 'success' || diagramRenderState === 'error' ? 'flex' : 'none',
                         justifyContent: 'center',
                         alignItems: 'center',
+                        minHeight: '200px',
                       }}
                     />
+                    
+                    {/* Success Indicator */}
+                    {diagramRenderState === 'success' && (
+                      <div style={{ 
+                        marginTop: '12px', 
+                        fontSize: '12px', 
+                        color: '#10b981',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '6px',
+                      }}>
+                        <CheckmarkCircleRegular fontSize={14} />
+                        Diagram rendered successfully
+                      </div>
+                    )}
+                  </div>
+                </PurpleGlassCard>
+              )}
+              
+              {/* Show message when diagram button clicked but no mappings */}
+              {showNetworkDiagram && networkMappings.length === 0 && (
+                <PurpleGlassCard
+                  variant="outlined"
+                  style={{ 
+                    marginBottom: '24px',
+                    border: '2px dashed rgba(139, 92, 246, 0.3)',
+                  }}
+                >
+                  <div style={{ 
+                    textAlign: 'center', 
+                    padding: '40px',
+                    color: tokens.colorNeutralForeground2,
+                  }}>
+                    <DiagramRegular style={{ fontSize: '48px', marginBottom: '16px', color: '#8b5cf6' }} />
+                    <div style={{ fontWeight: '600', marginBottom: '8px' }}>
+                      No Network Mappings to Visualize
+                    </div>
+                    <div style={{ fontSize: '14px' }}>
+                      Add at least one network mapping to see the topology diagram.
+                    </div>
                   </div>
                 </PurpleGlassCard>
               )}
