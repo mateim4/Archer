@@ -32,6 +32,7 @@ pub fn create_migration_wizard_router(db: Arc<Database>) -> Router {
         .route("/projects/:id/placements", post(create_manual_placement))
         .route("/projects/:id/placements", get(get_project_placements))
         .route("/projects/:id/cluster-utilization", get(get_cluster_utilization))
+        .route("/projects/:id/networks/discover", get(discover_networks))
         .route("/projects/:id/network-mappings", post(create_network_mapping))
         .route("/projects/:id/network-mappings", get(get_project_network_mappings))
         .route("/projects/:id/network-mappings/validate", post(validate_network_mappings))
@@ -859,6 +860,31 @@ async fn get_cluster_utilization(
 // =============================================================================
 // NETWORK CONFIGURATION ENDPOINTS
 // =============================================================================
+
+/// Discover networks from RVTools data
+/// GET /api/v1/migration-wizard/projects/:id/networks/discover
+async fn discover_networks(
+    State(db): State<Arc<Database>>,
+    Path(project_id): Path<String>,
+) -> Result<impl IntoResponse, (StatusCode, Json<serde_json::Value>)> {
+    tracing::info!("Discovering networks for project: {}", project_id);
+
+    let service = MigrationWizardService::new(db.as_ref().clone());
+    
+    match service.discover_networks(&project_id).await {
+        Ok(response) => Ok((StatusCode::OK, Json(response))),
+        Err(e) => {
+            tracing::error!("Failed to discover networks: {}", e);
+            Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(json!({
+                    "error": "Failed to discover networks",
+                    "message": e.to_string()
+                })),
+            ))
+        }
+    }
+}
 
 /// Create a network mapping
 /// POST /api/v1/migration-wizard/projects/:id/network-mappings

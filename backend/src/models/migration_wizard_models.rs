@@ -266,6 +266,33 @@ pub enum NetworkVendor {
     Generic,
 }
 
+// =============================================================================
+// NETWORK DISCOVERY MODELS (for auto-populating VLAN dropdowns)
+// =============================================================================
+
+/// Discovered network from RVTools vPort/vNetwork tabs
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DiscoveredNetwork {
+    pub vlan_id: i32,
+    pub network_name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub subnet: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub gateway: Option<String>,
+    pub port_group_count: i32,
+    pub vm_count: i32,
+    pub switches: Vec<String>,
+}
+
+/// Network discovery response
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct NetworkDiscoveryResponse {
+    pub project_id: String,
+    pub networks: Vec<DiscoveredNetwork>,
+    pub total_networks: i32,
+    pub total_vlans: i32,
+}
+
 /// Port Group (VMware) / Virtual Network (Hyper-V) / Network (Nutanix)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PortGroup {

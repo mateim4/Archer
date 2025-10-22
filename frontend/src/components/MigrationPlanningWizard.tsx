@@ -264,6 +264,16 @@ export const MigrationPlanningWizard: React.FC<MigrationWizardProps> = ({
     destinationSubnet: string;
     ipStrategy: 'dhcp' | 'static' | 'preserve';
   }
+
+  interface DiscoveredNetwork {
+    vlan_id: number;
+    network_name: string;
+    subnet?: string;
+    gateway?: string;
+    port_group_count: number;
+    vm_count: number;
+    switches: string[];
+  }
   
   const [networkMappings, setNetworkMappings] = useState<NetworkMapping[]>([]);
   const [showNetworkDiagram, setShowNetworkDiagram] = useState(false);
@@ -272,6 +282,8 @@ export const MigrationPlanningWizard: React.FC<MigrationWizardProps> = ({
   const [availableTemplates, setAvailableTemplates] = useState<NetworkTemplate[]>([]);
   const [loadingTemplates, setLoadingTemplates] = useState(false);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>('');
+  const [discoveredNetworks, setDiscoveredNetworks] = useState<DiscoveredNetwork[]>([]);
+  const [loadingNetworks, setLoadingNetworks] = useState(false);
   
   // Step 5: HLD Generation State
   const [generatingHLD, setGeneratingHLD] = useState(false);
@@ -291,6 +303,13 @@ export const MigrationPlanningWizard: React.FC<MigrationWizardProps> = ({
       loadNetworkTemplates();
     }
   }, [currentStep]);
+
+  // Load discovered networks from RVTools when entering Step 4
+  useEffect(() => {
+    if (currentStep === 4 && selectedRVTools && discoveredNetworks.length === 0 && !loadingNetworks) {
+      loadDiscoveredNetworks();
+    }
+  }, [currentStep, selectedRVTools]);
   
   const loadWorkloadSummary = async () => {
     // TODO: Replace with actual API call to get filtered VM summary
@@ -415,6 +434,29 @@ export const MigrationPlanningWizard: React.FC<MigrationWizardProps> = ({
       setAvailableTemplates([]);
     } finally {
       setLoadingTemplates(false);
+    }
+  };
+
+  // Load discovered networks from RVTools data
+  const loadDiscoveredNetworks = async () => {
+    if (!projectId) return;
+    
+    setLoadingNetworks(true);
+    try {
+      const response = await fetch(`/api/v1/migration-wizard/projects/${projectId}/networks/discover`);
+      if (response.ok) {
+        const data = await response.json();
+        setDiscoveredNetworks(data.networks || []);
+        console.log(`Discovered ${data.total_networks} networks from RVTools data`);
+      } else {
+        console.error('Failed to discover networks:', await response.text());
+        setDiscoveredNetworks([]);
+      }
+    } catch (error) {
+      console.error('Error discovering networks:', error);
+      setDiscoveredNetworks([]);
+    } finally {
+      setLoadingNetworks(false);
     }
   };
 
@@ -1698,13 +1740,39 @@ export const MigrationPlanningWizard: React.FC<MigrationWizardProps> = ({
                             }}>
                               Source (VMware)
                             </div>
-                            <PurpleGlassInput
-                              label="VLAN ID"
-                              value={mapping.sourceVlan}
-                              onChange={(e) => handleUpdateNetworkMapping(mapping.id, { sourceVlan: e.target.value })}
-                              placeholder="e.g., 100"
-                              glass="none"
-                            />
+                            {loadingNetworks ? (
+                              <Spinner size="tiny" label="Loading networks..." />
+                            ) : discoveredNetworks.length > 0 ? (
+                              <PurpleGlassDropdown
+                                label="VLAN ID"
+                                value={mapping.sourceVlan}
+                                options={discoveredNetworks.map(net => ({
+                                  value: net.vlan_id.toString(),
+                                  label: `VLAN ${net.vlan_id} - ${net.network_name}${net.subnet ? ` (${net.subnet})` : ''} - ${net.vm_count} VMs`,
+                                }))}
+                                onChange={(value) => {
+                                  const vlanId = Array.isArray(value) ? value[0] : value;
+                                  if (!vlanId) return;
+                                  const network = discoveredNetworks.find(n => n.vlan_id.toString() === vlanId);
+                                  handleUpdateNetworkMapping(mapping.id, { 
+                                    sourceVlan: vlanId,
+                                    sourceSubnet: network?.subnet || ''
+                                  });
+                                }}
+                                placeholder="Select source VLAN"
+                                searchable
+                                glass="none"
+                              />
+                            ) : (
+                              <PurpleGlassInput
+                                label="VLAN ID"
+                                value={mapping.sourceVlan}
+                                onChange={(e) => handleUpdateNetworkMapping(mapping.id, { sourceVlan: e.target.value })}
+                                placeholder="e.g., 100"
+                                glass="none"
+                                helperText="Upload RVTools to auto-discover VLANs"
+                              />
+                            )}
                             <div style={{ marginTop: '8px' }}>
                               <PurpleGlassInput
                                 label="Subnet"

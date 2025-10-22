@@ -1217,6 +1217,171 @@ impl MigrationWizardService {
         })
     }
 
+    /// Discover networks from RVTools data for auto-populating VLAN dropdowns
+    /// Parses vPort and vNetwork tabs to extract VLAN IDs, network names, and subnets
+    pub async fn discover_networks(
+        &self,
+        project_id: &str,
+    ) -> Result<crate::models::migration_wizard_models::NetworkDiscoveryResponse> {
+        use crate::models::migration_wizard_models::{NetworkDiscoveryResponse, DiscoveredNetwork};
+        use calamine::{Reader, Xlsx, open_workbook, DataType};
+        use std::collections::HashMap;
+
+        // Get project to find RVTools file path
+        let project_record: Option<crate::models::migration_wizard_models::MigrationWizardProject> = self.db
+            .select(("migration_wizard_project", project_id))
+            .await
+            .context("Failed to fetch project")?;
+
+        let project = project_record.ok_or_else(|| anyhow::anyhow!("Project not found"))?;
+        
+        let file_path = project.rvtools_file_path
+            .ok_or_else(|| anyhow::anyhow!("No RVTools file associated with this project"))?;
+
+        // Parse RVTools Excel file
+        let mut workbook: Xlsx<_> = open_workbook(&file_path)
+            .context("Failed to open RVTools Excel file")?;
+
+        // Parse vPort sheet for VLAN IDs and port groups
+        let vport_range = workbook
+            .worksheet_range("vPort")
+            .context("vPort sheet not found")?
+            .context("Failed to read vPort sheet")?;
+
+        // Parse vNetwork sheet for VM network assignments and IP addresses
+        let vnetwork_range = workbook
+            .worksheet_range("vNetwork")
+            .ok()
+            .and_then(|r| r.ok());
+
+        // Build header map for vPort
+        let mut vport_headers: HashMap<String, usize> = HashMap::new();
+        if let Some(header_row) = vport_range.rows().next() {
+            for (idx, cell) in header_row.iter().enumerate() {
+                let header = cell.to_string().trim().to_string();
+                vport_headers.insert(header, idx);
+            }
+        }
+
+        // Parse vPort data to extract networks
+        let mut networks_map: HashMap<i32, DiscoveredNetwork> = HashMap::new();
+        let mut port_group_to_vlan: HashMap<String, i32> = HashMap::new();
+
+        for (row_idx, row) in vport_range.rows().enumerate() {
+            if row_idx == 0 { continue; } // Skip header
+
+            let get_string = |name: &str| -> Option<String> {
+                vport_headers
+                    .get(name)
+                    .and_then(|&idx| row.get(idx))
+                    .map(|cell| cell.to_string().trim().to_string())
+                    .filter(|s| !s.is_empty())
+            };
+
+            let get_int = |name: &str| -> Option<i32> {
+                get_string(name).and_then(|s| s.parse::<i32>().ok())
+            };
+
+            // Extract VLAN ID, Port Group name, and vSwitch
+            let vlan_id = match get_int("VLAN ID") {
+                Some(id) if id > 0 => id,
+                _ => continue, // Skip invalid VLANs
+            };
+
+            let port_group_name = match get_string("Port Group") {
+                Some(name) => name,
+                None => continue,
+            };
+
+            let vswitch_name = get_string("Switch").unwrap_or_else(|| "Unknown".to_string());
+
+            // Store port group to VLAN mapping
+            port_group_to_vlan.insert(port_group_name.clone(), vlan_id);
+
+            // Update or create network entry
+            networks_map.entry(vlan_id).or_insert_with(|| DiscoveredNetwork {
+                vlan_id,
+                network_name: port_group_name.clone(),
+                subnet: None,
+                gateway: None,
+                port_group_count: 0,
+                vm_count: 0,
+                switches: Vec::new(),
+            }).port_group_count += 1;
+
+            // Add vSwitch if not already present
+            let network = networks_map.get_mut(&vlan_id).unwrap();
+            if !network.switches.contains(&vswitch_name) {
+                network.switches.push(vswitch_name);
+            }
+        }
+
+        // Parse vNetwork sheet to count VMs per network and extract subnets
+        if let Some(vnetwork_range) = vnetwork_range {
+            let mut vnetwork_headers: HashMap<String, usize> = HashMap::new();
+            if let Some(header_row) = vnetwork_range.rows().next() {
+                for (idx, cell) in header_row.iter().enumerate() {
+                    let header = cell.to_string().trim().to_string();
+                    vnetwork_headers.insert(header, idx);
+                }
+            }
+
+            for (row_idx, row) in vnetwork_range.rows().enumerate() {
+                if row_idx == 0 { continue; } // Skip header
+
+                let get_string = |name: &str| -> Option<String> {
+                    vnetwork_headers
+                        .get(name)
+                        .and_then(|&idx| row.get(idx))
+                        .map(|cell| cell.to_string().trim().to_string())
+                        .filter(|s| !s.is_empty())
+                };
+
+                let network_name = match get_string("Network Name") {
+                    Some(name) => name,
+                    None => continue,
+                };
+
+                // Look up VLAN ID from port group mapping
+                if let Some(&vlan_id) = port_group_to_vlan.get(&network_name) {
+                    if let Some(network) = networks_map.get_mut(&vlan_id) {
+                        network.vm_count += 1;
+
+                        // Extract subnet from IP address if available
+                        if network.subnet.is_none() {
+                            if let Some(ip_addr) = get_string("IPv4 Address") {
+                                // Simple subnet extraction: assume /24 for now
+                                // In production, parse from Gateway/Subnet Mask columns if available
+                                if let Some(octets) = ip_addr.split('.').take(3).collect::<Vec<_>>().get(0..3) {
+                                    network.subnet = Some(format!("{}.0/24", octets.join(".")));
+                                }
+                            }
+                        }
+
+                        // Extract gateway if column exists
+                        if network.gateway.is_none() {
+                            network.gateway = get_string("Default Gateway");
+                        }
+                    }
+                }
+            }
+        }
+
+        // Convert to sorted vector
+        let mut networks: Vec<DiscoveredNetwork> = networks_map.into_values().collect();
+        networks.sort_by_key(|n| n.vlan_id);
+
+        let total_networks = networks.len() as i32;
+        let total_vlans = networks.iter().map(|n| n.vlan_id).collect::<std::collections::HashSet<_>>().len() as i32;
+
+        Ok(NetworkDiscoveryResponse {
+            project_id: project_id.to_string(),
+            networks,
+            total_networks,
+            total_vlans,
+        })
+    }
+
     /// Get network topology for visualization
     pub async fn get_network_topology(
         &self,
