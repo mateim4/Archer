@@ -46,6 +46,7 @@ import {
   DocumentRegular,
   ArrowDownloadRegular,
   DocumentPdfRegular,
+  ClockRegular,
 } from '@fluentui/react-icons';
 import {
   PurpleGlassDropdown,
@@ -289,6 +290,9 @@ export const MigrationPlanningWizard: React.FC<MigrationWizardProps> = ({
   const [generatingHLD, setGeneratingHLD] = useState(false);
   const [hldGenerated, setHldGenerated] = useState(false);
   const [hldDocumentUrl, setHldDocumentUrl] = useState<string | null>(null);
+
+  // Auto-save state
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
   
   // Load workload summary when filters change
   useEffect(() => {
@@ -310,6 +314,20 @@ export const MigrationPlanningWizard: React.FC<MigrationWizardProps> = ({
       loadDiscoveredNetworks();
     }
   }, [currentStep, selectedRVTools]);
+
+  // Load saved wizard state on mount
+  useEffect(() => {
+    loadWizardState();
+  }, []);
+
+  // Auto-save wizard state every 30 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      saveWizardState();
+    }, 30000); // 30 seconds
+
+    return () => clearInterval(interval);
+  }, [currentStep, selectedRVTools, clusterFilter, vmNamePattern, includePoweredOff, clusters, capacityAnalysis, networkMappings, showNetworkDiagram]);
   
   const loadWorkloadSummary = async () => {
     // TODO: Replace with actual API call to get filtered VM summary
@@ -457,6 +475,68 @@ export const MigrationPlanningWizard: React.FC<MigrationWizardProps> = ({
       setDiscoveredNetworks([]);
     } finally {
       setLoadingNetworks(false);
+    }
+  };
+
+  // Auto-save wizard state to database
+  const saveWizardState = async () => {
+    if (!projectId) return;
+
+    const stateData = {
+      current_step: currentStep,
+      selected_rvtools_id: selectedRVTools || null,
+      cluster_filter: clusterFilter || null,
+      vm_name_pattern: vmNamePattern || null,
+      include_powered_off: includePoweredOff,
+      clusters_configured: clusters.length > 0,
+      total_clusters: clusters.length,
+      capacity_analyzed: capacityAnalysis !== null,
+      capacity_analysis_result: capacityAnalysis || null,
+      network_mappings_count: networkMappings.length,
+      network_diagram_visible: showNetworkDiagram,
+    };
+
+    try {
+      const response = await fetch(`/api/v1/migration-wizard/projects/${projectId}/wizard-state`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(stateData),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setLastSaved(new Date(data.last_saved_at));
+        console.log('Wizard state saved successfully');
+      } else {
+        console.error('Failed to save wizard state:', await response.text());
+      }
+    } catch (error) {
+      console.error('Error saving wizard state:', error);
+    }
+  };
+
+  // Load saved wizard state from database
+  const loadWizardState = async () => {
+    if (!projectId) return;
+
+    try {
+      const response = await fetch(`/api/v1/migration-wizard/projects/${projectId}/wizard-state`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.state) {
+          const state = data.state;
+          setCurrentStep(state.current_step);
+          setSelectedRVTools(state.selected_rvtools_id || '');
+          setClusterFilter(state.cluster_filter || '');
+          setVMNamePattern(state.vm_name_pattern || '');
+          setIncludePoweredOff(state.include_powered_off);
+          setShowNetworkDiagram(state.network_diagram_visible);
+          setLastSaved(new Date(state.last_saved_at));
+          console.log('Wizard state loaded successfully');
+        }
+      }
+    } catch (error) {
+      console.error('Error loading wizard state:', error);
     }
   };
 
@@ -2317,9 +2397,25 @@ export const MigrationPlanningWizard: React.FC<MigrationWizardProps> = ({
         <DialogBody style={{ padding: '0' }}>
           {/* Header */}
           <div className={styles.wizardHeader}>
-            <DialogTitle className={styles.wizardTitle}>
-              Migration Planning Wizard
-            </DialogTitle>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1 }}>
+              <DialogTitle className={styles.wizardTitle}>
+                Migration Planning Wizard
+              </DialogTitle>
+              {lastSaved && (
+                <div style={{ 
+                  fontSize: '12px', 
+                  color: tokens.colorNeutralForeground3,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                }}>
+                  <ClockRegular style={{ fontSize: '14px' }} />
+                  Last saved: {new Date().getTime() - lastSaved.getTime() < 60000 
+                    ? 'just now' 
+                    : `${Math.floor((new Date().getTime() - lastSaved.getTime()) / 60000)} min ago`}
+                </div>
+              )}
+            </div>
             <Button
               appearance="subtle"
               icon={<DismissRegular />}

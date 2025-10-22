@@ -341,6 +341,91 @@ impl MigrationWizardService {
     }
 
     // =========================================================================
+    // WIZARD STATE PERSISTENCE
+    // =========================================================================
+
+    /// Save wizard state snapshot for auto-save and recovery
+    pub async fn save_wizard_state(
+        &self,
+        project_id: &str,
+        request: SaveWizardStateRequest,
+    ) -> Result<WizardStateSaveResponse> {
+        // Verify project exists
+        let _project = self.get_project(project_id).await?;
+
+        let snapshot = WizardStateSnapshot {
+            id: None,
+            project_id: project_id.to_string(),
+            current_step: request.current_step,
+            selected_rvtools_id: request.selected_rvtools_id,
+            cluster_filter: request.cluster_filter,
+            vm_name_pattern: request.vm_name_pattern,
+            include_powered_off: request.include_powered_off,
+            clusters_configured: request.clusters_configured,
+            total_clusters: request.total_clusters,
+            capacity_analyzed: request.capacity_analyzed,
+            capacity_analysis_result: request.capacity_analysis_result,
+            network_mappings_count: request.network_mappings_count,
+            network_diagram_visible: request.network_diagram_visible,
+            last_saved_at: Utc::now(),
+            created_at: Utc::now(),
+        };
+
+        // Delete existing snapshot for this project (keep only latest)
+        let _: Vec<WizardStateSnapshot> = self
+            .db
+            .query("DELETE wizard_state_snapshot WHERE project_id = $project_id")
+            .bind(("project_id", project_id))
+            .await
+            .context("Failed to delete old wizard state")?
+            .take(0)
+            .unwrap_or_default();
+
+        // Create new snapshot
+        let created: Vec<WizardStateSnapshot> = self
+            .db
+            .create("wizard_state_snapshot")
+            .content(&snapshot)
+            .await
+            .context("Failed to save wizard state")?;
+
+        let saved_snapshot = created
+            .into_iter()
+            .next()
+            .ok_or_else(|| anyhow::anyhow!("No snapshot returned after save"))?;
+
+        // Update project's wizard_step and updated_at
+        let update_data = serde_json::json!({
+            "wizard_step": request.current_step,
+            "updated_at": Utc::now(),
+        });
+        self.update_project(project_id, update_data).await?;
+
+        Ok(WizardStateSaveResponse {
+            success: true,
+            last_saved_at: saved_snapshot.last_saved_at,
+            message: "Wizard state saved successfully".to_string(),
+        })
+    }
+
+    /// Load wizard state snapshot for recovery
+    pub async fn load_wizard_state(
+        &self,
+        project_id: &str,
+    ) -> Result<Option<WizardStateSnapshot>> {
+        let snapshots: Vec<WizardStateSnapshot> = self
+            .db
+            .query("SELECT * FROM wizard_state_snapshot WHERE project_id = $project_id ORDER BY last_saved_at DESC LIMIT 1")
+            .bind(("project_id", project_id))
+            .await
+            .context("Failed to load wizard state")?
+            .take(0)
+            .context("Failed to parse wizard state")?;
+
+        Ok(snapshots.into_iter().next())
+    }
+
+    // =========================================================================
     // CLUSTER MANAGEMENT
     // =========================================================================
 

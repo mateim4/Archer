@@ -44,6 +44,73 @@ pub enum ProjectStatus {
 }
 
 // =============================================================================
+// WIZARD STATE PERSISTENCE MODELS
+// =============================================================================
+
+/// Wizard state snapshot for auto-save and recovery
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct WizardStateSnapshot {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<Thing>,
+    pub project_id: String,
+    pub current_step: i32,
+    
+    // Step 1: Source Selection state
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub selected_rvtools_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub cluster_filter: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub vm_name_pattern: Option<String>,
+    pub include_powered_off: bool,
+    
+    // Step 2: Destination Config state (cluster IDs stored separately in database)
+    pub clusters_configured: bool,
+    pub total_clusters: i32,
+    
+    // Step 3: Capacity Analysis state
+    pub capacity_analyzed: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub capacity_analysis_result: Option<serde_json::Value>,
+    
+    // Step 4: Network Configuration state (mappings stored separately in database)
+    pub network_mappings_count: i32,
+    pub network_diagram_visible: bool,
+    
+    // Metadata
+    pub last_saved_at: DateTime<Utc>,
+    pub created_at: DateTime<Utc>,
+}
+
+/// Request to save wizard state
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SaveWizardStateRequest {
+    pub current_step: i32,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub selected_rvtools_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub cluster_filter: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub vm_name_pattern: Option<String>,
+    pub include_powered_off: bool,
+    pub clusters_configured: bool,
+    pub total_clusters: i32,
+    pub capacity_analyzed: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub capacity_analysis_result: Option<serde_json::Value>,
+    pub network_mappings_count: i32,
+    pub network_diagram_visible: bool,
+}
+
+/// Response when state saved
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct WizardStateSaveResponse {
+    pub success: bool,
+    pub last_saved_at: DateTime<Utc>,
+    pub message: String,
+}
+
+// =============================================================================
 // VM MODELS
 // =============================================================================
 

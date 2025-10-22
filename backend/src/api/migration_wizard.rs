@@ -24,6 +24,8 @@ pub fn create_migration_wizard_router(db: Arc<Database>) -> Router {
         .route("/projects/:id", get(get_project))
         .route("/projects/:id/rvtools", post(upload_rvtools))
         .route("/projects/:id/vms", get(get_project_vms))
+        .route("/projects/:id/wizard-state", post(save_wizard_state))
+        .route("/projects/:id/wizard-state", get(load_wizard_state))
         .route("/projects/:id/strategy-analysis", get(analyze_project_strategy))
         .route("/projects/:id/strategy-stats", get(get_project_strategy_stats))
         .route("/projects/:id/clusters", post(create_cluster))
@@ -314,6 +316,60 @@ async fn upload_rvtools(
 // =============================================================================
 // VM MANAGEMENT
 // =============================================================================
+
+/// Save wizard state snapshot
+/// POST /api/v1/migration-wizard/projects/:id/wizard-state
+async fn save_wizard_state(
+    State(db): State<Arc<Database>>,
+    Path(project_id): Path<String>,
+    Json(payload): Json<SaveWizardStateRequest>,
+) -> Result<impl IntoResponse, (StatusCode, Json<serde_json::Value>)> {
+    tracing::info!("Saving wizard state for project: {}", project_id);
+
+    let service = MigrationWizardService::new(db.as_ref().clone());
+    
+    match service.save_wizard_state(&project_id, payload).await {
+        Ok(response) => Ok((StatusCode::OK, Json(response))),
+        Err(e) => {
+            tracing::error!("Failed to save wizard state: {}", e);
+            Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(json!({
+                    "error": "Failed to save wizard state",
+                    "message": e.to_string()
+                })),
+            ))
+        }
+    }
+}
+
+/// Load wizard state snapshot
+/// GET /api/v1/migration-wizard/projects/:id/wizard-state
+async fn load_wizard_state(
+    State(db): State<Arc<Database>>,
+    Path(project_id): Path<String>,
+) -> Result<impl IntoResponse, (StatusCode, Json<serde_json::Value>)> {
+    tracing::info!("Loading wizard state for project: {}", project_id);
+
+    let service = MigrationWizardService::new(db.as_ref().clone());
+    
+    match service.load_wizard_state(&project_id).await {
+        Ok(snapshot) => Ok((StatusCode::OK, Json(json!({
+            "success": true,
+            "state": snapshot,
+        })))),
+        Err(e) => {
+            tracing::error!("Failed to load wizard state: {}", e);
+            Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(json!({
+                    "error": "Failed to load wizard state",
+                    "message": e.to_string()
+                })),
+            ))
+        }
+    }
+}
 
 /// Get VMs for a project
 /// GET /api/v1/migration-wizard/projects/:id/vms?cluster=Production&limit=100
