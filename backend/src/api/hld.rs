@@ -8,14 +8,17 @@
 
 use axum::{
     extract::{Path, State},
-    http::StatusCode,
+    http::{StatusCode, header},
     response::{IntoResponse, Response},
     Json,
+    body::Body,
 };
 use serde_json::json;
 use surrealdb::sql::Thing;
+use chrono::Utc;
 
 use crate::models::hld::*;
+use crate::services::word_generator::WordGenerator;
 use crate::AppState;
 
 // ============================================================================
@@ -563,19 +566,167 @@ pub async fn update_variable(
 
 /// POST /api/v1/projects/:project_id/hld/export - Export HLD to Word document
 pub async fn export_hld(
-    State(_state): State<AppState>,
-    Path(_project_id): Path<String>,
+    State(state): State<AppState>,
+    Path(project_id): Path<String>,
 ) -> ApiResult<Response> {
-    // TODO: Implement in Week 3
-    // 1. Get HLD project and variables
-    // 2. Get template and sections
-    // 3. Render template with variables
+    let db = &state.db;
+    
+    // 1. Get HLD project
+    let hld_project_query = format!(
+        "SELECT * FROM hld_projects WHERE project_id = type::thing('projects', '{}')",
+        project_id
+    );
+    let mut hld_result = db
+        .query(&hld_project_query)
+        .await
+        .map_err(|e| HLDApiError::DatabaseError(e.to_string()))?;
+    
+    let hld_projects: Vec<HLDProject> = hld_result
+        .take(0)
+        .map_err(|e| HLDApiError::DatabaseError(e.to_string()))?;
+    
+    if hld_projects.is_empty() {
+        return Err(HLDApiError::NotFound(
+            "HLD project not found - create one first".to_string(),
+        ));
+    }
+    
+    let hld_project = &hld_projects[0];
+    
+    // 2. Get HLD variables
+    let vars_query = format!(
+        "SELECT * FROM hld_variables WHERE hld_project_id = $hld_project_id ORDER BY variable_name"
+    );
+    let mut vars_result = db
+        .query(&vars_query)
+        .bind(("hld_project_id", hld_project.id.clone()))
+        .await
+        .map_err(|e| HLDApiError::DatabaseError(e.to_string()))?;
+    
+    let variables: Vec<HLDVariable> = vars_result
+        .take(0)
+        .map_err(|e| HLDApiError::DatabaseError(e.to_string()))?;
+    
+    // 3. Get section definitions (enabled sections only)
+    // For now, use the enabled sections from the project
+    let section_order = hld_project.section_order.clone().unwrap_or_default();
+    
+    // Create section definitions from enabled sections
+    let mut sections = Vec::new();
+    for (index, section_id) in section_order.iter().enumerate() {
+        sections.push(SectionDefinition {
+            id: None,
+            section_id: section_id.clone(),
+            section_name: section_id.clone(),
+            display_name: section_id.replace('_', " ").to_uppercase(),
+            description: String::new(),
+            required: false,
+            enabled: true,
+            order_index: index as i32,
+            depends_on: Vec::new(),
+            created_at: Utc::now(),
+        });
+    }
+    
+    // If no sections defined, use default sections
+    if sections.is_empty() {
+        sections = vec![
+            SectionDefinition {
+                id: None,
+                section_id: "executive_summary".to_string(),
+                section_name: "executive_summary".to_string(),
+                display_name: "Executive Summary".to_string(),
+                description: String::new(),
+                required: true,
+                enabled: true,
+                order_index: 0,
+                depends_on: Vec::new(),
+                created_at: Utc::now(),
+            },
+            SectionDefinition {
+                id: None,
+                section_id: "infrastructure_overview".to_string(),
+                section_name: "infrastructure_overview".to_string(),
+                display_name: "Infrastructure Overview".to_string(),
+                description: String::new(),
+                required: true,
+                enabled: true,
+                order_index: 1,
+                depends_on: Vec::new(),
+                created_at: Utc::now(),
+            },
+            SectionDefinition {
+                id: None,
+                section_id: "compute_design".to_string(),
+                section_name: "compute_design".to_string(),
+                display_name: "Compute Design".to_string(),
+                description: String::new(),
+                required: true,
+                enabled: true,
+                order_index: 2,
+                depends_on: Vec::new(),
+                created_at: Utc::now(),
+            },
+            SectionDefinition {
+                id: None,
+                section_id: "storage_design".to_string(),
+                section_name: "storage_design".to_string(),
+                display_name: "Storage Design".to_string(),
+                description: String::new(),
+                required: true,
+                enabled: true,
+                order_index: 3,
+                depends_on: Vec::new(),
+                created_at: Utc::now(),
+            },
+            SectionDefinition {
+                id: None,
+                section_id: "network_design".to_string(),
+                section_name: "network_design".to_string(),
+                display_name: "Network Design".to_string(),
+                description: String::new(),
+                required: true,
+                enabled: true,
+                order_index: 4,
+                depends_on: Vec::new(),
+                created_at: Utc::now(),
+            },
+            SectionDefinition {
+                id: None,
+                section_id: "migration_strategy".to_string(),
+                section_name: "migration_strategy".to_string(),
+                display_name: "Migration Strategy".to_string(),
+                description: String::new(),
+                required: true,
+                enabled: true,
+                order_index: 5,
+                depends_on: Vec::new(),
+                created_at: Utc::now(),
+            },
+        ];
+    }
+    
     // 4. Generate Word document
-    // 5. Return file stream
-
-    Err(HLDApiError::ValidationError(
-        "Export functionality not yet implemented (Week 3)".to_string(),
-    ))
+    let mut generator = WordGenerator::new();
+    let docx_bytes = generator
+        .generate_hld(hld_project, &variables, &sections)
+        .map_err(|e| HLDApiError::DatabaseError(format!("Word generation failed: {}", e)))?;
+    
+    // 5. Return as downloadable file
+    let filename = format!(
+        "{}-HLD-{}.docx",
+        hld_project.project_name.replace(' ', "-"),
+        Utc::now().format("%Y%m%d")
+    );
+    
+    let response = Response::builder()
+        .status(StatusCode::OK)
+        .header(header::CONTENT_TYPE, "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+        .header(header::CONTENT_DISPOSITION, format!("attachment; filename=\"{}\"", filename))
+        .body(Body::from(docx_bytes))
+        .map_err(|e| HLDApiError::DatabaseError(format!("Failed to build response: {}", e)))?;
+    
+    Ok(response)
 }
 
 /// POST /api/v1/projects/:project_id/hld/autofill-preview - Preview RVTools auto-fill

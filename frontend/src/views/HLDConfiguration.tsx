@@ -5,6 +5,7 @@ import { PurpleGlassCard, PurpleGlassButton } from '@/components/ui';
 import { VariableEditor } from '@/components/hld/VariableEditor';
 import { RVToolsAutoFill } from '@/components/hld/RVToolsAutoFill';
 import { SectionManager } from '@/components/hld/SectionManager';
+import { HLDPreview } from '@/components/hld/HLDPreview';
 import { useHLDVariables } from '@/hooks/useHLDVariables';
 import { useHLDSections } from '@/hooks/useHLDSections';
 import { SaveRegular, ArrowSyncRegular } from '@fluentui/react-icons';
@@ -151,17 +152,25 @@ export function HLDConfiguration() {
           )}
 
           {selectedTab === 'preview' && (
-            <PurpleGlassCard glass variant="subtle">
-              <div style={{ textAlign: 'center', padding: '48px 24px' }}>
-                <h3 style={{ marginBottom: '8px' }}>HLD Preview</h3>
-                <p style={{ color: 'var(--colorNeutralForeground3)' }}>
-                  Preview the generated High-Level Design document
-                </p>
-                <p style={{ fontSize: '12px', color: 'var(--colorNeutralForeground3)', marginTop: '16px' }}>
-                  Coming soon: Week 3
-                </p>
-              </div>
-            </PurpleGlassCard>
+            <HLDPreview
+              projectId={projectId}
+              variables={Object.values(variables)
+                .flat()
+                .map(({ definition, value }) => ({
+                  variable_name: definition.variable_name,
+                  display_name: definition.display_name,
+                  variable_value: value?.variable_value || null,
+                  variable_type: definition.variable_type,
+                  section: definition.section_id,
+                  is_required: definition.validation.required,
+                }))}
+              hldProject={{
+                id: '',
+                project_id: projectId,
+                project_name: `Project ${projectId}`,
+                section_order: sections.map(s => s.section_id),
+              }}
+            />
           )}
         </div>
       </PurpleGlassCard>
