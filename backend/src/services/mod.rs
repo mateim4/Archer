@@ -20,3 +20,4 @@ pub mod hld_generation_service;
 
 // HLD Generation Services (Week 1)
 pub mod variable_validator;
+pub mod variable_definitions;
