@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { Tab, TabList, TabValue } from '@fluentui/react-components';
 import { PurpleGlassCard, PurpleGlassButton } from '@/components/ui';
 import { VariableEditor } from '@/components/hld/VariableEditor';
+import { RVToolsAutoFill } from '@/components/hld/RVToolsAutoFill';
 import { useHLDVariables } from '@/hooks/useHLDVariables';
 import { SaveRegular, ArrowSyncRegular } from '@fluentui/react-icons';
 
@@ -125,20 +126,10 @@ export function HLDConfiguration() {
           )}
 
           {selectedTab === 'rvtools' && (
-            <PurpleGlassCard glass variant="subtle">
-              <div style={{ textAlign: 'center', padding: '48px 24px' }}>
-                <h3 style={{ marginBottom: '8px' }}>RVTools Auto-Fill</h3>
-                <p style={{ color: 'var(--colorNeutralForeground3)', marginBottom: '24px' }}>
-                  Automatically populate HLD variables from RVTools data
-                </p>
-                <PurpleGlassButton variant="primary">
-                  Preview Auto-Fill Changes
-                </PurpleGlassButton>
-                <p style={{ fontSize: '12px', color: 'var(--colorNeutralForeground3)', marginTop: '16px' }}>
-                  Coming soon: Task 4 continuation
-                </p>
-              </div>
-            </PurpleGlassCard>
+            <RVToolsAutoFill 
+              projectId={projectId}
+              onApply={refreshVariables}
+            />
           )}
 
           {selectedTab === 'sections' && (
