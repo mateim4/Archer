@@ -4,7 +4,9 @@ import { Tab, TabList, TabValue } from '@fluentui/react-components';
 import { PurpleGlassCard, PurpleGlassButton } from '@/components/ui';
 import { VariableEditor } from '@/components/hld/VariableEditor';
 import { RVToolsAutoFill } from '@/components/hld/RVToolsAutoFill';
+import { SectionManager } from '@/components/hld/SectionManager';
 import { useHLDVariables } from '@/hooks/useHLDVariables';
+import { useHLDSections } from '@/hooks/useHLDSections';
 import { SaveRegular, ArrowSyncRegular } from '@fluentui/react-icons';
 
 // ============================================================================
@@ -24,6 +26,13 @@ export function HLDConfiguration() {
     refreshVariables,
     hasChanges,
   } = useHLDVariables(projectId || '');
+  
+  const {
+    sections,
+    loading: sectionsLoading,
+    toggleSection,
+    reorderSections,
+  } = useHLDSections(projectId || '');
 
   const [selectedTab, setSelectedTab] = useState<TabValue>('variables');
   const [saving, setSaving] = useState(false);
@@ -133,17 +142,12 @@ export function HLDConfiguration() {
           )}
 
           {selectedTab === 'sections' && (
-            <PurpleGlassCard glass variant="subtle">
-              <div style={{ textAlign: 'center', padding: '48px 24px' }}>
-                <h3 style={{ marginBottom: '8px' }}>Section Management</h3>
-                <p style={{ color: 'var(--colorNeutralForeground3)' }}>
-                  Enable/disable and reorder document sections
-                </p>
-                <p style={{ fontSize: '12px', color: 'var(--colorNeutralForeground3)', marginTop: '16px' }}>
-                  Coming soon: Task 5
-                </p>
-              </div>
-            </PurpleGlassCard>
+            <SectionManager
+              sections={sections}
+              onToggle={toggleSection}
+              onReorder={reorderSections}
+              loading={sectionsLoading}
+            />
           )}
 
           {selectedTab === 'preview' && (
