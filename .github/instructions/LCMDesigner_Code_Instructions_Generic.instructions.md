@@ -359,6 +359,7 @@ git push origin main
 1. Use existing design system components if available
 2. Follow established patterns from other views
 3. Maintain FLUENT UI 2 and glassmorphic aesthetics
+4. Use design tokens for all styling and never local overrides or hardcoded values - unless explicitly asked to do so
 
 ### Error Prevention
 - Always use absolute paths for file operations
