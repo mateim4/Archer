@@ -580,19 +580,184 @@ pub async fn export_hld(
 
 /// POST /api/v1/projects/:project_id/hld/autofill-preview - Preview RVTools auto-fill
 pub async fn autofill_preview(
-    State(_state): State<AppState>,
-    Path(_project_id): Path<String>,
+    State(state): State<AppState>,
+    Path(project_id): Path<String>,
 ) -> ApiResult<Json<AutoFillPreview>> {
-    // TODO: Implement in Week 2
-    // 1. Get RVTools data for project
-    // 2. Map RVTools to HLD variables
-    // 3. Get current variable values
-    // 4. Generate diff (what will change)
-    // 5. Return preview with confidence levels
-
-    Err(HLDApiError::ValidationError(
-        "Auto-fill preview not yet implemented (Week 2)".to_string(),
-    ))
+    use crate::services::rvtools_hld_mapper::{RVToolsHLDMapper, MappedVariable};
+    use crate::models::project_models::{RvToolsUpload, RvToolsData};
+    
+    let db = &state.db;
+    
+    // 1. Get HLD project
+    let hld_project_query = format!(
+        "SELECT * FROM hld_projects WHERE project_id = type::thing('projects', '{}')",
+        project_id
+    );
+    let mut hld_result = db
+        .query(&hld_project_query)
+        .await
+        .map_err(|e| HLDApiError::DatabaseError(e.to_string()))?;
+    
+    let hld_projects: Vec<HLDProject> = hld_result
+        .take(0)
+        .map_err(|e| HLDApiError::DatabaseError(e.to_string()))?;
+    
+    if hld_projects.is_empty() {
+        return Err(HLDApiError::NotFound(
+            "HLD project not found - create one first".to_string(),
+        ));
+    }
+    
+    let hld_project = &hld_projects[0];
+    
+    // 2. Get latest RVTools upload for this project
+    let rvtools_query = format!(
+        "SELECT * FROM rvtools_uploads WHERE project_id = type::thing('projects', '{}') ORDER BY uploaded_at DESC LIMIT 1",
+        project_id
+    );
+    let mut rvtools_result = db
+        .query(&rvtools_query)
+        .await
+        .map_err(|e| HLDApiError::DatabaseError(e.to_string()))?;
+    
+    let rvtools_uploads: Vec<RvToolsUpload> = rvtools_result
+        .take(0)
+        .map_err(|e| HLDApiError::DatabaseError(e.to_string()))?;
+    
+    if rvtools_uploads.is_empty() {
+        return Err(HLDApiError::NotFound(
+            "No RVTools data found for project - upload RVTools Excel first".to_string(),
+        ));
+    }
+    
+    let rvtools_upload = &rvtools_uploads[0];
+    
+    // 3. Get RVTools data
+    let rvtools_data_query = format!("SELECT * FROM rvtools_data WHERE upload_id = $upload_id");
+    let mut data_result = db
+        .query(&rvtools_data_query)
+        .bind(("upload_id", rvtools_upload.id.clone()))
+        .await
+        .map_err(|e| HLDApiError::DatabaseError(e.to_string()))?;
+    
+    let rvtools_data_list: Vec<RvToolsData> = data_result
+        .take(0)
+        .map_err(|e| HLDApiError::DatabaseError(e.to_string()))?;
+    
+    if rvtools_data_list.is_empty() {
+        return Err(HLDApiError::NotFound(
+            "RVTools data not found".to_string(),
+        ));
+    }
+    
+    // 4. Map RVTools data to HLD variables
+    let mapper = RVToolsHLDMapper::new(&rvtools_data_list);
+    let mapped_variables = mapper.map_to_hld_variables();
+    let overall_confidence = mapper.calculate_overall_confidence(&mapped_variables);
+    
+    // 5. Get current HLD variables
+    let current_vars_query = format!(
+        "SELECT * FROM hld_variables WHERE hld_project_id = $hld_project_id"
+    );
+    let mut vars_result = db
+        .query(&current_vars_query)
+        .bind(("hld_project_id", hld_project.id.clone()))
+        .await
+        .map_err(|e| HLDApiError::DatabaseError(e.to_string()))?;
+    
+    let current_variables: Vec<HLDVariable> = vars_result
+        .take(0)
+        .map_err(|e| HLDApiError::DatabaseError(e.to_string()))?;
+    
+    // 6. Get variable definitions for display names
+    let var_defs_query = "SELECT * FROM variable_definitions";
+    let mut var_defs_result = db
+        .query(var_defs_query)
+        .await
+        .map_err(|e| HLDApiError::DatabaseError(e.to_string()))?;
+    
+    let var_definitions: Vec<VariableDefinition> = var_defs_result
+        .take(0)
+        .map_err(|e| HLDApiError::DatabaseError(e.to_string()))?;
+    
+    // 7. Generate change preview
+    let mut changes = Vec::new();
+    let mut high_confidence = 0;
+    let mut medium_confidence = 0;
+    let mut low_confidence = 0;
+    let mut errors = 0;
+    
+    for (var_name, mapped) in &mapped_variables {
+        let current_value = current_variables
+            .iter()
+            .find(|v| &v.variable_name == var_name)
+            .and_then(|v| v.variable_value.clone());
+        
+        let display_name = var_definitions
+            .iter()
+            .find(|v| &v.variable_name == var_name)
+            .map(|v| v.display_name.clone())
+            .unwrap_or_else(|| var_name.clone());
+        
+        let confidence_str = match mapped.confidence {
+            VariableConfidence::High => {
+                high_confidence += 1;
+                "high"
+            }
+            VariableConfidence::Medium => {
+                medium_confidence += 1;
+                "medium"
+            }
+            VariableConfidence::Low => {
+                low_confidence += 1;
+                "low"
+            }
+            VariableConfidence::None => "none",
+        };
+        
+        if mapped.error_message.is_some() {
+            errors += 1;
+        }
+        
+        changes.push(VariableChange {
+            name: var_name.clone(),
+            display_name,
+            current_value: current_value.clone(),
+            proposed_value: mapped.value.clone(),
+            confidence: confidence_str.to_string(),
+            error: mapped.error_message.clone(),
+        });
+    }
+    
+    // Sort: high confidence first, then medium, then low
+    changes.sort_by(|a, b| {
+        let a_conf = match a.confidence.as_str() {
+            "high" => 3,
+            "medium" => 2,
+            "low" => 1,
+            _ => 0,
+        };
+        let b_conf = match b.confidence.as_str() {
+            "high" => 3,
+            "medium" => 2,
+            "low" => 1,
+            _ => 0,
+        };
+        b_conf.cmp(&a_conf)
+    });
+    
+    let total_changes = changes.iter().filter(|c| c.current_value != c.proposed_value).count();
+    
+    let preview = AutoFillPreview {
+        changes,
+        total_changes,
+        high_confidence,
+        medium_confidence,
+        low_confidence,
+        errors,
+    };
+    
+    Ok(Json(preview))
 }
 
 // ============================================================================
