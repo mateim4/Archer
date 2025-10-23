@@ -24,3 +24,6 @@ pub mod variable_definitions;
 
 // HLD Generation Services (Week 2)
 pub mod rvtools_hld_mapper;
+
+// HLD Generation Services (Week 3)
+pub mod word_generator;

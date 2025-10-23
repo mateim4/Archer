@@ -600,3 +600,33 @@ mod tests {
         assert!(rule.depends_on.is_empty());
     }
 }
+
+// ============================================================================
+// SECTION DEFINITION (for Word Generator)
+// ============================================================================
+
+/// Section definition with enabled state for document generation
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SectionDefinition {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<Thing>,
+
+    pub section_id: String,
+    pub section_name: String,
+    pub display_name: String,
+    pub description: String,
+
+    #[serde(default)]
+    pub required: bool,
+
+    #[serde(default = "default_true")]
+    pub enabled: bool,
+
+    #[serde(default)]
+    pub order_index: i32,
+
+    #[serde(default)]
+    pub depends_on: Vec<String>,
+
+    pub created_at: DateTime<Utc>,
+}
