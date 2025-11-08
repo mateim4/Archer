@@ -425,7 +425,7 @@ const ClusterStrategyManagerView: React.FC = () => {
                 style={{
                   marginTop: '4px',
                   padding: '8px',
-                  borderRadius: '8px',
+                  borderRadius: 'var(--borderRadiusMedium)',
                   color: 'var(--colorBrandForeground1)',
                   border: 'none',
                   background: 'transparent',
@@ -435,7 +435,7 @@ const ClusterStrategyManagerView: React.FC = () => {
                 onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--colorNeutralBackground3)'}
                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
               >
-                <ArrowLeftRegular className="w-5 h-5" />
+                <ArrowLeftRegular style={{ width: '20px', height: '20px' }} />
               </button>
               
               <div>
@@ -459,19 +459,19 @@ const ClusterStrategyManagerView: React.FC = () => {
                   color: 'var(--colorNeutralForeground2)'
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <CalendarRegular className="w-4 h-4" />
+                    <CalendarRegular style={{ width: '16px', height: '16px' }} />
                     <span>{formatDate(activity.start_date)} - {formatDate(activity.end_date)}</span>
                   </div>
                   
                   {activity.assignees && activity.assignees.length > 0 && (
-                    <div className="flex items-center gap-2">
-                      <PeopleRegular className="w-4 h-4" />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <PeopleRegular style={{ width: '16px', height: '16px' }} />
                       <span>{activity.assignees.join(', ')}</span>
                     </div>
                   )}
                   
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <ServerRegular className="w-4 h-4" />
+                    <ServerRegular style={{ width: '16px', height: '16px' }} />
                     <span>{strategies.length} cluster{strategies.length !== 1 ? 's' : ''}</span>
                   </div>
                 </div>
@@ -515,13 +515,14 @@ const ClusterStrategyManagerView: React.FC = () => {
               width: '100%',
               height: '8px',
               backgroundColor: 'var(--colorNeutralBackground3)',
-              borderRadius: '4px',
+              borderRadius: 'var(--borderRadiusSmall)',
               overflow: 'hidden'
             }}>
               <div style={{
                 width: `${activity.progress}%`,
                 height: '100%',
                 backgroundColor: 'var(--colorBrandBackground)',
+                borderRadius: 'var(--borderRadiusSmall)',
                 transition: 'width 0.3s ease'
               }} />
             </div>

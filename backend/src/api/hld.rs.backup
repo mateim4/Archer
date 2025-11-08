@@ -54,9 +54,10 @@ type ApiResult<T> = Result<T, HLDApiError>;
 
 /// POST /api/v1/hld/templates - Create new HLD template
 pub async fn create_template(
-    State(db): State<AppState>,
+    State(state): State<AppState>,
     Json(payload): Json<CreateHLDTemplateRequest>,
 ) -> ApiResult<Json<HLDTemplate>> {
+    let db = &state.db;
 
     let template = HLDTemplate {
         id: None,
@@ -85,8 +86,9 @@ pub async fn create_template(
 
 /// GET /api/v1/hld/templates - List all HLD templates
 pub async fn list_templates(
-    State(db): State<AppState>,
+    State(state): State<AppState>,
 ) -> ApiResult<Json<Vec<HLDTemplate>>> {
+    let db = &state.db;
 
     let templates: Vec<HLDTemplate> = db
         .query("SELECT * FROM hld_templates WHERE is_active = true ORDER BY created_at DESC")
@@ -100,9 +102,10 @@ pub async fn list_templates(
 
 /// GET /api/v1/hld/templates/:id - Get single HLD template
 pub async fn get_template(
-    State(db): State<AppState>,
+    State(state): State<AppState>,
     Path(id): Path<String>,
 ) -> ApiResult<Json<HLDTemplate>> {
+    let db = &state.db;
 
     let template: Option<HLDTemplate> = db
         .select(("hld_templates", id.as_str()))
@@ -116,10 +119,11 @@ pub async fn get_template(
 
 /// PUT /api/v1/hld/templates/:id - Update HLD template
 pub async fn update_template(
-    State(db): State<AppState>,
+    State(state): State<AppState>,
     Path(id): Path<String>,
     Json(payload): Json<CreateHLDTemplateRequest>,
 ) -> ApiResult<Json<HLDTemplate>> {
+    let db = &state.db;
 
     // Check if template exists
     let existing: Option<HLDTemplate> = db
@@ -155,9 +159,10 @@ pub async fn update_template(
 
 /// DELETE /api/v1/hld/templates/:id - Delete HLD template (soft delete)
 pub async fn delete_template(
-    State(db): State<AppState>,
+    State(state): State<AppState>,
     Path(id): Path<String>,
 ) -> ApiResult<StatusCode> {
+    let db = &state.db;
 
     // Soft delete by setting is_active = false
     let _updated: Option<HLDTemplate> = db
@@ -173,9 +178,10 @@ pub async fn delete_template(
 
 /// GET /api/v1/hld/templates/:id/sections - Get all sections for a template
 pub async fn get_template_sections(
-    State(db): State<AppState>,
+    State(state): State<AppState>,
     Path(template_id): Path<String>,
 ) -> ApiResult<Json<Vec<HLDSection>>> {
+    let db = &state.db;
 
     let sections: Vec<HLDSection> = db
         .query("SELECT * FROM hld_sections WHERE template_id = $template ORDER BY order ASC")
@@ -194,10 +200,11 @@ pub async fn get_template_sections(
 
 /// POST /api/v1/projects/:project_id/hld - Create HLD project for a project
 pub async fn create_hld_project(
-    State(db): State<AppState>,
+    State(state): State<AppState>,
     Path(project_id): Path<String>,
     Json(payload): Json<CreateHLDProjectRequest>,
 ) -> ApiResult<Json<HLDProject>> {
+    let db = &state.db;
 
     // Check if HLD project already exists for this project
     let existing: Vec<HLDProject> = db
@@ -274,9 +281,10 @@ pub async fn create_hld_project(
 
 /// GET /api/v1/projects/:project_id/hld - Get HLD project for a project
 pub async fn get_hld_project(
-    State(db): State<AppState>,
+    State(state): State<AppState>,
     Path(project_id): Path<String>,
 ) -> ApiResult<Json<HLDProject>> {
+    let db = &state.db;
 
     let projects: Vec<HLDProject> = db
         .query("SELECT * FROM hld_projects WHERE project_id = $project")
@@ -297,10 +305,11 @@ pub async fn get_hld_project(
 
 /// PUT /api/v1/projects/:project_id/hld/sections - Update enabled sections
 pub async fn update_enabled_sections(
-    State(db): State<AppState>,
+    State(state): State<AppState>,
     Path(project_id): Path<String>,
     Json(payload): Json<UpdateEnabledSectionsRequest>,
 ) -> ApiResult<Json<HLDProject>> {
+    let db = &state.db;
 
     // Get existing HLD project
     let mut projects: Vec<HLDProject> = db
@@ -344,9 +353,10 @@ pub async fn update_enabled_sections(
 
 /// GET /api/v1/projects/:project_id/hld/variables - Get all variables for HLD project
 pub async fn get_variables(
-    State(db): State<AppState>,
+    State(state): State<AppState>,
     Path(project_id): Path<String>,
 ) -> ApiResult<Json<Vec<HLDVariable>>> {
+    let db = &state.db;
 
     // First get HLD project
     let hld_projects: Vec<HLDProject> = db
@@ -379,10 +389,11 @@ pub async fn get_variables(
 
 /// PUT /api/v1/projects/:project_id/hld/variables - Bulk update variables
 pub async fn bulk_update_variables(
-    State(db): State<AppState>,
+    State(state): State<AppState>,
     Path(project_id): Path<String>,
     Json(payload): Json<BulkUpdateVariablesRequest>,
 ) -> ApiResult<Json<Vec<HLDVariable>>> {
+    let db = &state.db;
 
     // Get HLD project
     let hld_projects: Vec<HLDProject> = db
@@ -442,9 +453,10 @@ pub async fn bulk_update_variables(
 
 /// GET /api/v1/projects/:project_id/hld/variables/:name - Get single variable
 pub async fn get_variable(
-    State(db): State<AppState>,
+    State(state): State<AppState>,
     Path((project_id, variable_name)): Path<(String, String)>,
 ) -> ApiResult<Json<HLDVariable>> {
+    let db = &state.db;
 
     // Get HLD project
     let hld_projects: Vec<HLDProject> = db
@@ -487,10 +499,11 @@ pub async fn get_variable(
 
 /// PUT /api/v1/projects/:project_id/hld/variables/:name - Update single variable
 pub async fn update_variable(
-    State(db): State<AppState>,
+    State(state): State<AppState>,
     Path((project_id, variable_name)): Path<(String, String)>,
     Json(payload): Json<UpdateVariableRequest>,
 ) -> ApiResult<Json<HLDVariable>> {
+    let db = &state.db;
 
     // Get HLD project
     let hld_projects: Vec<HLDProject> = db
@@ -699,8 +712,8 @@ pub async fn export_hld(
     
     // 5. Return as downloadable file
     let filename = format!(
-        "Project-{}-HLD-{}.docx",
-        project_id.replace(' ', "-"),
+        "{}-HLD-{}.docx",
+        hld_project.project_name.replace(' ', "-"),
         Utc::now().format("%Y%m%d")
     );
     
@@ -716,12 +729,13 @@ pub async fn export_hld(
 
 /// POST /api/v1/projects/:project_id/hld/autofill-preview - Preview RVTools auto-fill
 pub async fn autofill_preview(
-    State(db): State<AppState>,
+    State(state): State<AppState>,
     Path(project_id): Path<String>,
 ) -> ApiResult<Json<AutoFillPreview>> {
     use crate::services::rvtools_hld_mapper::{RVToolsHLDMapper, MappedVariable};
     use crate::models::project_models::{RvToolsUpload, RvToolsData};
     
+    let db = &state.db;
     
     // 1. Get HLD project
     let hld_project_query = format!(
@@ -830,8 +844,8 @@ pub async fn autofill_preview(
         
         let display_name = var_definitions
             .iter()
-            .find(|v| &v.name == var_name)
-            .map(|v| v.name.clone())
+            .find(|v| &v.variable_name == var_name)
+            .map(|v| v.display_name.clone())
             .unwrap_or_else(|| var_name.clone());
         
         let confidence_str = match mapped.confidence {

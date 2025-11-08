@@ -54,7 +54,7 @@ impl<'a> RVToolsHLDMapper<'a> {
             "node_count".to_string(),
             MappedVariable {
                 name: "node_count".to_string(),
-                value: Some(VariableValue::Integer(unique_hosts.len() as i32)),
+                value: Some(VariableValue::Integer(unique_hosts.len() as i64)),
                 confidence: VariableConfidence::High,
                 source: format!("Extracted {} unique hosts from RVTools data", unique_hosts.len()),
                 error_message: None,
@@ -66,7 +66,7 @@ impl<'a> RVToolsHLDMapper<'a> {
             "total_vm_count_target".to_string(),
             MappedVariable {
                 name: "total_vm_count_target".to_string(),
-                value: Some(VariableValue::Integer(self.rvtools_data.len() as i32)),
+                value: Some(VariableValue::Integer(self.rvtools_data.len() as i64)),
                 confidence: VariableConfidence::High,
                 source: format!("Counted {} VMs from RVTools data", self.rvtools_data.len()),
                 error_message: None,
@@ -97,7 +97,7 @@ impl<'a> RVToolsHLDMapper<'a> {
             "ram_gb_per_host".to_string(),
             MappedVariable {
                 name: "ram_gb_per_host".to_string(),
-                value: Some(VariableValue::Integer(estimated_ram_per_host)),
+                value: Some(VariableValue::Integer(estimated_ram_per_host as i64)),
                 confidence: VariableConfidence::Low,
                 source: format!("Estimated from VM memory allocations ({}GB total / {} hosts)", total_memory_gb, unique_hosts.len()),
                 error_message: Some("This is an estimate based on VM allocations, not actual host capacity".to_string()),
@@ -154,7 +154,7 @@ impl<'a> RVToolsHLDMapper<'a> {
             "template_small_vcpus".to_string(),
             MappedVariable {
                 name: "template_small_vcpus".to_string(),
-                value: Some(VariableValue::Integer(cpu_values[p33.min(len - 1)])),
+                value: Some(VariableValue::Integer(cpu_values[p33.min(len - 1)] as i64)),
                 confidence: VariableConfidence::Medium,
                 source: format!("33rd percentile of VM CPU allocations ({} VMs analyzed)", len),
                 error_message: None,
@@ -164,7 +164,7 @@ impl<'a> RVToolsHLDMapper<'a> {
             "template_small_ram_gb".to_string(),
             MappedVariable {
                 name: "template_small_ram_gb".to_string(),
-                value: Some(VariableValue::Integer(ram_values[p33.min(len - 1)])),
+                value: Some(VariableValue::Integer(ram_values[p33.min(len - 1)] as i64)),
                 confidence: VariableConfidence::Medium,
                 source: format!("33rd percentile of VM RAM allocations ({} VMs analyzed)", len),
                 error_message: None,
@@ -176,7 +176,7 @@ impl<'a> RVToolsHLDMapper<'a> {
             "template_medium_vcpus".to_string(),
             MappedVariable {
                 name: "template_medium_vcpus".to_string(),
-                value: Some(VariableValue::Integer(cpu_values[p66.min(len - 1)])),
+                value: Some(VariableValue::Integer(cpu_values[p66.min(len - 1)] as i64)),
                 confidence: VariableConfidence::Medium,
                 source: format!("66th percentile of VM CPU allocations ({} VMs analyzed)", len),
                 error_message: None,
@@ -186,7 +186,7 @@ impl<'a> RVToolsHLDMapper<'a> {
             "template_medium_ram_gb".to_string(),
             MappedVariable {
                 name: "template_medium_ram_gb".to_string(),
-                value: Some(VariableValue::Integer(ram_values[p66.min(len - 1)])),
+                value: Some(VariableValue::Integer(ram_values[p66.min(len - 1)] as i64)),
                 confidence: VariableConfidence::Medium,
                 source: format!("66th percentile of VM RAM allocations ({} VMs analyzed)", len),
                 error_message: None,
@@ -198,7 +198,7 @@ impl<'a> RVToolsHLDMapper<'a> {
             "template_large_vcpus".to_string(),
             MappedVariable {
                 name: "template_large_vcpus".to_string(),
-                value: Some(VariableValue::Integer(cpu_values[p95.min(len - 1)])),
+                value: Some(VariableValue::Integer(cpu_values[p95.min(len - 1)] as i64)),
                 confidence: VariableConfidence::Medium,
                 source: format!("95th percentile of VM CPU allocations ({} VMs analyzed)", len),
                 error_message: None,
@@ -208,7 +208,7 @@ impl<'a> RVToolsHLDMapper<'a> {
             "template_large_ram_gb".to_string(),
             MappedVariable {
                 name: "template_large_ram_gb".to_string(),
-                value: Some(VariableValue::Integer(ram_values[p95.min(len - 1)])),
+                value: Some(VariableValue::Integer(ram_values[p95.min(len - 1)] as i64)),
                 confidence: VariableConfidence::Medium,
                 source: format!("95th percentile of VM RAM allocations ({} VMs analyzed)", len),
                 error_message: None,
