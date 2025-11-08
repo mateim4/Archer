@@ -12,7 +12,9 @@ import {
   ArrowSyncRegular,
   InfoRegular
 } from '@fluentui/react-icons';
-import { Spinner, Badge } from '@fluentui/react-components';
+import { Spinner, Badge, Card, Button } from '@fluentui/react-components';
+import { tokens } from '@/styles/design-tokens';
+import { DesignTokens } from '@/styles/designSystem';
 import { ClusterStrategyModal } from '../components/ClusterStrategy/ClusterStrategyModal';
 import { ClusterStrategyList } from '../components/ClusterStrategy/ClusterStrategyList';
 import { PurpleGlassButton, PurpleGlassCard } from '@/components/ui';
@@ -301,38 +303,87 @@ const ClusterStrategyManagerView: React.FC = () => {
   };
 
   const getStatusBadge = (status: Activity['status']) => {
-    const badges = {
-      pending: { 
-        icon: ClockRegular, 
-        className: 'bg-amber-50 text-amber-700 border border-amber-200', 
-        label: 'Pending' 
+    const map = {
+      pending: {
+        Icon: ClockRegular,
+        style: tokens.componentSemantics.badge.info,
+        iconColor: tokens.componentSemantics.icon.info,
+        label: 'Pending'
       },
-      in_progress: { 
-        icon: ArrowSyncRegular, 
-        className: 'bg-blue-50 text-blue-700 border border-blue-200', 
-        label: 'In Progress' 
+      in_progress: {
+        Icon: ArrowSyncRegular,
+        style: tokens.componentSemantics.badge.warning,
+        iconColor: tokens.componentSemantics.icon.warning,
+        label: 'In Progress'
       },
-      completed: { 
-        icon: CheckmarkCircleRegular, 
-        className: 'bg-emerald-50 text-emerald-700 border border-emerald-200', 
-        label: 'Completed' 
+      completed: {
+        Icon: CheckmarkCircleRegular,
+        style: tokens.componentSemantics.badge.success,
+        iconColor: tokens.componentSemantics.icon.success,
+        label: 'Completed'
       },
-      blocked: { 
-        icon: ErrorCircleRegular, 
-        className: 'bg-red-50 text-red-700 border border-red-200', 
-        label: 'Blocked' 
+      blocked: {
+        Icon: ErrorCircleRegular,
+        style: tokens.componentSemantics.badge.error,
+        iconColor: tokens.componentSemantics.icon.error,
+        label: 'Blocked'
       }
-    };
-    const badge = badges[status];
-    const Icon = badge.icon;
-    
+    } as const;
+
+    const cfg = map[status];
+    const { Icon } = cfg;
+
     return (
-      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium ${badge.className}`}>
-        <Icon className="w-4 h-4" />
-        {badge.label}
+      <span
+        role="status"
+        aria-label={cfg.label}
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: tokens.s,
+          padding: `${tokens.xs} ${tokens.m}`,
+          borderRadius: tokens.circular,
+          backgroundColor: cfg.style.backgroundColor,
+          color: cfg.style.color,
+          border: `1px solid ${cfg.style.borderColor}`,
+          fontSize: tokens.fontSizeBase200,
+          fontWeight: 600
+        }}
+      >
+        <Icon style={{ width: '16px', height: '16px', color: cfg.iconColor }} />
+        {cfg.label}
       </span>
     );
   };
+
+  const ProgressBar: React.FC<{ value: number }> = ({ value }) => (
+    <div
+      role="progressbar"
+      aria-valuenow={value}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      style={{
+        width: '100%',
+        height: '10px',
+        backgroundColor: tokens.colorNeutralBackground3,
+        borderRadius: tokens.small,
+        overflow: 'hidden',
+        position: 'relative',
+        boxShadow: 'inset 0 1px 3px rgba(0, 0, 0, 0.1)'
+      }}
+    >
+      <div
+        style={{
+          width: `${Math.min(Math.max(value, 0), 100)}%`,
+          height: '100%',
+          background: `linear-gradient(90deg, ${tokens.colorBrandBackground} 0%, ${tokens.colorBrandForeground} 100%)`,
+          borderRadius: tokens.small,
+          transition: `width ${tokens.durationSlower} ${tokens.curveEasyEase}`,
+          boxShadow: '0 0 8px rgba(115, 103, 240, 0.4)'
+        }}
+      />
+    </div>
+  );
 
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat('en-US', { 
@@ -344,17 +395,19 @@ const ClusterStrategyManagerView: React.FC = () => {
 
   if (!activity) {
     return (
-      <div style={{ 
-        height: '100%', 
-        display: 'flex', 
+      <div style={{
+        height: '100%',
+        display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center', 
+        alignItems: 'center',
         justifyContent: 'center',
-        gap: 'var(--spacingVerticalL)'
+        gap: tokens.l,
+        background: tokens.colorNeutralBackground2,
+        fontFamily: tokens.fontFamilyPrimary
       }}>
-        <Spinner 
-          size="extra-large" 
-          label="Loading activity..." 
+        <Spinner
+          size="extra-large"
+          label="Loading activity..."
           labelPosition="below"
         />
       </div>
@@ -363,185 +416,90 @@ const ClusterStrategyManagerView: React.FC = () => {
 
   return (
     <>
-      <style>
-        {`
-          @keyframes pulse {
-            0%, 100% {
-              opacity: 0.6;
-              transform: scale(1);
-            }
-            50% {
-              opacity: 1;
-              transform: scale(1.05);
-            }
-          }
-        `}
-      </style>
-      <div style={{ 
-      height: '100%', 
-      display: 'flex', 
-      flexDirection: 'column',
-      background: 'var(--colorNeutralBackground2)' 
-    }}>
-      {/* Header with breadcrumbs and activity context */}
-      <div style={{ 
-        borderBottom: '1px solid var(--colorNeutralStroke1)',
-        background: 'var(--colorNeutralBackground1)',
-        boxShadow: 'var(--shadow4)'
-      }}>
-        <div style={{ padding: 'var(--spacingVerticalXL) var(--spacingHorizontalXXL)' }}>
-          {/* Breadcrumbs */}
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: 'var(--spacingHorizontalXS)', 
-            fontSize: '14px', 
-            marginBottom: 'var(--spacingVerticalL)',
-            fontFamily: 'Poppins, sans-serif'
-          }}>
-            <button
-              onClick={() => navigate('/app/projects')}
-              aria-label="Navigate to Projects"
-              style={{
-                color: 'var(--colorNeutralForeground2)',
-                fontWeight: 500,
-                border: 'none',
-                background: 'transparent',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                padding: 'var(--spacingVerticalXXS) var(--spacingHorizontalXS)',
-                borderRadius: 'var(--borderRadiusSmall)',
-                fontFamily: 'inherit'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = 'var(--colorBrandForeground1)';
-                e.currentTarget.style.backgroundColor = 'var(--colorNeutralBackground3)';
-                e.currentTarget.style.transform = 'translateY(-1px)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = 'var(--colorNeutralForeground2)';
-                e.currentTarget.style.backgroundColor = 'transparent';
-                e.currentTarget.style.transform = 'translateY(0)';
-              }}
-            >
-              Projects
-            </button>
-            <span style={{ color: 'var(--colorNeutralForeground3)', userSelect: 'none' }} aria-hidden="true">/</span>
-            <button
-              onClick={() => navigate(`/app/projects/${projectId}`)}
-              aria-label="Navigate to Project Workspace"
-              style={{
-                color: 'var(--colorNeutralForeground2)',
-                fontWeight: 500,
-                border: 'none',
-                background: 'transparent',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                padding: 'var(--spacingVerticalXXS) var(--spacingHorizontalXS)',
-                borderRadius: 'var(--borderRadiusSmall)',
-                fontFamily: 'inherit'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = 'var(--colorBrandForeground1)';
-                e.currentTarget.style.backgroundColor = 'var(--colorNeutralBackground3)';
-                e.currentTarget.style.transform = 'translateY(-1px)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = 'var(--colorNeutralForeground2)';
-                e.currentTarget.style.backgroundColor = 'transparent';
-                e.currentTarget.style.transform = 'translateY(0)';
-              }}
-            >
-              Project Workspace
-            </button>
-            <span style={{ color: 'var(--colorNeutralForeground3)', userSelect: 'none' }} aria-hidden="true">/</span>
-            <span style={{ 
-              color: 'var(--colorNeutralForeground1)', 
-              fontWeight: 600,
-              padding: 'var(--spacingVerticalXXS) var(--spacingHorizontalXS)'
-            }}
-              role="status"
-              aria-current="page"
-            >
-              {activity.name}
-            </span>
-          </div>
+      {/* Back Button - Fixed position, outside main card, top-left like ProjectWorkspace */}
+      <div style={{ position: 'fixed', top: '28px', left: '356px', zIndex: 100 }}>
+        <button
+          onClick={() => navigate(`/app/projects/${projectId}`)}
+          className="flex items-center space-x-2"
+          style={{
+            ...DesignTokens.components.button.secondary,
+            width: 'auto',
+          }}
+          onMouseEnter={(e) => {
+            const target = e.currentTarget as HTMLElement;
+            target.style.transform = 'translateY(-2px)';
+            target.style.boxShadow = '0 4px 12px rgba(99, 102, 241, 0.25)';
+          }}
+          onMouseLeave={(e) => {
+            const target = e.currentTarget as HTMLElement;
+            target.style.transform = 'translateY(0)';
+            target.style.boxShadow = '0 1px 4px rgba(99, 102, 241, 0.15)';
+          }}
+        >
+          <ArrowLeftRegular className="w-4 h-4" />
+          <span>Back to Project</span>
+        </button>
+      </div>
 
-          {/* Activity Header */}
-          <div style={{ display: 'flex', alignItems: 'start', justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', alignItems: 'start', gap: 'var(--spacingHorizontalL)' }}>
-              <button
-                onClick={() => navigate(`/app/projects/${projectId}`)}
-                aria-label="Back to project workspace"
-                title="Back to project workspace"
-                style={{
-                  marginTop: 'var(--spacingVerticalXXS)',
-                  padding: 'var(--spacingVerticalS) var(--spacingHorizontalS)',
-                  borderRadius: 'var(--borderRadiusMedium)',
-                  color: 'var(--colorBrandForeground1)',
-                  border: 'none',
-                  background: 'transparent',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = 'var(--colorNeutralBackground3)';
-                  e.currentTarget.style.transform = 'scale(1.05)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                  e.currentTarget.style.transform = 'scale(1)';
-                }}
-              >
-                <ArrowLeftRegular style={{ width: '20px', height: '20px' }} />
-              </button>
-              
-              <div>
-                <div style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: 'var(--spacingHorizontalM)', 
-                  marginBottom: 'var(--spacingVerticalS)' 
+      {/* Main Unified Card - pageContainer IS the main card with 20px borderRadius */}
+      <div 
+        role="main" 
+        aria-label={`Activity Details: ${activity?.name ?? ''}`}
+        style={{
+          ...DesignTokens.components.pageContainer,
+          overflow: 'visible'
+        }}
+      >
+        {/* Activity Header Section */}
+        <div style={{ marginBottom: tokens.xxl }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'flex-start',
+            justifyContent: 'space-between',
+            marginBottom: tokens.xl
+          }}>
+            <div>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: tokens.m,
+                marginBottom: tokens.s
+              }}>
+                <h1 style={{ 
+                  fontSize: tokens.fontSizeHero700, 
+                  fontWeight: 700,
+                  fontFamily: tokens.fontFamilyHeading,
+                  color: tokens.colorNeutralForeground1,
+                  margin: 0
                 }}>
-                  <h1 style={{ 
-                    fontSize: '28px', 
-                    fontWeight: 700,
-                    fontFamily: 'Poppins, sans-serif',
-                    color: 'var(--colorNeutralForeground1)',
-                    margin: 0
-                  }}>
-                    {activity.name}
-                  </h1>
-                  {getStatusBadge(activity.status)}
+                  {activity.name}
+                </h1>
+                {getStatusBadge(activity.status)}
+              </div>
+              
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: tokens.xl,
+                fontSize: tokens.fontSizeBase300,
+                color: tokens.colorNeutralForeground2,
+                fontFamily: tokens.fontFamilyBody
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: tokens.s }}>
+                  <CalendarRegular style={{ width: tokens.l, height: tokens.l }} />
+                  <span>{formatDate(activity.start_date)} - {formatDate(activity.end_date)}</span>
                 </div>
                 
-                <div style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: 'var(--spacingHorizontalXL)', 
-                  fontSize: '14px', 
-                  color: 'var(--colorNeutralForeground2)',
-                  fontFamily: 'Poppins, sans-serif'
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <CalendarRegular style={{ width: '16px', height: '16px' }} />
-                    <span>{formatDate(activity.start_date)} - {formatDate(activity.end_date)}</span>
+                {activity.assignees && activity.assignees.length > 0 && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: tokens.s }}>
+                    <PeopleRegular style={{ width: tokens.l, height: tokens.l }} />
+                    <span>{activity.assignees.join(', ')}</span>
                   </div>
-                  
-                  {activity.assignees && activity.assignees.length > 0 && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <PeopleRegular style={{ width: '16px', height: '16px' }} />
-                      <span>{activity.assignees.join(', ')}</span>
-                    </div>
-                  )}
-                  
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <ServerRegular style={{ width: '16px', height: '16px' }} />
-                    <span>{strategies.length} cluster{strategies.length !== 1 ? 's' : ''}</span>
-                  </div>
+                )}
+                
+                <div style={{ display: 'flex', alignItems: 'center', gap: tokens.s }}>
+                  <ServerRegular style={{ width: tokens.l, height: tokens.l }} />
+                  <span>{strategies.length} cluster{strategies.length !== 1 ? 's' : ''}</span>
                 </div>
               </div>
             </div>
@@ -557,105 +515,74 @@ const ClusterStrategyManagerView: React.FC = () => {
           </div>
 
           {/* Progress Bar */}
-          <div style={{ marginTop: 'var(--spacingVerticalXL)' }}>
+          <div style={{ marginTop: tokens.xl }}>
             <div style={{ 
               display: 'flex', 
               alignItems: 'center', 
               justifyContent: 'space-between', 
-              marginBottom: 'var(--spacingVerticalS)' 
+              marginBottom: tokens.s 
             }}>
               <span style={{ 
-                fontSize: '13px', 
+                fontSize: tokens.fontSizeBase200, 
                 fontWeight: 600, 
-                color: 'var(--colorNeutralForeground2)',
+                color: tokens.colorNeutralForeground2,
                 textTransform: 'uppercase',
                 letterSpacing: '0.5px',
-                fontFamily: 'Poppins, sans-serif'
+                fontFamily: tokens.fontFamilyPrimary
               }}>
                 Activity Progress
               </span>
               <span style={{ 
-                fontSize: '16px', 
+                fontSize: tokens.fontSizeBase400, 
                 fontWeight: 700, 
-                color: 'var(--colorBrandForeground1)',
-                fontFamily: 'Poppins, sans-serif'
+                color: tokens.colorBrandForeground,
+                fontFamily: tokens.fontFamilyHeading
               }}>
                 {activity.progress}%
               </span>
             </div>
-            <div style={{
-              width: '100%',
-              height: '10px',
-              backgroundColor: 'var(--colorNeutralBackground3)',
-              borderRadius: 'var(--borderRadiusSmall)',
-              overflow: 'hidden',
-              position: 'relative',
-              boxShadow: 'inset 0 1px 3px rgba(0, 0, 0, 0.1)'
-            }}>
-              <div style={{
-                width: `${activity.progress}%`,
-                height: '100%',
-                background: 'linear-gradient(90deg, var(--colorBrandBackground) 0%, var(--colorBrandForeground1) 100%)',
-                borderRadius: 'var(--borderRadiusSmall)',
-                transition: 'width 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
-                boxShadow: '0 0 8px rgba(115, 103, 240, 0.4)'
-              }} />
-            </div>
+            <ProgressBar value={activity.progress} />
           </div>
         </div>
-      </div>
 
-      {/* Main Content */}
-      <div style={{ 
-        flex: 1, 
-        overflow: 'auto', 
-        padding: 'var(--spacingVerticalXXL) var(--spacingHorizontalXXL)',
-        background: 'var(--colorNeutralBackground2)' 
-      }}>
+        {/* Content Section */}
         {strategies.length === 0 ? (
-          <PurpleGlassCard 
-            variant="elevated"
-            glass
-            style={{ 
-              textAlign: 'center', 
-              padding: 'var(--spacingVerticalXXXL) var(--spacingHorizontalXL)',
+          <Card 
+            style={{
+              ...DesignTokens.components.standardCard,
+              textAlign: 'center',
+              padding: DesignTokens.spacing.xxxl,
               maxWidth: '600px',
-              margin: '0 auto'
+              margin: '0 auto',
+              cursor: 'default'
             }}
           >
             <div style={{ 
-              width: '80px',
-              height: '80px',
-              margin: '0 auto var(--spacingVerticalL)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderRadius: '50%',
-              background: 'var(--colorNeutralBackground3)',
-              animation: 'pulse 2s ease-in-out infinite'
+              fontSize: '80px',
+              color: DesignTokens.colors.primaryLight,
+              marginBottom: DesignTokens.spacing.xl
             }}>
-              <ServerRegular style={{ 
-                width: '48px', 
-                height: '48px', 
-                color: 'var(--colorBrandForeground2)'
-              }} />
+              <ServerRegular />
             </div>
             <h3 style={{ 
-              fontSize: '20px', 
-              fontWeight: 600, 
-              color: 'var(--colorNeutralForeground1)', 
-              marginBottom: 'var(--spacingVerticalS)',
-              fontFamily: 'Poppins, sans-serif'
+              fontSize: DesignTokens.typography.xxl,
+              fontWeight: DesignTokens.typography.semibold,
+              color: DesignTokens.colors.textPrimary,
+              marginBottom: DesignTokens.spacing.md,
+              fontFamily: DesignTokens.typography.fontFamily,
+              margin: `0 0 ${DesignTokens.spacing.md} 0`
             }}>
               No Cluster Strategies Yet
             </h3>
             <p style={{ 
-              color: 'var(--colorNeutralForeground2)', 
-              marginBottom: 'var(--spacingVerticalXL)', 
-              maxWidth: '448px', 
-              margin: '0 auto var(--spacingVerticalXL)',
-              lineHeight: '1.5',
-              fontSize: '14px'
+              fontSize: DesignTokens.typography.base,
+              color: DesignTokens.colors.textSecondary,
+              marginBottom: DesignTokens.spacing.xxl,
+              maxWidth: '500px',
+              marginLeft: 'auto',
+              marginRight: 'auto',
+              lineHeight: '1.6',
+              fontFamily: DesignTokens.typography.fontFamily
             }}>
               Add your first cluster migration strategy to start planning this activity.
               You can configure source/target clusters, hardware requirements, and dependencies.
@@ -668,24 +595,24 @@ const ClusterStrategyManagerView: React.FC = () => {
             >
               Create First Strategy
             </PurpleGlassButton>
-          </PurpleGlassCard>
+          </Card>
         ) : (
           <div>
             {/* Migration Metadata Summary */}
             {activity.migration_metadata && (
               <div style={{ 
-                marginBottom: 'var(--spacingVerticalXL)', 
+                marginBottom: tokens.xl, 
                 display: 'grid', 
                 gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
-                gap: 'var(--spacingHorizontalL)' 
+                gap: tokens.l 
               }}>
                 <PurpleGlassCard glass>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 'var(--spacingVerticalM) var(--spacingHorizontalM)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: `${tokens.m} ${tokens.m}` }}>
                     <div>
                       <div style={{ 
-                        fontSize: '12px', 
-                        color: 'var(--colorNeutralForeground2)', 
-                        marginBottom: 'var(--spacingVerticalXS)',
+                        fontSize: tokens.fontSizeBase200, 
+                        color: tokens.colorNeutralForeground2, 
+                        marginBottom: tokens.xs,
                         fontWeight: 500,
                         textTransform: 'uppercase',
                         letterSpacing: '0.5px'
@@ -693,25 +620,25 @@ const ClusterStrategyManagerView: React.FC = () => {
                         Total Clusters
                       </div>
                       <div style={{ 
-                        fontSize: '28px', 
+                        fontSize: tokens.fontSizeHero700, 
                         fontWeight: 700, 
-                        color: 'var(--colorBrandForeground1)',
-                        fontFamily: 'Poppins, sans-serif'
+                        color: tokens.colorBrandForeground,
+                        fontFamily: tokens.fontFamilyHeading
                       }}>
                         {activity.migration_metadata.total_clusters}
                       </div>
                     </div>
-                    <ServerRegular style={{ width: '40px', height: '40px', color: 'var(--colorBrandForeground2)', opacity: 0.6 }} />
+                    <ServerRegular style={{ width: tokens.components.selectionCard.iconSize, height: tokens.components.selectionCard.iconSize, color: tokens.colorBrandForeground, opacity: 0.6 }} />
                   </div>
                 </PurpleGlassCard>
 
                 <PurpleGlassCard glass>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 'var(--spacingVerticalM) var(--spacingHorizontalM)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: `${tokens.m} ${tokens.m}` }}>
                     <div>
                       <div style={{ 
-                        fontSize: '12px', 
-                        color: 'var(--colorNeutralForeground2)', 
-                        marginBottom: 'var(--spacingVerticalXS)',
+                        fontSize: tokens.fontSizeBase200, 
+                        color: tokens.colorNeutralForeground2, 
+                        marginBottom: tokens.xs,
                         fontWeight: 500,
                         textTransform: 'uppercase',
                         letterSpacing: '0.5px'
@@ -719,25 +646,25 @@ const ClusterStrategyManagerView: React.FC = () => {
                         Completed
                       </div>
                       <div style={{ 
-                        fontSize: '28px', 
+                        fontSize: tokens.fontSizeHero700, 
                         fontWeight: 700, 
-                        color: 'var(--colorPaletteGreenForeground1)',
-                        fontFamily: 'Poppins, sans-serif'
+                        color: tokens.colorStatusSuccess,
+                        fontFamily: tokens.fontFamilyHeading
                       }}>
                         {activity.migration_metadata.clusters_completed}
                       </div>
                     </div>
-                    <CheckmarkCircleRegular style={{ width: '40px', height: '40px', color: 'var(--colorPaletteGreenForeground1)', opacity: 0.6 }} />
+                    <CheckmarkCircleRegular style={{ width: tokens.components.selectionCard.iconSize, height: tokens.components.selectionCard.iconSize, color: tokens.colorStatusSuccess, opacity: 0.6 }} />
                   </div>
                 </PurpleGlassCard>
 
                 <PurpleGlassCard glass>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 'var(--spacingVerticalM) var(--spacingHorizontalM)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: `${tokens.m} ${tokens.m}` }}>
                     <div>
                       <div style={{ 
-                        fontSize: '12px', 
-                        color: 'var(--colorNeutralForeground2)', 
-                        marginBottom: 'var(--spacingVerticalXS)',
+                        fontSize: tokens.fontSizeBase200, 
+                        color: tokens.colorNeutralForeground2, 
+                        marginBottom: tokens.xs,
                         fontWeight: 500,
                         textTransform: 'uppercase',
                         letterSpacing: '0.5px'
@@ -745,16 +672,16 @@ const ClusterStrategyManagerView: React.FC = () => {
                         Hardware Source
                       </div>
                       <div style={{ 
-                        fontSize: '16px', 
+                        fontSize: tokens.fontSizeBase400, 
                         fontWeight: 600, 
                         textTransform: 'capitalize',
-                        color: 'var(--colorNeutralForeground1)',
-                        fontFamily: 'Poppins, sans-serif'
+                        color: tokens.colorNeutralForeground1,
+                        fontFamily: tokens.fontFamilyBody
                       }}>
                         {activity.migration_metadata.hardware_source}
                       </div>
                     </div>
-                    <InfoRegular style={{ width: '40px', height: '40px', color: 'var(--colorBrandForeground2)', opacity: 0.6 }} />
+                    <InfoRegular style={{ width: tokens.components.selectionCard.iconSize, height: tokens.components.selectionCard.iconSize, color: tokens.colorBrandForeground, opacity: 0.6 }} />
                   </div>
                 </PurpleGlassCard>
               </div>
@@ -784,7 +711,6 @@ const ClusterStrategyManagerView: React.FC = () => {
           existingStrategy={selectedStrategy ? selectedStrategy as any : undefined}
         />
       )}
-    </div>
     </>
   );
 };
