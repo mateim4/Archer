@@ -347,16 +347,37 @@ const ClusterStrategyManagerView: React.FC = () => {
       <div style={{ 
         height: '100%', 
         display: 'flex', 
+        flexDirection: 'column',
         alignItems: 'center', 
-        justifyContent: 'center' 
+        justifyContent: 'center',
+        gap: 'var(--spacingVerticalL)'
       }}>
-        <Spinner label="Loading activity..." />
+        <Spinner 
+          size="extra-large" 
+          label="Loading activity..." 
+          labelPosition="below"
+        />
       </div>
     );
   }
 
   return (
-    <div style={{ 
+    <>
+      <style>
+        {`
+          @keyframes pulse {
+            0%, 100% {
+              opacity: 0.6;
+              transform: scale(1);
+            }
+            50% {
+              opacity: 1;
+              transform: scale(1.05);
+            }
+          }
+        `}
+      </style>
+      <div style={{ 
       height: '100%', 
       display: 'flex', 
       flexDirection: 'column',
@@ -380,6 +401,7 @@ const ClusterStrategyManagerView: React.FC = () => {
           }}>
             <button
               onClick={() => navigate('/app/projects')}
+              aria-label="Navigate to Projects"
               style={{
                 color: 'var(--colorNeutralForeground2)',
                 fontWeight: 500,
@@ -404,9 +426,10 @@ const ClusterStrategyManagerView: React.FC = () => {
             >
               Projects
             </button>
-            <span style={{ color: 'var(--colorNeutralForeground3)' }}>/</span>
+            <span style={{ color: 'var(--colorNeutralForeground3)', userSelect: 'none' }} aria-hidden="true">/</span>
             <button
               onClick={() => navigate(`/app/projects/${projectId}`)}
+              aria-label="Navigate to Project Workspace"
               style={{
                 color: 'var(--colorNeutralForeground2)',
                 fontWeight: 500,
@@ -431,11 +454,15 @@ const ClusterStrategyManagerView: React.FC = () => {
             >
               Project Workspace
             </button>
-            <span style={{ color: 'var(--colorNeutralForeground3)' }}>/</span>
+            <span style={{ color: 'var(--colorNeutralForeground3)', userSelect: 'none' }} aria-hidden="true">/</span>
             <span style={{ 
               color: 'var(--colorNeutralForeground1)', 
-              fontWeight: 600 
-            }}>
+              fontWeight: 600,
+              padding: 'var(--spacingVerticalXXS) var(--spacingHorizontalXS)'
+            }}
+              role="status"
+              aria-current="page"
+            >
               {activity.name}
             </span>
           </div>
@@ -445,6 +472,8 @@ const ClusterStrategyManagerView: React.FC = () => {
             <div style={{ display: 'flex', alignItems: 'start', gap: 'var(--spacingHorizontalL)' }}>
               <button
                 onClick={() => navigate(`/app/projects/${projectId}`)}
+                aria-label="Back to project workspace"
+                title="Back to project workspace"
                 style={{
                   marginTop: 'var(--spacingVerticalXXS)',
                   padding: 'var(--spacingVerticalS) var(--spacingHorizontalS)',
@@ -594,14 +623,25 @@ const ClusterStrategyManagerView: React.FC = () => {
               margin: '0 auto'
             }}
           >
-            <ServerRegular style={{ 
-              width: '64px', 
-              height: '64px', 
-              color: 'var(--colorNeutralForeground4)', 
-              margin: '0 auto var(--spacingVerticalL)' 
-            }} />
+            <div style={{ 
+              width: '80px',
+              height: '80px',
+              margin: '0 auto var(--spacingVerticalL)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: '50%',
+              background: 'var(--colorNeutralBackground3)',
+              animation: 'pulse 2s ease-in-out infinite'
+            }}>
+              <ServerRegular style={{ 
+                width: '48px', 
+                height: '48px', 
+                color: 'var(--colorBrandForeground2)'
+              }} />
+            </div>
             <h3 style={{ 
-              fontSize: '18px', 
+              fontSize: '20px', 
               fontWeight: 600, 
               color: 'var(--colorNeutralForeground1)', 
               marginBottom: 'var(--spacingVerticalS)',
@@ -745,6 +785,7 @@ const ClusterStrategyManagerView: React.FC = () => {
         />
       )}
     </div>
+    </>
   );
 };
 
