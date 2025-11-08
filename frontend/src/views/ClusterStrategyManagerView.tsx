@@ -373,9 +373,9 @@ const ClusterStrategyManagerView: React.FC = () => {
           <div style={{ 
             display: 'flex', 
             alignItems: 'center', 
-            gap: '8px', 
+            gap: 'var(--spacingHorizontalXS)', 
             fontSize: '14px', 
-            marginBottom: '16px',
+            marginBottom: 'var(--spacingVerticalL)',
             fontFamily: 'Poppins, sans-serif'
           }}>
             <button
@@ -386,10 +386,19 @@ const ClusterStrategyManagerView: React.FC = () => {
                 border: 'none',
                 background: 'transparent',
                 cursor: 'pointer',
-                transition: 'color 0.2s'
+                transition: 'color 0.2s',
+                padding: 'var(--spacingVerticalXXS) var(--spacingHorizontalXS)',
+                borderRadius: 'var(--borderRadiusSmall)',
+                fontFamily: 'inherit'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.color = 'var(--colorBrandForeground1)'}
-              onMouseLeave={(e) => e.currentTarget.style.color = 'var(--colorNeutralForeground2)'}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = 'var(--colorBrandForeground1)';
+                e.currentTarget.style.backgroundColor = 'var(--colorNeutralBackground3)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = 'var(--colorNeutralForeground2)';
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
             >
               Projects
             </button>
@@ -402,10 +411,19 @@ const ClusterStrategyManagerView: React.FC = () => {
                 border: 'none',
                 background: 'transparent',
                 cursor: 'pointer',
-                transition: 'color 0.2s'
+                transition: 'color 0.2s',
+                padding: 'var(--spacingVerticalXXS) var(--spacingHorizontalXS)',
+                borderRadius: 'var(--borderRadiusSmall)',
+                fontFamily: 'inherit'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.color = 'var(--colorBrandForeground1)'}
-              onMouseLeave={(e) => e.currentTarget.style.color = 'var(--colorNeutralForeground2)'}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = 'var(--colorBrandForeground1)';
+                e.currentTarget.style.backgroundColor = 'var(--colorNeutralBackground3)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = 'var(--colorNeutralForeground2)';
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
             >
               Project Workspace
             </button>
@@ -420,12 +438,12 @@ const ClusterStrategyManagerView: React.FC = () => {
 
           {/* Activity Header */}
           <div style={{ display: 'flex', alignItems: 'start', justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', alignItems: 'start', gap: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'start', gap: 'var(--spacingHorizontalL)' }}>
               <button
                 onClick={() => navigate(`/app/projects/${projectId}`)}
                 style={{
-                  marginTop: '4px',
-                  padding: '8px',
+                  marginTop: 'var(--spacingVerticalXXS)',
+                  padding: 'var(--spacingVerticalS) var(--spacingHorizontalS)',
                   borderRadius: 'var(--borderRadiusMedium)',
                   color: 'var(--colorBrandForeground1)',
                   border: 'none',
@@ -440,12 +458,18 @@ const ClusterStrategyManagerView: React.FC = () => {
               </button>
               
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                <div style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: 'var(--spacingHorizontalM)', 
+                  marginBottom: 'var(--spacingVerticalS)' 
+                }}>
                   <h1 style={{ 
-                    fontSize: '24px', 
+                    fontSize: '28px', 
                     fontWeight: 700,
                     fontFamily: 'Poppins, sans-serif',
-                    color: 'var(--colorNeutralForeground1)'
+                    color: 'var(--colorNeutralForeground1)',
+                    margin: 0
                   }}>
                     {activity.name}
                   </h1>
@@ -455,9 +479,10 @@ const ClusterStrategyManagerView: React.FC = () => {
                 <div style={{ 
                   display: 'flex', 
                   alignItems: 'center', 
-                  gap: '24px', 
+                  gap: 'var(--spacingHorizontalXL)', 
                   fontSize: '14px', 
-                  color: 'var(--colorNeutralForeground2)'
+                  color: 'var(--colorNeutralForeground2)',
+                  fontFamily: 'Poppins, sans-serif'
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <CalendarRegular style={{ width: '16px', height: '16px' }} />
@@ -490,24 +515,28 @@ const ClusterStrategyManagerView: React.FC = () => {
           </div>
 
           {/* Progress Bar */}
-          <div style={{ marginTop: '24px' }}>
+          <div style={{ marginTop: 'var(--spacingVerticalXL)' }}>
             <div style={{ 
               display: 'flex', 
               alignItems: 'center', 
               justifyContent: 'space-between', 
-              marginBottom: '8px' 
+              marginBottom: 'var(--spacingVerticalS)' 
             }}>
               <span style={{ 
-                fontSize: '14px', 
-                fontWeight: 500, 
-                color: 'var(--colorNeutralForeground2)' 
+                fontSize: '13px', 
+                fontWeight: 600, 
+                color: 'var(--colorNeutralForeground2)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+                fontFamily: 'Poppins, sans-serif'
               }}>
                 Activity Progress
               </span>
               <span style={{ 
-                fontSize: '14px', 
-                fontWeight: 600, 
-                color: 'var(--colorBrandForeground1)' 
+                fontSize: '16px', 
+                fontWeight: 700, 
+                color: 'var(--colorBrandForeground1)',
+                fontFamily: 'Poppins, sans-serif'
               }}>
                 {activity.progress}%
               </span>
