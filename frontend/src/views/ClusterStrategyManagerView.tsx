@@ -12,18 +12,10 @@ import {
   ArrowSyncRegular,
   InfoRegular
 } from '@fluentui/react-icons';
+import { Spinner, Badge } from '@fluentui/react-components';
 import { ClusterStrategyModal } from '../components/ClusterStrategy/ClusterStrategyModal';
 import { ClusterStrategyList } from '../components/ClusterStrategy/ClusterStrategyList';
-import {
-  EnhancedButton,
-  EnhancedCard,
-  LoadingSpinner,
-  ToastContainer,
-  EnhancedProgressBar
-} from '../components/EnhancedUXComponents';
-import { useEnhancedUX } from '../hooks/useEnhancedUX';
-import { DesignTokens } from '../styles/designSystem';
-import { tokens } from '@/styles/design-tokens';
+import { PurpleGlassButton, PurpleGlassCard } from '@/components/ui';
 
 interface Activity {
   id: string;
@@ -76,7 +68,7 @@ interface ClusterStrategy {
 const ClusterStrategyManagerView: React.FC = () => {
   const { projectId, activityId } = useParams<{ projectId: string; activityId: string }>();
   const navigate = useNavigate();
-  const { isLoading, showToast, withLoading } = useEnhancedUX();
+  const [isLoading, setIsLoading] = useState(false);
 
   const [activity, setActivity] = useState<Activity | null>(null);
   const [strategies, setStrategies] = useState<ClusterStrategy[]>([]);
@@ -190,7 +182,8 @@ const ClusterStrategyManagerView: React.FC = () => {
   useEffect(() => {
     if (!projectId || !activityId) return;
 
-    withLoading(async () => {
+    const loadData = async () => {
+      setIsLoading(true);
       try {
         const response = await fetch(
           `http://127.0.0.1:3001/api/v1/projects/${projectId}/activities/${activityId}/cluster-strategies`
@@ -212,9 +205,13 @@ const ClusterStrategyManagerView: React.FC = () => {
       } catch (error) {
         console.error('Failed to load cluster strategies:', error);
         setStrategies([]);
+      } finally {
+        setIsLoading(false);
       }
-    });
-  }, [projectId, activityId, withLoading, updateActivityProgress]);
+    };
+
+    loadData();
+  }, [projectId, activityId, updateActivityProgress]);
 
   const handleCreateStrategy = () => {
     setSelectedStrategy(null);
@@ -229,28 +226,29 @@ const ClusterStrategyManagerView: React.FC = () => {
   const handleDeleteStrategy = async (strategyId: string) => {
     if (!confirm('Are you sure you want to delete this cluster strategy?')) return;
 
-    withLoading(async () => {
-      try {
-        const response = await fetch(
-          `http://127.0.0.1:3001/api/v1/projects/${projectId}/cluster-strategies/${strategyId}`,
-          { method: 'DELETE' }
-        );
+    setIsLoading(true);
+    try {
+      const response = await fetch(
+        `http://127.0.0.1:3001/api/v1/projects/${projectId}/cluster-strategies/${strategyId}`,
+        { method: 'DELETE' }
+      );
 
-        if (response.ok) {
-          const updatedStrategies = strategies.filter(s => s.id !== strategyId);
-          setStrategies(updatedStrategies);
-          
-          // Phase 4: Update activity progress after deletion
-          await updateActivityProgress(updatedStrategies);
-          
-          showToast('Cluster strategy deleted successfully', 'success');
-        } else {
-          showToast('Failed to delete cluster strategy', 'error');
-        }
-      } catch (error) {
-        showToast('Error deleting cluster strategy', 'error');
+      if (response.ok) {
+        const updatedStrategies = strategies.filter(s => s.id !== strategyId);
+        setStrategies(updatedStrategies);
+        
+        // Phase 4: Update activity progress after deletion
+        await updateActivityProgress(updatedStrategies);
+        
+        console.log('Cluster strategy deleted successfully');
+      } else {
+        console.error('Failed to delete cluster strategy');
       }
-    });
+    } catch (error) {
+      console.error('Error deleting cluster strategy:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleModalClose = () => {
@@ -291,13 +289,12 @@ const ClusterStrategyManagerView: React.FC = () => {
           await updateActivityProgress(updatedStrategies);
         }
         
-        showToast('Cluster strategy saved successfully', 'success');
+        console.log('Cluster strategy saved successfully');
       } else {
-        showToast('Failed to save cluster strategy', 'error');
+        console.error('Failed to save cluster strategy');
       }
     } catch (error) {
       console.error('Error saving strategy:', error);
-      showToast('Error saving cluster strategy', 'error');
     }
     
     handleModalClose();
@@ -347,62 +344,121 @@ const ClusterStrategyManagerView: React.FC = () => {
 
   if (!activity) {
     return (
-      <div className="h-full flex items-center justify-center">
-        <LoadingSpinner message="Loading activity..." />
+      <div style={{ 
+        height: '100%', 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center' 
+      }}>
+        <Spinner label="Loading activity..." />
       </div>
     );
   }
 
   return (
-    <div className="h-full flex flex-col" style={{ background: 'var(--lcm-bg-primary, #fafbfc)' }}>
-      <ToastContainer />
-
+    <div style={{ 
+      height: '100%', 
+      display: 'flex', 
+      flexDirection: 'column',
+      background: 'var(--colorNeutralBackground2)' 
+    }}>
       {/* Header with breadcrumbs and activity context */}
-      <div className="border-b" style={{ 
-        borderColor: 'var(--lcm-primary-border, #e5e7eb)',
-        background: 'var(--lcm-bg-card, #ffffff)'
+      <div style={{ 
+        borderBottom: '1px solid var(--colorNeutralStroke1)',
+        background: 'var(--colorNeutralBackground1)'
       }}>
-        <div className="px-8 py-6">
+        <div style={{ padding: '24px 32px' }}>
           {/* Breadcrumbs */}
-          <div className="flex items-center gap-2 text-sm mb-4" style={{ fontFamily: tokens.fontFamilyBody }}>
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '8px', 
+            fontSize: '14px', 
+            marginBottom: '16px',
+            fontFamily: 'Poppins, sans-serif'
+          }}>
             <button
               onClick={() => navigate('/app/projects')}
-              className="text-gray-600 hover:text-indigo-600 transition-colors font-medium"
+              style={{
+                color: 'var(--colorNeutralForeground2)',
+                fontWeight: 500,
+                border: 'none',
+                background: 'transparent',
+                cursor: 'pointer',
+                transition: 'color 0.2s'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.color = 'var(--colorBrandForeground1)'}
+              onMouseLeave={(e) => e.currentTarget.style.color = 'var(--colorNeutralForeground2)'}
             >
               Projects
             </button>
-            <span className="text-gray-400">/</span>
+            <span style={{ color: 'var(--colorNeutralForeground3)' }}>/</span>
             <button
               onClick={() => navigate(`/app/projects/${projectId}`)}
-              className="text-gray-600 hover:text-indigo-600 transition-colors font-medium"
+              style={{
+                color: 'var(--colorNeutralForeground2)',
+                fontWeight: 500,
+                border: 'none',
+                background: 'transparent',
+                cursor: 'pointer',
+                transition: 'color 0.2s'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.color = 'var(--colorBrandForeground1)'}
+              onMouseLeave={(e) => e.currentTarget.style.color = 'var(--colorNeutralForeground2)'}
             >
               Project Workspace
             </button>
-            <span className="text-gray-400">/</span>
-            <span className="text-gray-900 font-semibold">{activity.name}</span>
+            <span style={{ color: 'var(--colorNeutralForeground3)' }}>/</span>
+            <span style={{ 
+              color: 'var(--colorNeutralForeground1)', 
+              fontWeight: 600 
+            }}>
+              {activity.name}
+            </span>
           </div>
 
           {/* Activity Header */}
-          <div className="flex items-start justify-between">
-            <div className="flex items-start gap-4">
+          <div style={{ display: 'flex', alignItems: 'start', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'start', gap: '16px' }}>
               <button
                 onClick={() => navigate(`/app/projects/${projectId}`)}
-                className="mt-1 p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                style={{ color: DesignTokens.colors.primary }}
+                style={{
+                  marginTop: '4px',
+                  padding: '8px',
+                  borderRadius: '8px',
+                  color: 'var(--colorBrandForeground1)',
+                  border: 'none',
+                  background: 'transparent',
+                  cursor: 'pointer',
+                  transition: 'background-color 0.2s'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--colorNeutralBackground3)'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
               >
                 <ArrowLeftRegular className="w-5 h-5" />
               </button>
               
               <div>
-                <div className="flex items-center gap-3 mb-2">
-                  <h1 className="text-2xl font-bold" style={{ fontFamily: tokens.fontFamilyBody }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                  <h1 style={{ 
+                    fontSize: '24px', 
+                    fontWeight: 700,
+                    fontFamily: 'Poppins, sans-serif',
+                    color: 'var(--colorNeutralForeground1)'
+                  }}>
                     {activity.name}
                   </h1>
                   {getStatusBadge(activity.status)}
                 </div>
                 
-                <div className="flex items-center gap-6 text-sm text-gray-600">
-                  <div className="flex items-center gap-2">
+                <div style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '24px', 
+                  fontSize: '14px', 
+                  color: 'var(--colorNeutralForeground2)'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <CalendarRegular className="w-4 h-4" />
                     <span>{formatDate(activity.start_date)} - {formatDate(activity.end_date)}</span>
                   </div>
@@ -414,7 +470,7 @@ const ClusterStrategyManagerView: React.FC = () => {
                     </div>
                   )}
                   
-                  <div className="flex items-center gap-2">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <ServerRegular className="w-4 h-4" />
                     <span>{strategies.length} cluster{strategies.length !== 1 ? 's' : ''}</span>
                   </div>
@@ -422,91 +478,183 @@ const ClusterStrategyManagerView: React.FC = () => {
               </div>
             </div>
 
-            <EnhancedButton
+            <PurpleGlassButton
               variant="primary"
+              size="medium"
+              icon={<AddRegular />}
               onClick={handleCreateStrategy}
             >
-              <AddRegular className="w-4 h-4 mr-2" />
               Add Cluster Strategy
-            </EnhancedButton>
+            </PurpleGlassButton>
           </div>
 
           {/* Progress Bar */}
-          <div className="mt-6">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-gray-700">Activity Progress</span>
-              <span className="text-sm font-semibold text-indigo-600">
+          <div style={{ marginTop: '24px' }}>
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'space-between', 
+              marginBottom: '8px' 
+            }}>
+              <span style={{ 
+                fontSize: '14px', 
+                fontWeight: 500, 
+                color: 'var(--colorNeutralForeground2)' 
+              }}>
+                Activity Progress
+              </span>
+              <span style={{ 
+                fontSize: '14px', 
+                fontWeight: 600, 
+                color: 'var(--colorBrandForeground1)' 
+              }}>
                 {activity.progress}%
               </span>
             </div>
-            <EnhancedProgressBar
-              value={activity.progress}
-              showPercentage={false}
-            />
+            <div style={{
+              width: '100%',
+              height: '8px',
+              backgroundColor: 'var(--colorNeutralBackground3)',
+              borderRadius: '4px',
+              overflow: 'hidden'
+            }}>
+              <div style={{
+                width: `${activity.progress}%`,
+                height: '100%',
+                backgroundColor: 'var(--colorBrandBackground)',
+                transition: 'width 0.3s ease'
+              }} />
+            </div>
           </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-auto p-8" style={{ background: 'var(--lcm-bg-primary, #fafbfc)' }}>
+      <div style={{ 
+        flex: 1, 
+        overflow: 'auto', 
+        padding: '32px',
+        background: 'var(--colorNeutralBackground2)' 
+      }}>
         {strategies.length === 0 ? (
-          <EnhancedCard className="text-center py-16">
-            <ServerRegular className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2" style={{ fontFamily: tokens.fontFamilyBody }}>
+          <PurpleGlassCard 
+            variant="elevated"
+            glass
+            style={{ 
+              textAlign: 'center', 
+              padding: '64px 24px' 
+            }}
+          >
+            <ServerRegular style={{ 
+              width: '64px', 
+              height: '64px', 
+              color: 'var(--colorNeutralForeground4)', 
+              margin: '0 auto 16px' 
+            }} />
+            <h3 style={{ 
+              fontSize: '18px', 
+              fontWeight: 600, 
+              color: 'var(--colorNeutralForeground1)', 
+              marginBottom: '8px',
+              fontFamily: 'Poppins, sans-serif'
+            }}>
               No Cluster Strategies Yet
             </h3>
-            <p className="text-gray-600 mb-6 max-w-md mx-auto">
+            <p style={{ 
+              color: 'var(--colorNeutralForeground2)', 
+              marginBottom: '24px', 
+              maxWidth: '448px', 
+              margin: '0 auto 24px',
+              lineHeight: '1.5'
+            }}>
               Add your first cluster migration strategy to start planning this activity.
               You can configure source/target clusters, hardware requirements, and dependencies.
             </p>
-            <EnhancedButton
+            <PurpleGlassButton
               variant="primary"
+              size="medium"
+              icon={<AddRegular />}
               onClick={handleCreateStrategy}
             >
-              <AddRegular className="w-4 h-4 mr-2" />
               Create First Strategy
-            </EnhancedButton>
-          </EnhancedCard>
+            </PurpleGlassButton>
+          </PurpleGlassCard>
         ) : (
           <div>
             {/* Migration Metadata Summary */}
             {activity.migration_metadata && (
-              <div className="mb-6 grid grid-cols-3 gap-4">
-                <EnhancedCard>
-                  <div className="flex items-center justify-between">
+              <div style={{ 
+                marginBottom: '24px', 
+                display: 'grid', 
+                gridTemplateColumns: 'repeat(3, 1fr)', 
+                gap: '16px' 
+              }}>
+                <PurpleGlassCard glass>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <div>
-                      <div className="text-sm text-gray-600 mb-1">Total Clusters</div>
-                      <div className="text-2xl font-bold text-indigo-600">
+                      <div style={{ 
+                        fontSize: '14px', 
+                        color: 'var(--colorNeutralForeground2)', 
+                        marginBottom: '4px' 
+                      }}>
+                        Total Clusters
+                      </div>
+                      <div style={{ 
+                        fontSize: '24px', 
+                        fontWeight: 700, 
+                        color: 'var(--colorBrandForeground1)' 
+                      }}>
                         {activity.migration_metadata.total_clusters}
                       </div>
                     </div>
-                    <ServerRegular className="w-8 h-8 text-gray-400" />
+                    <ServerRegular style={{ width: '32px', height: '32px', color: 'var(--colorNeutralForeground3)' }} />
                   </div>
-                </EnhancedCard>
+                </PurpleGlassCard>
 
-                <EnhancedCard>
-                  <div className="flex items-center justify-between">
+                <PurpleGlassCard glass>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <div>
-                      <div className="text-sm text-gray-600 mb-1">Completed</div>
-                      <div className="text-2xl font-bold text-emerald-600">
+                      <div style={{ 
+                        fontSize: '14px', 
+                        color: 'var(--colorNeutralForeground2)', 
+                        marginBottom: '4px' 
+                      }}>
+                        Completed
+                      </div>
+                      <div style={{ 
+                        fontSize: '24px', 
+                        fontWeight: 700, 
+                        color: 'var(--colorPaletteGreenForeground1)' 
+                      }}>
                         {activity.migration_metadata.clusters_completed}
                       </div>
                     </div>
-                    <CheckmarkCircleRegular className="w-8 h-8 text-gray-400" />
+                    <CheckmarkCircleRegular style={{ width: '32px', height: '32px', color: 'var(--colorNeutralForeground3)' }} />
                   </div>
-                </EnhancedCard>
+                </PurpleGlassCard>
 
-                <EnhancedCard>
-                  <div className="flex items-center justify-between">
+                <PurpleGlassCard glass>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <div>
-                      <div className="text-sm text-gray-600 mb-1">Hardware Source</div>
-                      <div className="text-sm font-semibold capitalize text-gray-900">
+                      <div style={{ 
+                        fontSize: '14px', 
+                        color: 'var(--colorNeutralForeground2)', 
+                        marginBottom: '4px' 
+                      }}>
+                        Hardware Source
+                      </div>
+                      <div style={{ 
+                        fontSize: '14px', 
+                        fontWeight: 600, 
+                        textTransform: 'capitalize',
+                        color: 'var(--colorNeutralForeground1)' 
+                      }}>
                         {activity.migration_metadata.hardware_source}
                       </div>
                     </div>
-                    <InfoRegular className="w-8 h-8 text-gray-400" />
+                    <InfoRegular style={{ width: '32px', height: '32px', color: 'var(--colorNeutralForeground3)' }} />
                   </div>
-                </EnhancedCard>
+                </PurpleGlassCard>
               </div>
             )}
 
