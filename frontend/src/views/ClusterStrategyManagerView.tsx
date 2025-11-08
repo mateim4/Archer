@@ -365,9 +365,10 @@ const ClusterStrategyManagerView: React.FC = () => {
       {/* Header with breadcrumbs and activity context */}
       <div style={{ 
         borderBottom: '1px solid var(--colorNeutralStroke1)',
-        background: 'var(--colorNeutralBackground1)'
+        background: 'var(--colorNeutralBackground1)',
+        boxShadow: 'var(--shadow4)'
       }}>
-        <div style={{ padding: '24px 32px' }}>
+        <div style={{ padding: 'var(--spacingVerticalXL) var(--spacingHorizontalXXL)' }}>
           {/* Breadcrumbs */}
           <div style={{ 
             display: 'flex', 
@@ -534,7 +535,7 @@ const ClusterStrategyManagerView: React.FC = () => {
       <div style={{ 
         flex: 1, 
         overflow: 'auto', 
-        padding: '32px',
+        padding: 'var(--spacingVerticalXXL) var(--spacingHorizontalXXL)',
         background: 'var(--colorNeutralBackground2)' 
       }}>
         {strategies.length === 0 ? (
@@ -543,30 +544,33 @@ const ClusterStrategyManagerView: React.FC = () => {
             glass
             style={{ 
               textAlign: 'center', 
-              padding: '64px 24px' 
+              padding: 'var(--spacingVerticalXXXL) var(--spacingHorizontalXL)',
+              maxWidth: '600px',
+              margin: '0 auto'
             }}
           >
             <ServerRegular style={{ 
               width: '64px', 
               height: '64px', 
               color: 'var(--colorNeutralForeground4)', 
-              margin: '0 auto 16px' 
+              margin: '0 auto var(--spacingVerticalL)' 
             }} />
             <h3 style={{ 
               fontSize: '18px', 
               fontWeight: 600, 
               color: 'var(--colorNeutralForeground1)', 
-              marginBottom: '8px',
+              marginBottom: 'var(--spacingVerticalS)',
               fontFamily: 'Poppins, sans-serif'
             }}>
               No Cluster Strategies Yet
             </h3>
             <p style={{ 
               color: 'var(--colorNeutralForeground2)', 
-              marginBottom: '24px', 
+              marginBottom: 'var(--spacingVerticalXL)', 
               maxWidth: '448px', 
-              margin: '0 auto 24px',
-              lineHeight: '1.5'
+              margin: '0 auto var(--spacingVerticalXL)',
+              lineHeight: '1.5',
+              fontSize: '14px'
             }}>
               Add your first cluster migration strategy to start planning this activity.
               You can configure source/target clusters, hardware requirements, and dependencies.
@@ -585,75 +589,87 @@ const ClusterStrategyManagerView: React.FC = () => {
             {/* Migration Metadata Summary */}
             {activity.migration_metadata && (
               <div style={{ 
-                marginBottom: '24px', 
+                marginBottom: 'var(--spacingVerticalXL)', 
                 display: 'grid', 
-                gridTemplateColumns: 'repeat(3, 1fr)', 
-                gap: '16px' 
+                gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
+                gap: 'var(--spacingHorizontalL)' 
               }}>
                 <PurpleGlassCard glass>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 'var(--spacingVerticalM) var(--spacingHorizontalM)' }}>
                     <div>
                       <div style={{ 
-                        fontSize: '14px', 
+                        fontSize: '12px', 
                         color: 'var(--colorNeutralForeground2)', 
-                        marginBottom: '4px' 
+                        marginBottom: 'var(--spacingVerticalXS)',
+                        fontWeight: 500,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px'
                       }}>
                         Total Clusters
                       </div>
                       <div style={{ 
-                        fontSize: '24px', 
+                        fontSize: '28px', 
                         fontWeight: 700, 
-                        color: 'var(--colorBrandForeground1)' 
+                        color: 'var(--colorBrandForeground1)',
+                        fontFamily: 'Poppins, sans-serif'
                       }}>
                         {activity.migration_metadata.total_clusters}
                       </div>
                     </div>
-                    <ServerRegular style={{ width: '32px', height: '32px', color: 'var(--colorNeutralForeground3)' }} />
+                    <ServerRegular style={{ width: '40px', height: '40px', color: 'var(--colorBrandForeground2)', opacity: 0.6 }} />
                   </div>
                 </PurpleGlassCard>
 
                 <PurpleGlassCard glass>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 'var(--spacingVerticalM) var(--spacingHorizontalM)' }}>
                     <div>
                       <div style={{ 
-                        fontSize: '14px', 
+                        fontSize: '12px', 
                         color: 'var(--colorNeutralForeground2)', 
-                        marginBottom: '4px' 
+                        marginBottom: 'var(--spacingVerticalXS)',
+                        fontWeight: 500,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px'
                       }}>
                         Completed
                       </div>
                       <div style={{ 
-                        fontSize: '24px', 
+                        fontSize: '28px', 
                         fontWeight: 700, 
-                        color: 'var(--colorPaletteGreenForeground1)' 
+                        color: 'var(--colorPaletteGreenForeground1)',
+                        fontFamily: 'Poppins, sans-serif'
                       }}>
                         {activity.migration_metadata.clusters_completed}
                       </div>
                     </div>
-                    <CheckmarkCircleRegular style={{ width: '32px', height: '32px', color: 'var(--colorNeutralForeground3)' }} />
+                    <CheckmarkCircleRegular style={{ width: '40px', height: '40px', color: 'var(--colorPaletteGreenForeground1)', opacity: 0.6 }} />
                   </div>
                 </PurpleGlassCard>
 
                 <PurpleGlassCard glass>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 'var(--spacingVerticalM) var(--spacingHorizontalM)' }}>
                     <div>
                       <div style={{ 
-                        fontSize: '14px', 
+                        fontSize: '12px', 
                         color: 'var(--colorNeutralForeground2)', 
-                        marginBottom: '4px' 
+                        marginBottom: 'var(--spacingVerticalXS)',
+                        fontWeight: 500,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px'
                       }}>
                         Hardware Source
                       </div>
                       <div style={{ 
-                        fontSize: '14px', 
+                        fontSize: '16px', 
                         fontWeight: 600, 
                         textTransform: 'capitalize',
-                        color: 'var(--colorNeutralForeground1)' 
+                        color: 'var(--colorNeutralForeground1)',
+                        fontFamily: 'Poppins, sans-serif'
                       }}>
                         {activity.migration_metadata.hardware_source}
                       </div>
                     </div>
-                    <InfoRegular style={{ width: '32px', height: '32px', color: 'var(--colorNeutralForeground3)' }} />
+                    <InfoRegular style={{ width: '40px', height: '40px', color: 'var(--colorBrandForeground2)', opacity: 0.6 }} />
                   </div>
                 </PurpleGlassCard>
               </div>
