@@ -386,7 +386,7 @@ const ClusterStrategyManagerView: React.FC = () => {
                 border: 'none',
                 background: 'transparent',
                 cursor: 'pointer',
-                transition: 'color 0.2s',
+                transition: 'all 0.2s ease',
                 padding: 'var(--spacingVerticalXXS) var(--spacingHorizontalXS)',
                 borderRadius: 'var(--borderRadiusSmall)',
                 fontFamily: 'inherit'
@@ -394,10 +394,12 @@ const ClusterStrategyManagerView: React.FC = () => {
               onMouseEnter={(e) => {
                 e.currentTarget.style.color = 'var(--colorBrandForeground1)';
                 e.currentTarget.style.backgroundColor = 'var(--colorNeutralBackground3)';
+                e.currentTarget.style.transform = 'translateY(-1px)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.color = 'var(--colorNeutralForeground2)';
                 e.currentTarget.style.backgroundColor = 'transparent';
+                e.currentTarget.style.transform = 'translateY(0)';
               }}
             >
               Projects
@@ -411,7 +413,7 @@ const ClusterStrategyManagerView: React.FC = () => {
                 border: 'none',
                 background: 'transparent',
                 cursor: 'pointer',
-                transition: 'color 0.2s',
+                transition: 'all 0.2s ease',
                 padding: 'var(--spacingVerticalXXS) var(--spacingHorizontalXS)',
                 borderRadius: 'var(--borderRadiusSmall)',
                 fontFamily: 'inherit'
@@ -419,10 +421,12 @@ const ClusterStrategyManagerView: React.FC = () => {
               onMouseEnter={(e) => {
                 e.currentTarget.style.color = 'var(--colorBrandForeground1)';
                 e.currentTarget.style.backgroundColor = 'var(--colorNeutralBackground3)';
+                e.currentTarget.style.transform = 'translateY(-1px)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.color = 'var(--colorNeutralForeground2)';
                 e.currentTarget.style.backgroundColor = 'transparent';
+                e.currentTarget.style.transform = 'translateY(0)';
               }}
             >
               Project Workspace
@@ -449,10 +453,19 @@ const ClusterStrategyManagerView: React.FC = () => {
                   border: 'none',
                   background: 'transparent',
                   cursor: 'pointer',
-                  transition: 'background-color 0.2s'
+                  transition: 'all 0.2s ease',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--colorNeutralBackground3)'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = 'var(--colorNeutralBackground3)';
+                  e.currentTarget.style.transform = 'scale(1.05)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.transform = 'scale(1)';
+                }}
               >
                 <ArrowLeftRegular style={{ width: '20px', height: '20px' }} />
               </button>
@@ -543,17 +556,20 @@ const ClusterStrategyManagerView: React.FC = () => {
             </div>
             <div style={{
               width: '100%',
-              height: '8px',
+              height: '10px',
               backgroundColor: 'var(--colorNeutralBackground3)',
               borderRadius: 'var(--borderRadiusSmall)',
-              overflow: 'hidden'
+              overflow: 'hidden',
+              position: 'relative',
+              boxShadow: 'inset 0 1px 3px rgba(0, 0, 0, 0.1)'
             }}>
               <div style={{
                 width: `${activity.progress}%`,
                 height: '100%',
-                backgroundColor: 'var(--colorBrandBackground)',
+                background: 'linear-gradient(90deg, var(--colorBrandBackground) 0%, var(--colorBrandForeground1) 100%)',
                 borderRadius: 'var(--borderRadiusSmall)',
-                transition: 'width 0.3s ease'
+                transition: 'width 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+                boxShadow: '0 0 8px rgba(115, 103, 240, 0.4)'
               }} />
             </div>
           </div>
