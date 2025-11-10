@@ -822,40 +822,24 @@ const HardwareBasketView: React.FC = () => {
               gap: '12px',
               justifyContent: 'flex-end'
             }}>
-              <button
+              <PurpleGlassButton
+                variant="secondary"
+                size="medium"
                 onClick={() => setShowCreateDialog(false)}
-                style={{
-                  padding: '10px 20px',
-                  border: '2px solid rgba(99, 102, 241, 0.3)',
-                  borderRadius: '6px',
-                  background: 'transparent',
-                  color: '#6366f1',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease'
-                }}
+                glass
               >
                 Cancel
-              </button>
-              <button
+              </PurpleGlassButton>
+              <PurpleGlassButton
+                variant="primary"
+                size="medium"
                 onClick={handleCreateBasket}
                 disabled={loading || !newBasket.name || !newBasket.vendor}
-                style={{
-                  padding: '10px 20px',
-                  border: 'none',
-                  borderRadius: '6px',
-                  background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-                  color: 'white',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  opacity: (loading || !newBasket.name || !newBasket.vendor) ? 0.6 : 1
-                }}
+                loading={loading}
+                glass
               >
                 {loading ? 'Creating...' : 'Create Basket'}
-              </button>
+              </PurpleGlassButton>
             </div>
           </div>
         </div>
