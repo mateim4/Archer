@@ -312,7 +312,7 @@ const HardwareBasketView: React.FC = () => {
           alignItems: 'center',
           gap: '12px'
         }}>
-          <DatabaseRegular style={{ fontSize: '32px', color: '#000000' }} />
+          <DatabaseRegular style={{ fontSize: '32px', color: DesignTokens.colors.gray900 }} />
           Hardware Basket Management
         </h1>
         
@@ -423,12 +423,12 @@ const HardwareBasketView: React.FC = () => {
           <div style={{
             fontSize: '14px',
             fontWeight: '500',
-            color: '#6366f1',
+            color: DesignTokens.colorVariants.indigo.base,
             fontFamily: 'Oxanium, sans-serif'
           }}>
             <DataBarHorizontalRegular style={{ marginRight: '8px' }} />Showing {filteredBaskets.length} of {hardwareBaskets.length} baskets
             {(searchTerm || vendorFilter !== 'All' || yearFilter !== 'All') && (
-              <span style={{ color: '#8b5cf6', marginLeft: '8px' }}>
+              <span style={{ color: DesignTokens.colors.primary, marginLeft: '8px' }}>
                 (filtered)
               </span>
             )}
@@ -440,13 +440,13 @@ const HardwareBasketView: React.FC = () => {
             fontSize: '12px',
             fontFamily: 'Oxanium, sans-serif'
           }}>
-            <span style={{ color: '#007db8' }}>
+            <span style={{ color: DesignTokens.colors.info }}>
               🔷 Dell: {filteredBaskets.filter(b => b.vendor === 'Dell').length}
             </span>
-            <span style={{ color: '#01a982' }}>
+            <span style={{ color: DesignTokens.colors.success }}>
               🟢 HPE: {filteredBaskets.filter(b => b.vendor === 'HPE').length}
             </span>
-            <span style={{ color: '#e2231a' }}>
+            <span style={{ color: DesignTokens.colorVariants.red.base }}>
               🔴 Lenovo: {filteredBaskets.filter(b => b.vendor === 'Lenovo').length}
             </span>
           </div>
@@ -925,10 +925,10 @@ const HardwareBasketView: React.FC = () => {
                   justifyContent: 'space-between',
                   marginBottom: '8px'
                 }}>
-                  <span style={{ fontSize: '14px', color: '#374151' }}>
+                  <span style={{ fontSize: '14px', color: DesignTokens.colors.gray700 }}>
                     {uploadProgress.stage}
                   </span>
-                  <span style={{ fontSize: '14px', color: '#6366f1' }}>
+                  <span style={{ fontSize: '14px', color: DesignTokens.colorVariants.indigo.base }}>
                     {uploadProgress.progress}%
                   </span>
                 </div>
@@ -1020,10 +1020,10 @@ const HardwareBasketView: React.FC = () => {
           textAlign: 'center',
           cursor: 'default'
         }}>
-          <div style={{ fontSize: '24px', fontWeight: '600', color: '#10b981' }}>
+          <div style={{ fontSize: '24px', fontWeight: '600', color: DesignTokens.colors.success }}>
             {hardwareBaskets.reduce((sum, basket) => sum + basket.total_models, 0)}
           </div>
-          <div style={{ fontSize: '12px', color: '#64748b', textTransform: 'uppercase' }}>
+          <div style={{ fontSize: '12px', color: DesignTokens.colors.gray600, textTransform: 'uppercase' }}>
             Total Models
           </div>
         </div>
@@ -1034,10 +1034,10 @@ const HardwareBasketView: React.FC = () => {
           textAlign: 'center',
           cursor: 'default'
         }}>
-          <div style={{ fontSize: '24px', fontWeight: '600', color: '#8b5cf6' }}>
+          <div style={{ fontSize: '24px', fontWeight: '600', color: DesignTokens.colors.primary }}>
             {hardwareBaskets.reduce((sum, basket) => sum + basket.total_configurations, 0)}
           </div>
-          <div style={{ fontSize: '12px', color: '#64748b', textTransform: 'uppercase' }}>
+          <div style={{ fontSize: '12px', color: DesignTokens.colors.gray600, textTransform: 'uppercase' }}>
             Total Configurations
           </div>
         </div>
@@ -1048,10 +1048,10 @@ const HardwareBasketView: React.FC = () => {
           textAlign: 'center',
           cursor: 'default'
         }}>
-          <div style={{ fontSize: '24px', fontWeight: '600', color: '#6366f1' }}>
+          <div style={{ fontSize: '24px', fontWeight: '600', color: DesignTokens.colorVariants.indigo.base }}>
             {hardwareBaskets.length}
           </div>
-          <div style={{ fontSize: '12px', color: '#64748b', textTransform: 'uppercase' }}>
+          <div style={{ fontSize: '12px', color: DesignTokens.colors.gray600, textTransform: 'uppercase' }}>
             Total Baskets
           </div>
         </div>
@@ -1062,10 +1062,10 @@ const HardwareBasketView: React.FC = () => {
           textAlign: 'center',
           cursor: 'default'
         }}>
-          <div style={{ fontSize: '24px', fontWeight: '600', color: '#f59e0b' }}>
+          <div style={{ fontSize: '24px', fontWeight: '600', color: DesignTokens.colors.warning }}>
             {uniqueVendors.length}
           </div>
-          <div style={{ fontSize: '12px', color: '#64748b', textTransform: 'uppercase' }}>
+          <div style={{ fontSize: '12px', color: DesignTokens.colors.gray600, textTransform: 'uppercase' }}>
             Unique Vendors
           </div>
         </div>
