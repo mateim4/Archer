@@ -25,7 +25,7 @@ import {
 } from 'lucide-react';
 import ReactECharts from 'echarts-for-react';
 import LoadingSpinner from '../components/LoadingSpinner';
-import { PurpleGlassDropdown } from '@/components/ui';
+import { PurpleGlassButton, PurpleGlassDropdown } from '@/components/ui';
 
 // Types for analytics data
 interface AnalyticsMetric {
@@ -315,13 +315,15 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
             <AlertTriangle size={48} className="mx-auto mb-4 text-orange-500" />
             <h3 className="text-lg font-semibold mb-2">Error Loading Dashboard</h3>
             <p className="text-gray-600 mb-4">{error}</p>
-            <button
+            <PurpleGlassButton 
+              variant="primary" 
+              size="medium"
               onClick={loadDashboardData}
-              className="lcm-button-primary"
+              icon={<RefreshCw size={16} />}
+              glass
             >
-              <RefreshCw size={16} />
               Retry
-            </button>
+            </PurpleGlassButton>
           </div>
         </div>
       </div>
@@ -459,14 +461,16 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
               placeholder="Select time range..."
               glass="light"
             />
-            <button 
+            <PurpleGlassButton
+              variant="secondary"
+              size="medium"
               onClick={handleRefresh}
               disabled={refreshing}
-              className="lcm-button-secondary flex items-center gap-2"
+              icon={<RefreshCw size={16} className={refreshing ? 'animate-spin' : ''} />}
+              glass
             >
-              <RefreshCw size={16} className={refreshing ? 'animate-spin' : ''} />
               Refresh
-            </button>
+            </PurpleGlassButton>
           </div>
         </div>
 
@@ -632,9 +636,13 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                       </div>
                     </div>
                     {alert.action_required && (
-                      <button className="lcm-button-primary text-xs px-3 py-1">
+                      <PurpleGlassButton
+                        variant="primary"
+                        size="small"
+                        glass
+                      >
                         View Details
-                      </button>
+                      </PurpleGlassButton>
                     )}
                   </div>
                 </div>
