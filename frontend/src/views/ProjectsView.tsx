@@ -76,7 +76,7 @@ const useStyles = makeStyles({
   headerTitle: {
     fontSize: DesignTokens.typography.xxxl,
     fontWeight: DesignTokens.typography.semibold,
-    color: '#8b5cf6',
+    color: DesignTokens.colors.primary,
     margin: '0',
     fontFamily: DesignTokens.typography.fontFamily,
     display: 'flex',
@@ -635,7 +635,7 @@ export default function ProjectsView() {
       {/* Header */}
       <div className={styles.header}>
         <h2 className={styles.headerTitle}>
-          <FolderRegular style={{ fontSize: '32px', color: '#000000' }} />
+          <FolderRegular style={{ fontSize: '32px', color: DesignTokens.colors.gray900 }} />
           Projects
         </h2>
         <PurpleGlassButton
@@ -847,7 +847,7 @@ export default function ProjectsView() {
                           background: 'transparent',
                           border: 'none',
                           borderRadius: '12px',
-                          color: '#0f172a',
+                          color: DesignTokens.colors.gray900,
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
@@ -884,7 +884,7 @@ export default function ProjectsView() {
                               transition: 'all 0.2s ease',
                               fontFamily: DesignTokens.typography.fontFamily,
                               fontSize: '14px',
-                              color: '#0f172a',
+                              color: DesignTokens.colors.gray900,
                               fontWeight: '500'
                             }}
                             onClick={(e) => {
@@ -893,11 +893,11 @@ export default function ProjectsView() {
                             }}
                             onMouseEnter={(e) => {
                               e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
-                              e.currentTarget.style.color = '#ef4444';
+                              e.currentTarget.style.color = DesignTokens.colors.error;
                             }}
                             onMouseLeave={(e) => {
                               e.currentTarget.style.background = 'transparent';
-                              e.currentTarget.style.color = '#0f172a';
+                              e.currentTarget.style.color = DesignTokens.colors.gray900;
                             }}
                           >
                             <DeleteRegular style={{ fontSize: '16px' }} />
@@ -915,7 +915,7 @@ export default function ProjectsView() {
                               transition: 'all 0.2s ease',
                               fontFamily: DesignTokens.typography.fontFamily,
                               fontSize: '14px',
-                              color: '#0f172a',
+                              color: DesignTokens.colors.gray900,
                               fontWeight: '500'
                             }}
                             onClick={(e) => {
@@ -924,11 +924,11 @@ export default function ProjectsView() {
                             }}
                             onMouseEnter={(e) => {
                               e.currentTarget.style.background = 'rgba(16, 185, 129, 0.1)';
-                              e.currentTarget.style.color = '#10b981';
+                              e.currentTarget.style.color = DesignTokens.colors.success;
                             }}
                             onMouseLeave={(e) => {
                               e.currentTarget.style.background = 'transparent';
-                              e.currentTarget.style.color = '#0f172a';
+                              e.currentTarget.style.color = DesignTokens.colors.gray900;
                             }}
                           >
                             <CheckmarkCircleRegular style={{ fontSize: '16px' }} />
@@ -946,7 +946,7 @@ export default function ProjectsView() {
                               transition: 'all 0.2s ease',
                               fontFamily: DesignTokens.typography.fontFamily,
                               fontSize: '14px',
-                              color: '#0f172a',
+                              color: DesignTokens.colors.gray900,
                               fontWeight: '500'
                             }}
                             onClick={(e) => {
@@ -955,11 +955,11 @@ export default function ProjectsView() {
                             }}
                             onMouseEnter={(e) => {
                               e.currentTarget.style.background = 'rgba(99, 102, 241, 0.1)';
-                              e.currentTarget.style.color = '#6366f1';
+                              e.currentTarget.style.color = DesignTokens.colorVariants.indigo.base;
                             }}
                             onMouseLeave={(e) => {
                               e.currentTarget.style.background = 'transparent';
-                              e.currentTarget.style.color = '#0f172a';
+                              e.currentTarget.style.color = DesignTokens.colors.gray900;
                             }}
                           >
                             <PeopleRegular style={{ fontSize: '16px' }} />
@@ -995,7 +995,7 @@ export default function ProjectsView() {
                       <Title3 style={{
                         margin: 0,
                         fontFamily: DesignTokens.typography.fontFamily,
-                        color: '#0f172a',
+                        color: DesignTokens.colors.gray900,
                         fontSize: DesignTokens.typography.lg,
                         fontWeight: DesignTokens.typography.semibold,
                         lineHeight: '1.2',
@@ -1042,7 +1042,7 @@ export default function ProjectsView() {
                             size="small"
                             style={{
                               background: 'rgba(16, 185, 129, 0.1)',
-                              color: '#10b981',
+                              color: DesignTokens.colors.success,
                               border: 'none'
                             }}
                           >
@@ -1108,7 +1108,7 @@ export default function ProjectsView() {
                       padding: '12px',
                       borderRadius: '8px',
                       background: 'rgba(239, 68, 68, 0.1)',
-                      color: '#b91c1c',
+                      color: DesignTokens.colors.error,
                       border: '1px solid rgba(185, 28, 28, 0.3)'
                     }}
                   >
@@ -1150,17 +1150,17 @@ export default function ProjectsView() {
                         style={{
                           textTransform: 'capitalize',
                           backgroundColor: newProject.project_types.includes(type) 
-                            ? '#8b5cf6' 
+                            ? DesignTokens.colors.primary 
                             : 'transparent',
-                          borderColor: '#8b5cf6',
-                          color: newProject.project_types.includes(type) ? 'white' : '#8b5cf6'
+                          borderColor: DesignTokens.colors.primary,
+                          color: newProject.project_types.includes(type) ? 'white' : DesignTokens.colors.primary
                         }}
                       >
                         {type}
                       </Button>
                     ))}
                   </div>
-                  <Text size={200} style={{ color: '#6b7280', marginTop: '4px' }}>
+                  <Text size={200} style={{ color: DesignTokens.colors.gray600, marginTop: '4px' }}>
                     Select one or more project types that best describe your project
                   </Text>
                 </div>
