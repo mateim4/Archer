@@ -354,8 +354,8 @@ const ProjectDetailView: React.FC = () => {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', width: '100%' }}>
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: DesignTokens.spacing.sm }}>
-                  <FolderRegular style={{ color: '#000000', fontSize: '32px' }} />
-                  <Title1 style={{ ...DesignTokens.components.sectionTitle, color: '#8b5cf6' }}>{project.name}</Title1>
+                  <FolderRegular style={{ color: DesignTokens.colors.gray900, fontSize: '32px' }} />
+                  <Title1 style={{ ...DesignTokens.components.sectionTitle, color: DesignTokens.colors.primary }}>{project.name}</Title1>
                 </div>
                 <div style={{ marginTop: '8px' }}>
                   <Text size={500} style={DesignTokens.components.cardDescription}>
@@ -381,7 +381,7 @@ const ProjectDetailView: React.FC = () => {
                       border: `1px solid ${DesignTokens.colors.gray300}`,
                     }}
                   >
-                    <PeopleRegular style={{ color: '#6366f1', fontSize: '16px' }} />
+                    <PeopleRegular style={{ color: DesignTokens.colorVariants.indigo.base, fontSize: '16px' }} />
                     <Caption1 style={{ fontSize: '12px', color: DesignTokens.colors.gray600 }}>
                       Owner: {project.owner_id ? project.owner_id.replace('user:', '') : 'Unknown'}
                     </Caption1>
@@ -452,10 +452,10 @@ const ProjectDetailView: React.FC = () => {
           }}
         >
           {[
-            { label: 'Total Activities', value: stats.totalActivities, icon: <ChartMultipleRegular />, color: '#000000' },
-            { label: 'Completed', value: stats.completedActivities, icon: <CheckmarkCircleRegular />, color: '#10b981' },
-            { label: 'In Progress', value: stats.inProgressActivities, icon: <ClockRegular />, color: '#f59e0b' },
-            { label: 'Days Remaining', value: stats.daysRemaining, icon: <TargetRegular />, color: '#000000' },
+            { label: 'Total Activities', value: stats.totalActivities, icon: <ChartMultipleRegular />, color: DesignTokens.colors.gray900 },
+            { label: 'Completed', value: stats.completedActivities, icon: <CheckmarkCircleRegular />, color: DesignTokens.colors.success },
+            { label: 'In Progress', value: stats.inProgressActivities, icon: <ClockRegular />, color: DesignTokens.colors.warning },
+            { label: 'Days Remaining', value: stats.daysRemaining, icon: <TargetRegular />, color: DesignTokens.colors.gray900 },
           ].map((stat, index) => (
             <div key={index} className={styles.statsCard}>
               <div className={styles.cardHeaderReplacement}>
@@ -463,7 +463,7 @@ const ProjectDetailView: React.FC = () => {
                   <div>
                     <Title2 style={{ color: stat.color }}>{stat.value}</Title2>
                     <div style={{ marginTop: '4px' }}>
-                      <Caption1 style={{ color: '#000000' }}>{stat.label}</Caption1>
+                      <Caption1 style={{ color: DesignTokens.colors.gray900 }}>{stat.label}</Caption1>
                     </div>
                   </div>
                   <div
@@ -491,7 +491,7 @@ const ProjectDetailView: React.FC = () => {
             <div>
               <Title2 style={{ color: DesignTokens.colors.primary }}>{stats.overallProgress}%</Title2>
               <div style={{ marginTop: '4px' }}>
-                <Caption1 style={{ color: '#000000' }}>Overall Progress</Caption1>
+                <Caption1 style={{ color: DesignTokens.colors.gray900 }}>Overall Progress</Caption1>
               </div>
             </div>
             <div style={{ flex: 1, marginLeft: tokens.spacingHorizontalXXL }}>
@@ -502,7 +502,7 @@ const ProjectDetailView: React.FC = () => {
                 color="brand"
                 style={{ marginBottom: tokens.spacingVerticalXS }}
               />
-              <Caption1 style={{ color: '#000000' }}>
+              <Caption1 style={{ color: DesignTokens.colors.gray900 }}>
                 {stats.completedActivities} of {stats.totalActivities} activities completed
               </Caption1>
             </div>
@@ -682,7 +682,7 @@ const ProjectDetailView: React.FC = () => {
                       border: `1px solid ${DesignTokens.colors.gray300}`,
                       borderRadius: DesignTokens.borderRadius.lg,
                       padding: '12px 16px',
-                      color: '#374151',
+                      color: DesignTokens.colors.gray700,
                       width: '100%'
                     }}
                   />
@@ -717,10 +717,10 @@ const ProjectDetailView: React.FC = () => {
                             <Badge
                               appearance="outline"
                               style={{
-                                color: activity.status === 'completed' ? '#10b981' :
-                                  activity.status === 'in_progress' ? '#8b5cf6' :
-                                  activity.status === 'blocked' ? '#ef4444' :
-                                  '#6b7280',
+                                color: activity.status === 'completed' ? DesignTokens.colors.success :
+                                  activity.status === 'in_progress' ? DesignTokens.colors.primary :
+                                  activity.status === 'blocked' ? DesignTokens.colors.error :
+                                  DesignTokens.colors.gray600,
                                 border: `1px solid ${activity.status === 'completed' ? 'rgba(16, 185, 129, 0.3)' :
                                   activity.status === 'in_progress' ? 'rgba(139, 92, 246, 0.3)' :
                                   activity.status === 'blocked' ? 'rgba(239, 68, 68, 0.3)' :
@@ -913,7 +913,7 @@ const ProjectDetailView: React.FC = () => {
                             appearance="outline"
                             style={{
                               backgroundColor: count > 0 ? 'rgba(139, 92, 246, 0.1)' : 'rgba(107, 114, 128, 0.1)',
-                              color: count > 0 ? DesignTokens.colors.primary : '#6b7280',
+                              color: count > 0 ? DesignTokens.colors.primary : DesignTokens.colors.gray600,
                               border: `1px solid ${count > 0 ? 'rgba(139, 92, 246, 0.3)' : 'rgba(107, 114, 128, 0.3)'}`,
                               fontWeight: '600'
                             }}
