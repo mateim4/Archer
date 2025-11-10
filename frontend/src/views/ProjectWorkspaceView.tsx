@@ -814,14 +814,15 @@ const ProjectWorkspaceView: React.FC = () => {
                     <div className="flex items-center gap-4 p-4 border-b bg-white">
                       <ViewToggleSlider value={timelineView} onChange={setTimelineView} />
                       <div className="flex-1" />
-                      <button
+                      <PurpleGlassButton
+                        variant="primary"
+                        size="medium"
+                        icon={<AddRegular />}
                         onClick={() => setIsCreateActivityModalOpen(true)}
-                        className="flex items-center space-x-2"
-                        style={{ ...DesignTokens.components.button.primary }}
+                        glass
                       >
-                        <AddRegular className="w-4 h-4" />
-                        <span>Add Activity</span>
-                      </button>
+                        Add Activity
+                      </PurpleGlassButton>
                     </div>
 
                     {/* Content area (Gantt chart or empty state) - scrollable */}
@@ -876,14 +877,15 @@ const ProjectWorkspaceView: React.FC = () => {
                   <div className="flex items-center gap-4 p-4 border-b bg-white">
                     <ViewToggleSlider value={timelineView} onChange={setTimelineView} />
                     <div className="flex-1" />
-                    <button
+                    <PurpleGlassButton
+                      variant="primary"
+                      size="medium"
+                      icon={<AddRegular />}
                       onClick={() => setIsCreateActivityModalOpen(true)}
-                      className="flex items-center space-x-2"
-                      style={{ ...DesignTokens.components.button.primary }}
+                      glass
                     >
-                      <AddRegular className="w-4 h-4" />
-                      <span>Add Activity</span>
-                    </button>
+                      Add Activity
+                    </PurpleGlassButton>
                   </div>
                   {/* Scrollable list area */}
                   <div className="flex-1 overflow-auto p-4 space-y-4">
@@ -972,50 +974,38 @@ const ProjectWorkspaceView: React.FC = () => {
                             <div className="flex items-center gap-2">
                               {/* Phase 6: Configure Clusters button for migration activities */}
                               {activity.type === 'migration' && (
-                                <button
+                                <PurpleGlassButton
+                                  variant="primary"
+                                  size="small"
+                                  icon={<ServerRegular />}
                                   onClick={() => navigate(`/app/projects/${projectId}/activities/${activity.id}/cluster-strategies`)}
-                                  style={{
-                                    ...DesignTokens.components.button.primary,
-                                    height: 'auto',
-                                    padding: '8px 16px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '6px',
-                                    fontSize: '13px',
-                                    fontWeight: '600'
-                                  }}
+                                  glass
                                   title="Configure cluster migration strategies"
                                 >
-                                  <ServerRegular style={{ fontSize: '14px' }} />
                                   Configure Clusters
-                                </button>
+                                </PurpleGlassButton>
                               )}
-                              <button
+                              <PurpleGlassButton
+                                variant="secondary"
+                                size="small"
+                                icon={<EditRegular />}
                                 onClick={() => {
                                   setSelectedActivity(activity);
                                   setIsEditActivityModalOpen(true);
                                 }}
-                                className="p-2 rounded hover:bg-purple-50 transition-colors"
-                                style={{
-                                  ...DesignTokens.components.button.secondary,
-                                  height: 'auto',
-                                  padding: '8px 16px',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: '6px'
-                                }}
+                                glass
                                 title="Edit Activity"
                               >
-                                <EditRegular className="w-4 h-4" />
-                                <span className="text-sm font-medium">Edit</span>
-                              </button>
-                              <button
-                                className="p-2 rounded hover:bg-red-50 transition-colors"
+                                Edit
+                              </PurpleGlassButton>
+                              <PurpleGlassButton
+                                variant="danger"
+                                size="small"
+                                icon={<DeleteRegular />}
                                 onClick={() => handleActivityDelete(activity.id)}
+                                glass
                                 title="Delete Activity"
-                              >
-                                <DeleteRegular className="w-4 h-4 text-red-600" />
-                              </button>
+                              />
                             </div>
                           </div>
 
@@ -1260,13 +1250,15 @@ const ProjectWorkspaceView: React.FC = () => {
                     </div>
                     <h3 style={DesignTokens.components.standardCardTitle}>Infrastructure Visualization</h3>
                   </div>
-                  <button
+                  <PurpleGlassButton
+                    variant="primary"
+                    size="medium"
+                    icon={<DiagramRegular />}
                     onClick={() => navigate('/app/tools/infra-visualizer')}
-                    className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-lg hover:from-purple-600 hover:to-indigo-700 transition-all duration-200"
+                    glass
                   >
-                    <DiagramRegular className="w-4 h-4" />
-                    <span>Open Infrastructure Visualizer</span>
-                  </button>
+                    Open Infrastructure Visualizer
+                  </PurpleGlassButton>
                 </div>
                 
                 <div className="space-y-4">
@@ -1284,12 +1276,13 @@ const ProjectWorkspaceView: React.FC = () => {
                       <p className="text-xs text-gray-600 mb-3">
                         View all available hardware assets in the pool
                       </p>
-                      <button
+                      <PurpleGlassButton
+                        variant="link"
+                        size="small"
                         onClick={() => navigate('/app/tools/infra-visualizer?source=hardware-pool')}
-                        className="text-xs text-blue-600 hover:text-blue-700 font-medium"
                       >
                         Visualize Hardware Pool →
-                      </button>
+                      </PurpleGlassButton>
                     </div>
 
                     {/* RVTools Import Card */}
@@ -1301,12 +1294,13 @@ const ProjectWorkspaceView: React.FC = () => {
                       <p className="text-xs text-gray-600 mb-3">
                         Visualize imported VMware infrastructure
                       </p>
-                      <button
+                      <PurpleGlassButton
+                        variant="link"
+                        size="small"
                         onClick={() => navigate('/app/tools/infra-visualizer?source=rvtools')}
-                        className="text-xs text-purple-600 hover:text-purple-700 font-medium"
                       >
                         Visualize RVTools Import →
-                      </button>
+                      </PurpleGlassButton>
                     </div>
 
                     {/* Migration Topology Card */}
@@ -1318,12 +1312,13 @@ const ProjectWorkspaceView: React.FC = () => {
                       <p className="text-xs text-gray-600 mb-3">
                         View source and target infrastructure side-by-side
                       </p>
-                      <button
+                      <PurpleGlassButton
+                        variant="link"
+                        size="small"
                         onClick={() => navigate('/app/tools/infra-visualizer?source=migration')}
-                        className="text-xs text-green-600 hover:text-green-700 font-medium"
                       >
                         Visualize Migration →
-                      </button>
+                      </PurpleGlassButton>
                     </div>
                   </div>
                 </div>
