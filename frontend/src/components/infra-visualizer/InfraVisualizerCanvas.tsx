@@ -10,7 +10,7 @@ import ReactFlow, {
   type EdgeTypes,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { makeStyles } from '@fluentui/react-components';
+import { makeStyles, tokens as fluentTokens } from '@fluentui/react-components';
 import { useInfraVisualizerStore } from '@/stores/useInfraVisualizerStore';
 import {
   useCanvasStyles,
@@ -19,6 +19,7 @@ import {
   useMinimapStyles,
   useFilterPanelStyles,
   useLegendStyles,
+  useStateStyles,
 } from '@/styles/infra-visualizer';
 
 // Import node components (to be created in next steps)
@@ -102,6 +103,7 @@ function InfraVisualizerCanvasInternal({
   const controlsStyles = useControlsStyles();
   const minimapStyles = useMinimapStyles();
   const legendStyles = useLegendStyles();
+  const stateStyles = useStateStyles();
 
   // Zustand store
   const {
@@ -209,7 +211,7 @@ function InfraVisualizerCanvasInternal({
 
   return (
     <div
-      className={canvasStyles.root}
+      className={canvasStyles.canvasRoot}
       style={{
         width: width ? `${width}px` : '100%',
         height: height ? `${height}px` : '100%',
@@ -247,8 +249,8 @@ function InfraVisualizerCanvasInternal({
             {...backgroundConfig}
             className={
               backgroundPattern === 'dots'
-                ? canvasStyles.backgroundDots
-                : canvasStyles.backgroundPattern
+                ? canvasStyles.canvasBackgroundDots
+                : canvasStyles.canvasBackgroundPattern
             }
           />
         )}
@@ -256,7 +258,7 @@ function InfraVisualizerCanvasInternal({
         {/* Zoom controls */}
         {showControls && (
           <Controls
-            className={controlsStyles.panel}
+            className={controlsStyles.controlsPanel}
             showZoom
             showFitView
             showInteractive={!readOnly}
@@ -266,7 +268,7 @@ function InfraVisualizerCanvasInternal({
         {/* Minimap */}
         {showMinimap && (
           <MiniMap
-            className={minimapStyles.container}
+            className={minimapStyles.minimap}
             nodeColor={getMinimapNodeColor}
             pannable
             zoomable
@@ -275,10 +277,10 @@ function InfraVisualizerCanvasInternal({
 
         {/* Toolbar panel */}
         {showToolbar && (
-          <Panel position="top-left" className={toolbarStyles.container}>
-            <div className={toolbarStyles.buttonGroup}>
+          <Panel position="top-left" className={toolbarStyles.toolbar}>
+            <div style={{ display: 'flex', gap: fluentTokens.spacingHorizontalS }}>
               <button
-                className={toolbarStyles.button}
+                className={toolbarStyles.toolbarButton}
                 onClick={handleFitView}
                 aria-label="Fit view to content"
                 title="Fit view (F)"
@@ -286,7 +288,7 @@ function InfraVisualizerCanvasInternal({
                 Fit View
               </button>
               <button
-                className={toolbarStyles.button}
+                className={toolbarStyles.toolbarButton}
                 onClick={handleCenterView}
                 disabled={!selectedNodeId}
                 aria-label="Center on selection"
@@ -295,7 +297,7 @@ function InfraVisualizerCanvasInternal({
                 Center
               </button>
               <button
-                className={toolbarStyles.button}
+                className={toolbarStyles.toolbarButton}
                 onClick={handleZoomIn}
                 aria-label="Zoom in"
                 title="Zoom in (+)"
@@ -303,7 +305,7 @@ function InfraVisualizerCanvasInternal({
                 +
               </button>
               <button
-                className={toolbarStyles.button}
+                className={toolbarStyles.toolbarButton}
                 onClick={handleZoomOut}
                 aria-label="Zoom out"
                 title="Zoom out (-)"
@@ -316,43 +318,43 @@ function InfraVisualizerCanvasInternal({
 
         {/* Legend panel */}
         {showLegend && (
-          <Panel position="bottom-left" className={legendStyles.container}>
-            <div className={legendStyles.title}>Node Types</div>
-            <div className={legendStyles.items}>
-              <div className={legendStyles.item}>
+          <Panel position="bottom-left" className={legendStyles.legend}>
+            <div className={legendStyles.legendTitle}>Node Types</div>
+            <div>
+              <div className={legendStyles.legendItem}>
                 <div
-                  className={legendStyles.colorBox}
+                  className={legendStyles.legendIcon}
                   style={{ backgroundColor: '#a855f7' }}
                 />
-                <span>Datacenter</span>
+                <span className={legendStyles.legendLabel}>Datacenter</span>
               </div>
-              <div className={legendStyles.item}>
+              <div className={legendStyles.legendItem}>
                 <div
-                  className={legendStyles.colorBox}
+                  className={legendStyles.legendIcon}
                   style={{ backgroundColor: '#6366f1' }}
                 />
-                <span>Cluster</span>
+                <span className={legendStyles.legendLabel}>Cluster</span>
               </div>
-              <div className={legendStyles.item}>
+              <div className={legendStyles.legendItem}>
                 <div
-                  className={legendStyles.colorBox}
+                  className={legendStyles.legendIcon}
                   style={{ backgroundColor: '#3b82f6' }}
                 />
-                <span>Host</span>
+                <span className={legendStyles.legendLabel}>Host</span>
               </div>
-              <div className={legendStyles.item}>
+              <div className={legendStyles.legendItem}>
                 <div
-                  className={legendStyles.colorBox}
+                  className={legendStyles.legendIcon}
                   style={{ backgroundColor: '#10b981' }}
                 />
-                <span>VM</span>
+                <span className={legendStyles.legendLabel}>VM</span>
               </div>
-              <div className={legendStyles.item}>
+              <div className={legendStyles.legendItem}>
                 <div
-                  className={legendStyles.colorBox}
+                  className={legendStyles.legendIcon}
                   style={{ backgroundColor: '#06b6d4' }}
                 />
-                <span>Storage</span>
+                <span className={legendStyles.legendLabel}>Storage</span>
               </div>
             </div>
           </Panel>
@@ -361,7 +363,7 @@ function InfraVisualizerCanvasInternal({
         {/* Loading overlay */}
         {isLoading && (
           <Panel position="top-center">
-            <div className={canvasStyles.loading}>Loading graph...</div>
+            <div className={stateStyles.loadingText}>Loading graph...</div>
           </Panel>
         )}
       </ReactFlow>
