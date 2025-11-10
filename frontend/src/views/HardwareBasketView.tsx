@@ -3,6 +3,7 @@ import { apiClient } from '../utils/apiClient';
 import GlassmorphicSearchBar from '../components/GlassmorphicSearchBar';
 import { DESIGN_TOKENS } from '../components/DesignSystem';
 import { DesignTokens } from '../styles/designSystem';
+import { PurpleGlassButton } from '@/components/ui';
 import {
   ErrorCircleRegular,
   SearchRegular,
@@ -315,31 +316,14 @@ const HardwareBasketView: React.FC = () => {
           Hardware Basket Management
         </h1>
         
-        <button
+        <PurpleGlassButton
+          variant="primary"
+          size="medium"
           onClick={() => setShowCreateDialog(true)}
-          style={{
-            background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            padding: '12px 24px',
-            fontSize: '14px',
-            fontWeight: '500',
-            cursor: 'pointer',
-            transition: 'all 0.3s ease',
-            fontFamily: 'Oxanium, sans-serif'
-          }}
-          onMouseOver={(e) => {
-            e.currentTarget.style.transform = 'translateY(-2px)';
-            e.currentTarget.style.boxShadow = '0 8px 25px rgba(99, 102, 241, 0.3)';
-          }}
-          onMouseOut={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow = 'none';
-          }}
+          glass
         >
           <span style={{ color: 'white' }}>+</span> Create Hardware Basket
-        </button>
+        </PurpleGlassButton>
       </div>
 
       {/* Search and Filter Controls */}
@@ -408,40 +392,18 @@ const HardwareBasketView: React.FC = () => {
 
         {/* Clear Filters Button */}
         {(searchTerm || vendorFilter !== 'All' || yearFilter !== 'All') && (
-          <button
+          <PurpleGlassButton
+            variant="secondary"
+            size="medium"
             onClick={() => {
               setSearchTerm('');
               setVendorFilter('All');
               setYearFilter('All');
             }}
-            style={{
-              ...DesignTokens.components.standardCard,
-              padding: '14px 20px',
-              color: '#6366f1',
-              fontSize: '14px',
-              fontWeight: '500',
-              cursor: 'pointer',
-              fontFamily: 'Oxanium, sans-serif'
-            }}
-            onMouseEnter={(e) => {
-              const target = e.currentTarget as HTMLElement;
-              Object.assign(target.style, DesignTokens.components.standardCardHover);
-            }}
-            onMouseLeave={(e) => {
-              const target = e.currentTarget as HTMLElement;
-              Object.assign(target.style, {
-                ...DesignTokens.components.standardCard,
-                padding: '14px 20px',
-                color: '#6366f1',
-                fontSize: '14px',
-                fontWeight: '500',
-                cursor: 'pointer',
-                fontFamily: 'Oxanium, sans-serif'
-              });
-            }}
+            glass
           >
             🧹 Clear Filters
-          </button>
+          </PurpleGlassButton>
         )}
       </div>
 
