@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import CustomSlider from '../components/CustomSlider';
 import { useAppStore } from '../store/useAppStore';
+import { PurpleGlassButton } from '@/components/ui';
 import { 
   DatabaseRegular,
   SettingsRegular,
@@ -783,43 +784,24 @@ const LifecyclePlannerView: React.FC = () => {
                 borderTop: '1px solid rgba(139, 92, 246, 0.1)',
                 zIndex: 10
               }}>
-                <button 
+                <PurpleGlassButton
+                  variant="secondary"
+                  size="medium"
                   onClick={prevStep}
                   disabled={currentStep === 1}
-                  style={{
-                    padding: '12px 24px',
-                    border: 'none',
-                    borderRadius: '8px',
-                    fontSize: '14px',
-                    fontWeight: '500',
-                    cursor: currentStep === 1 ? 'not-allowed' : 'pointer',
-                    transition: 'all 0.2s ease',
-                    background: currentStep === 1 ? 'rgba(156, 163, 175, 0.3)' : 'rgba(139, 92, 246, 0.1)',
-                    color: currentStep === 1 ? '#9ca3af' : '#8b5cf6',
-                    opacity: currentStep === 1 ? 0.5 : 1
-                  }}
+                  glass
                 >
                   Previous
-                </button>
-                <button 
+                </PurpleGlassButton>
+                <PurpleGlassButton
+                  variant="primary"
+                  size="medium"
                   onClick={nextStep}
                   disabled={currentStep === wizardSteps.length}
-                  style={{
-                    padding: '12px 24px',
-                    border: 'none',
-                    borderRadius: '8px',
-                    fontSize: '14px',
-                    fontWeight: '500',
-                    cursor: currentStep === wizardSteps.length ? 'not-allowed' : 'pointer',
-                    transition: 'all 0.2s ease',
-                    background: currentStep === wizardSteps.length ? 'rgba(156, 163, 175, 0.3)' : 'linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%)',
-                    color: 'white',
-                    opacity: currentStep === wizardSteps.length ? 0.5 : 1,
-                    boxShadow: currentStep === wizardSteps.length ? 'none' : '0 2px 4px rgba(139, 92, 246, 0.2)'
-                  }}
+                  glass
                 >
                   Next
-                </button>
+                </PurpleGlassButton>
               </div>
             </div>
           </div>
@@ -1341,9 +1323,13 @@ const LifecyclePlannerView: React.FC = () => {
                 <h4 className="text-lg font-semibold mb-2">Configuration Summary</h4>
                 <p className="text-gray-600">Ready to generate your lifecycle plan</p>
               </div>
-              <button className="lcm-button lcm-button-primary px-8 py-3">
+              <PurpleGlassButton
+                variant="primary"
+                size="large"
+                glass
+              >
                 Generate Lifecycle Plan
-              </button>
+              </PurpleGlassButton>
             </div>
           </div>
         );
@@ -1369,7 +1355,7 @@ const LifecyclePlannerView: React.FC = () => {
             { id: 'overview', label: 'Overview', icon: <DiagramRegular /> },
             { id: 'wizard', label: 'Lifecycle Wizard', icon: <CalendarRegular /> }
           ].map(tab => (
-            <button
+            <div
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
               style={{
@@ -1379,10 +1365,7 @@ const LifecyclePlannerView: React.FC = () => {
                 justifyContent: 'center',
                 gap: '8px',
                 padding: '12px 16px',
-                border: 'none',
                 borderRadius: '8px',
-                fontSize: '14px',
-                fontWeight: '500',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
                 background: activeTab === tab.id ? 'rgba(255, 255, 255, 0.9)' : 'transparent',
@@ -1392,7 +1375,7 @@ const LifecyclePlannerView: React.FC = () => {
             >
               <div style={{ fontSize: '16px' }}>{tab.icon}</div>
               {tab.label}
-            </button>
+            </div>
           ))}
         </div>
 
