@@ -15,11 +15,14 @@ import {
   DataBarHorizontalRegular,
   CircleRegular,
   AddRegular,
-  ArrowUploadRegular
+  ArrowUploadRegular,
+  DiagramRegular
 } from '@fluentui/react-icons';
 import { PurpleGlassButton, PurpleGlassCard } from '../components/ui';
+import { useNavigate } from 'react-router-dom';
 
 const HardwarePoolView: React.FC = () => {
+  const navigate = useNavigate();
   const {
     hardwarePoolAssets,
     listHardwareAssets,
@@ -66,6 +69,10 @@ const HardwarePoolView: React.FC = () => {
     } finally {
       event.target.value = '';
     }
+  };
+
+  const handleVisualizeInfrastructure = () => {
+    navigate('/app/tools/infra-visualizer');
   };
 
   // Filter and search logic
@@ -276,6 +283,16 @@ const HardwarePoolView: React.FC = () => {
             )}
             <div style={{ color: DesignTokens.colors.textSecondary, fontSize: DesignTokens.typography.sm }}>
               Recommendations: {latestRvToolsUpload.summary.deploymentRecommendations.join('; ') || 'No recommendations generated'}
+            </div>
+            <div style={{ marginTop: DesignTokens.spacing.md }}>
+              <PurpleGlassButton
+                variant="primary"
+                size="medium"
+                icon={<DiagramRegular />}
+                onClick={handleVisualizeInfrastructure}
+              >
+                Visualize Infrastructure
+              </PurpleGlassButton>
             </div>
           </div>
         </PurpleGlassCard>
