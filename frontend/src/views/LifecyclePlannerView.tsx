@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import CustomSlider from '../components/CustomSlider';
 import { useAppStore } from '../store/useAppStore';
-import { PurpleGlassButton } from '@/components/ui';
+import { PurpleGlassButton, PurpleGlassInput } from '@/components/ui';
 import { 
   DatabaseRegular,
   SettingsRegular,
@@ -1072,20 +1072,12 @@ const LifecyclePlannerView: React.FC = () => {
                   <option value="custom">Custom...</option>
                 </select>
                 {showCustomCpu && (
-                  <input
+                  <PurpleGlassInput
                     type="text"
                     placeholder="e.g., 5:1"
                     value={customCpuOvercommit}
                     onChange={(e) => setCustomCpuOvercommit(e.target.value)}
-                    style={{
-                      marginTop: '8px',
-                      padding: '8px 12px',
-                      border: '1px solid rgba(168, 85, 247, 0.3)',
-                      borderRadius: '8px',
-                      fontSize: '14px',
-                      background: 'transparent',
-                      outline: 'none'
-                    }}
+                    glass="light"
                   />
                 )}
               </div>
@@ -1106,20 +1098,12 @@ const LifecyclePlannerView: React.FC = () => {
                   <option value="custom">Custom...</option>
                 </select>
                 {showCustomMemory && (
-                  <input
+                  <PurpleGlassInput
                     type="text"
                     placeholder="e.g., 2.5:1"
                     value={customMemoryOvercommit}
                     onChange={(e) => setCustomMemoryOvercommit(e.target.value)}
-                    style={{
-                      marginTop: '8px',
-                      padding: '8px 12px',
-                      border: '1px solid rgba(168, 85, 247, 0.3)',
-                      borderRadius: '8px',
-                      fontSize: '14px',
-                      background: 'transparent',
-                      outline: 'none'
-                    }}
+                    glass="light"
                   />
                 )}
               </div>
