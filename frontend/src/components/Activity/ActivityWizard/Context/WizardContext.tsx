@@ -373,25 +373,79 @@ export const WizardProvider: React.FC<WizardProviderProps> = ({
   }, []);
 
   // ============================================================================
-  // Validation
+  // Validation (Activity-Type-Aware)
   // ============================================================================
 
   const validateStep = useCallback((step: number): boolean => {
+    // Get activity type and validation rules
+    const activityType = formDataRef.current.step1?.activity_type;
+    if (!activityType && step > 1) return false; // Can't validate later steps without activity type
+    
+    const validationRules = activityType ? getStepConfig(activityType).validationRules : null;
+
     switch (step) {
       case 1:
+        // Step 1: Always requires activity name and type
         return !!(formData.step1?.activity_name && formData.step1?.activity_type);
+      
       case 2:
-        return !!(formData.step2?.target_infrastructure_type);
+        // Step 2: Conditional validation based on activity type
+        if (!validationRules) return false;
+        
+        // Source cluster always required
+        if (validationRules.step2.requireSourceCluster && !formData.step2?.source_cluster_id) {
+          return false;
+        }
+        
+        // Target infrastructure only required if applicable (not for decommission/expansion/maintenance)
+        if (validationRules.step2.requireTargetInfrastructure && !formData.step2?.target_infrastructure_type) {
+          return false;
+        }
+        
+        // Target cluster name only required if applicable (not for decommission/maintenance)
+        if (validationRules.step2.requireTargetClusterName && !formData.step2?.target_cluster_name) {
+          return false;
+        }
+        
+        // Migration strategy only required for migration activities
+        if (validationRules.step2.requireMigrationStrategy && !formData.step2?.migration_strategy_type) {
+          return false;
+        }
+        
+        return true;
+      
       case 3:
+        // Step 3: Hardware compatibility (skip for decommission/maintenance)
+        if (!validationRules) return false;
+        
+        if (!validationRules.step3.runHardwareCompatibility) {
+          return true; // Step not required for this activity type
+        }
+        
         return !!(formData.step3?.hardware_specs && formData.step3.hardware_specs.length > 0);
+      
       case 4:
+        // Step 4: Capacity validation
+        if (!validationRules) return false;
+        
+        if (!validationRules.step4.requireCapacityValidation) {
+          return true; // Step not required (e.g., for maintenance)
+        }
+        
         return !!(formData.step4?.target_hardware);
+      
       case 5:
+        // Step 5: Timeline estimation (always required)
         return !!(formData.step5?.vm_count && formData.step5?.host_count);
+      
       case 6:
-        return true; // Optional step
+        // Step 6: Team assignment (always optional)
+        return true;
+      
       case 7:
+        // Step 7: Review (always required)
         return !!(formData.step7?.reviewed);
+      
       default:
         return false;
     }
