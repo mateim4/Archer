@@ -1350,46 +1350,96 @@ input[type="number"] {
   gap: var(--lcm-spacing-xs);
   padding: var(--lcm-spacing-sm) var(--lcm-spacing-xxl);
   border-radius: 999px;
-  border: 2px solid transparent;
-  background: transparent;
-  color: var(--lcm-text-muted);
+  border: 1.5px solid rgba(139, 92, 246, 0.25);
+  background: linear-gradient(
+    135deg,
+    rgba(139, 92, 246, 0.08) 0%,
+    rgba(99, 102, 241, 0.06) 100%
+  );
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: rgba(139, 92, 246, 0.9);
   font-family: var(--fluent-font-family-base);
   font-size: 0.875rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease, box-shadow 0.3s ease;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   letter-spacing: 0.02em;
   line-height: 1.2;
+  box-shadow: 
+    0 2px 8px rgba(139, 92, 246, 0.08),
+    inset 0 1px 1px rgba(255, 255, 255, 0.15);
+  position: relative;
+}
+
+.lcm-pill-tab::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  padding: 1.5px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.05));
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0.6;
 }
 
 .lcm-pill-tab:hover {
-  background: var(--lcm-primary-light);
-  border-color: var(--lcm-primary-border);
-  color: var(--lcm-primary);
+  background: linear-gradient(
+    135deg,
+    rgba(139, 92, 246, 0.15) 0%,
+    rgba(99, 102, 241, 0.12) 100%
+  );
+  border-color: rgba(139, 92, 246, 0.4);
+  color: rgba(139, 92, 246, 1);
+  box-shadow: 
+    0 4px 16px rgba(139, 92, 246, 0.15),
+    inset 0 1px 1px rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
 }
 
 .lcm-pill-tab-active {
-  background: var(--lcm-primary-light);
-  border-color: var(--lcm-primary);
-  color: var(--lcm-primary);
-  box-shadow: 0 10px 30px -12px var(--lcm-primary-hover);
+  background: linear-gradient(
+    135deg,
+    rgba(139, 92, 246, 0.22) 0%,
+    rgba(99, 102, 241, 0.18) 100%
+  );
+  border-color: rgba(139, 92, 246, 0.6);
+  color: #8b5cf6;
+  box-shadow: 
+    0 8px 24px rgba(139, 92, 246, 0.25),
+    0 2px 8px rgba(139, 92, 246, 0.15),
+    inset 0 1px 2px rgba(255, 255, 255, 0.25);
+  font-weight: 700;
 }
 
-.lcm-pill-tab-inactive {
-  border-color: transparent;
+.lcm-pill-tab-active::before {
+  opacity: 1;
 }
 
 .lcm-pill-tab:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px var(--lcm-primary-focus-soft);
+  box-shadow: 
+    0 0 0 3px rgba(139, 92, 246, 0.25),
+    0 4px 16px rgba(139, 92, 246, 0.15),
+    inset 0 1px 1px rgba(255, 255, 255, 0.2);
 }
 
 .lcm-pill-tab-active:focus-visible {
-  box-shadow: 0 0 0 3px var(--lcm-primary-focus-strong);
+  box-shadow: 
+    0 0 0 3px rgba(139, 92, 246, 0.35),
+    0 8px 24px rgba(139, 92, 246, 0.25),
+    0 2px 8px rgba(139, 92, 246, 0.15),
+    inset 0 1px 2px rgba(255, 255, 255, 0.25);
 }
 
 .lcm-pill-tab-label {
   text-transform: capitalize;
+  position: relative;
+  z-index: 1;
 }
 
 /* ===================
