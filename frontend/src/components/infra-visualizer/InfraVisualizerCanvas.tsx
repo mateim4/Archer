@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo, useRef } from 'react';
-import ReactFlow, {
+import {
+  ReactFlow,
   Background,
   Controls,
   MiniMap,
@@ -8,6 +9,7 @@ import ReactFlow, {
   useReactFlow,
   type NodeTypes,
   type EdgeTypes,
+  BackgroundVariant,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { makeStyles, tokens as fluentTokens } from '@fluentui/react-components';
@@ -180,10 +182,10 @@ function InfraVisualizerCanvasInternal({
    */
   const backgroundConfig = useMemo(() => {
     if (backgroundPattern === 'dots') {
-      return { variant: 'dots' as const, gap: 16, size: 1 };
+      return { variant: BackgroundVariant.Dots, gap: 16, size: 1 };
     }
     if (backgroundPattern === 'grid') {
-      return { variant: 'lines' as const, gap: 16, size: 1 };
+      return { variant: BackgroundVariant.Lines, gap: 16, size: 1 };
     }
     return null;
   }, [backgroundPattern]);
