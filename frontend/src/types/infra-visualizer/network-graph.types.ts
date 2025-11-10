@@ -27,7 +27,8 @@ export type NodeType =
   | 'virtual-machine'  // LCMDesigner extension
   | 'cluster'          // LCMDesigner extension
   | 'datastore'        // LCMDesigner extension
-  | 'resource-pool';   // LCMDesigner extension
+  | 'resource-pool'    // LCMDesigner extension
+  | 'datacenter';      // LCMDesigner extension
 
 export type EdgeType =
   | 'contains'
