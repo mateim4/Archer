@@ -754,11 +754,11 @@ const ProjectWorkspaceView: React.FC = () => {
                          style={{ background: 'rgba(59, 130, 246, 0.08)' }}
                          aria-label="Total Activities">
                       <div className="p-1.5 mb-1.5">
-                        <CalendarLtrRegular className="w-4 h-4" style={{ color: '#3b82f6' }} />
+                        <CalendarLtrRegular className="w-4 h-4" style={{ color: DesignTokens.colors.info }} />
                       </div>
                       <div className="text-center">
-                        <div className="text-xs mb-0.5" style={{ color: '#64748b', fontSize: '10px' }}>Total</div>
-                        <div className="text-base font-bold" style={{ color: '#3b82f6' }}>{stats.totalActivities}</div>
+                        <div className="text-xs mb-0.5" style={{ color: DesignTokens.colors.gray600, fontSize: '10px' }}>Total</div>
+                        <div className="text-base font-bold" style={{ color: DesignTokens.colors.info }}>{stats.totalActivities}</div>
                       </div>
                     </div>
 
@@ -767,11 +767,11 @@ const ProjectWorkspaceView: React.FC = () => {
                          style={{ background: 'rgba(16, 185, 129, 0.08)' }}
                          aria-label="Completed">
                       <div className="p-1.5 mb-1.5">
-                        <CheckmarkCircleRegular className="w-4 h-4" style={{ color: '#10b981' }} />
+                        <CheckmarkCircleRegular className="w-4 h-4" style={{ color: DesignTokens.colors.success }} />
                       </div>
                       <div className="text-center">
-                        <div className="text-xs mb-0.5" style={{ color: '#64748b', fontSize: '10px' }}>Done</div>
-                        <div className="text-base font-bold" style={{ color: '#10b981' }}>{stats.completedActivities}</div>
+                        <div className="text-xs mb-0.5" style={{ color: DesignTokens.colors.gray600, fontSize: '10px' }}>Done</div>
+                        <div className="text-base font-bold" style={{ color: DesignTokens.colors.success }}>{stats.completedActivities}</div>
                       </div>
                     </div>
 
@@ -780,11 +780,11 @@ const ProjectWorkspaceView: React.FC = () => {
                          style={{ background: 'rgba(245, 158, 11, 0.08)' }}
                          aria-label="In Progress">
                       <div className="p-1.5 mb-1.5">
-                        <ClockRegular className="w-4 h-4" style={{ color: '#f59e0b' }} />
+                        <ClockRegular className="w-4 h-4" style={{ color: DesignTokens.colors.warning }} />
                       </div>
                       <div className="text-center">
-                        <div className="text-xs mb-0.5" style={{ color: '#64748b', fontSize: '10px' }}>Active</div>
-                        <div className="text-base font-bold" style={{ color: '#f59e0b' }}>{stats.inProgressActivities}</div>
+                        <div className="text-xs mb-0.5" style={{ color: DesignTokens.colors.gray600, fontSize: '10px' }}>Active</div>
+                        <div className="text-base font-bold" style={{ color: DesignTokens.colors.warning }}>{stats.inProgressActivities}</div>
                       </div>
                     </div>
 
@@ -794,11 +794,11 @@ const ProjectWorkspaceView: React.FC = () => {
                          style={{ background: 'rgba(249, 115, 22, 0.08)' }}
                          aria-label="Days Remaining">
                       <div className="p-1.5 mb-1.5">
-                        <CalendarRegular className="w-4 h-4" style={{ color: '#f97316' }} />
+                        <CalendarRegular className="w-4 h-4" style={{ color: DesignTokens.colorVariants.amber.base }} />
                       </div>
                       <div className="text-center">
-                        <div className="text-xs mb-0.5" style={{ color: '#64748b', fontSize: '10px' }}>Days</div>
-                        <div className="text-base font-bold" style={{ color: '#f97316' }}>{stats.daysRemaining}</div>
+                        <div className="text-xs mb-0.5" style={{ color: DesignTokens.colors.gray600, fontSize: '10px' }}>Days</div>
+                        <div className="text-base font-bold" style={{ color: DesignTokens.colorVariants.amber.base }}>{stats.daysRemaining}</div>
                       </div>
                     </div>
                   </div>
@@ -1177,7 +1177,7 @@ const ProjectWorkspaceView: React.FC = () => {
                       <div>
                         <div className="text-sm text-gray-500 mb-2">Domino Reuse</div>
                         <div className="flex items-baseline gap-2">
-                          <div className="text-2xl font-bold" style={{ color: '#ff6b35' }}>
+                          <div className="text-2xl font-bold" style={{ color: DesignTokens.colorVariants.red.base }}>
                             {dominoCount}
                           </div>
                           <span className="text-xs text-gray-500">activities</span>
@@ -1187,7 +1187,7 @@ const ProjectWorkspaceView: React.FC = () => {
                       <div>
                         <div className="text-sm text-gray-500 mb-2">Hardware Pool</div>
                         <div className="flex items-baseline gap-2">
-                          <div className="text-2xl font-bold" style={{ color: '#3b82f6' }}>
+                          <div className="text-2xl font-bold" style={{ color: DesignTokens.colors.info }}>
                             {poolCount}
                           </div>
                           <span className="text-xs text-gray-500">activities</span>
@@ -1197,7 +1197,7 @@ const ProjectWorkspaceView: React.FC = () => {
                       <div>
                         <div className="text-sm text-gray-500 mb-2">New Hardware</div>
                         <div className="flex items-baseline gap-2">
-                          <div className="text-2xl font-bold" style={{ color: '#10b981' }}>
+                          <div className="text-2xl font-bold" style={{ color: DesignTokens.colors.success }}>
                             {newCount}
                           </div>
                           <span className="text-xs text-gray-500">activities</span>
