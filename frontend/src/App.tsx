@@ -21,6 +21,7 @@ import { EnhancedRVToolsReportView } from './views/EnhancedRVToolsReportView';
 import { HardwareLifecycleView } from './views/HardwareLifecycleView';
 import { ZoomTestPage } from './components/CapacityVisualizer/ZoomTestPage';
 import { CapacityVisualizerView } from './views/CapacityVisualizerView';
+import { InfraVisualizerView } from './views/InfraVisualizerView';
 
 function App() {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
@@ -95,6 +96,7 @@ function App() {
                 <Route path="projects/:projectId/workflows/:workflowId/migration-wizard" element={<EmbeddedMigrationWizard />} />
                 <Route path="projects/:projectId/workflows/:workflowId/lifecycle-wizard" element={<EmbeddedLifecycleWizard />} />
                 <Route path="zoom-test" element={<ZoomTestPage />} />
+                <Route path="tools/infra-visualizer" element={<InfraVisualizerView />} />
                 </Routes>
               </div>
             </main>

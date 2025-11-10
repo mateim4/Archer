@@ -14,7 +14,9 @@ import {
   SettingsFilled,
   NavigationRegular,
   TableRegular,
-  TableFilled
+  TableFilled,
+  DiagramRegular,
+  DiagramFilled
 } from '@fluentui/react-icons';
 
 interface NavigationSidebarProps {
@@ -86,6 +88,15 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
       icon: <DocumentRegular />, 
       iconFilled: <DocumentFilled />, 
       path: '/app/document-templates' 
+    },
+    { 
+      id: 'infra-visualizer', 
+      title: 'Infrastructure Visualizer', 
+      icon: <DiagramRegular />, 
+      iconFilled: <DiagramFilled />, 
+      path: '/app/tools/infra-visualizer',
+      badge: 'New',
+      badgeType: 'success'
     },
     { 
       id: 'settings', 
