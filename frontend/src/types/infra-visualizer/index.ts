@@ -37,6 +37,7 @@ export type {
   ClusterNodeData,
   DatastoreNodeData,
   ResourcePoolNodeData,
+  DatacenterNodeData,
   
   // Unified Types
   NodeData,

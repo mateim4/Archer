@@ -235,6 +235,14 @@ export interface ResourcePoolNodeData extends BaseNodeData {
   vms?: string[];
 }
 
+export interface DatacenterNodeData extends BaseNodeData {
+  kind: 'datacenter';
+  totalClusters?: number;
+  totalHosts?: number;
+  totalVMs?: number;
+  location?: string;
+}
+
 // ============================================================================
 // UNIFIED NODE DATA TYPE
 // ============================================================================
@@ -250,7 +258,8 @@ export type NodeData =
   | VirtualMachineNodeData
   | ClusterNodeData
   | DatastoreNodeData
-  | ResourcePoolNodeData;
+  | ResourcePoolNodeData
+  | DatacenterNodeData;
 
 // ============================================================================
 // EDGE DATA TYPES
