@@ -1,4 +1,4 @@
-use axum::middleware::from_fn;
+use axum::{http::Method, middleware::from_fn};
 use std::net::{IpAddr, Ipv4Addr, SocketAddr, TcpListener as StdTcpListener};
 use tower_http::{cors::CorsLayer, trace::TraceLayer};
 
@@ -44,7 +44,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .layer(from_fn(middleware::request_logger))
         .layer(from_fn(middleware::validate_json_content_type))
         .layer(from_fn(middleware::validate_request_size))
-        .layer(CorsLayer::permissive()) // Add CORS for frontend
+        .layer(
+            // CORS configuration: Allow credentials from specific frontend origin
+            CorsLayer::new()
+                .allow_origin("http://localhost:1420".parse::<axum::http::HeaderValue>().unwrap())
+                .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE, Method::PATCH])
+                .allow_headers([
+                    axum::http::header::CONTENT_TYPE,
+                    axum::http::header::AUTHORIZATION,
+                ])
+                .allow_credentials(true)
+        )
         .layer(TraceLayer::new_for_http());
 
     // Determine bind host/port from env, prioritize Rust backend on 3001
