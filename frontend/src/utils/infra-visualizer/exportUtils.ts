@@ -7,7 +7,7 @@
  * - PDF: Document export with metadata
  */
 
-import html2canvas from 'html-to-image';
+import * as htmlToImage from 'html-to-image';
 import { jsPDF } from 'jspdf';
 
 export type ExportFormat = 'png' | 'svg' | 'pdf';
@@ -76,7 +76,7 @@ async function exportToPNG(
   quality: number,
   includeBackground: boolean
 ): Promise<void> {
-  const dataUrl = await html2canvas.toPng(element, {
+  const dataUrl = await htmlToImage.toPng(element, {
     quality,
     backgroundColor: includeBackground ? '#ffffff' : undefined,
     cacheBust: true,
@@ -94,7 +94,7 @@ async function exportToSVG(
   fileName: string,
   includeBackground: boolean
 ): Promise<void> {
-  const dataUrl = await html2canvas.toSvg(element, {
+  const dataUrl = await htmlToImage.toSvg(element, {
     backgroundColor: includeBackground ? '#ffffff' : undefined,
     cacheBust: true,
   });
@@ -113,7 +113,7 @@ async function exportToPDF(
   includeBackground: boolean
 ): Promise<void> {
   // First, capture as PNG
-  const dataUrl = await html2canvas.toPng(element, {
+  const dataUrl = await htmlToImage.toPng(element, {
     quality: 0.95,
     backgroundColor: includeBackground ? '#ffffff' : undefined,
     cacheBust: true,
@@ -210,7 +210,7 @@ export function getExportElement(containerRef: React.RefObject<HTMLDivElement>):
  */
 export async function copyToClipboard(element: HTMLElement): Promise<void> {
   try {
-    const blob = await html2canvas.toBlob(element, {
+    const blob = await htmlToImage.toBlob(element, {
       quality: 0.95,
       backgroundColor: '#ffffff',
       cacheBust: true,
