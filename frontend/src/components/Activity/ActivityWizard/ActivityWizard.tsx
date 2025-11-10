@@ -1,14 +1,13 @@
 /**
  * ActivityWizard - Main wizard container
  * 
- * 7-step guided wizard for creating migration activities:
- * 1. Activity Basics (name, type)
- * 2. Source/Destination (clusters, infrastructure)
- * 3. Hardware Compatibility (validation)
- * 4. Capacity Validation (resource check)
- * 5. Timeline Estimation (duration)
- * 6. Team Assignment (people, dates)
- * 7. Review & Submit (final confirmation)
+ * Dynamic multi-step wizard for creating activities (migration, decommission, expansion, etc.)
+ * Step count and fields adapt based on selected activity type:
+ * - Migration: 7 steps (full wizard)
+ * - Decommission: 5 steps (no target infrastructure, no hardware compat)
+ * - Expansion: 6 steps (no target infrastructure)
+ * - Maintenance: 4 steps (minimal fields)
+ * - Lifecycle: 6 steps (hardware refresh focus)
  */
 
 import React from 'react';
@@ -16,6 +15,7 @@ import { PurpleGlassCard } from '../../ui';
 import { useWizardContext } from './Context/WizardContext';
 import { useWizardStyles } from '../../../hooks/useWizardStyles';
 import { tokens } from '../../../styles/design-tokens';
+import { useWizardSteps } from './hooks/useWizardSteps';
 import WizardProgress from './WizardProgress';
 import WizardNavigation from './WizardNavigation';
 
@@ -40,7 +40,12 @@ const WizardContent: React.FC = () => {
     lastSavedAt,
     expiresAt,
     mode,
+    formData,
   } = useWizardContext();
+
+  // Get activity-type-specific step configuration
+  const activityType = formData.step1?.activity_type;
+  const { visibleSteps, totalSteps } = useWizardSteps(activityType);
 
   // Calculate days until expiration
   const daysUntilExpiration = expiresAt 
@@ -49,18 +54,12 @@ const WizardContent: React.FC = () => {
 
   const showExpirationWarning = daysUntilExpiration !== null && daysUntilExpiration <= 7;
 
-  // Step metadata
-  const stepInfo = [
-    { step: 1, title: 'Activity Basics', description: 'Define the activity name and type' },
-    { step: 2, title: 'Source & Destination', description: 'Select source cluster and target infrastructure' },
-    { step: 3, title: 'Hardware Compatibility', description: 'Validate hardware meets requirements' },
-    { step: 4, title: 'Capacity Validation', description: 'Ensure sufficient resource capacity' },
-    { step: 5, title: 'Timeline Estimation', description: 'Calculate migration duration' },
-    { step: 6, title: 'Team Assignment', description: 'Assign team members and schedule' },
-    { step: 7, title: 'Review & Submit', description: 'Review all details and create activity' },
-  ];
-
-  const currentStepInfo = stepInfo[currentStep - 1];
+  // Get current step metadata from visible steps
+  // Note: visibleSteps array is 0-indexed, but currentStep is 1-indexed
+  const currentStepInfo = visibleSteps[currentStep - 1] || {
+    title: 'Activity Basics',
+    description: 'Define the activity name and type',
+  };
   
   // Determine if we're in a modal
   const isInModal = mode === 'create' || mode === 'edit';

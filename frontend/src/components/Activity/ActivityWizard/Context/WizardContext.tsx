@@ -2,7 +2,7 @@
  * Wizard Context - State management for Activity Wizard
  * 
  * Provides:
- * - Step navigation
+ * - Step navigation (now activity-type-aware)
  * - Form data management
  * - Auto-save functionality
  * - Draft resume
@@ -21,6 +21,7 @@ import {
   CompleteWizardRequest,
   Activity,
 } from '../types/WizardTypes';
+import { getStepConfig, getTotalSteps } from '../config/WizardStepConfigs';
 
 const WizardContext = createContext<WizardContextValue | undefined>(undefined);
 
@@ -161,13 +162,20 @@ export const WizardProvider: React.FC<WizardProviderProps> = ({
   // ============================================================================
 
   const goToStep = useCallback((step: number) => {
-    if (step >= 1 && step <= 7) {
+    // Get total steps for current activity type (default to 7 if not selected yet)
+    const activityType = formDataRef.current.step1?.activity_type;
+    const maxSteps = activityType ? getTotalSteps(activityType) : 7;
+    
+    if (step >= 1 && step <= maxSteps) {
       setCurrentStep(step);
     }
   }, []);
 
   const nextStep = useCallback(() => {
-    if (currentStep < 7) {
+    const activityType = formDataRef.current.step1?.activity_type;
+    const maxSteps = activityType ? getTotalSteps(activityType) : 7;
+    
+    if (currentStep < maxSteps) {
       setCurrentStep(prev => prev + 1);
     }
   }, [currentStep]);
@@ -179,7 +187,10 @@ export const WizardProvider: React.FC<WizardProviderProps> = ({
   }, [currentStep]);
 
   const canGoNext = useCallback(() => {
-    return validateStep(currentStep) && currentStep < 7;
+    const activityType = formDataRef.current.step1?.activity_type;
+    const maxSteps = activityType ? getTotalSteps(activityType) : 7;
+    
+    return validateStep(currentStep) && currentStep < maxSteps;
   }, [currentStep, formData]);
 
   const canGoPrevious = useCallback(() => {
@@ -387,20 +398,17 @@ export const WizardProvider: React.FC<WizardProviderProps> = ({
   }, [formData]);
 
   const getStepCompletion = useCallback((): StepInfo[] => {
-    const steps: StepInfo[] = [
-      { step: 1, title: 'Activity Basics', description: 'Name and type', isComplete: false, isActive: false },
-      { step: 2, title: 'Source & Destination', description: 'Clusters and infrastructure', isComplete: false, isActive: false },
-      { step: 3, title: 'Hardware Compatibility', description: 'Validate hardware', isComplete: false, isActive: false },
-      { step: 4, title: 'Capacity Validation', description: 'Check resource capacity', isComplete: false, isActive: false },
-      { step: 5, title: 'Timeline Estimation', description: 'Calculate duration', isComplete: false, isActive: false },
-      { step: 6, title: 'Team Assignment', description: 'Assign team and dates', isComplete: false, isActive: false },
-      { step: 7, title: 'Review & Submit', description: 'Final review', isComplete: false, isActive: false },
-    ];
-
-    return steps.map(stepInfo => ({
-      ...stepInfo,
-      isComplete: validateStep(stepInfo.step),
-      isActive: stepInfo.step === currentStep,
+    // Get activity-type-specific step configuration
+    const activityType = formDataRef.current.step1?.activity_type;
+    const stepConfig = activityType ? getStepConfig(activityType) : getStepConfig('migration');
+    
+    // Build step info array from configuration
+    return stepConfig.steps.map((step, index) => ({
+      step: index + 1,  // 1-indexed for display
+      title: step.title,
+      description: step.description,
+      isComplete: validateStep(index + 1),
+      isActive: (index + 1) === currentStep,
     }));
   }, [currentStep, validateStep]);
 
