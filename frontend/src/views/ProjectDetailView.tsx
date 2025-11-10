@@ -44,7 +44,6 @@ import {
   SelectTabData,
   SelectTabEvent,
   Field,
-  Input,
   Dialog,
   DialogSurface,
   DialogBody,
@@ -52,7 +51,7 @@ import {
   DialogContent,
   DialogActions,
 } from '@fluentui/react-components';
-import { PurpleGlassDropdown, PurpleGlassButton } from '@/components/ui';
+import { PurpleGlassDropdown, PurpleGlassButton, PurpleGlassInput } from '@/components/ui';
 import { ACTIVITY_STATUS_OPTIONS } from '@/constants/projectFilters';
 
 import GanttChart from '../components/EnhancedGanttChart';
@@ -669,24 +668,15 @@ const ProjectDetailView: React.FC = () => {
                   marginBottom: tokens.spacingVerticalL,
                 }}
               >
-                <Field style={{ flex: 1 }}>
-                  <Input
+                <div style={{ flex: 1 }}>
+                  <PurpleGlassInput
                     placeholder="Search activities..."
                     value={searchQuery}
-                    onChange={(_, data) => setSearchQuery(data.value)}
-                    contentBefore={<SearchRegular />}
-                    aria-label="Search activities"
-                    className="lcm-search"
-                    style={{
-                      fontFamily: DesignTokens.typography.fontFamily,
-                      border: `1px solid ${DesignTokens.colors.gray300}`,
-                      borderRadius: DesignTokens.borderRadius.lg,
-                      padding: '12px 16px',
-                      color: DesignTokens.colors.gray700,
-                      width: '100%'
-                    }}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    prefixIcon={<SearchRegular />}
+                    glass="light"
                   />
-                </Field>
+                </div>
                 <div style={{ minWidth: '200px' }}>
                   <PurpleGlassDropdown
                     placeholder="Filter by status"

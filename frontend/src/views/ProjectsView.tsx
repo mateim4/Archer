@@ -11,8 +11,6 @@ import {
   Card,
   CardHeader,
   CardPreview,
-  Input,
-  Textarea,
   Dialog,
   DialogTrigger,
   DialogSurface,
@@ -61,7 +59,7 @@ import { apiClient, Project, CreateProjectRequest } from '../utils/apiClient';
 import { DESIGN_TOKENS } from '../components/DesignSystem';
 import { DesignTokens, getStatusColor, getPriorityColor } from '../styles/designSystem';
 import GlassmorphicSearchBar from '../components/GlassmorphicSearchBar';
-import { PurpleGlassButton } from '@/components/ui';
+import { PurpleGlassButton, PurpleGlassInput, PurpleGlassTextarea } from '@/components/ui';
 
 const useStyles = makeStyles({
   header: {
@@ -1117,22 +1115,22 @@ export default function ProjectsView() {
                 )}
                 <div className={styles.formField}>
                   <label className={styles.formLabel}>Project Name</label>
-                  <Input
+                  <PurpleGlassInput
                     data-testid="project-name-input"
                     value={newProject.name}
-                    onChange={(_, data) => setNewProject({ ...newProject, name: data.value })}
+                    onChange={(e) => setNewProject({ ...newProject, name: e.target.value })}
                     placeholder="Enter project name"
-                    size="large"
+                    glass="light"
                   />
                 </div>
                 <div className={styles.formField}>
                   <label className={styles.formLabel}>Description</label>
-                  <Textarea
+                  <PurpleGlassTextarea
                     data-testid="project-description-input"
                     value={newProject.description}
-                    onChange={(_, data) => setNewProject({ ...newProject, description: data.value })}
+                    onChange={(e) => setNewProject({ ...newProject, description: e.target.value })}
                     placeholder="Enter project description"
-                    rows={4}
+                    glass="light"
                   />
                 </div>
                 <div className={styles.formField}>
