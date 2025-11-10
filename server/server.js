@@ -13,6 +13,7 @@ async function initDatabase() {
   try {
     db = new Surreal();
     await db.connect('ws://localhost:8000/rpc');
+    await db.signin({ username: 'root', password: 'root' });
     await db.use({ namespace: 'lcmdesigner', database: 'projects' });
     console.log('✅ Connected to SurrealDB successfully');
     dbConnected = true;
@@ -90,6 +91,20 @@ async function initializeSchema() {
       DEFINE FIELD roles ON local_user TYPE array<string> DEFAULT [];
       DEFINE FIELD active ON local_user TYPE bool DEFAULT true;
       DEFINE FIELD created_at ON local_user TYPE datetime DEFAULT time::now();
+    `);
+  } catch (_) {}
+
+  try {
+    await db.query(`
+      DEFINE TABLE rvtools_upload SCHEMAFULL;
+      DEFINE FIELD project_id ON rvtools_upload TYPE option<record(project)>;
+      DEFINE FIELD filename ON rvtools_upload TYPE string ASSERT $value != NONE;
+      DEFINE FIELD file_type ON rvtools_upload TYPE string DEFAULT 'xlsx';
+      DEFINE FIELD uploaded_at ON rvtools_upload TYPE datetime DEFAULT time::now();
+      DEFINE FIELD processed ON rvtools_upload TYPE bool DEFAULT false;
+      DEFINE FIELD vm_count ON rvtools_upload TYPE int DEFAULT 0;
+      DEFINE FIELD host_count ON rvtools_upload TYPE int DEFAULT 0;
+      DEFINE FIELD cluster_count ON rvtools_upload TYPE int DEFAULT 0;
     `);
   } catch (_) {}
 }
@@ -616,6 +631,123 @@ app.delete('/api/users/:userId', async (req, res) => {
   }
 });
 
+// ============================================================================
+// RVTOOLS ENDPOINTS
+// ============================================================================
+
+// GET /api/rvtools/uploads - List all RVTools uploads with optional filters
+app.get('/api/rvtools/uploads', async (req, res) => {
+  if (!dbConnected) {
+    return res.status(503).json({ error: 'Database not available' });
+  }
+
+  try {
+    const { project_id, processed, limit } = req.query;
+    
+    // Build query based on filters
+    let query = 'SELECT * FROM rvtools_upload';
+    const conditions = [];
+    
+    if (project_id) {
+      conditions.push(`project_id = "${project_id}"`);
+    }
+    if (processed !== undefined) {
+      conditions.push(`processed = ${processed === 'true'}`);
+    }
+    
+    if (conditions.length > 0) {
+      query += ' WHERE ' + conditions.join(' AND ');
+    }
+    
+    query += ' ORDER BY uploaded_at DESC';
+    
+    if (limit) {
+      query += ` LIMIT ${parseInt(limit)}`;
+    }
+
+    const result = await db.query(query);
+    const uploads = result[0] || [];
+    
+    return res.json({ uploads });
+  } catch (err) {
+    console.error('Failed to fetch RVTools uploads:', err);
+    return res.status(500).json({ error: 'Failed to fetch uploads', message: err.message });
+  }
+});
+
+// POST /api/rvtools/upload - Upload and process RVTools data
+app.post('/api/rvtools/upload', async (req, res) => {
+  if (!dbConnected) {
+    return res.status(503).json({ error: 'Database not available' });
+  }
+
+  try {
+    const { project_id, filename, file_data, file_type } = req.body;
+
+    if (!filename) {
+      return res.status(400).json({ error: 'Missing required field: filename' });
+    }
+
+    // Create the upload record
+    const uploadRecord = await db.create('rvtools_upload', {
+      project_id: project_id || null,
+      filename,
+      file_type: file_type || 'xlsx',
+      uploaded_at: new Date().toISOString(),
+      processed: false,
+      vm_count: 0,
+      host_count: 0,
+      cluster_count: 0,
+    });
+
+    return res.status(201).json({
+      upload_id: uploadRecord[0].id,
+      message: 'RVTools data uploaded successfully',
+      upload: uploadRecord[0],
+    });
+  } catch (err) {
+    console.error('Failed to upload RVTools data:', err);
+    return res.status(500).json({ error: 'Failed to upload', message: err.message });
+  }
+});
+
+// GET /api/rvtools/uploads/:id - Get a specific upload by ID
+app.get('/api/rvtools/uploads/:id', async (req, res) => {
+  if (!dbConnected) {
+    return res.status(503).json({ error: 'Database not available' });
+  }
+
+  try {
+    const { id } = req.params;
+    const result = await db.select(id);
+    
+    if (!result || result.length === 0) {
+      return res.status(404).json({ error: 'Upload not found' });
+    }
+
+    return res.json({ upload: result[0] });
+  } catch (err) {
+    console.error('Failed to fetch RVTools upload:', err);
+    return res.status(500).json({ error: 'Failed to fetch upload', message: err.message });
+  }
+});
+
+// DELETE /api/rvtools/uploads/:id - Delete an upload
+app.delete('/api/rvtools/uploads/:id', async (req, res) => {
+  if (!dbConnected) {
+    return res.status(503).json({ error: 'Database not available' });
+  }
+
+  try {
+    const { id } = req.params;
+    await db.delete(id);
+    return res.json({ message: 'Upload deleted successfully' });
+  } catch (err) {
+    console.error('Failed to delete RVTools upload:', err);
+    return res.status(500).json({ error: 'Failed to delete upload', message: err.message });
+  }
+});
+
 // Start server
 app.listen(PORT, async () => {
   console.log('🚀 LCM Designer Server starting...');
@@ -647,6 +779,10 @@ app.listen(PORT, async () => {
   console.log('  POST   /api/users');
   console.log('  PUT    /api/users/:userId');
   console.log('  DELETE /api/users/:userId');
+  console.log('  GET    /api/rvtools/uploads');
+  console.log('  POST   /api/rvtools/upload');
+  console.log('  GET    /api/rvtools/uploads/:id');
+  console.log('  DELETE /api/rvtools/uploads/:id');
 });
 
 // Graceful shutdown
