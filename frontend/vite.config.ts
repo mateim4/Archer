@@ -23,7 +23,7 @@ export default defineConfig({
     strictPort: true,
     proxy: {
       '/api': {
-        target: 'http://127.0.0.1:3001',
+        target: 'http://127.0.0.1:3003', // Node.js backend (temporary - Rust backend on 3001 has compilation errors)
         changeOrigin: true,
         secure: false,
       },
