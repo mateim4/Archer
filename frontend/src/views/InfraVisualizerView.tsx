@@ -3,9 +3,15 @@
  * 
  * Main standalone view for the infrastructure visualization tool.
  * Provides a complete UI for viewing, filtering, and exporting network diagrams.
+ * 
+ * Supports URL parameters:
+ * - ?source=hardware-pool - Auto-load hardware pool data
+ * - ?source=rvtools - Auto-load latest RVTools import
+ * - ?source=migration - Auto-load migration topology
  */
 
-import React, { useRef, useState, useCallback } from 'react';
+import React, { useRef, useState, useCallback, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { makeStyles, shorthands, tokens as fluentTokens } from '@fluentui/react-components';
 import {
   ArrowDownload24Regular,
@@ -19,6 +25,7 @@ import {
 import { PurpleGlassButton } from '@/components/ui';
 import { InfraVisualizerCanvas } from '@/components/infra-visualizer';
 import { useInfraVisualizerStore } from '@/stores/useInfraVisualizerStore';
+import { useLoadHardwarePoolData, useLoadRVToolsData } from '@/hooks/useInfraVisualizerIntegration';
 import { exportVisualization, copyToClipboard, getExportElement, type ExportFormat } from '@/utils/infra-visualizer/exportUtils';
 import { tokens, purplePalette, glassEffects } from '@/styles/design-tokens';
 
@@ -153,15 +160,61 @@ const useStyles = makeStyles({
 export function InfraVisualizerView() {
   const styles = useStyles();
   const canvasRef = useRef<HTMLDivElement>(null);
+  const [searchParams] = useSearchParams();
 
   // Zustand store
   const { visibleNodes, visibleEdges, allNodes, allEdges, clearGraph } = useInfraVisualizerStore();
+
+  // Integration hooks
+  const loadHardwarePoolData = useLoadHardwarePoolData();
+  const loadRVToolsData = useLoadRVToolsData();
 
   // Local state
   const [showExportMenu, setShowExportMenu] = useState(false);
   const [showLegend, setShowLegend] = useState(true);
   const [showMinimap, setShowMinimap] = useState(true);
   const [isExporting, setIsExporting] = useState(false);
+  const [dataSource, setDataSource] = useState<string | null>(null);
+
+  /**
+   * Auto-load data based on URL parameters
+   */
+  useEffect(() => {
+    const source = searchParams.get('source');
+    if (!source || dataSource === source) return;
+
+    setDataSource(source);
+
+    switch (source) {
+      case 'hardware-pool': {
+        const result = loadHardwarePoolData();
+        if (result.success) {
+          console.log(`✓ Loaded ${result.nodeCount} nodes from Hardware Pool`);
+        } else {
+          console.error('Failed to load hardware pool data:', result.error);
+        }
+        break;
+      }
+
+      case 'rvtools': {
+        const result = loadRVToolsData();
+        if (result.success) {
+          console.log('✓ Loaded RVTools data');
+        } else {
+          console.error('Failed to load RVTools data:', result.error);
+        }
+        break;
+      }
+
+      case 'migration':
+        // Future: Load migration topology (source + target side-by-side)
+        console.log('Migration topology visualization - Coming soon');
+        break;
+
+      default:
+        console.warn(`Unknown data source: ${source}`);
+    }
+  }, [searchParams, dataSource, loadHardwarePoolData, loadRVToolsData]);
 
   /**
    * Handle export to various formats
