@@ -38,6 +38,10 @@ export type { PurpleGlassRadioProps, PurpleGlassRadioGroupProps } from './Purple
 // Switch Components
 export { PurpleGlassSwitch } from './PurpleGlassSwitch';
 export type { PurpleGlassSwitchProps } from './PurpleGlassSwitch';
+
+// Navigation Components
+export { PurpleGlassBreadcrumb } from './PurpleGlassBreadcrumb';
+
 // export { PurpleGlassCheckbox } from './PurpleGlassCheckbox';
 // export { PurpleGlassRadio } from './PurpleGlassRadio';
 // export { PurpleGlassSwitch } from './PurpleGlassSwitch';

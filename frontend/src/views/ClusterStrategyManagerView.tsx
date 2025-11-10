@@ -10,14 +10,17 @@ import {
   ErrorCircleRegular,
   ClockRegular,
   ArrowSyncRegular,
-  InfoRegular
+  InfoRegular,
+  HomeRegular,
+  FolderRegular,
+  DiagramRegular
 } from '@fluentui/react-icons';
 import { Spinner, Badge, Card, Button } from '@fluentui/react-components';
 import { tokens } from '@/styles/design-tokens';
 import { DesignTokens } from '@/styles/designSystem';
 import { ClusterStrategyModal } from '../components/ClusterStrategy/ClusterStrategyModal';
 import { ClusterStrategyList } from '../components/ClusterStrategy/ClusterStrategyList';
-import { PurpleGlassButton, PurpleGlassCard } from '@/components/ui';
+import { PurpleGlassButton, PurpleGlassCard, PurpleGlassBreadcrumb } from '@/components/ui';
 
 interface Activity {
   id: string;
@@ -438,6 +441,16 @@ const ClusterStrategyManagerView: React.FC = () => {
           overflow: 'visible'
         }}
       >
+        {/* Breadcrumb Navigation */}
+        <PurpleGlassBreadcrumb
+          items={[
+            { label: 'Home', path: '/', icon: <HomeRegular /> },
+            { label: 'Projects', path: '/app/projects', icon: <FolderRegular /> },
+            { label: 'Project', path: `/app/projects/${projectId}`, icon: <FolderRegular /> },
+            { label: activity?.name || 'Activity', icon: <DiagramRegular /> }, // Current - no path
+          ]}
+        />
+
         {/* Activity Header Section */}
         <div style={{ marginBottom: tokens.xxl }}>
           <div style={{

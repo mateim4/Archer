@@ -23,7 +23,8 @@ import {
   InfoRegular,
   ArrowTrendingRegular,
   FolderRegular,
-  DiagramRegular
+  DiagramRegular,
+  HomeRegular
 } from '@fluentui/react-icons';
 import GanttChart from '../components/GanttChart';
 import GlassmorphicSearchBar from '../components/GlassmorphicSearchBar';
@@ -42,7 +43,7 @@ import { useEnhancedUX } from '../hooks/useEnhancedUX';
 import { DesignTokens } from '../styles/designSystem';
 import { ActivityWizardModal } from '../components/Activity/ActivityWizardModal';
 import { tokens, colors } from '@/styles/design-tokens';
-import { PurpleGlassButton } from '@/components/ui';
+import { PurpleGlassButton, PurpleGlassBreadcrumb } from '@/components/ui';
 
 interface Activity {
   id: string;
@@ -586,6 +587,15 @@ const ProjectWorkspaceView: React.FC = () => {
           overflow: 'visible'
         }}
       >
+        {/* Breadcrumb Navigation */}
+        <PurpleGlassBreadcrumb
+          items={[
+            { label: 'Home', path: '/', icon: <HomeRegular /> },
+            { label: 'Projects', path: '/app/projects', icon: <FolderRegular /> },
+            { label: project?.name || 'Project' }, // Current - no path
+          ]}
+        />
+
         {/* Project Header Section */}
         <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border-b border-purple-200 pb-4 mb-6">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
