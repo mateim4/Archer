@@ -178,11 +178,11 @@ const HardwarePoolView: React.FC = () => {
           gap: '12px',
           marginBottom: '8px'
         }}>
-          <ServerRegular style={{ fontSize: '32px', color: '#000000' }} />
+          <ServerRegular style={{ fontSize: '32px', color: DesignTokens.colors.gray900 }} />
           <h1 style={{ 
             fontSize: DesignTokens.typography.xxxl,
             fontWeight: DesignTokens.typography.semibold,
-            color: '#8b5cf6',
+            color: DesignTokens.colors.primary,
             margin: '0',
             fontFamily: DesignTokens.typography.fontFamily
           }}>
@@ -191,7 +191,7 @@ const HardwarePoolView: React.FC = () => {
         </div>
         <p style={{
           fontSize: '16px',
-          color: '#64748b',
+          color: DesignTokens.colors.gray600,
           margin: 0,
           fontFamily: DesignTokens.typography.fontFamily,
           paddingLeft: '44px'
@@ -452,12 +452,12 @@ const HardwarePoolView: React.FC = () => {
           <div style={{
             fontSize: '14px',
             fontWeight: '500',
-            color: '#6366f1',
+            color: DesignTokens.colorVariants.indigo.base,
             fontFamily: 'Oxanium, sans-serif'
           }}>
             <DataBarHorizontalRegular style={{ marginRight: '8px' }} />Showing {filteredAssets.length} of {hardwarePoolAssets.length} assets
             {(searchTerm || statusFilter !== 'All' || manufacturerFilter !== 'All') && (
-              <span style={{ color: '#8b5cf6', marginLeft: '8px' }}>
+              <span style={{ color: DesignTokens.colors.primary, marginLeft: '8px' }}>
                 (filtered)
               </span>
             )}
@@ -469,17 +469,17 @@ const HardwarePoolView: React.FC = () => {
             fontSize: '12px',
             fontFamily: 'Oxanium, sans-serif'
           }}>
-            <span style={{ color: '#10b981' }}>
-              <CircleRegular style={{ marginRight: '4px', color: '#10b981' }} />Available: {filteredAssets.filter(a => a.status === 'Available').length}
+            <span style={{ color: DesignTokens.colors.success }}>
+              <CircleRegular style={{ marginRight: '4px', color: DesignTokens.colors.success }} />Available: {filteredAssets.filter(a => a.status === 'Available').length}
             </span>
-            <span style={{ color: '#f59e0b' }}>
-              <CircleRegular style={{ marginRight: '4px', color: '#f59e0b' }} />In Use: {filteredAssets.filter(a => a.status === 'InUse').length}
+            <span style={{ color: DesignTokens.colors.warning }}>
+              <CircleRegular style={{ marginRight: '4px', color: DesignTokens.colors.warning }} />In Use: {filteredAssets.filter(a => a.status === 'InUse').length}
             </span>
-            <span style={{ color: '#ef4444' }}>
-              <CircleRegular style={{ marginRight: '4px', color: '#ef4444' }} />Locked: {filteredAssets.filter(a => a.status === 'Locked').length}
+            <span style={{ color: DesignTokens.colors.error }}>
+              <CircleRegular style={{ marginRight: '4px', color: DesignTokens.colors.error }} />Locked: {filteredAssets.filter(a => a.status === 'Locked').length}
             </span>
-            <span style={{ color: '#8b5cf6' }}>
-              <WrenchRegular style={{ marginRight: '4px', color: '#8b5cf6' }} />Maintenance: {filteredAssets.filter(a => a.status === 'Maintenance').length}
+            <span style={{ color: DesignTokens.colors.primary }}>
+              <WrenchRegular style={{ marginRight: '4px', color: DesignTokens.colors.primary }} />Maintenance: {filteredAssets.filter(a => a.status === 'Maintenance').length}
             </span>
           </div>
         </div>
@@ -513,15 +513,15 @@ const HardwarePoolView: React.FC = () => {
               <tr style={{ 
                 borderBottom: '2px solid rgba(99, 102, 241, 0.3)'
               }}>
-                <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', color: '#6366f1' }}>Name</th>
-                <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', color: '#6366f1' }}>Manufacturer</th>
-                <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', color: '#6366f1' }}>Model</th>
-                <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', color: '#6366f1' }}>CPU Cores</th>
-                <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', color: '#6366f1' }}>Memory (GB)</th>
-                <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', color: '#6366f1' }}>Storage (GB)</th>
-                <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', color: '#6366f1' }}>Status</th>
-                <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', color: '#6366f1' }}>Location</th>
-                <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', color: '#6366f1' }}>Actions</th>
+                <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', color: DesignTokens.colorVariants.indigo.base }}>Name</th>
+                <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', color: DesignTokens.colorVariants.indigo.base }}>Manufacturer</th>
+                <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', color: DesignTokens.colorVariants.indigo.base }}>Model</th>
+                <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', color: DesignTokens.colorVariants.indigo.base }}>CPU Cores</th>
+                <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', color: DesignTokens.colorVariants.indigo.base }}>Memory (GB)</th>
+                <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', color: DesignTokens.colorVariants.indigo.base }}>Storage (GB)</th>
+                <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', color: DesignTokens.colorVariants.indigo.base }}>Status</th>
+                <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', color: DesignTokens.colorVariants.indigo.base }}>Location</th>
+                <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', color: DesignTokens.colorVariants.indigo.base }}>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -587,10 +587,10 @@ const HardwarePoolView: React.FC = () => {
           textAlign: 'center',
           cursor: 'default'
         }}>
-          <div style={{ fontSize: '24px', fontWeight: '600', color: '#10b981' }}>
+          <div style={{ fontSize: '24px', fontWeight: '600', color: DesignTokens.colors.success }}>
             {hardwarePoolAssets.filter(a => a.status === 'Available').length}
           </div>
-          <div style={{ fontSize: '14px', color: '#6b7280' }}>Available Assets</div>
+          <div style={{ fontSize: '14px', color: DesignTokens.colors.gray600 }}>Available Assets</div>
         </div>
         
         <div style={{
@@ -598,10 +598,10 @@ const HardwarePoolView: React.FC = () => {
           textAlign: 'center',
           cursor: 'default'
         }}>
-          <div style={{ fontSize: '24px', fontWeight: '600', color: '#f59e0b' }}>
+          <div style={{ fontSize: '24px', fontWeight: '600', color: DesignTokens.colors.warning }}>
             {hardwarePoolAssets.filter(a => a.status === 'InUse').length}
           </div>
-          <div style={{ fontSize: '14px', color: '#6b7280' }}>In Use</div>
+          <div style={{ fontSize: '14px', color: DesignTokens.colors.gray600 }}>In Use</div>
         </div>
         
         <div style={{
@@ -609,10 +609,10 @@ const HardwarePoolView: React.FC = () => {
           textAlign: 'center',
           cursor: 'default'
         }}>
-          <div style={{ fontSize: '24px', fontWeight: '600', color: '#6366f1' }}>
+          <div style={{ fontSize: '24px', fontWeight: '600', color: DesignTokens.colorVariants.indigo.base }}>
             {hardwarePoolAssets.length}
           </div>
-          <div style={{ fontSize: '14px', color: '#6b7280' }}>Total Assets</div>
+          <div style={{ fontSize: '14px', color: DesignTokens.colors.gray600 }}>Total Assets</div>
         </div>
       </div>
 
