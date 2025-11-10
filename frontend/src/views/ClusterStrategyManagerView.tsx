@@ -418,27 +418,15 @@ const ClusterStrategyManagerView: React.FC = () => {
     <>
       {/* Back Button - Fixed position, outside main card, top-left like ProjectWorkspace */}
       <div style={{ position: 'fixed', top: '28px', left: '356px', zIndex: 100 }}>
-        <button
+        <PurpleGlassButton
+          variant="secondary"
+          size="medium"
+          icon={<ArrowLeftRegular />}
           onClick={() => navigate(`/app/projects/${projectId}`)}
-          className="flex items-center space-x-2"
-          style={{
-            ...DesignTokens.components.button.secondary,
-            width: 'auto',
-          }}
-          onMouseEnter={(e) => {
-            const target = e.currentTarget as HTMLElement;
-            target.style.transform = 'translateY(-2px)';
-            target.style.boxShadow = '0 4px 12px rgba(99, 102, 241, 0.25)';
-          }}
-          onMouseLeave={(e) => {
-            const target = e.currentTarget as HTMLElement;
-            target.style.transform = 'translateY(0)';
-            target.style.boxShadow = '0 1px 4px rgba(99, 102, 241, 0.15)';
-          }}
+          glass
         >
-          <ArrowLeftRegular className="w-4 h-4" />
-          <span>Back to Project</span>
-        </button>
+          Back to Project
+        </PurpleGlassButton>
       </div>
 
       {/* Main Unified Card - pageContainer IS the main card with 20px borderRadius */}
