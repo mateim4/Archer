@@ -420,40 +420,19 @@ const HardwarePoolView: React.FC = () => {
 
         {/* Clear Filters Button */}
         {(searchTerm || statusFilter !== 'All' || manufacturerFilter !== 'All') && (
-          <button
+          <PurpleGlassButton
+            variant="secondary"
+            size="medium"
+            icon={<BroomRegular />}
             onClick={() => {
               setSearchTerm('');
               setStatusFilter('All');
               setManufacturerFilter('All');
             }}
-            style={{
-              ...DesignTokens.components.standardCard,
-              padding: '14px 20px',
-              color: '#6366f1',
-              fontSize: '14px',
-              fontWeight: '500',
-              cursor: 'pointer',
-              fontFamily: 'Oxanium, sans-serif'
-            }}
-            onMouseEnter={(e) => {
-              const target = e.currentTarget as HTMLElement;
-              Object.assign(target.style, DesignTokens.components.standardCardHover);
-            }}
-            onMouseLeave={(e) => {
-              const target = e.currentTarget as HTMLElement;
-              Object.assign(target.style, {
-                ...DesignTokens.components.standardCard,
-                padding: '14px 20px',
-                color: '#6366f1',
-                fontSize: '14px',
-                fontWeight: '500',
-                cursor: 'pointer',
-                fontFamily: 'Oxanium, sans-serif'
-              });
-            }}
+            glass
           >
-            <BroomRegular style={{ marginRight: '8px' }} />Clear Filters
-          </button>
+            Clear Filters
+          </PurpleGlassButton>
         )}
       </div>
 
@@ -571,40 +550,22 @@ const HardwarePoolView: React.FC = () => {
                   <td style={{ padding: '12px' }}>{asset.location}</td>
                   <td style={{ padding: '12px' }}>
                     <div style={{ display: 'flex', gap: '8px' }}>
-                      <button
+                      <PurpleGlassButton
+                        variant="primary"
+                        size="small"
                         onClick={() => handleEdit(asset)}
-                        style={{
-                          background: '#6366f1',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '4px',
-                          padding: '6px 12px',
-                          fontSize: '12px',
-                          cursor: 'pointer',
-                          transition: 'background 0.2s'
-                        }}
-                        onMouseOver={(e) => e.currentTarget.style.background = '#5046e5'}
-                        onMouseOut={(e) => e.currentTarget.style.background = '#6366f1'}
+                        glass
                       >
                         Edit
-                      </button>
-                      <button
+                      </PurpleGlassButton>
+                      <PurpleGlassButton
+                        variant="danger"
+                        size="small"
                         onClick={() => handleDelete(asset.id)}
-                        style={{
-                          background: '#ef4444',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '4px',
-                          padding: '6px 12px',
-                          fontSize: '12px',
-                          cursor: 'pointer',
-                          transition: 'background 0.2s'
-                        }}
-                        onMouseOver={(e) => e.currentTarget.style.background = '#dc2626'}
-                        onMouseOut={(e) => e.currentTarget.style.background = '#ef4444'}
+                        glass
                       >
                         Delete
-                      </button>
+                      </PurpleGlassButton>
                     </div>
                   </td>
                 </tr>
