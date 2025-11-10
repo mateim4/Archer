@@ -33,7 +33,6 @@ import {
   DialogBody,
   DialogContent,
   DialogActions,
-  Input,
   Dropdown,
   makeStyles,
   tokens,
@@ -51,7 +50,7 @@ import {
   Settings24Regular,
   DocumentText24Regular,
 } from '@fluentui/react-icons';
-import { PurpleGlassDropdown } from '../components/ui';
+import { PurpleGlassDropdown, PurpleGlassInput } from '../components/ui';
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Group } from '@visx/group';
 import { Bar as VisxBar } from '@visx/shape';
@@ -641,7 +640,7 @@ export const HardwareLifecycleView: React.FC = () => {
               <div style={{ marginBottom: tokens.spacingVerticalL }}>
                 <label>
                   <Text weight="semibold">EOL Threshold (months)</Text>
-                  <Input type="number" defaultValue="12" style={{ marginTop: tokens.spacingVerticalS }} />
+                  <PurpleGlassInput type="number" defaultValue="12" glass="light" />
                   <Caption1>Hardware within this threshold will be marked as "Near EOL"</Caption1>
                 </label>
               </div>

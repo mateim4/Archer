@@ -9,7 +9,6 @@ import {
   Button,
   Badge,
   Divider,
-  Input,
   Dialog,
   DialogTrigger,
   DialogSurface,
@@ -17,7 +16,6 @@ import {
   DialogContent,
   DialogBody,
   DialogActions,
-  Textarea,
   Label,
   Select,
   Spinner
@@ -42,6 +40,7 @@ import {
   ErrorCircleRegular,
   ArrowUploadRegular
 } from '@fluentui/react-icons';
+import { PurpleGlassInput, PurpleGlassTextarea } from '@/components/ui';
 
 interface DocumentTemplate {
   id: string;
@@ -782,11 +781,11 @@ const DocumentTemplatesView: React.FC = () => {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                 <div>
                   <Label htmlFor="template-name">Template Name</Label>
-                  <Input
+                  <PurpleGlassInput
                     id="template-name"
                     value={editForm.name}
-                    onChange={(_, data) => setEditForm({ ...editForm, name: data.value })}
-                    style={{ marginTop: '4px' }}
+                    onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                    glass="light"
                   />
                 </div>
                 <div>
@@ -808,24 +807,22 @@ const DocumentTemplatesView: React.FC = () => {
               
               <div>
                 <Label htmlFor="template-description">Description</Label>
-                <Textarea
+                <PurpleGlassTextarea
                   id="template-description"
                   value={editForm.description}
-                  onChange={(_, data) => setEditForm({ ...editForm, description: data.value })}
-                  rows={3}
-                  style={{ marginTop: '4px' }}
+                  onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                  glass="light"
                 />
               </div>
               
               <div>
                 <Label htmlFor="template-content">Template Content</Label>
-                <Textarea
+                <PurpleGlassTextarea
                   id="template-content"
                   value={editForm.content}
-                  onChange={(_, data) => setEditForm({ ...editForm, content: data.value })}
-                  rows={15}
+                  onChange={(e) => setEditForm({ ...editForm, content: e.target.value })}
+                  glass="light"
                   style={{ 
-                    marginTop: '4px',
                     fontFamily: 'monospace',
                     fontSize: '13px'
                   }}

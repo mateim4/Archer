@@ -5,7 +5,7 @@ import { InfoTooltip } from '../components/Tooltip';
 import { autoSave } from '../utils/autoSave';
 import { DESIGN_TOKENS } from '../components/DesignSystem';
 import { DesignTokens } from '../styles/designSystem';
-import { PurpleGlassDropdown } from '../components/ui';
+import { PurpleGlassDropdown, PurpleGlassInput } from '../components/ui';
 import type { DropdownOption } from '../components/ui';
 
 const SettingsView: React.FC = () => {
@@ -73,13 +73,13 @@ const SettingsView: React.FC = () => {
                 </label>
                 <InfoTooltip content="Time horizon for capacity planning calculations" />
               </div>
-              <input 
+              <PurpleGlassInput
                 type="number" 
-                className="lcm-input w-full"
                 value={calculationSettings.forecastPeriod}
                 onChange={(e) => setCalculationSettings(prev => ({ ...prev, forecastPeriod: e.target.value }))}
                 min="1"
                 max="120"
+                glass="light"
               />
             </div>
             
@@ -90,13 +90,13 @@ const SettingsView: React.FC = () => {
                 </label>
                 <InfoTooltip content="Strategic planning timeframe for hardware lifecycle" />
               </div>
-              <input 
+              <PurpleGlassInput
                 type="number" 
-                className="lcm-input w-full"
                 value={calculationSettings.planningHorizon}
                 onChange={(e) => setCalculationSettings(prev => ({ ...prev, planningHorizon: e.target.value }))}
                 min="1"
                 max="10"
+                glass="light"
               />
             </div>
 
@@ -132,14 +132,14 @@ const SettingsView: React.FC = () => {
                 </label>
                 <InfoTooltip content="Virtual CPUs to physical CPU cores ratio (e.g., 4:1)" />
               </div>
-              <input 
+              <PurpleGlassInput
                 type="number" 
                 step="0.1"
-                className="lcm-input w-full"
                 value={calculationSettings.cpuOvercommit}
                 onChange={(e) => setCalculationSettings(prev => ({ ...prev, cpuOvercommit: e.target.value }))}
                 min="1.0"
                 max="10.0"
+                glass="light"
               />
             </div>
             
@@ -150,14 +150,14 @@ const SettingsView: React.FC = () => {
                 </label>
                 <InfoTooltip content="Virtual memory to physical memory ratio" />
               </div>
-              <input 
+              <PurpleGlassInput
                 type="number" 
                 step="0.1"
-                className="lcm-input w-full"
                 value={calculationSettings.memoryOvercommit}
                 onChange={(e) => setCalculationSettings(prev => ({ ...prev, memoryOvercommit: e.target.value }))}
                 min="1.0"
                 max="3.0"
+                glass="light"
               />
             </div>
 
@@ -168,14 +168,14 @@ const SettingsView: React.FC = () => {
                 </label>
                 <InfoTooltip content="Expected storage efficiency from compression and deduplication" />
               </div>
-              <input 
+              <PurpleGlassInput
                 type="number" 
                 step="0.1"
-                className="lcm-input w-full"
                 value={calculationSettings.storageEfficiency}
                 onChange={(e) => setCalculationSettings(prev => ({ ...prev, storageEfficiency: e.target.value }))}
                 min="1.0"
                 max="5.0"
+                glass="light"
               />
             </div>
           </div>
