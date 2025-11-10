@@ -61,6 +61,7 @@ import { apiClient, Project, CreateProjectRequest } from '../utils/apiClient';
 import { DESIGN_TOKENS } from '../components/DesignSystem';
 import { DesignTokens, getStatusColor, getPriorityColor } from '../styles/designSystem';
 import GlassmorphicSearchBar from '../components/GlassmorphicSearchBar';
+import { PurpleGlassButton } from '@/components/ui';
 
 const useStyles = makeStyles({
   header: {
@@ -637,32 +638,16 @@ export default function ProjectsView() {
           <FolderRegular style={{ fontSize: '32px', color: '#000000' }} />
           Projects
         </h2>
-        <Button
+        <PurpleGlassButton
           data-testid="create-project-button"
-          appearance="primary"
-          style={{
-            ...DesignTokens.components.button.primary,
-            borderRadius: DesignTokens.borderRadius.md,
-            transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
-          }}
+          variant="primary"
+          size="large"
           icon={<AddRegular />}
           onClick={() => setShowCreateDialog(true)}
-          size="large"
-          onMouseEnter={(e) => {
-            const target = e.currentTarget as HTMLElement;
-            target.style.transform = 'translateY(-3px) scale(1.05)';
-            target.style.background = 'linear-gradient(135deg, #7c3aed 0%, #9333ea 100%)';
-            target.style.boxShadow = '0 12px 24px rgba(99, 102, 241, 0.4), 0 6px 16px rgba(0, 0, 0, 0.2)';
-          }}
-          onMouseLeave={(e) => {
-            const target = e.currentTarget as HTMLElement;
-            target.style.transform = 'translateY(0) scale(1)';
-            target.style.background = 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)';
-            target.style.boxShadow = '0 2px 8px rgba(99, 102, 241, 0.25)';
-          }}
+          glass
         >
           Add New Project
-        </Button>
+        </PurpleGlassButton>
       </div>
 
       {/* Error Message */}
@@ -800,17 +785,15 @@ export default function ProjectsView() {
                 }
               </Body2>
               {projects.length === 0 && (
-                <Button
-                  appearance="primary"
-                  style={{
-                    ...DesignTokens.components.button.primary,
-                    borderRadius: DesignTokens.borderRadius.md
-                  }}
+                <PurpleGlassButton
+                  variant="primary"
+                  size="medium"
                   icon={<AddRegular />}
                   onClick={() => setShowCreateDialog(true)}
+                  glass
                 >
                   Create your first project
-                </Button>
+                </PurpleGlassButton>
               )}
             </Card>
           ) : (
@@ -1183,27 +1166,23 @@ export default function ProjectsView() {
                 </div>
               </DialogContent>
               <DialogActions>
-                <Button 
-                  appearance="secondary" 
+                <PurpleGlassButton 
+                  variant="secondary"
+                  size="medium"
                   onClick={() => setShowCreateDialog(false)}
-                  style={{
-                    ...DesignTokens.components.button.secondary,
-                    borderRadius: DesignTokens.borderRadius.md
-                  }}
+                  glass
                 >
                   Cancel
-                </Button>
-                <Button 
+                </PurpleGlassButton>
+                <PurpleGlassButton 
                   type="submit" 
+                  variant="primary"
+                  size="medium"
                   data-testid="submit-project-button"
-                  appearance="primary"
-                  style={{
-                    ...DesignTokens.components.button.primary,
-                    borderRadius: DesignTokens.borderRadius.md
-                  }}
+                  glass
                 >
                   Create Project
-                </Button>
+                </PurpleGlassButton>
               </DialogActions>
             </DialogBody>
           </form>
