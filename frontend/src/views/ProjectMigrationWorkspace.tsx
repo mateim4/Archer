@@ -43,6 +43,7 @@ import {
 import { useNavigate, useParams } from 'react-router-dom';
 import { ClusterStrategyModal, ClusterStrategyFormData, ClusterStrategyList } from '../components/ClusterStrategy';
 import { tokens } from '@/styles/design-tokens';
+import { PurpleGlassButton } from '@/components/ui';
 
 // Types
 interface MigrationProject {
@@ -464,9 +465,13 @@ const ProjectMigrationWorkspace: React.FC = () => {
           <Server24Regular style={{ fontSize: '64px', color: fluentTokens.colorNeutralForeground3 }} />
           <Title2>Project Not Found</Title2>
           <Body1>The requested migration project could not be found.</Body1>
-          <Button appearance="primary" onClick={() => navigate('/projects')}>
+          <PurpleGlassButton 
+            variant="primary"
+            onClick={() => navigate('/projects')}
+            glass
+          >
             Back to Projects
-          </Button>
+          </PurpleGlassButton>
         </div>
       </div>
     );

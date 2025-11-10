@@ -42,6 +42,7 @@ import { useEnhancedUX } from '../hooks/useEnhancedUX';
 import { DesignTokens } from '../styles/designSystem';
 import { ActivityWizardModal } from '../components/Activity/ActivityWizardModal';
 import { tokens, colors } from '@/styles/design-tokens';
+import { PurpleGlassButton } from '@/components/ui';
 
 interface Activity {
   id: string;
@@ -563,29 +564,17 @@ const ProjectWorkspaceView: React.FC = () => {
       
       {/* Back Button - Centered between screen top and outer card, aligned with card left edge */}
       <div style={{ position: 'fixed', top: '28px', left: '356px', zIndex: 100 }}>
-        <button
-          aria-label="Projects"
-          data-testid="breadcrumb-projects"
+        <PurpleGlassButton
+          variant="secondary"
+          size="medium"
+          icon={<ArrowLeftRegular />}
           onClick={() => navigate('/app/projects')}
-          className="flex items-center space-x-2"
-          style={{
-            ...DesignTokens.components.button.secondary,
-            width: 'auto',
-          }}
-          onMouseEnter={(e) => {
-            const target = e.currentTarget as HTMLElement;
-            target.style.transform = 'translateY(-2px)';
-            target.style.boxShadow = '0 4px 12px rgba(99, 102, 241, 0.25)';
-          }}
-          onMouseLeave={(e) => {
-            const target = e.currentTarget as HTMLElement;
-            target.style.transform = 'translateY(0)';
-            target.style.boxShadow = '0 1px 4px rgba(99, 102, 241, 0.15)';
-          }}
+          glass
+          aria-label="Back to Projects"
+          data-testid="breadcrumb-projects"
         >
-          <ArrowLeftRegular className="w-4 h-4" />
-          <span>Back to Projects</span>
-        </button>
+          Back to Projects
+        </PurpleGlassButton>
       </div>
 
       {/* Main Unified Card - Same positioning as Projects view */}

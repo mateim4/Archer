@@ -52,7 +52,7 @@ import {
   DialogContent,
   DialogActions,
 } from '@fluentui/react-components';
-import { PurpleGlassDropdown } from '@/components/ui';
+import { PurpleGlassDropdown, PurpleGlassButton } from '@/components/ui';
 import { ACTIVITY_STATUS_OPTIONS } from '@/constants/projectFilters';
 
 import GanttChart from '../components/EnhancedGanttChart';
@@ -312,14 +312,15 @@ const ProjectDetailView: React.FC = () => {
             <div>
               <Title2>Project Not Found</Title2>
               <Text>The requested project could not be found or failed to load.</Text>
-              <Button
-                appearance="primary"
+              <PurpleGlassButton
+                variant="primary"
                 icon={<ArrowLeftFilled />}
                 onClick={() => navigate('/app/projects')}
+                glass
                 style={{ marginTop: tokens.spacingVerticalM }}
               >
                 Back to Projects
-              </Button>
+              </PurpleGlassButton>
             </div>
           </div>
         </div>
@@ -331,30 +332,16 @@ const ProjectDetailView: React.FC = () => {
     <ErrorBoundary>
       <div style={{...DesignTokens.components.pageContainer, overflow: 'visible'}}>
         {/* Back Button */}
-        <Button 
-          appearance="subtle" 
-          icon={<ArrowLeftFilled style={{ fontSize: '20px', fontWeight: 'bold', color: '#000000' }} />} 
+        <PurpleGlassButton
+          variant="secondary"
+          size="medium"
+          icon={<ArrowLeftFilled />}
           onClick={() => navigate('/app/projects')}
-          style={{ 
-            marginBottom: DesignTokens.spacing.xl,
-            color: '#000000',
-            fontSize: '16px',
-            fontWeight: '600',
-            backgroundColor: 'rgba(255, 255, 255, 0.95)',
-            backdropFilter: 'blur(18px) saturate(180%)',
-            WebkitBackdropFilter: 'blur(18px) saturate(180%)',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
-            borderRadius: '12px',
-            padding: '12px 20px',
-            boxShadow: '0 8px 32px rgba(139, 92, 246, 0.15)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            transition: 'all 0.3s ease'
-          }}
+          glass
+          style={{ marginBottom: DesignTokens.spacing.xl }}
         >
-          <span style={{ color: '#000000' }}>Back</span>
-        </Button>
+          Back to Projects
+        </PurpleGlassButton>
 
         {/* Content */}
         <div style={{ marginBottom: '80px', overflow: 'visible' }}>
