@@ -1,10 +1,16 @@
 /**
  * Step 2: Source & Destination
  * 
- * User selects:
- * - Source cluster (dropdown)
- * - Target infrastructure type (radio buttons)
- * - Target cluster name (text input)
+ * ACTIVITY-TYPE-AWARE RENDERING:
+ * - Migration: Shows source cluster, target infrastructure, target cluster name, migration strategy
+ * - Decommission: Shows "Cluster to Decommission" (no target infrastructure, no migration strategy)
+ * - Expansion: Shows "Cluster to Expand" (no target infrastructure, no migration strategy)
+ * - Maintenance: Shows "Cluster for Maintenance" (no target infrastructure, no migration strategy)
+ * - Lifecycle: Shows source cluster, target infrastructure (no migration strategy, uses lifecycle-specific hardware selection)
+ * 
+ * PROBLEM SOLVED:
+ * - Before: All activity types showed "Source Cluster" and "Target Infrastructure Type"
+ * - After: Labels adapt to activity type context, irrelevant fields are hidden
  */
 
 import React, { useState, useEffect } from 'react';
@@ -32,6 +38,7 @@ import {
 import { useWizardContext } from '../Context/WizardContext';
 import { InfrastructureType } from '../types/WizardTypes';
 import { tokens } from '../../../../styles/design-tokens';
+import { useWizardSteps } from '../hooks/useWizardSteps';
 
 // ============================================================================
 // Styles
@@ -164,6 +171,10 @@ const Step2_SourceDestination: React.FC = () => {
   const styles = useStyles();
   const { formData, updateStepData } = useWizardContext();
 
+  // Get activity-type-specific configuration
+  const activityType = formData.step1?.activity_type;
+  const { fieldLabels, validationRules } = useWizardSteps(activityType);
+
   const [sourceClusterId, setSourceClusterId] = useState(
     formData.step2?.source_cluster_id || ''
   );
@@ -186,28 +197,51 @@ const Step2_SourceDestination: React.FC = () => {
   const [hardwareBasketId, setHardwareBasketId] = useState(formData.step2?.hardware_basket_id || '');
   const [hardwareBasketName, setHardwareBasketName] = useState(formData.step2?.hardware_basket_name || '');
   
-  // Check if current activity is a migration
+  // Check if current activity is a migration (for backward compatibility)
   const isMigrationActivity = formData.step1?.activity_type === 'migration';
+
+  // Get conditional rendering flags from validation rules
+  const shouldShowTargetInfrastructure = validationRules.step2.requireTargetInfrastructure;
+  const shouldShowTargetClusterName = validationRules.step2.requireTargetClusterName;
+  const shouldShowMigrationStrategy = validationRules.step2.requireMigrationStrategy;
 
   // Update context when form changes
   useEffect(() => {
-    if (targetInfrastructure) {
-      updateStepData(2, {
-        source_cluster_id: sourceClusterId || undefined,
-        source_cluster_name: sourceClusterName || undefined,
-        target_infrastructure_type: targetInfrastructure,
-        target_cluster_name: targetClusterName || undefined,
-        // Migration strategy fields (only relevant for migration activities)
-        migration_strategy_type: isMigrationActivity ? migrationStrategy : undefined,
-        domino_source_cluster: isMigrationActivity && migrationStrategy === 'domino_hardware_swap' ? dominoSourceCluster : undefined,
-        hardware_available_date: isMigrationActivity && migrationStrategy === 'domino_hardware_swap' ? hardwareAvailableDate : undefined,
-        hardware_basket_id: isMigrationActivity && migrationStrategy === 'new_hardware_purchase' ? hardwareBasketId : undefined,
-        hardware_basket_name: isMigrationActivity && migrationStrategy === 'new_hardware_purchase' ? hardwareBasketName : undefined,
-      });
+    const step2Data: any = {
+      source_cluster_id: sourceClusterId || undefined,
+      source_cluster_name: sourceClusterName || undefined,
+    };
+
+    // Only include target infrastructure if applicable for this activity type
+    if (shouldShowTargetInfrastructure) {
+      step2Data.target_infrastructure_type = targetInfrastructure;
     }
+
+    // Only include target cluster name if applicable
+    if (shouldShowTargetClusterName) {
+      step2Data.target_cluster_name = targetClusterName || undefined;
+    }
+
+    // Only include migration strategy fields if applicable
+    if (shouldShowMigrationStrategy) {
+      step2Data.migration_strategy_type = migrationStrategy;
+      
+      if (migrationStrategy === 'domino_hardware_swap') {
+        step2Data.domino_source_cluster = dominoSourceCluster || undefined;
+        step2Data.hardware_available_date = hardwareAvailableDate || undefined;
+      }
+      
+      if (migrationStrategy === 'new_hardware_purchase') {
+        step2Data.hardware_basket_id = hardwareBasketId || undefined;
+        step2Data.hardware_basket_name = hardwareBasketName || undefined;
+      }
+    }
+
+    updateStepData(2, step2Data);
   }, [
     sourceClusterId, sourceClusterName, targetInfrastructure, targetClusterName,
-    isMigrationActivity, migrationStrategy, dominoSourceCluster, hardwareAvailableDate,
+    shouldShowTargetInfrastructure, shouldShowTargetClusterName, shouldShowMigrationStrategy,
+    migrationStrategy, dominoSourceCluster, hardwareAvailableDate,
     hardwareBasketId, hardwareBasketName,
     updateStepData
   ]);
@@ -264,12 +298,12 @@ const Step2_SourceDestination: React.FC = () => {
 
   return (
     <div className={styles.container}>
-      {/* Source Cluster */}
+      {/* Source Cluster (or "Cluster to Decommission", "Cluster to Expand", etc.) */}
       <div className={styles.section}>
         <PurpleGlassDropdown
-          label="Source Cluster"
-          helperText="Select the cluster you're migrating from. This helps us analyze workload requirements."
-          placeholder="Select source cluster..."
+          label={fieldLabels.clusterField || 'Source Cluster'}
+          helperText={fieldLabels.clusterHelperText || 'Select the cluster you\'re migrating from. This helps us analyze workload requirements.'}
+          placeholder="Select cluster..."
           options={CLUSTER_OPTIONS}
           value={sourceClusterId || undefined}
           onChange={handleSourceClusterChange}
@@ -278,49 +312,53 @@ const Step2_SourceDestination: React.FC = () => {
         />
       </div>
 
-      {/* Target Infrastructure Type */}
-      <div className={styles.section}>
-        <PurpleGlassRadioGroup
-          required
-          label="Target Infrastructure Type"
-          helperText="Choose the infrastructure type for your new cluster. This determines hardware requirements and validation checks."
-          value={targetInfrastructure}
-          onChange={(value) => setTargetInfrastructure(value as InfrastructureType)}
-          orientation="horizontal"
-        >
-          <div className={styles.radioGrid}>
-            {INFRASTRUCTURE_OPTIONS.map((option) => {
-              const IconComponent = option.icon;
-              return (
-                <PurpleGlassRadio
-                  key={option.type}
-                  value={option.type}
-                  cardVariant
-                  cardTitle={option.label}
-                  cardDescription={option.description}
-                  cardIcon={<IconComponent />}
-                  glass="medium"
-                />
-              );
-            })}
-          </div>
-        </PurpleGlassRadioGroup>
-      </div>
+      {/* Target Infrastructure Type (CONDITIONAL - Hidden for decommission, expansion, maintenance) */}
+      {shouldShowTargetInfrastructure && (
+        <div className={styles.section}>
+          <PurpleGlassRadioGroup
+            required
+            label={fieldLabels.targetInfraLabel || 'Target Infrastructure Type'}
+            helperText={fieldLabels.targetInfraHelperText || 'Choose the infrastructure type for your new cluster. This determines hardware requirements and validation checks.'}
+            value={targetInfrastructure}
+            onChange={(value) => setTargetInfrastructure(value as InfrastructureType)}
+            orientation="horizontal"
+          >
+            <div className={styles.radioGrid}>
+              {INFRASTRUCTURE_OPTIONS.map((option) => {
+                const IconComponent = option.icon;
+                return (
+                  <PurpleGlassRadio
+                    key={option.type}
+                    value={option.type}
+                    cardVariant
+                    cardTitle={option.label}
+                    cardDescription={option.description}
+                    cardIcon={<IconComponent />}
+                    glass="medium"
+                  />
+                );
+              })}
+            </div>
+          </PurpleGlassRadioGroup>
+        </div>
+      )}
 
-      {/* Target Cluster Name */}
-      <div className={styles.section}>
-        <PurpleGlassInput
-          label="Target Cluster Name"
-          placeholder="e.g., Azure Local Production Cluster"
-          value={targetClusterName}
-          onChange={(e) => setTargetClusterName(e.target.value)}
-          glass="light"
-          helperText="Give your new cluster a descriptive name. You can change this later."
-        />
-      </div>
+      {/* Target Cluster Name (CONDITIONAL - Hidden for decommission, maintenance) */}
+      {shouldShowTargetClusterName && (
+        <div className={styles.section}>
+          <PurpleGlassInput
+            label={fieldLabels.targetClusterLabel || 'Target Cluster Name'}
+            placeholder="e.g., Azure Local Production Cluster"
+            value={targetClusterName}
+            onChange={(e) => setTargetClusterName(e.target.value)}
+            glass="light"
+            helperText={fieldLabels.targetClusterHelperText || 'Give your new cluster a descriptive name. You can change this later.'}
+          />
+        </div>
+      )}
 
-      {/* Migration Strategy (Conditional - Only for Migration Activities) */}
-      {isMigrationActivity && (
+      {/* Migration Strategy (CONDITIONAL - Only for Migration Activities) */}
+      {shouldShowMigrationStrategy && (
         <div className={styles.section}>
           <h3 className={styles.sectionTitle}>Hardware Sourcing Strategy (Optional)</h3>
           <p className={styles.description}>
@@ -423,8 +461,8 @@ const Step2_SourceDestination: React.FC = () => {
         </div>
       )}
 
-      {/* Info Box based on selection */}
-      {targetInfrastructure === 'azure_local' && (
+      {/* Info Box based on selection (CONDITIONAL - Only if target infrastructure is shown) */}
+      {shouldShowTargetInfrastructure && targetInfrastructure === 'azure_local' && (
         <div className={styles.infoBox}>
           <strong>💡 Azure Local Requirements:</strong>
           <br />
@@ -441,7 +479,7 @@ const Step2_SourceDestination: React.FC = () => {
         </div>
       )}
 
-      {targetInfrastructure === 'hci_s2d' && (
+      {shouldShowTargetInfrastructure && targetInfrastructure === 'hci_s2d' && (
         <div className={styles.infoBox}>
           <strong>💡 Storage Spaces Direct Requirements:</strong>
           <br />
@@ -458,7 +496,7 @@ const Step2_SourceDestination: React.FC = () => {
         </div>
       )}
 
-      {targetInfrastructure === 'traditional' && (
+      {shouldShowTargetInfrastructure && targetInfrastructure === 'traditional' && (
         <div className={styles.infoBox}>
           <strong>💡 Traditional Infrastructure Notes:</strong>
           <br />
