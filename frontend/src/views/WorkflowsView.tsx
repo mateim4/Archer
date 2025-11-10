@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Play, Pause, Square, CheckCircle, AlertCircle, Clock, ChevronRight, Settings, RotateCcw } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
-import { PurpleGlassDropdown } from '../components/ui';
+import { PurpleGlassButton, PurpleGlassDropdown } from '../components/ui';
 
 interface WorkflowStep {
   id: string;
@@ -320,55 +320,65 @@ const WorkflowsView: React.FC = () => {
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-500">Est. {workflow.totalEstimatedTime}</span>
                 <div className="flex gap-2">
-                  <button
+                  <PurpleGlassButton
+                    variant="secondary"
+                    size="small"
                     onClick={() => setActiveWorkflow(workflow)}
-                    className="flex items-center gap-1 px-4 py-2 border border-purple-500/30 text-white text-sm rounded hover:border-purple-500/50 transition-colors bg-transparent"
+                    glass
                   >
                     Edit
-                  </button>
-                  <button
+                  </PurpleGlassButton>
+                  <PurpleGlassButton
+                    variant="danger"
+                    size="small"
                     onClick={() => {
                       setWorkflows(workflows.filter(w => w.id !== workflow.id));
                     }}
-                    className="flex items-center gap-1 px-4 py-2 border border-red-500/30 text-white text-sm rounded hover:border-red-500/50 transition-colors bg-transparent"
+                    glass
                   >
                     Remove
-                  </button>
+                  </PurpleGlassButton>
                   {workflow.status === 'not_started' && (
-                    <button
+                    <PurpleGlassButton
+                      variant="primary"
+                      size="small"
                       onClick={(e) => {
                         e.stopPropagation();
                         startWorkflow(workflow.id);
                       }}
-                      className="flex items-center gap-1 px-4 py-2 border border-blue-500/30 text-white text-sm rounded hover:border-purple-500/50 transition-colors bg-transparent"
+                      icon={<Play size={14} />}
+                      glass
                     >
-                      <Play size={14} />
                       Start
-                    </button>
+                    </PurpleGlassButton>
                   )}
                   {workflow.status === 'running' && (
-                    <button
+                    <PurpleGlassButton
+                      variant="secondary"
+                      size="small"
                       onClick={(e) => {
                         e.stopPropagation();
                         pauseWorkflow(workflow.id);
                       }}
-                      className="flex items-center gap-1 px-4 py-2 border border-yellow-500/30 text-white text-sm rounded hover:border-purple-500/50 transition-colors bg-transparent"
+                      icon={<Pause size={14} />}
+                      glass
                     >
-                      <Pause size={14} />
                       Pause
-                    </button>
+                    </PurpleGlassButton>
                   )}
                   {(workflow.status === 'completed' || workflow.status === 'failed') && (
-                    <button
+                    <PurpleGlassButton
+                      variant="secondary"
+                      size="small"
                       onClick={(e) => {
                         e.stopPropagation();
                         resetWorkflow(workflow.id);
                       }}
-                      className="flex items-center gap-1 px-4 py-2 border border-gray-500/30 text-white text-sm rounded hover:border-purple-500/50 transition-colors bg-transparent"
+                      icon={<RotateCcw size={14} />}
+                      glass
                     >
-                      <RotateCcw size={14} />
                       Reset
-                    </button>
+                    </PurpleGlassButton>
                   )}
                 </div>
               </div>
@@ -378,9 +388,9 @@ const WorkflowsView: React.FC = () => {
 
         {/* Add Workflow Button */}
         <div className="flex justify-center">
-          <button className="lcm-button lcm-button-primary">
+          <PurpleGlassButton variant="primary" size="large" glass>
             Add New Workflow
-          </button>
+          </PurpleGlassButton>
         </div>
 
         {/* Workflow Details Modal/Panel */}
@@ -389,12 +399,14 @@ const WorkflowsView: React.FC = () => {
             <div className="lcm-modal">
               <div className="lcm-modal-header">
                 <h2 className="lcm-modal-title">{activeWorkflow.name}</h2>
-                <button 
+                <PurpleGlassButton
+                  variant="ghost"
+                  size="small"
                   onClick={() => setActiveWorkflow(null)}
-                  className="lcm-button lcm-button-subtle lcm-button-icon"
+                  glass
                 >
                   ×
-                </button>
+                </PurpleGlassButton>
               </div>
               <div className="lcm-modal-content">
                 <p className="text-gray-600 mb-6">{activeWorkflow.description}</p>
