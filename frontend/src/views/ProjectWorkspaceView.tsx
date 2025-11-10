@@ -22,7 +22,8 @@ import {
   DismissRegular,
   InfoRegular,
   ArrowTrendingRegular,
-  FolderRegular
+  FolderRegular,
+  DiagramRegular
 } from '@fluentui/react-icons';
 import GanttChart from '../components/GanttChart';
 import GlassmorphicSearchBar from '../components/GlassmorphicSearchBar';
@@ -78,7 +79,7 @@ const ProjectWorkspaceView: React.FC = () => {
   
   const [project, setProject] = useState<Project | null>(null);
   const [activities, setActivities] = useState<Activity[]>([]);
-  const [activeTab, setActiveTab] = useState<'timeline' | 'overview' | 'capacity'>('timeline');
+  const [activeTab, setActiveTab] = useState<'timeline' | 'overview' | 'capacity' | 'infrastructure'>('timeline');
   const [timelineView, setTimelineView] = useState<'timeline' | 'list'>('timeline');
   const [isCreateActivityModalOpen, setIsCreateActivityModalOpen] = useState(false);
   const [isEditActivityModalOpen, setIsEditActivityModalOpen] = useState(false);
@@ -630,7 +631,8 @@ const ProjectWorkspaceView: React.FC = () => {
           {([
             { id: 'timeline', label: 'Timeline' },
             { id: 'overview', label: 'Overview' },
-            { id: 'capacity', label: 'Capacity' }
+            { id: 'capacity', label: 'Capacity' },
+            { id: 'infrastructure', label: 'Infrastructure' }
           ] as const).map(tab => {
             const isActive = activeTab === tab.id;
             const label = tab.label;
@@ -1244,6 +1246,137 @@ const ProjectWorkspaceView: React.FC = () => {
             <div className="rounded-lg border border-gray-200" style={{ display: 'block', overflow: 'visible' }}>
               <div className="bg-white">
                 <CapacityVisualizerView />
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'infrastructure' && (
+            <div className="space-y-6" style={{ display: 'block' }}>
+              {/* Infrastructure Visualization Card */}
+              <div className="p-6 bg-white border border-gray-200 rounded-lg">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div style={DesignTokens.components.standardCardIcon}>
+                      <DiagramRegular style={{ fontSize: '20px' }} />
+                    </div>
+                    <h3 style={DesignTokens.components.standardCardTitle}>Infrastructure Visualization</h3>
+                  </div>
+                  <button
+                    onClick={() => navigate('/app/tools/infra-visualizer')}
+                    className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-lg hover:from-purple-600 hover:to-indigo-700 transition-all duration-200"
+                  >
+                    <DiagramRegular className="w-4 h-4" />
+                    <span>Open Infrastructure Visualizer</span>
+                  </button>
+                </div>
+                
+                <div className="space-y-4">
+                  <p className="text-sm text-gray-600">
+                    Visualize your project's infrastructure including hardware pools, RVTools imports, and migration targets.
+                  </p>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Hardware Pool Card */}
+                    <div className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
+                      <div className="flex items-center gap-2 mb-2">
+                        <ServerRegular className="w-5 h-5 text-blue-600" />
+                        <h4 className="font-semibold text-sm text-gray-900">Hardware Pool</h4>
+                      </div>
+                      <p className="text-xs text-gray-600 mb-3">
+                        View all available hardware assets in the pool
+                      </p>
+                      <button
+                        onClick={() => navigate('/app/tools/infra-visualizer?source=hardware-pool')}
+                        className="text-xs text-blue-600 hover:text-blue-700 font-medium"
+                      >
+                        Visualize Hardware Pool →
+                      </button>
+                    </div>
+
+                    {/* RVTools Import Card */}
+                    <div className="p-4 bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200 rounded-lg">
+                      <div className="flex items-center gap-2 mb-2">
+                        <DocumentRegular className="w-5 h-5 text-purple-600" />
+                        <h4 className="font-semibold text-sm text-gray-900">RVTools Data</h4>
+                      </div>
+                      <p className="text-xs text-gray-600 mb-3">
+                        Visualize imported VMware infrastructure
+                      </p>
+                      <button
+                        onClick={() => navigate('/app/tools/infra-visualizer?source=rvtools')}
+                        className="text-xs text-purple-600 hover:text-purple-700 font-medium"
+                      >
+                        Visualize RVTools Import →
+                      </button>
+                    </div>
+
+                    {/* Migration Topology Card */}
+                    <div className="p-4 bg-gradient-to-br from-green-50 to-teal-50 border border-green-200 rounded-lg">
+                      <div className="flex items-center gap-2 mb-2">
+                        <ArrowTrendingRegular className="w-5 h-5 text-green-600" />
+                        <h4 className="font-semibold text-sm text-gray-900">Migration Topology</h4>
+                      </div>
+                      <p className="text-xs text-gray-600 mb-3">
+                        View source and target infrastructure side-by-side
+                      </p>
+                      <button
+                        onClick={() => navigate('/app/tools/infra-visualizer?source=migration')}
+                        className="text-xs text-green-600 hover:text-green-700 font-medium"
+                      >
+                        Visualize Migration →
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Quick Stats Card */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="p-6 bg-white border border-gray-200 rounded-lg">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div style={DesignTokens.components.standardCardIcon}>
+                      <ServerRegular style={{ fontSize: '20px' }} />
+                    </div>
+                    <h3 style={DesignTokens.components.standardCardTitle}>Hardware Resources</h3>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Total Servers</span>
+                      <span className="text-sm font-medium text-gray-900">--</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Total CPU Cores</span>
+                      <span className="text-sm font-medium text-gray-900">--</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Total Memory (GB)</span>
+                      <span className="text-sm font-medium text-gray-900">--</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-6 bg-white border border-gray-200 rounded-lg">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div style={DesignTokens.components.standardCardIcon}>
+                      <ChartMultipleRegular style={{ fontSize: '20px' }} />
+                    </div>
+                    <h3 style={DesignTokens.components.standardCardTitle}>Topology Overview</h3>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Datacenters</span>
+                      <span className="text-sm font-medium text-gray-900">--</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Clusters</span>
+                      <span className="text-sm font-medium text-gray-900">--</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Hosts</span>
+                      <span className="text-sm font-medium text-gray-900">--</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           )}
