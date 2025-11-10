@@ -421,14 +421,22 @@ const ProjectDetailView: React.FC = () => {
                 </div>
               </div>
               <div style={{ display: 'flex', gap: DesignTokens.spacing.md }}>
-                <Button appearance="primary" style={DesignTokens.components.button.primary}>
-                  <ShareRegular style={{ marginRight: DesignTokens.spacing.xs }} />
+                <PurpleGlassButton 
+                  variant="primary"
+                  size="medium"
+                  icon={<ShareRegular />}
+                  glass
+                >
                   Share
-                </Button>
-                <Button appearance="secondary" style={DesignTokens.components.button.secondary}>
-                  <ArrowDownloadRegular style={{ marginRight: DesignTokens.spacing.xs }} />
+                </PurpleGlassButton>
+                <PurpleGlassButton 
+                  variant="secondary"
+                  size="medium"
+                  icon={<ArrowDownloadRegular />}
+                  glass
+                >
                   Export
-                </Button>
+                </PurpleGlassButton>
               </div>
             </div>
           </div>
@@ -556,17 +564,15 @@ const ProjectDetailView: React.FC = () => {
                     Visualize project activities and dependencies
                   </div>
                 </div>
-                <Button 
-                  appearance="primary" 
-                  icon={<AddRegular />} 
+                <PurpleGlassButton
+                  variant="primary"
+                  size="medium"
+                  icon={<AddRegular />}
                   onClick={() => setIsCreateActivityModalOpen(true)}
-                  style={{
-                    ...DesignTokens.components.button.primary,
-                    borderRadius: DesignTokens.borderRadius.md
-                  }}
+                  glass
                 >
                   Add Activity
-                </Button>
+                </PurpleGlassButton>
               </div>
               <div style={{ position: 'relative', minWidth: '1000px', height: '100%' }}>
                 {activities.length > 0 ? (
@@ -612,17 +618,15 @@ const ProjectDetailView: React.FC = () => {
                     <Text style={{ marginBottom: tokens.spacingVerticalL }}>
                       Create your first activity to see the project timeline
                     </Text>
-                    <Button 
-                      appearance="primary" 
-                      icon={<AddRegular />} 
+                    <PurpleGlassButton
+                      variant="primary"
+                      size="medium"
+                      icon={<AddRegular />}
                       onClick={() => setIsCreateActivityModalOpen(true)}
-                      style={{
-                        ...DesignTokens.components.button.primary,
-                        borderRadius: DesignTokens.borderRadius.md
-                      }}
+                      glass
                     >
                       Create First Activity
-                    </Button>
+                    </PurpleGlassButton>
                   </div>
                 )}
               </div>
@@ -646,17 +650,15 @@ const ProjectDetailView: React.FC = () => {
                     Create, edit, and manage project activities
                   </div>
                 </div>
-                <Button 
-                  appearance="primary" 
-                  icon={<AddRegular />} 
+                <PurpleGlassButton
+                  variant="primary"
+                  size="medium"
+                  icon={<AddRegular />}
                   onClick={() => setIsCreateActivityModalOpen(true)}
-                  style={{
-                    ...DesignTokens.components.button.primary,
-                    borderRadius: DesignTokens.borderRadius.md
-                  }}
+                  glass
                 >
                   Add Activity
-                </Button>
+                </PurpleGlassButton>
               </div>
               
               {/* Search and filter controls */}
@@ -730,28 +732,20 @@ const ProjectDetailView: React.FC = () => {
                             </Badge>
                           </div>
                           <div style={{ display: 'flex', gap: tokens.spacingHorizontalXS }}>
-                            <Button 
-                              appearance="subtle" 
-                              icon={<EditRegular />} 
-                              size="small" 
-                              aria-label={`Edit ${activity.name}`}
-                              style={{
-                                border: '1px solid rgba(139, 92, 246, 0.2)',
-                                borderRadius: '8px',
-                                color: DesignTokens.colors.primary
-                              }}
-                            />
-                            <Button
-                              appearance="subtle"
-                              icon={<DeleteRegular />}
+                            <PurpleGlassButton
+                              variant="secondary"
                               size="small"
+                              icon={<EditRegular />}
+                              aria-label={`Edit ${activity.name}`}
+                              glass
+                            />
+                            <PurpleGlassButton
+                              variant="danger"
+                              size="small"
+                              icon={<DeleteRegular />}
                               onClick={() => setActivities((prev) => prev.filter((a) => a.id !== activity.id))}
                               aria-label={`Delete ${activity.name}`}
-                              style={{
-                                border: '1px solid rgba(239, 68, 68, 0.2)',
-                                borderRadius: '8px',
-                                color: '#ef4444'
-                              }}
+                              glass
                             />
                           </div>
                         </div>
