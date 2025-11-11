@@ -43,6 +43,25 @@ import { tokens } from '../../../../styles/design-tokens';
 import { useWizardSteps } from '../hooks/useWizardSteps';
 
 // ============================================================================
+// API Helper
+// ============================================================================
+
+const API_BASE_URL = 'http://localhost:8080/api/v1';
+
+async function apiGet<T>(endpoint: string): Promise<T> {
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  
+  if (!response.ok) {
+    throw new Error(`API Error: ${response.status} ${response.statusText}`);
+  }
+  
+  return response.json();
+}
+
+// ============================================================================
 // Styles
 // ============================================================================
 
@@ -237,6 +256,10 @@ const Step2_SourceDestination: React.FC = () => {
   const [hardwareBasketId, setHardwareBasketId] = useState(formData.step2?.hardware_basket_id || '');
   const [hardwareBasketName, setHardwareBasketName] = useState(formData.step2?.hardware_basket_name || '');
   
+  // Hardware basket vendor validation state
+  const [basketVendorError, setBasketVendorError] = useState<string | null>(null);
+  const [isValidatingBasket, setIsValidatingBasket] = useState(false);
+  
   // Check if current activity is a migration (for backward compatibility)
   const isMigrationActivity = formData.step1?.activity_type === 'migration';
   const isExpansionActivity = formData.step1?.activity_type === 'expansion';
@@ -379,8 +402,65 @@ const Step2_SourceDestination: React.FC = () => {
     } else {
       setHardwareBasketId('');
       setHardwareBasketName('');
+      setBasketVendorError(null);
     }
   };
+
+  // Validate hardware basket vendor consistency for Azure Stack HCI
+  useEffect(() => {
+    const validateHardwareBasketVendor = async () => {
+      // Only validate for Azure Stack HCI infrastructure types
+      if (!hardwareBasketId || (targetInfrastructure !== 'azure_local' && targetInfrastructure !== 'hci_s2d')) {
+        setBasketVendorError(null);
+        return;
+      }
+
+      setIsValidatingBasket(true);
+      setBasketVendorError(null);
+
+      try {
+        // Fetch hardware basket models to check vendor consistency
+        const response = await apiGet<{
+          models: Array<{ vendor_id: { id: string } | string }>;
+        }>(`/hardware-baskets/${hardwareBasketId}/models`);
+
+        const models = response.models || [];
+        if (models.length === 0) {
+          setBasketVendorError(null);
+          return;
+        }
+
+        // Extract unique vendor IDs
+        const vendorIds = new Set(
+          models.map((model: { vendor_id: { id: string } | string }) => {
+            // Handle both Thing format and direct ID string
+            if (typeof model.vendor_id === 'object' && model.vendor_id.id) {
+              return model.vendor_id.id;
+            }
+            return String(model.vendor_id);
+          })
+        );
+
+        // Check for mixed vendors
+        if (vendorIds.size > 1) {
+          const vendorList = Array.from(vendorIds).join(', ');
+          setBasketVendorError(
+            `Azure Stack HCI requires all hardware from a single vendor. This basket contains hardware from ${vendorIds.size} different vendors: ${vendorList}. Please select a basket with hardware from a single vendor.`
+          );
+        } else {
+          setBasketVendorError(null);
+        }
+      } catch (error) {
+        console.error('Failed to validate hardware basket vendor:', error);
+        // Don't block the user if validation fails, just log the error
+        setBasketVendorError(null);
+      } finally {
+        setIsValidatingBasket(false);
+      }
+    };
+
+    validateHardwareBasketVendor();
+  }, [hardwareBasketId, targetInfrastructure]);
 
   const handleTargetClusterNameChange = (_event: any, data: any) => {
     setTargetClusterName(data.value || '');
@@ -579,9 +659,35 @@ const Step2_SourceDestination: React.FC = () => {
                 onChange={handleHardwareBasketChange}
                 required
                 glass="light"
+                validationState={basketVendorError ? 'error' : 'default'}
               />
               
-              {hardwareBasketId && (
+              {isValidatingBasket && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: tokens.m }}>
+                  <Spinner size="tiny" />
+                  <span style={{ fontSize: tokens.fontSizeBase200, color: tokens.colorNeutralForeground2 }}>
+                    Validating hardware basket vendor consistency...
+                  </span>
+                </div>
+              )}
+              
+              {basketVendorError && (
+                <div style={{
+                  padding: tokens.l,
+                  backgroundColor: 'rgba(229, 62, 62, 0.1)',
+                  borderLeft: '4px solid #e53e3e',
+                  borderRadius: '8px',
+                  fontSize: tokens.fontSizeBase300,
+                  color: '#c53030',
+                  fontFamily: 'Oxanium, sans-serif',
+                }}>
+                  <strong>⚠️ Vendor Validation Error:</strong>
+                  <br />
+                  {basketVendorError}
+                </div>
+              )}
+              
+              {hardwareBasketId && !basketVendorError && !isValidatingBasket && (
                 <div className={styles.infoBox}>
                   <strong>📦 Selected Basket:</strong> {hardwareBasketName}
                   <br />
