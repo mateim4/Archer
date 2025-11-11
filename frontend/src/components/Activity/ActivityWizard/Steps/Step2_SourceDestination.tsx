@@ -18,6 +18,7 @@ import {
   Input,
   makeStyles,
   shorthands,
+  Spinner,
 } from '@fluentui/react-components';
 import { 
   PurpleGlassDropdown, 
@@ -34,6 +35,7 @@ import {
   ShoppingBagRegular,
   ArchiveRegular,
   CalendarRegular,
+  CheckmarkCircleRegular,
 } from '@fluentui/react-icons';
 import { useWizardContext } from '../Context/WizardContext';
 import { InfrastructureType } from '../types/WizardTypes';
@@ -109,6 +111,37 @@ const useStyles = makeStyles({
     lineHeight: tokens.lineHeightBase300,
   },
 });
+
+// ============================================================================
+// Utility Functions
+// ============================================================================
+
+/**
+ * Maps backend storage_type to frontend infrastructure_type
+ * Used for expansion activities to auto-detect infrastructure from existing cluster
+ */
+const mapStorageTypeToInfrastructure = (storageType: string): InfrastructureType => {
+  const mapping: Record<string, InfrastructureType> = {
+    's2d': 'hci_s2d',
+    'azure_local': 'azure_local',
+    'traditional': 'traditional',
+    'san': 'traditional',
+    'vsan': 'traditional',
+  };
+  return mapping[storageType] || 'traditional';
+};
+
+/**
+ * Gets human-readable label for infrastructure type
+ */
+const getInfrastructureLabel = (type: InfrastructureType): string => {
+  const labels: Record<InfrastructureType, string> = {
+    'traditional': 'Traditional Infrastructure',
+    'hci_s2d': 'HCI with Storage Spaces Direct',
+    'azure_local': 'Azure Local (Azure Stack HCI)',
+  };
+  return labels[type];
+};
 
 // ============================================================================
 // Mock Data (TODO: Replace with API calls)
@@ -188,6 +221,13 @@ const Step2_SourceDestination: React.FC = () => {
     formData.step2?.target_cluster_name || ''
   );
   
+  // Expansion-specific state: auto-detected infrastructure
+  const [detectedInfrastructure, setDetectedInfrastructure] = useState<InfrastructureType | null>(
+    formData.step2?.detected_infrastructure_type || null
+  );
+  const [isLoadingClusterDetails, setIsLoadingClusterDetails] = useState(false);
+  const [clusterFetchError, setClusterFetchError] = useState<string | null>(null);
+  
   // Migration strategy state (conditional on activity type)
   const [migrationStrategy, setMigrationStrategy] = useState<'domino_hardware_swap' | 'new_hardware_purchase' | 'existing_free_hardware' | undefined>(
     formData.step2?.migration_strategy_type
@@ -199,11 +239,63 @@ const Step2_SourceDestination: React.FC = () => {
   
   // Check if current activity is a migration (for backward compatibility)
   const isMigrationActivity = formData.step1?.activity_type === 'migration';
+  const isExpansionActivity = formData.step1?.activity_type === 'expansion';
 
   // Get conditional rendering flags from validation rules
   const shouldShowTargetInfrastructure = validationRules.step2.requireTargetInfrastructure;
   const shouldShowTargetClusterName = validationRules.step2.requireTargetClusterName;
   const shouldShowMigrationStrategy = validationRules.step2.requireMigrationStrategy;
+
+  // Auto-detect infrastructure for expansion activities
+  useEffect(() => {
+    // Only fetch cluster details for expansion activities when a cluster is selected
+    if (isExpansionActivity && sourceClusterId) {
+      const fetchClusterInfrastructure = async () => {
+        setIsLoadingClusterDetails(true);
+        setClusterFetchError(null);
+
+        try {
+          // Extract cluster ID from value (format: "cluster:vmware_prod" or "destination_cluster:xyz123")
+          const clusterIdParts = sourceClusterId.split(':');
+          const actualClusterId = clusterIdParts[1];
+
+          const response = await fetch(`http://localhost:3003/api/destination-clusters/${actualClusterId}`, {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error(`Failed to fetch cluster details: ${response.statusText}`);
+          }
+
+          const data = await response.json();
+          const cluster = data.cluster;
+
+          // Map storage_type to infrastructure_type
+          if (cluster?.storage_type) {
+            const detectedType = mapStorageTypeToInfrastructure(cluster.storage_type);
+            setDetectedInfrastructure(detectedType);
+          } else {
+            setClusterFetchError('Cluster infrastructure type could not be determined');
+          }
+        } catch (error) {
+          console.error('Failed to fetch cluster infrastructure:', error);
+          setClusterFetchError(error instanceof Error ? error.message : 'Unknown error');
+        } finally {
+          setIsLoadingClusterDetails(false);
+        }
+      };
+
+      fetchClusterInfrastructure();
+    } else {
+      // Reset detected infrastructure when cluster is deselected or not in expansion mode
+      setDetectedInfrastructure(null);
+      setClusterFetchError(null);
+    }
+  }, [isExpansionActivity, sourceClusterId]);
 
   // Update context when form changes
   useEffect(() => {
@@ -211,6 +303,11 @@ const Step2_SourceDestination: React.FC = () => {
       source_cluster_id: sourceClusterId || undefined,
       source_cluster_name: sourceClusterName || undefined,
     };
+
+    // Store detected infrastructure for expansion activities
+    if (isExpansionActivity && detectedInfrastructure) {
+      step2Data.detected_infrastructure_type = detectedInfrastructure;
+    }
 
     // Only include target infrastructure if applicable for this activity type
     if (shouldShowTargetInfrastructure) {
@@ -243,6 +340,7 @@ const Step2_SourceDestination: React.FC = () => {
     shouldShowTargetInfrastructure, shouldShowTargetClusterName, shouldShowMigrationStrategy,
     migrationStrategy, dominoSourceCluster, hardwareAvailableDate,
     hardwareBasketId, hardwareBasketName,
+    isExpansionActivity, detectedInfrastructure,
     updateStepData
   ]);
 
@@ -311,6 +409,51 @@ const Step2_SourceDestination: React.FC = () => {
           glass="light"
         />
       </div>
+
+      {/* Detected Infrastructure Type (EXPANSION ONLY - Auto-detected from selected cluster) */}
+      {isExpansionActivity && sourceClusterId && (
+        <div className={styles.section}>
+          {isLoadingClusterDetails && (
+            <div className={styles.infoBox}>
+              <Spinner size="tiny" label="Detecting infrastructure type..." />
+            </div>
+          )}
+
+          {!isLoadingClusterDetails && detectedInfrastructure && (
+            <div className={styles.infoBox}>
+              <strong>
+                <CheckmarkCircleRegular style={{ color: tokens.colorBrandForeground, marginRight: '8px' }} />
+                Detected Infrastructure Type:
+              </strong>
+              {' '}
+              {getInfrastructureLabel(detectedInfrastructure)}
+              <br />
+              <br />
+              <span style={{ fontSize: tokens.fontSizeBase200, color: tokens.colorNeutralForeground3 }}>
+                This cluster will be expanded using hardware compatible with its current infrastructure type.
+                Hardware validation in Step 4 will ensure compatibility with{' '}
+                <strong>{detectedInfrastructure === 'hci_s2d' ? 'Storage Spaces Direct' : detectedInfrastructure === 'azure_local' ? 'Azure Local (Azure Stack HCI)' : 'Traditional Infrastructure'}</strong>.
+              </span>
+            </div>
+          )}
+
+          {!isLoadingClusterDetails && clusterFetchError && (
+            <div className={styles.infoBox} style={{ 
+              backgroundColor: tokens.semanticColors.error.background, 
+              borderColor: tokens.semanticColors.error.border 
+            }}>
+              <strong style={{ color: tokens.semanticColors.error.foreground }}>⚠️ Unable to detect infrastructure type:</strong>
+              <br />
+              {clusterFetchError}
+              <br />
+              <br />
+              <span style={{ fontSize: tokens.fontSizeBase200 }}>
+                Please verify that the cluster exists in the database or contact support.
+              </span>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Target Infrastructure Type (CONDITIONAL - Hidden for decommission, expansion, maintenance) */}
       {shouldShowTargetInfrastructure && (

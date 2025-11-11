@@ -69,6 +69,9 @@ export interface Step2Data {
   target_infrastructure_type: InfrastructureType;
   target_cluster_name?: string;
   
+  // Expansion-specific: Auto-detected infrastructure from existing cluster
+  detected_infrastructure_type?: InfrastructureType;
+  
   // Migration Strategy Fields (conditional on activity_type = 'migration')
   migration_strategy_type?: 'domino_hardware_swap' | 'new_hardware_purchase' | 'existing_free_hardware';
   
