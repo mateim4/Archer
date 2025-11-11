@@ -260,6 +260,12 @@ const Step2_SourceDestination: React.FC = () => {
   const [basketVendorError, setBasketVendorError] = useState<string | null>(null);
   const [isValidatingBasket, setIsValidatingBasket] = useState(false);
   
+  // Cluster strategy validation state
+  const [dominoClusterError, setDominoClusterError] = useState<string | null>(null);
+  const [isValidatingDominoCluster, setIsValidatingDominoCluster] = useState(false);
+  const [hardwarePoolWarning, setHardwarePoolWarning] = useState<string | null>(null);
+  const [isValidatingHardwarePool, setIsValidatingHardwarePool] = useState(false);
+  
   // Check if current activity is a migration (for backward compatibility)
   const isMigrationActivity = formData.step1?.activity_type === 'migration';
   const isExpansionActivity = formData.step1?.activity_type === 'expansion';
@@ -389,6 +395,10 @@ const Step2_SourceDestination: React.FC = () => {
   const handleDominoSourceClusterChange = (value: string | string[] | undefined) => {
     const selectedValue = value as string | undefined;
     setDominoSourceCluster(selectedValue || '');
+    // Clear validation error when cluster is changed or cleared
+    if (!selectedValue) {
+      setDominoClusterError(null);
+    }
   };
 
   const handleHardwareBasketChange = (value: string | string[] | undefined) => {
@@ -461,6 +471,89 @@ const Step2_SourceDestination: React.FC = () => {
 
     validateHardwareBasketVendor();
   }, [hardwareBasketId, targetInfrastructure]);
+
+  // Validate domino source cluster exists (for "Domino Hardware Swap" strategy)
+  useEffect(() => {
+    const validateDominoCluster = async () => {
+      // Only validate if domino strategy is selected and a source cluster is chosen
+      if (migrationStrategy !== 'domino_hardware_swap' || !dominoSourceCluster) {
+        setDominoClusterError(null);
+        return;
+      }
+
+      setIsValidatingDominoCluster(true);
+      setDominoClusterError(null);
+
+      try {
+        // Extract cluster ID from value (format: "cluster:vmware_prod" or "destination_cluster:xyz123")
+        const clusterIdParts = dominoSourceCluster.split(':');
+        const actualClusterId = clusterIdParts[1];
+
+        // Try to fetch the cluster to verify it exists
+        const response = await apiGet<{ cluster: any }>(`/destination-clusters/${actualClusterId}`);
+
+        if (!response.cluster) {
+          setDominoClusterError(
+            `The selected source cluster could not be found in the database. Please verify the cluster exists or select a different cluster.`
+          );
+        } else {
+          setDominoClusterError(null);
+        }
+      } catch (error) {
+        console.error('Failed to validate domino source cluster:', error);
+        setDominoClusterError(
+          `Unable to verify the source cluster. This cluster may not exist or may be inaccessible. Please verify your selection.`
+        );
+      } finally {
+        setIsValidatingDominoCluster(false);
+      }
+    };
+
+    validateDominoCluster();
+  }, [migrationStrategy, dominoSourceCluster]);
+
+  // Validate hardware pool capacity (for "Existing Free Hardware" strategy)
+  useEffect(() => {
+    const validateHardwarePoolCapacity = async () => {
+      // Only validate if existing free hardware strategy is selected
+      if (migrationStrategy !== 'existing_free_hardware') {
+        setHardwarePoolWarning(null);
+        return;
+      }
+
+      setIsValidatingHardwarePool(true);
+      setHardwarePoolWarning(null);
+
+      try {
+        // Fetch available hardware pool servers
+        const response = await apiGet<any[]>(`/hardware-pool/servers?status=available`);
+
+        const availableServers = response || [];
+        const availableCount = availableServers.length;
+
+        // Show warning if low or no capacity (this is a warning, not a blocking error)
+        if (availableCount === 0) {
+          setHardwarePoolWarning(
+            `No servers are currently available in the hardware pool. You may need to add hardware to the pool or consider a different strategy.`
+          );
+        } else if (availableCount < 3) {
+          setHardwarePoolWarning(
+            `Only ${availableCount} server${availableCount === 1 ? ' is' : 's are'} currently available in the hardware pool. This may not be sufficient for your migration. Consider reviewing capacity in the Hardware Pool Manager.`
+          );
+        } else {
+          setHardwarePoolWarning(null);
+        }
+      } catch (error) {
+        console.error('Failed to validate hardware pool capacity:', error);
+        // Don't block the user if validation fails, just log the error
+        setHardwarePoolWarning(null);
+      } finally {
+        setIsValidatingHardwarePool(false);
+      }
+    };
+
+    validateHardwarePoolCapacity();
+  }, [migrationStrategy]);
 
   const handleTargetClusterNameChange = (_event: any, data: any) => {
     setTargetClusterName(data.value || '');
@@ -632,8 +725,39 @@ const Step2_SourceDestination: React.FC = () => {
                 value={dominoSourceCluster || undefined}
                 onChange={handleDominoSourceClusterChange}
                 required
+                validationState={dominoClusterError ? 'error' : 'default'}
                 glass="light"
               />
+
+              {/* Domino Cluster Validation */}
+              {isValidatingDominoCluster && (
+                <div style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '8px',
+                  fontSize: tokens.fontSizeBase200,
+                  color: tokens.colorNeutralForeground3
+                }}>
+                  <Spinner size="tiny" />
+                  <span>Validating cluster availability...</span>
+                </div>
+              )}
+
+              {dominoClusterError && (
+                <div style={{
+                  borderLeft: '4px solid #e53e3e',
+                  backgroundColor: 'rgba(229, 62, 62, 0.1)',
+                  padding: '12px 16px',
+                  borderRadius: '8px',
+                  color: '#c53030',
+                  fontFamily: 'Oxanium, sans-serif',
+                  fontSize: tokens.fontSizeBase200
+                }}>
+                  <strong>⚠️ Cluster Validation Error:</strong>
+                  <br />
+                  {dominoClusterError}
+                </div>
+              )}
 
               <PurpleGlassInput
                 label="Hardware Available Date"
@@ -699,7 +823,45 @@ const Step2_SourceDestination: React.FC = () => {
 
           {/* Existing Hardware Pool (conditional) */}
           {migrationStrategy === 'existing_free_hardware' && (
-            <div style={{ marginTop: tokens.xl }}>
+            <div style={{ marginTop: tokens.xl, display: 'flex', flexDirection: 'column', gap: tokens.l }}>
+              {/* Hardware Pool Capacity Validation */}
+              {isValidatingHardwarePool && (
+                <div style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '8px',
+                  fontSize: tokens.fontSizeBase200,
+                  color: tokens.colorNeutralForeground3
+                }}>
+                  <Spinner size="tiny" />
+                  <span>Checking hardware pool capacity...</span>
+                </div>
+              )}
+
+              {hardwarePoolWarning && (
+                <div style={{
+                  borderLeft: '4px solid #f59e0b',
+                  backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                  padding: '12px 16px',
+                  borderRadius: '8px',
+                  color: '#d97706',
+                  fontFamily: 'Oxanium, sans-serif',
+                  fontSize: tokens.fontSizeBase200
+                }}>
+                  <strong>⚠️ Hardware Pool Capacity Warning:</strong>
+                  <br />
+                  {hardwarePoolWarning}
+                </div>
+              )}
+              
+              {!isValidatingHardwarePool && !hardwarePoolWarning && (
+                <div className={styles.infoBox}>
+                  <strong>✓ Hardware Pool Available:</strong>
+                  <br />
+                  Sufficient hardware is available in the pool. You can review and allocate specific servers in Step 4 (Capacity Validation).
+                </div>
+              )}
+              
               <div className={styles.infoBox}>
                 <strong>📦 Hardware Pool Allocation:</strong>
                 <br />
