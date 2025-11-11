@@ -808,8 +808,8 @@ const ProjectWorkspaceView: React.FC = () => {
               {/* Timeline View */}
               {timelineView === 'timeline' && (
                 <>
-                  {/* Shared container for Timeline and List so footer and placement remain identical */}
-                  <div className="border border-gray-200 rounded-lg overflow-hidden bg-white flex flex-col" style={{ height: '520px' }}>
+                  {/* Shared container for Timeline and List - responsive height */}
+                  <div className="border border-gray-200 rounded-lg overflow-hidden bg-white flex flex-col" style={{ minHeight: '520px', maxHeight: '800px' }}>
                     {/* Top controls: Slider + Add Activity (moved from footer) */}
                     <div className="flex items-center gap-4 p-4 border-b bg-white">
                       <ViewToggleSlider value={timelineView} onChange={setTimelineView} />
@@ -872,7 +872,7 @@ const ProjectWorkspaceView: React.FC = () => {
 
               {/* List View */}
               {timelineView === 'list' && (
-                <div className="border border-gray-200 rounded-lg overflow-hidden bg-white flex flex-col" style={{ height: '520px' }}>
+                <div className="border border-gray-200 rounded-lg overflow-hidden bg-white flex flex-col" style={{ minHeight: '520px', maxHeight: '800px' }}>
                   {/* Top controls: Slider + Add Activity (moved from footer) */}
                   <div className="flex items-center gap-4 p-4 border-b bg-white">
                     <ViewToggleSlider value={timelineView} onChange={setTimelineView} />
@@ -1232,7 +1232,7 @@ const ProjectWorkspaceView: React.FC = () => {
           )}
 
           {activeTab === 'capacity' && (
-            <div className="rounded-lg border border-gray-200" style={{ display: 'block', overflow: 'visible' }}>
+            <div className="rounded-lg border border-gray-200" style={{ display: 'block', overflow: 'auto', maxHeight: '800px' }}>
               <div className="bg-white">
                 <CapacityVisualizerView />
               </div>
