@@ -538,25 +538,22 @@ const HardwareBasketView: React.FC = () => {
                   gap: '8px'
                 }}>
                   <span style={{
-                    background: getVendorColor(basket.vendor),
-                    color: 'white',
-                    padding: '4px 8px',
+                    padding: '4px 10px',
                     borderRadius: '6px',
-                    fontSize: '10px',
+                    fontSize: '11px',
                     fontWeight: '600',
+                    background: basket.vendor === 'Dell' 
+                      ? 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)'
+                      : basket.vendor === 'Lenovo' 
+                        ? 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)'
+                        : basket.vendor === 'HPE'
+                          ? 'linear-gradient(135deg, #10b981 0%, #047857 100%)'
+                          : 'linear-gradient(135deg, #6b7280 0%, #374151 100%)',
+                    color: 'white',
+                    letterSpacing: '0.5px',
                     textTransform: 'uppercase'
                   }}>
                     {basket.vendor}
-                  </span>
-                  <span style={{
-                    background: 'rgba(99, 102, 241, 0.1)',
-                    color: '#6366f1',
-                    padding: '4px 8px',
-                    borderRadius: '6px',
-                    fontSize: '10px',
-                    fontWeight: '500'
-                  }}>
-                    {basket.quarter} {basket.year}
                   </span>
                 </div>
                 <button
@@ -655,19 +652,41 @@ const HardwareBasketView: React.FC = () => {
                 </div>
               </div>
 
-              {/* Footer */}
+              {/* Footer - Simplified */}
               <div style={{
                 fontSize: '12px',
                 color: '#64748b',
                 fontFamily: 'Oxanium, sans-serif',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
                 paddingTop: '12px',
                 borderTop: '1px solid rgba(99, 102, 241, 0.1)'
               }}>
-                <span>📅 {formatDate(basket.quotation_date)}</span>
-                <span>⏰ {formatDate(basket.created_at)}</span>
+                {/* Single row: Quarter/Year + Upload Date */}
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: '8px'
+                }}>
+                  <span style={{
+                    fontWeight: '600',
+                    color: '#6366f1'
+                  }}>
+                    {basket.quarter} {basket.year}
+                  </span>
+                  <span style={{
+                    fontSize: '11px'
+                  }}>
+                    Uploaded {formatDate(basket.created_at)}
+                  </span>
+                </div>
+                {/* Platform summary */}
+                <div style={{
+                  fontSize: '11px',
+                  color: '#94a3b8',
+                  fontStyle: 'italic'
+                }}>
+                  {basket.total_models} {basket.total_models === 1 ? 'model' : 'models'} • {basket.vendor} platform
+                </div>
               </div>
             </div>
           ))}
