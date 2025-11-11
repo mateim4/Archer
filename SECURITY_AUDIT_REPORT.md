@@ -474,3 +474,84 @@ EOF
 **Report Generated:** November 11, 2025  
 **Tool:** GitHub Copilot AI Security Audit  
 **Contact:** Development Team
+
+---
+
+## Addendum: Deeper Pass (November 11, 2025 Evening)
+
+### Scope
+Follow-up automated and manual analysis focusing on:
+1. Frontend lint/type safety & remaining XSS surfaces
+2. Design system compliance (Purple Glass component usage)
+3. Runtime HTML/SVG injection points missed in initial pass
+4. Additional panic-risk patterns in backend middleware
+
+### New Findings
+
+#### 1. Unsanitized Error HTML Injection (NetworkVisualizerView)
+Severity: MODERATE  
+File: `frontend/src/views/NetworkVisualizerView.tsx` (error catch block for Mermaid rendering)  
+Issue: Previously inserted an HTML template containing `${errorMessage}` directly via `element.innerHTML` without sanitization. `errorMessage` can incorporate environment / topology names sourced from uploaded data, enabling reflected XSS if malicious names are present.  
+Remediation Implemented: Replaced direct assignment with `DOMPurify.sanitize(...)` wrapping the full error template.  
+Status: FIXED ✅
+
+#### 2. Unsanitized SVG Injection (MigrationPlanningWizard)
+Severity: MODERATE  
+File: `frontend/src/components/MigrationPlanningWizard.tsx`  
+Issue: Mermaid-rendered SVG was assigned directly: `element.innerHTML = svg;` allowing potential script / event attributes if upstream sanitization were bypassed.  
+Remediation Implemented: Sanitized SVG and error fallback HTML with DOMPurify before insertion.  
+Status: FIXED ✅
+
+#### 3. Native `<button>` Elements Bypassing Design System
+Severity: LOW (Security: very low; Consistency & future hardening impact)  
+File: `frontend/src/views/NetworkVisualizerView.tsx`  
+Issue: Tab navigation used raw `<button>` elements with custom inline styles—violates instruction to use Purple Glass components, increases style drift and bypasses standardized accessibility / future security enhancements.  
+Remediation Implemented: Replaced with `PurpleGlassButton` variants; removed ad‑hoc styling.  
+Status: FIXED ✅
+
+#### 4. Hardcoded Color & Spacing Tokens (Extensive Lint Output)
+Severity: LOW (Maintainability / Theming Consistency)  
+Observation: Lint run produced 6,369 warnings including `local-rules/no-hardcoded-colors` and `no-hardcoded-spacing`. These increase refactor cost and risk of inconsistent theming; not a direct security issue but affects UI integrity and rapid theme evolution.  
+Remediation Plan:
+    - Phase incremental replacement: start with high-traffic views (`CapacityVisualizer`, wizard components) mapping hex/constants to Fluent UI 2 tokens & semantic color palette.
+    - Add CI rule: fail build if > N (e.g., 100) new hardcoded color/spacing instances appear.
+    - Introduce helper design token utilities (central map) to accelerate replacement.
+
+#### 5. Excess `any` Type Usage Across Tests & Utility Code
+Severity: LOW (Type Safety Degradation)  
+Impact: Reduces compile-time guarantees; potential silent propagation of unsafe data into visualization / HTML rendering layers.  
+Plan: Progressive elimination—convert recurrent `any` to discriminated unions or specific interfaces (e.g., `TopologyNode`, `CapacityResult`). Add ESLint rule escalation from warning to error for `no-explicit-any` after cleanup milestone.
+
+#### 6. Remaining Backend Panic Risks (CORS Origin Parsing)
+Severity: LOW  
+File: `backend/src/main.rs`  
+Issue: Original CORS configuration used `.parse().unwrap()` which can panic if modified env values re-route origin.  
+Remediation Implemented: Replaced with `HeaderValue::from_static` for constant origin string eliminating parse/panic path.  
+Status: FIXED ✅
+
+### Updated Remediation Recommendations (Delta)
+| New Item | Priority | Action |
+|----------|----------|--------|
+| Sanitize all dynamic Mermaid SVG/error insertions | HIGH (done) | Enforced DOMPurify on SVG + error blocks |
+| Replace native buttons with PurpleGlassButton | MEDIUM (done) | Completed for NetworkVisualizerView; audit remaining views |
+| Hardcoded design tokens cleanup | MEDIUM | Begin phased replacement; create tracking issue |
+| Eliminate remaining unsanitized `innerHTML` (audit) | HIGH | Grep for `innerHTML =` with template literals; enforce sanitization |
+| Reduce `any` usage | LOW | Refactor high-frequency types first; escalate lint severity post-refactor |
+| Remove remaining `.unwrap()`/`.expect()` outside tests | MEDIUM | Inventory via grep; convert to `?` + custom error types where feasible |
+
+### Additional Actionable Metrics
+- XSS Injection Points (post-fix): All known Mermaid & icon HTML insertions pass through DOMPurify ✅
+- Native Form/Button Elements Remaining: NetworkVisualizerView resolved; wizard still uses Fluent UI `Button`—migration to Purple Glass planned (not yet executed).  
+- Panic-Prone Backend Calls: Reduced; remaining unwrap/expect in test code acceptable (test-only). Operational code now avoids direct unwrap for CORS origin.
+
+### Next Sprint Delta Tasks
+1. Migrate remaining Fluent UI `Button` usages in `MigrationPlanningWizard` and capacity analysis views to `PurpleGlassButton`.
+2. Introduce util `sanitizeHTML(html: string): string` wrapper to centralize DOMPurify usage + optional logging of blocked elements.
+3. Create design token mapping file; begin automated replacement of top 200 hardcoded colors/spacings.
+4. Run cargo-audit once Windows toolchain (dlltool) installed; append dependency risk section (currently blocked by environment tooling).  
+5. Add CI step: `npm run lint` fails if new hardcoded color/spacing warnings exceed baseline.
+
+### Risk Posture Adjustment
+New moderate issues were fixed immediately; overall MODERATE risk level maintained. No escalation. Improvements reduced XSS surface further (net risk slightly lowered). Pending dependency audit (Rust) remains open.
+
+---

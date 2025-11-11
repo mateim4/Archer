@@ -48,7 +48,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .layer(
             // CORS configuration: Allow credentials from specific frontend origin
             CorsLayer::new()
-                .allow_origin("http://localhost:1420".parse::<axum::http::HeaderValue>().unwrap())
+                // Avoid parse().unwrap() on a constant by using HeaderValue::from_static
+                .allow_origin(axum::http::HeaderValue::from_static("http://localhost:1420"))
                 .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE, Method::PATCH])
                 .allow_headers([
                     axum::http::header::CONTENT_TYPE,

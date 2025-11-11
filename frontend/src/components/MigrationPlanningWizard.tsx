@@ -12,6 +12,7 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
+import DOMPurify from 'dompurify';
 import {
   Dialog,
   DialogSurface,
@@ -1629,8 +1630,9 @@ export const MigrationPlanningWizard: React.FC<MigrationWizardProps> = ({
                 // Render diagram
                 const { svg } = await mermaid.render(uniqueId, diagramCode);
                 
-                // Insert rendered SVG
-                element.innerHTML = svg;
+                // Insert rendered SVG (sanitize to prevent SVG-based XSS)
+                const safeSvg = DOMPurify.sanitize(svg);
+                element.innerHTML = safeSvg;
                 
                 setDiagramRenderState('success');
                 console.log('✅ Mermaid diagram rendered successfully');
@@ -1641,8 +1643,8 @@ export const MigrationPlanningWizard: React.FC<MigrationWizardProps> = ({
                 const errorMsg = error instanceof Error ? error.message : 'Unknown rendering error';
                 setDiagramErrorMessage(errorMsg);
                 
-                // Show fallback message in container
-                element.innerHTML = `
+                // Show fallback message in container (sanitized)
+                const safeErrorHTML = DOMPurify.sanitize(`
                   <div style="padding: 40px; text-align: center; color: #ef4444;">
                     <div style="font-size: 48px; margin-bottom: 16px;">⚠️</div>
                     <div style="font-weight: 600; margin-bottom: 8px;">Diagram Rendering Failed</div>
@@ -1651,7 +1653,8 @@ export const MigrationPlanningWizard: React.FC<MigrationWizardProps> = ({
                       Check browser console for details
                     </div>
                   </div>
-                `;
+                `);
+                element.innerHTML = safeErrorHTML;
               }
             };
             

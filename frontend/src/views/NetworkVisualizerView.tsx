@@ -14,6 +14,8 @@ import { generateVMwareNetworkTopology, generateHyperVNetworkTopology, generateP
 import { useAppStore } from '../store/useAppStore';
 import NetworkComponentGuide from '../components/NetworkComponentGuide';
 import VisualNetworkDiagram from '../components/VisualNetworkDiagram';
+// Design system components – replace native buttons per instructions
+import { PurpleGlassButton } from '@/components/ui';
 
 // Define consistent color palette for diagrams
 const DIAGRAM_THEME = {
@@ -365,20 +367,25 @@ const NetworkVisualizerView = () => {
             const element = document.getElementById('mermaid-diagram');
             if (element) {
               let errorMessage = 'Unknown error occurred';
-              
+
               if (error instanceof Error) {
                 errorMessage = error.message;
               } else if (typeof error === 'string') {
                 errorMessage = error;
               } else if (error && typeof error === 'object') {
-                // Handle cases where error is an object
-                errorMessage = JSON.stringify(error, null, 2);
+                // Serialize object safely (could contain user-controlled names)
+                try {
+                  errorMessage = JSON.stringify(error, null, 2);
+                } catch {
+                  errorMessage = 'Unserializable error object';
+                }
               }
-              
+
               // Log the diagram definition for debugging
               console.error('Failed diagram definition:', diagramDefinition);
-              
-              element.innerHTML = `
+
+              // Sanitize interpolated error HTML to prevent XSS via errorMessage (can include cluster/host names)
+              const errorHTML = DOMPurify.sanitize(`
                 <div class="border border-red-200 rounded-lg p-6 text-center">
                   <div class="text-red-600 mb-2">
                     <svg class="w-8 h-8 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -389,7 +396,8 @@ const NetworkVisualizerView = () => {
                   <p class="text-sm text-red-600 mb-2">${errorMessage}</p>
                   <p class="text-xs text-red-500 opacity-75">Check browser console for more details</p>
                 </div>
-              `;
+              `);
+              element.innerHTML = errorHTML;
             }
           }
         }
@@ -637,14 +645,11 @@ const NetworkVisualizerView = () => {
         )}
 
         {/* Tab Navigation */}
-        <div style={{ 
-          display: 'flex', 
-          gap: '4px', 
+        <div style={{
+          display: 'flex',
+          gap: '8px',
           marginBottom: '24px',
-          padding: '4px',
-          background: 'rgba(255, 255, 255, 0.3)',
-          borderRadius: '12px',
-          border: '1px solid rgba(0, 0, 0, 0.05)'
+          flexWrap: 'wrap'
         }}>
           {[
             { id: 'overview', label: 'Overview', icon: <DiagramRegular /> },
@@ -653,30 +658,15 @@ const NetworkVisualizerView = () => {
             { id: 'physical', label: 'Physical Infrastructure', icon: <CloudRegular /> },
             { id: 'guide', label: 'Component Guide', icon: <BookRegular /> }
           ].map(tab => (
-            <button
+            <PurpleGlassButton
               key={tab.id}
+              variant={activeTab === tab.id ? 'primary' : 'secondary'}
+              size="medium"
               onClick={() => setActiveTab(tab.id as any)}
-              style={{
-                flex: 1,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                padding: '12px 16px',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '14px',
-                fontWeight: '500',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                background: activeTab === tab.id ? 'rgba(255, 255, 255, 0.9)' : 'transparent',
-                color: activeTab === tab.id ? '#111827' : '#6b7280',
-                boxShadow: activeTab === tab.id ? '0 2px 4px rgba(0, 0, 0, 0.1)' : 'none'
-              }}
+              icon={<div style={{ display: 'flex', fontSize: 16 }}>{tab.icon}</div>}
             >
-              <div style={{ fontSize: '16px' }}>{tab.icon}</div>
               {tab.label}
-            </button>
+            </PurpleGlassButton>
           ))}
         </div>
 
