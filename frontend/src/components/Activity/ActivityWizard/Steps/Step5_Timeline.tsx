@@ -4,15 +4,22 @@ import {
   shorthands,
   Button,
   Spinner,
+  Dialog,
+  DialogSurface,
+  DialogTitle,
+  DialogBody,
+  DialogActions,
 } from '@fluentui/react-components';
 import {
   CheckmarkCircleFilled,
   ClockRegular,
   PlayRegular,
   AlertRegular,
+  ArrowResetRegular,
 } from '@fluentui/react-icons';
 import { useWizardContext } from '../Context/WizardContext';
-import type { TimelineEstimationResult, TaskEstimate } from '../types/WizardTypes';
+import type { TimelineEstimationResult, TaskEstimate, EditableTimelineResult } from '../types/WizardTypes';
+import { EditableNumberField } from './components/EditableNumberField';
 import { tokens } from '../../../../styles/design-tokens';
 
 const useStyles = makeStyles({
@@ -204,15 +211,98 @@ const useStyles = makeStyles({
   },
 });
 
+// ============================================================================
+// Helper Functions
+// ============================================================================
+
+/**
+ * Validate a field value
+ */
+function validateFieldValue(field: string, value: number): { error?: string; warning?: string } {
+  // Min/Max validation
+  if (value < 1) {
+    return { error: "Minimum 1 day required" };
+  }
+  if (value > 365) {
+    return { error: "Maximum 365 days allowed" };
+  }
+  if (isNaN(value)) {
+    return { error: "Please enter a valid number" };
+  }
+
+  // Long timeline warning
+  if (field === 'total_days' && value > 180) {
+    return { warning: "Very long timeline (>6 months). Consider breaking into smaller activities." };
+  }
+
+  return {};
+}
+
+/**
+ * Recalculate timeline when a field is edited
+ */
+function recalculateTimeline(
+  field: string,
+  newValue: number,
+  result: EditableTimelineResult
+): EditableTimelineResult {
+  const updated = { ...result };
+
+  if (field === 'total_days') {
+    // Distribute proportionally to phases (maintain 25/60/15 split)
+    updated.total_days = newValue;
+    updated.prep_days = Math.max(2, Math.ceil(newValue * 0.25));
+    updated.migration_days = Math.ceil(newValue * 0.60);
+    updated.validation_days = Math.max(1, Math.ceil(newValue * 0.15));
+    
+    // Mark all as edited
+    updated.edited_fields = [...new Set([...updated.edited_fields, 'total_days', 'prep_days', 'migration_days', 'validation_days'])];
+  } else if (field === 'prep_days') {
+    updated.prep_days = newValue;
+    updated.total_days = updated.prep_days + updated.migration_days + updated.validation_days;
+    updated.edited_fields = [...new Set([...updated.edited_fields, 'prep_days', 'total_days'])];
+  } else if (field === 'migration_days') {
+    updated.migration_days = newValue;
+    updated.total_days = updated.prep_days + updated.migration_days + updated.validation_days;
+    updated.edited_fields = [...new Set([...updated.edited_fields, 'migration_days', 'total_days'])];
+  } else if (field === 'validation_days') {
+    updated.validation_days = newValue;
+    updated.total_days = updated.prep_days + updated.migration_days + updated.validation_days;
+    updated.edited_fields = [...new Set([...updated.edited_fields, 'validation_days', 'total_days'])];
+  }
+
+  updated.is_manually_edited = true;
+  updated.last_edited_at = new Date().toISOString();
+
+  // Save original estimate on first edit
+  if (!updated.original_estimate) {
+    updated.original_estimate = {
+      total_days: result.total_days,
+      prep_days: result.prep_days,
+      migration_days: result.migration_days,
+      validation_days: result.validation_days,
+      confidence: result.confidence,
+      tasks: result.tasks,
+      critical_path: result.critical_path,
+      estimated_at: result.estimated_at,
+    };
+  }
+
+  return updated;
+}
+
 const Step5_Timeline: React.FC = () => {
   const classes = useStyles();
   const { formData, updateStepData, globalTimelineEstimates } = useWizardContext();
 
   // State for timeline estimation
   const [isEstimating, setIsEstimating] = useState(false);
-  const [timelineResult, setTimelineResult] = useState<TimelineEstimationResult | null>(
-    formData.step5?.timeline_result || null
+  const [timelineResult, setTimelineResult] = useState<EditableTimelineResult | null>(
+    formData.step5?.timeline_result as EditableTimelineResult | null || null
   );
+  const [showResetDialog, setShowResetDialog] = useState(false);
+  const [showRecalculateDialog, setShowRecalculateDialog] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
   // Update context when timeline result changes
   useEffect(() => {
@@ -336,7 +426,16 @@ const Step5_Timeline: React.FC = () => {
         estimated_at: new Date().toISOString(),
       };
 
-      setTimelineResult(mockResult);
+      // Convert to EditableTimelineResult (new estimate, not edited)
+      const editableResult: EditableTimelineResult = {
+        ...mockResult,
+        is_manually_edited: false,
+        original_estimate: null,
+        edited_fields: [],
+        last_edited_at: new Date().toISOString(),
+      };
+
+      setTimelineResult(editableResult);
     } catch (error) {
       console.error('Error estimating timeline:', error);
       // TODO: Show error message to user
@@ -362,6 +461,58 @@ const Step5_Timeline: React.FC = () => {
     return timelineResult?.critical_path.includes(taskName) || false;
   };
 
+  // Handle editing a field value
+  const handleFieldSave = (field: string, newValue: number) => {
+    if (!timelineResult) return;
+
+    // Validate
+    const validation = validateFieldValue(field, newValue);
+    if (validation.error) {
+      setValidationErrors({ ...validationErrors, [field]: validation.error });
+      return;
+    }
+
+    // Recalculate
+    const updated = recalculateTimeline(field, newValue, timelineResult);
+    
+    setTimelineResult(updated);
+    setValidationErrors({});
+
+    // Update form data
+    updateStepData(5, { ...formData.step5, timeline_result: updated });
+  };
+
+  // Handle reset to original calculated values
+  const handleReset = () => {
+    if (!timelineResult?.original_estimate) return;
+    
+    const restored: EditableTimelineResult = {
+      ...timelineResult.original_estimate,
+      is_manually_edited: false,
+      original_estimate: null,
+      edited_fields: [],
+      last_edited_at: new Date().toISOString(),
+    };
+    
+    setTimelineResult(restored);
+    updateStepData(5, { ...formData.step5, timeline_result: restored });
+    setShowResetDialog(false);
+  };
+
+  // Handle recalculate with confirmation if edits exist
+  const handleEstimateWithConfirmation = () => {
+    if (timelineResult?.is_manually_edited) {
+      setShowRecalculateDialog(true);
+    } else {
+      handleEstimateTimeline();
+    }
+  };
+
+  const handleConfirmRecalculate = () => {
+    setShowRecalculateDialog(false);
+    handleEstimateTimeline();
+  };
+
   return (
     <div className={classes.container}>
       {/* Estimation Section */}
@@ -377,15 +528,28 @@ const Step5_Timeline: React.FC = () => {
           on the critical path directly impact the total duration.
         </div>
 
-        <Button
-          className={classes.estimateButton}
-          appearance="primary"
-          icon={isEstimating ? <Spinner size="tiny" /> : <PlayRegular />}
-          disabled={isEstimating}
-          onClick={handleEstimateTimeline}
-        >
-          {isEstimating ? 'Estimating Timeline...' : 'Estimate Timeline'}
-        </Button>
+        <div style={{ display: 'flex', gap: tokens.m, alignItems: 'center' }}>
+          <Button
+            className={classes.estimateButton}
+            appearance="primary"
+            icon={isEstimating ? <Spinner size="tiny" /> : <PlayRegular />}
+            disabled={isEstimating}
+            onClick={handleEstimateWithConfirmation}
+          >
+            {isEstimating ? 'Estimating Timeline...' : 'Estimate Timeline'}
+          </Button>
+
+          {timelineResult?.is_manually_edited && (
+            <Button
+              appearance="subtle"
+              icon={<ArrowResetRegular />}
+              onClick={() => setShowResetDialog(true)}
+              disabled={isEstimating}
+            >
+              Reset to Auto-calculated
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Timeline Results Section */}
@@ -404,19 +568,59 @@ const Step5_Timeline: React.FC = () => {
           {/* Summary Cards */}
           <div className={classes.summaryGrid}>
             <div className={classes.summaryCard}>
-              <div className={classes.summaryValue}>{timelineResult.total_days}</div>
+              <EditableNumberField
+                value={timelineResult.total_days}
+                unit={timelineResult.total_days === 1 ? "day" : "days"}
+                min={1}
+                max={365}
+                isEdited={timelineResult.edited_fields.includes('total_days')}
+                onSave={(newValue) => handleFieldSave('total_days', newValue)}
+                validationError={validationErrors['total_days']}
+                label="Total Days"
+                className={classes.summaryValue}
+              />
               <div className={classes.summaryLabel}>Total Days</div>
             </div>
             <div className={classes.summaryCard}>
-              <div className={classes.summaryValue}>{timelineResult.prep_days}</div>
+              <EditableNumberField
+                value={timelineResult.prep_days}
+                unit={timelineResult.prep_days === 1 ? "day" : "days"}
+                min={1}
+                max={365}
+                isEdited={timelineResult.edited_fields.includes('prep_days')}
+                onSave={(newValue) => handleFieldSave('prep_days', newValue)}
+                validationError={validationErrors['prep_days']}
+                label="Preparation Days"
+                className={classes.summaryValue}
+              />
               <div className={classes.summaryLabel}>Preparation</div>
             </div>
             <div className={classes.summaryCard}>
-              <div className={classes.summaryValue}>{timelineResult.migration_days}</div>
+              <EditableNumberField
+                value={timelineResult.migration_days}
+                unit={timelineResult.migration_days === 1 ? "day" : "days"}
+                min={1}
+                max={365}
+                isEdited={timelineResult.edited_fields.includes('migration_days')}
+                onSave={(newValue) => handleFieldSave('migration_days', newValue)}
+                validationError={validationErrors['migration_days']}
+                label="Migration Days"
+                className={classes.summaryValue}
+              />
               <div className={classes.summaryLabel}>Migration</div>
             </div>
             <div className={classes.summaryCard}>
-              <div className={classes.summaryValue}>{timelineResult.validation_days}</div>
+              <EditableNumberField
+                value={timelineResult.validation_days}
+                unit={timelineResult.validation_days === 1 ? "day" : "days"}
+                min={1}
+                max={365}
+                isEdited={timelineResult.edited_fields.includes('validation_days')}
+                onSave={(newValue) => handleFieldSave('validation_days', newValue)}
+                validationError={validationErrors['validation_days']}
+                label="Validation Days"
+                className={classes.summaryValue}
+              />
               <div className={classes.summaryLabel}>Validation</div>
             </div>
           </div>
@@ -476,6 +680,42 @@ const Step5_Timeline: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Reset Confirmation Dialog */}
+      <Dialog open={showResetDialog} onOpenChange={(_, data) => setShowResetDialog(data.open)}>
+        <DialogSurface>
+          <DialogTitle>⚠️ Reset Timeline to Auto-calculated?</DialogTitle>
+          <DialogBody>
+            This will discard all manual adjustments and restore the original calculated values based on your activity parameters.
+          </DialogBody>
+          <DialogActions>
+            <Button appearance="secondary" onClick={() => setShowResetDialog(false)}>
+              Cancel
+            </Button>
+            <Button appearance="primary" onClick={handleReset}>
+              Reset
+            </Button>
+          </DialogActions>
+        </DialogSurface>
+      </Dialog>
+
+      {/* Recalculate Confirmation Dialog */}
+      <Dialog open={showRecalculateDialog} onOpenChange={(_, data) => setShowRecalculateDialog(data.open)}>
+        <DialogSurface>
+          <DialogTitle>⚠️ Recalculate Timeline?</DialogTitle>
+          <DialogBody>
+            You have manual adjustments. Re-estimating will discard your edits and calculate a new timeline based on current parameters.
+          </DialogBody>
+          <DialogActions>
+            <Button appearance="secondary" onClick={() => setShowRecalculateDialog(false)}>
+              Cancel
+            </Button>
+            <Button appearance="primary" onClick={handleConfirmRecalculate}>
+              Recalculate
+            </Button>
+          </DialogActions>
+        </DialogSurface>
+      </Dialog>
     </div>
   );
 };

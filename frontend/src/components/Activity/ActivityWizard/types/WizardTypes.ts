@@ -235,6 +235,14 @@ export interface TaskEstimate {
   is_critical_path: boolean;
 }
 
+// Extended timeline result with edit tracking
+export interface EditableTimelineResult extends TimelineEstimationResult {
+  is_manually_edited: boolean;
+  original_estimate: TimelineEstimationResult | null;
+  edited_fields: string[];     // e.g., ['total_days', 'prep_days', 'tasks.0.duration_days']
+  last_edited_at: string;      // ISO 8601 datetime
+}
+
 // ============================================================================
 // API Request/Response Types
 // ============================================================================
