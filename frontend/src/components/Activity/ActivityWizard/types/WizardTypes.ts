@@ -243,6 +243,17 @@ export interface EditableTimelineResult extends TimelineEstimationResult {
   last_edited_at: string;      // ISO 8601 datetime
 }
 
+// Phase 2: Task-level editing
+export type TaskId = string;
+
+export interface TaskItem {
+  id: TaskId;
+  name: string;
+  duration_days: number; // integer days
+  is_critical: boolean;  // part of critical path
+  notes?: string | null;
+}
+
 // ============================================================================
 // API Request/Response Types
 // ============================================================================

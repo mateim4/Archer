@@ -18,8 +18,9 @@ import {
   ArrowResetRegular,
 } from '@fluentui/react-icons';
 import { useWizardContext } from '../Context/WizardContext';
-import type { TimelineEstimationResult, TaskEstimate, EditableTimelineResult } from '../types/WizardTypes';
+import type { TimelineEstimationResult, TaskEstimate, EditableTimelineResult, TaskItem } from '../types/WizardTypes';
 import { EditableNumberField } from './components/EditableNumberField';
+import { EditableTaskRow } from './components/EditableTaskRow';
 import { tokens } from '../../../../styles/design-tokens';
 
 const useStyles = makeStyles({
@@ -513,6 +514,121 @@ const Step5_Timeline: React.FC = () => {
     handleEstimateTimeline();
   };
 
+  // ============================================================================
+  // Task-Level Editing Handlers (Phase 2)
+  // ============================================================================
+
+  const handleTaskNameSave = (taskId: string, newName: string) => {
+    if (!timelineResult) return;
+    
+    const updated = { ...timelineResult };
+    const taskIndex = parseInt(taskId);
+    
+    if (taskIndex >= 0 && taskIndex < updated.tasks.length) {
+      updated.tasks[taskIndex].name = newName;
+      updated.is_manually_edited = true;
+      updated.last_edited_at = new Date().toISOString();
+      updated.edited_fields = [...new Set([...updated.edited_fields, `tasks.${taskIndex}.name`])];
+      
+      if (!updated.original_estimate) {
+        updated.original_estimate = { ...timelineResult };
+      }
+      
+      setTimelineResult(updated);
+      updateStepData(5, { ...formData.step5, timeline_result: updated });
+    }
+  };
+
+  const handleTaskDurationSave = (taskId: string, newDuration: number) => {
+    if (!timelineResult) return;
+    
+    const taskIndex = parseInt(taskId);
+    if (taskIndex < 0 || taskIndex >= timelineResult.tasks.length) return;
+    
+    const task = timelineResult.tasks[taskIndex];
+    const updated = { ...timelineResult };
+    
+    // Update task duration
+    updated.tasks[taskIndex].duration_days = newDuration;
+    
+    // If critical path task, recalculate total
+    if (task.is_critical_path) {
+      const criticalTasksDuration = updated.tasks
+        .filter(t => t.is_critical_path)
+        .reduce((sum, t) => sum + t.duration_days, 0);
+      updated.total_days = criticalTasksDuration;
+    }
+    
+    updated.is_manually_edited = true;
+    updated.last_edited_at = new Date().toISOString();
+    updated.edited_fields = [...new Set([...updated.edited_fields, `tasks.${taskIndex}.duration_days`])];
+    
+    if (!updated.original_estimate) {
+      updated.original_estimate = { ...timelineResult };
+    }
+    
+    setTimelineResult(updated);
+    updateStepData(5, { ...formData.step5, timeline_result: updated });
+  };
+
+  const handleTaskToggleCritical = (taskId: string, isCritical: boolean) => {
+    if (!timelineResult) return;
+    
+    const taskIndex = parseInt(taskId);
+    if (taskIndex < 0 || taskIndex >= timelineResult.tasks.length) return;
+    
+    const updated = { ...timelineResult };
+    updated.tasks[taskIndex].is_critical_path = isCritical;
+    
+    // Update critical_path array
+    const taskName = updated.tasks[taskIndex].name;
+    if (isCritical) {
+      if (!updated.critical_path.includes(taskName)) {
+        updated.critical_path = [...updated.critical_path, taskName];
+      }
+    } else {
+      updated.critical_path = updated.critical_path.filter(name => name !== taskName);
+    }
+    
+    updated.is_manually_edited = true;
+    updated.last_edited_at = new Date().toISOString();
+    updated.edited_fields = [...new Set([...updated.edited_fields, `tasks.${taskIndex}.is_critical_path`])];
+    
+    if (!updated.original_estimate) {
+      updated.original_estimate = { ...timelineResult };
+    }
+    
+    setTimelineResult(updated);
+    updateStepData(5, { ...formData.step5, timeline_result: updated });
+  };
+
+  const handleTaskDelete = (taskId: string) => {
+    if (!timelineResult) return;
+    
+    const taskIndex = parseInt(taskId);
+    if (taskIndex < 0 || taskIndex >= timelineResult.tasks.length) return;
+    
+    const updated = { ...timelineResult };
+    const deletedTask = updated.tasks[taskIndex];
+    
+    // Remove from tasks array
+    updated.tasks = updated.tasks.filter((_, idx) => idx !== taskIndex);
+    
+    // Remove from critical_path if present
+    updated.critical_path = updated.critical_path.filter(name => name !== deletedTask.name);
+    
+    updated.is_manually_edited = true;
+    updated.last_edited_at = new Date().toISOString();
+    updated.edited_fields = [...new Set([...updated.edited_fields, `tasks.deleted.${taskIndex}`])];
+    
+    if (!updated.original_estimate) {
+      updated.original_estimate = { ...timelineResult };
+    }
+    
+    setTimelineResult(updated);
+    updateStepData(5, { ...formData.step5, timeline_result: updated });
+  };
+
   return (
     <div className={classes.container}>
       {/* Estimation Section */}
@@ -628,24 +744,28 @@ const Step5_Timeline: React.FC = () => {
           {/* Task Breakdown */}
           <div className={classes.tasksSection}>
             <div className={classes.tasksTitle}>Task Breakdown</div>
-            <ul className={classes.tasksList}>
-              {timelineResult.tasks.map((task, index) => (
-                <li key={index} className={`${classes.taskItem} ${isCriticalPath(task.name) ? classes.criticalTask : ''}`}>
-                  <div className={classes.taskName}>
-                    {task.name}
-                    {isCriticalPath(task.name) && (
-                      <span className={classes.criticalBadge}>
-                        <AlertRegular style={{ fontSize: '12px' }} />
-                        Critical Path
-                      </span>
-                    )}
-                  </div>
-                  <div className={classes.taskDuration}>
-                    {task.duration_days} {task.duration_days === 1 ? 'day' : 'days'}
-                  </div>
-                </li>
-              ))}
-            </ul>
+            <div role="list" style={{ display: 'flex', flexDirection: 'column', gap: tokens.s }}>
+              {timelineResult.tasks.map((task, index) => {
+                const taskItem: TaskItem = {
+                  id: String(index),
+                  name: task.name,
+                  duration_days: task.duration_days,
+                  is_critical: task.is_critical_path,
+                  notes: null,
+                };
+                
+                return (
+                  <EditableTaskRow
+                    key={index}
+                    task={taskItem}
+                    onSaveName={handleTaskNameSave}
+                    onSaveDuration={handleTaskDurationSave}
+                    onToggleCritical={handleTaskToggleCritical}
+                    onDelete={handleTaskDelete}
+                  />
+                );
+              })}
+            </div>
           </div>
 
           {/* Additional Info */}
