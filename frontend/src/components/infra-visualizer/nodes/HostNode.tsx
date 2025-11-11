@@ -57,11 +57,11 @@ export const HostNode = memo(({ data, selected }: HostNodeProps) => {
           <circle cx="6" cy="12" r="1" fill="currentColor" />
           <circle cx="10" cy="12" r="1" fill="currentColor" />
         </svg>
-        <span className={styles.hostName}>{data.name}</span>
+        <span className={styles.hostTitle}>{data.name}</span>
       </div>
 
       {data.vendor && (
-        <div className={styles.hostBadge}>
+        <div className={styles.hostSpecs}>
           {data.vendor}
         </div>
       )}

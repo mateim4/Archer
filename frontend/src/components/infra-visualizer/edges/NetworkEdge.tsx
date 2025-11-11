@@ -13,7 +13,7 @@ export const NetworkEdge = memo((props: EdgeProps) => {
 
   return (
     <>
-      <BaseEdge path={edgePath} {...props} className={styles.networkUplink} />
+      <BaseEdge path={edgePath} {...props} className={styles.uplinkEdge} />
     </>
   );
 });

@@ -3,8 +3,8 @@ import {
   generateVirtualDiagram,
   generateHyperVDiagram,
   generatePhysicalDiagram,
-  type NetworkTopology,
 } from '../mermaidGenerator';
+import type { NetworkTopology } from '../../store/useAppStore';
 
 describe('mermaidGenerator', () => {
   // =============================================================================
@@ -15,6 +15,8 @@ describe('mermaidGenerator', () => {
     networks: [],
     hosts: [],
     vms: [],
+    clusters: [],
+    platform: 'vmware',
   });
 
   const createBasicTopology = (): NetworkTopology => ({
@@ -68,6 +70,8 @@ describe('mermaidGenerator', () => {
         memory_gb: 32,
       },
     ],
+    clusters: [],
+    platform: 'vmware',
   });
 
   const createLargeTopology = (): NetworkTopology => ({
@@ -90,6 +94,8 @@ describe('mermaidGenerator', () => {
       cpu_cores: 2,
       memory_gb: 8,
     })),
+    clusters: [],
+    platform: 'vmware',
   });
 
   // =============================================================================
@@ -458,6 +464,8 @@ describe('mermaidGenerator', () => {
         networks: [{ name: 'Single Network', type: 'management', vlan_id: 100 }],
         hosts: [{ name: 'single-host', status: 'connected', cpu_cores: 8, memory_gb: 32 }],
         vms: [{ name: 'single-vm', power_state: 'poweredOn', cpu_cores: 2, memory_gb: 4 }],
+        clusters: [],
+        platform: 'vmware',
       };
       
       const diagram = generateVirtualDiagram(topology);

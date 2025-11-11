@@ -15,7 +15,7 @@ import {
   DeleteRegular,
 } from '@fluentui/react-icons';
 import { useWizardContext } from '../Context/WizardContext';
-import type { Assignment } from '../types/WizardTypes';
+import type { Milestone } from '../types/WizardTypes';
 import { tokens } from '../../../../styles/design-tokens';
 
 const useStyles = makeStyles({

@@ -61,10 +61,10 @@ export const ClusterNode = memo(({ data, selected }: ClusterNodeProps) => {
         <span className={styles.clusterTitle}>{data.name}</span>
       </div>
 
-      {(data.hostCount !== undefined || data.vmCount !== undefined) && (
+      {(data.totalHosts !== undefined || data.totalVMs !== undefined) && (
         <div className={styles.clusterStats}>
-          {data.hostCount !== undefined && <span>🖥️ {data.hostCount} hosts</span>}
-          {data.vmCount !== undefined && <span>💻 {data.vmCount} VMs</span>}
+          {data.totalHosts !== undefined ? <span>🖥️ {data.totalHosts} hosts</span> : null}
+          {data.totalVMs !== undefined ? <span>💻 {data.totalVMs} VMs</span> : null}
         </div>
       )}
     </div>

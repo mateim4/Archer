@@ -23,7 +23,7 @@ export const NetworkNode = memo(({ data, selected }: NetworkNodeProps) => {
 
   return (
     <div
-      className={styles.switch}
+      className={styles.networkSwitch}
       role="treeitem"
       aria-label={data.ariaLabel || data.name}
       aria-selected={!!selected}
