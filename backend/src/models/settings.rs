@@ -22,6 +22,8 @@ pub struct GlobalSettings {
     pub default_overcommit_ratios: OvercommitRatios,
     
     /// Timeline estimation factors (hours per host/VM)
+    /// Serialized as "default_timeline_estimates" for API compatibility
+    #[serde(rename = "default_timeline_estimates")]
     pub timeline_factors: TimelineFactors,
     
     /// Organization information

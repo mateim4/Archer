@@ -335,6 +335,13 @@ export interface WizardContextValue {
     memory_ratio: number;
   } | null;
   
+  globalTimelineEstimates?: {
+    migration_hours_per_host: number;
+    decommission_hours_per_host: number;
+    expansion_hours_per_host: number;
+    maintenance_hours_per_host: number;
+  } | null;
+  
   // Navigation
   goToStep: (step: number) => void;
   nextStep: () => void;

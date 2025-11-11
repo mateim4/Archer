@@ -114,6 +114,13 @@ export const WizardProvider: React.FC<WizardProviderProps> = ({
     memory_ratio: number;
   } | null>(null);
   
+  const [globalTimelineEstimates, setGlobalTimelineEstimates] = useState<{
+    migration_hours_per_host: number;
+    decommission_hours_per_host: number;
+    expansion_hours_per_host: number;
+    maintenance_hours_per_host: number;
+  } | null>(null);
+  
   const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
   const formDataRef = useRef(formData); // For auto-save debounce
 
@@ -134,15 +141,28 @@ export const WizardProvider: React.FC<WizardProviderProps> = ({
             cpu_ratio: number;
             memory_ratio: number;
           };
+          default_timeline_estimates: {
+            migration_hours_per_host: number;
+            decommission_hours_per_host: number;
+            expansion_hours_per_host: number;
+            maintenance_hours_per_host: number;
+          };
         }>('/settings');
         
         setGlobalOvercommitDefaults(response.default_overcommit_ratios);
+        setGlobalTimelineEstimates(response.default_timeline_estimates);
       } catch (error) {
         console.error('Failed to fetch global defaults, using fallback values:', error);
         // Fallback to hardcoded defaults if API fails
         setGlobalOvercommitDefaults({
           cpu_ratio: 4.0,
           memory_ratio: 1.5,
+        });
+        setGlobalTimelineEstimates({
+          migration_hours_per_host: 6.0,
+          decommission_hours_per_host: 3.0,
+          expansion_hours_per_host: 9.0,
+          maintenance_hours_per_host: 4.0,
         });
       }
     };
@@ -562,6 +582,7 @@ export const WizardProvider: React.FC<WizardProviderProps> = ({
 
     // Global Defaults
     globalOvercommitDefaults,
+    globalTimelineEstimates,
 
     // Navigation
     goToStep,

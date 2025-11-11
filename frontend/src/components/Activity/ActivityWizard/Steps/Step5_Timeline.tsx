@@ -206,7 +206,7 @@ const useStyles = makeStyles({
 
 const Step5_Timeline: React.FC = () => {
   const classes = useStyles();
-  const { formData, updateStepData } = useWizardContext();
+  const { formData, updateStepData, globalTimelineEstimates } = useWizardContext();
 
   // State for timeline estimation
   const [isEstimating, setIsEstimating] = useState(false);
@@ -233,18 +233,46 @@ const Step5_Timeline: React.FC = () => {
       // const response = await apiPost(`/wizard/${activityId}/timeline`, {
       //   vm_count: vmCount,
       //   host_count: hostCount,
+      //   activity_type: activityType,
       // });
+
+      // Get activity type to determine which timeline factor to use
+      const activityType = formData.step1?.activity_type || 'migration';
+      const hostCount = formData.step4?.target_hardware?.host_count || 4;
+      const vmCount = formData.step5?.vm_count || 50;
+
+      // Get hours per host from global settings (with fallback to hardcoded defaults)
+      let hoursPerHost = 6.0; // Default fallback for migration
+      if (globalTimelineEstimates) {
+        switch (activityType) {
+          case 'migration':
+            hoursPerHost = globalTimelineEstimates.migration_hours_per_host;
+            break;
+          case 'decommission':
+            hoursPerHost = globalTimelineEstimates.decommission_hours_per_host;
+            break;
+          case 'expansion':
+            hoursPerHost = globalTimelineEstimates.expansion_hours_per_host;
+            break;
+          case 'maintenance':
+            hoursPerHost = globalTimelineEstimates.maintenance_hours_per_host;
+            break;
+          default:
+            hoursPerHost = globalTimelineEstimates.migration_hours_per_host;
+        }
+      }
 
       // Mock timeline estimation
       await new Promise((resolve) => setTimeout(resolve, 1500)); // Simulate API delay
 
-      const vmCount = formData.step5?.vm_count || 50;
-      const hostCount = formData.step4?.target_hardware?.host_count || 4;
-
-      // Calculate durations based on VM count and complexity
-      const prepDays = Math.ceil(vmCount / 50) + 2; // Base 2 days + 1 day per 50 VMs
-      const migrationDays = Math.ceil(vmCount / 10); // ~10 VMs per day
-      const validationDays = Math.ceil(vmCount / 20) + 1; // Faster validation
+      // Calculate durations using database timeline factors
+      const totalHours = hostCount * hoursPerHost;
+      const totalDays = Math.ceil(totalHours / 8); // 8-hour workday
+      
+      // Split into phases (prep, execution, validation)
+      const prepDays = Math.max(2, Math.ceil(totalDays * 0.25)); // 25% for prep, minimum 2 days
+      const executionDays = Math.ceil(totalDays * 0.60); // 60% for main execution
+      const validationDays = Math.max(1, Math.ceil(totalDays * 0.15)); // 15% for validation, minimum 1 day
 
       const criticalPathTasks = [
         'Infrastructure preparation and validation',
@@ -255,11 +283,11 @@ const Step5_Timeline: React.FC = () => {
       ];
 
       const mockResult: TimelineEstimationResult = {
-        total_days: prepDays + migrationDays + validationDays,
+        total_days: prepDays + executionDays + validationDays,
         prep_days: prepDays,
-        migration_days: migrationDays,
+        migration_days: executionDays,
         validation_days: validationDays,
-        confidence: vmCount <= 50 ? 'high' : vmCount <= 150 ? 'medium' : 'low',
+        confidence: hostCount <= 10 ? 'high' : hostCount <= 30 ? 'medium' : 'low',
         tasks: [
           {
             name: 'Infrastructure preparation and validation',
@@ -287,7 +315,7 @@ const Step5_Timeline: React.FC = () => {
           },
           {
             name: 'VM migration execution (phased approach)',
-            duration_days: migrationDays,
+            duration_days: executionDays,
             dependencies: ['Hyper-V host deployment and clustering'],
             is_critical_path: true,
           },
