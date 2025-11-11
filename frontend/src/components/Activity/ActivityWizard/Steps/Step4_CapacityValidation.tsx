@@ -217,7 +217,7 @@ const useStyles = makeStyles({
 
 const Step4_CapacityValidation: React.FC = () => {
   const classes = useStyles();
-  const { formData, updateStepData } = useWizardContext();
+  const { formData, updateStepData, globalOvercommitDefaults } = useWizardContext();
 
   // Local state for form fields
   const [hostCount, setHostCount] = useState('4');
@@ -225,10 +225,29 @@ const Step4_CapacityValidation: React.FC = () => {
   const [memoryPerHostGb, setMemoryPerHostGb] = useState('512');
   const [storagePerHostTb, setStoragePerHostTb] = useState('10');
 
-  // Overcommit ratios
-  const [cpuOvercommit, setCpuOvercommit] = useState('4.0');
-  const [memoryOvercommit, setMemoryOvercommit] = useState('1.5');
-  const [storageOvercommit, setStorageOvercommit] = useState('1.0');
+  // Overcommit ratios - Initialize from global defaults (with fallback to hardcoded values)
+  const [cpuOvercommit, setCpuOvercommit] = useState(
+    formData.step4?.overcommit_ratios?.cpu?.toString() || 
+    globalOvercommitDefaults?.cpu_ratio?.toString() || 
+    '4.0'
+  );
+  const [memoryOvercommit, setMemoryOvercommit] = useState(
+    formData.step4?.overcommit_ratios?.memory?.toString() || 
+    globalOvercommitDefaults?.memory_ratio?.toString() || 
+    '1.5'
+  );
+  const [storageOvercommit, setStorageOvercommit] = useState(
+    formData.step4?.overcommit_ratios?.storage?.toString() || 
+    '1.0'
+  );
+  
+  // Update overcommit ratios when global defaults are loaded (only if not already set by user)
+  useEffect(() => {
+    if (globalOvercommitDefaults && !formData.step4?.overcommit_ratios) {
+      setCpuOvercommit(globalOvercommitDefaults.cpu_ratio.toString());
+      setMemoryOvercommit(globalOvercommitDefaults.memory_ratio.toString());
+    }
+  }, [globalOvercommitDefaults, formData.step4?.overcommit_ratios]);
   
   // Required capacity (explicit requirements from ClusterStrategyModal)
   const [requiredCpu, setRequiredCpu] = useState(formData.step4?.required_cpu_cores?.toString() || '');

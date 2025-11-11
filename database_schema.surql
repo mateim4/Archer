@@ -287,3 +287,38 @@ DEFINE INDEX idx_procurement_project ON procurement_orders COLUMNS project_id;
 DEFINE INDEX idx_procurement_order_number ON procurement_orders COLUMNS order_number UNIQUE;
 DEFINE INDEX idx_procurement_status ON procurement_orders COLUMNS status;
 DEFINE INDEX idx_procurement_delivery ON procurement_orders COLUMNS expected_delivery_date;
+
+// =============================================================================
+// 10. GLOBAL SETTINGS TABLE
+// =============================================================================
+// Application-wide settings and defaults
+DEFINE TABLE settings SCHEMAFULL;
+
+// Setting identification
+DEFINE FIELD setting_key ON settings TYPE string;
+DEFINE FIELD setting_category ON settings TYPE string; // capacity, timeline, notifications, etc.
+
+// Capacity defaults
+DEFINE FIELD overcommit_cpu_default ON settings TYPE option<decimal>;
+DEFINE FIELD overcommit_memory_default ON settings TYPE option<decimal>;
+DEFINE FIELD overcommit_storage_default ON settings TYPE option<decimal>;
+
+// Timeline estimation defaults (hours per host)
+DEFINE FIELD migration_hours_per_host ON settings TYPE option<decimal>;
+DEFINE FIELD decommission_hours_per_host ON settings TYPE option<decimal>;
+DEFINE FIELD expansion_hours_per_host ON settings TYPE option<decimal>;
+DEFINE FIELD maintenance_hours_per_host ON settings TYPE option<decimal>;
+
+// Value storage (flexible JSON for any setting)
+DEFINE FIELD value ON settings TYPE option<object>;
+
+// Metadata
+DEFINE FIELD description ON settings TYPE option<string>;
+DEFINE FIELD created_at ON settings TYPE datetime DEFAULT time::now();
+DEFINE FIELD updated_at ON settings TYPE datetime DEFAULT time::now();
+DEFINE FIELD updated_by ON settings TYPE option<string>;
+
+// Indexes
+DEFINE INDEX idx_setting_key ON settings COLUMNS setting_key UNIQUE;
+DEFINE INDEX idx_setting_category ON settings COLUMNS setting_category;
+

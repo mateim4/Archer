@@ -108,6 +108,12 @@ export const WizardProvider: React.FC<WizardProviderProps> = ({
   const [wizardMode] = useState<WizardMode>(mode);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   
+  // Global defaults from Settings API
+  const [globalOvercommitDefaults, setGlobalOvercommitDefaults] = useState<{
+    cpu_ratio: number;
+    memory_ratio: number;
+  } | null>(null);
+  
   const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
   const formDataRef = useRef(formData); // For auto-save debounce
 
@@ -115,6 +121,34 @@ export const WizardProvider: React.FC<WizardProviderProps> = ({
   useEffect(() => {
     formDataRef.current = formData;
   }, [formData]);
+
+  // ============================================================================
+  // Fetch Global Defaults on Mount
+  // ============================================================================
+
+  useEffect(() => {
+    const fetchGlobalDefaults = async () => {
+      try {
+        const response = await apiGet<{
+          default_overcommit_ratios: {
+            cpu_ratio: number;
+            memory_ratio: number;
+          };
+        }>('/settings');
+        
+        setGlobalOvercommitDefaults(response.default_overcommit_ratios);
+      } catch (error) {
+        console.error('Failed to fetch global defaults, using fallback values:', error);
+        // Fallback to hardcoded defaults if API fails
+        setGlobalOvercommitDefaults({
+          cpu_ratio: 4.0,
+          memory_ratio: 1.5,
+        });
+      }
+    };
+
+    fetchGlobalDefaults();
+  }, []); // Run once on mount
 
   // ============================================================================
   // Auto-Save Logic (30-second debounce)
@@ -525,6 +559,9 @@ export const WizardProvider: React.FC<WizardProviderProps> = ({
     mode: wizardMode,
     projectId,
     hasUnsavedChanges,
+
+    // Global Defaults
+    globalOvercommitDefaults,
 
     // Navigation
     goToStep,

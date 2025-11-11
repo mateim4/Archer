@@ -7,6 +7,7 @@ pub mod migration_wizard; // Migration Planning Wizard API
 pub mod project_lifecycle;
 pub mod project_workflow;
 pub mod rvtools;
+pub mod settings; // Global settings API
 pub mod wizard; // Activity wizard API
 pub mod vm_placement; // VM placement API
 pub mod network_templates; // Network templates API

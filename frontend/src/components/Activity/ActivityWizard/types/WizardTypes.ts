@@ -329,6 +329,12 @@ export interface WizardContextValue {
   projectId?: string;
   hasUnsavedChanges?: boolean;
   
+  // Global Defaults (from Settings API)
+  globalOvercommitDefaults?: {
+    cpu_ratio: number;
+    memory_ratio: number;
+  } | null;
+  
   // Navigation
   goToStep: (step: number) => void;
   nextStep: () => void;
