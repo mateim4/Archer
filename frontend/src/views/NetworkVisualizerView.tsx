@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import DOMPurify from 'dompurify';
 import { Network, HardDrive, Server, AlertTriangle } from 'lucide-react';
 import { 
   GlobeRegular,
@@ -319,7 +320,7 @@ const NetworkVisualizerView = () => {
         if (!diagramDefinition || diagramDefinition.trim() === '') {
           const element = document.getElementById('mermaid-diagram');
           if (element) {
-            element.innerHTML = `
+            const safeHTML = DOMPurify.sanitize(`
               <div class="border border-gray-200 rounded-lg p-6 text-center">
                 <div class="text-gray-400 mb-2">
                   <svg class="w-8 h-8 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -329,7 +330,8 @@ const NetworkVisualizerView = () => {
                 <p class="font-medium text-gray-600 mb-1">No diagram data available</p>
                 <p class="text-sm text-gray-500">Upload an RVTools file or configure your infrastructure to generate network diagrams</p>
               </div>
-            `;
+            `);
+            element.innerHTML = safeHTML;
           }
           return;
         }

@@ -86,11 +86,26 @@ async fn upload_hardware_basket_file(
 
     let mut file_data: Option<(String, Vec<u8>)> = None;
 
-    while let Some(field) = multipart.next_field().await.unwrap() {
-        let name = field.name().unwrap().to_string();
+    while let Some(field) = multipart.next_field().await.map_err(|e| {
+        eprintln!("Failed to get next multipart field: {}", e);
+        StatusCode::BAD_REQUEST
+    })? {
+        let name = field.name().ok_or_else(|| {
+            eprintln!("Multipart field missing name");
+            StatusCode::BAD_REQUEST
+        })?.to_string();
+        
         if name == "file" {
-            let file_name = field.file_name().unwrap().to_string();
-            let data = field.bytes().await.unwrap().to_vec();
+            let file_name = field.file_name().ok_or_else(|| {
+                eprintln!("File field missing filename");
+                StatusCode::BAD_REQUEST
+            })?.to_string();
+            
+            let data = field.bytes().await.map_err(|e| {
+                eprintln!("Failed to read file bytes: {}", e);
+                StatusCode::BAD_REQUEST
+            })?.to_vec();
+            
             file_data = Some((file_name, data));
             break;
         }
@@ -102,7 +117,11 @@ async fn upload_hardware_basket_file(
     })?;
 
     let temp_file = NamedTempFile::new().map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-    let temp_path = temp_file.path().to_str().unwrap().to_string();
+    let temp_path = temp_file.path().to_str().ok_or_else(|| {
+        eprintln!("Invalid temp file path");
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?.to_string();
+    
     let mut file = std::fs::File::create(&temp_path).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
     file.write_all(&data).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
@@ -313,23 +332,23 @@ async fn upload_hardware_basket_simple(
     let vendor = vendor.unwrap_or_else(|| "unknown".to_string());
     let file_name = file_name.unwrap_or_else(|| "uploaded_file.xlsx".to_string());
     
-    if file_data.is_none() {
+    let file_bytes = file_data.ok_or_else(|| {
         eprintln!("No file uploaded in multipart request");
-        return Err(StatusCode::BAD_REQUEST);
-    }
+        StatusCode::BAD_REQUEST
+    })?;
 
     // Save file to temporary location
     let mut temp_file = NamedTempFile::new().map_err(|e| {
         eprintln!("Error creating temp file: {:?}", e);
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
-    temp_file.write_all(&file_data.unwrap()).map_err(|e| {
+    temp_file.write_all(&file_bytes).map_err(|e| {
         eprintln!("Error writing to temp file: {:?}", e);
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
 
-    println!("🔍 Parsing {} file: {} using vendor: {}", 
-             temp_file.path().extension().unwrap_or_default().to_string_lossy(),
+    println!("🔍 Parsing {} file: {} using vendor: {}",
+             temp_file.path().extension().and_then(|e| e.to_str()).unwrap_or("unknown"),
              file_name, 
              vendor);
 
@@ -339,7 +358,12 @@ async fn upload_hardware_basket_simple(
 
     // Use the new parser that returns actual HardwareModel structs
     let new_parser = NewHardwareBasketParser;
-    match new_parser.parse_file(temp_file.path().to_str().unwrap(), &basket_id, &vendor_id) {
+    let temp_path = temp_file.path().to_str().ok_or_else(|| {
+        eprintln!("Invalid temp file path encoding");
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
+    
+    match new_parser.parse_file(temp_path, &basket_id, &vendor_id) {
         Ok((models, configurations, prices)) => {
             println!("✅ Successfully parsed hardware basket:");
             println!("   📊 Hardware models: {}", models.len());

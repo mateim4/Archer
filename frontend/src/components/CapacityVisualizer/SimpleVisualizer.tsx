@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback, memo } from 'react';
+import DOMPurify from 'dompurify';
 import { DesignTokens } from '../../styles/designSystem';
 import { tokens } from '@/styles/design-tokens';
 import { Pie } from '@visx/shape';
@@ -328,7 +329,7 @@ const SimpleVisualizer: React.FC<SimpleVisualizerProps> = ({
               letterSpacing: '0.5px'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <div dangerouslySetInnerHTML={{ __html: createClusterIcon(54) }} />
+                <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(createClusterIcon(54)) }} />
                 {side === 'source' ? 'Source' : 'Destination'}
               </div>
             </span>
@@ -356,9 +357,11 @@ const SimpleVisualizer: React.FC<SimpleVisualizerProps> = ({
                 <div 
                   title={`${visualizationMode.toUpperCase()} utilization view`}
                   dangerouslySetInnerHTML={{ 
-                    __html: visualizationMode === 'cpu' ? createHostIcon(60) : 
-                            visualizationMode === 'memory' ? createVMIcon(60) : 
-                            createClusterIcon(60) 
+                    __html: DOMPurify.sanitize(
+                      visualizationMode === 'cpu' ? createHostIcon(60) : 
+                      visualizationMode === 'memory' ? createVMIcon(60) : 
+                      createClusterIcon(60)
+                    )
                   }} 
                 />
                 <span style={{
@@ -771,7 +774,7 @@ const SimpleVisualizer: React.FC<SimpleVisualizerProps> = ({
               zIndex: 10,
               paddingBottom: '8px'
             }}>
-              <div dangerouslySetInnerHTML={{ __html: createHostIcon(72) }} />
+              <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(createHostIcon(72)) }} />
               <h3 style={{ 
                 fontSize: '16px', 
                 fontWeight: '700', 
@@ -813,7 +816,7 @@ const SimpleVisualizer: React.FC<SimpleVisualizerProps> = ({
                     gap: '4px',
                     color: '#6b7280'
                   }}>
-                    <div dangerouslySetInnerHTML={{ __html: createHostIcon(42) }} />
+                    <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(createHostIcon(42)) }} />
                     <span>{host.totalCores}c</span>
                   </div>
                   <div style={{ 
@@ -822,7 +825,7 @@ const SimpleVisualizer: React.FC<SimpleVisualizerProps> = ({
                     gap: '4px',
                     color: '#6b7280'
                   }}>
-                    <div dangerouslySetInnerHTML={{ __html: createVMIcon(42) }} />
+                    <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(createVMIcon(42)) }} />
                     <span>{(host.totalMemory / 1024).toFixed(0)}GB</span>
                   </div>
                   <div style={{ 
@@ -832,7 +835,7 @@ const SimpleVisualizer: React.FC<SimpleVisualizerProps> = ({
                     color: '#6b7280',
                     gridColumn: '1 / -1'
                   }}>
-                    <div dangerouslySetInnerHTML={{ __html: createClusterIcon(42) }} />
+                    <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(createClusterIcon(42)) }} />
                     <span>{(host.totalStorage / 1024).toFixed(1)}TB</span>
                   </div>
                 </div>

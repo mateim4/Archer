@@ -40,6 +40,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // build our application with the API router and middleware
     let app = api::api_router(db_state)
+        .layer(from_fn(middleware::security_headers))
         .layer(from_fn(middleware::error_handler))
         .layer(from_fn(middleware::request_logger))
         .layer(from_fn(middleware::validate_json_content_type))

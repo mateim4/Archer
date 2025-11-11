@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import DOMPurify from 'dompurify';
 import CustomSlider from '../components/CustomSlider';
 import { useAppStore } from '../store/useAppStore';
 import { PurpleGlassButton, PurpleGlassInput } from '@/components/ui';
@@ -140,7 +141,7 @@ const MigrationPlannerView: React.FC = () => {
   // Inject acrylic dropdown style once using a hook
   useEffect(() => {
     const style = document.createElement('style');
-    style.innerHTML = `
+    const safeCSS = `
       .acrylic-dropdown {
         border-radius: 14px !important;
         background: transparent !important;
@@ -157,6 +158,7 @@ const MigrationPlannerView: React.FC = () => {
         -moz-appearance: none !important;
       }
     `;
+    style.textContent = safeCSS;
     document.head.appendChild(style);
     return () => { document.head.removeChild(style); };
   }, []);

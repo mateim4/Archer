@@ -1,5 +1,5 @@
 use axum::{
-    http::{Request, StatusCode},
+    http::{Request, StatusCode, HeaderValue},
     middleware::Next,
     response::{IntoResponse, Response},
 };
@@ -7,6 +7,9 @@ use std::time::Instant;
 use tracing::{error, info, warn};
 
 use crate::utils::api_response::{helpers, ApiResponse};
+
+// Security: Consistent CORS origin
+const ALLOWED_ORIGIN: &str = "http://localhost:1420";
 
 /// Global error handling middleware
 pub async fn error_handler<B>(request: Request<B>, next: Next<B>) -> Response {
@@ -61,23 +64,23 @@ pub async fn cors_handler<B>(request: Request<B>, next: Next<B>) -> Response {
     // Add CORS headers if not already present
     let (mut parts, body) = response.into_parts();
 
-    // Allow common CORS headers
-    parts
-        .headers
-        .insert("Access-Control-Allow-Origin", "*".parse().unwrap());
+    // Security: Use consistent, restricted CORS origin instead of wildcard
+    parts.headers.insert(
+        "Access-Control-Allow-Origin",
+        HeaderValue::from_static(ALLOWED_ORIGIN),
+    );
     parts.headers.insert(
         "Access-Control-Allow-Methods",
-        "GET, POST, PUT, DELETE, OPTIONS".parse().unwrap(),
+        HeaderValue::from_static("GET, POST, PUT, DELETE, OPTIONS"),
     );
     parts.headers.insert(
         "Access-Control-Allow-Headers",
-        "Content-Type, Authorization, X-Requested-With"
-            .parse()
-            .unwrap(),
+        HeaderValue::from_static("Content-Type, Authorization, X-Requested-With"),
     );
-    parts
-        .headers
-        .insert("Access-Control-Max-Age", "3600".parse().unwrap());
+    parts.headers.insert(
+        "Access-Control-Max-Age",
+        HeaderValue::from_static("3600"),
+    );
 
     Response::from_parts(parts, body)
 }
