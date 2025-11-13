@@ -1,40 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Title1,
-  Title2,
-  Title3,
-  Body1,
-  Body2,
-  Caption1,
-  Button,
-  Card,
-  CardHeader,
-  CardPreview,
-  Dialog,
-  DialogTrigger,
-  DialogSurface,
-  DialogTitle,
-  DialogContent,
-  DialogBody,
-  DialogActions,
-  Badge,
-  Avatar,
-  Spinner,
-  Text,
-  Divider,
-  Toolbar,
-  ToolbarButton,
-  Skeleton,
-  SkeletonItem,
-  MessageBar,
-  MessageBarBody,
-  MessageBarTitle,
-  tokens,
-  makeStyles,
-  shorthands
-} from '@fluentui/react-components';
-import {
   AddRegular,
   SearchRegular,
   FolderRegular,
@@ -56,338 +22,48 @@ import {
   PeopleRegular
 } from '@fluentui/react-icons';
 import { apiClient, Project, CreateProjectRequest } from '../utils/apiClient';
-import { DESIGN_TOKENS } from '../components/DesignSystem';
 import { DesignTokens, getStatusColor, getPriorityColor } from '../styles/designSystem';
 import GlassmorphicSearchBar from '../components/GlassmorphicSearchBar';
-import { PurpleGlassButton, PurpleGlassInput, PurpleGlassTextarea } from '@/components/ui';
-
-const useStyles = makeStyles({
-  header: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: DesignTokens.spacing.xl,
-    borderBottom: `2px solid ${DesignTokens.colors.primary}20`,
-    paddingBottom: DesignTokens.spacing.lg
-  },
-  
-  headerTitle: {
-    fontSize: DesignTokens.typography.xxxl,
-    fontWeight: DesignTokens.typography.semibold,
-    color: DesignTokens.colors.primary,
-    margin: '0',
-    fontFamily: DesignTokens.typography.fontFamily,
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px'
-  },
-  
-  primaryButton: {
-    ...DesignTokens.components.button.primary,
-  },
-  
-  toolbar: {
-    backgroundColor: 'transparent',
-    marginBottom: DesignTokens.spacing.xxl,
-    padding: '0'
-  },
-  
-  toolbarContent: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: DesignTokens.spacing.lg,
-    width: '100%'
-  },
-  
-  searchContainer: {
-    flex: 1,
-    maxWidth: '400px'
-  },
-  
-  searchBox: {
-    ...DesignTokens.components.input,
-    width: '100%',
-  },
-  
-  viewModeButton: {
-    ...DesignTokens.components.button.secondary,
-    minWidth: '100px',
-  },
-  
-  projectGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
-    gridAutoRows: '1fr',
-    gap: DesignTokens.spacing.xxl,
-    alignItems: 'stretch',
-    justifyItems: 'stretch',
-    overflow: 'visible',
-    position: 'relative',
-    zIndex: 1
-  },
-  
-  projectCard: {
-    cursor: 'pointer',
-    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-    position: 'relative',
-    padding: DesignTokens.spacing.lg,
-    border: `1px solid ${DesignTokens.colors.gray300}`,
-    borderRadius: '8px',
-    
-    '&:hover': {
-      border: `1px solid ${DesignTokens.colors.primary}`,
-      boxShadow: `0 0 0 1px ${DesignTokens.colors.primary}`,
-    },
-    
-    '&::before': {
-      content: '""',
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      height: '3px',
-      background: `linear-gradient(90deg, ${DesignTokens.colors.primary}, ${DesignTokens.colors.maintenance})`,
-      opacity: 0,
-      transition: 'opacity 0.3s ease',
-    }
-  },
-  
-  cardHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: DesignTokens.spacing.md,
-  },
-  
-  projectTitle: {
-    fontSize: DesignTokens.typography.xl,
-    fontWeight: DesignTokens.typography.semibold,
-    color: DesignTokens.colors.textPrimary,
-    margin: '0 0 8px 0',
-    fontFamily: DesignTokens.typography.fontFamily,
-    lineHeight: '1.3',
-  },
-  
-  projectDescription: {
-    fontSize: DesignTokens.typography.sm,
-    color: DesignTokens.colors.textSecondary,
-    lineHeight: '1.5',
-    marginBottom: DesignTokens.spacing.md,
-    display: '-webkit-box',
-    WebkitLineClamp: 2,
-    WebkitBoxOrient: 'vertical',
-    overflow: 'hidden',
-  },
-  
-  cardMeta: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: DesignTokens.spacing.lg,
-    paddingTop: DesignTokens.spacing.md,
-    borderTop: `1px solid ${DesignTokens.colors.gray200}`,
-  },
-  
-  metaItem: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: DesignTokens.spacing.xs,
-    fontSize: DesignTokens.typography.xs,
-    color: DesignTokens.colors.textMuted,
-  },
-  
-  statusBadge: {
-    ...DesignTokens.components.badge,
-    border: 'none',
-    fontFamily: DesignTokens.typography.fontFamily,
-  },
-  
-  priorityBadge: {
-    ...DesignTokens.components.badge,
-    border: 'none',
-    fontFamily: DesignTokens.typography.fontFamily,
-  },
-  
-  emptyState: {
-    textAlign: 'center' as const,
-    ...DesignTokens.components.card,
-    padding: `${DesignTokens.spacing.xxxl} ${DesignTokens.spacing.xxl}`,
-    marginTop: DesignTokens.spacing.xl,
-  },
-  
-  emptyStateIcon: {
-    fontSize: '80px',
-    color: DesignTokens.colors.primaryLight,
-    marginBottom: DesignTokens.spacing.xl,
-  },
-  
-  emptyStateTitle: {
-    fontSize: DesignTokens.typography.xxl,
-    fontWeight: DesignTokens.typography.semibold,
-    color: DesignTokens.colors.textPrimary,
-    marginBottom: DesignTokens.spacing.md,
-    fontFamily: DesignTokens.typography.fontFamily,
-  },
-  
-  emptyStateDescription: {
-    fontSize: DesignTokens.typography.base,
-    color: DesignTokens.colors.textSecondary,
-    marginBottom: DesignTokens.spacing.xxl,
-    maxWidth: '500px',
-    marginLeft: 'auto',
-    marginRight: 'auto',
-    lineHeight: '1.6'
-  },
-  
-  summaryStats: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-    gap: DesignTokens.spacing.lg,
-    marginTop: DesignTokens.spacing.xl,
-    ...DesignTokens.components.card,
-    padding: DesignTokens.spacing.xl,
-    background: `linear-gradient(135deg, ${DesignTokens.colors.surface}, rgba(248, 250, 252, 0.9))`,
-  },
-  
-  statCard: {
-    textAlign: 'center' as const,
-    padding: DesignTokens.spacing.lg,
-    borderRadius: DesignTokens.borderRadius.lg,
-    background: 'rgba(255, 255, 255, 0.7)',
-    backdropFilter: 'blur(25px) saturate(135%)',
-    border: '1px solid rgba(255, 255, 255, 0.3)',
-    transition: 'all 0.2s ease',
-    
-  },
-  
-  statNumber: {
-    fontSize: DesignTokens.typography.xxxl,
-    fontWeight: DesignTokens.typography.bold,
-    color: DesignTokens.colors.primary,
-    fontFamily: DesignTokens.typography.fontFamily,
-    margin: 0,
-  },
-  
-  statLabel: {
-    fontSize: DesignTokens.typography.sm,
-    color: DesignTokens.colors.textSecondary,
-    fontWeight: DesignTokens.typography.medium,
-    textTransform: 'uppercase',
-    letterSpacing: '0.5px',
-    marginTop: DesignTokens.spacing.xs,
-  },
-  
-  dialogContent: {
-    ...DesignTokens.components.card,
-    border: 'none',
-    boxShadow: DesignTokens.shadows.xl,
-    maxWidth: '500px',
-    width: '90vw',
-  },
-  
-  formField: {
-    marginBottom: DesignTokens.spacing.lg,
-  },
-  
-  formLabel: {
-    display: 'block',
-    fontSize: DesignTokens.typography.sm,
-    fontWeight: DesignTokens.typography.medium,
-    color: DesignTokens.colors.textPrimary,
-    marginBottom: DesignTokens.spacing.xs,
-    fontFamily: DesignTokens.typography.fontFamily,
-  },
-  
-  formInput: {
-    ...DesignTokens.components.input,
-    width: '100%',
-  },
-  
-  actionButton: {
-    ...DesignTokens.components.button.secondary,
-    minWidth: '32px',
-    width: '32px',
-    height: '32px',
-    padding: '0',
-    borderRadius: DesignTokens.borderRadius.md,
-    
-  },
-  
-  listView: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '1px',
-    backgroundColor: DesignTokens.colors.gray200,
-    borderRadius: DesignTokens.borderRadius.lg,
-    overflow: 'hidden'
-  },
-  
-  listHeader: {
-    display: 'grid',
-    gridTemplateColumns: '2fr 3fr 1fr 1fr 1fr 60px',
-    gap: DesignTokens.spacing.lg,
-    padding: `${DesignTokens.spacing.lg} ${DesignTokens.spacing.xl}`,
-    backgroundColor: DesignTokens.colors.gray100,
-    fontWeight: DesignTokens.typography.semibold,
-    fontSize: DesignTokens.typography.sm,
-    color: DesignTokens.colors.textSecondary,
-    borderBottom: `1px solid ${DesignTokens.colors.gray200}`
-  },
-  
-  listRow: {
-    display: 'grid',
-    gridTemplateColumns: '2fr 3fr 1fr 1fr 1fr 60px',
-    gap: DesignTokens.spacing.lg,
-    padding: DesignTokens.spacing.xl,
-    backgroundColor: DesignTokens.colors.surface,
-    cursor: 'pointer',
-    transition: 'all 0.2s ease-in-out',
-    alignItems: 'center',
-    
-  },
-  
-  listRowName: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: DesignTokens.spacing.md,
-    fontWeight: DesignTokens.typography.semibold,
-    color: DesignTokens.colors.textPrimary,
-    fontFamily: DesignTokens.typography.fontFamily,
-  },
-  
-  listRowDescription: {
-    color: DesignTokens.colors.textSecondary,
-    fontSize: DesignTokens.typography.sm,
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap'
-  },
-  
-  listRowMeta: {
-    color: DesignTokens.colors.textMuted,
-    fontSize: DesignTokens.typography.xs
-  },
-});
+import {
+  PurpleGlassButton,
+  PurpleGlassInput,
+  PurpleGlassTextarea,
+  PurpleGlassCard,
+  PurpleGlassSkeleton
+} from '@/components/ui';
+import { useFormValidation } from '../hooks/useFormValidation';
+import { useErrorHandler } from '../hooks/useErrorHandler';
+import { ToastContainer } from '../components/ui/PurpleGlassToast';
 
 export default function ProjectsView() {
   const navigate = useNavigate();
-  const styles = useStyles();
+  const { toasts, dismissToast, handleError, showSuccess } = useErrorHandler();
   
   // State management
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'name' | 'updated_at' | 'created_at'>('updated_at');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
-  const [newProject, setNewProject] = useState({
-    name: '',
-    description: '',
-    project_types: [] as ('migration' | 'deployment' | 'upgrade' | 'custom')[]
-  });
+  const { values, errors, touched, handleChange, handleBlur, validateForm } = useFormValidation(
+    { name: '', description: '', project_types: [] as ('migration' | 'deployment' | 'upgrade' | 'custom')[] },
+    {
+      name: {
+        required: true,
+        minLength: 3,
+        maxLength: 100,
+        custom: (value) => {
+          const exists = projects.find(p =>
+            p.name.toLowerCase() === value.trim().toLowerCase()
+          );
+          return exists ? 'A project with this name already exists' : null;
+        }
+      },
+      description: { maxLength: 500 }
+    }
+  );
 
   // Helper functions
   const formatDate = (dateString: string) => {
@@ -415,12 +91,10 @@ export default function ProjectsView() {
   const fetchProjects = async () => {
     try {
       setLoading(true);
-      setError(null);
       const response = await apiClient.getProjects();
       setProjects(response);
     } catch (error) {
-      console.error('Failed to fetch projects:', error);
-      setError('Failed to load projects. Please try again.');
+      handleError(error, 'Fetch Projects');
     } finally {
       setLoading(false);
     }
@@ -428,59 +102,28 @@ export default function ProjectsView() {
 
   // Handle project type selection
   const toggleProjectType = (type: 'migration' | 'deployment' | 'upgrade' | 'custom') => {
-    setNewProject(prev => ({
-      ...prev,
-      project_types: prev.project_types.includes(type)
-        ? prev.project_types.filter(t => t !== type)
-        : [...prev.project_types, type]
-    }));
+    const newTypes = values.project_types.includes(type)
+      ? values.project_types.filter(t => t !== type)
+      : [...values.project_types, type];
+    handleChange('project_types', newTypes);
   };
 
   const handleCreateProject = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Comprehensive validation
-    const errors: string[] = [];
-    
-    if (!newProject.name.trim()) {
-      errors.push('Project name is required');
-    } else if (newProject.name.trim().length < 3) {
-      errors.push('Project name must be at least 3 characters');
-    } else if (newProject.name.trim().length > 100) {
-      errors.push('Project name must be less than 100 characters');
-    }
-    
-    if (newProject.description && newProject.description.length > 500) {
-      errors.push('Project description must be less than 500 characters');
-    }
-    
-    if (newProject.project_types.length === 0) {
-      errors.push('Please select at least one project type');
-    }
-    
-    // Check if project name already exists
-    const existingProject = projects.find(
-      p => p.name.toLowerCase() === newProject.name.trim().toLowerCase()
-    );
-    if (existingProject) {
-      errors.push('A project with this name already exists');
-    }
-    
-    if (errors.length > 0) {
-      setError(errors.join('. '));
-      return;
+    if (!validateForm()) {
+      return; // Errors shown inline
     }
 
     try {
       setLoading(true);
-      setError(null);
       
       const projectData: CreateProjectRequest = {
-        name: newProject.name.trim(),
-        description: newProject.description.trim(),
+        name: values.name.trim(),
+        description: values.description.trim(),
         owner_id: 'user:current', // Default owner for now
-        project_type: newProject.project_types[0], // Use first selected type
-        project_types: newProject.project_types
+        project_type: values.project_types[0], // Use first selected type
+        project_types: values.project_types
       };
       
       await apiClient.createProject(projectData);
@@ -489,14 +132,14 @@ export default function ProjectsView() {
       await fetchProjects();
       
       // Reset form and close dialog
-      setNewProject({ name: '', description: '', project_types: [] });
+      handleChange('name', '');
+      handleChange('description', '');
+      handleChange('project_types', []);
       setShowCreateDialog(false);
       
-      // Clear any previous errors
-      setError(null);
+      showSuccess('Project created', 'Your project has been created successfully.');
     } catch (error) {
-      console.error('Failed to create project:', error);
-      setError(`Failed to create project: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      handleError(error, 'Create Project');
     } finally {
       setLoading(false);
     }
@@ -549,10 +192,9 @@ export default function ProjectsView() {
         // await apiClient.deleteProject(projectId);
         setProjects(projects.filter(p => extractProjectId(p.id) !== projectId));
         setOpenMenuId(null);
-        console.log(`Deleting project: ${projectId}`);
+        showSuccess('Project deleted', 'The project has been successfully deleted.');
       } catch (error) {
-        console.error('Failed to delete project:', error);
-        setError('Failed to delete project');
+        handleError(error, 'Delete Project');
       }
     }
   };
@@ -563,9 +205,9 @@ export default function ProjectsView() {
       // await apiClient.updateProject(projectId, { status: 'completed' });
       console.log(`Marking project as complete: ${projectId}`);
       setOpenMenuId(null);
+      showSuccess('Project updated', 'The project has been marked as complete.');
     } catch (error) {
-      console.error('Failed to mark project as complete:', error);
-      setError('Failed to update project status');
+      handleError(error, 'Update Project');
     }
   };
 
@@ -620,8 +262,8 @@ export default function ProjectsView() {
   if (loading) {
     return (
       <div style={DesignTokens.components.pageContainer}>
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
-          <Spinner size="large" label="Loading projects..." />
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: DesignTokens.spacing.xl }}>
+          <PurpleGlassSkeleton variant="card" count={6} />
         </div>
       </div>
     );
@@ -629,10 +271,11 @@ export default function ProjectsView() {
 
   return (
     <div role="region" aria-label="Projects" data-testid="projects-view" style={{...DesignTokens.components.pageContainer, overflow: 'visible'}}>
+      <ToastContainer toasts={toasts} onDismiss={dismissToast} />
       <h1 style={{position:'absolute',width:0,height:0,overflow:'hidden',clip:'rect(0 0 0 0)'}}>Projects</h1>
       {/* Header */}
-      <div className={styles.header}>
-        <h2 className={styles.headerTitle}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: DesignTokens.spacing.xl, borderBottom: `2px solid ${DesignTokens.colors.primary}20`, paddingBottom: DesignTokens.spacing.lg }}>
+        <h2 style={{ fontSize: DesignTokens.typography.xxxl, fontWeight: DesignTokens.typography.semibold, color: DesignTokens.colors.primary, margin: '0', fontFamily: DesignTokens.typography.fontFamily, display: 'flex', alignItems: 'center', gap: '12px' }}>
           <FolderRegular style={{ fontSize: '32px', color: DesignTokens.colors.gray900 }} />
           Projects
         </h2>
@@ -642,21 +285,11 @@ export default function ProjectsView() {
           size="large"
           icon={<AddRegular />}
           onClick={() => setShowCreateDialog(true)}
-          glass
+          glass={true}
         >
           Add New Project
         </PurpleGlassButton>
       </div>
-
-      {/* Error Message */}
-      {error && (
-        <MessageBar intent="error" style={{ marginBottom: '16px' }}>
-          <MessageBarBody>
-            <MessageBarTitle>Error</MessageBarTitle>
-            {error}
-          </MessageBarBody>
-        </MessageBar>
-      )}
 
       {/* Search Bar and Toolbar with Statistics */}
       <div style={{ 
@@ -746,75 +379,42 @@ export default function ProjectsView() {
       {/* Content */}
       <div style={{ marginBottom: '80px', overflow: 'visible' }}>
           {filteredAndSortedProjects.length === 0 ? (
-            <Card style={{
-              ...DesignTokens.components.standardCard,
-              textAlign: 'center' as const,
-              padding: DesignTokens.spacing.xxxl,
-              cursor: 'default'
-            }}>
-              <div style={{
-                fontSize: '80px',
-                color: DesignTokens.colors.primaryLight,
-                marginBottom: DesignTokens.spacing.xl
-              }}>
+            <PurpleGlassCard style={{ textAlign: 'center', padding: DesignTokens.spacing.xxxl }}>
+              <div style={{ fontSize: '80px', color: DesignTokens.colors.primaryLight, marginBottom: DesignTokens.spacing.xl }}>
                 <RocketRegular />
               </div>
-              <Title3 style={{
-                fontSize: DesignTokens.typography.xxl,
-                fontWeight: DesignTokens.typography.semibold,
-                color: DesignTokens.colors.textPrimary,
-                marginBottom: DesignTokens.spacing.md,
-                fontFamily: DesignTokens.typography.fontFamily,
-              }}>
+              <h3 style={{ fontSize: DesignTokens.typography.xxl, fontWeight: DesignTokens.typography.semibold, color: DesignTokens.colors.textPrimary, marginBottom: DesignTokens.spacing.md, fontFamily: DesignTokens.typography.fontFamily }}>
                 {projects.length === 0 ? 'No projects yet' : 'No projects match your search'}
-              </Title3>
-              <Body2 style={{
-                fontSize: DesignTokens.typography.base,
-                color: DesignTokens.colors.textSecondary,
-                marginBottom: DesignTokens.spacing.xxl,
-                maxWidth: '500px',
-                marginLeft: 'auto',
-                marginRight: 'auto',
-                lineHeight: '1.6'
-              }}>
+              </h3>
+              <p style={{ fontSize: DesignTokens.typography.base, color: DesignTokens.colors.textSecondary, marginBottom: DesignTokens.spacing.xxl, maxWidth: '500px', marginLeft: 'auto', marginRight: 'auto', lineHeight: '1.6' }}>
                 {projects.length === 0
                   ? 'Create your first project to start organizing your infrastructure deployments, configurations, and automation workflows.'
                   : 'Try adjusting your search terms or create a new project.'
                 }
-              </Body2>
+              </p>
               {projects.length === 0 && (
                 <PurpleGlassButton
                   variant="primary"
                   size="medium"
                   icon={<AddRegular />}
                   onClick={() => setShowCreateDialog(true)}
-                  glass
+                  glass={true}
                 >
                   Create your first project
                 </PurpleGlassButton>
               )}
-            </Card>
+            </PurpleGlassCard>
           ) : (
-            <div className={styles.projectGrid} data-testid="projects-grid" style={{ overflow: 'visible' }}>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
+              gap: DesignTokens.spacing.xl
+            }} data-testid="projects-grid">
               {filteredAndSortedProjects.map((project) => (
-                <Card 
+                <PurpleGlassCard
                   key={project.id} 
-                  style={{
-                    ...DesignTokens.components.standardCard,
-                    overflow: 'visible',
-                    position: 'relative',
-                    zIndex: 2
-                  }}
+                  variant="interactive"
                   onClick={(e) => handleProjectClick(project.id, e)}
-                  onMouseEnter={(e) => {
-                    const target = e.currentTarget as HTMLElement;
-                    Object.assign(target.style, DesignTokens.components.standardCardHover);
-                  }}
-                  onMouseLeave={(e) => {
-                    const target = e.currentTarget as HTMLElement;
-                    target.style.transform = 'translateY(0) scale(1)';
-                    Object.assign(target.style, DesignTokens.components.standardCard);
-                  }}
                 >
                   <div style={{
                     position: 'relative',
@@ -834,23 +434,10 @@ export default function ProjectsView() {
                         zIndex: 1000
                       }}
                     >
-                      <Button
-                        appearance="subtle"
+                      <PurpleGlassButton
+                        variant="ghost"
+                        size="small"
                         icon={<MoreVerticalRegular />}
-                        size="large"
-                        style={{
-                          minWidth: '52px',
-                          height: '52px',
-                          padding: '0',
-                          background: 'transparent',
-                          border: 'none',
-                          borderRadius: '12px',
-                          color: DesignTokens.colors.gray900,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontSize: '48px'
-                        }}
                         onClick={(e) => handleMenuToggle(extractProjectId(project.id), e)}
                       />
 
@@ -966,7 +553,6 @@ export default function ProjectsView() {
                         </div>
                       )}
                     </div>
-
                     {/* Project Icon and Title */}
                     <div style={{
                       display: 'flex',
@@ -990,22 +576,22 @@ export default function ProjectsView() {
                       }}>
                         <FolderFilled />
                       </div>
-                      <Title3 style={{
+                      <h3 style={{
                         margin: 0,
                         fontFamily: DesignTokens.typography.fontFamily,
-                        color: DesignTokens.colors.gray900,
+                        color: DesignTokens.colors.textPrimary,
                         fontSize: DesignTokens.typography.lg,
                         fontWeight: DesignTokens.typography.semibold,
                         lineHeight: '1.2',
                         textAlign: 'left'
                       }}>
                         {project.name}
-                      </Title3>
+                      </h3>
                     </div>
 
                     {/* Description */}
-                    <Body2 style={{
-                      color: DesignTokens.colors.textPrimary,
+                    <p style={{
+                      color: DesignTokens.colors.textSecondary,
                       fontSize: DesignTokens.typography.sm,
                       lineHeight: '1.5',
                       display: '-webkit-box',
@@ -1016,7 +602,7 @@ export default function ProjectsView() {
                       flex: 1
                     }}>
                       {project.description || 'No description provided'}
-                    </Body2>
+                    </p>
 
                     {/* Compact Footer with Status and Metadata */}
                     <div style={{
@@ -1034,18 +620,18 @@ export default function ProjectsView() {
                         gap: '4px'
                       }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: DesignTokens.spacing.xs }}>
-                          <Badge 
-                            appearance="tint" 
-                            color="success"
-                            size="small"
-                            style={{
+                          <div style={{
                               background: 'rgba(16, 185, 129, 0.1)',
                               color: DesignTokens.colors.success,
-                              border: 'none'
-                            }}
-                          >
+                              border: 'none',
+                              borderRadius: '4px',
+                              padding: '2px 8px',
+                              fontSize: '11px',
+                              fontWeight: '600',
+                              textTransform: 'uppercase'
+                            }}>
                             Active
-                          </Badge>
+                          </div>
                         </div>
                         <div style={{ 
                           display: 'flex', 
@@ -1082,7 +668,7 @@ export default function ProjectsView() {
                       </div>
                     </div>
                   </div>
-                </Card>
+                </PurpleGlassCard>
               ))}
             </div>
           )}
@@ -1090,102 +676,83 @@ export default function ProjectsView() {
 
 
       {/* Create Project Dialog */}
-      <Dialog open={showCreateDialog} onOpenChange={(_, data) => setShowCreateDialog(data.open)}>
-        <DialogSurface data-testid="project-creation-modal" aria-label="Create Project Modal" role="dialog">
+      {showCreateDialog && (
+        <PurpleGlassCard
+          header="Create Project"
+          style={{
+            position: 'fixed',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            zIndex: 1000,
+            minWidth: '500px'
+          }}
+        >
           <form onSubmit={handleCreateProject}>
-            <DialogBody>
-              <DialogTitle>Create New Project</DialogTitle>
-              <DialogContent className={styles.dialogContent}>
-                {error && (
-                  <div
-                    role="alert"
-                    aria-live="assertive"
-                    data-testid="project-form-error"
-                    style={{
-                      marginBottom: '12px',
-                      padding: '12px',
-                      borderRadius: '8px',
-                      background: 'rgba(239, 68, 68, 0.1)',
-                      color: DesignTokens.colors.error,
-                      border: '1px solid rgba(185, 28, 28, 0.3)'
+            <div style={{ marginBottom: DesignTokens.spacing.lg }}>
+              <PurpleGlassInput
+                label="Project Name"
+                value={values.name}
+                onChange={(e) => handleChange('name', e.target.value)}
+                onBlur={() => handleBlur('name')}
+                validationState={errors.name ? 'error' : 'default'}
+                helperText={touched.name && errors.name ? errors.name.message : ''}
+                required
+                glass="light"
+              />
+            </div>
+            <div style={{ marginBottom: DesignTokens.spacing.lg }}>
+              <PurpleGlassTextarea
+                label="Description"
+                value={values.description}
+                onChange={(e) => handleChange('description', e.target.value)}
+                onBlur={() => handleBlur('description')}
+                validationState={errors.description ? 'error' : 'default'}
+                helperText={touched.description && errors.description ? errors.description.message : ''}
+                showCharacterCount
+                maxLength={500}
+                glass="light"
+              />
+            </div>
+            <div style={{ marginBottom: DesignTokens.spacing.lg }}>
+              <label style={{ display: 'block', fontSize: DesignTokens.typography.sm, fontWeight: DesignTokens.typography.medium, color: DesignTokens.colors.textPrimary, marginBottom: DesignTokens.spacing.xs, fontFamily: DesignTokens.typography.fontFamily }}>Project Types</label>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '8px' }}>
+                {(['migration', 'deployment', 'upgrade', 'custom'] as const).map((type) => (
+                  <PurpleGlassButton
+                    key={type}
+                    variant={values.project_types.includes(type) ? 'primary' : 'secondary'}
+                    size="small"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      toggleProjectType(type);
                     }}
                   >
-                    {error}
-                  </div>
-                )}
-                <div className={styles.formField}>
-                  <label className={styles.formLabel}>Project Name</label>
-                  <PurpleGlassInput
-                    data-testid="project-name-input"
-                    value={newProject.name}
-                    onChange={(e) => setNewProject({ ...newProject, name: e.target.value })}
-                    placeholder="Enter project name"
-                    glass="light"
-                  />
-                </div>
-                <div className={styles.formField}>
-                  <label className={styles.formLabel}>Description</label>
-                  <PurpleGlassTextarea
-                    data-testid="project-description-input"
-                    value={newProject.description}
-                    onChange={(e) => setNewProject({ ...newProject, description: e.target.value })}
-                    placeholder="Enter project description"
-                    glass="light"
-                  />
-                </div>
-                <div className={styles.formField}>
-                  <label className={styles.formLabel}>Project Types</label>
-                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '8px' }}>
-                    {(['migration', 'deployment', 'upgrade', 'custom'] as const).map((type) => (
-                      <Button
-                        key={type}
-                        appearance={newProject.project_types.includes(type) ? 'primary' : 'outline'}
-                        size="small"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          toggleProjectType(type);
-                        }}
-                        style={{
-                          textTransform: 'capitalize',
-                          backgroundColor: newProject.project_types.includes(type) 
-                            ? DesignTokens.colors.primary 
-                            : 'transparent',
-                          borderColor: DesignTokens.colors.primary,
-                          color: newProject.project_types.includes(type) ? 'white' : DesignTokens.colors.primary
-                        }}
-                      >
-                        {type}
-                      </Button>
-                    ))}
-                  </div>
-                  <Text size={200} style={{ color: DesignTokens.colors.gray600, marginTop: '4px' }}>
-                    Select one or more project types that best describe your project
-                  </Text>
-                </div>
-              </DialogContent>
-              <DialogActions>
-                <PurpleGlassButton 
-                  variant="secondary"
-                  size="medium"
-                  onClick={() => setShowCreateDialog(false)}
-                  glass
-                >
-                  Cancel
-                </PurpleGlassButton>
-                <PurpleGlassButton 
-                  type="submit" 
-                  variant="primary"
-                  size="medium"
-                  data-testid="submit-project-button"
-                  glass
-                >
-                  Create Project
-                </PurpleGlassButton>
-              </DialogActions>
-            </DialogBody>
+                    {type}
+                  </PurpleGlassButton>
+                ))}
+              </div>
+              <p style={{ color: DesignTokens.colors.gray600, marginTop: '4px', fontSize: DesignTokens.typography.sm }}>
+                Select one or more project types that best describe your project
+              </p>
+            </div>
+            <div style={{ display: 'flex', gap: DesignTokens.spacing.md, justifyContent: 'flex-end', marginTop: DesignTokens.spacing.xl }}>
+              <PurpleGlassButton
+                variant="secondary"
+                onClick={() => setShowCreateDialog(false)}
+              >
+                Cancel
+              </PurpleGlassButton>
+              <PurpleGlassButton
+                type="submit"
+                variant="primary"
+                data-testid="submit-project-button"
+              >
+                Create Project
+              </PurpleGlassButton>
+            </div>
           </form>
-        </DialogSurface>
-      </Dialog>
+        </PurpleGlassCard>
+      )}
     </div>
   );
 }

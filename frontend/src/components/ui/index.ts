@@ -42,6 +42,18 @@ export type { PurpleGlassSwitchProps } from './PurpleGlassSwitch';
 // Navigation Components
 export { PurpleGlassBreadcrumb } from './PurpleGlassBreadcrumb';
 
+// Spinner Components
+export { PurpleGlassSpinner } from './PurpleGlassSpinner';
+export type { PurpleGlassSpinnerProps } from './PurpleGlassSpinner';
+
+// Skeleton Components
+export { PurpleGlassSkeleton } from './PurpleGlassSkeleton';
+export type { PurpleGlassSkeletonProps } from './PurpleGlassSkeleton';
+
+// Pagination Components
+export { PurpleGlassPagination } from './PurpleGlassPagination';
+export type { PurpleGlassPaginationProps } from './PurpleGlassPagination';
+
 // export { PurpleGlassCheckbox } from './PurpleGlassCheckbox';
 // export { PurpleGlassRadio } from './PurpleGlassRadio';
 // export { PurpleGlassSwitch } from './PurpleGlassSwitch';

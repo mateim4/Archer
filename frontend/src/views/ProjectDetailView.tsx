@@ -28,29 +28,6 @@ import {
 } from '@fluentui/react-icons';
 import { CheckmarkCircleRegular } from '@fluentui/react-icons';
 
-import {
-  makeStyles,
-  tokens,
-  Button,
-  Text,
-  Title1,
-  Title2,
-  Title3,
-  Caption1,
-  Badge,
-  ProgressBar,
-  Tab,
-  TabList,
-  SelectTabData,
-  SelectTabEvent,
-  Field,
-  Dialog,
-  DialogSurface,
-  DialogBody,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-} from '@fluentui/react-components';
 import { PurpleGlassDropdown, PurpleGlassButton, PurpleGlassInput } from '@/components/ui';
 import { ACTIVITY_STATUS_OPTIONS } from '@/constants/projectFilters';
 
@@ -87,77 +64,9 @@ interface ProjectStats {
   overallProgress: number;
 }
 
-// Styles: border-only cards for a clean card-in-card look
-const useProjectDetailStyles = makeStyles({
-  headerCard: {
-    marginBottom: DesignTokens.spacing.xl,
-  },
-  cardHeaderReplacement: {
-    padding: 0,
-    backgroundColor: 'transparent',
-    border: 'none',
-  },
-  statsCard: {
-    padding: DesignTokens.spacing.lg,
-  },
-  progressContainer: {
-    marginTop: DesignTokens.spacing.xl,
-    marginBottom: DesignTokens.spacing.xxl,
-  },
-  tabContainer: {
-    background: 'transparent',
-    border: 'none',
-    padding: DesignTokens.spacing.lg,
-    marginBottom: DesignTokens.spacing.xl,
-    boxShadow: 'none',
-  },
-  timelineContainer: {
-    ...DesignTokens.components.standardContentCard,
-    width: '100%',
-    overflowX: 'auto',
-    overflowY: 'hidden',
-    minHeight: '400px',
-  },
-  timelineContent: {
-    position: 'relative',
-    minWidth: '1000px',
-    height: '100%',
-  },
-  activityCard: {
-    ...DesignTokens.components.standardContentCard,
-    padding: DesignTokens.spacing.xl,
-  },
-  activityHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    padding: DesignTokens.spacing.lg,
-    borderRadius: DesignTokens.borderRadius.lg,
-    border: `1px solid ${DesignTokens.colors.gray300}`,
-    background: 'transparent',
-    marginBottom: DesignTokens.spacing.md,
-    gap: DesignTokens.spacing.lg,
-  },
-  activityMeta: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-    gap: DesignTokens.spacing.lg,
-    marginBottom: DesignTokens.spacing.md,
-    padding: DesignTokens.spacing.md,
-    borderTop: `1px solid ${DesignTokens.colors.gray300}`,
-    borderRadius: DesignTokens.borderRadius.sm,
-    background: 'transparent',
-  },
-  activitiesContainer: {
-    ...DesignTokens.components.standardContentCard,
-    padding: tokens.spacingVerticalXL,
-  },
-});
-
 const ProjectDetailView: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
-  const styles = useProjectDetailStyles();
 
   const [project, setProject] = useState<Project | null>(null);
   const [activities, setActivities] = useState<Activity[]>([]);
@@ -286,15 +195,15 @@ const ProjectDetailView: React.FC = () => {
     );
   }, [activities, searchQuery, filterStatus]);
 
-  const handleTabChange = useCallback((_: SelectTabEvent, data: SelectTabData) => {
-    setActiveTab(data.value as 'timeline' | 'activities' | 'overview' | 'capacity');
+  const handleTabChange = useCallback((tab: 'timeline' | 'activities' | 'overview' | 'capacity') => {
+    setActiveTab(tab);
   }, []);
 
   if (loading) {
     return (
       <ErrorBoundary>
         <div>
-          <Title2>Loading project…</Title2>
+          <h2 style={DesignTokens.components.standardTitle}>Loading project…</h2>
         </div>
       </ErrorBoundary>
     );
@@ -304,19 +213,19 @@ const ProjectDetailView: React.FC = () => {
     return (
       <ErrorBoundary>
         <div>
-          <div className={styles.statsCard}>
-            <div className={styles.cardHeaderReplacement}>
-              <ErrorCircleRegular style={{ fontSize: '48px', color: tokens.colorPaletteRedForeground1 }} />
+          <div style={{ padding: DesignTokens.spacing.lg }}>
+            <div style={{ padding: 0, backgroundColor: 'transparent', border: 'none' }}>
+              <ErrorCircleRegular style={{ fontSize: '48px', color: DesignTokens.colors.error }} />
             </div>
             <div>
-              <Title2>Project Not Found</Title2>
-              <Text>The requested project could not be found or failed to load.</Text>
+              <h2 style={DesignTokens.components.standardTitle}>Project Not Found</h2>
+              <p style={DesignTokens.components.standardSubtitle}>The requested project could not be found or failed to load.</p>
               <PurpleGlassButton
                 variant="primary"
                 icon={<ArrowLeftFilled />}
                 onClick={() => navigate('/app/projects')}
                 glass
-                style={{ marginTop: tokens.spacingVerticalM }}
+                style={{ marginTop: DesignTokens.spacing.md }}
               >
                 Back to Projects
               </PurpleGlassButton>
@@ -346,20 +255,18 @@ const ProjectDetailView: React.FC = () => {
         <div style={{ marginBottom: '80px', overflow: 'visible' }}>
         <main role="main" aria-label={`Project Details: ${project.name}`}>
         {/* Header section with padding */}
-        <div className={styles.headerCard} style={{
-          padding: DesignTokens.spacing.lg
-        }}>
-          <div className={styles.cardHeaderReplacement}>
+        <div style={{ marginBottom: DesignTokens.spacing.xl, padding: DesignTokens.spacing.lg }}>
+          <div style={{ padding: 0, backgroundColor: 'transparent', border: 'none' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', width: '100%' }}>
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: DesignTokens.spacing.sm }}>
                   <FolderRegular style={{ color: DesignTokens.colors.gray900, fontSize: '32px' }} />
-                  <Title1 style={{ ...DesignTokens.components.sectionTitle, color: DesignTokens.colors.primary }}>{project.name}</Title1>
+                  <h1 style={{ ...DesignTokens.components.sectionTitle, color: DesignTokens.colors.primary }}>{project.name}</h1>
                 </div>
                 <div style={{ marginTop: '8px' }}>
-                  <Text size={500} style={DesignTokens.components.cardDescription}>
+                  <p style={DesignTokens.components.cardDescription}>
                     {project.description || 'No description provided'}
-                  </Text>
+                  </p>
                 </div>
                 <div
                   style={{
@@ -381,15 +288,15 @@ const ProjectDetailView: React.FC = () => {
                     }}
                   >
                     <PeopleRegular style={{ color: DesignTokens.colorVariants.indigo.base, fontSize: '16px' }} />
-                    <Caption1 style={{ fontSize: '12px', color: DesignTokens.colors.gray600 }}>
+                    <span style={{ fontSize: '12px', color: DesignTokens.colors.gray600 }}>
                       Owner: {project.owner_id ? project.owner_id.replace('user:', '') : 'Unknown'}
-                    </Caption1>
+                    </span>
                   </div>
                   <div
                     style={{
                       display: 'flex',
                       alignItems: 'center',
-                      gap: tokens.spacingHorizontalXS,
+                      gap: DesignTokens.spacing.xs,
                       padding: '8px 16px',
                       background: 'transparent',
                       borderRadius: '12px',
@@ -397,9 +304,9 @@ const ProjectDetailView: React.FC = () => {
                     }}
                   >
                     <CalendarRegular style={{ color: DesignTokens.colorVariants.indigo.base, fontSize: '16px' }} />
-                    <Caption1 style={{ fontSize: '12px', color: DesignTokens.colors.gray600 }}>
+                    <span style={{ fontSize: '12px', color: DesignTokens.colors.gray600 }}>
                       Created: {new Date(project.created_at).toLocaleDateString()}
-                    </Caption1>
+                    </span>
                   </div>
                   <div
                     style={{
@@ -413,9 +320,9 @@ const ProjectDetailView: React.FC = () => {
                     }}
                   >
                     <ClockRegular style={{ color: DesignTokens.colorVariants.indigo.base, fontSize: '16px' }} />
-                    <Caption1 style={{ fontSize: '12px', color: DesignTokens.colors.gray600 }}>
+                    <span style={{ fontSize: '12px', color: DesignTokens.colors.gray600 }}>
                       Updated: {new Date(project.updated_at).toLocaleDateString()}
-                    </Caption1>
+                    </span>
                   </div>
                 </div>
               </div>
@@ -446,8 +353,8 @@ const ProjectDetailView: React.FC = () => {
           style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-            gap: tokens.spacingHorizontalXL,
-            marginBottom: tokens.spacingVerticalXXL,
+            gap: DesignTokens.spacing.xl,
+            marginBottom: DesignTokens.spacing.xxl,
           }}
         >
           {[
@@ -456,18 +363,18 @@ const ProjectDetailView: React.FC = () => {
             { label: 'In Progress', value: stats.inProgressActivities, icon: <ClockRegular />, color: DesignTokens.colors.warning },
             { label: 'Days Remaining', value: stats.daysRemaining, icon: <TargetRegular />, color: DesignTokens.colors.gray900 },
           ].map((stat, index) => (
-            <div key={index} className={styles.statsCard}>
-              <div className={styles.cardHeaderReplacement}>
+            <div key={index} style={{ padding: DesignTokens.spacing.lg }}>
+              <div style={{ padding: 0, backgroundColor: 'transparent', border: 'none' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
-                    <Title2 style={{ color: stat.color }}>{stat.value}</Title2>
+                    <h2 style={{ color: stat.color }}>{stat.value}</h2>
                     <div style={{ marginTop: '4px' }}>
-                      <Caption1 style={{ color: DesignTokens.colors.gray900 }}>{stat.label}</Caption1>
+                      <span style={{ color: DesignTokens.colors.gray900 }}>{stat.label}</span>
                     </div>
                   </div>
                   <div
                     style={{
-                      padding: tokens.spacingVerticalM,
+                      padding: DesignTokens.spacing.md,
                       background: 'transparent',
                       borderRadius: '12px',
                       color: stat.color,
@@ -485,56 +392,61 @@ const ProjectDetailView: React.FC = () => {
         </div>
 
         {/* Overall Progress (border-only card) */}
-        <div className={styles.progressContainer}>
+        <div style={{ marginTop: DesignTokens.spacing.xl, marginBottom: DesignTokens.spacing.xxl }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
-              <Title2 style={{ color: DesignTokens.colors.primary }}>{stats.overallProgress}%</Title2>
+              <h2 style={{ color: DesignTokens.colors.primary }}>{stats.overallProgress}%</h2>
               <div style={{ marginTop: '4px' }}>
-                <Caption1 style={{ color: DesignTokens.colors.gray900 }}>Overall Progress</Caption1>
+                <span style={{ color: DesignTokens.colors.gray900 }}>Overall Progress</span>
               </div>
             </div>
-            <div style={{ flex: 1, marginLeft: tokens.spacingHorizontalXXL }}>
-              <ProgressBar
-                value={stats.overallProgress / 100}
-                shape="rounded"
-                thickness="large"
-                color="brand"
-                style={{ marginBottom: tokens.spacingVerticalXS }}
-              />
-              <Caption1 style={{ color: DesignTokens.colors.gray900 }}>
+            <div style={{ flex: 1, marginLeft: DesignTokens.spacing.xxl }}>
+              <div style={{
+                width: '100%',
+                height: '8px',
+                background: DesignTokens.colors.gray200,
+                borderRadius: DesignTokens.borderRadius.md,
+                overflow: 'hidden'
+              }}>
+                <div style={{
+                  width: `${stats.overallProgress}%`,
+                  height: '100%',
+                  background: DesignTokens.colors.primary,
+                  transition: 'width 0.3s ease'
+                }} />
+              </div>
+              <span style={{ color: DesignTokens.colors.gray900 }}>
                 {stats.completedActivities} of {stats.totalActivities} activities completed
-              </Caption1>
+              </span>
             </div>
           </div>
           
           {/* Tab header integrated with main header */}
           <div style={{
-            padding: `${DesignTokens.spacing.md} ${DesignTokens.spacing.lg}`,
+            display: 'flex',
+            gap: DesignTokens.spacing.md,
             borderBottom: `1px solid ${DesignTokens.colors.gray200}`,
             marginTop: DesignTokens.spacing.lg
           }}>
-            <TabList
-              selectedValue={activeTab}
-              onTabSelect={handleTabChange}
-              appearance="transparent"
-              size="large"
-              role="tablist"
-              aria-label="Project sections"
-              style={{ backgroundColor: 'transparent', padding: 0, borderRadius: 0 }}
-            >
-              <Tab value="timeline" icon={<ChartMultipleRegular />}>
-                Timeline
-              </Tab>
-              <Tab value="activities" icon={<TargetRegular />}>
-                Activities
-              </Tab>
-              <Tab value="overview" icon={<DocumentRegular />}>
-                Overview
-              </Tab>
-              <Tab value="capacity" icon={<ServerRegular />}>
-                Capacity Visualizer
-              </Tab>
-            </TabList>
+            {['timeline', 'activities', 'overview', 'capacity'].map(tab => (
+              <button
+                key={tab}
+                onClick={() => handleTabChange(tab as any)}
+                style={{
+                  padding: `${DesignTokens.spacing.md} ${DesignTokens.spacing.lg}`,
+                  background: activeTab === tab ? DesignTokens.colors.primary : 'transparent',
+                  color: activeTab === tab ? '#fff' : DesignTokens.colors.textPrimary,
+                  border: 'none',
+                  borderRadius: `${DesignTokens.borderRadius.md} ${DesignTokens.borderRadius.md} 0 0`,
+                  cursor: 'pointer',
+                  fontFamily: DesignTokens.typography.fontFamily,
+                  fontSize: DesignTokens.typography.base,
+                  fontWeight: activeTab === tab ? 600 : 400
+                }}
+              >
+                {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              </button>
+            ))}
           </div>
 
           {/* Tab content */}
@@ -553,8 +465,8 @@ const ProjectDetailView: React.FC = () => {
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
-                  marginBottom: tokens.spacingVerticalL,
-                  paddingBottom: tokens.spacingVerticalM,
+                  marginBottom: DesignTokens.spacing.lg,
+                  paddingBottom: DesignTokens.spacing.md,
                 }}
               >
                 <div>
@@ -609,14 +521,14 @@ const ProjectDetailView: React.FC = () => {
                     }}
                   />
                 ) : (
-                  <div style={{ textAlign: 'center', padding: tokens.spacingVerticalXXL }}>
+                  <div style={{ textAlign: 'center' as const, padding: DesignTokens.spacing.xxl }}>
                     <ChartMultipleRegular
-                      style={{ fontSize: '64px', color: tokens.colorNeutralForeground3, marginBottom: tokens.spacingVerticalL }}
+                      style={{ fontSize: '64px', color: DesignTokens.colors.textMuted, marginBottom: DesignTokens.spacing.lg }}
                     />
-                    <Title3>No activities yet</Title3>
-                    <Text style={{ marginBottom: tokens.spacingVerticalL }}>
+                    <h3>No activities yet</h3>
+                    <p style={{ marginBottom: DesignTokens.spacing.lg }}>
                       Create your first activity to see the project timeline
-                    </Text>
+                    </p>
                     <PurpleGlassButton
                       variant="primary"
                       size="medium"
@@ -639,8 +551,8 @@ const ProjectDetailView: React.FC = () => {
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
-                  marginBottom: tokens.spacingVerticalL,
-                  paddingBottom: tokens.spacingVerticalM,
+                  marginBottom: DesignTokens.spacing.lg,
+                  paddingBottom: DesignTokens.spacing.md,
                 }}
               >
                 <div>
@@ -664,8 +576,8 @@ const ProjectDetailView: React.FC = () => {
               <div
                 style={{
                   display: 'flex',
-                  gap: tokens.spacingHorizontalL,
-                  marginBottom: tokens.spacingVerticalL,
+                  gap: DesignTokens.spacing.lg,
+                  marginBottom: DesignTokens.spacing.lg,
                 }}
               >
                 <div style={{ flex: 1 }}>
@@ -690,22 +602,21 @@ const ProjectDetailView: React.FC = () => {
               
               <div>
                 {filteredActivities.length > 0 ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: tokens.spacingVerticalL }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: DesignTokens.spacing.lg }}>
                     {filteredActivities.map((activity) => (
                       <div key={activity.id} style={{
                         ...DesignTokens.components.standardContentCard,
                         padding: DesignTokens.spacing.xl,
                         transition: 'all 0.3s ease'
                       }}>
-                        <div className={styles.cardHeaderReplacement}>
+                        <div style={{ padding: 0, backgroundColor: 'transparent', border: 'none' }}>
                           <div style={{ flex: 1 }}>
-                            <Title3 style={{ 
-                              marginBottom: tokens.spacingVerticalXS,
+                            <h3 style={{
+                              marginBottom: DesignTokens.spacing.xs,
                               color: DesignTokens.colors.primary,
                               fontWeight: '600'
-                            }}>{activity.name}</Title3>
-                            <Badge
-                              appearance="outline"
+                            }}>{activity.name}</h3>
+                            <div
                               style={{
                                 color: activity.status === 'completed' ? DesignTokens.colors.success :
                                   activity.status === 'in_progress' ? DesignTokens.colors.primary :
@@ -715,13 +626,16 @@ const ProjectDetailView: React.FC = () => {
                                   activity.status === 'in_progress' ? 'rgba(139, 92, 246, 0.3)' :
                                   activity.status === 'blocked' ? 'rgba(239, 68, 68, 0.3)' :
                                   'rgba(107, 114, 128, 0.3)'}`,
-                                fontWeight: '500'
+                                fontWeight: '500',
+                                padding: '2px 8px',
+                                borderRadius: '4px',
+                                display: 'inline-block'
                               }}
                             >
                               {activity.status.replace('_', ' ').toUpperCase()}
-                            </Badge>
+                            </div>
                           </div>
-                          <div style={{ display: 'flex', gap: tokens.spacingHorizontalXS }}>
+                          <div style={{ display: 'flex', gap: DesignTokens.spacing.xs }}>
                             <PurpleGlassButton
                               variant="secondary"
                               size="small"
@@ -740,18 +654,27 @@ const ProjectDetailView: React.FC = () => {
                           </div>
                         </div>
                         <div>
-                          <div className={styles.activityMeta}>
+                          <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+                            gap: DesignTokens.spacing.lg,
+                            marginBottom: DesignTokens.spacing.md,
+                            padding: DesignTokens.spacing.md,
+                            borderTop: `1px solid ${DesignTokens.colors.gray300}`,
+                            borderRadius: DesignTokens.borderRadius.sm,
+                            background: 'transparent',
+                          }}>
                             <div>
-                              <Caption1>Assignee:</Caption1>
-                              <Text>{activity.assignee}</Text>
+                              <span>Assignee:</span>
+                              <p>{activity.assignee}</p>
                             </div>
                             <div>
-                              <Caption1>Start Date:</Caption1>
-                              <Text>{activity.start_date.toLocaleDateString()}</Text>
+                              <span>Start Date:</span>
+                              <p>{activity.start_date.toLocaleDateString()}</p>
                             </div>
                             <div>
-                              <Caption1>End Date:</Caption1>
-                              <Text>{activity.end_date.toLocaleDateString()}</Text>
+                              <span>End Date:</span>
+                              <p>{activity.end_date.toLocaleDateString()}</p>
                             </div>
                           </div>
                           <div>
@@ -759,34 +682,42 @@ const ProjectDetailView: React.FC = () => {
                               style={{
                                 display: 'flex',
                                 justifyContent: 'space-between',
-                                marginBottom: tokens.spacingVerticalXS,
+                                marginBottom: DesignTokens.spacing.xs,
                               }}
                             >
-                              <Caption1>Progress</Caption1>
-                              <Caption1>{activity.progress}%</Caption1>
+                              <span>Progress</span>
+                              <span>{activity.progress}%</span>
                             </div>
-                            <ProgressBar
-                              value={activity.progress / 100}
-                              shape="rounded"
-                              color="brand"
-                              aria-label={`${activity.name} progress: ${activity.progress}%`}
-                            />
+                            <div style={{
+                              width: '100%',
+                              height: '8px',
+                              background: DesignTokens.colors.gray200,
+                              borderRadius: DesignTokens.borderRadius.md,
+                              overflow: 'hidden'
+                            }}>
+                              <div style={{
+                                width: `${activity.progress}%`,
+                                height: '100%',
+                                background: DesignTokens.colors.primary,
+                                transition: 'width 0.3s ease'
+                              }} />
+                            </div>
                           </div>
                         </div>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <div style={{ textAlign: 'center', padding: tokens.spacingVerticalXXL }}>
+                  <div style={{ textAlign: 'center' as const, padding: DesignTokens.spacing.xxl }}>
                     <TargetRegular
-                      style={{ fontSize: '64px', color: tokens.colorNeutralForeground3, marginBottom: tokens.spacingVerticalL }}
+                      style={{ fontSize: '64px', color: DesignTokens.colors.textMuted, marginBottom: DesignTokens.spacing.lg }}
                     />
-                    <Title3>No activities found</Title3>
-                    <Text>
+                    <h3>No activities found</h3>
+                    <p>
                       {searchQuery || filterStatus !== 'all'
                         ? 'No activities match your current filters'
                         : 'Start by creating your first project activity'}
-                    </Text>
+                    </p>
                   </div>
                 )}
               </div>
@@ -800,8 +731,8 @@ const ProjectDetailView: React.FC = () => {
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
-                  marginBottom: tokens.spacingVerticalL,
-                  paddingBottom: tokens.spacingVerticalM,
+                  marginBottom: DesignTokens.spacing.lg,
+                  paddingBottom: DesignTokens.spacing.md,
                 }}
               >
                 <div>
@@ -815,7 +746,7 @@ const ProjectDetailView: React.FC = () => {
                 style={{
                   display: 'grid',
                 gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-                gap: tokens.spacingHorizontalL,
+                gap: DesignTokens.spacing.lg,
               }}
             >
               {/* Project Information Card */}
@@ -824,14 +755,14 @@ const ProjectDetailView: React.FC = () => {
                 padding: DesignTokens.spacing.lg,
                 transition: 'all 0.3s ease'
               }}>
-                <div className={styles.cardHeaderReplacement}>
+                <div style={{ padding: 0, backgroundColor: 'transparent', border: 'none' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: DesignTokens.spacing.sm }}>
                     <DataBarHorizontal24Regular style={{ color: DesignTokens.colors.primary, fontSize: '20px' }} />
                     <div style={DesignTokens.components.standardTitle}>Project Information</div>
                   </div>
                 </div>
                 <div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: tokens.spacingVerticalS }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: DesignTokens.spacing.sm }}>
                     {[
                       { label: 'Project ID', value: project.id },
                       { label: 'Owner', value: project.owner_id ? project.owner_id.replace('user:', '') : 'Unknown' },
@@ -843,13 +774,13 @@ const ProjectDetailView: React.FC = () => {
                         style={{
                           display: 'flex',
                           justifyContent: 'space-between',
-                          paddingBottom: tokens.spacingVerticalS,
+                          paddingBottom: DesignTokens.spacing.sm,
                           borderBottom:
                             index < 3 ? `1px solid ${DesignTokens.colors.gray300}` : 'none',
                         }}
                       >
-                        <Caption1>{item.label}:</Caption1>
-                        <Text size={300}>{item.value}</Text>
+                        <span>{item.label}:</span>
+                        <p>{item.value}</p>
                       </div>
                     ))}
                   </div>
@@ -862,14 +793,14 @@ const ProjectDetailView: React.FC = () => {
                 padding: DesignTokens.spacing.lg,
                 transition: 'all 0.3s ease'
               }}>
-                <div className={styles.cardHeaderReplacement}>
+                <div style={{ padding: 0, backgroundColor: 'transparent', border: 'none' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: DesignTokens.spacing.sm }}>
                     <ArrowTrending24Regular style={{ color: DesignTokens.colors.primary, fontSize: '20px' }} />
                     <div style={DesignTokens.components.standardTitle}>Activity Breakdown</div>
                   </div>
                 </div>
                 <div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: tokens.spacingVerticalS }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: DesignTokens.spacing.sm }}>
                     {[
                       { type: 'migration', label: 'Migration Activities', icon: <ArrowSync24Regular /> },
                       { type: 'hardware_customization', label: 'Hardware Customization', icon: <WrenchRegular /> },
@@ -893,23 +824,24 @@ const ProjectDetailView: React.FC = () => {
                             transition: 'all 0.2s ease'
                           }}
                         >
-                          <div style={{ display: 'flex', alignItems: 'center', gap: tokens.spacingHorizontalS }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: DesignTokens.spacing.sm }}>
                             <div style={{ fontSize: '18px', color: DesignTokens.colors.primary }}>{activityType.icon}</div>
-                            <Caption1 style={{ fontWeight: '500', color: DesignTokens.colors.textPrimary }}>
+                            <span style={{ fontWeight: '500', color: DesignTokens.colors.textPrimary }}>
                               {activityType.label}
-                            </Caption1>
+                            </span>
                           </div>
-                          <Badge 
-                            appearance="outline"
+                          <div
                             style={{
                               backgroundColor: count > 0 ? 'rgba(139, 92, 246, 0.1)' : 'rgba(107, 114, 128, 0.1)',
                               color: count > 0 ? DesignTokens.colors.primary : DesignTokens.colors.gray600,
                               border: `1px solid ${count > 0 ? 'rgba(139, 92, 246, 0.3)' : 'rgba(107, 114, 128, 0.3)'}`,
-                              fontWeight: '600'
+                              fontWeight: '600',
+                              padding: '2px 8px',
+                              borderRadius: '4px'
                             }}
                           >
                             {count}
-                          </Badge>
+                          </div>
                         </div>
                       );
                     })}

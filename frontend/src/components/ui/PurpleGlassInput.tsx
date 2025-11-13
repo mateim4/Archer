@@ -87,6 +87,7 @@ export interface PurpleGlassInputProps extends Omit<React.InputHTMLAttributes<HT
    * Additional CSS class name for the input element
    */
   inputClassName?: string;
+  onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
 }
 
 // ============================================================================

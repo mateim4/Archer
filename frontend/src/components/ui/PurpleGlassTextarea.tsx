@@ -31,6 +31,7 @@ import React, { forwardRef, useEffect, useRef } from 'react';
 import { mergeClasses } from '@fluentui/react-components';
 import { useTextareaStyles } from './styles/useTextareaStyles';
 import type { GlassVariant, ValidationState } from './PurpleGlassInput';
+import { DesignTokens } from '../../styles/designSystem';
 
 // ============================================================================
 // TYPE DEFINITIONS
@@ -92,6 +93,7 @@ export interface PurpleGlassTextareaProps extends React.TextareaHTMLAttributes<H
    * Additional CSS class name for the textarea element
    */
   textareaClassName?: string;
+  onBlur?: (e: React.FocusEvent<HTMLTextAreaElement>) => void;
 }
 
 // ============================================================================
@@ -108,7 +110,7 @@ export const PurpleGlassTextarea = forwardRef<HTMLTextAreaElement, PurpleGlassTe
       required = false,
       autoResize = false,
       showCharacterCount = false,
-      warningThreshold = 0.8,
+      warningThreshold = 0.9,
       className,
       textareaClassName,
       disabled,
@@ -137,8 +139,6 @@ export const PurpleGlassTextarea = forwardRef<HTMLTextAreaElement, PurpleGlassTe
 
     // Calculate character count
     const currentLength = typeof value === 'string' ? value.length : 0;
-    const isNearLimit = maxLength && currentLength >= maxLength * warningThreshold;
-    const isAtLimit = maxLength && currentLength >= maxLength;
 
     // Determine textarea class based on validation state and glass variant
     const getTextareaClasses = () => {
@@ -178,16 +178,6 @@ export const PurpleGlassTextarea = forwardRef<HTMLTextAreaElement, PurpleGlassTe
       return mergeClasses(...classes);
     };
 
-    // Determine character count class
-    const getCharacterCountClasses = () => {
-      const classes = [styles.characterCount];
-
-      if (isAtLimit) classes.push(styles.characterCountError);
-      else if (isNearLimit) classes.push(styles.characterCountWarning);
-
-      return mergeClasses(...classes);
-    };
-
     return (
       <div className={mergeClasses(styles.textareaWrapper, className)}>
         {/* Label */}
@@ -215,23 +205,29 @@ export const PurpleGlassTextarea = forwardRef<HTMLTextAreaElement, PurpleGlassTe
         </div>
 
         {/* Footer: Helper Text + Character Count */}
-        {(helperText || showCharacterCount) && (
-          <div className={styles.footer}>
-            {/* Helper Text */}
-            {helperText && (
-              <span id={helperId} className={getHelperTextClasses()} role="alert">
-                {helperText}
-              </span>
-            )}
+        <div className={styles.footer}>
+          {/* Helper Text */}
+          {helperText && (
+            <span id={helperId} className={getHelperTextClasses()} role="alert">
+              {helperText}
+            </span>
+          )}
 
-            {/* Character Count */}
-            {showCharacterCount && maxLength && (
-              <span className={getCharacterCountClasses()}>
-                {currentLength} / {maxLength}
-              </span>
-            )}
-          </div>
-        )}
+          {/* Character Count */}
+          {showCharacterCount && maxLength && (
+            <div style={{
+              fontSize: '12px',
+              color: currentLength >= maxLength * 0.9
+                ? DesignTokens.colors.warning
+                : DesignTokens.colors.textSecondary,
+              marginTop: '4px',
+              textAlign: 'right',
+              flex: 1
+            }}>
+              {currentLength}/{maxLength}
+            </div>
+          )}
+        </div>
       </div>
     );
   }

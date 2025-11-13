@@ -18,6 +18,17 @@ import { InfoTooltip } from '../components/Tooltip';
 import LoadingSpinner from '../components/LoadingSpinner';
 import SimpleFileUpload from '../components/SimpleFileUpload';
 import ServerFileProcessor from '../utils/serverFileProcessor';
+import {
+  PurpleGlassButton,
+  PurpleGlassInput,
+  PurpleGlassCheckbox,
+  PurpleGlassCard,
+  PurpleGlassSpinner,
+  PurpleGlassPagination
+} from '@/components/ui';
+import { useErrorHandler } from '../hooks/useErrorHandler';
+import { ToastContainer } from '../components/ui/PurpleGlassToast';
+import { useTablePagination } from '../hooks/useTablePagination';
 import { openFileDialog, getFileName, isFileTypeSupported, isTauriEnvironment } from '../utils/fileUpload';
 
 // Global table row selection state
@@ -84,12 +95,11 @@ const SelectableTableRow = ({
     onClick={() => onToggleSelection(rowId)}
   >
     <td className="px-4 py-3 w-8">
-      <input
-        type="checkbox"
+      <PurpleGlassCheckbox
         checked={isSelected}
         onChange={() => onToggleSelection(rowId)}
-        className="rounded border-purple-500/30 text-purple-600 focus:ring-purple-500"
         onClick={(e) => e.stopPropagation()}
+        glass="light"
       />
     </td>
     {children}
@@ -199,6 +209,7 @@ const DashboardView: React.FC = () => {
     analyzeEnvironment
   } = useAppStore();
 
+  const { toasts, dismissToast, handleError, showSuccess } = useErrorHandler();
   const [activeTab, setActiveTab] = useState('clusters');
   const [isDataUploaded, setIsDataUploaded] = useState(false);
   const [serverAvailable, setServerAvailable] = useState<boolean | null>(null);
@@ -300,18 +311,10 @@ const DashboardView: React.FC = () => {
             // The SimpleFileUpload component now handles the state update.
             // We just need to update the local UI state.
             setIsDataUploaded(true);
-            // VMware environment processed successfully
+            showSuccess('File processed', 'VMware environment data loaded successfully.');
           }}
           onError={(error: string) => {
-            console.error('Failed to process VMware file:', error);
-            // Show user-friendly error message
-            if (error.includes('Expected VMware environment data, got hardware server data')) {
-              // Hardware configuration file detected - need VMware environment export
-            } else if (error.includes('Excel files require server processing')) {
-              // Excel file requires backend processing
-            } else {
-              // Upload failed - invalid file format
-            }
+            handleError(new Error(error), 'File Upload');
           }}
         />
         
@@ -773,11 +776,9 @@ const DashboardView: React.FC = () => {
                   {rec.description}
                 </p>
               </div>
-              <button 
-                className="lcm-button fluent-button-secondary"
-              >
+              <PurpleGlassButton variant="secondary" size="medium" glass>
                 {rec.action}
-              </button>
+              </PurpleGlassButton>
             </div>
           );
         })}
@@ -925,6 +926,9 @@ const DashboardView: React.FC = () => {
       return sortOrder === 'asc' ? comparison : -comparison;
     });
 
+    // ✅ ADD PAGINATION:
+    const { paginatedData, pageInfo, goToPage, setItemsPerPage } = useTablePagination(sortedVMs, 50);
+
     const handleSort = (field: string) => {
       if (sortField === field) {
         setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
@@ -945,16 +949,13 @@ const DashboardView: React.FC = () => {
       <div className="space-y-4">
         {/* Filter and Controls */}
         <div className="flex items-center gap-4">
-          <div className="flex-1 lcm-input-with-icon">
-            <Filter className="lcm-input-icon text-gray-400" size={16} />
-            <input
-              type="text"
-              placeholder="Filter VMs by name, cluster, or OS..."
-              value={filter}
-              onChange={(e) => setFilter(e.target.value)}
-              className="lcm-input"
-            />
-          </div>
+          <PurpleGlassInput
+            placeholder="Filter VMs..."
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            prefixIcon={<Filter />}
+            glass="light"
+          />
           <div className="flex items-center gap-4">
             <div style={{ color: 'var(--color-neutral-foreground-secondary)', fontSize: 'var(--font-size-caption)' }}>
               {sortedVMs.length} of {allVMs.length} VMs
@@ -994,20 +995,17 @@ const DashboardView: React.FC = () => {
               <thead>
                 <tr style={{ backgroundColor: 'var(--color-neutral-background-secondary)' }}>
                   <th className="px-4 py-3 w-8">
-                    <input
-                      type="checkbox"
-                      checked={vmSelection.selectedCount > 0 && vmSelection.selectedCount === sortedVMs.slice(0, 50).length}
-                      ref={(el) => {
-                        if (el) el.indeterminate = vmSelection.selectedCount > 0 && vmSelection.selectedCount < sortedVMs.slice(0, 50).length;
-                      }}
+                    <PurpleGlassCheckbox
+                      checked={paginatedData.length > 0 && vmSelection.selectedCount === paginatedData.length}
+                      indeterminate={vmSelection.selectedCount > 0 && vmSelection.selectedCount < paginatedData.length}
                       onChange={(e) => {
                         if (e.target.checked) {
-                          vmSelection.selectAll(sortedVMs.slice(0, 50).map((vm: any, index: number) => `vm-${index}`));
+                          vmSelection.selectAll(paginatedData.map((vm: any, index: number) => `vm-${pageInfo.startIndex + index}`));
                         } else {
                           vmSelection.clearSelection();
                         }
                       }}
-                      className="rounded border-purple-500/30 text-purple-600 focus:ring-purple-500"
+                      glass="light"
                     />
                   </th>
                   <ResizableTableHeader 
@@ -1085,7 +1083,7 @@ const DashboardView: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {sortedVMs.slice(0, 50).map((vm: any, index: number) => (
+                {paginatedData.map((vm: any, index: number) => (
                   <SelectableTableRow
                     key={index}
                     rowId={`vm-${index}`}
@@ -1154,16 +1152,19 @@ const DashboardView: React.FC = () => {
                     </td>
                   </SelectableTableRow>
                 ))}
-                {sortedVMs.length > 50 && (
-                  <tr>
-                    <td colSpan={9} className="px-4 py-3 text-center" style={{ color: 'var(--color-neutral-foreground-secondary)' }}>
-                      Showing first 50 of {sortedVMs.length} VMs. Use filter to narrow results.
-                    </td>
-                  </tr>
-                )}
               </tbody>
             </table>
           </div>
+          {sortedVMs.length > 25 && (
+            <PurpleGlassPagination
+              currentPage={pageInfo.currentPage}
+              totalPages={pageInfo.totalPages}
+              itemsPerPage={pageInfo.itemsPerPage}
+              totalItems={pageInfo.totalItems}
+              onPageChange={goToPage}
+              onItemsPerPageChange={setItemsPerPage}
+            />
+          )}
         </div>
       </div>
     );
@@ -1211,6 +1212,8 @@ const DashboardView: React.FC = () => {
       return sortOrder === 'asc' ? comparison : -comparison;
     });
 
+    const { paginatedData: paginatedHosts, pageInfo: hostPageInfo, goToPage: goToHostPage, setItemsPerPage: setHostItemsPerPage } = useTablePagination(sortedHosts, 50);
+
     const handleSort = (field: string) => {
       if (sortField === field) {
         setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
@@ -1231,16 +1234,13 @@ const DashboardView: React.FC = () => {
       <div className="space-y-4">
         {/* Filter and Controls */}
         <div className="flex items-center gap-4">
-          <div className="flex-1 lcm-input-with-icon">
-            <Filter className="lcm-input-icon text-gray-400" size={16} />
-            <input
-              type="text"
-              placeholder="Filter hosts by name, cluster, or status..."
-              value={filter}
-              onChange={(e) => setFilter(e.target.value)}
-              className="lcm-input"
-            />
-          </div>
+          <PurpleGlassInput
+            placeholder="Filter hosts..."
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            prefixIcon={<Filter />}
+            glass="light"
+          />
           <div className="flex items-center gap-4">
             <div style={{ color: 'var(--color-neutral-foreground-secondary)', fontSize: 'var(--font-size-caption)' }}>
               {sortedHosts.length} of {allHosts.length} Hosts
@@ -1280,20 +1280,17 @@ const DashboardView: React.FC = () => {
               <thead>
                 <tr style={{ backgroundColor: 'var(--color-neutral-background-secondary)' }}>
                   <th className="px-4 py-3 w-8">
-                    <input
-                      type="checkbox"
-                      checked={hostSelection.selectedCount > 0 && hostSelection.selectedCount === sortedHosts.length}
-                      ref={(el) => {
-                        if (el) el.indeterminate = hostSelection.selectedCount > 0 && hostSelection.selectedCount < sortedHosts.length;
-                      }}
+                    <PurpleGlassCheckbox
+                      checked={paginatedHosts.length > 0 && hostSelection.selectedCount === paginatedHosts.length}
+                      indeterminate={hostSelection.selectedCount > 0 && hostSelection.selectedCount < paginatedHosts.length}
                       onChange={(e) => {
                         if (e.target.checked) {
-                          hostSelection.selectAll(sortedHosts.map((host: any, index: number) => `host-${index}`));
+                          hostSelection.selectAll(paginatedHosts.map((host: any, index: number) => `host-${hostPageInfo.startIndex + index}`));
                         } else {
                           hostSelection.clearSelection();
                         }
                       }}
-                      className="rounded border-purple-500/30 text-purple-600 focus:ring-purple-500"
+                      glass="light"
                     />
                   </th>
                   <ResizableTableHeader 
@@ -1362,7 +1359,7 @@ const DashboardView: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {sortedHosts.map((host: any, index: number) => (
+                {paginatedHosts.map((host: any, index: number) => (
                   <SelectableTableRow
                     key={index}
                     rowId={`host-${index}`}
@@ -1425,17 +1422,28 @@ const DashboardView: React.FC = () => {
               </tbody>
             </table>
           </div>
+          {sortedHosts.length > 25 && (
+            <PurpleGlassPagination
+              currentPage={hostPageInfo.currentPage}
+              totalPages={hostPageInfo.totalPages}
+              itemsPerPage={hostPageInfo.itemsPerPage}
+              totalItems={hostPageInfo.totalItems}
+              onPageChange={goToHostPage}
+              onItemsPerPageChange={setHostItemsPerPage}
+            />
+          )}
         </div>
       </div>
     );
   };
 
   if (loading) {
-    return <LoadingSpinner message="Loading dashboard..." />;
+    return <PurpleGlassSpinner size="large" message="Processing file..." fullPage />;
   }
 
   return (
     <div>
+      <ToastContainer toasts={toasts} onDismiss={dismissToast} />
       {!isDataUploaded ? (
         <FileUploadComponent />
       ) : (
