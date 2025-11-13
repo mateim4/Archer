@@ -1461,9 +1461,17 @@ mod tests {
                 
                 // If there's a default value and enum values, default should be in the enum
                 if let Some(default) = &var.default_value {
+                    // Convert VariableValue to String for comparison
+                    let default_str = match default {
+                        VariableValue::String(s) => s.clone(),
+                        VariableValue::Integer(i) => i.to_string(),
+                        VariableValue::Float(f) => f.to_string(),
+                        VariableValue::Boolean(b) => b.to_string(),
+                        _ => format!("{:?}", default),
+                    };
                     assert!(
-                        enum_vals.contains(default),
-                        "Default value '{}' not in enum values for variable '{}'",
+                        enum_vals.contains(&default_str),
+                        "Default value '{:?}' not in enum values for variable '{}'",
                         default,
                         var.name
                     );

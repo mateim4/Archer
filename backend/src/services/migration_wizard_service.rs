@@ -1620,9 +1620,9 @@ impl MigrationWizardService {
             for (idx, mapping) in mappings.iter().enumerate() {
                 let source_id = format!("SRC{}", idx);
                 let source_label = if let Some(subnet) = &mapping.source_subnet {
-                    format!("VLAN {}<br/>{}", mapping.source_vlan, subnet)
+                    format!("VLAN {}<br/>{}", mapping.source_vlan_id.unwrap_or(0), subnet)
                 } else {
-                    format!("VLAN {}", mapping.source_vlan)
+                    format!("VLAN {}", mapping.source_vlan_id.unwrap_or(0))
                 };
                 mermaid.push_str(&format!("        {}[\"{}\"]\n", source_id, source_label));
             }
@@ -1632,14 +1632,13 @@ impl MigrationWizardService {
             mermaid.push_str("    subgraph Dest[\"Destination Hyper-V Networks\"]\n");
             for (idx, mapping) in mappings.iter().enumerate() {
                 let dest_id = format!("DST{}", idx);
-                let dest_label = if let Some(subnet) = &mapping.dest_subnet {
-                    format!("VLAN {}<br/>{}<br/>({})", 
-                        mapping.dest_vlan, 
-                        subnet,
-                        mapping.dest_ip_strategy.as_deref().unwrap_or("DHCP")
+                let dest_label = if let Some(subnet) = &mapping.destination_subnet {
+                    format!("VLAN {}<br/>{}<br/>(Static IP)", 
+                        mapping.destination_vlan_id.unwrap_or(0), 
+                        subnet
                     )
                 } else {
-                    format!("VLAN {}", mapping.dest_vlan)
+                    format!("VLAN {}", mapping.destination_vlan_id.unwrap_or(0))
                 };
                 mermaid.push_str(&format!("        {}[\"{}\"]\n", dest_id, dest_label));
             }
