@@ -68,6 +68,10 @@ export type { PurpleGlassStatsProps } from './PurpleGlassStats';
 export { PurpleGlassEmptyState } from './PurpleGlassEmptyState';
 export type { PurpleGlassEmptyStateProps } from './PurpleGlassEmptyState';
 
+// Wizard Components
+export { WizardResumePrompt } from './WizardResumePrompt';
+export type { WizardResumePromptProps } from './WizardResumePrompt';
+
 // export { PurpleGlassCheckbox } from './PurpleGlassCheckbox';
 // export { PurpleGlassRadio } from './PurpleGlassRadio';
 // export { PurpleGlassSwitch } from './PurpleGlassSwitch';
