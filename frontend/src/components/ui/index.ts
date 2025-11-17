@@ -80,6 +80,14 @@ export type { AdvancedFilterPanelProps, FilterConfig, ActiveFilter } from './Adv
 export { PurpleGlassVirtualTable } from './PurpleGlassVirtualTable';
 export type { PurpleGlassVirtualTableProps, VirtualTableColumn } from './PurpleGlassVirtualTable';
 
+// Workflow Components
+export { WorkflowTemplateManager } from './WorkflowTemplateManager';
+export type { WorkflowTemplateManagerProps, WorkflowTemplate, WorkflowStep } from './WorkflowTemplateManager';
+
+// Bulk Operation Components
+export { BulkOperationPanel } from './BulkOperationPanel';
+export type { BulkOperationPanelProps, BulkOperation, BulkOperationExecution } from './BulkOperationPanel';
+
 // export { PurpleGlassCheckbox } from './PurpleGlassCheckbox';
 // export { PurpleGlassRadio } from './PurpleGlassRadio';
 // export { PurpleGlassSwitch } from './PurpleGlassSwitch';
