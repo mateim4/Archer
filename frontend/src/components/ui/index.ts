@@ -41,6 +41,8 @@ export type { PurpleGlassSwitchProps } from './PurpleGlassSwitch';
 
 // Navigation Components
 export { PurpleGlassBreadcrumb } from './PurpleGlassBreadcrumb';
+export { BreadcrumbNavigation } from './BreadcrumbNavigation';
+export type { BreadcrumbNavigationProps } from './BreadcrumbNavigation';
 
 // Spinner Components
 export { PurpleGlassSpinner } from './PurpleGlassSpinner';

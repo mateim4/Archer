@@ -4,6 +4,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import './styles/fluent2-design-system.css';
 import { FluentProvider, webLightTheme } from '@fluentui/react-components';
 import NavigationSidebar from './components/NavigationSidebar';
+import { BreadcrumbNavigation } from './components/ui';
 import HardwarePoolView from './views/HardwarePoolView';
 import HardwareBasketView from './views/HardwareBasketView';
 import ProjectsView from './views/ProjectsView';
@@ -69,6 +70,9 @@ function App() {
               overflowX: 'hidden',
               minHeight: '100vh'
             }}>
+              {/* Breadcrumb Navigation */}
+              <BreadcrumbNavigation glass="light" style={{ marginBottom: '24px' }} />
+              
               {/* Single Card Container for All Content */}
               <div style={{
                 background: 'transparent', /* Let individual views handle their own backgrounds */
