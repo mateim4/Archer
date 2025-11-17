@@ -76,6 +76,10 @@ export type { WizardResumePromptProps } from './WizardResumePrompt';
 export { AdvancedFilterPanel } from './AdvancedFilterPanel';
 export type { AdvancedFilterPanelProps, FilterConfig, ActiveFilter } from './AdvancedFilterPanel';
 
+// Virtual Table Components
+export { PurpleGlassVirtualTable } from './PurpleGlassVirtualTable';
+export type { PurpleGlassVirtualTableProps, VirtualTableColumn } from './PurpleGlassVirtualTable';
+
 // export { PurpleGlassCheckbox } from './PurpleGlassCheckbox';
 // export { PurpleGlassRadio } from './PurpleGlassRadio';
 // export { PurpleGlassSwitch } from './PurpleGlassSwitch';
