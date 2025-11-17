@@ -5,24 +5,30 @@ import './styles/fluent2-design-system.css';
 import { FluentProvider, webLightTheme } from '@fluentui/react-components';
 import NavigationSidebar from './components/NavigationSidebar';
 import { BreadcrumbNavigation } from './components/ui';
-import HardwarePoolView from './views/HardwarePoolView';
-import HardwareBasketView from './views/HardwareBasketView';
+import { lazyWithRetry } from './utils/lazyLoad';
+
+// Eager-loaded views (critical path)
+import LandingView from './views/LandingView';
 import ProjectsView from './views/ProjectsView';
 import ProjectWorkspaceView from './views/ProjectWorkspaceView';
-// Phase 7: Removed standalone ProjectMigrationWorkspace - integrated via activities
-import ClusterStrategyManagerView from './views/ClusterStrategyManagerView';
-import EmbeddedMigrationWizard from './views/EmbeddedMigrationWizard';
-import EmbeddedLifecycleWizard from './views/EmbeddedLifecycleWizard';
-import GuidesView from './views/GuidesView';
-import DocumentTemplatesView from './views/DocumentTemplatesView';
-import SettingsView from './views/SettingsView';
-import LandingView from './views/LandingView';
-import DataCollectionView from './views/DataCollectionView';
-import { EnhancedRVToolsReportView } from './views/EnhancedRVToolsReportView';
-import { HardwareLifecycleView } from './views/HardwareLifecycleView';
-import { ZoomTestPage } from './components/CapacityVisualizer/ZoomTestPage';
-import { CapacityVisualizerView } from './views/CapacityVisualizerView';
-import { InfraVisualizerView } from './views/InfraVisualizerView';
+import HardwarePoolView from './views/HardwarePoolView';
+import HardwareBasketView from './views/HardwareBasketView';
+
+// Lazy-loaded views (code splitting for performance)
+// Heavy visualization components (large bundle size)
+const CapacityVisualizerView = lazyWithRetry(() => import('./views/CapacityVisualizerView').then(m => ({ default: m.CapacityVisualizerView })));
+const InfraVisualizerView = lazyWithRetry(() => import('./views/InfraVisualizerView').then(m => ({ default: m.InfraVisualizerView })));
+const EnhancedRVToolsReportView = lazyWithRetry(() => import('./views/EnhancedRVToolsReportView').then(m => ({ default: m.EnhancedRVToolsReportView })));
+const ZoomTestPage = lazyWithRetry(() => import('./components/CapacityVisualizer/ZoomTestPage').then(m => ({ default: m.ZoomTestPage })));
+
+// Feature-specific views (loaded on demand)
+const ClusterStrategyManagerView = lazyWithRetry(() => import('./views/ClusterStrategyManagerView'));
+const EmbeddedMigrationWizard = lazyWithRetry(() => import('./views/EmbeddedMigrationWizard'));
+const EmbeddedLifecycleWizard = lazyWithRetry(() => import('./views/EmbeddedLifecycleWizard'));
+const GuidesView = lazyWithRetry(() => import('./views/GuidesView'));
+const DocumentTemplatesView = lazyWithRetry(() => import('./views/DocumentTemplatesView'));
+const SettingsView = lazyWithRetry(() => import('./views/SettingsView'));
+const DataCollectionView = lazyWithRetry(() => import('./views/DataCollectionView'));
 
 function App() {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
