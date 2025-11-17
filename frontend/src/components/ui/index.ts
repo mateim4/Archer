@@ -72,6 +72,10 @@ export type { PurpleGlassEmptyStateProps } from './PurpleGlassEmptyState';
 export { WizardResumePrompt } from './WizardResumePrompt';
 export type { WizardResumePromptProps } from './WizardResumePrompt';
 
+// Filter Components
+export { AdvancedFilterPanel } from './AdvancedFilterPanel';
+export type { AdvancedFilterPanelProps, FilterConfig, ActiveFilter } from './AdvancedFilterPanel';
+
 // export { PurpleGlassCheckbox } from './PurpleGlassCheckbox';
 // export { PurpleGlassRadio } from './PurpleGlassRadio';
 // export { PurpleGlassSwitch } from './PurpleGlassSwitch';
