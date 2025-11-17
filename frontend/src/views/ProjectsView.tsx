@@ -384,15 +384,15 @@ export default function ProjectsView() {
                 <RocketRegular />
               </div>
               <h3 style={{ fontSize: DesignTokens.typography.xxl, fontWeight: DesignTokens.typography.semibold, color: DesignTokens.colors.textPrimary, marginBottom: DesignTokens.spacing.md, fontFamily: DesignTokens.typography.fontFamily }}>
-                {projects.length === 0 ? 'No projects yet' : 'No projects match your search'}
+                {searchTerm ? 'No projects match your search' : 'No projects yet'}
               </h3>
               <p style={{ fontSize: DesignTokens.typography.base, color: DesignTokens.colors.textSecondary, marginBottom: DesignTokens.spacing.xxl, maxWidth: '500px', marginLeft: 'auto', marginRight: 'auto', lineHeight: '1.6' }}>
-                {projects.length === 0
-                  ? 'Create your first project to start organizing your infrastructure deployments, configurations, and automation workflows.'
-                  : 'Try adjusting your search terms or create a new project.'
+                {searchTerm
+                  ? 'Try adjusting your search terms or create a new project.'
+                  : 'Create your first project to start organizing your infrastructure deployments, configurations, and automation workflows.'
                 }
               </p>
-              {projects.length === 0 && (
+              {!searchTerm && (
                 <PurpleGlassButton
                   variant="primary"
                   size="medium"

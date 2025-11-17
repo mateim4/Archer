@@ -54,6 +54,18 @@ export type { PurpleGlassSkeletonProps } from './PurpleGlassSkeleton';
 export { PurpleGlassPagination } from './PurpleGlassPagination';
 export type { PurpleGlassPaginationProps } from './PurpleGlassPagination';
 
+// Modal Components
+export { PurpleGlassModal } from './PurpleGlassModal';
+export type { PurpleGlassModalProps } from './PurpleGlassModal';
+
+// Stats Components
+export { PurpleGlassStats } from './PurpleGlassStats';
+export type { PurpleGlassStatsProps } from './PurpleGlassStats';
+
+// Empty State Components
+export { PurpleGlassEmptyState } from './PurpleGlassEmptyState';
+export type { PurpleGlassEmptyStateProps } from './PurpleGlassEmptyState';
+
 // export { PurpleGlassCheckbox } from './PurpleGlassCheckbox';
 // export { PurpleGlassRadio } from './PurpleGlassRadio';
 // export { PurpleGlassSwitch } from './PurpleGlassSwitch';

@@ -890,19 +890,16 @@ export const useAppStore = create<AppState>((set, get) => ({
     } catch (error) {
       console.error('Failed to list hardware assets via API:', error);
 
-      if (isTauri) {
-        try {
-          const fallbackAssets = await safeInvoke<HardwareAsset[]>('list_hardware_assets');
-          set({ hardwarePoolAssets: fallbackAssets, loading: false });
-          return;
-        } catch (fallbackError) {
-          console.error('Tauri fallback failed to list hardware assets:', fallbackError);
-          set({ error: toErrorMessage(fallbackError), loading: false });
-          return;
-        }
+      // Try fallback to mock data (works in both Tauri and browser)
+      try {
+        const fallbackAssets = await safeInvoke<HardwareAsset[]>('list_hardware_assets');
+        set({ hardwarePoolAssets: fallbackAssets, loading: false });
+        return;
+      } catch (fallbackError) {
+        console.error('Fallback failed to list hardware assets:', fallbackError);
+        set({ error: toErrorMessage(fallbackError), loading: false });
+        return;
       }
-
-      set({ error: toErrorMessage(error), loading: false });
     }
   },
 
@@ -1026,7 +1023,8 @@ export const useAppStore = create<AppState>((set, get) => ({
       set({ rvToolsUploads: uploads, rvToolsLoading: false });
     } catch (error) {
       console.error('Failed to fetch RVTools uploads via API:', error);
-      set({ error: toErrorMessage(error), rvToolsLoading: false });
+      // Don't set error state - just use empty uploads for non-critical feature
+      set({ rvToolsUploads: [], rvToolsLoading: false });
     }
   },
 }));
