@@ -1,5 +1,3 @@
-@import '@fluentui/react-components/dist/index.css';
-
 .purple-glass-virtual-table {
   --table-radius: var(--borderRadiusLarge);
   --header-height: 48px;
