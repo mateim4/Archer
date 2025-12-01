@@ -147,7 +147,7 @@ const LandingView: React.FC = () => {
                 lineHeight: '1.1',
                 letterSpacing: '-0.02em'
               }}>
-                LCM<span style={{ color: '#8b5cf6' }}>Designer</span>
+                Archer
               </h2>
               <div style={{
                 height: '4px',
