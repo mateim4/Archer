@@ -29,7 +29,8 @@ import {
   PurpleGlassInput,
   PurpleGlassTextarea,
   PurpleGlassCard,
-  PurpleGlassSkeleton
+  PurpleGlassSkeleton,
+  PrimaryButton
 } from '@/components/ui';
 import { useFormValidation } from '../hooks/useFormValidation';
 import { useErrorHandler } from '../hooks/useErrorHandler';
@@ -279,16 +280,14 @@ export default function ProjectsView() {
           <FolderRegular style={{ fontSize: '32px', color: DesignTokens.colors.gray900 }} />
           Projects
         </h2>
-        <PurpleGlassButton
+        <PrimaryButton
           data-testid="create-project-button"
-          variant="primary"
           size="large"
           icon={<AddRegular />}
           onClick={() => setShowCreateDialog(true)}
-          glass={true}
         >
           Add New Project
-        </PurpleGlassButton>
+        </PrimaryButton>
       </div>
 
       {/* Search Bar and Toolbar with Statistics */}
@@ -393,15 +392,13 @@ export default function ProjectsView() {
                 }
               </p>
               {!searchTerm && (
-                <PurpleGlassButton
-                  variant="primary"
+                <PrimaryButton
                   size="medium"
                   icon={<AddRegular />}
                   onClick={() => setShowCreateDialog(true)}
-                  glass={true}
                 >
                   Create your first project
-                </PurpleGlassButton>
+                </PrimaryButton>
               )}
             </PurpleGlassCard>
           ) : (
@@ -742,13 +739,12 @@ export default function ProjectsView() {
               >
                 Cancel
               </PurpleGlassButton>
-              <PurpleGlassButton
+              <PrimaryButton
                 type="submit"
-                variant="primary"
                 data-testid="submit-project-button"
               >
                 Create Project
-              </PurpleGlassButton>
+              </PrimaryButton>
             </div>
           </form>
         </PurpleGlassCard>

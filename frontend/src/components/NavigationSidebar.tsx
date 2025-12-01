@@ -114,23 +114,23 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
         left: 0,
         width: isOpen ? '280px' : '60px',
         height: '100vh',
-        background: glassEffects.backgroundMedium,
+        background: 'var(--glass-bg)',
         backdropFilter: 'blur(30px) saturate(35%) brightness(145%) contrast(85%)',
         WebkitBackdropFilter: 'blur(30px) saturate(35%) brightness(145%) contrast(85%)',
-        borderRight: `1px solid ${colors.purple200}`,
+        borderRight: '1px solid var(--glass-border)',
         transition: `all ${tokens.durationNormal} ${tokens.curveEasyEase}`,
         zIndex: zIndex.sticky,
         display: 'flex',
         flexDirection: 'column',
-        boxShadow: tokens.shadow16,
+        boxShadow: 'var(--glass-shadow)',
         overflow: 'hidden'
       }}
     >
       {/* Header */}
       <div style={{ 
         padding: `${tokens.xl} ${tokens.l}`,
-        borderBottom: `1px solid ${colors.purple100}`,
-        background: glassEffects.backgroundLight,
+        borderBottom: '1px solid var(--glass-border)',
+        background: 'var(--glass-bg)',
         backdropFilter: glassEffects.blurLight
       }}>
         <div style={{ 
@@ -225,9 +225,9 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
                 borderRadius: tokens.xxLarge,
                 border: 'none',
                 background: isItemActive(item.path) 
-                  ? gradients.buttonPrimary
+                  ? 'hsl(var(--primary))'
                   : 'transparent',
-                color: isItemActive(item.path) ? '#ffffff' : tokens.colorNeutralForeground1,
+                color: isItemActive(item.path) ? 'hsl(var(--primary-foreground))' : tokens.colorNeutralForeground1,
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
@@ -241,17 +241,17 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
                 transition: `all ${tokens.durationNormal} ${tokens.curveEasyEase}`,
                 backdropFilter: isItemActive(item.path) ? glassEffects.blurLight : 'none',
                 boxShadow: isItemActive(item.path) 
-                  ? `0 4px 16px ${colors.purple200}, inset 0 1px 0 ${colors.purple50}` 
+                  ? 'var(--glass-shadow)' 
                   : 'none',
                 textShadow: isItemActive(item.path) ? '0 1px 2px rgba(0, 0, 0, 0.1)' : 'none'
               }}
               onMouseEnter={(e) => {
                 const target = e.currentTarget as HTMLElement;
                 if (!isItemActive(item.path)) {
-                  target.style.background = glassEffects.purpleGlassLight;
+                  target.style.background = 'var(--glass-hover-bg)';
                   target.style.backdropFilter = glassEffects.blurMedium;
                   target.style.transform = 'translateY(-2px)';
-                  target.style.boxShadow = `0 6px 20px ${colors.purple100}`;
+                  target.style.boxShadow = 'var(--glass-shadow)';
                 }
               }}
               onMouseLeave={(e) => {

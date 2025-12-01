@@ -7,6 +7,9 @@
  * @module components/ui
  */
 
+// New Acrylic Components
+export { PrimaryButton } from './PrimaryButton';
+
 // Input Components
 export { PurpleGlassInput } from './PurpleGlassInput';
 export type { PurpleGlassInputProps, GlassVariant, ValidationState } from './PurpleGlassInput';

@@ -15,18 +15,20 @@ export interface BreadcrumbNavigationProps {
 const GLASS_STYLES = {
   none: {},
   light: {
-    background: 'rgba(255, 255, 255, 0.7)',
-    backdropFilter: 'blur(8px)',
-    borderRadius: '12px',
-    padding: '12px 16px',
-    border: '1px solid rgba(147, 51, 234, 0.1)'
-  },
-  medium: {
-    background: 'rgba(255, 255, 255, 0.8)',
+    background: 'var(--glass-bg)',
     backdropFilter: 'blur(12px)',
     borderRadius: '12px',
     padding: '12px 16px',
-    border: '1px solid rgba(147, 51, 234, 0.15)'
+    border: '1px solid var(--glass-border)',
+    boxShadow: 'var(--glass-shadow)'
+  },
+  medium: {
+    background: 'var(--glass-hover-bg)',
+    backdropFilter: 'blur(16px)',
+    borderRadius: '12px',
+    padding: '12px 16px',
+    border: '1px solid var(--glass-border)',
+    boxShadow: 'var(--glass-shadow)'
   }
 };
 
