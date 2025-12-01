@@ -580,18 +580,17 @@ const ProjectWorkspaceView: React.FC = () => {
       </div>
 
       {/* Main Unified Card - Same positioning as Projects view */}
-      <GlassmorphicLayout
-        role="main" 
-        aria-label={`Project Details: ${project?.name ?? ''}`}
-        style={{
-          ...DesignTokens.components.pageContainer,
-          overflow: 'visible',
-          background: 'transparent',
-          border: 'none',
-          boxShadow: 'none',
-          backdropFilter: 'none'
-        }}
-      >
+      <div role="main" aria-label={`Project Details: ${project?.name ?? ''}`}>
+        <GlassmorphicLayout
+          style={{
+            ...DesignTokens.components.pageContainer,
+            overflow: 'visible',
+            background: 'transparent',
+            border: 'none',
+            boxShadow: 'none',
+            backdropFilter: 'none'
+          }}
+        >
         {/* Breadcrumb Navigation */}
         <PurpleGlassBreadcrumb
           items={[
@@ -1381,6 +1380,7 @@ const ProjectWorkspaceView: React.FC = () => {
           )}
         </div>
       </GlassmorphicLayout>
+      </div>
 
       {/* Activity Wizard Modal */}
       <ActivityWizardModal
