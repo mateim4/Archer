@@ -26,6 +26,38 @@ import { getStepConfig, getTotalSteps } from '../config/WizardStepConfigs';
 const WizardContext = createContext<WizardContextValue | undefined>(undefined);
 
 // ============================================================================
+// Helper Functions
+// ============================================================================
+
+/**
+ * Deep equality comparison for objects.
+ * Returns true if objects are deeply equal, false otherwise.
+ */
+function deepEqual(a: any, b: any): boolean {
+  if (a === b) return true;
+  if (a == null || b == null) return a === b;
+  if (typeof a !== typeof b) return false;
+  
+  if (typeof a === 'object') {
+    if (Array.isArray(a) !== Array.isArray(b)) return false;
+    
+    const keysA = Object.keys(a);
+    const keysB = Object.keys(b);
+    
+    if (keysA.length !== keysB.length) return false;
+    
+    for (const key of keysA) {
+      if (!keysB.includes(key)) return false;
+      if (!deepEqual(a[key], b[key])) return false;
+    }
+    
+    return true;
+  }
+  
+  return false;
+}
+
+// ============================================================================
 // API Helper Functions
 // ============================================================================
 
@@ -269,7 +301,7 @@ export const WizardProvider: React.FC<WizardProviderProps> = ({
     // This prevents false positives when steps initialize with their current values
     if (isInitializedRef.current) {
       const baselineStepData = initialFormDataRef.current[stepKey as keyof WizardFormData];
-      const hasActualChanges = JSON.stringify(data) !== JSON.stringify(baselineStepData);
+      const hasActualChanges = !deepEqual(data, baselineStepData);
       
       if (hasActualChanges) {
         setHasUnsavedChanges(true);
@@ -591,19 +623,19 @@ export const WizardProvider: React.FC<WizardProviderProps> = ({
     initializeWizard();
   }, [initialActivityId, wizardMode, loadExistingActivity, resumeDraft]); // Run when initialActivityId or mode changes
 
-  // For new wizards (no initialActivityId), mark as initialized after first render
-  // and set baseline after the first step data update
+  // For new wizards (no initialActivityId), we need to set the baseline after step 1 initializes
+  // We use a ref to track if baseline has been set, and set it on the first formData change
   useEffect(() => {
     if (!initialActivityId && !isInitializedRef.current) {
-      // Use a small delay to allow the first step's useEffect to complete
-      // Then mark as initialized and set the baseline
-      const timer = setTimeout(() => {
-        initialFormDataRef.current = { ...formDataRef.current };
+      // Check if we have any step data - this indicates the first step has initialized
+      const hasStepData = Object.keys(formData).length > 0;
+      if (hasStepData) {
+        // Set baseline to current form data and mark as initialized
+        initialFormDataRef.current = { ...formData };
         isInitializedRef.current = true;
-      }, 100);
-      return () => clearTimeout(timer);
+      }
     }
-  }, [initialActivityId]);
+  }, [initialActivityId, formData]);
 
   // ============================================================================
   // Context Value
