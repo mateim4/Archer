@@ -123,6 +123,8 @@ export const WizardProvider: React.FC<WizardProviderProps> = ({
   
   const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
   const formDataRef = useRef(formData); // For auto-save debounce
+  const initialFormDataRef = useRef<WizardFormData>({}); // Baseline for change detection
+  const isInitializedRef = useRef(false); // Track if wizard has been initialized
 
   // Keep ref in sync with state
   useEffect(() => {
@@ -256,19 +258,28 @@ export const WizardProvider: React.FC<WizardProviderProps> = ({
   // ============================================================================
 
   const updateStepData = useCallback((step: number, data: any) => {
+    const stepKey = `step${step}`;
+    
     setFormData(prev => ({
       ...prev,
-      [`step${step}`]: data,
+      [stepKey]: data,
     }));
 
-    // Mark as having unsaved changes
-    setHasUnsavedChanges(true);
-    if (onUnsavedChanges) {
-      onUnsavedChanges(true);
+    // Only mark as having unsaved changes if data differs from baseline
+    // This prevents false positives when steps initialize with their current values
+    if (isInitializedRef.current) {
+      const baselineStepData = initialFormDataRef.current[stepKey as keyof WizardFormData];
+      const hasActualChanges = JSON.stringify(data) !== JSON.stringify(baselineStepData);
+      
+      if (hasActualChanges) {
+        setHasUnsavedChanges(true);
+        if (onUnsavedChanges) {
+          onUnsavedChanges(true);
+        }
+        // Trigger auto-save after update
+        triggerAutoSave();
+      }
     }
-
-    // Trigger auto-save after update
-    triggerAutoSave();
   }, [triggerAutoSave, onUnsavedChanges]);
 
   const saveProgress = useCallback(async () => {
@@ -290,6 +301,8 @@ export const WizardProvider: React.FC<WizardProviderProps> = ({
 
       setLastSavedAt(new Date());
       setHasUnsavedChanges(false);
+      // Update baseline to reflect saved state
+      initialFormDataRef.current = { ...formData };
       if (onUnsavedChanges) {
         onUnsavedChanges(false);
       }
@@ -367,6 +380,8 @@ export const WizardProvider: React.FC<WizardProviderProps> = ({
         const { current_step, ...stepData } = activity.wizard_state;
         setCurrentStep(current_step || 1);
         setFormData(stepData);
+        // Store as baseline for change detection
+        initialFormDataRef.current = { ...stepData };
       }
 
       setActivityId(draftActivityId);
@@ -374,6 +389,9 @@ export const WizardProvider: React.FC<WizardProviderProps> = ({
       if (activity.expires_at) {
         setExpiresAt(new Date(activity.expires_at));
       }
+      
+      // Mark wizard as initialized after loading
+      isInitializedRef.current = true;
     } catch (error: any) {
       if (error.message === 'DRAFT_EXPIRED') {
         throw new Error('This draft has expired. Please start a new activity.');
@@ -393,29 +411,39 @@ export const WizardProvider: React.FC<WizardProviderProps> = ({
       // Note: This assumes a GET endpoint exists for fetching activity details
       const activity = await apiGet<Activity>(`/activities/${existingActivityId}`);
 
+      let initialData: WizardFormData;
+      
       // Pre-fill wizard state from activity data
       if (activity.wizard_state) {
         const { current_step, ...stepData } = activity.wizard_state;
         // Start from step 1 in edit mode (user can navigate through all steps)
         setCurrentStep(1);
         setFormData(stepData);
+        initialData = { ...stepData };
       } else {
         // If no wizard_state, construct from activity properties
-        setFormData({
+        initialData = {
           step1: {
             activity_name: activity.name || '',
             activity_type: activity.activity_type || 'migration',
             description: activity.description || '',
           },
           // Additional steps can be pre-filled based on available data
-        });
+        };
+        setFormData(initialData);
         setCurrentStep(1);
       }
+
+      // Store as baseline for change detection
+      initialFormDataRef.current = initialData;
 
       setActivityId(existingActivityId);
       
       // No expiration for editing existing activities
       setExpiresAt(undefined);
+      
+      // Mark wizard as initialized after loading
+      isInitializedRef.current = true;
       
       console.log('Loaded existing activity for editing:', existingActivityId);
     } catch (error) {
@@ -562,6 +590,20 @@ export const WizardProvider: React.FC<WizardProviderProps> = ({
 
     initializeWizard();
   }, [initialActivityId, wizardMode, loadExistingActivity, resumeDraft]); // Run when initialActivityId or mode changes
+
+  // For new wizards (no initialActivityId), mark as initialized after first render
+  // and set baseline after the first step data update
+  useEffect(() => {
+    if (!initialActivityId && !isInitializedRef.current) {
+      // Use a small delay to allow the first step's useEffect to complete
+      // Then mark as initialized and set the baseline
+      const timer = setTimeout(() => {
+        initialFormDataRef.current = { ...formDataRef.current };
+        isInitializedRef.current = true;
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [initialActivityId]);
 
   // ============================================================================
   // Context Value
