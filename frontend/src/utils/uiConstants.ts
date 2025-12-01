@@ -1,4 +1,4 @@
-// UI Fix Implementation for LCM Designer
+// UI Fix Implementation for Archer
 
 // 1. Replace pink/magenta gradients with consistent brand colors
 // 2. Ensure all cards have consistent transparent backgrounds

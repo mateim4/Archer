@@ -54,24 +54,17 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
     },
     { 
       id: 'hardware-pool', 
-      title: 'Hardware Pool', 
+      title: 'Inventory', 
       icon: <ServerRegular />, 
       iconFilled: <ServerFilled />, 
-      path: '/app/hardware-pool' 
+      path: '/app/inventory' 
     },
     { 
-      id: 'hardware-basket', 
-      title: 'Hardware Basket', 
-      icon: <DatabaseRegular />, 
-      iconFilled: <DatabaseFilled />, 
-      path: '/app/hardware-basket' 
-    },
-    { 
-      id: 'enhanced-rvtools', 
-      title: 'RVTools', 
-      icon: <TableRegular />, 
-      iconFilled: <TableFilled />, 
-      path: '/app/enhanced-rvtools',
+      id: 'infra-visualizer', 
+      title: 'Infrastructure Visualizer', 
+      icon: <DiagramRegular />, 
+      iconFilled: <DiagramFilled />, 
+      path: '/app/tools/infra-visualizer',
       badge: 'New',
       badgeType: 'success'
     },
@@ -90,13 +83,11 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
       path: '/app/document-templates' 
     },
     { 
-      id: 'infra-visualizer', 
-      title: 'Infrastructure Visualizer', 
-      icon: <DiagramRegular />, 
-      iconFilled: <DiagramFilled />, 
-      path: '/app/tools/infra-visualizer',
-      badge: 'New',
-      badgeType: 'success'
+      id: 'hardware-basket', 
+      title: 'Hardware Basket', 
+      icon: <DatabaseRegular />, 
+      iconFilled: <DatabaseFilled />, 
+      path: '/app/hardware-basket' 
     },
     { 
       id: 'settings', 
@@ -192,7 +183,7 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
                 backgroundClip: 'text',
                 fontFamily: tokens.fontFamilyHeading
               }}>
-                LCM Designer
+                Archer
               </div>
               <p style={{ 
                 margin: 0,

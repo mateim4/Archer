@@ -1,7 +1,7 @@
 {
-  "name": "lcm-designer",
+  "name": "archer",
   "version": "1.0.0",
-  "description": "LCM Designer - Infrastructure Planning Tool",
+  "description": "Archer - Infrastructure Planning Tool",
   "main": "index.js",
   "scripts": {
     "dev": "npm --prefix frontend run dev",

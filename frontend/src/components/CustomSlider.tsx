@@ -4,7 +4,7 @@ import '../custom-slider.css';
 /**
  * CustomSlider - Enhanced slider component with rainbow track and frosted glass thumb
  * 
- * A specialized slider component that follows the LCM Designer design system with:
+ * A specialized slider component that follows the Archer design system with:
  * - Rainbow gradient track for visual appeal
  * - Frosted glass thumb with glassmorphic effects
  * - Smooth animations and interactive feedback

@@ -91,7 +91,7 @@ const LandingView: React.FC = () => {
       justifyContent: 'center',
       padding: '40px'
     }}>
-      <h1 style={{position:'absolute', width:0, height:0, overflow:'hidden', clip:'rect(0 0 0 0)'}}>LCM Designer</h1>
+      <h1 style={{position:'absolute', width:0, height:0, overflow:'hidden', clip:'rect(0 0 0 0)'}}>Archer</h1>
       <div style={{
         maxWidth: '1200px',
         width: '100%',

@@ -90,7 +90,7 @@ function App() {
                 <Route path="projects/:projectId" element={<ProjectWorkspaceView />} />
                 <Route path="projects/:projectId/activities/:activityId/cluster-strategies" element={<ClusterStrategyManagerView />} />
                 {/* Phase 7: Activity Wizard now modal-only - accessible via "Add Activity" buttons in project views */}
-                <Route path="hardware-pool" element={<HardwarePoolView />} />
+                <Route path="inventory" element={<HardwarePoolView />} />
                 <Route path="hardware-basket" element={<HardwareBasketView />} />
                 <Route path="guides" element={<GuidesView />} />
                 <Route path="document-templates" element={<DocumentTemplatesView />} />

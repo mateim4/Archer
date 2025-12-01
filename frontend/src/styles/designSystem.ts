@@ -1,4 +1,4 @@
-// LCM Designer - Fluent 2 Design System
+// Archer - Fluent 2 Design System
 // Consistent colors, spacing, and styling across all components
 
 export const DesignTokens = {

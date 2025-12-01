@@ -186,7 +186,7 @@ const HardwarePoolView: React.FC = () => {
             margin: '0',
             fontFamily: DesignTokens.typography.fontFamily
           }}>
-            Hardware Pool
+            Inventory
           </h1>
         </div>
         <p style={{
@@ -234,7 +234,7 @@ const HardwarePoolView: React.FC = () => {
           />
         </div>
         <div style={{ color: DesignTokens.colors.textSecondary, fontSize: '14px', fontFamily: DesignTokens.typography.fontFamily }}>
-          {rvToolsUploads.length > 0 ? `${rvToolsUploads.length} RVTools uploads processed` : 'Upload RVTools CSV or XLSX exports to populate the hardware pool.'}
+          {rvToolsUploads.length > 0 ? `${rvToolsUploads.length} RVTools uploads processed` : 'Upload RVTools CSV or XLSX exports to populate the inventory.'}
         </div>
       </div>
 
