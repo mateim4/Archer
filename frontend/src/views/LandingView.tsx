@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import GlassmorphicLayout from '../components/GlassmorphicLayout';
+import { PrimaryButton } from '../components/ui/PrimaryButton';
 import { DesignTokens } from '../styles/designSystem';
 import {
   DataBarHorizontal24Regular,
@@ -83,9 +84,7 @@ const LandingView: React.FC = () => {
   return (
     <div role="main" aria-label="Landing" style={{
       minHeight: '100vh',
-      background: 'linear-gradient(135deg, #e0e7ff 0%, #f1f5f9 25%, #f8fafc 50%, #f0f9ff 75%, #fafbff 100%)',
-      backgroundSize: '400% 400%',
-      animation: 'gradientShift 15s ease infinite',
+      // Background handled by App.tsx AnimatedBackground
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -193,32 +192,20 @@ const LandingView: React.FC = () => {
             justifyContent: 'center',
             flexWrap: 'wrap'
           }}>
-            <button
+            <PrimaryButton
               onClick={() => handleNavigate('/app/projects')}
               style={{
-                background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '12px',
                 padding: '16px 32px',
                 fontSize: '16px',
                 fontWeight: '600',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
+                borderRadius: '12px',
                 fontFamily: 'Oxanium, sans-serif',
-                boxShadow: '0 4px 16px rgba(99, 102, 241, 0.3)'
-              }}
-              onMouseOver={(e) => {
-                e.currentTarget.style.transform = 'translateY(-2px)';
-                e.currentTarget.style.boxShadow = '0 8px 25px rgba(99, 102, 241, 0.4)';
-              }}
-              onMouseOut={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 4px 16px rgba(99, 102, 241, 0.3)';
+                height: 'auto',
+                minWidth: '160px'
               }}
             >
               Start Planning
-            </button>
+            </PrimaryButton>
             
             <button
               onClick={() => handleNavigate('/app/guides')}

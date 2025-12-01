@@ -2,7 +2,10 @@ import React, { useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 // Import ONLY Fluent UI 2 Design System
 import './styles/fluent2-design-system.css';
-import { FluentProvider, webLightTheme } from '@fluentui/react-components';
+import { FluentProvider } from '@fluentui/react-components';
+import { archerLightTheme } from './styles/themes';
+import { AnimatedBackground } from './components/background/AnimatedBackground';
+import { useStyles } from './styles/useStyles';
 import NavigationSidebar from './components/NavigationSidebar';
 import { BreadcrumbNavigation } from './components/ui';
 import { lazyWithRetry } from './utils/lazyLoad';
@@ -31,6 +34,7 @@ const SettingsView = lazyWithRetry(() => import('./views/SettingsView'));
 const DataCollectionView = lazyWithRetry(() => import('./views/DataCollectionView'));
 
 function App() {
+  const styles = useStyles();
   const [isSidebarOpen, setSidebarOpen] = useState(true);
   const [isProjectOpen, setProjectOpen] = useState(false); // TODO: connect to project store
 
@@ -39,8 +43,11 @@ function App() {
   };
 
   return (
-    <FluentProvider theme={webLightTheme}>
-      <Routes>
+    <FluentProvider theme={archerLightTheme}>
+      <div className={styles.rootLight}>
+        <AnimatedBackground isDarkTheme={false} />
+        <div className={styles.mainUI}>
+          <Routes>
         {/* Landing page - full screen without sidebar */}
         <Route path="/" element={<LandingView />} />
         
@@ -113,6 +120,8 @@ function App() {
           </div>
         } />
       </Routes>
+        </div>
+      </div>
     </FluentProvider>
   );
 }

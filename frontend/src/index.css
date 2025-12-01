@@ -1,195 +1,104 @@
-/* Import Fluent Enhancements - IMPORTANT: This contains the glassmorphic search bar styles */
-@import './fluent-enhancements.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-/* Modern CSS Reset and Fluent UI 2 Integration */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: var(--font-family-body) !important;
-}
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
 
-html, body {
-  height: 100%;
-  font-family: var(--font-family-body) !important;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden; /* Prevent horizontal scrolling */
-  overflow-y: auto; /* Allow vertical scrolling */
-  background: url('/images/rianne-zuur-aeGLb-6DPp8-unsplash.jpg?v=14') center center / cover no-repeat fixed !important;
-  background-attachment: fixed !important;
-}
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
 
-html::before, body::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.1);
-  pointer-events: none;
-  z-index: -1;
-}
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
 
-/* Force design system font on ALL Fluent UI components and elements */
-*,
-*::before,
-*::after,
-[class*="fui-"], 
-[class*="ms-"],
-.fui-FluentProvider,
-.ms-Button,
-.ms-Text,
-.ms-Label,
-.ms-Dropdown,
-.ms-TextField,
-.ms-ComboBox,
-.ms-Pivot,
-.ms-Nav,
-.ms-CommandBar,
-.ms-DetailsList,
-.ms-MessageBar,
-.ms-Dialog,
-.ms-Panel,
-.ms-Callout,
-div, span, p, h1, h2, h3, h4, h5, h6,
-button, input, textarea, select, label,
-[data-fluent-react*=""],
-[role="button"],
-[role="tab"],
-[role="tabpanel"],
-[role="dialog"],
-[role="listbox"],
-[role="option"],
-[role="menuitem"],
-[aria-label],
-.fluent2-text,
-.fluent2-button,
-.fluent2-input,
-.fluent2-nav,
-.fluent2-badge,
-.fluent2-toast {
-  font-family: var(--font-family-body) !important;
-}
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
 
-/* Override any inherited font families */
-.fui-FluentProvider * {
-  font-family: var(--font-family-body) !important;
-}
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
 
-#root {
-  min-height: 100vh; /* Allow content to expand beyond viewport */
-  width: 100vw;
-  background: url('/images/rianne-zuur-aeGLb-6DPp8-unsplash.jpg?v=14') center center / cover no-repeat fixed !important;
-  background-attachment: fixed !important;
-  position: relative;
-}
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
 
-#root::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.1);
-  pointer-events: none;
-  z-index: 1;
-}
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
 
-/* Apply wallpaper to FluentProvider */
-.fui-FluentProvider > div {
-  background: url('/images/rianne-zuur-aeGLb-6DPp8-unsplash.jpg?v=14') center center / cover no-repeat fixed !important;
-  background-attachment: fixed !important;
-  min-height: 100vh;
-}
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
 
-/* Ensure FluentProvider itself has transparent background */
-.fui-FluentProvider {
-  background: transparent !important;
-  min-height: 100vh;
-}
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
 
-/* Glassmorphic Background Animation */
-@keyframes gradientShift {
-  0% {
-    background-position: 0% 50%;
+    --radius: 0.5rem;
+
+    /* Glassmorphism tokens */
+    --glass-bg: hsl(var(--background) / 0.24);
+    --glass-hover-bg: hsl(var(--background) / 0.30);
+    --glass-press-bg: hsl(var(--background) / 0.20);
+    --glass-border: hsl(var(--border) / 0.6);
+    --glass-shadow: 0 8px 24px 0 hsl(var(--foreground) / 0.08);
+    --glass-tint: hsl(var(--accent) / 0.06);
+
+    /* Confirm button gradient (RGB channel values) */
+    --confirm-grad-1: 207 186 240; /* #cfbaf0 */
+    --confirm-grad-2: 163 196 243; /* #a3c4f3 */
+    --confirm-grad-3: 144 219 244; /* #90dbf4 */
+    --confirm-grad-opacity: 0.30;
   }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+
+    /* Glassmorphism tokens (dark) */
+    --glass-bg: hsl(var(--background) / 0.18);
+    --glass-hover-bg: hsl(var(--background) / 0.24);
+    --glass-press-bg: hsl(var(--background) / 0.16);
+    --glass-border: hsl(var(--border) / 0.45);
+    --glass-shadow: 0 8px 28px 0 hsl(var(--foreground) / 0.20);
+    --glass-tint: hsl(var(--accent) / 0.05);
+
+    /* Confirm button gradient uses same colors in dark */
+    --confirm-grad-1: 207 186 240;
+    --confirm-grad-2: 163 196 243;
+    --confirm-grad-3: 144 219 244;
+    --confirm-grad-opacity: 0.30;
   }
 }
 
-/* Button Spinner Animation */
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
+@layer base {
+  * {
+    box-sizing: border-box;
   }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes slideInRight {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
+  body {
+    @apply bg-background text-foreground;
   }
 }
-
-@keyframes shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
-}
-
-/* Utility CSS Classes (replacing Tailwind) */
-.flex { display: flex; }
-.flex-col { flex-direction: column; }
-.items-center { align-items: center; }
-.justify-center { justify-content: center; }
-.text-center { text-align: center; }
-.fixed { position: fixed; }
-.inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
-.z-50 { z-index: 50; }
-.p-8 { padding: 2rem; }
-.p-6 { padding: 1.5rem; }
-.p-4 { padding: 1rem; }
-.p-2 { padding: 0.5rem; }
-.rounded-xl { border-radius: 0.75rem; }
-.rounded-lg { border-radius: 0.5rem; }
-.rounded { border-radius: 0.25rem; }
-.border { border: 1px solid #e5e7eb; }
-.shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
-.shadow-sm { box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
-.mt-4 { margin-top: 1rem; }
-.mb-4 { margin-bottom: 1rem; }
-.mb-2 { margin-bottom: 0.5rem; }
-.font-semibold { font-weight: 600; }
-.font-medium { font-weight: 500; }
-.font-bold { font-weight: 700; }
-.text-lg { font-size: 1.125rem; }
-.text-xl { font-size: 1.25rem; }
-.text-3xl { font-size: 1.875rem; }
-.grid { display: grid; }
-.grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-.gap-4 { gap: 1rem; }
-.text-gray-600 { color: #6b7280; }
-.bg-gray-100 { background-color: #f3f4f6; }
-.bg-gray-50 { background-color: #f9fafb; }
-.bg-gray-200 { background-color: #e5e7eb; }
-.bg-white { background-color: white; }
-.min-h-100 { min-height: 100px; }
-.space-x-4 > * + * { margin-left: 1rem; }
-.w-4 { width: 1rem; }
-.h-4 { height: 1rem; }
-.w-full { width: 100%; }
-.h-2 { height: 0.5rem; }
-.rounded-full { border-radius: 9999px; }
