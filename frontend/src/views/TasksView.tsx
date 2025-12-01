@@ -3,23 +3,17 @@ import {
   AddRegular,
   SearchRegular,
   TaskListSquareLtrRegular,
-  TaskListSquareLtrFilled,
   CalendarRegular,
   PersonRegular,
-  FilterRegular,
   MoreVerticalRegular,
-  EditRegular,
   DeleteRegular,
   CheckmarkCircleRegular,
-  ClockRegular,
   WarningRegular,
   ArrowSyncRegular,
   RocketRegular,
   WrenchRegular,
   ArrowRightRegular,
-  ErrorCircleRegular,
-  ChevronDownRegular,
-  ChevronUpRegular
+  ErrorCircleRegular
 } from '@fluentui/react-icons';
 import { DesignTokens } from '../styles/designSystem';
 import GlassmorphicSearchBar from '../components/GlassmorphicSearchBar';
@@ -40,7 +34,6 @@ import {
   TaskStatus,
   TaskPriority,
   TaskCategory,
-  CreateTaskRequest,
   TASK_STATUS_LABELS,
   TASK_STATUS_COLORS,
   TASK_PRIORITY_LABELS,
@@ -384,7 +377,7 @@ export default function TasksView() {
   return (
     <div role="region" aria-label="Tasks" data-testid="tasks-view" style={{...DesignTokens.components.pageContainer, overflow: 'visible'}}>
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
-      <h1 style={{position:'absolute',width:0,height:0,overflow:'hidden',clip:'rect(0 0 0 0)'}}>Tasks</h1>
+      <h1 style={{position:'absolute',width:'1px',height:'1px',overflow:'hidden',clipPath:'inset(50%)',whiteSpace:'nowrap'}}>Tasks</h1>
       
       {/* Header */}
       <div style={{ 
