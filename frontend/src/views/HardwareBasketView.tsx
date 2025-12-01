@@ -3,7 +3,8 @@ import { apiClient } from '../utils/apiClient';
 import GlassmorphicSearchBar from '../components/GlassmorphicSearchBar';
 import { DESIGN_TOKENS } from '../components/DesignSystem';
 import { DesignTokens } from '../styles/designSystem';
-import { PurpleGlassButton } from '@/components/ui';
+import { PurpleGlassButton, PrimaryButton } from '@/components/ui';
+import GlassmorphicLayout from '../components/GlassmorphicLayout';
 import {
   ErrorCircleRegular,
   SearchRegular,
@@ -292,7 +293,13 @@ const HardwareBasketView: React.FC = () => {
   }
 
   return (
-    <div style={DesignTokens.components.pageContainer}>
+    <GlassmorphicLayout style={{
+      ...DesignTokens.components.pageContainer,
+      background: 'transparent',
+      border: 'none',
+      boxShadow: 'none',
+      backdropFilter: 'none'
+    }}>
       {/* Header */}
       <div style={{ 
         display: 'flex',
@@ -316,14 +323,11 @@ const HardwareBasketView: React.FC = () => {
           Hardware Basket Management
         </h1>
         
-        <PurpleGlassButton
-          variant="primary"
-          size="medium"
+        <PrimaryButton
           onClick={() => setShowCreateDialog(true)}
-          glass
         >
           <span style={{ color: 'white' }}>+</span> Create Hardware Basket
-        </PurpleGlassButton>
+        </PrimaryButton>
       </div>
 
       {/* Search and Filter Controls */}
@@ -1089,7 +1093,7 @@ const HardwareBasketView: React.FC = () => {
           </div>
         </div>
       </div>
-    </div>
+    </GlassmorphicLayout>
   );
 };
 

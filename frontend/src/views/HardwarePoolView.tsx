@@ -18,7 +18,8 @@ import {
   ArrowUploadRegular,
   DiagramRegular
 } from '@fluentui/react-icons';
-import { PurpleGlassButton, PurpleGlassCard } from '../components/ui';
+import { PurpleGlassButton, PurpleGlassCard, PrimaryButton } from '../components/ui';
+import GlassmorphicLayout from '../components/GlassmorphicLayout';
 import { useNavigate } from 'react-router-dom';
 
 const HardwarePoolView: React.FC = () => {
@@ -165,7 +166,13 @@ const HardwarePoolView: React.FC = () => {
   }
 
   return (
-    <div style={DesignTokens.components.pageContainer}>
+    <GlassmorphicLayout style={{
+      ...DesignTokens.components.pageContainer,
+      background: 'transparent',
+      border: 'none',
+      boxShadow: 'none',
+      backdropFilter: 'none'
+    }}>
       {/* Header */}
       <div style={{ 
         marginBottom: '24px',
@@ -647,7 +654,7 @@ const HardwarePoolView: React.FC = () => {
           }
         }}
       />
-    </div>
+    </GlassmorphicLayout>
   );
 };
 
