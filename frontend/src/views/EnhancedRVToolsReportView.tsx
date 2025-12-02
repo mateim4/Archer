@@ -322,7 +322,7 @@ export const EnhancedRVToolsReportView: React.FC = () => {
                 border: '2px solid rgba(99, 102, 241, 0.2)',
                 borderRadius: '8px',
                 fontSize: '14px',
-                fontFamily: 'Oxanium, sans-serif',
+                fontFamily: DesignTokens.typography.fontFamily,
                 cursor: 'pointer',
                 marginBottom: '12px'
               }}
@@ -359,7 +359,7 @@ export const EnhancedRVToolsReportView: React.FC = () => {
                   fontSize: '13px',
                   fontWeight: '500',
                   cursor: isUploading ? 'not-allowed' : 'pointer',
-                  fontFamily: 'Oxanium, sans-serif',
+                  fontFamily: DesignTokens.typography.fontFamily,
                   transition: 'all 0.2s ease',
                   userSelect: 'none'
                 }}
@@ -387,7 +387,7 @@ export const EnhancedRVToolsReportView: React.FC = () => {
                     fontSize: '12px',
                     color: '#6366f1',
                     marginTop: '4px',
-                    fontFamily: 'Oxanium, sans-serif'
+                    fontFamily: DesignTokens.typography.fontFamily
                   }}>
                     {uploadProgress}% uploaded
                   </div>
@@ -402,7 +402,7 @@ export const EnhancedRVToolsReportView: React.FC = () => {
                   borderRadius: '6px',
                   fontSize: '12px',
                   color: '#dc2626',
-                  fontFamily: 'Oxanium, sans-serif'
+                  fontFamily: DesignTokens.typography.fontFamily
                 }}>
                   <ErrorCircleRegular style={{ marginRight: '8px' }} />{error}
                 </div>
@@ -415,7 +415,7 @@ export const EnhancedRVToolsReportView: React.FC = () => {
                 borderRadius: '6px',
                 fontSize: '12px',
                 color: '#4f46e5',
-                fontFamily: 'Oxanium, sans-serif'
+                fontFamily: DesignTokens.typography.fontFamily
               }}>
                 <DataBarHorizontalRegular style={{ marginRight: '4px' }} />{selectedUploadData.total_vms} VMs • 
                 <DesktopRegular style={{ marginRight: '4px' }} />{selectedUploadData.total_hosts} Hosts • 
@@ -432,7 +432,7 @@ export const EnhancedRVToolsReportView: React.FC = () => {
             fontWeight: '600',
             color: '#1f2937',
             margin: '0 0 16px 0',
-            fontFamily: 'Oxanium, sans-serif'
+            fontFamily: DesignTokens.typography.fontFamily
           }}>
             <DocumentRegular style={{ marginRight: '8px' }} />Report Template
           </h3>
@@ -444,7 +444,7 @@ export const EnhancedRVToolsReportView: React.FC = () => {
               color: '#374151',
               marginBottom: '8px',
               display: 'block',
-              fontFamily: 'Oxanium, sans-serif'
+              fontFamily: DesignTokens.typography.fontFamily
             }}>
               Template Type
             </label>
@@ -458,7 +458,7 @@ export const EnhancedRVToolsReportView: React.FC = () => {
                 border: '2px solid rgba(99, 102, 241, 0.2)',
                 borderRadius: '8px',
                 fontSize: '14px',
-                fontFamily: 'Oxanium, sans-serif',
+                fontFamily: DesignTokens.typography.fontFamily,
                 cursor: 'pointer',
                 marginBottom: '12px'
               }}
@@ -476,7 +476,7 @@ export const EnhancedRVToolsReportView: React.FC = () => {
               borderRadius: '6px',
               fontSize: '12px',
               color: '#4f46e5',
-              fontFamily: 'Oxanium, sans-serif'
+              fontFamily: DesignTokens.typography.fontFamily
             }}>
               <DocumentRegular style={{ marginRight: '8px' }} />Comprehensive analysis with migration recommendations
             </div>
@@ -503,7 +503,7 @@ export const EnhancedRVToolsReportView: React.FC = () => {
             borderRadius: '8px',
             fontSize: '14px',
             fontWeight: '600',
-            fontFamily: 'Oxanium, sans-serif',
+            fontFamily: DesignTokens.typography.fontFamily,
             cursor: isGeneratingReport ? 'not-allowed' : 'pointer',
             display: 'flex',
             alignItems: 'center',
@@ -547,7 +547,7 @@ export const EnhancedRVToolsReportView: React.FC = () => {
             borderRadius: '8px',
             fontSize: '14px',
             fontWeight: '600',
-            fontFamily: 'Oxanium, sans-serif',
+            fontFamily: DesignTokens.typography.fontFamily,
             cursor: 'pointer',
             transition: 'all 0.2s ease'
           }}
@@ -575,7 +575,7 @@ export const EnhancedRVToolsReportView: React.FC = () => {
             fontWeight: '600',
             color: '#1f2937',
             margin: '0 0 24px 0',
-            fontFamily: 'Oxanium, sans-serif'
+            fontFamily: DesignTokens.typography.fontFamily
           }}>
             <TimelineRegular style={{ marginRight: '8px' }} />Migration Analysis Results
           </h2>
@@ -617,14 +617,14 @@ export const EnhancedRVToolsReportView: React.FC = () => {
                   fontWeight: '600',
                   color: '#1f2937',
                   marginBottom: '4px',
-                  fontFamily: 'Oxanium, sans-serif'
+                  fontFamily: DesignTokens.typography.fontFamily
                 }}>
                   {stat.value}
                 </div>
                 <div style={{
                   fontSize: '12px',
                   color: '#6b7280',
-                  fontFamily: 'Oxanium, sans-serif'
+                  fontFamily: DesignTokens.typography.fontFamily
                 }}>
                   {stat.label}
                 </div>
@@ -650,7 +650,7 @@ export const EnhancedRVToolsReportView: React.FC = () => {
                 fontSize: '13px',
                 fontWeight: '500',
                 cursor: 'pointer',
-                fontFamily: 'Oxanium, sans-serif'
+                fontFamily: DesignTokens.typography.fontFamily
               }}
             >
               <DocumentTextRegular style={{ marginRight: '8px' }} />Export HTML
@@ -666,7 +666,7 @@ export const EnhancedRVToolsReportView: React.FC = () => {
                 fontSize: '13px',
                 fontWeight: '500',
                 cursor: 'pointer',
-                fontFamily: 'Oxanium, sans-serif'
+                fontFamily: DesignTokens.typography.fontFamily
               }}
             >
               <DocumentPdfRegular style={{ marginRight: '8px' }} />Export PDF

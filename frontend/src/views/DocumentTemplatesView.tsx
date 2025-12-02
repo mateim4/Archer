@@ -475,7 +475,7 @@ const DocumentTemplatesView: React.FC = () => {
                 borderRadius: '8px',
                 fontSize: '14px',
                 fontWeight: '600',
-                fontFamily: 'Oxanium, sans-serif',
+                fontFamily: DesignTokens.typography.fontFamily,
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
@@ -527,7 +527,7 @@ const DocumentTemplatesView: React.FC = () => {
                     fontWeight: '600',
                     color: '#1f2937',
                     margin: 0,
-                    fontFamily: 'Oxanium, sans-serif'
+                    fontFamily: DesignTokens.typography.fontFamily
                   }}>
                     {template.name}
                   </h3>
@@ -538,7 +538,7 @@ const DocumentTemplatesView: React.FC = () => {
                       borderRadius: '8px',
                       background: 'rgba(99, 102, 241, 0.1)',
                       color: '#4f46e5',
-                      fontFamily: 'Oxanium, sans-serif',
+                      fontFamily: DesignTokens.typography.fontFamily,
                       fontWeight: '500'
                     }}>
                       OFFICIAL
@@ -552,7 +552,7 @@ const DocumentTemplatesView: React.FC = () => {
                     borderRadius: '12px',
                     background: 'rgba(99, 102, 241, 0.1)',
                     color: '#4f46e5',
-                    fontFamily: 'Oxanium, sans-serif'
+                    fontFamily: DesignTokens.typography.fontFamily
                   }}>
                     {template.category.toUpperCase()}
                   </span>
@@ -562,7 +562,7 @@ const DocumentTemplatesView: React.FC = () => {
                     borderRadius: '12px',
                     background: 'rgba(16, 185, 129, 0.1)',
                     color: '#047857',
-                    fontFamily: 'Oxanium, sans-serif'
+                    fontFamily: DesignTokens.typography.fontFamily
                   }}>
                     {template.format.toUpperCase()}
                   </span>
@@ -572,7 +572,7 @@ const DocumentTemplatesView: React.FC = () => {
                     borderRadius: '12px',
                     background: 'rgba(107, 114, 128, 0.1)',
                     color: '#374151',
-                    fontFamily: 'Oxanium, sans-serif'
+                    fontFamily: DesignTokens.typography.fontFamily
                   }}>
                     {template.size}
                   </span>
@@ -582,7 +582,7 @@ const DocumentTemplatesView: React.FC = () => {
                   color: '#64748b',
                   margin: '0 0 12px 0',
                   lineHeight: '1.5',
-                  fontFamily: 'Oxanium, sans-serif'
+                  fontFamily: DesignTokens.typography.fontFamily
                 }}>
                   {template.description}
                 </p>
@@ -604,7 +604,7 @@ const DocumentTemplatesView: React.FC = () => {
                   borderRadius: '6px',
                   fontSize: '12px',
                   cursor: 'pointer',
-                  fontFamily: 'Oxanium, sans-serif'
+                  fontFamily: DesignTokens.typography.fontFamily
                 }}
                 title="Preview Template"
               >
@@ -620,7 +620,7 @@ const DocumentTemplatesView: React.FC = () => {
                   borderRadius: '6px',
                   fontSize: '12px',
                   cursor: 'pointer',
-                  fontFamily: 'Oxanium, sans-serif'
+                  fontFamily: DesignTokens.typography.fontFamily
                 }}
                 title="Edit Template"
               >
@@ -635,7 +635,7 @@ const DocumentTemplatesView: React.FC = () => {
                   borderRadius: '6px',
                   fontSize: '12px',
                   cursor: 'pointer',
-                  fontFamily: 'Oxanium, sans-serif'
+                  fontFamily: DesignTokens.typography.fontFamily
                 }}
                 title="Download"
               >
@@ -659,13 +659,13 @@ const DocumentTemplatesView: React.FC = () => {
             fontWeight: '600',
             color: '#1f2937',
             margin: '0 0 8px 0',
-            fontFamily: 'Oxanium, sans-serif'
+            fontFamily: DesignTokens.typography.fontFamily
           }}>No templates found</h2>
           <p style={{
             fontSize: '16px',
             color: '#64748b',
             margin: 0,
-            fontFamily: 'Oxanium, sans-serif'
+            fontFamily: DesignTokens.typography.fontFamily
           }}>
             Try adjusting your search or filter criteria. Loading from: /api/enhanced-rvtools/reports/templates
           </p>
