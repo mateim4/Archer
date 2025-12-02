@@ -460,13 +460,13 @@ const DashboardView: React.FC = () => {
                     border: '1px solid rgba(139, 92, 246, 0.2)'
                   }}
                 >
-                  <item.icon size={20} style={{ color: '#8b5cf6' }} />
+                  <item.icon size={20} style={{ color: 'var(--color-brand-primary)' }} />
                 </div>
               </div>
               <div 
                 className="text-2xl font-bold mb-1 whitespace-nowrap"
                 style={{ 
-                  color: '#8b5cf6',
+                  color: 'var(--color-brand-primary)',
                   fontWeight: 'bold'
                 }}
               >

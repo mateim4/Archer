@@ -78,19 +78,28 @@
 
 /* ===================
    PAGE LAYOUT SYSTEM
+   Unified with DesignTokens.components.pageContainer and CSS variables from index.css
    =================== */
 
 .lcm-page-container,
 .fluent-page-container {
-  width: 100%;
-  height: 100vh;
-  padding: var(--lcm-spacing-xxl);
+  /* Use CSS variables from index.css for theme-aware consistency */
+  background: var(--page-container-bg);
+  backdrop-filter: var(--page-container-backdrop);
+  -webkit-backdrop-filter: var(--page-container-backdrop);
+  border: var(--page-container-border);
+  border-radius: var(--page-container-border-radius);
+  padding: var(--page-container-padding);
+  margin: var(--page-container-margin);
+  min-height: var(--page-container-min-height);
+  box-shadow: var(--page-container-shadow);
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   font-family: var(--fluent-font-family-base);
   gap: var(--lcm-spacing-xxl);
   overflow: auto;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .lcm-page-header,
