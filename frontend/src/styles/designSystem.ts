@@ -105,67 +105,67 @@ export const DesignTokens = {
   components: {
     // Card Component - Fluent UI 2 Acrylic with Gradient Tint
     card: {
-      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(139, 92, 246, 0.1) 100%)',
-      backdropFilter: 'blur(30px) saturate(150%)',
-      border: '1px solid rgba(255, 255, 255, 0.3)',
+      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.82) 0%, rgba(139, 92, 246, 0.08) 100%)',
+      backdropFilter: 'blur(20px) saturate(150%)',
+      border: '1px solid rgba(139, 92, 246, 0.18)',
       borderRadius: '12px',
       padding: '24px',
-      boxShadow: '0 8px 32px rgba(139, 92, 246, 0.15)',
+      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(139, 92, 246, 0.06)',
     },
     
     // Border-Only Card (for card-in-card layouts) - Acrylic Glass
     borderCard: {
-      background: 'rgba(255, 255, 255, 0.6)',
-      backdropFilter: 'blur(20px) saturate(120%)',
-      border: '1px solid rgba(255, 255, 255, 0.3)',
+      background: 'rgba(255, 255, 255, 0.78)',
+      backdropFilter: 'blur(20px) saturate(150%)',
+      border: '1px solid rgba(139, 92, 246, 0.18)',
       borderRadius: '12px',
       padding: '24px',
       transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-      boxShadow: '0 4px 16px rgba(0, 0, 0, 0.05)',
+      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
     },
     
     // Border-Only Card with Hover - Enhanced Acrylic
     borderCardHover: {
-      background: 'rgba(255, 255, 255, 0.6)',
-      backdropFilter: 'blur(20px) saturate(120%)',
-      border: '1px solid rgba(255, 255, 255, 0.3)',
+      background: 'rgba(255, 255, 255, 0.85)',
+      backdropFilter: 'blur(20px) saturate(150%)',
+      border: '1px solid rgba(139, 92, 246, 0.25)',
       borderRadius: '12px',
       padding: '24px',
       transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-      boxShadow: '0 4px 16px rgba(0, 0, 0, 0.05)',
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.06), 0 8px 24px rgba(139, 92, 246, 0.10)',
     },
 
-    // Standard Project Card - Glassmorphic Design System Default
+    // Standard Project Card - Fluent UI 2 Acrylic
     standardCard: {
-      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.65))',
-      backdropFilter: 'blur(60px) saturate(220%) brightness(145%) contrast(105%)',
-      WebkitBackdropFilter: 'blur(60px) saturate(220%) brightness(145%) contrast(105%)',
-      border: '1px solid rgba(255, 255, 255, 0.4)',
-      borderRadius: '20px',
+      background: 'rgba(255, 255, 255, 0.82)',
+      backdropFilter: 'blur(20px) saturate(150%)',
+      WebkitBackdropFilter: 'blur(20px) saturate(150%)',
+      border: '1px solid rgba(139, 92, 246, 0.18)',
+      borderRadius: '16px',
       padding: '16px',
-      transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
       overflow: 'visible',
       cursor: 'pointer',
-      boxShadow: 'inset 0 0 15px rgba(255, 255, 255, 0.15), 0 0 30px rgba(255, 255, 255, 0.08)',
+      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(139, 92, 246, 0.06)',
     },
 
     // Standard Card Hover State
     standardCardHover: {
-      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.76))',
-      backdropFilter: 'blur(70px) saturate(240%) brightness(140%) contrast(110%)',
-      WebkitBackdropFilter: 'blur(70px) saturate(240%) brightness(140%) contrast(110%)',
-      border: '1px solid rgba(255, 255, 255, 0.6)',
-      transform: 'translateY(-8px) scale(1.02)',
-      boxShadow: 'inset 0 0 25px rgba(255, 255, 255, 0.2), 0 0 50px rgba(255, 255, 255, 0.12), 0 20px 40px rgba(0, 0, 0, 0.1)',
+      background: 'rgba(255, 255, 255, 0.90)',
+      backdropFilter: 'blur(20px) saturate(150%)',
+      WebkitBackdropFilter: 'blur(20px) saturate(150%)',
+      border: '1px solid rgba(139, 92, 246, 0.25)',
+      transform: 'translateY(-4px)',
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.06), 0 8px 24px rgba(139, 92, 246, 0.12)',
     },
 
     // Standard Content Card (non-interactive)
     standardContentCard: {
-      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.40), rgba(255, 255, 255, 0.40))',
-      backdropFilter: 'blur(30px) saturate(35%) brightness(145%) contrast(85%)',
-      WebkitBackdropFilter: 'blur(30px) saturate(35%) brightness(145%) contrast(85%)',
-      border: '1px solid rgba(255, 255, 255, 0.3)',
-      borderRadius: '20px',
+      background: 'rgba(255, 255, 255, 0.78)',
+      backdropFilter: 'blur(20px) saturate(150%)',
+      WebkitBackdropFilter: 'blur(20px) saturate(150%)',
+      border: '1px solid rgba(139, 92, 246, 0.18)',
+      borderRadius: '16px',
       padding: '32px',
       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
       overflow: 'hidden',
@@ -333,46 +333,46 @@ export const DesignTokens = {
     
     // Input Fields
     input: {
-      background: 'rgba(255, 255, 255, 0.9)',
-      border: '1px solid rgba(99, 102, 241, 0.2)',
+      background: 'rgba(255, 255, 255, 0.78)',
+      border: '1px solid rgba(139, 92, 246, 0.18)',
       borderRadius: '8px',
       padding: '12px 16px',
       fontSize: '16px',
       fontFamily: "'Oxanium', system-ui, sans-serif",
-      backdropFilter: 'blur(10px)',
+      backdropFilter: 'blur(20px) saturate(150%)',
       transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
     },
 
     // Glassmorphic Search Bar (based on Guides & Documentation section)
     searchBar: {
-      background: 'transparent',
-      backdropFilter: 'blur(60px) saturate(220%) brightness(115%) contrast(105%)',
-      WebkitBackdropFilter: 'blur(60px) saturate(220%) brightness(115%) contrast(105%)',
-      border: '1px solid rgba(255, 255, 255, 0.3)',
+      background: 'rgba(255, 255, 255, 0.78)',
+      backdropFilter: 'blur(20px) saturate(150%)',
+      WebkitBackdropFilter: 'blur(20px) saturate(150%)',
+      border: '1px solid rgba(139, 92, 246, 0.18)',
       borderRadius: '30px',
       padding: '14px 20px 14px 68px', // Left padding for icon
       fontSize: '16px',
       fontFamily: "'Oxanium', system-ui, sans-serif",
-      transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
       width: '440px',
       maxWidth: '100%',
       outline: 'none',
-      color: '#1a202c',
+      color: '#1a1a2e',
       position: 'relative',
     },
 
-    // Main Page Container (based on landing page large cards)
+    // Main Page Container - Fluent UI 2 Acrylic
     pageContainer: {
-      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.40), rgba(255, 255, 255, 0.40))',
-      backdropFilter: 'blur(30px) saturate(35%) brightness(145%) contrast(85%)',
-      WebkitBackdropFilter: 'blur(30px) saturate(35%) brightness(145%) contrast(85%)',
-      border: '1px solid rgba(255, 255, 255, 0.3)',
-      borderRadius: '20px',
+      background: 'rgba(255, 255, 255, 0.78)',
+      backdropFilter: 'blur(20px) saturate(150%)',
+      WebkitBackdropFilter: 'blur(20px) saturate(150%)',
+      border: '1px solid rgba(139, 92, 246, 0.18)',
+      borderRadius: '16px',
       padding: '40px',
       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
       overflow: 'hidden',
       cursor: 'default',
-      boxShadow: 'inset 0 0 20px rgba(255, 255, 255, 0.1), 0 0 40px rgba(255, 255, 255, 0.05)',
+      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(139, 92, 246, 0.06)',
       minHeight: 'calc(100vh - 120px)',
       margin: '20px',
     },
