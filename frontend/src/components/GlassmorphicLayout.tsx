@@ -9,6 +9,8 @@ interface GlassmorphicLayoutProps {
   blur?: string;
   opacity?: string;
   borderRadius?: string;
+  role?: string;
+  'aria-label'?: string;
 }
 
 const GlassmorphicLayout: React.FC<GlassmorphicLayoutProps> = ({
