@@ -581,8 +581,6 @@ const ProjectWorkspaceView: React.FC = () => {
 
       {/* Main Unified Card - Same positioning as Projects view */}
       <GlassmorphicLayout
-        role="main" 
-        aria-label={`Project Details: ${project?.name ?? ''}`}
         style={{
           ...DesignTokens.components.pageContainer,
           overflow: 'visible',

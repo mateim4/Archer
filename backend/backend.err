@@ -1,0 +1,2705 @@
+warning: unused import: `ProcessingResult`
+ --> core-engine\src\hardware_parser\basket_parser.rs:4:69
+  |
+4 | ...e, ProcessingResult};
+  |       ^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `std::path::Path`
+ --> core-engine\src\hardware_parser\basket_parser_new.rs:4:5
+  |
+4 | use std::path::Path;
+  |     ^^^^^^^^^^^^^^^
+
+warning: unused import: `std::collections::HashMap`
+ --> core-engine\src\hardware_parser\basket_parser_new.rs:6:5
+  |
+6 | use std::collections::HashMap;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused imports: `Deserialize` and `Serialize`
+ --> core-engine\src\vendor_client\dell_client.rs:2:13
+  |
+2 | ...::{Deserialize, Serialize};
+  |       ^^^^^^^^^^^  ^^^^^^^^^
+
+warning: unused import: `crate::models::UniversalServer`
+ --> core-engine\src\vendor_client\dell_client.rs:8:5
+  |
+8 | use c...salServer;
+  |     ^...^^^^^^^^^
+
+warning: unused import: `std::collections::HashMap`
+ --> core-engine\src\vendor_data\dell_catalog.rs:5:5
+  |
+5 | use std::collections::HashMap;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `CustomerType`
+  --> core-engine\src\vendor_data\dell_catalog.rs:15:60
+   |
+15 | ...e, CustomerType,
+   |       ^^^^^^^^^^^^
+
+warning: unused imports: `Deserialize` and `Serialize`
+ --> core-engine\src\vendor_data\hpe_catalog.rs:3:13
+  |
+3 | ...::{Deserialize, Serialize};
+  |       ^^^^^^^^^^^  ^^^^^^^^^
+
+warning: unused imports: `Deserialize` and `Serialize`
+ --> core-engine\src\vendor_data\lenovo_catalog.rs:3:13
+  |
+3 | ...::{Deserialize, Serialize};
+  |       ^^^^^^^^^^^  ^^^^^^^^^
+
+warning: unused variable: `vendor`
+   --> core-engine\src\vendor_data\mod.rs:472:42
+    |
+472 | ...f, vendor: &...
+    |       ^^^^^^ help: if this is intentional, prefix it with an underscore: `_vendor`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `credentials`
+   --> core-engine\src\vendor_data\mod.rs:472:56
+    |
+472 | ...r, credentials: V...
+    |       ^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_credentials`
+
+warning: unused variable: `socket_count`
+   --> core-engine\src\hardware_parser\basket_parser.rs:731:31
+    |
+731 | ...r, socket_count) =...
+    |       ^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_socket_count`
+
+warning: unused variable: `cpu_freq`
+   --> core-engine\src\hardware_parser\basket_parser.rs:762:44
+    |
+762 | ...s, cpu_freq) =...
+    |       ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_cpu_freq`
+
+warning: unused variable: `sheet_name`
+   --> core-engine\src\hardware_parser\basket_parser.rs:975:67
+    |
+975 | ...>, sheet_name: &...
+    |       ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_sheet_name`
+
+warning: unused variable: `file_path`
+  --> core-engine\src\hardware_parser\basket_parser_new.rs:95:67
+   |
+95 | ...>, file_path: &...
+   |       ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_file_path`
+
+warning: unused variable: `file_path`
+   --> core-engine\src\hardware_parser\basket_parser_new.rs:262:69
+    |
+262 | ...>, file_path: &...
+    |       ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_file_path`
+
+warning: unused variable: `file_path`
+   --> core-engine\src\hardware_parser\basket_parser_new.rs:501:63
+    |
+501 | ...>, file_path: &...
+    |       ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_file_path`
+
+warning: unused variable: `ridx`
+   --> core-engine\src\hardware_parser\basket_parser_new.rs:875:18
+    |
+875 | ...r (ridx, r...
+    |       ^^^^ help: if this is intentional, prefix it with an underscore: `_ridx`
+
+warning: variable does not need to be mutable
+  --> core-engine\src\hardware_parser\spec_parser.rs:58:17
+   |
+58 | ...et mut cores = ...
+   |       ----^^^^^
+   |       |
+   |       help: remove this `mut`
+   |
+   = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+  --> core-engine\src\hardware_parser\spec_parser.rs:59:17
+   |
+59 | ...et mut threads = ...
+   |       ----^^^^^^^
+   |       |
+   |       help: remove this `mut`
+
+warning: unused variable: `type_regex`
+   --> core-engine\src\hardware_parser\spec_parser.rs:105:13
+    |
+105 | ...et type_regex = ...
+    |       ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_type_regex`
+
+warning: unused variable: `vendor`
+   --> core-engine\src\hardware_parser\component_classifier.rs:252:14
+    |
+252 | ...r (vendor, p...
+    |       ^^^^^^ help: if this is intentional, prefix it with an underscore: `_vendor`
+
+warning: variable does not need to be mutable
+   --> core-engine\src\vendor_client\traits.rs:105:13
+    |
+105 | ...et mut parsers: V...
+    |       ----^^^^^^^
+    |       |
+    |       help: remove this `mut`
+
+warning: unused variable: `file_path`
+  --> core-engine\src\vendor_client\dell_client.rs:52:41
+   |
+52 | ...f, file_path: &...
+   |       ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_file_path`
+
+warning: methods `parse_lenovo_parts` and `extract_lenovo_server_info` are never used
+   --> core-engine\src\hardware_parser\basket_parser.rs:632:8
+    |
+132 |...asketParser {
+    |...----------- methods in this implementation
+...
+632 |     fn parse_lenovo_parts(&self, wor...
+    |        ^^^^^^^^^^^^^^^^^^
+...
+895 |     fn...server_info(&s...
+    |       ...^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: field `client` is never read
+  --> core-engine\src\vendor_client\dell_client.rs:13:5
+   |
+12 | pub struct DellApiClient {
+   |            ------------- field in this struct
+13 |     client: Client,
+   |     ^^^^^^
+   |
+   = note: `DellApiClient` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: fields `client` and `base_url` are never read
+  --> core-engine\src\vendor_data\dell_catalog.rs:21:5
+   |
+20 | pub struct DellCatalogClient {
+   |            ----------------- fields in this struct
+21 |     client: Client,
+   |     ^^^^^^
+...
+24 |     base_url: String,
+   |     ^^^^^^^^
+
+warning: struct `DellApiConfig` is never constructed
+  --> core-engine\src\vendor_data\dell_catalog.rs:30:8
+   |
+30 | ...ct DellApiConfig {
+   |       ^^^^^^^^^^^^^
+
+warning: struct `DellProductFamily` is never constructed
+  --> core-engine\src\vendor_data\dell_catalog.rs:39:8
+   |
+39 | ...ct DellProductFamily {
+   |       ^^^^^^^^^^^^^^^^^
+
+warning: associated items `build_headers`, `map_form_factor`, and `parse_poweredge_model` are never used
+   --> core-engine\src\vendor_data\dell_catalog.rs:71:8
+    |
+ 58 | impl DellCatalogClient {
+    | ---------------------- associated items in this implementation
+...
+ 71 |     fn build_headers(&self) -> ...
+    |        ^^^^^^^^^^^^^
+...
+ 89 |     fn map_form_factor(dell_for...
+    |        ^^^^^^^^^^^^^^^
+...
+102 |     fn parse_poweredge_model(mo...
+    |        ^^^^^^^^^^^^^^^^^^^^^
+
+warning: field `client` is never read
+  --> core-engine\src\vendor_data\hpe_catalog.rs:16:5
+   |
+15 | pub struct HPECatalogClient {
+   |            ---------------- field in this struct
+16 |     client: Client,
+   |     ^^^^^^
+
+warning: field `client` is never read
+  --> core-engine\src\vendor_data\lenovo_catalog.rs:16:5
+   |
+15 | pub struct LenovoCatalogClient {
+   |            ------------------- field in this struct
+16 |     client: Client,
+   |     ^^^^^^
+
+warning: field `ip_address` is never read
+  --> core-engine\src\network_visualizer\parser.rs:37:5
+   |
+27 | struct VNetworkRow {
+   |        ----------- field in this struct
+...
+37 |     ip_address: String,
+   |     ^^^^^^^^^^
+   |
+   = note: `VNetworkRow` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: field `ip_addresses` is never read
+  --> core-engine\src\network_visualizer\hyperv_parser.rs:37:5
+   |
+34 | struct HyperVVnic {
+   |        ---------- field in this struct
+...
+37 |     ip_addresses: Ve...
+   |     ^^^^^^^^^^^^
+   |
+   = note: `HyperVVnic` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: `core-engine` (lib) generated 34 warnings (run `cargo fix --lib -p core-engine` to apply 12 suggestions)
+   Compiling backend v0.1.0 (C:\Users\matei\DevApps\Archer\backend)
+warning: unused imports: `CapacityPlanResponse` and `PlacementResponse`
+  --> backend\src\api\capacity.rs:17:54
+   |
+17 |         CapacityPlannerService, CapacityPlanRequest, CapacityPlanResponse, PlacementRequest,
+   |                                                      ^^^^^^^^^^^^^^^^^^^^
+18 |         PlacementResponse,
+   |         ^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused imports: `delete` and `put`
+  --> backend\src\api\cluster_strategy.rs:20:15
+   |
+20 |     routing::{delete, get, post, put},
+   |               ^^^^^^             ^^^
+
+warning: unused import: `services::capacity_planner_service::CapacityPlannerService`
+  --> backend\src\api\destination_clusters.rs:21:5
+   |
+21 |     services::capacity_planner_service::CapacityPlannerService,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused imports: `ApiResponse` and `helpers`
+  --> backend\src\api\migration_wizard.rs:18:34
+   |
+18 | use crate::utils::api_response::{ApiResponse, helpers};
+   |                                  ^^^^^^^^^^^  ^^^^^^^
+
+warning: unused import: `Serialize`
+ --> backend\src\api\project_workflow.rs:8:26
+  |
+8 | use serde::{Deserialize, Serialize};
+  |                          ^^^^^^^^^
+
+warning: unused import: `surrealdb::sql::Thing`
+  --> backend\src\api\project_workflow.rs:12:5
+   |
+12 | use surrealdb::sql::Thing;
+   |     ^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `DocumentService`
+  --> backend\src\api\project_workflow.rs:16:68
+   |
+16 | use crate::services::document_service::{DocumentGenerationRequest, DocumentService};
+   |                                                                    ^^^^^^^^^^^^^^^
+
+warning: unused import: `std::collections::HashMap`
+  --> backend\src\api\rvtools.rs:10:5
+   |
+10 | use std::collections::HashMap;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `serde::Serialize`
+  --> backend\src\api\settings.rs:14:5
+   |
+14 | use serde::Serialize;
+   |     ^^^^^^^^^^^^^^^^
+
+warning: unused imports: `Response`, `delete`, `patch`, and `post`
+ --> backend\src\api\tickets.rs:4:30
+  |
+4 |     response::{IntoResponse, Response},
+  |                              ^^^^^^^^
+5 |     routing::{get, post, patch, delete},
+  |                    ^^^^  ^^^^^  ^^^^^^
+
+warning: unused import: `State`
+ --> backend\src\api\integration.rs:2:15
+  |
+2 |     extract::{State, Json},
+  |               ^^^^^
+
+warning: unused import: `get`
+ --> backend\src\api\vm_placement.rs:9:15
+  |
+9 |     routing::{get, post},
+  |               ^^^
+
+warning: unused import: `MappedVariable`
+   --> backend\src\api\hld.rs:722:65
+    |
+722 |     use crate::services::rvtools_hld_mapper::{RVToolsHLDMapper, MappedVariable};
+    |                                                                 ^^^^^^^^^^^^^^
+
+warning: unused import: `crate::database::Database`
+  --> backend\src\api\mod.rs:22:5
+   |
+22 | use crate::database::Database;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `Json`
+  --> backend\src\api\mod.rs:24:26
+   |
+24 | use axum::{routing::get, Json, Router};
+   |                          ^^^^
+
+warning: unused import: `std::sync::Arc`
+  --> backend\src\api\mod.rs:25:5
+   |
+25 | use std::sync::Arc;
+   |     ^^^^^^^^^^^^^^
+
+warning: unused import: `super::*`
+   --> backend\src\database.rs:282:9
+    |
+282 |     use super::*;
+    |         ^^^^^^^^
+
+warning: unused import: `ApiResponse`
+ --> backend\src\middleware\error_handling.rs:9:43
+  |
+9 | use crate::utils::api_response::{helpers, ApiResponse};
+  |                                           ^^^^^^^^^^^
+
+warning: unused import: `StatusCode`
+ --> backend\src\middleware\rate_limiting.rs:2:21
+  |
+2 |     http::{Request, StatusCode},
+  |                     ^^^^^^^^^^
+
+warning: unused import: `std::net::IpAddr`
+ --> backend\src\middleware\rate_limiting.rs:7:5
+  |
+7 | use std::net::IpAddr;
+  |     ^^^^^^^^^^^^^^^^
+
+warning: unused import: `helpers`
+  --> backend\src\middleware\rate_limiting.rs:11:34
+   |
+11 | use crate::utils::api_response::{helpers, ApiResponse};
+   |                                  ^^^^^^^
+
+warning: unused imports: `StatusCode`, `body::Body`, and `extract::FromRequest`
+ --> backend\src\middleware\validation.rs:2:5
+  |
+2 |     body::Body,
+  |     ^^^^^^^^^^
+3 |     extract::FromRequest,
+  |     ^^^^^^^^^^^^^^^^^^^^
+4 |     http::{Request, StatusCode},
+  |                     ^^^^^^^^^^
+
+warning: unused import: `serde_json::Value`
+ --> backend\src\middleware\validation.rs:8:5
+  |
+8 | use serde_json::Value;
+  |     ^^^^^^^^^^^^^^^^^
+
+warning: unused import: `std::collections::HashMap`
+ --> backend\src\middleware\validation.rs:9:5
+  |
+9 | use std::collections::HashMap;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `std::collections::HashMap`
+ --> backend\src\models\settings_models.rs:7:5
+  |
+7 | use std::collections::HashMap;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `RvToolsProcessingResult`
+ --> backend\src\services\enhanced_rvtools_service.rs:3:64
+  |
+3 | use crate::services::rvtools_service::{RvToolsProcessingError, RvToolsProcessingResult};
+  |                                                                ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused imports: `Error as CalamineError` and `RangeDeserializerBuilder`
+ --> backend\src\services\enhanced_rvtools_service.rs:5:31
+  |
+5 | use calamine::{open_workbook, Error as CalamineError, RangeDeserializerBuilder, Reader, Xlsx};
+  |                               ^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `DateTime`
+ --> backend\src\services\enhanced_rvtools_service.rs:6:14
+  |
+6 | use chrono::{DateTime, Utc};
+  |              ^^^^^^^^
+
+warning: unused import: `std::io`
+  --> backend\src\services\enhanced_rvtools_service.rs:10:5
+   |
+10 | use std::io;
+   |     ^^^^^^^
+
+warning: unused import: `Value`
+ --> backend\src\services\hardware_pool_service.rs:5:24
+  |
+5 | use serde_json::{json, Value};
+  |                        ^^^^^
+
+warning: unused import: `ProviderType`
+ --> backend\src\services\integration_hub\nutanix.rs:5:82
+  |
+5 | use super::connector::{IntegrationConnector, IntegrationConfig, DiscoveredAsset, ProviderType};
+  |                                                                                  ^^^^^^^^^^^^
+
+warning: unused import: `surrealdb::engine::remote::ws::Client`
+ --> backend\src\services\integration_hub\service.rs:2:5
+  |
+2 | use surrealdb::engine::remote::ws::Client;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `surrealdb::Surreal`
+ --> backend\src\services\integration_hub\service.rs:3:5
+  |
+3 | use surrealdb::Surreal;
+  |     ^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `DataType`
+    --> backend\src\services\migration_wizard_service.rs:1312:53
+     |
+1312 |         use calamine::{Reader, Xlsx, open_workbook, DataType};
+     |                                                     ^^^^^^^^
+
+warning: unused imports: `LinkType`, `NetworkLink`, `NetworkNodeData`, `NetworkNode`, `NodePosition`, and `NodeType`
+    --> backend\src\services\migration_wizard_service.rs:1514:39
+     |
+1514 |             NetworkVisualizationData, NetworkNode, NetworkLink, VisualizationMetadata,
+     |                                       ^^^^^^^^^^^  ^^^^^^^^^^^
+1515 |             NodeType, NetworkNodeData, NodePosition, LinkType
+     |             ^^^^^^^^  ^^^^^^^^^^^^^^^  ^^^^^^^^^^^^  ^^^^^^^^
+
+warning: unused imports: `DateTime` and `Utc`
+ --> backend\src\services\capacity_planner_service.rs:7:14
+  |
+7 | use chrono::{DateTime, Utc};
+  |              ^^^^^^^^  ^^^
+
+warning: unused import: `std::collections::HashMap`
+ --> backend\src\services\capacity_planner_service.rs:9:5
+  |
+9 | use std::collections::HashMap;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused imports: `Surreal` and `engine::local::Db`
+  --> backend\src\services\wizard_service.rs:14:17
+   |
+14 | use surrealdb::{engine::local::Db, Surreal};
+   |                 ^^^^^^^^^^^^^^^^^  ^^^^^^^
+
+warning: unused import: `MigrationCluster`
+ --> backend\src\services\vm_placement_service.rs:3:37
+  |
+3 | use crate::models::project_models::{MigrationCluster, VMPlacement};
+  |                                     ^^^^^^^^^^^^^^^^
+
+warning: unused import: `Context`
+ --> backend\src\services\word_generator.rs:2:22
+  |
+2 | use anyhow::{Result, Context};
+  |                      ^^^^^^^
+
+warning: unused import: `json`
+ --> backend\src\utils\api_response.rs:5:18
+  |
+5 | use serde_json::{json, Value};
+  |                  ^^^^
+
+warning: unused variable: `project_id`
+   --> backend\src\api\cluster_strategy.rs:276:11
+    |
+276 |     Path((project_id, strategy_id)): Path<(String, String)>,
+    |           ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_project_id`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `project_id`
+   --> backend\src\api\cluster_strategy.rs:297:11
+    |
+297 |     Path((project_id, strategy_id)): Path<(String, String)>,
+    |           ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_project_id`
+
+warning: unused variable: `project_id`
+   --> backend\src\api\cluster_strategy.rs:387:11
+    |
+387 |     Path((project_id, strategy_id)): Path<(String, String)>,
+    |           ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_project_id`
+
+warning: unused variable: `project_id`
+   --> backend\src\api\cluster_strategy.rs:570:11
+    |
+570 |     Path((project_id, strategy_id)): Path<(String, String)>,
+    |           ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_project_id`
+
+warning: value assigned to `configs` is never read
+    --> backend\src\api\hardware_baskets.rs:1442:13
+     |
+1442 |     let mut configs: Vec<HardwareConfiguration> = Vec::new();
+     |             ^^^^^^^
+     |
+     = help: maybe it is overwritten before being read?
+     = note: `#[warn(unused_assignments)]` (part of `#[warn(unused)]`) on by default
+
+warning: irrefutable `if let` pattern
+   --> backend\src\api\hardware_pool.rs:343:16
+    |
+343 |             if let surrealdb::sql::Thing { id, .. } = &allocation.server_id {
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: this pattern will always match, so the `if let` is useless
+    = help: consider replacing the `if let` with a `let`
+    = note: `#[warn(irrefutable_let_patterns)]` on by default
+
+warning: irrefutable `if let` pattern
+   --> backend\src\api\hardware_pool.rs:473:20
+    |
+473 |                 if let surrealdb::sql::Thing { id, .. } = &allocation.server_id {
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: this pattern will always match, so the `if let` is useless
+    = help: consider replacing the `if let` with a `let`
+
+warning: unused variable: `allocation`
+   --> backend\src\api\hardware_pool.rs:453:9
+    |
+453 |     let allocation = match allocation {
+    |         ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_allocation`
+
+warning: unused variable: `project`
+   --> backend\src\api\project_lifecycle.rs:320:9
+    |
+320 |     let project = project_service
+    |         ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_project`
+
+warning: unused variable: `state`
+   --> backend\src\api\project_lifecycle.rs:651:5
+    |
+651 |     state: &AppState,
+    |     ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `analysis`
+   --> backend\src\api\project_lifecycle.rs:652:5
+    |
+652 |     analysis: &ProjectLifecycleAnalysis,
+    |     ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_analysis`
+
+warning: unused variable: `query`
+  --> backend\src\api\project_workflow.rs:57:11
+   |
+57 |     Query(query): Query<HashMap<String, String>>,
+   |           ^^^^^ help: if this is intentional, prefix it with an underscore: `_query`
+
+warning: unused variable: `state`
+   --> backend\src\api\project_workflow.rs:150:11
+    |
+150 |     State(state): State<Arc<Database>>,
+    |           ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `project_id`
+   --> backend\src\api\project_workflow.rs:151:10
+    |
+151 |     Path(project_id): Path<String>,
+    |          ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_project_id`
+
+warning: unused variable: `state`
+   --> backend\src\api\project_workflow.rs:161:11
+    |
+161 |     State(state): State<Arc<Database>>,
+    |           ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `workflow_id`
+   --> backend\src\api\project_workflow.rs:162:11
+    |
+162 |     Path((workflow_id, step_index)): Path<(String, usize)>,
+    |           ^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_workflow_id`
+
+warning: unused variable: `step_index`
+   --> backend\src\api\project_workflow.rs:162:24
+    |
+162 |     Path((workflow_id, step_index)): Path<(String, usize)>,
+    |                        ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_step_index`
+
+warning: unused variable: `request`
+   --> backend\src\api\project_workflow.rs:163:10
+    |
+163 |     Json(request): Json<UpdateWorkflowStepRequest>,
+    |          ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_request`
+
+warning: unused variable: `state`
+   --> backend\src\api\project_workflow.rs:173:11
+    |
+173 |     State(state): State<Arc<Database>>,
+    |           ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `project_id`
+   --> backend\src\api\project_workflow.rs:174:10
+    |
+174 |     Path(project_id): Path<String>,
+    |          ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_project_id`
+
+warning: unused variable: `db`
+  --> backend\src\api\vm_placement.rs:78:11
+   |
+78 |     State(db): State<Arc<Database>>,
+   |           ^^ help: if this is intentional, prefix it with an underscore: `_db`
+
+warning: unused variable: `db`
+   --> backend\src\api\vm_placement.rs:129:11
+    |
+129 |     State(db): State<Arc<Database>>,
+    |           ^^ help: if this is intentional, prefix it with an underscore: `_db`
+
+warning: unused variable: `overall_confidence`
+   --> backend\src\api\hld.rs:791:9
+    |
+791 |     let overall_confidence = mapper.calculate_overall_confidence(&mapped_variables);
+    |         ^^^^^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_overall_confidence`
+
+warning: unused variable: `request`
+   --> backend\src\services\document_service.rs:286:9
+    |
+286 |         request: &DocumentGenerationRequest,
+    |         ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_request`
+
+warning: unused variable: `request`
+   --> backend\src\services\document_service.rs:539:9
+    |
+539 |         request: &DocumentGenerationRequest,
+    |         ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_request`
+
+warning: variable does not need to be mutable
+   --> backend\src\services\enhanced_rvtools_service.rs:769:13
+    |
+769 |         let mut requirements = S2dRequirements {
+    |             ----^^^^^^^^^^^^
+    |             |
+    |             help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `upload_id`
+   --> backend\src\services\enhanced_rvtools_service.rs:849:9
+    |
+849 |         upload_id: &Thing,
+    |         ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_upload_id`
+
+warning: unused variable: `cluster_name`
+   --> backend\src\services\enhanced_rvtools_service.rs:850:9
+    |
+850 |         cluster_name: &str,
+    |         ^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_cluster_name`
+
+warning: unused variable: `project_id_str`
+   --> backend\src\services\migration_wizard_service.rs:520:13
+    |
+520 |         let project_id_str = project_id.split(':').nth(1).unwrap_or(&project_id);
+    |             ^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_project_id_str`
+
+warning: unused variable: `cluster`
+   --> backend\src\services\migration_wizard_service.rs:958:26
+    |
+958 |             if let Some((cluster, cluster_id)) = best_cluster {
+    |                          ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_cluster`
+
+warning: unused variable: `mapping`
+    --> backend\src\services\migration_wizard_service.rs:1106:13
+     |
+1106 |         let mapping = existing
+     |             ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_mapping`
+
+warning: unused variable: `first_id`
+    --> backend\src\services\migration_wizard_service.rs:1159:29
+     |
+1159 |                 if let Some(first_id) = seen_vlans.get(&vlan_id) {
+     |                             ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_first_id`
+
+warning: variable does not need to be mutable
+    --> backend\src\services\migration_wizard_service.rs:1520:13
+     |
+1520 |         let mut nodes = Vec::new();
+     |             ----^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> backend\src\services\migration_wizard_service.rs:1521:13
+     |
+1521 |         let mut links = Vec::new();
+     |             ----^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: unused variable: `project_thing`
+    --> backend\src\services\migration_wizard_service.rs:1893:13
+     |
+1893 |         let project_thing = Thing::from(("migration_wizard_project", project_id));
+     |             ^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_project_thing`
+
+warning: variable does not need to be mutable
+   --> backend\src\services\capacity_planner_service.rs:191:13
+    |
+191 |         let mut total_cpu_ghz = 0.0;
+    |             ----^^^^^^^^^^^^^
+    |             |
+    |             help: remove this `mut`
+
+warning: unused variable: `request`
+   --> backend\src\services\capacity_planner_service.rs:517:9
+    |
+517 |         request: PlacementRequest,
+    |         ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_request`
+
+warning: unused variable: `project_id`
+   --> backend\src\services\network_template_service.rs:385:9
+    |
+385 |         project_id: &str,
+    |         ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_project_id`
+
+warning: unused variable: `document_id`
+   --> backend\src\services\hld_generation_service.rs:164:13
+    |
+164 |         let document_id = format!("generated_document:{}", uuid::Uuid::new_v4());
+    |             ^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_document_id`
+
+warning: unused variable: `cluster_name`
+   --> backend\src\api\project_lifecycle.rs:741:46
+    |
+741 | fn generate_cluster_migration_recommendation(cluster_name: &str) -> ClusterMigrationRecommendation {
+    |                                              ^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_cluster_name`
+
+warning: unused variable: `cluster_name`
+   --> backend\src\api\project_lifecycle.rs:760:5
+    |
+760 |     cluster_name: &str,
+    |     ^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_cluster_name`
+
+warning: unused variable: `ratios`
+   --> backend\src\api\project_lifecycle.rs:761:5
+    |
+761 |     ratios: &OvercommitRatios,
+    |     ^^^^^^ help: if this is intentional, prefix it with an underscore: `_ratios`
+
+warning: unused variable: `cluster_analyses`
+   --> backend\src\api\project_lifecycle.rs:905:5
+    |
+905 |     cluster_analyses: &[ClusterAnalysis],
+    |     ^^^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_cluster_analyses`
+
+warning: value assigned to `circular_dependencies` is never read
+  --> backend\src\services\dependency_validator.rs:33:17
+   |
+33 |         let mut circular_dependencies = Vec::new();
+   |                 ^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: maybe it is overwritten before being read?
+
+warning: unused variable: `value`
+    --> backend\src\services\enhanced_rvtools_service.rs:1643:40
+     |
+1643 |     fn validate_required_format(&self, value: &str, format: &str) -> RuleValidationResult {
+     |                                        ^^^^^ help: if this is intentional, prefix it with an underscore: `_value`
+
+warning: unused variable: `format`
+    --> backend\src\services\enhanced_rvtools_service.rs:1643:53
+     |
+1643 |     fn validate_required_format(&self, value: &str, format: &str) -> RuleValidationResult {
+     |                                                     ^^^^^^ help: if this is intentional, prefix it with an underscore: `_format`
+
+warning: unused variable: `workload`
+   --> backend\src\services\capacity_validation_service.rs:132:9
+    |
+132 |         workload: &WorkloadSummary,
+    |         ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_workload`
+
+warning: unused variable: `upload_id`
+   --> backend\src\services\capacity_planner_service.rs:229:36
+    |
+229 |     fn build_filtered_query(&self, upload_id: &Thing, filter: &VmFilter) -> String {
+    |                                    ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_upload_id`
+
+warning: unused variable: `total`
+   --> backend\src\services\capacity_planner_service.rs:339:9
+    |
+339 |         total: &ClusterCapacity,
+    |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_total`
+
+warning: unused variable: `current_placements`
+   --> backend\src\services\vm_placement_service.rs:395:9
+    |
+395 |         current_placements: Vec<VMPlacement>,
+    |         ^^^^^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_current_placements`
+
+warning: unused variable: `project`
+   --> backend\src\services\hld_generation_service.rs:359:9
+    |
+359 |         project: &MigrationProject,
+    |         ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_project`
+
+warning: unused variable: `project`
+   --> backend\src\services\hld_generation_service.rs:411:9
+    |
+411 |         project: &MigrationProject,
+    |         ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_project`
+
+warning: unused variable: `project`
+   --> backend\src\services\hld_generation_service.rs:487:51
+    |
+487 |     fn add_network_section(&self, mut docx: Docx, project: &MigrationProject) -> Docx {
+    |                                                   ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_project`
+
+warning: unused variable: `total_cpu`
+  --> backend\src\services\rvtools_hld_mapper.rs:48:13
+   |
+48 |         let total_cpu: i32 = self.rvtools_data.iter().map(|d| d.cpu_cores).sum();
+   |             ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_total_cpu`
+
+warning: type `GenerateReportsRequest` is more private than the item `ReportGenerationService::generate_standard_reports`
+   --> backend\src\api\enhanced_rvtools.rs:657:5
+    |
+657 | /     pub async fn generate_standard_reports(
+658 | |         &self,
+659 | |         _request: GenerateReportsRequest,
+660 | |     ) -> Result<Vec<GeneratedReport>, anyhow::Error> {
+    | |____________________________________________________^ method `ReportGenerationService::generate_standard_reports` is reachable at visibility `pub`
+    |
+note: but type `GenerateReportsRequest` is only usable at visibility `pub(self)`
+   --> backend\src\api\enhanced_rvtools.rs:492:1
+    |
+492 | struct GenerateReportsRequest {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    = note: `#[warn(private_interfaces)]` on by default
+
+warning: type `ReportCustomizationRequest` is more private than the item `ReportGenerationService::customize_report`
+   --> backend\src\api\enhanced_rvtools.rs:665:5
+    |
+665 | /     pub async fn customize_report(
+666 | |         &self,
+667 | |         _customization: ReportCustomizationRequest,
+668 | |     ) -> Result<GeneratedReport, anyhow::Error> {
+    | |_______________________________________________^ method `ReportGenerationService::customize_report` is reachable at visibility `pub`
+    |
+note: but type `ReportCustomizationRequest` is only usable at visibility `pub(self)`
+   --> backend\src\api\enhanced_rvtools.rs:507:1
+    |
+507 | struct ReportCustomizationRequest {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: type `ExportedFileData` is more private than the item `ReportGenerationService::export_report_file`
+   --> backend\src\api\enhanced_rvtools.rs:673:5
+    |
+673 | /     pub async fn export_report_file(
+674 | |         &self,
+675 | |         _report_id: &str,
+676 | |         _format: &str,
+677 | |     ) -> Result<ExportedFileData, anyhow::Error> {
+    | |________________________________________________^ method `ReportGenerationService::export_report_file` is reachable at visibility `pub`
+    |
+note: but type `ExportedFileData` is only usable at visibility `pub(self)`
+   --> backend\src\api\enhanced_rvtools.rs:635:1
+    |
+635 | struct ExportedFileData {
+    | ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: type `ExportReportRequest` is more private than the item `ReportExportService::export_report`
+   --> backend\src\api\enhanced_rvtools.rs:699:5
+    |
+699 | /     pub async fn export_report(
+700 | |         &self,
+701 | |         _report_id: String,
+702 | |         _config: ExportReportRequest,
+703 | |     ) -> Result<ExportedReportData, anyhow::Error> {
+    | |__________________________________________________^ method `ReportExportService::export_report` is reachable at visibility `pub`
+    |
+note: but type `ExportReportRequest` is only usable at visibility `pub(self)`
+   --> backend\src\api\enhanced_rvtools.rs:550:1
+    |
+550 | struct ExportReportRequest {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: fields `upload_id`, `project_id`, `report_types`, `config`, and `branding` are never read
+   --> backend\src\api\enhanced_rvtools.rs:493:5
+    |
+492 | struct GenerateReportsRequest {
+    |        ---------------------- fields in this struct
+493 |     upload_id: String,
+    |     ^^^^^^^^^
+494 |     project_id: Option<String>,
+    |     ^^^^^^^^^^
+495 |     report_types: Vec<ReportType>,
+    |     ^^^^^^^^^^^^
+496 |     config: ReportConfig,
+    |     ^^^^^^
+497 |     branding: Option<BrandingConfig>,
+    |     ^^^^^^^^
+    |
+    = note: `GenerateReportsRequest` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: fields `report_id`, `customizations`, `save_as_template`, and `template_name` are never read
+   --> backend\src\api\enhanced_rvtools.rs:508:5
+    |
+507 | struct ReportCustomizationRequest {
+    |        -------------------------- fields in this struct
+508 |     report_id: String,
+    |     ^^^^^^^^^
+509 |     customizations: Vec<ReportSectionCustomization>,
+    |     ^^^^^^^^^^^^^^
+510 |     save_as_template: Option<bool>,
+    |     ^^^^^^^^^^^^^^^^
+511 |     template_name: Option<String>,
+    |     ^^^^^^^^^^^^^
+    |
+    = note: `ReportCustomizationRequest` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: fields `section_id`, `action`, `new_order`, `layout_changes`, and `variable_changes` are never read
+   --> backend\src\api\enhanced_rvtools.rs:516:5
+    |
+515 | struct ReportSectionCustomization {
+    |        -------------------------- fields in this struct
+516 |     section_id: String,
+    |     ^^^^^^^^^^
+517 |     action: CustomizationAction,
+    |     ^^^^^^
+518 |     new_order: Option<i32>,
+    |     ^^^^^^^^^
+519 |     layout_changes: Option<HashMap<String, serde_json::Value>>,
+    |     ^^^^^^^^^^^^^^
+520 |     variable_changes: Option<Vec<String>>,
+    |     ^^^^^^^^^^^^^^^^
+    |
+    = note: `ReportSectionCustomization` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: struct `ReportTemplatesResponse` is never constructed
+   --> backend\src\api\enhanced_rvtools.rs:544:8
+    |
+544 | struct ReportTemplatesResponse {
+    |        ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: fields `format`, `include_source_data`, `branding`, and `custom_filename` are never read
+   --> backend\src\api\enhanced_rvtools.rs:551:5
+    |
+550 | struct ExportReportRequest {
+    |        ------------------- fields in this struct
+551 |     format: ExportFormat,
+    |     ^^^^^^
+552 |     include_source_data: Option<bool>,
+    |     ^^^^^^^^^^^^^^^^^^^
+553 |     branding: Option<BrandingConfig>,
+    |     ^^^^^^^^
+554 |     custom_filename: Option<String>,
+    |     ^^^^^^^^^^^^^^^
+    |
+    = note: `ExportReportRequest` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: field `db` is never read
+   --> backend\src\api\enhanced_rvtools.rs:649:5
+    |
+648 | pub struct ReportGenerationService {
+    |            ----------------------- field in this struct
+649 |     db: Database,
+    |     ^^
+
+warning: field `db` is never read
+   --> backend\src\api\enhanced_rvtools.rs:691:5
+    |
+690 | pub struct ReportExportService {
+    |            ------------------- field in this struct
+691 |     db: Database,
+    |     ^^
+
+warning: variant `NotFound` is never constructed
+   --> backend\src\api\enhanced_rvtools.rs:724:5
+    |
+722 | enum ApiError {
+    |      -------- variant in this enum
+723 |     BadRequest(String),
+724 |     NotFound(String),
+    |     ^^^^^^^^
+    |
+    = note: `ApiError` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: field `client` is never read
+ --> backend\src\services\integration_hub\nutanix.rs:9:5
+  |
+7 | pub struct NutanixClient {
+  |            ------------- field in this struct
+8 |     config: IntegrationConfig,
+9 |     client: Client,
+  |     ^^^^^^
+
+warning: method `update_cluster_count` is never used
+   --> backend\src\services\migration_wizard_service.rs:537:14
+    |
+ 15 | impl MigrationWizardService {
+    | --------------------------- method in this implementation
+...
+537 |     async fn update_cluster_count(&self, project_id: &str) -> Result<()> {
+    |              ^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `HLDSection` is never constructed
+  --> backend\src\services\hld_generation_service.rs:63:8
+   |
+63 | struct HLDSection {
+   |        ^^^^^^^^^^
+
+warning: `backend` (lib) generated 110 warnings (run `cargo fix --lib -p backend` to apply 45 suggestions)
+warning: unused import: `rate_limiting::*`
+ --> backend\src\middleware\mod.rs:7:9
+  |
+7 | pub use rate_limiting::*;
+  |         ^^^^^^^^^^^^^^^^
+
+warning: unused import: `service::IntegrationService`
+ --> backend\src\services\integration_hub\mod.rs:7:9
+  |
+7 | pub use service::IntegrationService;
+  |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused imports: `EnhancedRvToolsError`, `EnhancedRvToolsLogger`, and `EnhancedRvToolsResult`
+ --> backend\src\utils\mod.rs:5:26
+  |
+5 | pub use error_handling::{EnhancedRvToolsError, EnhancedRvToolsLogger, EnhancedRvToolsResult};
+  |                          ^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^
+
+warning: type `GenerateReportsRequest` is more private than the item `ReportGenerationService::generate_standard_reports`
+   --> backend\src\api\enhanced_rvtools.rs:657:5
+    |
+657 | /     pub async fn generate_standard_reports(
+658 | |         &self,
+659 | |         _request: GenerateReportsRequest,
+660 | |     ) -> Result<Vec<GeneratedReport>, anyhow::Error> {
+    | |____________________________________________________^ method `ReportGenerationService::generate_standard_reports` is reachable at visibility `pub(crate)`
+    |
+note: but type `GenerateReportsRequest` is only usable at visibility `pub(self)`
+   --> backend\src\api\enhanced_rvtools.rs:492:1
+    |
+492 | struct GenerateReportsRequest {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    = note: `#[warn(private_interfaces)]` on by default
+
+warning: type `ReportCustomizationRequest` is more private than the item `ReportGenerationService::customize_report`
+   --> backend\src\api\enhanced_rvtools.rs:665:5
+    |
+665 | /     pub async fn customize_report(
+666 | |         &self,
+667 | |         _customization: ReportCustomizationRequest,
+668 | |     ) -> Result<GeneratedReport, anyhow::Error> {
+    | |_______________________________________________^ method `ReportGenerationService::customize_report` is reachable at visibility `pub(crate)`
+    |
+note: but type `ReportCustomizationRequest` is only usable at visibility `pub(self)`
+   --> backend\src\api\enhanced_rvtools.rs:507:1
+    |
+507 | struct ReportCustomizationRequest {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: type `ExportedFileData` is more private than the item `ReportGenerationService::export_report_file`
+   --> backend\src\api\enhanced_rvtools.rs:673:5
+    |
+673 | /     pub async fn export_report_file(
+674 | |         &self,
+675 | |         _report_id: &str,
+676 | |         _format: &str,
+677 | |     ) -> Result<ExportedFileData, anyhow::Error> {
+    | |________________________________________________^ method `ReportGenerationService::export_report_file` is reachable at visibility `pub(crate)`
+    |
+note: but type `ExportedFileData` is only usable at visibility `pub(self)`
+   --> backend\src\api\enhanced_rvtools.rs:635:1
+    |
+635 | struct ExportedFileData {
+    | ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: type `ExportReportRequest` is more private than the item `ReportExportService::export_report`
+   --> backend\src\api\enhanced_rvtools.rs:699:5
+    |
+699 | /     pub async fn export_report(
+700 | |         &self,
+701 | |         _report_id: String,
+702 | |         _config: ExportReportRequest,
+703 | |     ) -> Result<ExportedReportData, anyhow::Error> {
+    | |__________________________________________________^ method `ReportExportService::export_report` is reachable at visibility `pub(crate)`
+    |
+note: but type `ExportReportRequest` is only usable at visibility `pub(self)`
+   --> backend\src\api\enhanced_rvtools.rs:550:1
+    |
+550 | struct ExportReportRequest {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: field `created_after` is never read
+   --> backend\src\api\project_lifecycle.rs:265:9
+    |
+261 | pub struct LifecycleAnalysisFilter {
+    |            ----------------------- field in this struct
+...
+265 |     pub created_after: Option<DateTime<Utc>>,
+    |         ^^^^^^^^^^^^^
+    |
+    = note: `LifecycleAnalysisFilter` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: fields `status`, `actual_start_date`, `actual_end_date`, `actual_duration_hours`, `notes`, and `assignee` are never read
+  --> backend\src\api\project_workflow.rs:22:9
+   |
+21 | pub struct UpdateWorkflowStepRequest {
+   |            ------------------------- fields in this struct
+22 |     pub status: Option<WorkflowStepStatus>,
+   |         ^^^^^^
+23 |     pub actual_start_date: Option<chrono::DateTime<chrono::Utc>>,
+   |         ^^^^^^^^^^^^^^^^^
+24 |     pub actual_end_date: Option<chrono::DateTime<chrono::Utc>>,
+   |         ^^^^^^^^^^^^^^^
+25 |     pub actual_duration_hours: Option<f64>,
+   |         ^^^^^^^^^^^^^^^^^^^^^
+26 |     pub notes: Option<String>,
+   |         ^^^^^
+27 |     pub assignee: Option<String>,
+   |         ^^^^^^^^
+   |
+   = note: `UpdateWorkflowStepRequest` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: associated functions `error` and `error_with_details` are never used
+  --> backend\src\api\wizard.rs:73:12
+   |
+54 | impl<T> ApiResponse<T> {
+   | ---------------------- associated functions in this implementation
+...
+73 |     pub fn error(code: String, message: String) -> ApiResponse<()> {
+   |            ^^^^^
+...
+86 |     pub fn error_with_details(
+   |            ^^^^^^^^^^^^^^^^^^
+
+warning: variants `InternalError`, `BadRequest`, and `NotFound` are never constructed
+   --> backend\src\api\vm_placement.rs:160:5
+    |
+159 | pub enum ApiError {
+    |          -------- variants in this enum
+160 |     InternalError(String),
+    |     ^^^^^^^^^^^^^
+161 |     BadRequest(String),
+    |     ^^^^^^^^^^
+162 |     NotFound(String),
+    |     ^^^^^^^^
+    |
+    = note: `ApiError` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: variant `ValidationError` is never constructed
+  --> backend\src\api\hld.rs:32:5
+   |
+29 | pub enum HLDApiError {
+   |          ----------- variant in this enum
+...
+32 |     ValidationError(String),
+   |     ^^^^^^^^^^^^^^^
+   |
+   = note: `HLDApiError` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: function `hld_routes` is never used
+   --> backend\src\api\hld.rs:931:8
+    |
+931 | pub fn hld_routes() -> Router<AppState> {
+    |        ^^^^^^^^^^
+
+warning: fields `upload_id`, `project_id`, `report_types`, `config`, and `branding` are never read
+   --> backend\src\api\enhanced_rvtools.rs:493:5
+    |
+492 | struct GenerateReportsRequest {
+    |        ---------------------- fields in this struct
+493 |     upload_id: String,
+    |     ^^^^^^^^^
+494 |     project_id: Option<String>,
+    |     ^^^^^^^^^^
+495 |     report_types: Vec<ReportType>,
+    |     ^^^^^^^^^^^^
+496 |     config: ReportConfig,
+    |     ^^^^^^
+497 |     branding: Option<BrandingConfig>,
+    |     ^^^^^^^^
+    |
+    = note: `GenerateReportsRequest` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: field `connection_pool_size` is never read
+  --> backend\src\database.rs:18:9
+   |
+14 | pub struct DatabaseConfig {
+   |            -------------- field in this struct
+...
+18 |     pub connection_pool_size: usize,
+   |         ^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `DatabaseConfig` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: variants `QueryFailed` and `TransactionFailed` are never constructed
+   --> backend\src\database.rs:253:5
+    |
+239 | pub enum DatabaseError {
+    |          ------------- variants in this enum
+...
+253 |     QueryFailed(String),
+    |     ^^^^^^^^^^^
+...
+256 |     TransactionFailed(String),
+    |     ^^^^^^^^^^^^^^^^^
+    |
+    = note: `DatabaseError` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: method `to_api_response` is never used
+   --> backend\src\database.rs:260:12
+    |
+259 | impl DatabaseError {
+    | ------------------ method in this implementation
+260 |     pub fn to_api_response(&self) -> ApiResponse<()> {
+    |            ^^^^^^^^^^^^^^^
+
+warning: associated function `update_existing_rvtools_table` is never used
+   --> backend\src\database\migrations.rs:318:18
+    |
+  8 | impl EnhancedRvToolsMigrations {
+    | ------------------------------ associated function in this implementation
+...
+318 |     pub async fn update_existing_rvtools_table(db: &Database) -> Result<()> {
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `generate_thing_id` is never used
+   --> backend\src\database.rs:287:12
+    |
+287 |     pub fn generate_thing_id(table: &str) -> Thing {
+    |            ^^^^^^^^^^^^^^^^^
+
+warning: function `extract_id_string` is never used
+   --> backend\src\database.rs:296:12
+    |
+296 |     pub fn extract_id_string(thing: &Thing) -> String {
+    |            ^^^^^^^^^^^^^^^^^
+
+warning: function `create_thing` is never used
+   --> backend\src\database.rs:301:12
+    |
+301 |     pub fn create_thing(table: &str, id: &str) -> Thing {
+    |            ^^^^^^^^^^^^
+
+warning: constant `ALLOWED_ORIGIN` is never used
+  --> backend\src\middleware\error_handling.rs:12:7
+   |
+12 | const ALLOWED_ORIGIN: &str = "http://localhost:1420";
+   |       ^^^^^^^^^^^^^^
+
+warning: function `cors_handler` is never used
+  --> backend\src\middleware\error_handling.rs:61:14
+   |
+61 | pub async fn cors_handler<B>(request: Request<B>, next: Next<B>) -> Response {
+   |              ^^^^^^^^^^^^
+
+warning: function `panic_handler` is never used
+   --> backend\src\middleware\error_handling.rs:113:14
+    |
+113 | pub async fn panic_handler<B>(request: Request<B>, next: Next<B>) -> Response {
+    |              ^^^^^^^^^^^^^
+
+warning: struct `RateLimitConfig` is never constructed
+  --> backend\src\middleware\rate_limiting.rs:15:12
+   |
+15 | pub struct RateLimitConfig {
+   |            ^^^^^^^^^^^^^^^
+
+warning: struct `RateLimitEntry` is never constructed
+  --> backend\src\middleware\rate_limiting.rs:33:8
+   |
+33 | struct RateLimitEntry {
+   |        ^^^^^^^^^^^^^^
+
+warning: struct `RateLimiter` is never constructed
+  --> backend\src\middleware\rate_limiting.rs:41:12
+   |
+41 | pub struct RateLimiter {
+   |            ^^^^^^^^^^^
+
+warning: associated items `new`, `check_rate_limit`, and `cleanup_old_entries` are never used
+  --> backend\src\middleware\rate_limiting.rs:47:12
+   |
+46 | impl RateLimiter {
+   | ---------------- associated items in this implementation
+47 |     pub fn new(config: RateLimitConfig) -> Self {
+   |            ^^^
+...
+54 |     pub fn check_rate_limit(&self, client_id: &str) -> Result<(), RateLimitError> {
+   |            ^^^^^^^^^^^^^^^^
+...
+91 |     pub fn cleanup_old_entries(&self) {
+   |            ^^^^^^^^^^^^^^^^^^^
+
+warning: enum `RateLimitError` is never used
+   --> backend\src\middleware\rate_limiting.rs:102:10
+    |
+102 | pub enum RateLimitError {
+    |          ^^^^^^^^^^^^^^
+
+warning: function `create_rate_limit_middleware` is never used
+   --> backend\src\middleware\rate_limiting.rs:108:8
+    |
+108 | pub fn create_rate_limit_middleware(
+    |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `extract_client_id` is never used
+   --> backend\src\middleware\rate_limiting.rs:145:4
+    |
+145 | fn extract_client_id(request: &Request<axum::body::Body>) -> String {
+    |    ^^^^^^^^^^^^^^^^^
+
+warning: function `add_rate_limit_headers` is never used
+   --> backend\src\middleware\rate_limiting.rs:167:4
+    |
+167 | fn add_rate_limit_headers(mut response: Response, config: &RateLimitConfig) -> Response {
+    |    ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `api_default` is never used
+   --> backend\src\middleware\rate_limiting.rs:192:12
+    |
+192 |     pub fn api_default() -> RateLimitConfig {
+    |            ^^^^^^^^^^^
+
+warning: function `file_upload` is never used
+   --> backend\src\middleware\rate_limiting.rs:200:12
+    |
+200 |     pub fn file_upload() -> RateLimitConfig {
+    |            ^^^^^^^^^^^
+
+warning: function `data_heavy` is never used
+   --> backend\src\middleware\rate_limiting.rs:208:12
+    |
+208 |     pub fn data_heavy() -> RateLimitConfig {
+    |            ^^^^^^^^^^
+
+warning: function `authentication` is never used
+   --> backend\src\middleware\rate_limiting.rs:216:12
+    |
+216 |     pub fn authentication() -> RateLimitConfig {
+    |            ^^^^^^^^^^^^^^
+
+warning: static `EMAIL_REGEX` is never used
+  --> backend\src\middleware\validation.rs:77:12
+   |
+77 |     static EMAIL_REGEX: Lazy<Regex> =
+   |            ^^^^^^^^^^^
+
+warning: static `PROJECT_NAME_REGEX` is never used
+  --> backend\src\middleware\validation.rs:80:12
+   |
+80 |     static PROJECT_NAME_REGEX: Lazy<Regex> =
+   |            ^^^^^^^^^^^^^^^^^^
+
+warning: static `UUID_REGEX` is never used
+  --> backend\src\middleware\validation.rs:83:12
+   |
+83 |     static UUID_REGEX: Lazy<Regex> = Lazy::new(|| {
+   |            ^^^^^^^^^^
+
+warning: function `validate_email` is never used
+  --> backend\src\middleware\validation.rs:88:12
+   |
+88 |     pub fn validate_email(email: &str) -> bool {
+   |            ^^^^^^^^^^^^^^
+
+warning: function `validate_project_name` is never used
+  --> backend\src\middleware\validation.rs:92:12
+   |
+92 |     pub fn validate_project_name(name: &str) -> bool {
+   |            ^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `validate_uuid` is never used
+  --> backend\src\middleware\validation.rs:96:12
+   |
+96 |     pub fn validate_uuid(uuid: &str) -> bool {
+   |            ^^^^^^^^^^^^^
+
+warning: function `validate_string_length` is never used
+   --> backend\src\middleware\validation.rs:100:12
+    |
+100 |     pub fn validate_string_length(s: &str, min: usize, max: usize) -> bool {
+    |            ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `validate_required_string` is never used
+   --> backend\src\middleware\validation.rs:105:12
+    |
+105 |     pub fn validate_required_string(s: &Option<String>) -> bool {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `sanitize_string` is never used
+   --> backend\src\middleware\validation.rs:109:12
+    |
+109 |     pub fn sanitize_string(s: &str) -> String {
+    |            ^^^^^^^^^^^^^^^
+
+warning: associated items `from_str` and `to_str` are never used
+  --> backend\src\models\hld.rs:34:12
+   |
+32 | impl VariableType {
+   | ----------------- associated items in this implementation
+33 |     /// Convert string to VariableType
+34 |     pub fn from_str(s: &str) -> Option<Self> {
+   |            ^^^^^^^^
+...
+48 |     pub fn to_str(&self) -> &'static str {
+   |            ^^^^^^
+
+warning: enum `VariableSource` is never used
+  --> backend\src\models\hld.rs:64:10
+   |
+64 | pub enum VariableSource {
+   |          ^^^^^^^^^^^^^^
+
+warning: method `to_str` is never used
+  --> backend\src\models\hld.rs:72:12
+   |
+71 | impl VariableSource {
+   | ------------------- method in this implementation
+72 |     pub fn to_str(&self) -> &'static str {
+   |            ^^^^^^
+
+warning: method `to_str` is never used
+  --> backend\src\models\hld.rs:93:12
+   |
+92 | impl VariableConfidence {
+   | ----------------------- method in this implementation
+93 |     pub fn to_str(&self) -> &'static str {
+   |            ^^^^^^
+
+warning: methods `get_type`, `to_string`, and `is_null` are never used
+   --> backend\src\models\hld.rs:207:12
+    |
+205 | impl VariableValue {
+    | ------------------ methods in this implementation
+206 |     /// Get the type of this value
+207 |     pub fn get_type(&self) -> VariableType {
+    |            ^^^^^^^^
+...
+221 |     pub fn to_string(&self) -> String {
+    |            ^^^^^^^^^
+...
+235 |     pub fn is_null(&self) -> bool {
+    |            ^^^^^^^
+
+warning: associated items `new`, `with_source`, `with_confidence`, and `with_error` are never used
+   --> backend\src\models\hld.rs:384:12
+    |
+382 | impl HLDVariable {
+    | ---------------- associated items in this implementation
+383 |     /// Create a new variable
+384 |     pub fn new(
+    |            ^^^
+...
+406 |     pub fn with_source(mut self, source: VariableSource) -> Self {
+    |            ^^^^^^^^^^^
+...
+412 |     pub fn with_confidence(mut self, confidence: VariableConfidence) -> Self {
+    |            ^^^^^^^^^^^^^^^
+...
+418 |     pub fn with_error(mut self, error: String) -> Self {
+    |            ^^^^^^^^^^
+
+warning: struct `CreateHLDSectionRequest` is never constructed
+   --> backend\src\models\hld.rs:440:12
+    |
+440 | pub struct CreateHLDSectionRequest {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `ValidationError` is never constructed
+   --> backend\src\models\hld.rs:517:12
+    |
+517 | pub struct ValidationError {
+    |            ^^^^^^^^^^^^^^^
+
+warning: struct `ValidationResult` is never constructed
+   --> backend\src\models\hld.rs:525:12
+    |
+525 | pub struct ValidationResult {
+    |            ^^^^^^^^^^^^^^^^
+
+warning: struct `MigrationProject` is never constructed
+ --> backend\src\models\migration_models.rs:7:12
+  |
+7 | pub struct MigrationProject {
+  |            ^^^^^^^^^^^^^^^^
+
+warning: enum `MigrationProjectType` is never used
+  --> backend\src\models\migration_models.rs:39:10
+   |
+39 | pub enum MigrationProjectType {
+   |          ^^^^^^^^^^^^^^^^^^^^
+
+warning: enum `ProjectStatus` is never used
+  --> backend\src\models\migration_models.rs:47:10
+   |
+47 | pub enum ProjectStatus {
+   |          ^^^^^^^^^^^^^
+
+warning: enum `RiskLevel` is never used
+  --> backend\src\models\migration_models.rs:64:10
+   |
+64 | pub enum RiskLevel {
+   |          ^^^^^^^^^
+
+warning: struct `SourceEnvironment` is never constructed
+  --> backend\src\models\migration_models.rs:71:12
+   |
+71 | pub struct SourceEnvironment {
+   |            ^^^^^^^^^^^^^^^^^
+
+warning: struct `TargetEnvironment` is never constructed
+  --> backend\src\models\migration_models.rs:82:12
+   |
+82 | pub struct TargetEnvironment {
+   |            ^^^^^^^^^^^^^^^^^
+
+warning: enum `EnvironmentType` is never used
+  --> backend\src\models\migration_models.rs:91:10
+   |
+91 | pub enum EnvironmentType {
+   |          ^^^^^^^^^^^^^^^
+
+warning: enum `NetworkComplexity` is never used
+   --> backend\src\models\migration_models.rs:110:10
+    |
+110 | pub enum NetworkComplexity {
+    |          ^^^^^^^^^^^^^^^^^
+
+warning: enum `DeploymentModel` is never used
+   --> backend\src\models\migration_models.rs:117:10
+    |
+117 | pub enum DeploymentModel {
+    |          ^^^^^^^^^^^^^^^
+
+warning: struct `StorageConfiguration` is never constructed
+   --> backend\src\models\migration_models.rs:124:12
+    |
+124 | pub struct StorageConfiguration {
+    |            ^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `PerformanceRequirements` is never constructed
+   --> backend\src\models\migration_models.rs:310:12
+    |
+310 | pub struct PerformanceRequirements {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `MigrationTask` is never constructed
+   --> backend\src\models\migration_models.rs:319:12
+    |
+319 | pub struct MigrationTask {
+    |            ^^^^^^^^^^^^^
+
+warning: enum `MigrationTaskType` is never used
+   --> backend\src\models\migration_models.rs:351:10
+    |
+351 | pub enum MigrationTaskType {
+    |          ^^^^^^^^^^^^^^^^^
+
+warning: enum `MigrationTaskStatus` is never used
+   --> backend\src\models\migration_models.rs:363:10
+    |
+363 | pub enum MigrationTaskStatus {
+    |          ^^^^^^^^^^^^^^^^^^^
+
+warning: struct `TaskDependency` is never constructed
+   --> backend\src\models\migration_models.rs:373:12
+    |
+373 | pub struct TaskDependency {
+    |            ^^^^^^^^^^^^^^
+
+warning: enum `DependencyType` is never used
+   --> backend\src\models\migration_models.rs:381:10
+    |
+381 | pub enum DependencyType {
+    |          ^^^^^^^^^^^^^^
+
+warning: struct `HardwareRequirement` is never constructed
+   --> backend\src\models\migration_models.rs:389:12
+    |
+389 | pub struct HardwareRequirement {
+    |            ^^^^^^^^^^^^^^^^^^^
+
+warning: enum `HardwareRequirementType` is never used
+   --> backend\src\models\migration_models.rs:400:10
+    |
+400 | pub enum HardwareRequirementType {
+    |          ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `NetworkRequirement` is never constructed
+   --> backend\src\models\migration_models.rs:409:12
+    |
+409 | pub struct NetworkRequirement {
+    |            ^^^^^^^^^^^^^^^^^^
+
+warning: enum `NetworkRequirementType` is never used
+   --> backend\src\models\migration_models.rs:420:10
+    |
+420 | pub enum NetworkRequirementType {
+    |          ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `ValidationCriteria` is never constructed
+   --> backend\src\models\migration_models.rs:429:12
+    |
+429 | pub struct ValidationCriteria {
+    |            ^^^^^^^^^^^^^^^^^^
+
+warning: enum `ValidationCategory` is never used
+   --> backend\src\models\migration_models.rs:439:10
+    |
+439 | pub enum ValidationCategory {
+    |          ^^^^^^^^^^^^^^^^^^
+
+warning: enum `ValidationStatus` is never used
+   --> backend\src\models\migration_models.rs:447:10
+    |
+447 | pub enum ValidationStatus {
+    |          ^^^^^^^^^^^^^^^^
+
+warning: struct `CreateMigrationProjectRequest` is never constructed
+   --> backend\src\models\migration_models.rs:456:12
+    |
+456 | pub struct CreateMigrationProjectRequest {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `CreateMigrationTaskRequest` is never constructed
+   --> backend\src\models\migration_models.rs:471:12
+    |
+471 | pub struct CreateMigrationTaskRequest {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `MigrationProjectResponse` is never constructed
+   --> backend\src\models\migration_models.rs:491:12
+    |
+491 | pub struct MigrationProjectResponse {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `NetworkVariableDocumentation` is never constructed
+   --> backend\src\models\migration_wizard_models.rs:866:12
+    |
+866 | pub struct NetworkVariableDocumentation {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `NetworkVariable` is never constructed
+   --> backend\src\models\migration_wizard_models.rs:872:12
+    |
+872 | pub struct NetworkVariable {
+    |            ^^^^^^^^^^^^^^^
+
+warning: struct `UploadRVToolsRequest` is never constructed
+   --> backend\src\models\migration_wizard_models.rs:902:12
+    |
+902 | pub struct UploadRVToolsRequest {
+    |            ^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `AnalyzeProjectStrategyResponse` is never constructed
+   --> backend\src\models\migration_wizard_models.rs:978:12
+    |
+978 | pub struct AnalyzeProjectStrategyResponse {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `AutoPlacementRequest` is never constructed
+   --> backend\src\models\migration_wizard_models.rs:988:12
+    |
+988 | pub struct AutoPlacementRequest {
+    |            ^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `ManualPlacementRequest` is never constructed
+   --> backend\src\models\migration_wizard_models.rs:993:12
+    |
+993 | pub struct ManualPlacementRequest {
+    |            ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `PlacementResult` is never constructed
+    --> backend\src\models\migration_wizard_models.rs:1000:12
+     |
+1000 | pub struct PlacementResult {
+     |            ^^^^^^^^^^^^^^^
+
+warning: struct `AutoPlacementResponse` is never constructed
+    --> backend\src\models\migration_wizard_models.rs:1007:12
+     |
+1007 | pub struct AutoPlacementResponse {
+     |            ^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `ClusterUtilization` is never constructed
+    --> backend\src\models\migration_wizard_models.rs:1015:12
+     |
+1015 | pub struct ClusterUtilization {
+     |            ^^^^^^^^^^^^^^^^^^
+
+warning: struct `NetworkMappingListResponse` is never constructed
+    --> backend\src\models\migration_wizard_models.rs:1064:12
+     |
+1064 | pub struct NetworkMappingListResponse {
+     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: variants `InvalidIpRange`, `MissingGateway`, `UnreachableDns`, and `DuplicateMapping` are never constructed
+    --> backend\src\models\migration_wizard_models.rs:1092:5
+     |
+1089 | pub enum NetworkErrorType {
+     |          ---------------- variants in this enum
+...
+1092 |     InvalidIpRange,
+     |     ^^^^^^^^^^^^^^
+1093 |     MissingGateway,
+     |     ^^^^^^^^^^^^^^
+1094 |     UnreachableDns,
+     |     ^^^^^^^^^^^^^^
+1095 |     DuplicateMapping,
+     |     ^^^^^^^^^^^^^^^^
+     |
+     = note: `NetworkErrorType` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: struct `NetworkTopologyResponse` is never constructed
+    --> backend\src\models\migration_wizard_models.rs:1099:12
+     |
+1099 | pub struct NetworkTopologyResponse {
+     |            ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `MermaidDiagramResponse` is never constructed
+    --> backend\src\models\migration_wizard_models.rs:1104:12
+     |
+1104 | pub struct MermaidDiagramResponse {
+     |            ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: enum `WorkflowStepType` is never used
+   --> backend\src\models\project_models.rs:138:10
+    |
+138 | pub enum WorkflowStepType {
+    |          ^^^^^^^^^^^^^^^^
+
+warning: struct `WorkflowActivity` is never constructed
+   --> backend\src\models\project_models.rs:178:12
+    |
+178 | pub struct WorkflowActivity {
+    |            ^^^^^^^^^^^^^^^^
+
+warning: enum `ActivityType` is never used
+   --> backend\src\models\project_models.rs:201:10
+    |
+201 | pub enum ActivityType {
+    |          ^^^^^^^^^^^^
+
+warning: enum `ActivityStatus` is never used
+   --> backend\src\models\project_models.rs:217:10
+    |
+217 | pub enum ActivityStatus {
+    |          ^^^^^^^^^^^^^^
+
+warning: struct `ReportTemplate` is never constructed
+   --> backend\src\models\project_models.rs:628:12
+    |
+628 | pub struct ReportTemplate {
+    |            ^^^^^^^^^^^^^^
+
+warning: struct `ReportCustomization` is never constructed
+   --> backend\src\models\project_models.rs:644:12
+    |
+644 | pub struct ReportCustomization {
+    |            ^^^^^^^^^^^^^^^^^^^
+
+warning: struct `MetricTemplate` is never constructed
+   --> backend\src\models\project_models.rs:657:12
+    |
+657 | pub struct MetricTemplate {
+    |            ^^^^^^^^^^^^^^
+
+warning: struct `TemplateVariable` is never constructed
+   --> backend\src\models\project_models.rs:670:12
+    |
+670 | pub struct TemplateVariable {
+    |            ^^^^^^^^^^^^^^^^
+
+warning: struct `ValidationRule` is never constructed
+   --> backend\src\models\project_models.rs:681:12
+    |
+681 | pub struct ValidationRule {
+    |            ^^^^^^^^^^^^^^
+
+warning: enum `ValidationRuleType` is never used
+   --> backend\src\models\project_models.rs:688:10
+    |
+688 | pub enum ValidationRuleType {
+    |          ^^^^^^^^^^^^^^^^^^
+
+warning: enum `VisualizationType` is never used
+   --> backend\src\models\project_models.rs:700:10
+    |
+700 | pub enum VisualizationType {
+    |          ^^^^^^^^^^^^^^^^^
+
+warning: struct `RvToolsAnalysis` is never constructed
+   --> backend\src\models\project_models.rs:881:12
+    |
+881 | pub struct RvToolsAnalysis {
+    |            ^^^^^^^^^^^^^^^
+
+warning: enum `AnalysisType` is never used
+   --> backend\src\models\project_models.rs:901:10
+    |
+901 | pub enum AnalysisType {
+    |          ^^^^^^^^^^^^
+
+warning: struct `CapacityRecommendation` is never constructed
+   --> backend\src\models\project_models.rs:911:12
+    |
+911 | pub struct CapacityRecommendation {
+    |            ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `HardwareAllocationRequest` is never constructed
+   --> backend\src\models\project_models.rs:973:12
+    |
+973 | pub struct HardwareAllocationRequest {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `WorkflowResponse` is never constructed
+    --> backend\src\models\project_models.rs:1007:12
+     |
+1007 | pub struct WorkflowResponse {
+     |            ^^^^^^^^^^^^^^^^
+
+warning: struct `HardwarePoolResponse` is never constructed
+    --> backend\src\models\project_models.rs:1026:12
+     |
+1026 | pub struct HardwarePoolResponse {
+     |            ^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `VmPlacementPlan` is never constructed
+    --> backend\src\models\project_models.rs:1203:12
+     |
+1203 | pub struct VmPlacementPlan {
+     |            ^^^^^^^^^^^^^^^
+
+warning: enum `PlacementStatus` is never used
+    --> backend\src\models\project_models.rs:1308:10
+     |
+1308 | pub enum PlacementStatus {
+     |          ^^^^^^^^^^^^^^^
+
+warning: struct `CapacitySnapshot` is never constructed
+    --> backend\src\models\project_models.rs:1326:12
+     |
+1326 | pub struct CapacitySnapshot {
+     |            ^^^^^^^^^^^^^^^^
+
+warning: struct `RiskAssessment` is never constructed
+    --> backend\src\models\project_models.rs:1396:12
+     |
+1396 | pub struct RiskAssessment {
+     |            ^^^^^^^^^^^^^^
+
+warning: struct `RiskFactor` is never constructed
+    --> backend\src\models\project_models.rs:1403:12
+     |
+1403 | pub struct RiskFactor {
+     |            ^^^^^^^^^^
+
+warning: struct `NetworkProfileTemplate` is never constructed
+    --> backend\src\models\project_models.rs:1415:12
+     |
+1415 | pub struct NetworkProfileTemplate {
+     |            ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: enum `NetworkTopology` is never used
+    --> backend\src\models\project_models.rs:1448:10
+     |
+1448 | pub enum NetworkTopology {
+     |          ^^^^^^^^^^^^^^^
+
+warning: struct `VlanRequirement` is never constructed
+    --> backend\src\models\project_models.rs:1458:12
+     |
+1458 | pub struct VlanRequirement {
+     |            ^^^^^^^^^^^^^^^
+
+warning: struct `VlanRange` is never constructed
+    --> backend\src\models\project_models.rs:1466:12
+     |
+1466 | pub struct VlanRange {
+     |            ^^^^^^^^^
+
+warning: enum `NetworkPurpose` is never used
+    --> backend\src\models\project_models.rs:1472:10
+     |
+1472 | pub enum NetworkPurpose {
+     |          ^^^^^^^^^^^^^^
+
+warning: struct `NetworkValidationRule` is never constructed
+    --> backend\src\models\project_models.rs:1486:12
+     |
+1486 | pub struct NetworkValidationRule {
+     |            ^^^^^^^^^^^^^^^^^^^^^
+
+warning: enum `NetworkRuleType` is never used
+    --> backend\src\models\project_models.rs:1494:10
+     |
+1494 | pub enum NetworkRuleType {
+     |          ^^^^^^^^^^^^^^^
+
+warning: struct `NetworkProfileInstance` is never constructed
+    --> backend\src\models\project_models.rs:1508:12
+     |
+1508 | pub struct NetworkProfileInstance {
+     |            ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `NetworkValidationResult` is never constructed
+    --> backend\src\models\project_models.rs:1530:12
+     |
+1530 | pub struct NetworkValidationResult {
+     |            ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `DocumentTemplate` is never constructed
+    --> backend\src\models\project_models.rs:1543:12
+     |
+1543 | pub struct DocumentTemplate {
+     |            ^^^^^^^^^^^^^^^^
+
+warning: enum `DocumentType` is never used
+    --> backend\src\models\project_models.rs:1572:10
+     |
+1572 | pub enum DocumentType {
+     |          ^^^^^^^^^^^^
+
+warning: struct `TemplateSection` is never constructed
+    --> backend\src\models\project_models.rs:1586:12
+     |
+1586 | pub struct TemplateSection {
+     |            ^^^^^^^^^^^^^^^
+
+warning: struct `GeneratedDocument` is never constructed
+    --> backend\src\models\project_models.rs:1595:12
+     |
+1595 | pub struct GeneratedDocument {
+     |            ^^^^^^^^^^^^^^^^^
+
+warning: enum `DocumentFormat` is never used
+    --> backend\src\models\project_models.rs:1623:10
+     |
+1623 | pub enum DocumentFormat {
+     |          ^^^^^^^^^^^^^^
+
+warning: enum `DocumentGenerationStatus` is never used
+    --> backend\src\models\project_models.rs:1635:10
+     |
+1635 | pub enum DocumentGenerationStatus {
+     |          ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `HardwareFilter` is never constructed
+    --> backend\src\models\project_models.rs:1656:12
+     |
+1656 | pub struct HardwareFilter {
+     |            ^^^^^^^^^^^^^^
+
+warning: struct `MigrationProject` is never constructed
+    --> backend\src\models\project_models.rs:1670:12
+     |
+1670 | pub struct MigrationProject {
+     |            ^^^^^^^^^^^^^^^^
+
+warning: struct `MigrationCluster` is never constructed
+    --> backend\src\models\project_models.rs:1683:12
+     |
+1683 | pub struct MigrationCluster {
+     |            ^^^^^^^^^^^^^^^^
+
+warning: struct `Settings` is never constructed
+  --> backend\src\models\settings_models.rs:15:12
+   |
+15 | pub struct Settings {
+   |            ^^^^^^^^
+
+warning: enum `SettingCategory` is never used
+  --> backend\src\models\settings_models.rs:54:10
+   |
+54 | pub enum SettingCategory {
+   |          ^^^^^^^^^^^^^^^
+
+warning: struct `OvercommitDefaults` is never constructed
+  --> backend\src\models\settings_models.rs:66:12
+   |
+66 | pub struct OvercommitDefaults {
+   |            ^^^^^^^^^^^^^^^^^^
+
+warning: struct `TimelineDefaults` is never constructed
+  --> backend\src\models\settings_models.rs:87:12
+   |
+87 | pub struct TimelineDefaults {
+   |            ^^^^^^^^^^^^^^^^
+
+warning: struct `GlobalDefaults` is never constructed
+   --> backend\src\models\settings_models.rs:110:12
+    |
+110 | pub struct GlobalDefaults {
+    |            ^^^^^^^^^^^^^^
+
+warning: struct `ProjectWorkflow` is never constructed
+ --> backend\src\models\workflow.rs:8:12
+  |
+8 | pub struct ProjectWorkflow {
+  |            ^^^^^^^^^^^^^^^
+
+warning: enum `ProjectType` is never used
+  --> backend\src\models\workflow.rs:31:10
+   |
+31 | pub enum ProjectType {
+   |          ^^^^^^^^^^^
+
+warning: enum `ProjectStatus` is never used
+  --> backend\src\models\workflow.rs:43:10
+   |
+43 | pub enum ProjectStatus {
+   |          ^^^^^^^^^^^^^
+
+warning: enum `ProjectPriority` is never used
+  --> backend\src\models\workflow.rs:57:10
+   |
+57 | pub enum ProjectPriority {
+   |          ^^^^^^^^^^^^^^^
+
+warning: struct `Workflow` is never constructed
+  --> backend\src\models\workflow.rs:70:12
+   |
+70 | pub struct Workflow {
+   |            ^^^^^^^^
+
+warning: enum `WorkflowType` is never used
+  --> backend\src\models\workflow.rs:94:10
+   |
+94 | pub enum WorkflowType {
+   |          ^^^^^^^^^^^^
+
+warning: enum `WorkflowStatus` is never used
+   --> backend\src\models\workflow.rs:114:10
+    |
+114 | pub enum WorkflowStatus {
+    |          ^^^^^^^^^^^^^^
+
+warning: enum `DependencyType` is never used
+   --> backend\src\models\workflow.rs:128:10
+    |
+128 | pub enum DependencyType {
+    |          ^^^^^^^^^^^^^^
+
+warning: struct `HardwareRequirement` is never constructed
+   --> backend\src\models\workflow.rs:151:12
+    |
+151 | pub struct HardwareRequirement {
+    |            ^^^^^^^^^^^^^^^^^^^
+
+warning: struct `ServerInventory` is never constructed
+   --> backend\src\models\workflow.rs:165:12
+    |
+165 | pub struct ServerInventory {
+    |            ^^^^^^^^^^^^^^^
+
+warning: enum `ServerStatus` is never used
+   --> backend\src\models\workflow.rs:191:10
+    |
+191 | pub enum ServerStatus {
+    |          ^^^^^^^^^^^^
+
+warning: enum `ServerCondition` is never used
+   --> backend\src\models\workflow.rs:203:10
+    |
+203 | pub enum ServerCondition {
+    |          ^^^^^^^^^^^^^^^
+
+warning: struct `ServerSpecifications` is never constructed
+   --> backend\src\models\workflow.rs:215:12
+    |
+215 | pub struct ServerSpecifications {
+    |            ^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `MaintenanceRecord` is never constructed
+   --> backend\src\models\workflow.rs:228:12
+    |
+228 | pub struct MaintenanceRecord {
+    |            ^^^^^^^^^^^^^^^^^
+
+warning: struct `RVToolsImport` is never constructed
+   --> backend\src\models\workflow.rs:239:12
+    |
+239 | pub struct RVToolsImport {
+    |            ^^^^^^^^^^^^^
+
+warning: enum `ProcessingStatus` is never used
+   --> backend\src\models\workflow.rs:265:10
+    |
+265 | pub enum ProcessingStatus {
+    |          ^^^^^^^^^^^^^^^^
+
+warning: struct `EnvironmentSummary` is never constructed
+   --> backend\src\models\workflow.rs:275:12
+    |
+275 | pub struct EnvironmentSummary {
+    |            ^^^^^^^^^^^^^^^^^^
+
+warning: struct `ClusterData` is never constructed
+   --> backend\src\models\workflow.rs:288:12
+    |
+288 | pub struct ClusterData {
+    |            ^^^^^^^^^^^
+
+warning: struct `NetworkCardInfo` is never constructed
+   --> backend\src\models\workflow.rs:302:12
+    |
+302 | pub struct NetworkCardInfo {
+    |            ^^^^^^^^^^^^^^^
+
+warning: struct `CapacityAnalysis` is never constructed
+   --> backend\src\models\workflow.rs:310:12
+    |
+310 | pub struct CapacityAnalysis {
+    |            ^^^^^^^^^^^^^^^^
+
+warning: struct `OvercommitRatios` is never constructed
+   --> backend\src\models\workflow.rs:320:12
+    |
+320 | pub struct OvercommitRatios {
+    |            ^^^^^^^^^^^^^^^^
+
+warning: struct `HaRequirements` is never constructed
+   --> backend\src\models\workflow.rs:326:12
+    |
+326 | pub struct HaRequirements {
+    |            ^^^^^^^^^^^^^^
+
+warning: struct `GrowthProjection` is never constructed
+   --> backend\src\models\workflow.rs:332:12
+    |
+332 | pub struct GrowthProjection {
+    |            ^^^^^^^^^^^^^^^^
+
+warning: struct `HardwareRecommendation` is never constructed
+   --> backend\src\models\workflow.rs:339:12
+    |
+339 | pub struct HardwareRecommendation {
+    |            ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `RecommendedItem` is never constructed
+   --> backend\src\models\workflow.rs:353:12
+    |
+353 | pub struct RecommendedItem {
+    |            ^^^^^^^^^^^^^^^
+
+warning: struct `ProjectDocument` is never constructed
+   --> backend\src\models\workflow.rs:363:12
+    |
+363 | pub struct ProjectDocument {
+    |            ^^^^^^^^^^^^^^^
+
+warning: enum `DocumentStatus` is never used
+   --> backend\src\models\workflow.rs:403:10
+    |
+403 | pub enum DocumentStatus {
+    |          ^^^^^^^^^^^^^^
+
+warning: struct `ProcurementRequest` is never constructed
+   --> backend\src\models\workflow.rs:426:12
+    |
+426 | pub struct ProcurementRequest {
+    |            ^^^^^^^^^^^^^^^^^^
+
+warning: struct `ProcurementItem` is never constructed
+   --> backend\src\models\workflow.rs:446:12
+    |
+446 | pub struct ProcurementItem {
+    |            ^^^^^^^^^^^^^^^
+
+warning: enum `ProcurementStatus` is never used
+   --> backend\src\models\workflow.rs:456:10
+    |
+456 | pub enum ProcurementStatus {
+    |          ^^^^^^^^^^^^^^^^^
+
+warning: multiple associated functions are never used
+   --> backend\src\services\document_service.rs:91:18
+    |
+ 75 | impl DocumentService {
+    | -------------------- associated functions in this implementation
+...
+ 91 |     pub async fn generate_document(
+    |                  ^^^^^^^^^^^^^^^^^
+...
+157 |     async fn generate_hld_document(request: &DocumentGenerationRequest) -> anyhow::Result<Vec<u8>> {
+    |              ^^^^^^^^^^^^^^^^^^^^^
+...
+172 |     async fn generate_lld_document(request: &DocumentGenerationRequest) -> anyhow::Result<Vec<u8>> {
+    |              ^^^^^^^^^^^^^^^^^^^^^
+...
+182 |     async fn generate_bom_document(request: &DocumentGenerationRequest) -> anyhow::Result<Vec<u8>> {
+    |              ^^^^^^^^^^^^^^^^^^^^^
+...
+187 |     async fn generate_migration_plan(
+    |              ^^^^^^^^^^^^^^^^^^^^^^^
+...
+194 |     async fn generate_network_diagram(
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^
+...
+201 |     async fn generate_deployment_plan(
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^
+...
+208 |     async fn generate_custom_document(
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^
+...
+215 |     pub async fn list_project_documents(
+    |                  ^^^^^^^^^^^^^^^^^^^^^^
+...
+234 |     pub async fn get_document(
+    |                  ^^^^^^^^^^^^
+...
+248 |     pub async fn delete_document(app_state: &AppState, document_id: &str) -> anyhow::Result<()> {
+    |                  ^^^^^^^^^^^^^^^
+...
+269 |     async fn generate_basic_hld(
+    |              ^^^^^^^^^^^^^^^^^^
+...
+280 |     async fn generate_template_hld(request: &DocumentGenerationRequest) -> anyhow::Result<Vec<u8>> {
+    |              ^^^^^^^^^^^^^^^^^^^^^
+...
+285 |     async fn generate_professional_hld_with_data(
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+411 |     async fn generate_sample_hld(_request: &DocumentGenerationRequest) -> anyhow::Result<Vec<u8>> {
+    |              ^^^^^^^^^^^^^^^^^^^
+...
+431 |     fn add_capacity_summary_table(
+    |        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+522 |     async fn generate_basic_lld(
+    |              ^^^^^^^^^^^^^^^^^^
+...
+533 |     async fn generate_template_lld(request: &DocumentGenerationRequest) -> anyhow::Result<Vec<u8>> {
+    |              ^^^^^^^^^^^^^^^^^^^^^
+...
+538 |     async fn generate_professional_lld_with_data(
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+629 |     async fn generate_sample_lld(_request: &DocumentGenerationRequest) -> anyhow::Result<Vec<u8>> {
+    |              ^^^^^^^^^^^^^^^^^^^
+...
+649 |     fn add_server_configuration_table(
+    |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+688 |     async fn generate_bom_from_hardware_selection(
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+694 |     async fn generate_migration_plan_document(
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+700 |     async fn generate_network_diagram_document(
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+706 |     async fn generate_deployment_plan_document(
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+712 |     async fn generate_custom_template(
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: fields `rule_name` and `parameters` are never read
+    --> backend\src\services\enhanced_rvtools_service.rs:1192:9
+     |
+1191 | pub struct ValidationRule {
+     |            -------------- fields in this struct
+1192 |     pub rule_name: String,
+     |         ^^^^^^^^^
+...
+1196 |     pub parameters: HashMap<String, serde_json::Value>,
+     |         ^^^^^^^^^^
+     |
+     = note: `ValidationRule` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: variants `RequiredFormat`, `ClusterConsistency`, and `CrossReference` are never constructed
+    --> backend\src\services\enhanced_rvtools_service.rs:1209:5
+     |
+1201 | pub enum ValidationRuleType {
+     |          ------------------ variants in this enum
+...
+1209 |     RequiredFormat {
+     |     ^^^^^^^^^^^^^^
+...
+1215 |     ClusterConsistency,
+     |     ^^^^^^^^^^^^^^^^^^
+1216 |     DataPresence,
+1217 |     CrossReference {
+     |     ^^^^^^^^^^^^^^
+     |
+     = note: `ValidationRuleType` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: methods `test_connection` and `fetch_alerts` are never used
+  --> backend\src\services\integration_hub\connector.rs:37:14
+   |
+32 | pub trait IntegrationConnector: Send + Sync {
+   |           -------------------- methods in this trait
+...
+37 |     async fn test_connection(&self) -> Result<bool, Box<dyn Error>>;
+   |              ^^^^^^^^^^^^^^^
+...
+43 |     async fn fetch_alerts(&self) -> Result<Vec<serde_json::Value>, Box<dyn Error>>;
+   |              ^^^^^^^^^^^^
+
+warning: struct `IntegrationService` is never constructed
+ --> backend\src\services\integration_hub\service.rs:8:12
+  |
+8 | pub struct IntegrationService {
+  |            ^^^^^^^^^^^^^^^^^^
+
+warning: associated items `new` and `run_scan` are never used
+  --> backend\src\services\integration_hub\service.rs:13:12
+   |
+12 | impl IntegrationService {
+   | ----------------------- associated items in this implementation
+13 |     pub fn new(db: Arc<Database>) -> Self {
+   |            ^^^
+...
+17 |     pub async fn run_scan(&self, config: IntegrationConfig) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+   |                  ^^^^^^^^
+
+warning: multiple methods are never used
+   --> backend\src\services\project_management_service.rs:294:18
+    |
+ 12 | impl ProjectManagementService {
+    | ----------------------------- methods in this implementation
+...
+294 |     pub async fn list_project_workflows(&self, project_id: &str) -> Result<Vec<WorkflowResponse>> {
+    |                  ^^^^^^^^^^^^^^^^^^^^^^
+...
+345 |     pub async fn list_available_hardware(
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^
+...
+409 |     pub async fn allocate_hardware(
+    |                  ^^^^^^^^^^^^^^^^^
+...
+474 |     pub async fn release_hardware(&self, server_ids: Vec<String>) -> Result<()> {
+    |                  ^^^^^^^^^^^^^^^^
+...
+499 |     pub async fn hardware_pool_status(&self) -> Result<serde_json::Value> {
+    |                  ^^^^^^^^^^^^^^^^^^^^
+...
+524 |     pub async fn calculate_project_progress(&self, project_id: &str) -> Result<u8> {
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+557 |     pub async fn get_project_timeline(&self, project_id: &str) -> Result<serde_json::Value> {
+    |                  ^^^^^^^^^^^^^^^^^^^^
+
+warning: associated function `calculate_recommended_hosts` is never used
+   --> backend\src\services\capacity_validation_service.rs:353:12
+    |
+ 64 | impl CapacityValidationService {
+    | ------------------------------ associated function in this implementation
+...
+353 |     pub fn calculate_recommended_hosts(
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: associated function `cleanup_expired_drafts` is never used
+   --> backend\src\services\wizard_service.rs:282:18
+    |
+ 59 | impl WizardService {
+    | ------------------ associated function in this implementation
+...
+282 |     pub async fn cleanup_expired_drafts(
+    |                  ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: methods `list_user_templates` and `bulk_create_templates` are never used
+   --> backend\src\services\network_template_service.rs:364:18
+    |
+ 55 | impl NetworkTemplateService {
+    | --------------------------- methods in this implementation
+...
+364 |     pub async fn list_user_templates(
+    |                  ^^^^^^^^^^^^^^^^^^^
+...
+410 |     pub async fn bulk_create_templates(
+    |                  ^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `HLDGenerationService` is never constructed
+  --> backend\src\services\hld_generation_service.rs:18:12
+   |
+18 | pub struct HLDGenerationService {
+   |            ^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `HLDGenerationRequest` is never constructed
+  --> backend\src\services\hld_generation_service.rs:25:12
+   |
+25 | pub struct HLDGenerationRequest {
+   |            ^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `HLDGenerationResult` is never constructed
+  --> backend\src\services\hld_generation_service.rs:53:12
+   |
+53 | pub struct HLDGenerationResult {
+   |            ^^^^^^^^^^^^^^^^^^^
+
+warning: multiple associated items are never used
+   --> backend\src\services\hld_generation_service.rs:70:12
+    |
+ 68 | impl HLDGenerationService {
+    | ------------------------- associated items in this implementation
+ 69 |     /// Create a new HLD Generation Service
+ 70 |     pub fn new(db: Database, output_dir: PathBuf) -> Self {
+    |            ^^^
+...
+ 75 |     pub async fn generate_hld(
+    |                  ^^^^^^^^^^^^
+...
+226 |     async fn fetch_project_clusters(
+    |              ^^^^^^^^^^^^^^^^^^^^^^
+...
+242 |     async fn fetch_vm_placements(
+    |              ^^^^^^^^^^^^^^^^^^^
+...
+258 |     fn add_title_page(&self, mut docx: Docx, project: &MigrationProject) -> Docx {
+    |        ^^^^^^^^^^^^^^
+...
+290 |     fn add_table_of_contents(&self, docx: Docx) -> Docx {
+    |        ^^^^^^^^^^^^^^^^^^^^^
+...
+301 |     fn add_executive_summary(
+    |        ^^^^^^^^^^^^^^^^^^^^^
+...
+356 |     fn add_inventory_section(
+    |        ^^^^^^^^^^^^^^^^^^^^^
+...
+408 |     fn add_architecture_section(
+    |        ^^^^^^^^^^^^^^^^^^^^^^^^
+...
+447 |     fn add_capacity_section(
+    |        ^^^^^^^^^^^^^^^^^^^^
+...
+487 |     fn add_network_section(&self, mut docx: Docx, project: &MigrationProject) -> Docx {
+    |        ^^^^^^^^^^^^^^^^^^^
+...
+518 |     fn add_runbook_section(
+    |        ^^^^^^^^^^^^^^^^^^^
+...
+567 |     fn add_appendices_section(&self, mut docx: Docx, _project: &MigrationProject) -> Docx {
+    |        ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `ValidationError` is never constructed
+ --> backend\src\services\variable_validator.rs:8:12
+  |
+8 | pub struct ValidationError {
+  |            ^^^^^^^^^^^^^^^
+
+warning: associated function `new` is never used
+  --> backend\src\services\variable_validator.rs:14:12
+   |
+13 | impl ValidationError {
+   | -------------------- associated function in this implementation
+14 |     pub fn new(field: impl Into<String>, message: impl Into<String>) -> Self {
+   |            ^^^
+
+warning: type alias `ValidationResult` is never used
+  --> backend\src\services\variable_validator.rs:23:10
+   |
+23 | pub type ValidationResult<T> = Result<T, Vec<ValidationError>>;
+   |          ^^^^^^^^^^^^^^^^
+
+warning: struct `VariableValidator` is never constructed
+  --> backend\src\services\variable_validator.rs:26:12
+   |
+26 | pub struct VariableValidator;
+   |            ^^^^^^^^^^^^^^^^^
+
+warning: associated functions `validate_variable`, `validate_all`, `validate_required_only`, and `check_dependencies` are never used
+   --> backend\src\services\variable_validator.rs:39:12
+    |
+ 28 | impl VariableValidator {
+    | ---------------------- associated functions in this implementation
+...
+ 39 |     pub fn validate_variable(
+    |            ^^^^^^^^^^^^^^^^^
+...
+226 |     pub fn validate_all(
+    |            ^^^^^^^^^^^^
+...
+251 |     pub fn validate_required_only(
+    |            ^^^^^^^^^^^^^^^^^^^^^^
+...
+279 |     pub fn check_dependencies(
+    |            ^^^^^^^^^^^^^^^^^^
+
+warning: struct `VariableDefinitions` is never constructed
+ --> backend\src\services\variable_definitions.rs:6:12
+  |
+6 | pub struct VariableDefinitions;
+  |            ^^^^^^^^^^^^^^^^^^^
+
+warning: multiple associated functions are never used
+    --> backend\src\services\variable_definitions.rs:10:12
+     |
+   8 | impl VariableDefinitions {
+     | ------------------------ associated functions in this implementation
+   9 |     /// Get all variable definitions as a HashMap (name -> definition)
+  10 |     pub fn get_all() -> HashMap<String, VariableDefinition> {
+     |            ^^^^^^^
+...
+  49 |     pub fn get_all_vec() -> Vec<VariableDefinition> {
+     |            ^^^^^^^^^^^
+...
+  54 |     pub fn get(name: &str) -> Option<VariableDefinition> {
+     |            ^^^
+...
+  59 |     pub fn get_by_section(section: &str) -> Vec<VariableDefinition> {
+     |            ^^^^^^^^^^^^^^
+...
+  70 |     fn global_variables() -> Vec<VariableDefinition> {
+     |        ^^^^^^^^^^^^^^^^
+...
+ 177 |     fn introduction_variables() -> Vec<VariableDefinition> {
+     |        ^^^^^^^^^^^^^^^^^^^^^^
+...
+ 260 |     fn architectural_decisions_variables() -> Vec<VariableDefinition> {
+     |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+ 377 |     fn physical_infrastructure_variables() -> Vec<VariableDefinition> {
+     |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+ 512 |     fn host_cluster_config_variables() -> Vec<VariableDefinition> {
+     |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+ 624 |     fn network_architecture_variables() -> Vec<VariableDefinition> {
+     |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+ 828 |     fn storage_architecture_variables() -> Vec<VariableDefinition> {
+     |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+ 992 |     fn vm_workload_design_variables() -> Vec<VariableDefinition> {
+     |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+1140 |     fn security_hardening_variables() -> Vec<VariableDefinition> {
+     |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+1260 |     fn bcdr_variables() -> Vec<VariableDefinition> {
+     |        ^^^^^^^^^^^^^^
+
+warning: fields `name` and `source` are never read
+  --> backend\src\services\rvtools_hld_mapper.rs:8:9
+   |
+ 7 | pub struct MappedVariable {
+   |            -------------- fields in this struct
+ 8 |     pub name: String,
+   |         ^^^^
+...
+11 |     pub source: String,
+   |         ^^^^^^
+   |
+   = note: `MappedVariable` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: associated function `success_with_metadata` is never used
+  --> backend\src\utils\api_response.rs:41:12
+   |
+25 | / impl<T> ApiResponse<T>
+26 | | where
+27 | |     T: Serialize,
+   | |_________________- associated function in this implementation
+...
+41 |       pub fn success_with_metadata(data: T, metadata: Value) -> Self {
+   |              ^^^^^^^^^^^^^^^^^^^^^
+
+warning: associated function `error_with_details` is never used
+  --> backend\src\utils\api_response.rs:69:12
+   |
+52 | impl ApiResponse<()> {
+   | -------------------- associated function in this implementation
+...
+69 |     pub fn error_with_details(code: &str, message: &str, details: Value) -> Self {
+   |            ^^^^^^^^^^^^^^^^^^
+
+warning: trait `IntoApiResponse` is never used
+  --> backend\src\utils\api_response.rs:85:11
+   |
+85 | pub trait IntoApiResponse<T> {
+   |           ^^^^^^^^^^^^^^^
+
+warning: function `created` is never used
+   --> backend\src\utils\api_response.rs:145:12
+    |
+145 |     pub fn created<T: Serialize>(data: T) -> impl IntoResponse {
+    |            ^^^^^^^
+
+warning: function `not_found` is never used
+   --> backend\src\utils\api_response.rs:149:12
+    |
+149 |     pub fn not_found(message: &str) -> ApiResponse<()> {
+    |            ^^^^^^^^^
+
+warning: function `validation_error` is never used
+   --> backend\src\utils\api_response.rs:157:12
+    |
+157 |     pub fn validation_error(message: &str, details: Value) -> ApiResponse<()> {
+    |            ^^^^^^^^^^^^^^^^
+
+warning: function `internal_error` is never used
+   --> backend\src\utils\api_response.rs:161:12
+    |
+161 |     pub fn internal_error(message: &str) -> ApiResponse<()> {
+    |            ^^^^^^^^^^^^^^
+
+warning: function `conflict` is never used
+   --> backend\src\utils\api_response.rs:165:12
+    |
+165 |     pub fn conflict(message: &str) -> ApiResponse<()> {
+    |            ^^^^^^^^
+
+warning: function `unauthorized` is never used
+   --> backend\src\utils\api_response.rs:169:12
+    |
+169 |     pub fn unauthorized(message: &str) -> ApiResponse<()> {
+    |            ^^^^^^^^^^^^
+
+warning: enum `EnhancedRvToolsError` is never used
+  --> backend\src\utils\error_handling.rs:12:10
+   |
+12 | pub enum EnhancedRvToolsError {
+   |          ^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `EnhancedRvToolsLogger` is never constructed
+   --> backend\src\utils\error_handling.rs:486:12
+    |
+486 | pub struct EnhancedRvToolsLogger;
+    |            ^^^^^^^^^^^^^^^^^^^^^
+
+warning: multiple associated functions are never used
+   --> backend\src\utils\error_handling.rs:490:12
+    |
+488 | impl EnhancedRvToolsLogger {
+    | -------------------------- associated functions in this implementation
+489 |     /// Log successful Excel upload
+490 |     pub fn log_upload_success(
+    |            ^^^^^^^^^^^^^^^^^^
+...
+506 |     pub fn log_validation_results(
+    |            ^^^^^^^^^^^^^^^^^^^^^^
+...
+529 |     pub fn log_storage_analysis(cluster: &str, storage_type: &str, confidence: f32) {
+    |            ^^^^^^^^^^^^^^^^^^^^
+...
+539 |     pub fn log_s2d_compliance(cluster: &str, compliant: bool, risk_level: &str) {
+    |            ^^^^^^^^^^^^^^^^^^
+...
+558 |     pub fn log_report_generation(template_id: &str, upload_id: &str, generation_time_ms: u64) {
+    |            ^^^^^^^^^^^^^^^^^^^^^
+...
+568 |     pub fn log_report_export(format: &str, file_size_bytes: u64, export_time_ms: u64) {
+    |            ^^^^^^^^^^^^^^^^^
+...
+578 |     pub fn log_performance_metrics(
+    |            ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: type alias `EnhancedRvToolsResult` is never used
+   --> backend\src\utils\error_handling.rs:612:10
+    |
+612 | pub type EnhancedRvToolsResult<T> = Result<T, EnhancedRvToolsError>;
+    |          ^^^^^^^^^^^^^^^^^^^^^
+
+warning: `backend` (bin "backend") generated 308 warnings (105 duplicates) (run `cargo fix --bin "backend"` to apply 3 suggestions)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 15.73s
+     Running `C:\Users\matei\DevApps\Archer\target\debug\backend.exe`
+error

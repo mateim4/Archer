@@ -47,6 +47,18 @@
     --confirm-grad-2: 163 196 243; /* #a3c4f3 */
     --confirm-grad-3: 144 219 244; /* #90dbf4 */
     --confirm-grad-opacity: 0.30;
+
+    /* ========================================================================
+       PAGE CONTAINER TOKENS (Main content area layout)
+       ======================================================================== */
+    --page-container-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.40), rgba(255, 255, 255, 0.40));
+    --page-container-backdrop: blur(30px) saturate(135%) brightness(145%) contrast(85%);
+    --page-container-border: 1px solid rgba(255, 255, 255, 0.3);
+    --page-container-border-radius: 20px;
+    --page-container-padding: 40px;
+    --page-container-margin: 20px;
+    --page-container-min-height: calc(100vh - 120px);
+    --page-container-shadow: inset 0 0 20px rgba(255, 255, 255, 0.1), 0 0 40px rgba(255, 255, 255, 0.05);
   }
 
   .dark {
@@ -91,6 +103,18 @@
     --confirm-grad-2: 163 196 243;
     --confirm-grad-3: 144 219 244;
     --confirm-grad-opacity: 0.30;
+
+    /* ========================================================================
+       PAGE CONTAINER TOKENS (Main content area layout - Dark Mode)
+       ======================================================================== */
+    --page-container-bg: linear-gradient(135deg, rgba(30, 30, 45, 0.40), rgba(30, 30, 45, 0.40));
+    --page-container-backdrop: blur(30px) saturate(135%) brightness(85%) contrast(95%);
+    --page-container-border: 1px solid rgba(255, 255, 255, 0.1);
+    --page-container-border-radius: 20px;
+    --page-container-padding: 40px;
+    --page-container-margin: 20px;
+    --page-container-min-height: calc(100vh - 120px);
+    --page-container-shadow: inset 0 0 20px rgba(139, 92, 246, 0.05), 0 0 40px rgba(0, 0, 0, 0.2);
   }
 }
 

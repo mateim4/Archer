@@ -1336,7 +1336,6 @@ impl MigrationWizardService {
         // Parse vNetwork sheet for VM network assignments and IP addresses
         let vnetwork_range = workbook
             .worksheet_range("vNetwork")
-            .ok()
             .and_then(|r| r.ok());
 
         // Build header map for vPort

@@ -4,13 +4,13 @@
 
 ### Phase 1: Foundation (Q4 2025) - **ACTIVE**
 *   [x] **UI Overhaul:** Implement "Acrylic" design system.
-*   [ ] **Schema Extension:** Apply `itil_agentic_schema.surql`.
-*   [ ] **Tasks Module:** Create basic CRUD for Tickets/Tasks.
+*   [x] **Schema Extension:** Apply `itil_agentic_schema.surql`.
+*   [x] **Tasks Module:** Create basic CRUD for Tickets/Tasks.
 *   [ ] **Inventory Update:** Refactor `hardware_lot` to support logical assets.
 
 ### Phase 2: The Nervous System (Q1 2026)
-*   [ ] **Integration Hub:** Build Rust service for API polling.
-*   [ ] **Nutanix Connector:** Implement Prism v3/v4 client.
+*   [x] **Integration Hub:** Build Rust service for API polling.
+*   [x] **Nutanix Connector:** Implement Prism v3/v4 client.
 *   [ ] **Cisco Connector:** Implement ACI/NX-OS client.
 *   [ ] **Live Dashboard:** Show real-time status of assets.
 
