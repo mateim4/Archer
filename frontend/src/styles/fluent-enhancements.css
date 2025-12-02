@@ -9,30 +9,34 @@
   /* Standard Design System Colors */
   --lcm-primary: #8b5cf6;
   --lcm-primary-light: rgba(139, 92, 246, 0.1);
-  --lcm-primary-border: rgba(139, 92, 246, 0.2);
+  --lcm-primary-border: rgba(139, 92, 246, 0.18);
   --lcm-primary-hover: rgba(139, 92, 246, 0.4);
   --lcm-primary-focus-soft: rgba(139, 92, 246, 0.25);
   --lcm-primary-focus-strong: rgba(139, 92, 246, 0.35);
   
-  /* Standard Backgrounds */
-  --lcm-bg-card: rgba(255, 255, 255, 0.85);
-  --lcm-bg-card-hover: rgba(255, 255, 255, 0.95);
-  --lcm-bg-input: transparent;
-  --lcm-bg-input-focus: transparent;
-  --lcm-bg-dropdown: transparent;
+  /* Fluent UI 2 Acrylic Backgrounds - Consistent across app */
+  --lcm-bg-card: rgba(255, 255, 255, 0.82);
+  --lcm-bg-card-hover: rgba(255, 255, 255, 0.90);
+  --lcm-bg-sidebar: rgba(255, 255, 255, 0.78);
+  --lcm-bg-surface: rgba(255, 255, 255, 0.75);
+  --lcm-bg-input: rgba(255, 255, 255, 0.6);
+  --lcm-bg-input-focus: rgba(255, 255, 255, 0.75);
+  --lcm-bg-dropdown: rgba(255, 255, 255, 0.92);
   
-  /* Standard Text Colors */
-  --lcm-text-primary: #1a202c;
+  /* Standard Text Colors - WCAG AA compliant */
+  --lcm-text-primary: #1a1a2e;
   --lcm-text-secondary: #374151;
-  --lcm-text-muted: #64748b;
+  --lcm-text-muted: #5b6477;
   
-  /* Standard Shadows */
-  --lcm-shadow-card: 0 4px 24px 0 rgba(168,85,247,0.07), 0 1.5px 4px 0 rgba(0,0,0,0.04);
-  --lcm-shadow-card-hover: 0 8px 32px 0 rgba(168,85,247,0.12), 0 2px 8px 0 rgba(0,0,0,0.08);
+  /* Standard Shadows - Subtle for acrylic */
+  --lcm-shadow-card: 0 2px 8px 0 rgba(0, 0, 0, 0.04), 0 4px 16px 0 rgba(139, 92, 246, 0.06);
+  --lcm-shadow-card-hover: 0 4px 12px 0 rgba(0, 0, 0, 0.06), 0 8px 24px 0 rgba(139, 92, 246, 0.10);
+  --lcm-shadow-sidebar: 0 0 1px 0 rgba(0, 0, 0, 0.08), 2px 0 8px 0 rgba(0, 0, 0, 0.04);
   
-  /* Standard Backdrop Filter */
-  --lcm-backdrop-filter: blur(18px) saturate(180%);
-  --lcm-backdrop-filter-intense: blur(30px) saturate(225%);
+  /* Standard Backdrop Filter - Fluent UI 2 Acrylic */
+  --lcm-backdrop-filter: blur(20px) saturate(150%);
+  --lcm-backdrop-filter-intense: blur(40px) saturate(180%);
+  --lcm-backdrop-filter-sidebar: blur(30px) saturate(140%);
   
   /* Standardized sizing */
   --lcm-icon-size-sm: 16px;
