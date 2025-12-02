@@ -111,8 +111,8 @@ const MonitoringView: React.FC = () => {
         {/* Header & Summary */}
         <div className="flex justify-between items-end shrink-0">
           <div>
-            <h1 className="text-3xl font-bold text-white tracking-tight mb-1">Monitoring Dashboard</h1>
-            <p className="text-white/60 text-sm">Real-time Infrastructure Health & Performance</p>
+            <h1 className="text-3xl font-bold tracking-tight mb-1" style={{ color: 'var(--text-primary)' }}>Monitoring Dashboard</h1>
+            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Real-time Infrastructure Health & Performance</p>
           </div>
           <div className="flex gap-4">
             <SummaryCard 
@@ -208,7 +208,7 @@ const MonitoringView: React.FC = () => {
             {selectedAsset && metrics ? (
               <>
                 <div className="flex justify-between items-center">
-                  <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                  <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
                     {getAssetIcon(selectedAsset.asset_type)}
                     {selectedAsset.name} Metrics
                   </h2>
@@ -310,7 +310,7 @@ const MonitoringView: React.FC = () => {
                 </PurpleGlassCard>
               </>
             ) : (
-              <div className="flex-1 flex items-center justify-center text-white/40">
+              <div className="flex-1 flex items-center justify-center" style={{ color: 'var(--text-muted)' }}>
                 {assets.length === 0 ? 'No assets found' : 'Select an asset to view metrics'}
               </div>
             )}

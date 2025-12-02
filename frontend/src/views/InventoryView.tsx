@@ -73,8 +73,8 @@ const InventoryView: React.FC = () => {
         {/* Header */}
         <div className="flex justify-between items-end shrink-0">
           <div>
-            <h1 className="text-3xl font-bold text-white tracking-tight mb-1">Inventory (CMDB)</h1>
-            <p className="text-white/60 text-sm">Single Source of Truth for Infrastructure Assets</p>
+            <h1 className="text-3xl font-bold tracking-tight mb-1" style={{ color: 'var(--text-primary)' }}>Inventory (CMDB)</h1>
+            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Single Source of Truth for Infrastructure Assets</p>
           </div>
           <PurpleGlassButton variant="primary" icon={<AddRegular />} glass>Add Asset</PurpleGlassButton>
         </div>
@@ -200,12 +200,12 @@ const InventoryView: React.FC = () => {
                       {selectedAsset.raw_data ? (
                         Object.entries(selectedAsset.raw_data).map(([key, value]) => (
                           <div key={key} className="flex justify-between py-2 border-b border-white/5 last:border-0">
-                            <span className="text-white/60 capitalize">{key.replace(/_/g, ' ')}</span>
-                            <span className="text-white font-mono text-sm">{String(value)}</span>
+                            <span className="capitalize" style={{ color: 'var(--text-secondary)' }}>{key.replace(/_/g, ' ')}</span>
+                            <span className="font-mono text-sm" style={{ color: 'var(--text-primary)' }}>{String(value)}</span>
                           </div>
                         ))
                       ) : (
-                        <div className="text-white/40 italic">No specification data available.</div>
+                        <div className="italic" style={{ color: 'var(--text-muted)' }}>No specification data available.</div>
                       )}
                     </div>
                   </PurpleGlassCard>
@@ -221,7 +221,7 @@ const InventoryView: React.FC = () => {
                 </div>
               </>
             ) : (
-              <div className="flex-1 flex items-center justify-center text-white/40">
+              <div className="flex-1 flex items-center justify-center" style={{ color: 'var(--text-muted)' }}>
                 Select an asset to view details
               </div>
             )}

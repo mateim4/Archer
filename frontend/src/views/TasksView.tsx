@@ -62,8 +62,8 @@ const TasksView: React.FC = () => {
         {/* Header */}
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-white mb-2">Tasks</h1>
-            <p className="text-white/70">Manage Incidents, Changes, and Problems</p>
+            <h1 className="text-3xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Tasks</h1>
+            <p style={{ color: 'var(--text-secondary)' }}>Manage Incidents, Changes, and Problems</p>
           </div>
           <PurpleGlassButton 
             variant="primary" 
@@ -112,7 +112,7 @@ const TasksView: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Column: New */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white/90 flex items-center gap-2">
+            <h3 className="text-lg font-semibold flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
               <div className="w-3 h-3 rounded-full bg-blue-500"></div>
               New / Open
             </h3>
@@ -123,7 +123,7 @@ const TasksView: React.FC = () => {
 
           {/* Column: In Progress */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white/90 flex items-center gap-2">
+            <h3 className="text-lg font-semibold flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
               <div className="w-3 h-3 rounded-full bg-amber-500"></div>
               In Progress
             </h3>
@@ -134,7 +134,7 @@ const TasksView: React.FC = () => {
 
           {/* Column: Done */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white/90 flex items-center gap-2">
+            <h3 className="text-lg font-semibold flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
               <div className="w-3 h-3 rounded-full bg-emerald-500"></div>
               Resolved / Closed
             </h3>
@@ -155,7 +155,7 @@ const TaskCard = ({ task, getPriorityIcon }: { task: Ticket, getPriorityIcon: (p
     className="cursor-pointer hover:translate-y-[-2px] transition-transform"
   >
     <div className="flex justify-between items-start mb-2">
-      <span className="text-xs font-mono text-white/50 bg-white/10 px-2 py-0.5 rounded">
+      <span className="text-xs font-mono px-2 py-0.5 rounded" style={{ color: 'var(--text-muted)', background: 'rgba(255,255,255,0.1)' }}>
         {task.id}
       </span>
       <span className={`text-xs px-2 py-0.5 rounded-full border ${
@@ -166,8 +166,8 @@ const TaskCard = ({ task, getPriorityIcon }: { task: Ticket, getPriorityIcon: (p
         {task.type}
       </span>
     </div>
-    <h4 className="text-white font-medium mb-3">{task.title}</h4>
-    <div className="flex justify-between items-center text-xs text-white/60">
+    <h4 className="font-medium mb-3" style={{ color: 'var(--text-primary)' }}>{task.title}</h4>
+    <div className="flex justify-between items-center text-xs" style={{ color: 'var(--text-secondary)' }}>
       <div className="flex items-center gap-1">
         {getPriorityIcon(task.priority)}
         <span>{task.priority}</span>

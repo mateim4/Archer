@@ -223,19 +223,19 @@ const GuidesView: React.FC = () => {
           <h1 style={{
             fontSize: DesignTokens.typography.xxxl,
             fontWeight: DesignTokens.typography.semibold,
-            color: DesignTokens.colors.primary,
+            color: 'var(--brand-primary)',
             margin: '0',
             fontFamily: DesignTokens.typography.fontFamily,
             display: 'flex',
             alignItems: 'center',
             gap: '12px'
           }}>
-            <NavigationRegular style={{ fontSize: '32px', color: DesignTokens.colors.gray900 }} />
+            <NavigationRegular style={{ fontSize: '32px', color: 'var(--icon-default)' }} />
             Guides & Documentation
           </h1>
           <p style={{
             fontSize: DesignTokens.typography.lg,
-            color: DesignTokens.colors.textSecondary,
+            color: 'var(--text-secondary)',
             fontFamily: DesignTokens.typography.fontFamily,
             margin: 0
           }}>
@@ -250,8 +250,8 @@ const GuidesView: React.FC = () => {
         borderRadius: '16px',
         padding: '24px',
         marginBottom: '32px',
-        background: 'rgba(255, 255, 255, 0.40)',
-        backdropFilter: 'blur(30px) saturate(35%) brightness(145%) contrast(85%)'
+        background: 'var(--lcm-bg-card)',
+        backdropFilter: 'var(--lcm-backdrop-filter)'
       }}>
         <div style={{
           display: 'grid',
