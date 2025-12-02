@@ -77,6 +77,29 @@
 }
 
 /* ===================
+   DARK MODE OVERRIDES
+   =================== */
+.dark {
+  /* Dark mode backgrounds */
+  --lcm-bg-card: rgba(30, 30, 45, 0.85);
+  --lcm-bg-card-hover: rgba(40, 40, 55, 0.95);
+  
+  /* Dark mode text colors */
+  --lcm-text-primary: #f3f4f6;
+  --lcm-text-secondary: #d1d5db;
+  --lcm-text-muted: #9ca3af;
+  
+  /* Dark mode shadows */
+  --lcm-shadow-card: 0 4px 24px 0 rgba(0,0,0,0.3), 0 1.5px 4px 0 rgba(0,0,0,0.2);
+  --lcm-shadow-card-hover: 0 8px 32px 0 rgba(139,92,246,0.2), 0 2px 8px 0 rgba(0,0,0,0.3);
+  
+  /* Dark mode primary with better contrast */
+  --lcm-primary: #a78bfa;
+  --lcm-primary-light: rgba(167, 139, 250, 0.15);
+  --lcm-primary-border: rgba(167, 139, 250, 0.3);
+}
+
+/* ===================
    PAGE LAYOUT SYSTEM
    Unified with DesignTokens.components.pageContainer and CSS variables from index.css
    =================== */

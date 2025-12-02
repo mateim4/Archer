@@ -59,6 +59,20 @@
     --page-container-margin: 20px;
     --page-container-min-height: calc(100vh - 120px);
     --page-container-shadow: inset 0 0 20px rgba(255, 255, 255, 0.1), 0 0 40px rgba(255, 255, 255, 0.05);
+
+    /* ========================================================================
+       TEXT COLOR TOKENS (Theme-aware)
+       ======================================================================== */
+    --text-primary: #1f2937;
+    --text-secondary: #6b7280;
+    --text-muted: #9ca3af;
+    --text-on-primary: #ffffff;
+    --brand-primary: #6366f1;
+    --brand-primary-light: #818cf8;
+    --color-success: #10b981;
+    --color-warning: #f59e0b;
+    --color-error: #ef4444;
+    --icon-default: #111827;
   }
 
   .dark {
@@ -115,6 +129,20 @@
     --page-container-margin: 20px;
     --page-container-min-height: calc(100vh - 120px);
     --page-container-shadow: inset 0 0 20px rgba(139, 92, 246, 0.05), 0 0 40px rgba(0, 0, 0, 0.2);
+
+    /* ========================================================================
+       TEXT COLOR TOKENS (Dark Mode)
+       ======================================================================== */
+    --text-primary: #f3f4f6;
+    --text-secondary: #d1d5db;
+    --text-muted: #9ca3af;
+    --text-on-primary: #ffffff;
+    --brand-primary: #818cf8;
+    --brand-primary-light: #a5b4fc;
+    --color-success: #34d399;
+    --color-warning: #fbbf24;
+    --color-error: #f87171;
+    --icon-default: #e5e7eb;
   }
 }
 

@@ -103,12 +103,12 @@ const ServiceDeskView: React.FC = () => {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', borderBottom: `2px solid ${DesignTokens.colors.primary}20`, paddingBottom: DesignTokens.spacing.lg }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '4px' }}>
-              <h1 style={{ fontSize: DesignTokens.typography.xxxl, fontWeight: DesignTokens.typography.bold, color: DesignTokens.colors.primary, margin: 0, fontFamily: DesignTokens.typography.fontFamily }}>Service Desk</h1>
+              <h1 style={{ fontSize: DesignTokens.typography.xxxl, fontWeight: DesignTokens.typography.bold, color: 'var(--brand-primary)', margin: 0, fontFamily: DesignTokens.typography.fontFamily }}>Service Desk</h1>
               <span style={{
                 padding: '2px 8px',
                 borderRadius: DesignTokens.borderRadius.full,
                 background: `${DesignTokens.colors.primary}20`,
-                color: DesignTokens.colors.primary,
+                color: 'var(--brand-primary)',
                 fontSize: DesignTokens.typography.xs,
                 fontWeight: DesignTokens.typography.medium,
                 border: `1px solid ${DesignTokens.colors.primary}30`
@@ -116,7 +116,7 @@ const ServiceDeskView: React.FC = () => {
                 ITIL v4 Aligned
               </span>
             </div>
-            <p style={{ color: DesignTokens.colors.textSecondary, fontSize: DesignTokens.typography.sm, margin: 0 }}>Manage Incidents, Problems, and Change Requests</p>
+            <p style={{ color: 'var(--text-secondary)', fontSize: DesignTokens.typography.sm, margin: 0 }}>Manage Incidents, Problems, and Change Requests</p>
           </div>
           
           <div style={{ display: 'flex', gap: '12px' }}>

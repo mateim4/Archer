@@ -8,11 +8,19 @@ export const DesignTokens = {
     stickyHeaderOffset: 80,
   },
   // Color Palette (Hardware Pool Reference)
+  // NOTE: For theme-aware colors, use CSS variables: var(--text-primary), var(--brand-primary), etc.
   colors: {
-    // Primary Colors
-    primary: '#6366f1',      // Indigo - Main brand color
+    // Primary Colors - use var(--brand-primary) for theme-aware
+    primary: '#6366f1',      // Indigo - Main brand color (light mode fallback)
     primaryLight: '#818cf8',  // Lighter indigo
     primaryDark: '#4f46e5',   // Darker indigo
+    
+    // CSS Variable versions for theme-aware colors
+    primaryVar: 'var(--brand-primary)',
+    textPrimaryVar: 'var(--text-primary)',
+    textSecondaryVar: 'var(--text-secondary)',
+    textMutedVar: 'var(--text-muted)',
+    iconDefaultVar: 'var(--icon-default)',
     
     // Semantic Colors
     success: '#10b981',       // Emerald - Available/Success
@@ -42,9 +50,9 @@ export const DesignTokens = {
     surfaceBorder: 'rgba(255, 255, 255, 0.3)',
     surfaceGradient: 'linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(139, 92, 246, 0.1) 100%)',
     
-    // Text Colors
-    textPrimary: '#1f2937',   // Dark gray
-    textSecondary: '#6b7280', // Medium gray
+    // Text Colors - use var(--text-*) for theme-aware
+    textPrimary: '#1f2937',   // Dark gray (light mode fallback)
+    textSecondary: '#6b7280', // Medium gray (light mode fallback)
     textMuted: '#9ca3af',     // Light gray
     textOnPrimary: '#ffffff', // White on primary
   },

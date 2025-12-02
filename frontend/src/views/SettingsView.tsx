@@ -195,19 +195,19 @@ const SettingsView: React.FC = () => {
         <h1 style={{
           fontSize: DesignTokens.typography.xxxl,
           fontWeight: DesignTokens.typography.semibold,
-          color: DesignTokens.colors.primary,
+          color: 'var(--brand-primary)',
           margin: '0',
           fontFamily: DesignTokens.typography.fontFamily,
           display: 'flex',
           alignItems: 'center',
           gap: '12px'
         }}>
-          <SettingsRegular style={{ fontSize: '32px', color: DesignTokens.colors.gray900 }} />
+          <SettingsRegular style={{ fontSize: '32px', color: 'var(--icon-default)' }} />
           Settings
         </h1>
         <p style={{
           fontSize: DesignTokens.typography.lg,
-          color: DesignTokens.colors.textSecondary,
+          color: 'var(--text-secondary)',
           margin: 0,
           fontFamily: DesignTokens.typography.fontFamily
         }}>
