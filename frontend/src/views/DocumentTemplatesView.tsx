@@ -383,9 +383,9 @@ const DocumentTemplatesView: React.FC = () => {
         }}>
           <Spinner size="large" />
           <div style={{
-            fontSize: '18px',
-            color: '#6366f1',
-            fontFamily: 'Oxanium, sans-serif'
+            fontSize: DesignTokens.typography.lg,
+            color: DesignTokens.colors.primary,
+            fontFamily: DesignTokens.typography.fontFamily
           }}>
             Loading document templates...
           </div>
@@ -408,19 +408,19 @@ const DocumentTemplatesView: React.FC = () => {
         <h1 style={{
           fontSize: DesignTokens.typography.xxxl,
           fontWeight: DesignTokens.typography.semibold,
-          color: '#8b5cf6',
+          color: DesignTokens.colors.primary,
           margin: '0',
           fontFamily: DesignTokens.typography.fontFamily,
           display: 'flex',
           alignItems: 'center',
           gap: '12px'
         }}>
-          <DocumentRegular style={{ fontSize: '32px', color: '#000000' }} />
+          <DocumentRegular style={{ fontSize: '32px', color: DesignTokens.colors.gray900 }} />
           Document Templates
         </h1>
         <p style={{
-          fontSize: '18px',
-          color: '#64748b',
+          fontSize: DesignTokens.typography.lg,
+          color: DesignTokens.colors.textSecondary,
           margin: 0,
           fontFamily: DesignTokens.typography.fontFamily
         }}>

@@ -251,19 +251,19 @@ export const EnhancedRVToolsReportView: React.FC = () => {
         <h1 style={{ 
           fontSize: DesignTokens.typography.xxxl,
           fontWeight: DesignTokens.typography.semibold,
-          color: '#8b5cf6',
+          color: DesignTokens.colors.primary,
           margin: '0',
           fontFamily: DesignTokens.typography.fontFamily,
           display: 'flex',
           alignItems: 'center',
           gap: '12px'
         }}>
-          <TableRegular style={{ fontSize: '32px', color: '#000000' }} />
+          <TableRegular style={{ fontSize: '32px', color: DesignTokens.colors.gray900 }} />
           RVTools Reports
         </h1>
         <div style={{
-          fontSize: '18px',
-          color: '#64748b',
+          fontSize: DesignTokens.typography.lg,
+          color: DesignTokens.colors.textSecondary,
           margin: 0,
           fontFamily: DesignTokens.typography.fontFamily
         }}>
@@ -273,8 +273,8 @@ export const EnhancedRVToolsReportView: React.FC = () => {
 
       {/* Description */}
       <div style={{
-        fontSize: '14px',
-        color: '#64748b',
+        fontSize: DesignTokens.typography.sm,
+        color: DesignTokens.colors.textSecondary,
         fontFamily: DesignTokens.typography.fontFamily,
         marginBottom: '24px',
         padding: '16px 0'
@@ -292,23 +292,23 @@ export const EnhancedRVToolsReportView: React.FC = () => {
         {/* Upload Selection */}
         <div>
           <h3 style={{
-            fontSize: '18px',
-            fontWeight: '600',
-            color: '#1f2937',
+            fontSize: DesignTokens.typography.lg,
+            fontWeight: DesignTokens.typography.semibold,
+            color: DesignTokens.colors.textPrimary,
             margin: '0 0 16px 0',
-            fontFamily: 'Oxanium, sans-serif'
+            fontFamily: DesignTokens.typography.fontFamily
           }}>
             <FolderRegular style={{ marginRight: '8px' }} />RVTools Upload Selection
           </h3>
           
           <div>
             <label style={{
-              fontSize: '14px',
-              fontWeight: '600',
-              color: '#374151',
+              fontSize: DesignTokens.typography.sm,
+              fontWeight: DesignTokens.typography.semibold,
+              color: DesignTokens.colors.gray700,
               marginBottom: '8px',
               display: 'block',
-              fontFamily: 'Oxanium, sans-serif'
+              fontFamily: DesignTokens.typography.fontFamily
             }}>
               Select RVTools Upload
             </label>
