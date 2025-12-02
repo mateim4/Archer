@@ -151,7 +151,7 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
               alignItems: 'center',
               justifyContent: 'center',
               transition: `all ${tokens.durationFast} ease`,
-              backdropFilter: glassEffects.blurLight,
+              backdropFilter: 'var(--lcm-backdrop-filter, blur(20px) saturate(150%))',
               fontSize: '18px',
               width: '36px',
               height: '36px'
@@ -238,9 +238,9 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
                 fontSize: tokens.fontSizeBase300,
                 fontWeight: tokens.fontWeightMedium,
                 transition: `all ${tokens.durationNormal} ${tokens.curveEasyEase}`,
-                backdropFilter: isItemActive(item.path) ? glassEffects.blurLight : 'none',
+                backdropFilter: isItemActive(item.path) ? 'var(--lcm-backdrop-filter, blur(20px) saturate(150%))' : 'none',
                 boxShadow: isItemActive(item.path) 
-                  ? 'var(--glass-shadow)' 
+                  ? 'var(--lcm-shadow-card, 0 2px 8px 0 rgba(0, 0, 0, 0.04))' 
                   : 'none',
                 textShadow: isItemActive(item.path) ? '0 1px 2px rgba(0, 0, 0, 0.1)' : 'none'
               }}
@@ -294,7 +294,7 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
                       fontWeight: tokens.fontWeightBold,
                       textTransform: 'uppercase',
                       letterSpacing: '0.5px',
-                      backdropFilter: glassEffects.blurLight,
+                      backdropFilter: 'var(--lcm-backdrop-filter, blur(20px) saturate(150%))',
                       boxShadow: tokens.shadow2
                     }}>
                       {item.badge}
