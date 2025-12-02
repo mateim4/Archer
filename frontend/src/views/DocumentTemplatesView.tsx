@@ -525,7 +525,7 @@ const DocumentTemplatesView: React.FC = () => {
                   <h3 style={{
                     fontSize: '18px',
                     fontWeight: '600',
-                    color: '#1f2937',
+                    color: 'var(--text-primary)',
                     margin: 0,
                     fontFamily: DesignTokens.typography.fontFamily
                   }}>
@@ -571,7 +571,7 @@ const DocumentTemplatesView: React.FC = () => {
                     padding: '3px 8px',
                     borderRadius: '12px',
                     background: 'rgba(107, 114, 128, 0.1)',
-                    color: '#374151',
+                    color: 'var(--text-secondary)',
                     fontFamily: DesignTokens.typography.fontFamily
                   }}>
                     {template.size}
@@ -657,7 +657,7 @@ const DocumentTemplatesView: React.FC = () => {
           <h2 style={{
             fontSize: '24px',
             fontWeight: '600',
-            color: '#1f2937',
+            color: 'var(--text-primary)',
             margin: '0 0 8px 0',
             fontFamily: DesignTokens.typography.fontFamily
           }}>No templates found</h2>
