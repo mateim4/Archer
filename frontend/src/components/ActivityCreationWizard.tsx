@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import {
   Dialog,
   DialogSurface,
@@ -25,6 +25,8 @@ import {
   tokens,
 } from '@fluentui/react-components';
 import { PurpleGlassDropdown } from './ui';
+import { useUnsavedChanges } from '../hooks/useUnsavedChanges';
+import { UnsavedChangesGuard } from './UnsavedChangesGuard';
 import {
   AddRegular,
   ArrowLeftRegular,
@@ -368,6 +370,7 @@ export const ActivityCreationWizard: React.FC<WizardProps> = ({
   const [selectedPreset, setSelectedPreset] = useState<ActivityPreset | null>(null);
   const [isCustomActivity, setIsCustomActivity] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showCloseConfirmation, setShowCloseConfirmation] = useState(false);
   const [formData, setFormData] = useState<ActivityFormData>({
     name: '',
     description: '',
@@ -378,11 +381,35 @@ export const ActivityCreationWizard: React.FC<WizardProps> = ({
     estimatedDuration: 1,
   });
 
+  // Track if user has made any meaningful changes
+  const hasFormChanges = useRef(false);
+  
+  // Determine if there are unsaved changes (user has progressed past step 1 or modified form)
+  const hasUnsavedChanges = (currentStep > 1) || 
+    selectedPreset !== null || 
+    isCustomActivity ||
+    formData.name.trim() !== '' ||
+    formData.description.trim() !== '' ||
+    formData.assignee !== '';
+
+  // Use the unsaved changes hook for browser close protection
+  const unsavedChanges = useUnsavedChanges({
+    when: isOpen && hasUnsavedChanges,
+    message: 'You have unsaved activity data. Are you sure you want to leave?',
+  });
+
+  // Sync unsaved changes state with the hook
+  useEffect(() => {
+    unsavedChanges.setHasUnsavedChanges(hasUnsavedChanges);
+  }, [hasUnsavedChanges, unsavedChanges.setHasUnsavedChanges]);
+
   const resetWizard = useCallback(() => {
     setCurrentStep(1);
     setSelectedPreset(null);
     setIsCustomActivity(false);
     setIsSubmitting(false);
+    setShowCloseConfirmation(false);
+    hasFormChanges.current = false;
     setFormData({
       name: '',
       description: '',
@@ -392,12 +419,28 @@ export const ActivityCreationWizard: React.FC<WizardProps> = ({
       end_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
       estimatedDuration: 1,
     });
-  }, []);
+    unsavedChanges.markAsSaved();
+  }, [unsavedChanges]);
 
-  const handleClose = useCallback(() => {
+  const handleCloseClick = useCallback(() => {
+    if (hasUnsavedChanges) {
+      setShowCloseConfirmation(true);
+    } else {
+      resetWizard();
+      onClose();
+    }
+  }, [hasUnsavedChanges, resetWizard, onClose]);
+
+  const handleConfirmClose = useCallback(() => {
+    setShowCloseConfirmation(false);
+    unsavedChanges.confirmNavigation();
     resetWizard();
     onClose();
-  }, [resetWizard, onClose]);
+  }, [resetWizard, onClose, unsavedChanges]);
+
+  const handleCancelClose = useCallback(() => {
+    setShowCloseConfirmation(false);
+  }, []);
 
   const handlePresetSelect = useCallback((preset: ActivityPreset) => {
     setSelectedPreset(preset);
@@ -447,13 +490,16 @@ export const ActivityCreationWizard: React.FC<WizardProps> = ({
     setIsSubmitting(true);
     try {
       await onSubmit(formData);
-      handleClose();
+      // Successfully submitted, mark as saved before closing
+      unsavedChanges.markAsSaved();
+      resetWizard();
+      onClose();
     } catch (error) {
       console.error('Failed to create activity:', error);
     } finally {
       setIsSubmitting(false);
     }
-  }, [formData, onSubmit, handleClose]);
+  }, [formData, onSubmit, unsavedChanges, resetWizard, onClose]);
 
   const canProceed = useCallback(() => {
     if (currentStep === 1) {
@@ -937,67 +983,84 @@ export const ActivityCreationWizard: React.FC<WizardProps> = ({
   // =============================================================================
 
   return (
-    <Dialog open={isOpen} onOpenChange={(_, data) => !data.open && handleClose()}>
-      <DialogSurface className={styles.wizardContainer}>
-        <DialogBody>
-          <DialogTitle>Create New Activity</DialogTitle>
-          <DialogContent>
-            <div className={styles.wizardContent}>
-              {renderStepIndicator()}
-              
-              {currentStep === 1 && renderStep1()}
-              {currentStep === 2 && renderStep2()}
-              {currentStep === 3 && renderStep3()}
-            </div>
-          </DialogContent>
-          <DialogActions className={styles.wizardActions}>
-            <div>
-              {currentStep > 1 && (
+    <>
+      <Dialog open={isOpen} onOpenChange={(_, data) => !data.open && handleCloseClick()}>
+        <DialogSurface className={styles.wizardContainer}>
+          <DialogBody>
+            <DialogTitle>Create New Activity</DialogTitle>
+            <DialogContent>
+              <div className={styles.wizardContent}>
+                {renderStepIndicator()}
+                
+                {currentStep === 1 && renderStep1()}
+                {currentStep === 2 && renderStep2()}
+                {currentStep === 3 && renderStep3()}
+              </div>
+            </DialogContent>
+            <DialogActions className={styles.wizardActions}>
+              <div>
+                {currentStep > 1 && (
+                  <Button
+                    appearance="secondary"
+                    icon={<ArrowLeftRegular />}
+                    onClick={handlePrevious}
+                    disabled={isSubmitting}
+                  >
+                    Previous
+                  </Button>
+                )}
+              </div>
+
+              <div style={{ display: 'flex', gap: tokens.spacingHorizontalS }}>
                 <Button
                   appearance="secondary"
-                  icon={<ArrowLeftRegular />}
-                  onClick={handlePrevious}
+                  onClick={handleCloseClick}
                   disabled={isSubmitting}
                 >
-                  Previous
+                  Cancel
                 </Button>
-              )}
-            </div>
+                
+                {currentStep < 3 ? (
+                  <Button
+                    appearance="primary"
+                    icon={<ArrowRightRegular />}
+                    iconPosition="after"
+                    onClick={handleNext}
+                    disabled={!canProceed()}
+                  >
+                    Next
+                  </Button>
+                ) : (
+                  <Button
+                    appearance="primary"
+                    icon={isSubmitting ? <Spinner size="tiny" /> : <AddRegular />}
+                    onClick={handleSubmit}
+                    disabled={!canProceed() || isSubmitting}
+                  >
+                    {isSubmitting ? 'Creating...' : 'Create Activity'}
+                  </Button>
+                )}
+              </div>
+            </DialogActions>
+          </DialogBody>
+        </DialogSurface>
+      </Dialog>
 
-            <div style={{ display: 'flex', gap: tokens.spacingHorizontalS }}>
-              <Button
-                appearance="secondary"
-                onClick={handleClose}
-                disabled={isSubmitting}
-              >
-                Cancel
-              </Button>
-              
-              {currentStep < 3 ? (
-                <Button
-                  appearance="primary"
-                  icon={<ArrowRightRegular />}
-                  iconPosition="after"
-                  onClick={handleNext}
-                  disabled={!canProceed()}
-                >
-                  Next
-                </Button>
-              ) : (
-                <Button
-                  appearance="primary"
-                  icon={isSubmitting ? <Spinner size="tiny" /> : <AddRegular />}
-                  onClick={handleSubmit}
-                  disabled={!canProceed() || isSubmitting}
-                >
-                  {isSubmitting ? 'Creating...' : 'Create Activity'}
-                </Button>
-              )}
-            </div>
-          </DialogActions>
-        </DialogBody>
-      </DialogSurface>
-    </Dialog>
+      {/* Unsaved Changes Confirmation Dialog */}
+      <UnsavedChangesGuard
+        isBlocking={showCloseConfirmation}
+        onProceed={handleConfirmClose}
+        onCancel={handleCancelClose}
+        title="Discard Activity?"
+        message="You have unsaved activity data that will be lost if you close the wizard."
+        additionalInfo={[
+          'Any selections and form data will not be saved.',
+          'You will need to start over if you close now.',
+        ]}
+        stayButtonLabel="Continue Editing"
+        leaveButtonLabel="Discard & Close"
+      />
+    </>
   );
 };
 

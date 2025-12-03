@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   Dialog,
   DialogSurface,
@@ -42,6 +42,8 @@ import {
   ChevronRight24Regular,
   ChevronLeft24Regular,
 } from '@fluentui/react-icons';
+import { useUnsavedChanges } from '../hooks/useUnsavedChanges';
+import { UnsavedChangesGuard } from './UnsavedChangesGuard';
 
 // VisX imports for data visualization
 import { Group } from '@visx/group';
@@ -308,6 +310,55 @@ export const HardwareRefreshWizard: React.FC<HardwareRefreshWizardProps> = ({
   const [overcommitRatios, setOvercommitRatios] = useState<OvercommitRatios>({ cpu: 3, memory: 1.5 });
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResults, setAnalysisResults] = useState<LifecycleResults | null>(null);
+  const [showCloseConfirmation, setShowCloseConfirmation] = useState(false);
+
+  // Determine if there are unsaved changes (user has made selections or progressed)
+  const hasUnsavedChanges = 
+    selectedFile !== null || 
+    selectedClusters.length > 0 || 
+    currentStep > 1 ||
+    isAnalyzing;
+
+  // Use the unsaved changes hook for browser close protection
+  const unsavedChanges = useUnsavedChanges({
+    when: isOpen && hasUnsavedChanges,
+    message: 'You have unsaved hardware refresh data. Are you sure you want to leave?',
+  });
+
+  // Sync unsaved changes state with the hook
+  useEffect(() => {
+    unsavedChanges.setHasUnsavedChanges(hasUnsavedChanges);
+  }, [hasUnsavedChanges, unsavedChanges.setHasUnsavedChanges]);
+
+  const resetWizard = useCallback(() => {
+    setCurrentStep(1);
+    setSelectedFile(null);
+    setSelectedClusters([]);
+    setOvercommitRatios({ cpu: 3, memory: 1.5 });
+    setIsAnalyzing(false);
+    setAnalysisResults(null);
+    setShowCloseConfirmation(false);
+    unsavedChanges.markAsSaved();
+  }, [unsavedChanges]);
+
+  const handleCloseClick = useCallback(() => {
+    if (hasUnsavedChanges) {
+      setShowCloseConfirmation(true);
+    } else {
+      onClose();
+    }
+  }, [hasUnsavedChanges, onClose]);
+
+  const handleConfirmClose = useCallback(() => {
+    setShowCloseConfirmation(false);
+    unsavedChanges.confirmNavigation();
+    resetWizard();
+    onClose();
+  }, [resetWizard, onClose, unsavedChanges]);
+
+  const handleCancelClose = useCallback(() => {
+    setShowCloseConfirmation(false);
+  }, []);
   
   // Mock data
   const [availableFiles] = useState<RVToolsFile[]>([
@@ -758,55 +809,63 @@ export const HardwareRefreshWizard: React.FC<HardwareRefreshWizardProps> = ({
     }
   };
 
-  return (
-    <Dialog open={isOpen} onOpenChange={(_, data) => !data.open && onClose()}>
-      <DialogSurface className={styles.dialogContainer}>
-        <DialogBody>
-          <DialogTitle>Hardware Refresh Activity Setup</DialogTitle>
-          <DialogContent>
-            {/* Step Progress */}
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              marginBottom: fluentTokens.spacingVerticalXL,
-              paddingBottom: fluentTokens.spacingVerticalL,
-              borderBottom: `2px solid ${fluentTokens.colorNeutralStroke2}`
-            }}>
-              {steps.map((step, index) => (
-                <div
-                  key={step.number}
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    opacity: currentStep >= step.number ? 1 : 0.5,
-                  }}
-                >
-                  <div style={{
-                    width: '40px',
-                    height: '40px',
-                    borderRadius: '50%',
-                    backgroundColor: currentStep >= step.number ? fluentTokens.colorBrandBackground : fluentTokens.colorNeutralBackground3,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    marginBottom: fluentTokens.spacingVerticalS,
-                  }}>
-                    {currentStep > step.number ? (
-                      <CheckmarkCircle24Regular style={{ color: 'white' }} />
-                    ) : (
-                      React.cloneElement(step.icon, { 
-                        style: { color: currentStep >= step.number ? 'white' : fluentTokens.colorNeutralForeground3 } 
-                      })
-                    )}
-                  </div>
-                  <Caption1>{step.title}</Caption1>
-                </div>
-              ))}
-            </div>
+  const handleComplete = useCallback(() => {
+    unsavedChanges.markAsSaved();
+    onComplete(analysisResults);
+    resetWizard();
+    onClose();
+  }, [unsavedChanges, analysisResults, onComplete, resetWizard, onClose]);
 
-            {/* Step Content */}
-            <div className={styles.stepContent}>
+  return (
+    <>
+      <Dialog open={isOpen} onOpenChange={(_, data) => !data.open && handleCloseClick()}>
+        <DialogSurface className={styles.dialogContainer}>
+          <DialogBody>
+            <DialogTitle>Hardware Refresh Activity Setup</DialogTitle>
+            <DialogContent>
+              {/* Step Progress */}
+              <div style={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                marginBottom: fluentTokens.spacingVerticalXL,
+                paddingBottom: fluentTokens.spacingVerticalL,
+                borderBottom: `2px solid ${fluentTokens.colorNeutralStroke2}`
+              }}>
+                {steps.map((step, index) => (
+                  <div
+                    key={step.number}
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      opacity: currentStep >= step.number ? 1 : 0.5,
+                    }}
+                  >
+                    <div style={{
+                      width: '40px',
+                      height: '40px',
+                      borderRadius: '50%',
+                      backgroundColor: currentStep >= step.number ? fluentTokens.colorBrandBackground : fluentTokens.colorNeutralBackground3,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginBottom: fluentTokens.spacingVerticalS,
+                    }}>
+                      {currentStep > step.number ? (
+                        <CheckmarkCircle24Regular style={{ color: 'white' }} />
+                      ) : (
+                        React.cloneElement(step.icon, { 
+                          style: { color: currentStep >= step.number ? 'white' : fluentTokens.colorNeutralForeground3 } 
+                        })
+                      )}
+                    </div>
+                    <Caption1>{step.title}</Caption1>
+                  </div>
+                ))}
+              </div>
+
+              {/* Step Content */}
+              <div className={styles.stepContent}>
               {renderStepContent()}
             </div>
           </DialogContent>
@@ -824,17 +883,14 @@ export const HardwareRefreshWizard: React.FC<HardwareRefreshWizardProps> = ({
             </div>
             
             <div style={{ display: 'flex', gap: fluentTokens.spacingHorizontalM }}>
-              <Button appearance="secondary" onClick={onClose}>
+              <Button appearance="secondary" onClick={handleCloseClick}>
                 Cancel
               </Button>
               
               {currentStep === 5 ? (
                 <Button 
                   appearance="primary" 
-                  onClick={() => {
-                    onComplete(analysisResults);
-                    onClose();
-                  }}
+                  onClick={handleComplete}
                 >
                   Complete Setup
                 </Button>
@@ -854,5 +910,21 @@ export const HardwareRefreshWizard: React.FC<HardwareRefreshWizardProps> = ({
         </DialogBody>
       </DialogSurface>
     </Dialog>
+
+    {/* Unsaved Changes Confirmation Dialog */}
+    <UnsavedChangesGuard
+      isBlocking={showCloseConfirmation}
+      onProceed={handleConfirmClose}
+      onCancel={handleCancelClose}
+      title="Discard Analysis?"
+      message="You have unsaved hardware refresh analysis data that will be lost if you close the wizard."
+      additionalInfo={[
+        'Any cluster selections and configuration will not be saved.',
+        'You will need to start the analysis over if you close now.',
+      ]}
+      stayButtonLabel="Continue Analysis"
+      leaveButtonLabel="Discard & Close"
+    />
+  </>
   );
 };
