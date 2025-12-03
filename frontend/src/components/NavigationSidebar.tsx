@@ -136,24 +136,23 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
         left: 0,
         width: isOpen ? '280px' : '60px',
         height: '100vh',
-        background: 'var(--glass-bg)',
-        backdropFilter: 'blur(30px) saturate(35%) brightness(145%) contrast(85%)',
-        WebkitBackdropFilter: 'blur(30px) saturate(35%) brightness(145%) contrast(85%)',
-        borderRight: '1px solid var(--glass-border)',
+        background: 'var(--lcm-bg-sidebar, rgba(255, 255, 255, 0.78))',
+        backdropFilter: 'var(--lcm-backdrop-filter-sidebar, blur(30px) saturate(140%))',
+        WebkitBackdropFilter: 'var(--lcm-backdrop-filter-sidebar, blur(30px) saturate(140%))',
+        borderRight: '1px solid var(--lcm-primary-border, rgba(139, 92, 246, 0.18))',
         transition: `all ${tokens.durationNormal} ${tokens.curveEasyEase}`,
         zIndex: zIndex.sticky,
         display: 'flex',
         flexDirection: 'column',
-        boxShadow: 'var(--glass-shadow)',
+        boxShadow: 'var(--lcm-shadow-sidebar, 0 0 1px 0 rgba(0, 0, 0, 0.08), 2px 0 8px 0 rgba(0, 0, 0, 0.04))',
         overflow: 'hidden'
       }}
     >
       {/* Header */}
       <div style={{ 
         padding: `${tokens.xl} ${tokens.l}`,
-        borderBottom: '1px solid var(--glass-border)',
-        background: 'var(--glass-bg)',
-        backdropFilter: glassEffects.blurLight
+        borderBottom: '1px solid var(--lcm-primary-border, rgba(139, 92, 246, 0.18))',
+        background: 'transparent'
       }}>
         <div style={{ 
           display: 'flex', 
@@ -174,7 +173,7 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
               alignItems: 'center',
               justifyContent: 'center',
               transition: `all ${tokens.durationFast} ease`,
-              backdropFilter: glassEffects.blurLight,
+              backdropFilter: 'var(--lcm-backdrop-filter, blur(20px) saturate(150%))',
               fontSize: '18px',
               width: '36px',
               height: '36px'
@@ -261,19 +260,19 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
                 fontSize: tokens.fontSizeBase300,
                 fontWeight: tokens.fontWeightMedium,
                 transition: `all ${tokens.durationNormal} ${tokens.curveEasyEase}`,
-                backdropFilter: isItemActive(item.path) ? glassEffects.blurLight : 'none',
+                backdropFilter: isItemActive(item.path) ? 'var(--lcm-backdrop-filter, blur(20px) saturate(150%))' : 'none',
                 boxShadow: isItemActive(item.path) 
-                  ? 'var(--glass-shadow)' 
+                  ? 'var(--lcm-shadow-card, 0 2px 8px 0 rgba(0, 0, 0, 0.04))' 
                   : 'none',
                 textShadow: isItemActive(item.path) ? '0 1px 2px rgba(0, 0, 0, 0.1)' : 'none'
               }}
               onMouseEnter={(e) => {
                 const target = e.currentTarget as HTMLElement;
                 if (!isItemActive(item.path)) {
-                  target.style.background = 'var(--glass-hover-bg)';
-                  target.style.backdropFilter = glassEffects.blurMedium;
+                  target.style.background = 'var(--lcm-bg-card-hover, rgba(255, 255, 255, 0.90))';
+                  target.style.backdropFilter = 'var(--lcm-backdrop-filter, blur(20px) saturate(150%))';
                   target.style.transform = 'translateY(-2px)';
-                  target.style.boxShadow = 'var(--glass-shadow)';
+                  target.style.boxShadow = 'var(--lcm-shadow-card, 0 2px 8px 0 rgba(0, 0, 0, 0.04))';
                 }
               }}
               onMouseLeave={(e) => {
@@ -317,7 +316,7 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
                       fontWeight: tokens.fontWeightBold,
                       textTransform: 'uppercase',
                       letterSpacing: '0.5px',
-                      backdropFilter: glassEffects.blurLight,
+                      backdropFilter: 'var(--lcm-backdrop-filter, blur(20px) saturate(150%))',
                       boxShadow: tokens.shadow2
                     }}>
                       {item.badge}

@@ -34,13 +34,24 @@
 
     --radius: 0.5rem;
 
-    /* Glassmorphism tokens */
-    --glass-bg: hsl(var(--background) / 0.24);
-    --glass-hover-bg: hsl(var(--background) / 0.30);
-    --glass-press-bg: hsl(var(--background) / 0.20);
-    --glass-border: hsl(var(--border) / 0.6);
-    --glass-shadow: 0 8px 24px 0 hsl(var(--foreground) / 0.08);
-    --glass-tint: hsl(var(--accent) / 0.06);
+    /* Fluent UI 2 Acrylic tokens - Higher opacity for readability */
+    --glass-bg: hsl(var(--background) / 0.78);
+    --glass-hover-bg: hsl(var(--background) / 0.85);
+    --glass-press-bg: hsl(var(--background) / 0.72);
+    --glass-border: hsl(var(--border) / 0.4);
+    --glass-shadow: 0 2px 8px 0 hsl(var(--foreground) / 0.06), 0 8px 24px 0 hsl(var(--foreground) / 0.04);
+    --glass-tint: hsl(var(--accent) / 0.04);
+    
+    /* Acrylic surface tokens for cards and panels */
+    --acrylic-surface: hsl(var(--background) / 0.82);
+    --acrylic-surface-hover: hsl(var(--background) / 0.88);
+    --acrylic-thin: hsl(var(--background) / 0.65);
+    --acrylic-base: hsl(var(--background) / 0.75);
+    
+    /* Text contrast - ensure WCAG AA compliance */
+    --text-primary: hsl(222 47% 11%);
+    --text-secondary: hsl(215 16% 35%);
+    --text-muted: hsl(215 14% 45%);
 
     /* Confirm button gradient (RGB channel values) */
     --confirm-grad-1: 207 186 240; /* #cfbaf0 */
@@ -105,13 +116,24 @@
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
 
-    /* Glassmorphism tokens (dark) */
-    --glass-bg: hsl(var(--background) / 0.18);
-    --glass-hover-bg: hsl(var(--background) / 0.24);
-    --glass-press-bg: hsl(var(--background) / 0.16);
-    --glass-border: hsl(var(--border) / 0.45);
-    --glass-shadow: 0 8px 28px 0 hsl(var(--foreground) / 0.20);
-    --glass-tint: hsl(var(--accent) / 0.05);
+    /* Fluent UI 2 Acrylic tokens (dark/smoke mode) */
+    --glass-bg: hsl(var(--background) / 0.72);
+    --glass-hover-bg: hsl(var(--background) / 0.78);
+    --glass-press-bg: hsl(var(--background) / 0.68);
+    --glass-border: hsl(var(--border) / 0.35);
+    --glass-shadow: 0 2px 8px 0 hsl(var(--foreground) / 0.12), 0 8px 28px 0 hsl(var(--foreground) / 0.08);
+    --glass-tint: hsl(var(--accent) / 0.04);
+    
+    /* Acrylic surface tokens for cards and panels (dark) */
+    --acrylic-surface: hsl(var(--background) / 0.76);
+    --acrylic-surface-hover: hsl(var(--background) / 0.82);
+    --acrylic-thin: hsl(var(--background) / 0.58);
+    --acrylic-base: hsl(var(--background) / 0.68);
+    
+    /* Text contrast - ensure WCAG AA compliance (dark) */
+    --text-primary: hsl(210 40% 98%);
+    --text-secondary: hsl(215 20% 75%);
+    --text-muted: hsl(215 18% 60%);
 
     /* Confirm button gradient uses same colors in dark */
     --confirm-grad-1: 207 186 240;
