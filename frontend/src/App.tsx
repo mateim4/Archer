@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 // Import ONLY Fluent UI 2 Design System
 import './styles/fluent2-design-system.css';
@@ -6,7 +6,7 @@ import { ThemeProvider, useTheme } from './hooks/useTheme';
 import { AnimatedBackground } from './components/background/AnimatedBackground';
 import { useStyles } from './styles/useStyles';
 import NavigationSidebar from './components/NavigationSidebar';
-import { BreadcrumbNavigation } from './components/ui';
+import { BreadcrumbNavigation, CommandPalette } from './components/ui';
 import ThemeToggle from './components/ThemeToggle';
 import { lazyWithRetry } from './utils/lazyLoad';
 
@@ -44,15 +44,35 @@ function AppContent() {
   const isDark = mode === 'dark';
   const [isSidebarOpen, setSidebarOpen] = useState(true);
   const [isProjectOpen, setProjectOpen] = useState(false); // TODO: connect to project store
+  const [isCommandPaletteOpen, setCommandPaletteOpen] = useState(false);
 
   const handleSidebarToggle = () => {
     setSidebarOpen(!isSidebarOpen);
   };
 
+  // Command Palette keyboard shortcut (Ctrl+K / Cmd+K)
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault();
+      setCommandPaletteOpen(prev => !prev);
+    }
+  }, []);
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [handleKeyDown]);
+
   return (
     <div className={`${styles.root} ${isDark ? styles.rootDark : styles.rootLight}`}>
       <AnimatedBackground isDarkTheme={isDark} />
       <div className={styles.mainUI}>
+        {/* Command Palette (Ctrl+K / Cmd+K) */}
+        <CommandPalette
+          isOpen={isCommandPaletteOpen}
+          onClose={() => setCommandPaletteOpen(false)}
+        />
+        
         {/* Theme Toggle - Top Right */}
         <ThemeToggle 
           style={{ 

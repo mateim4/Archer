@@ -3,7 +3,12 @@ import {
   PurpleGlassCard, 
   PurpleGlassButton, 
   PurpleGlassInput, 
-  PurpleGlassDropdown
+  PurpleGlassDropdown,
+  LinkedAssetBadge,
+  SLAIndicator,
+  CreateIncidentModal,
+  AlertContext,
+  CreateIncidentData
 } from '../components/ui';
 import { 
   AddRegular, 
@@ -29,7 +34,8 @@ import { DesignTokens } from '../styles/designSystem';
 interface ExtendedTicket extends Omit<Ticket, 'ticket_type'> {
   ticket_type: string;
   slaStatus?: 'on_track' | 'at_risk' | 'breached';
-  linkedCi?: { name: string; status: 'healthy' | 'warning' | 'critical' };
+  slaTimeRemaining?: string;
+  linkedCi?: { id: string; name: string; type?: 'CLUSTER' | 'HOST' | 'VM' | 'SWITCH'; status: 'healthy' | 'warning' | 'critical' };
 }
 
 const ServiceDeskView: React.FC = () => {
@@ -37,6 +43,7 @@ const ServiceDeskView: React.FC = () => {
   const [filter, setFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [tickets, setTickets] = useState<ExtendedTicket[]>([]);
+  const [isCreateModalOpen, setCreateModalOpen] = useState(false);
   const { isLoading, withLoading } = useEnhancedUX();
 
   useEffect(() => {
@@ -52,13 +59,23 @@ const ServiceDeskView: React.FC = () => {
           ...t,
           ticket_type: t.ticket_type.toString(),
           slaStatus: i % 5 === 0 ? 'breached' : i % 3 === 0 ? 'at_risk' : 'on_track',
-          linkedCi: i % 2 === 0 ? { name: 'NX-Cluster-01', status: 'critical' } : undefined
+          slaTimeRemaining: i % 5 === 0 ? '2h overdue' : i % 3 === 0 ? '45m left' : '3h 30m left',
+          linkedCi: i % 2 === 0 ? { id: 'nx-cluster-01', name: 'NX-Cluster-01', type: 'CLUSTER' as const, status: 'critical' as const } : undefined
         })) as ExtendedTicket[];
         setTickets(extendedData);
       } catch (error) {
         console.error('Failed to load tickets:', error);
       }
     });
+  };
+
+  const handleCreateIncident = async (data: CreateIncidentData) => {
+    // In a real implementation, this would call the API
+    console.log('Creating incident:', data);
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 500));
+    // Reload tickets after creation
+    await loadTickets();
   };
 
   const getPriorityColor = (priority: string) => {
@@ -144,7 +161,7 @@ const ServiceDeskView: React.FC = () => {
               variant="primary" 
               icon={<AddRegular />}
               glass
-              onClick={() => {/* TODO: Open Create Modal */}}
+              onClick={() => setCreateModalOpen(true)}
             >
               Create Ticket
             </PurpleGlassButton>
@@ -250,6 +267,13 @@ const ServiceDeskView: React.FC = () => {
           )}
         </div>
       </div>
+      
+      {/* Create Incident Modal */}
+      <CreateIncidentModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+        onSubmit={handleCreateIncident}
+      />
     </div>
   );
 };
@@ -297,40 +321,26 @@ const TicketListItem: React.FC<{ ticket: ExtendedTicket; getPriorityIcon: (p: st
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: DesignTokens.typography.xs, marginTop: '2px', color: DesignTokens.colors.textSecondary }}>
           <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><PersonRegular style={{ fontSize: '12px' }} /> {ticket.assignee || 'Unassigned'}</span>
           {ticket.linkedCi && (
-            <span 
-              style={{ 
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px',
-                padding: '0 6px',
-                borderRadius: DesignTokens.borderRadius.xs,
-                background: ticket.linkedCi.status === 'critical' ? `${DesignTokens.colors.error}20` : `${DesignTokens.colors.gray200}`,
-                color: ticket.linkedCi.status === 'critical' ? DesignTokens.colors.error : 'inherit'
-              }}
-            >
-              <DesktopRegular style={{ fontSize: '12px' }} /> {ticket.linkedCi.name}
-            </span>
+            <LinkedAssetBadge
+              assetId={ticket.linkedCi.id}
+              assetName={ticket.linkedCi.name}
+              assetType={ticket.linkedCi.type}
+              status={ticket.linkedCi.status}
+              size="small"
+              showChevron={false}
+            />
           )}
           <span>• {new Date(ticket.created_at).toLocaleDateString()}</span>
         </div>
       </div>
       <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: '12px' }}>
-        {ticket.slaStatus === 'breached' && (
-          <span 
-            style={{ 
-              padding: '2px 8px',
-              fontSize: DesignTokens.typography.xs,
-              borderRadius: DesignTokens.borderRadius.xs,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              background: `${DesignTokens.colors.error}20`, 
-              color: DesignTokens.colors.error,
-              border: `1px solid ${DesignTokens.colors.error}30`
-            }}
-          >
-            <AlertRegular style={{ fontSize: '12px' }} /> SLA
-          </span>
+        {ticket.slaStatus && (
+          <SLAIndicator
+            status={ticket.slaStatus}
+            timeDisplay={ticket.slaTimeRemaining}
+            size="small"
+            showLabel={ticket.slaStatus === 'breached'}
+          />
         )}
         <span 
           style={{
@@ -378,23 +388,14 @@ const TicketKanbanCard: React.FC<{ ticket: ExtendedTicket; getPriorityIcon: (p: 
     
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: DesignTokens.spacing.md }}>
       {ticket.linkedCi && (
-        <span 
-          style={{ 
-            fontSize: DesignTokens.typography.xs,
-            padding: '2px 6px',
-            borderRadius: DesignTokens.borderRadius.xs,
-            display: 'flex',
-            alignItems: 'center',
-            gap: '4px',
-            maxWidth: '100%',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            background: ticket.linkedCi.status === 'critical' ? `${DesignTokens.colors.error}20` : DesignTokens.colors.gray100,
-            color: ticket.linkedCi.status === 'critical' ? DesignTokens.colors.error : DesignTokens.colors.textSecondary
-          }}
-        >
-          <DesktopRegular style={{ fontSize: '12px', flexShrink: 0 }} /> {ticket.linkedCi.name}
-        </span>
+        <LinkedAssetBadge
+          assetId={ticket.linkedCi.id}
+          assetName={ticket.linkedCi.name}
+          assetType={ticket.linkedCi.type}
+          status={ticket.linkedCi.status}
+          size="small"
+          showChevron={false}
+        />
       )}
       <span 
         style={{ 
@@ -449,8 +450,12 @@ const TicketKanbanCard: React.FC<{ ticket: ExtendedTicket; getPriorityIcon: (p: 
           {ticket.assignee || 'Unassigned'}
         </span>
       </div>
-      {ticket.slaStatus === 'breached' && (
-        <AlertRegular style={{ color: DesignTokens.colors.error, fontSize: '12px' }} title="SLA Breached" />
+      {ticket.slaStatus && (
+        <SLAIndicator
+          status={ticket.slaStatus}
+          size="small"
+          showLabel={false}
+        />
       )}
     </div>
   </PurpleGlassCard>

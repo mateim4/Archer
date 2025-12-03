@@ -3,7 +3,11 @@ import GlassmorphicLayout from '../components/GlassmorphicLayout';
 import { 
   PurpleGlassCard, 
   PurpleGlassButton, 
-  PurpleGlassInput
+  PurpleGlassInput,
+  CreateIncidentModal,
+  LinkedAssetBadge,
+  AlertContext,
+  CreateIncidentData
 } from '../components/ui';
 import { 
   SearchRegular,
@@ -15,7 +19,9 @@ import {
   ErrorCircleRegular,
   WarningRegular,
   CheckmarkCircleRegular,
-  ArrowClockwiseRegular
+  ArrowClockwiseRegular,
+  TicketDiagonalRegular,
+  AddRegular
 } from '@fluentui/react-icons';
 import { 
   LineChart, 
@@ -31,6 +37,7 @@ import {
 import { apiClient, Asset, AssetMetrics, DashboardSummary } from '../utils/apiClient';
 import { useEnhancedUX } from '../hooks/useEnhancedUX';
 import { purplePalette } from '../styles/design-tokens';
+import { MonitoringAlert, getMockAlerts } from '../utils/mockMonitoringData';
 
 const MonitoringView: React.FC = () => {
   const [assets, setAssets] = useState<Asset[]>([]);
@@ -38,10 +45,15 @@ const MonitoringView: React.FC = () => {
   const [metrics, setMetrics] = useState<AssetMetrics | null>(null);
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [filter, setFilter] = useState('');
+  const [isCreateIncidentOpen, setCreateIncidentOpen] = useState(false);
+  const [selectedAlertContext, setSelectedAlertContext] = useState<AlertContext | null>(null);
+  const [alerts, setAlerts] = useState<MonitoringAlert[]>([]);
   const { withLoading } = useEnhancedUX();
 
   useEffect(() => {
     loadData();
+    // Load mock alerts from external data source
+    setAlerts(getMockAlerts());
     const interval = setInterval(loadData, 30000); // Refresh every 30s
     return () => clearInterval(interval);
   }, []);
@@ -74,6 +86,37 @@ const MonitoringView: React.FC = () => {
       setMetrics(data);
     } catch (error) {
       console.error('Failed to load metrics:', error);
+    }
+  };
+
+  const handleCreateIncidentFromAlert = (alert: MonitoringAlert) => {
+    const alertContext: AlertContext = {
+      alertId: alert.id,
+      alertType: alert.severity,
+      message: alert.message,
+      assetId: alert.assetId,
+      assetName: alert.assetName,
+      assetType: alert.assetType,
+      timestamp: alert.timestamp,
+      metricName: alert.metricName,
+      metricValue: alert.metricValue,
+      threshold: alert.threshold,
+    };
+    setSelectedAlertContext(alertContext);
+    setCreateIncidentOpen(true);
+  };
+
+  const handleIncidentCreated = async (data: CreateIncidentData) => {
+    console.log('Creating incident from alert:', data);
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 500));
+    // Mark alert as having incident created
+    if (data.triggeredByAlertId) {
+      setAlerts(prev => prev.map(a => 
+        a.id === data.triggeredByAlertId 
+          ? { ...a, incidentCreated: true }
+          : a
+      ));
     }
   };
 
@@ -317,7 +360,37 @@ const MonitoringView: React.FC = () => {
           </div>
 
         </div>
+
+        {/* Alert Feed Section */}
+        <PurpleGlassCard glass header="Active Alerts" className="shrink-0">
+          <div className="p-4 space-y-3 max-h-[200px] overflow-y-auto">
+            {alerts.length === 0 ? (
+              <div className="text-center py-4" style={{ color: 'var(--text-muted)' }}>
+                No active alerts
+              </div>
+            ) : (
+              alerts.map(alert => (
+                <AlertCard
+                  key={alert.id}
+                  alert={alert}
+                  onCreateIncident={() => handleCreateIncidentFromAlert(alert)}
+                />
+              ))
+            )}
+          </div>
+        </PurpleGlassCard>
       </div>
+
+      {/* Create Incident Modal */}
+      <CreateIncidentModal
+        isOpen={isCreateIncidentOpen}
+        onClose={() => {
+          setCreateIncidentOpen(false);
+          setSelectedAlertContext(null);
+        }}
+        onSubmit={handleIncidentCreated}
+        alertContext={selectedAlertContext || undefined}
+      />
     </GlassmorphicLayout>
   );
 };
@@ -343,5 +416,117 @@ const SummaryCard: React.FC<{ label: string; value: string | number; color: stri
     </div>
   </PurpleGlassCard>
 );
+
+// Alert Card Component for one-click incident creation
+const AlertCard: React.FC<{ alert: MonitoringAlert; onCreateIncident: () => void }> = ({ alert, onCreateIncident }) => {
+  const getSeverityColor = (severity: string) => {
+    switch (severity) {
+      case 'critical': return purplePalette.error;
+      case 'warning': return purplePalette.warning;
+      case 'info': return purplePalette.info;
+      default: return purplePalette.gray400;
+    }
+  };
+
+  const getSeverityIcon = (severity: string) => {
+    switch (severity) {
+      case 'critical': return <ErrorCircleRegular />;
+      case 'warning': return <WarningRegular />;
+      case 'info': return <CheckmarkCircleRegular />;
+      default: return <WarningRegular />;
+    }
+  };
+
+  const formatTimeAgo = (timestamp: string) => {
+    const diff = Date.now() - new Date(timestamp).getTime();
+    const minutes = Math.floor(diff / 60000);
+    if (minutes < 1) return 'Just now';
+    if (minutes < 60) return `${minutes}m ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h ago`;
+    return `${Math.floor(hours / 24)}d ago`;
+  };
+
+  return (
+    <div 
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px',
+        padding: '12px',
+        borderRadius: '8px',
+        background: `${getSeverityColor(alert.severity)}10`,
+        border: `1px solid ${getSeverityColor(alert.severity)}20`,
+      }}
+    >
+      <div 
+        style={{ 
+          color: getSeverityColor(alert.severity),
+          fontSize: '20px',
+          flexShrink: 0,
+        }}
+      >
+        {getSeverityIcon(alert.severity)}
+      </div>
+      
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div 
+          style={{ 
+            fontWeight: 500,
+            color: 'var(--colorNeutralForeground1, #ffffff)',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {alert.message}
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
+          <LinkedAssetBadge
+            assetId={alert.assetId}
+            assetName={alert.assetName}
+            assetType={alert.assetType}
+            status={alert.severity === 'critical' ? 'critical' : alert.severity === 'warning' ? 'warning' : 'healthy'}
+            size="small"
+            showChevron={false}
+          />
+          <span 
+            style={{ 
+              fontSize: '11px',
+              color: 'var(--colorNeutralForeground3, rgba(255,255,255,0.4))',
+            }}
+          >
+            {formatTimeAgo(alert.timestamp)}
+          </span>
+        </div>
+      </div>
+
+      {!alert.incidentCreated ? (
+        <PurpleGlassButton
+          variant="secondary"
+          size="small"
+          icon={<TicketDiagonalRegular />}
+          onClick={onCreateIncident}
+          title="Create Incident from Alert"
+        >
+          Create Incident
+        </PurpleGlassButton>
+      ) : (
+        <span 
+          style={{
+            fontSize: '11px',
+            padding: '4px 8px',
+            borderRadius: '4px',
+            background: `${purplePalette.success}20`,
+            color: purplePalette.success,
+            fontWeight: 500,
+          }}
+        >
+          Incident Created
+        </span>
+      )}
+    </div>
+  );
+};
 
 export default MonitoringView;
