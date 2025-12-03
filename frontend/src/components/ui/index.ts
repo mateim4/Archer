@@ -111,3 +111,7 @@ export type { CreateIncidentModalProps, CreateIncidentData, AlertContext } from 
 // Top Navigation Bar - Main app header with search, notifications, profile
 export { TopNavigationBar } from './TopNavigationBar';
 export type { TopNavigationBarProps } from './TopNavigationBar';
+
+// Migration Notice - User education about navigation restructure
+export { MigrationNotice } from './MigrationNotice';
+export type { MigrationNoticeProps } from './MigrationNotice';

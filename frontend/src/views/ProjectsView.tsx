@@ -30,7 +30,8 @@ import {
   PurpleGlassTextarea,
   PurpleGlassCard,
   PurpleGlassSkeleton,
-  PrimaryButton
+  PrimaryButton,
+  MigrationNotice
 } from '@/components/ui';
 import { useFormValidation } from '../hooks/useFormValidation';
 import { useErrorHandler } from '../hooks/useErrorHandler';
@@ -273,6 +274,10 @@ export default function ProjectsView() {
   return (
     <div role="region" aria-label="Projects" data-testid="projects-view" style={{...DesignTokens.components.pageContainer, overflow: 'visible'}}>
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
+      
+      {/* Migration Notice - User education for CMO to FMO transition */}
+      <MigrationNotice storageKey="migration-notice-projects-dismissed" />
+      
       <h1 style={{position:'absolute',width:0,height:0,overflow:'hidden',clip:'rect(0 0 0 0)'}}>Projects</h1>
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: DesignTokens.spacing.xl, borderBottom: `2px solid ${DesignTokens.colors.primary}20`, paddingBottom: DesignTokens.spacing.lg }}>

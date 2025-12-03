@@ -78,6 +78,13 @@ function AppContent() {
           <Route path="/capacity-visualizer" element={<Navigate to="/app/capacity-visualizer" replace />} />
           <Route path="/data-collection" element={<Navigate to="/app/data-collection" replace />} />
 
+          {/* Legacy route redirects for CMO to FMO migration */}
+          <Route path="/vendor-data-collection" element={<Navigate to="/app/hardware-basket" replace />} />
+          <Route path="/migration-planner" element={<Navigate to="/app/projects" replace />} />
+          <Route path="/lifecycle-planner" element={<Navigate to="/app/projects" replace />} />
+          <Route path="/hardware-basket" element={<Navigate to="/app/hardware-basket" replace />} />
+          <Route path="/hardware-pool" element={<Navigate to="/app/hardware-pool" replace />} />
+
           {/* App routes with top navigation bar and sidebar */}
           <Route path="/app/*" element={
             <div style={{ 
@@ -149,6 +156,12 @@ function AppContent() {
                     <Route path="projects/:projectId/workflows/:workflowId/lifecycle-wizard" element={<EmbeddedLifecycleWizard />} />
                     <Route path="zoom-test" element={<ZoomTestPage />} />
                     <Route path="tools/infra-visualizer" element={<InfraVisualizerView />} />
+                    
+                    {/* Default /app route - redirect to projects (primary workflow) */}
+                    <Route index element={<Navigate to="projects" replace />} />
+                    
+                    {/* 404 fallback for unknown /app routes */}
+                    <Route path="*" element={<Navigate to="projects" replace />} />
                   </Routes>
                 </div>
               </main>
