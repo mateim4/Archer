@@ -1,10 +1,15 @@
 /* Enhanced Fluent 2 Design System Utilities */
 
+/* Google Fonts - Poppins (primary), Montserrat (secondary) */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap');
+
 /* Update existing CSS variables and add new ones */
 :root {
-  /* Typography - Enhanced with Oxanium font stack */
-  --fluent-font-family-base: 'Oxanium', -apple-system, BlinkMacSystemFont, 'Segoe UI Variable', 'Segoe UI', system-ui, ui-sans-serif, Helvetica, Arial, sans-serif;
-  --font-family: 'Oxanium', -apple-system, BlinkMacSystemFont, 'Segoe UI Variable', 'Segoe UI', system-ui, ui-sans-serif, Helvetica, Arial, sans-serif;
+  /* Typography - Poppins primary per design system guidelines */
+  --fluent-font-family-base: 'Poppins', 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI Variable', 'Segoe UI', system-ui, ui-sans-serif, Helvetica, Arial, sans-serif;
+  --font-family: 'Poppins', 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI Variable', 'Segoe UI', system-ui, ui-sans-serif, Helvetica, Arial, sans-serif;
+  --font-family-display: 'Poppins', 'Montserrat', sans-serif;
+  --font-family-mono: 'JetBrains Mono', 'Fira Code', monospace;
   
   /* Standard Design System Colors */
   --lcm-primary: #8b5cf6;
@@ -77,26 +82,36 @@
 }
 
 /* ===================
-   DARK MODE OVERRIDES
+   DARK MODE OVERRIDES - WCAG AA Compliant
    =================== */
 .dark {
-  /* Dark mode backgrounds */
-  --lcm-bg-card: rgba(30, 30, 45, 0.85);
-  --lcm-bg-card-hover: rgba(40, 40, 55, 0.95);
+  /* Dark mode backgrounds - increased opacity for better readability */
+  --lcm-bg-card: rgba(24, 24, 36, 0.92);
+  --lcm-bg-card-hover: rgba(32, 32, 48, 0.96);
+  --lcm-bg-surface: rgba(20, 20, 30, 0.88);
   
-  /* Dark mode text colors */
-  --lcm-text-primary: #f3f4f6;
-  --lcm-text-secondary: #d1d5db;
-  --lcm-text-muted: #9ca3af;
+  /* Dark mode text colors - WCAG AA compliant */
+  --lcm-text-primary: #f9fafb;     /* gray-50 - excellent contrast */
+  --lcm-text-secondary: #e5e7eb;   /* gray-200 - good contrast */
+  --lcm-text-muted: #9ca3af;       /* gray-400 - meets AA for large text */
+  --lcm-text-heading: #ffffff;     /* pure white for headings */
   
-  /* Dark mode shadows */
-  --lcm-shadow-card: 0 4px 24px 0 rgba(0,0,0,0.3), 0 1.5px 4px 0 rgba(0,0,0,0.2);
-  --lcm-shadow-card-hover: 0 8px 32px 0 rgba(139,92,246,0.2), 0 2px 8px 0 rgba(0,0,0,0.3);
+  /* Dark mode shadows - softer, more elegant */
+  --lcm-shadow-card: 0 4px 20px 0 rgba(0,0,0,0.4), 0 1px 3px 0 rgba(0,0,0,0.3);
+  --lcm-shadow-card-hover: 0 8px 32px 0 rgba(139,92,246,0.25), 0 2px 8px 0 rgba(0,0,0,0.4);
+  --lcm-shadow-elevated: 0 12px 40px 0 rgba(0,0,0,0.5);
   
   /* Dark mode primary with better contrast */
-  --lcm-primary: #a78bfa;
-  --lcm-primary-light: rgba(167, 139, 250, 0.15);
-  --lcm-primary-border: rgba(167, 139, 250, 0.3);
+  --lcm-primary: #a5b4fc;          /* indigo-300 - better visibility */
+  --lcm-primary-light: rgba(165, 180, 252, 0.18);
+  --lcm-primary-border: rgba(165, 180, 252, 0.35);
+  --lcm-primary-hover: #c7d2fe;    /* indigo-200 */
+  
+  /* Dark mode semantic colors */
+  --lcm-success: #6ee7b7;          /* emerald-300 */
+  --lcm-warning: #fcd34d;          /* amber-300 */
+  --lcm-error: #fca5a5;            /* red-300 */
+  --lcm-info: #93c5fd;             /* blue-300 */
 }
 
 /* ===================

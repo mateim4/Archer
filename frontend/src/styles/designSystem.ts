@@ -88,18 +88,21 @@ export const DesignTokens = {
     xxxl: '40px',
   },
   
-  // Typography
+  // Typography - Poppins primary, Montserrat secondary, system fallbacks
   typography: {
-    fontFamily: "'Oxanium', system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
+    fontFamily: "'Poppins', 'Montserrat', system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
+    fontFamilyDisplay: "'Poppins', 'Montserrat', sans-serif",
+    fontFamilyMono: "'JetBrains Mono', 'Fira Code', monospace",
     
-    // Font Sizes
-    xs: '12px',
-    sm: '14px',
-    base: '16px',
-    lg: '18px',
-    xl: '20px',
-    xxl: '24px',
-    xxxl: '28px',
+    // Font Sizes (fluid scale)
+    xs: '0.75rem',    // 12px
+    sm: '0.875rem',   // 14px
+    base: '1rem',     // 16px
+    lg: '1.125rem',   // 18px
+    xl: '1.25rem',    // 20px
+    xxl: '1.5rem',    // 24px
+    xxxl: '1.75rem',  // 28px
+    display: '2rem',  // 32px
     
     // Font Weights
     light: '300',
@@ -107,6 +110,11 @@ export const DesignTokens = {
     medium: '500',
     semibold: '600',
     bold: '700',
+    
+    // Line Heights
+    lineHeightTight: '1.25',
+    lineHeightNormal: '1.5',
+    lineHeightRelaxed: '1.75',
   },
   
   // Component Styles
