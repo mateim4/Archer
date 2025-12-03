@@ -17,6 +17,8 @@ import {
   TableFilled,
   DiagramRegular,
   DiagramFilled,
+  TaskListSquareLtrRegular,
+  TaskListSquareLtrFilled,
   ClipboardTaskRegular,
   ClipboardTaskFilled
 } from '@fluentui/react-icons';
@@ -53,6 +55,15 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
       path: '/app/projects',
       badge: 'Primary',
       badgeType: 'brand'
+    },
+    { 
+      id: 'tasks', 
+      title: 'Tasks', 
+      icon: <TaskListSquareLtrRegular />, 
+      iconFilled: <TaskListSquareLtrFilled />, 
+      path: '/app/tasks',
+      badge: 'New',
+      badgeType: 'success'
     },
     { 
       id: 'service-desk', 

@@ -16,6 +16,7 @@ import ProjectsView from './views/ProjectsView';
 import ProjectWorkspaceView from './views/ProjectWorkspaceView';
 import HardwarePoolView from './views/HardwarePoolView';
 import HardwareBasketView from './views/HardwareBasketView';
+import TasksView from './views/TasksView';
 
 // Lazy-loaded views (code splitting for performance)
 // Heavy visualization components (large bundle size)
@@ -109,13 +110,14 @@ function AppContent() {
                 }}>
                   <Routes>
                     <Route path="projects" element={<ProjectsView />} />
+                    <Route path="tasks" element={<TasksView />} />
                     <Route path="service-desk" element={<ServiceDeskView />} />
                     <Route path="inventory" element={<InventoryView />} />
                     <Route path="monitoring" element={<MonitoringView />} />
                     <Route path="projects/:projectId" element={<ProjectWorkspaceView />} />
                     <Route path="projects/:projectId/activities/:activityId/cluster-strategies" element={<ClusterStrategyManagerView />} />
                     {/* Phase 7: Activity Wizard now modal-only - accessible via "Add Activity" buttons in project views */}
-                    <Route path="inventory" element={<HardwarePoolView />} />
+                    <Route path="hardware-pool" element={<HardwarePoolView />} />
                     <Route path="hardware-basket" element={<HardwareBasketView />} />
                     <Route path="guides" element={<GuidesView />} />
                     <Route path="document-templates" element={<DocumentTemplatesView />} />
