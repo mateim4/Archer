@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import {
   Card,
   Button,
@@ -22,6 +22,7 @@ import {
 import { standardCardStyle, standardButtonStyle, DESIGN_TOKENS } from '../DesignSystem';
 import { PurpleGlassDropdown } from '@/components/ui';
 import { ReportSection, ReportTemplate, DragDropSection } from './ReportFramework';
+import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
 
 // =============================================================================
 // REPORT CUSTOMIZER COMPONENT
@@ -53,6 +54,17 @@ export const ReportCustomizer: React.FC<ReportCustomizerProps> = ({
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
   const [isDirty, setIsDirty] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
+
+  // Use the unsaved changes hook to warn users before leaving with unsaved changes
+  const unsavedChanges = useUnsavedChanges({
+    when: isDirty,
+    message: 'You have unsaved template changes. Are you sure you want to leave?',
+  });
+
+  // Keep unsaved changes state in sync with isDirty
+  useEffect(() => {
+    unsavedChanges.setHasUnsavedChanges(isDirty);
+  }, [isDirty, unsavedChanges.setHasUnsavedChanges]);
 
   // Handle drag and drop reordering
   const onDragEnd = useCallback((result: DropResult) => {
@@ -169,6 +181,9 @@ export const ReportCustomizer: React.FC<ReportCustomizerProps> = ({
         ...editingTemplate,
         sections: (editingTemplate.sections as DragDropSection[]).map(({ dragId, ...section }) => ({ ...section }))
       };
+      // Mark changes as saved before calling onSave
+      unsavedChanges.markAsSaved();
+      setIsDirty(false);
       onSave(cleanedTemplate);
     }
   };
