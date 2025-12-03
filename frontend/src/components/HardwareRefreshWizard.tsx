@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import {
   Dialog,
   DialogSurface,
@@ -324,11 +324,6 @@ export const HardwareRefreshWizard: React.FC<HardwareRefreshWizardProps> = ({
     when: isOpen && hasUnsavedChanges,
     message: 'You have unsaved hardware refresh data. Are you sure you want to leave?',
   });
-
-  // Sync unsaved changes state with the hook
-  useEffect(() => {
-    unsavedChanges.setHasUnsavedChanges(hasUnsavedChanges);
-  }, [hasUnsavedChanges, unsavedChanges.setHasUnsavedChanges]);
 
   const resetWizard = useCallback(() => {
     setCurrentStep(1);

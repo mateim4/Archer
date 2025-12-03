@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   Dialog,
   DialogSurface,
@@ -381,9 +381,6 @@ export const ActivityCreationWizard: React.FC<WizardProps> = ({
     estimatedDuration: 1,
   });
 
-  // Track if user has made any meaningful changes
-  const hasFormChanges = useRef(false);
-  
   // Determine if there are unsaved changes (user has progressed past step 1 or modified form)
   const hasUnsavedChanges = (currentStep > 1) || 
     selectedPreset !== null || 
@@ -398,18 +395,12 @@ export const ActivityCreationWizard: React.FC<WizardProps> = ({
     message: 'You have unsaved activity data. Are you sure you want to leave?',
   });
 
-  // Sync unsaved changes state with the hook
-  useEffect(() => {
-    unsavedChanges.setHasUnsavedChanges(hasUnsavedChanges);
-  }, [hasUnsavedChanges, unsavedChanges.setHasUnsavedChanges]);
-
   const resetWizard = useCallback(() => {
     setCurrentStep(1);
     setSelectedPreset(null);
     setIsCustomActivity(false);
     setIsSubmitting(false);
     setShowCloseConfirmation(false);
-    hasFormChanges.current = false;
     setFormData({
       name: '',
       description: '',
