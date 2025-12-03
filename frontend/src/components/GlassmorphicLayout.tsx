@@ -14,6 +14,8 @@ interface GlassmorphicLayoutProps {
   opacity?: string;
   /** @deprecated Use CSS token --page-container-border-radius instead */
   borderRadius?: string;
+  role?: string;
+  'aria-label'?: string;
 }
 
 /**

@@ -9,26 +9,26 @@
   /* Standard Design System Colors */
   --lcm-primary: #8b5cf6;
   --lcm-primary-light: rgba(139, 92, 246, 0.1);
-  --lcm-primary-border: rgba(139, 92, 246, 0.2);
+  --lcm-primary-border: rgba(139, 92, 246, 0.25);
   --lcm-primary-hover: rgba(139, 92, 246, 0.4);
   --lcm-primary-focus-soft: rgba(139, 92, 246, 0.25);
   --lcm-primary-focus-strong: rgba(139, 92, 246, 0.35);
   
-  /* Standard Backgrounds */
-  --lcm-bg-card: rgba(255, 255, 255, 0.85);
+  /* Standard Backgrounds - Enhanced contrast */
+  --lcm-bg-card: rgba(255, 255, 255, 0.88);
   --lcm-bg-card-hover: rgba(255, 255, 255, 0.95);
   --lcm-bg-input: transparent;
   --lcm-bg-input-focus: transparent;
   --lcm-bg-dropdown: transparent;
   
-  /* Standard Text Colors */
-  --lcm-text-primary: #1a202c;
-  --lcm-text-secondary: #374151;
-  --lcm-text-muted: #64748b;
+  /* Standard Text Colors - Improved contrast */
+  --lcm-text-primary: #1a1a2e;
+  --lcm-text-secondary: #4a5568;
+  --lcm-text-muted: #718096;
   
-  /* Standard Shadows */
-  --lcm-shadow-card: 0 4px 24px 0 rgba(168,85,247,0.07), 0 1.5px 4px 0 rgba(0,0,0,0.04);
-  --lcm-shadow-card-hover: 0 8px 32px 0 rgba(168,85,247,0.12), 0 2px 8px 0 rgba(0,0,0,0.08);
+  /* Standard Shadows - Enhanced depth */
+  --lcm-shadow-card: 0 4px 24px 0 rgba(139, 92, 246, 0.10), 0 2px 6px 0 rgba(0,0,0,0.06);
+  --lcm-shadow-card-hover: 0 8px 32px 0 rgba(139, 92, 246, 0.15), 0 4px 12px 0 rgba(0,0,0,0.10);
   
   /* Standard Backdrop Filter */
   --lcm-backdrop-filter: blur(18px) saturate(180%);
@@ -131,6 +131,8 @@
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: var(--lcm-spacing-xl);
+  padding-bottom: var(--lcm-spacing-lg);
+  border-bottom: 2px solid rgba(139, 92, 246, 0.15);
   gap: var(--lcm-spacing-lg);
   flex-wrap: wrap;
 }
@@ -139,9 +141,17 @@
 .fluent-page-title {
   font-size: 2rem;
   font-weight: 700;
-  color: var(--lcm-text-primary);
+  color: #8b5cf6;
   margin: 0;
   line-height: 1.2;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.lcm-page-title-icon {
+  font-size: 32px;
+  color: var(--lcm-text-primary);
 }
 
 .lcm-page-subtitle,
@@ -1453,6 +1463,28 @@ input[type="number"] {
 
 .lcm-pill-tab-active::before {
   opacity: 1;
+}
+
+/* Inactive pill tab state - ensures proper styling when not active */
+.lcm-pill-tab-inactive {
+  background: linear-gradient(
+    135deg,
+    rgba(139, 92, 246, 0.06) 0%,
+    rgba(99, 102, 241, 0.04) 100%
+  );
+  border-color: rgba(139, 92, 246, 0.18);
+  color: #7c3aed;
+  font-weight: 500;
+}
+
+.lcm-pill-tab-inactive:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(139, 92, 246, 0.12) 0%,
+    rgba(99, 102, 241, 0.10) 100%
+  );
+  border-color: rgba(139, 92, 246, 0.35);
+  color: #6b21a8;
 }
 
 .lcm-pill-tab:focus-visible {
