@@ -9,34 +9,30 @@
   /* Standard Design System Colors */
   --lcm-primary: #8b5cf6;
   --lcm-primary-light: rgba(139, 92, 246, 0.1);
-  --lcm-primary-border: rgba(139, 92, 246, 0.18);
+  --lcm-primary-border: rgba(139, 92, 246, 0.25);
   --lcm-primary-hover: rgba(139, 92, 246, 0.4);
   --lcm-primary-focus-soft: rgba(139, 92, 246, 0.25);
   --lcm-primary-focus-strong: rgba(139, 92, 246, 0.35);
   
-  /* Fluent UI 2 Acrylic Backgrounds - Consistent across app */
-  --lcm-bg-card: rgba(255, 255, 255, 0.82);
-  --lcm-bg-card-hover: rgba(255, 255, 255, 0.90);
-  --lcm-bg-sidebar: rgba(255, 255, 255, 0.78);
-  --lcm-bg-surface: rgba(255, 255, 255, 0.75);
-  --lcm-bg-input: rgba(255, 255, 255, 0.6);
-  --lcm-bg-input-focus: rgba(255, 255, 255, 0.75);
-  --lcm-bg-dropdown: rgba(255, 255, 255, 0.92);
+  /* Standard Backgrounds - Enhanced contrast */
+  --lcm-bg-card: rgba(255, 255, 255, 0.88);
+  --lcm-bg-card-hover: rgba(255, 255, 255, 0.95);
+  --lcm-bg-input: transparent;
+  --lcm-bg-input-focus: transparent;
+  --lcm-bg-dropdown: transparent;
   
-  /* Standard Text Colors - WCAG AA compliant */
+  /* Standard Text Colors - Improved contrast */
   --lcm-text-primary: #1a1a2e;
-  --lcm-text-secondary: #374151;
-  --lcm-text-muted: #5b6477;
+  --lcm-text-secondary: #4a5568;
+  --lcm-text-muted: #718096;
   
-  /* Standard Shadows - Subtle for acrylic */
-  --lcm-shadow-card: 0 2px 8px 0 rgba(0, 0, 0, 0.04), 0 4px 16px 0 rgba(139, 92, 246, 0.06);
-  --lcm-shadow-card-hover: 0 4px 12px 0 rgba(0, 0, 0, 0.06), 0 8px 24px 0 rgba(139, 92, 246, 0.10);
-  --lcm-shadow-sidebar: 0 0 1px 0 rgba(0, 0, 0, 0.08), 2px 0 8px 0 rgba(0, 0, 0, 0.04);
+  /* Standard Shadows - Enhanced depth */
+  --lcm-shadow-card: 0 4px 24px 0 rgba(139, 92, 246, 0.10), 0 2px 6px 0 rgba(0,0,0,0.06);
+  --lcm-shadow-card-hover: 0 8px 32px 0 rgba(139, 92, 246, 0.15), 0 4px 12px 0 rgba(0,0,0,0.10);
   
-  /* Standard Backdrop Filter - Fluent UI 2 Acrylic */
-  --lcm-backdrop-filter: blur(20px) saturate(150%);
-  --lcm-backdrop-filter-intense: blur(40px) saturate(180%);
-  --lcm-backdrop-filter-sidebar: blur(30px) saturate(140%);
+  /* Standard Backdrop Filter */
+  --lcm-backdrop-filter: blur(18px) saturate(180%);
+  --lcm-backdrop-filter-intense: blur(30px) saturate(225%);
   
   /* Standardized sizing */
   --lcm-icon-size-sm: 16px;
@@ -81,20 +77,52 @@
 }
 
 /* ===================
+   DARK MODE OVERRIDES
+   =================== */
+.dark {
+  /* Dark mode backgrounds */
+  --lcm-bg-card: rgba(30, 30, 45, 0.85);
+  --lcm-bg-card-hover: rgba(40, 40, 55, 0.95);
+  
+  /* Dark mode text colors */
+  --lcm-text-primary: #f3f4f6;
+  --lcm-text-secondary: #d1d5db;
+  --lcm-text-muted: #9ca3af;
+  
+  /* Dark mode shadows */
+  --lcm-shadow-card: 0 4px 24px 0 rgba(0,0,0,0.3), 0 1.5px 4px 0 rgba(0,0,0,0.2);
+  --lcm-shadow-card-hover: 0 8px 32px 0 rgba(139,92,246,0.2), 0 2px 8px 0 rgba(0,0,0,0.3);
+  
+  /* Dark mode primary with better contrast */
+  --lcm-primary: #a78bfa;
+  --lcm-primary-light: rgba(167, 139, 250, 0.15);
+  --lcm-primary-border: rgba(167, 139, 250, 0.3);
+}
+
+/* ===================
    PAGE LAYOUT SYSTEM
+   Unified with DesignTokens.components.pageContainer and CSS variables from index.css
    =================== */
 
 .lcm-page-container,
 .fluent-page-container {
-  width: 100%;
-  height: 100vh;
-  padding: var(--lcm-spacing-xxl);
+  /* Use CSS variables from index.css for theme-aware consistency */
+  background: var(--page-container-bg);
+  backdrop-filter: var(--page-container-backdrop);
+  -webkit-backdrop-filter: var(--page-container-backdrop);
+  border: var(--page-container-border);
+  border-radius: var(--page-container-border-radius);
+  padding: var(--page-container-padding);
+  margin: var(--page-container-margin);
+  min-height: var(--page-container-min-height);
+  box-shadow: var(--page-container-shadow);
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   font-family: var(--fluent-font-family-base);
   gap: var(--lcm-spacing-xxl);
   overflow: auto;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .lcm-page-header,
@@ -103,6 +131,8 @@
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: var(--lcm-spacing-xl);
+  padding-bottom: var(--lcm-spacing-lg);
+  border-bottom: 2px solid rgba(139, 92, 246, 0.15);
   gap: var(--lcm-spacing-lg);
   flex-wrap: wrap;
 }
@@ -111,9 +141,17 @@
 .fluent-page-title {
   font-size: 2rem;
   font-weight: 700;
-  color: var(--lcm-text-primary);
+  color: #8b5cf6;
   margin: 0;
   line-height: 1.2;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.lcm-page-title-icon {
+  font-size: 32px;
+  color: var(--lcm-text-primary);
 }
 
 .lcm-page-subtitle,
@@ -1425,6 +1463,28 @@ input[type="number"] {
 
 .lcm-pill-tab-active::before {
   opacity: 1;
+}
+
+/* Inactive pill tab state - ensures proper styling when not active */
+.lcm-pill-tab-inactive {
+  background: linear-gradient(
+    135deg,
+    rgba(139, 92, 246, 0.06) 0%,
+    rgba(99, 102, 241, 0.04) 100%
+  );
+  border-color: rgba(139, 92, 246, 0.18);
+  color: #7c3aed;
+  font-weight: 500;
+}
+
+.lcm-pill-tab-inactive:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(139, 92, 246, 0.12) 0%,
+    rgba(99, 102, 241, 0.10) 100%
+  );
+  border-color: rgba(139, 92, 246, 0.35);
+  color: #6b21a8;
 }
 
 .lcm-pill-tab:focus-visible {

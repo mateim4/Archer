@@ -6,3 +6,5 @@ pub mod project_models;
 pub mod settings;
 pub mod settings_models;
 pub mod workflow;
+pub mod ticket;
+

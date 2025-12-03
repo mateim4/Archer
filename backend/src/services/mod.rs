@@ -2,6 +2,7 @@ pub mod dependency_validator;
 pub mod document_service;
 pub mod enhanced_rvtools_service; // TODO: Fix compilation errors
 pub mod hardware_pool_service;
+pub mod integration_hub;
 pub mod migration_wizard_service;
 pub mod project_management_service;
 pub mod rvtools_service;
@@ -27,3 +28,4 @@ pub mod rvtools_hld_mapper;
 
 // HLD Generation Services (Week 3)
 pub mod word_generator;
+

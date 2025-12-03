@@ -16,7 +16,11 @@ import {
   TableRegular,
   TableFilled,
   DiagramRegular,
-  DiagramFilled
+  DiagramFilled,
+  TaskListSquareLtrRegular,
+  TaskListSquareLtrFilled,
+  ClipboardTaskRegular,
+  ClipboardTaskFilled
 } from '@fluentui/react-icons';
 
 interface NavigationSidebarProps {
@@ -53,20 +57,38 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
       badgeType: 'brand'
     },
     { 
-      id: 'hardware-pool', 
-      title: 'Inventory', 
+      id: 'tasks', 
+      title: 'Tasks', 
+      icon: <TaskListSquareLtrRegular />, 
+      iconFilled: <TaskListSquareLtrFilled />, 
+      path: '/app/tasks',
+      badge: 'New',
+      badgeType: 'success'
+    },
+    { 
+      id: 'service-desk', 
+      title: 'Service Desk', 
+      icon: <ClipboardTaskRegular />, 
+      iconFilled: <ClipboardTaskFilled />, 
+      path: '/app/service-desk',
+      badge: 'ITIL',
+      badgeType: 'brand'
+    },
+    { 
+      id: 'inventory', 
+      title: 'Inventory (CMDB)', 
       icon: <ServerRegular />, 
       iconFilled: <ServerFilled />, 
       path: '/app/inventory' 
     },
     { 
-      id: 'infra-visualizer', 
-      title: 'Infrastructure Visualizer', 
+      id: 'monitoring', 
+      title: 'Monitoring', 
       icon: <DiagramRegular />, 
       iconFilled: <DiagramFilled />, 
-      path: '/app/tools/infra-visualizer',
-      badge: 'New',
-      badgeType: 'success'
+      path: '/app/monitoring',
+      badge: 'Beta',
+      badgeType: 'warning'
     },
     { 
       id: 'guides', 

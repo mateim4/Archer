@@ -276,8 +276,8 @@ export default function ProjectsView() {
       <h1 style={{position:'absolute',width:0,height:0,overflow:'hidden',clip:'rect(0 0 0 0)'}}>Projects</h1>
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: DesignTokens.spacing.xl, borderBottom: `2px solid ${DesignTokens.colors.primary}20`, paddingBottom: DesignTokens.spacing.lg }}>
-        <h2 style={{ fontSize: DesignTokens.typography.xxxl, fontWeight: DesignTokens.typography.semibold, color: DesignTokens.colors.primary, margin: '0', fontFamily: DesignTokens.typography.fontFamily, display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <FolderRegular style={{ fontSize: '32px', color: DesignTokens.colors.gray900 }} />
+        <h2 style={{ fontSize: DesignTokens.typography.xxxl, fontWeight: DesignTokens.typography.semibold, color: 'var(--brand-primary)', margin: '0', fontFamily: DesignTokens.typography.fontFamily, display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <FolderRegular style={{ fontSize: '32px', color: 'var(--icon-default)' }} />
           Projects
         </h2>
         <PrimaryButton

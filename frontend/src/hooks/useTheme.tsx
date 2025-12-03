@@ -5,7 +5,7 @@
  * Uses React Context to manage theme state globally.
  */
 
-import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react';
 import { FluentProvider } from '@fluentui/react-components';
 import { themes, type ThemeMode } from '../styles/theme';
 
@@ -31,7 +31,20 @@ interface ThemeProviderProps {
 }
 
 export function ThemeProvider({ children, defaultMode = 'light' }: ThemeProviderProps) {
-  const [mode, setModeState] = useState<ThemeMode>(defaultMode);
+  // Initialize from localStorage or default
+  const [mode, setModeState] = useState<ThemeMode>(() => {
+    const stored = localStorage.getItem('lcm-designer-theme');
+    return (stored === 'dark' || stored === 'light') ? stored : defaultMode;
+  });
+
+  // Apply dark class to document element when mode changes
+  useEffect(() => {
+    if (mode === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [mode]);
 
   const setMode = useCallback((newMode: ThemeMode) => {
     setModeState(newMode);

@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 // Import ONLY Fluent UI 2 Design System
 import './styles/fluent2-design-system.css';
-import { FluentProvider } from '@fluentui/react-components';
-import { archerLightTheme } from './styles/themes';
+import { ThemeProvider, useTheme } from './hooks/useTheme';
 import { AnimatedBackground } from './components/background/AnimatedBackground';
 import { useStyles } from './styles/useStyles';
 import NavigationSidebar from './components/NavigationSidebar';
 import { BreadcrumbNavigation } from './components/ui';
+import ThemeToggle from './components/ThemeToggle';
 import { lazyWithRetry } from './utils/lazyLoad';
 
 // Eager-loaded views (critical path)
@@ -16,6 +16,7 @@ import ProjectsView from './views/ProjectsView';
 import ProjectWorkspaceView from './views/ProjectWorkspaceView';
 import HardwarePoolView from './views/HardwarePoolView';
 import HardwareBasketView from './views/HardwareBasketView';
+import TasksView from './views/TasksView';
 
 // Lazy-loaded views (code splitting for performance)
 // Heavy visualization components (large bundle size)
@@ -32,9 +33,15 @@ const GuidesView = lazyWithRetry(() => import('./views/GuidesView'));
 const DocumentTemplatesView = lazyWithRetry(() => import('./views/DocumentTemplatesView'));
 const SettingsView = lazyWithRetry(() => import('./views/SettingsView'));
 const DataCollectionView = lazyWithRetry(() => import('./views/DataCollectionView'));
+const ServiceDeskView = lazyWithRetry(() => import('./views/ServiceDeskView'));
+const InventoryView = lazyWithRetry(() => import('./views/InventoryView'));
+const MonitoringView = lazyWithRetry(() => import('./views/MonitoringView'));
 
-function App() {
+// Inner App component that uses the theme context
+function AppContent() {
   const styles = useStyles();
+  const { mode } = useTheme();
+  const isDark = mode === 'dark';
   const [isSidebarOpen, setSidebarOpen] = useState(true);
   const [isProjectOpen, setProjectOpen] = useState(false); // TODO: connect to project store
 
@@ -43,86 +50,107 @@ function App() {
   };
 
   return (
-    <FluentProvider theme={archerLightTheme}>
-      <div className={styles.rootLight}>
-        <AnimatedBackground isDarkTheme={false} />
-        <div className={styles.mainUI}>
-          <Routes>
-        {/* Landing page - full screen without sidebar */}
-        <Route path="/" element={<LandingView />} />
+    <div className={`${styles.root} ${isDark ? styles.rootDark : styles.rootLight}`}>
+      <AnimatedBackground isDarkTheme={isDark} />
+      <div className={styles.mainUI}>
+        {/* Theme Toggle - Top Right */}
+        <ThemeToggle 
+          style={{ 
+            position: 'fixed', 
+            top: '24px', 
+            right: '32px', 
+            zIndex: 1001 
+          }} 
+        />
         
-        {/* Direct zoom test - full screen without sidebar */}
-        <Route path="/zoom-test" element={<ZoomTestPage />} />
-        
-        {/* Simple aliases to support non-/app routes used by tests */}
-        <Route path="/projects" element={<Navigate to="/app/projects" replace />} />
-        <Route path="/projects/:projectId" element={<Navigate to="/app/projects/:projectId" replace />} />
-        <Route path="/capacity-visualizer" element={<Navigate to="/app/capacity-visualizer" replace />} />
-        <Route path="/data-collection" element={<Navigate to="/app/data-collection" replace />} />
+        <Routes>
+          {/* Landing page - full screen without sidebar */}
+          <Route path="/" element={<LandingView />} />
+          
+          {/* Direct zoom test - full screen without sidebar */}
+          <Route path="/zoom-test" element={<ZoomTestPage />} />
+          
+          {/* Simple aliases to support non-/app routes used by tests */}
+          <Route path="/projects" element={<Navigate to="/app/projects" replace />} />
+          <Route path="/projects/:projectId" element={<Navigate to="/app/projects/:projectId" replace />} />
+          <Route path="/capacity-visualizer" element={<Navigate to="/app/capacity-visualizer" replace />} />
+          <Route path="/data-collection" element={<Navigate to="/app/data-collection" replace />} />
 
-        {/* App routes with sidebar navigation */}
-        <Route path="/app/*" element={
-          <div style={{ 
-            minHeight: '100vh',
-            display: 'flex',
-            position: 'relative',
-            overflowY: 'auto',
-            background: 'transparent' /* Allow wallpaper background to show through */
-          }}>
-            <NavigationSidebar 
-              isOpen={isSidebarOpen}
-              onToggle={handleSidebarToggle}
-              isProjectOpen={isProjectOpen}
-            />
-            
-            <main role="main" aria-label="Main content" style={{ 
-              flex: 1,
-              marginLeft: isSidebarOpen ? '280px' : '60px',
-              transition: 'margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-              padding: '32px',
-              overflowX: 'hidden',
-              minHeight: '100vh'
+          {/* App routes with sidebar navigation */}
+          <Route path="/app/*" element={
+            <div style={{ 
+              minHeight: '100vh',
+              display: 'flex',
+              position: 'relative',
+              overflowY: 'auto',
+              background: 'transparent' /* Allow wallpaper background to show through */
             }}>
-              {/* Breadcrumb Navigation */}
-              <BreadcrumbNavigation glass="light" style={{ marginBottom: '24px' }} />
+              <NavigationSidebar 
+                isOpen={isSidebarOpen}
+                onToggle={handleSidebarToggle}
+                isProjectOpen={isProjectOpen}
+              />
               
-              {/* Single Card Container for All Content */}
-              <div style={{
-                background: 'transparent', /* Let individual views handle their own backgrounds */
-                padding: '24px',
-                minHeight: 'calc(100vh - 128px)'
+              <main role="main" aria-label="Main content" style={{ 
+                flex: 1,
+                marginLeft: isSidebarOpen ? '280px' : '60px',
+                transition: 'margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                padding: '32px',
+                overflowX: 'hidden',
+                minHeight: '100vh'
               }}>
-                <Routes>
-                <Route path="projects" element={<ProjectsView />} />
-                <Route path="projects/:projectId" element={<ProjectWorkspaceView />} />
-                <Route path="projects/:projectId/activities/:activityId/cluster-strategies" element={<ClusterStrategyManagerView />} />
-                {/* Phase 7: Activity Wizard now modal-only - accessible via "Add Activity" buttons in project views */}
-                <Route path="inventory" element={<HardwarePoolView />} />
-                <Route path="hardware-basket" element={<HardwareBasketView />} />
-                <Route path="guides" element={<GuidesView />} />
-                <Route path="document-templates" element={<DocumentTemplatesView />} />
-                <Route path="enhanced-rvtools" element={<EnhancedRVToolsReportView />} />
-                <Route path="enhanced-rvtools/:uploadId" element={<EnhancedRVToolsReportView />} />
-                <Route path="settings" element={<SettingsView />} />
-                <Route path="capacity-visualizer" element={
-                  <div data-testid="capacity-visualizer" style={{ height: '100%', width: '100%' }}>
-                    <CapacityVisualizerView />
-                  </div>
-                } />
-                <Route path="data-collection" element={<DataCollectionView />} />
-                <Route path="projects/:projectId/workflows/:workflowId/migration-wizard" element={<EmbeddedMigrationWizard />} />
-                <Route path="projects/:projectId/workflows/:workflowId/lifecycle-wizard" element={<EmbeddedLifecycleWizard />} />
-                <Route path="zoom-test" element={<ZoomTestPage />} />
-                <Route path="tools/infra-visualizer" element={<InfraVisualizerView />} />
-                </Routes>
-              </div>
-            </main>
-          </div>
-        } />
-      </Routes>
-        </div>
+                {/* Breadcrumb Navigation */}
+                <BreadcrumbNavigation glass="light" style={{ marginBottom: '24px' }} />
+                
+                {/* Single Card Container for All Content */}
+                <div style={{
+                  background: 'transparent', /* Let individual views handle their own backgrounds */
+                  padding: '24px',
+                  minHeight: 'calc(100vh - 128px)'
+                }}>
+                  <Routes>
+                    <Route path="projects" element={<ProjectsView />} />
+                    <Route path="tasks" element={<TasksView />} />
+                    <Route path="service-desk" element={<ServiceDeskView />} />
+                    <Route path="inventory" element={<InventoryView />} />
+                    <Route path="monitoring" element={<MonitoringView />} />
+                    <Route path="projects/:projectId" element={<ProjectWorkspaceView />} />
+                    <Route path="projects/:projectId/activities/:activityId/cluster-strategies" element={<ClusterStrategyManagerView />} />
+                    {/* Phase 7: Activity Wizard now modal-only - accessible via "Add Activity" buttons in project views */}
+                    <Route path="hardware-pool" element={<HardwarePoolView />} />
+                    <Route path="hardware-basket" element={<HardwareBasketView />} />
+                    <Route path="guides" element={<GuidesView />} />
+                    <Route path="document-templates" element={<DocumentTemplatesView />} />
+                    <Route path="enhanced-rvtools" element={<EnhancedRVToolsReportView />} />
+                    <Route path="enhanced-rvtools/:uploadId" element={<EnhancedRVToolsReportView />} />
+                    <Route path="settings" element={<SettingsView />} />
+                    <Route path="capacity-visualizer" element={
+                      <div data-testid="capacity-visualizer" style={{ height: '100%', width: '100%' }}>
+                        <CapacityVisualizerView />
+                      </div>
+                    } />
+                    <Route path="data-collection" element={<DataCollectionView />} />
+                    <Route path="projects/:projectId/workflows/:workflowId/migration-wizard" element={<EmbeddedMigrationWizard />} />
+                    <Route path="projects/:projectId/workflows/:workflowId/lifecycle-wizard" element={<EmbeddedLifecycleWizard />} />
+                    <Route path="zoom-test" element={<ZoomTestPage />} />
+                    <Route path="tools/infra-visualizer" element={<InfraVisualizerView />} />
+                  </Routes>
+                </div>
+              </main>
+            </div>
+          } />
+        </Routes>
       </div>
-    </FluentProvider>
+    </div>
+  );
+}
+
+// Main App wrapper with ThemeProvider
+function App() {
+  return (
+    <ThemeProvider defaultMode="light">
+      <AppContent />
+    </ThemeProvider>
   );
 }
 

@@ -594,7 +594,7 @@ pub async fn export_hld(
     
     // 3. Get section definitions (enabled sections only)
     // For now, use the enabled sections from the project
-    let section_order = hld_project.section_order.clone().unwrap_or_else(Vec::new);
+    let section_order = hld_project.section_order.clone();
     
     // Create section definitions from enabled sections
     let mut sections = Vec::new();
