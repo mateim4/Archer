@@ -16,7 +16,21 @@ import {
   FolderRegular,
   ArrowRightRegular,
 } from '@fluentui/react-icons';
-import { tokens } from '@fluentui/react-components';
+
+/**
+ * Migration Notice color palette - using blue tones for informational notices
+ * These are intentionally different from the main purple brand colors
+ * to distinguish informational banners from the core UI.
+ */
+const NOTICE_COLORS = {
+  primary: '#3b82f6',      // Blue primary
+  primaryDark: '#2563eb',  // Darker blue for gradients
+  text: '#1e40af',         // Blue text
+  background: 'rgba(59, 130, 246, 0.08)',
+  border: 'rgba(59, 130, 246, 0.15)',
+  neutral: '#6b7280',
+  neutralHover: '#374151',
+} as const;
 
 export interface MigrationNoticeProps {
   /** Whether to show the notice (controlled) */
@@ -84,13 +98,13 @@ export const MigrationNotice: React.FC<MigrationNoticeProps> = ({
       style={{
         margin: '0 0 24px 0',
         padding: '20px 24px',
-        background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(147, 197, 253, 0.08))',
+        background: `linear-gradient(135deg, ${NOTICE_COLORS.background}, rgba(147, 197, 253, 0.08))`,
         backdropFilter: 'blur(12px) saturate(150%)',
         WebkitBackdropFilter: 'blur(12px) saturate(150%)',
-        border: '1px solid rgba(59, 130, 246, 0.15)',
+        border: `1px solid ${NOTICE_COLORS.border}`,
         borderRadius: '12px',
         position: 'relative',
-        boxShadow: '0 4px 16px rgba(59, 130, 246, 0.08)',
+        boxShadow: `0 4px 16px ${NOTICE_COLORS.background}`,
         ...style,
       }}
     >
@@ -101,14 +115,14 @@ export const MigrationNotice: React.FC<MigrationNoticeProps> = ({
             width: '40px',
             height: '40px',
             borderRadius: '10px',
-            background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.05))',
+            background: `linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.05))`,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             flexShrink: 0,
           }}
         >
-          <InfoRegular style={{ fontSize: '20px', color: '#3b82f6' }} />
+          <InfoRegular style={{ fontSize: '20px', color: NOTICE_COLORS.primary }} />
         </div>
 
         {/* Content */}
@@ -118,7 +132,7 @@ export const MigrationNotice: React.FC<MigrationNoticeProps> = ({
               margin: '0 0 8px 0',
               fontSize: '16px',
               fontWeight: '600',
-              color: '#1e40af',
+              color: NOTICE_COLORS.text,
               fontFamily: "'Poppins', 'Montserrat', sans-serif",
               display: 'flex',
               alignItems: 'center',
@@ -132,7 +146,7 @@ export const MigrationNotice: React.FC<MigrationNoticeProps> = ({
             style={{
               margin: '0 0 16px 0',
               fontSize: '14px',
-              color: '#1e40af',
+              color: NOTICE_COLORS.text,
               lineHeight: 1.6,
               fontFamily: "'Poppins', 'Montserrat', sans-serif",
               opacity: 0.9,
@@ -152,7 +166,7 @@ export const MigrationNotice: React.FC<MigrationNoticeProps> = ({
                 alignItems: 'center',
                 gap: '8px',
                 padding: '10px 18px',
-                background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+                background: `linear-gradient(135deg, ${NOTICE_COLORS.primary}, ${NOTICE_COLORS.primaryDark})`,
                 color: 'white',
                 border: 'none',
                 borderRadius: '8px',
@@ -161,7 +175,7 @@ export const MigrationNotice: React.FC<MigrationNoticeProps> = ({
                 fontFamily: "'Poppins', 'Montserrat', sans-serif",
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
-                boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)',
+                boxShadow: `0 2px 8px rgba(59, 130, 246, 0.3)`,
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'translateY(-1px)';
@@ -185,9 +199,9 @@ export const MigrationNotice: React.FC<MigrationNoticeProps> = ({
                 alignItems: 'center',
                 gap: '6px',
                 padding: '10px 18px',
-                background: 'rgba(59, 130, 246, 0.08)',
-                color: '#3b82f6',
-                border: '1px solid rgba(59, 130, 246, 0.2)',
+                background: NOTICE_COLORS.background,
+                color: NOTICE_COLORS.primary,
+                border: `1px solid rgba(59, 130, 246, 0.2)`,
                 borderRadius: '8px',
                 fontSize: '13px',
                 fontWeight: '600',
@@ -200,7 +214,7 @@ export const MigrationNotice: React.FC<MigrationNoticeProps> = ({
                 e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.3)';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'rgba(59, 130, 246, 0.08)';
+                e.currentTarget.style.background = NOTICE_COLORS.background;
                 e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.2)';
               }}
             >
@@ -216,7 +230,7 @@ export const MigrationNotice: React.FC<MigrationNoticeProps> = ({
           style={{
             background: 'none',
             border: 'none',
-            color: '#6b7280',
+            color: NOTICE_COLORS.neutral,
             cursor: 'pointer',
             padding: '8px',
             borderRadius: '6px',
@@ -228,11 +242,11 @@ export const MigrationNotice: React.FC<MigrationNoticeProps> = ({
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.background = 'rgba(0, 0, 0, 0.05)';
-            e.currentTarget.style.color = '#374151';
+            e.currentTarget.style.color = NOTICE_COLORS.neutralHover;
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.background = 'none';
-            e.currentTarget.style.color = '#6b7280';
+            e.currentTarget.style.color = NOTICE_COLORS.neutral;
           }}
         >
           <DismissRegular style={{ fontSize: '18px' }} />
