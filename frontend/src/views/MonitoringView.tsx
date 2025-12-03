@@ -37,22 +37,7 @@ import {
 import { apiClient, Asset, AssetMetrics, DashboardSummary } from '../utils/apiClient';
 import { useEnhancedUX } from '../hooks/useEnhancedUX';
 import { purplePalette } from '../styles/design-tokens';
-
-// Alert interface for monitoring
-interface MonitoringAlert {
-  id: string;
-  assetId: string;
-  assetName: string;
-  assetType?: 'CLUSTER' | 'HOST' | 'VM' | 'SWITCH';
-  severity: 'critical' | 'warning' | 'info';
-  message: string;
-  timestamp: string;
-  metricName?: string;
-  metricValue?: string;
-  threshold?: string;
-  acknowledged?: boolean;
-  incidentCreated?: boolean;
-}
+import { MonitoringAlert, getMockAlerts } from '../utils/mockMonitoringData';
 
 const MonitoringView: React.FC = () => {
   const [assets, setAssets] = useState<Asset[]>([]);
@@ -65,46 +50,10 @@ const MonitoringView: React.FC = () => {
   const [alerts, setAlerts] = useState<MonitoringAlert[]>([]);
   const { withLoading } = useEnhancedUX();
 
-  // Mock alerts for demonstration
-  const mockAlerts: MonitoringAlert[] = [
-    {
-      id: 'alert-1',
-      assetId: 'nx-cluster-01',
-      assetName: 'NX-Cluster-Production',
-      assetType: 'CLUSTER',
-      severity: 'critical',
-      message: 'CPU usage exceeded 95% for 15 minutes',
-      timestamp: new Date(Date.now() - 300000).toISOString(),
-      metricName: 'CPU Usage',
-      metricValue: '97%',
-      threshold: '90%',
-    },
-    {
-      id: 'alert-2',
-      assetId: 'host-web-01',
-      assetName: 'prod-web-server-01',
-      assetType: 'HOST',
-      severity: 'warning',
-      message: 'Memory usage at 85%',
-      timestamp: new Date(Date.now() - 600000).toISOString(),
-      metricName: 'Memory Usage',
-      metricValue: '85%',
-      threshold: '80%',
-    },
-    {
-      id: 'alert-3',
-      assetId: 'vm-app-01',
-      assetName: 'app-server-vm-01',
-      assetType: 'VM',
-      severity: 'info',
-      message: 'VM migrated to new host',
-      timestamp: new Date(Date.now() - 900000).toISOString(),
-    },
-  ];
-
   useEffect(() => {
     loadData();
-    setAlerts(mockAlerts);
+    // Load mock alerts from external data source
+    setAlerts(getMockAlerts());
     const interval = setInterval(loadData, 30000); // Refresh every 30s
     return () => clearInterval(interval);
   }, []);

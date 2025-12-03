@@ -15,6 +15,7 @@ import {
   CheckmarkCircleRegular
 } from '@fluentui/react-icons';
 import { tokens } from '@fluentui/react-components';
+import './styles/sla-indicator.css';
 
 export type SLAStatus = 'on_track' | 'at_risk' | 'breached' | 'paused' | 'resolved';
 
@@ -140,33 +141,18 @@ export const SLAIndicator: React.FC<SLAIndicatorProps> = ({
     textTransform: 'uppercase' as const,
   };
 
-  // Add pulse animation for breached status
-  const pulseAnimation = pulseOnBreach && status === 'breached' 
-    ? {
-        animation: 'sla-pulse 2s infinite',
-      }
-    : {};
+  // Add pulse class for breached status
+  const pulseClass = pulseOnBreach && status === 'breached' ? 'sla-indicator-pulse' : '';
 
   return (
-    <>
-      {/* Inject keyframes for pulse animation */}
-      {pulseOnBreach && status === 'breached' && (
-        <style>{`
-          @keyframes sla-pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-          }
-        `}</style>
-      )}
-      <span
-        className={className}
-        style={{
-          ...baseStyles,
-          ...pulseAnimation,
-          ...style,
-        }}
-        title={`${slaType === 'response' ? 'Response' : 'Resolution'} SLA: ${getStatusLabel(status)}${timeDisplay ? ` - ${timeDisplay}` : ''}`}
-      >
+    <span
+      className={`${pulseClass} ${className || ''}`}
+      style={{
+        ...baseStyles,
+        ...style,
+      }}
+      title={`${slaType === 'response' ? 'Response' : 'Resolution'} SLA: ${getStatusLabel(status)}${timeDisplay ? ` - ${timeDisplay}` : ''}`}
+    >
         {/* Status Icon */}
         <span style={{ 
           display: 'flex', 
@@ -193,7 +179,6 @@ export const SLAIndicator: React.FC<SLAIndicatorProps> = ({
           )}
         </span>
       </span>
-    </>
   );
 };
 
