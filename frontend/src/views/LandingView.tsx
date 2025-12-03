@@ -86,9 +86,11 @@ const LandingView: React.FC = () => {
       minHeight: '100vh',
       // Background handled by App.tsx AnimatedBackground
       display: 'flex',
-      alignItems: 'center',
+      alignItems: 'flex-start',  // Changed from 'center' to prevent top clipping
       justifyContent: 'center',
-      padding: '40px'
+      padding: '40px',
+      paddingTop: '80px',  // Extra top padding to prevent clipping
+      overflowY: 'auto'    // Allow scrolling if content is tall
     }}>
       <h1 style={{position:'absolute', width:0, height:0, overflow:'hidden', clip:'rect(0 0 0 0)'}}>Archer</h1>
       <div style={{

@@ -8,11 +8,19 @@ export const DesignTokens = {
     stickyHeaderOffset: 80,
   },
   // Color Palette (Hardware Pool Reference)
+  // NOTE: For theme-aware colors, use CSS variables: var(--text-primary), var(--brand-primary), etc.
   colors: {
-    // Primary Colors
-    primary: '#6366f1',      // Indigo - Main brand color
+    // Primary Colors - use var(--brand-primary) for theme-aware
+    primary: '#6366f1',      // Indigo - Main brand color (light mode fallback)
     primaryLight: '#818cf8',  // Lighter indigo
     primaryDark: '#4f46e5',   // Darker indigo
+    
+    // CSS Variable versions for theme-aware colors
+    primaryVar: 'var(--brand-primary)',
+    textPrimaryVar: 'var(--text-primary)',
+    textSecondaryVar: 'var(--text-secondary)',
+    textMutedVar: 'var(--text-muted)',
+    iconDefaultVar: 'var(--icon-default)',
     
     // Semantic Colors
     success: '#10b981',       // Emerald - Available/Success
@@ -42,9 +50,9 @@ export const DesignTokens = {
     surfaceBorder: 'rgba(255, 255, 255, 0.3)',
     surfaceGradient: 'linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(139, 92, 246, 0.1) 100%)',
     
-    // Text Colors
-    textPrimary: '#1f2937',   // Dark gray
-    textSecondary: '#6b7280', // Medium gray
+    // Text Colors - use var(--text-*) for theme-aware
+    textPrimary: '#1f2937',   // Dark gray (light mode fallback)
+    textSecondary: '#6b7280', // Medium gray (light mode fallback)
     textMuted: '#9ca3af',     // Light gray
     textOnPrimary: '#ffffff', // White on primary
   },
@@ -361,20 +369,21 @@ export const DesignTokens = {
       position: 'relative',
     },
 
-    // Main Page Container (based on landing page large cards)
+    // Main Page Container (uses CSS tokens from index.css for consistency)
+    // These CSS variables are theme-aware and defined in :root and .dark
     pageContainer: {
-      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.40), rgba(255, 255, 255, 0.40))',
-      backdropFilter: 'blur(30px) saturate(35%) brightness(145%) contrast(85%)',
-      WebkitBackdropFilter: 'blur(30px) saturate(35%) brightness(145%) contrast(85%)',
-      border: '1px solid rgba(255, 255, 255, 0.3)',
-      borderRadius: '20px',
-      padding: '40px',
+      background: 'var(--page-container-bg)',
+      backdropFilter: 'var(--page-container-backdrop)',
+      WebkitBackdropFilter: 'var(--page-container-backdrop)',
+      border: 'var(--page-container-border)',
+      borderRadius: 'var(--page-container-border-radius)',
+      padding: 'var(--page-container-padding)',
       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
       overflow: 'hidden',
       cursor: 'default',
-      boxShadow: 'inset 0 0 20px rgba(255, 255, 255, 0.1), 0 0 40px rgba(255, 255, 255, 0.05)',
-      minHeight: 'calc(100vh - 120px)',
-      margin: '20px',
+      boxShadow: 'var(--page-container-shadow)',
+      minHeight: 'var(--page-container-min-height)',
+      margin: 'var(--page-container-margin)',
     },
     
     // Status Badge

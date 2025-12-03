@@ -4,38 +4,62 @@ interface GlassmorphicLayoutProps {
   children: React.ReactNode;
   className?: string;
   style?: React.CSSProperties;
+  /** @deprecated Use CSS token --page-container-padding instead */
   padding?: string;
+  /** @deprecated Use CSS token --page-container-margin instead */
   margin?: string;
+  /** @deprecated Use CSS token --page-container-backdrop instead */
   blur?: string;
+  /** @deprecated No longer used - background uses CSS token */
   opacity?: string;
+  /** @deprecated Use CSS token --page-container-border-radius instead */
   borderRadius?: string;
+  role?: string;
+  'aria-label'?: string;
 }
 
+/**
+ * GlassmorphicLayout - Main page container with consistent glassmorphic styling
+ * 
+ * Uses CSS custom properties for theming:
+ * - --page-container-bg: Background gradient
+ * - --page-container-backdrop: Backdrop filter
+ * - --page-container-border: Border style
+ * - --page-container-border-radius: Border radius
+ * - --page-container-padding: Inner padding
+ * - --page-container-margin: Outer margin
+ * - --page-container-min-height: Minimum height
+ * - --page-container-shadow: Box shadow
+ * 
+ * These tokens are defined in index.css for both light and dark modes.
+ */
 const GlassmorphicLayout: React.FC<GlassmorphicLayoutProps> = ({
   children,
   className,
   style,
-  padding = '32px',
-  margin = '24px',
-  blur = '24px',
-  opacity = '0.12',
-  borderRadius = '24px',
+  // Legacy props (deprecated but still supported for backwards compatibility)
+  padding,
+  margin,
+  blur,
+  borderRadius,
   ...props
 }) => {
   const defaultStyle: React.CSSProperties = {
-    padding,
-    margin,
-    borderRadius,
-    background: 'var(--glass-bg)',
-    backdropFilter: `blur(${blur}) saturate(180%)`,
-    WebkitBackdropFilter: `blur(${blur}) saturate(180%)`,
-    border: '1px solid var(--glass-border)',
-    boxShadow: 'var(--glass-shadow)',
-    minHeight: 'calc(100vh - 120px)',
+    // Use CSS tokens for consistent styling across all pages
+    background: 'var(--page-container-bg)',
+    backdropFilter: 'var(--page-container-backdrop)',
+    WebkitBackdropFilter: 'var(--page-container-backdrop)',
+    border: 'var(--page-container-border)',
+    borderRadius: borderRadius || 'var(--page-container-border-radius)',
+    padding: padding || 'var(--page-container-padding)',
+    margin: margin || 'var(--page-container-margin)',
+    minHeight: 'var(--page-container-min-height)',
+    boxShadow: 'var(--page-container-shadow)',
     fontFamily: "'Oxanium', system-ui, sans-serif",
     overflowY: 'auto',
     overflowX: 'hidden',
     position: 'relative',
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
     ...style
   };
 

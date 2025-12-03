@@ -580,17 +580,16 @@ const ProjectWorkspaceView: React.FC = () => {
       </div>
 
       {/* Main Unified Card - Same positioning as Projects view */}
-      <div role="main" aria-label={`Project Details: ${project?.name ?? ''}`}>
-        <GlassmorphicLayout
-          style={{
-            ...DesignTokens.components.pageContainer,
-            overflow: 'visible',
-            background: 'transparent',
-            border: 'none',
-            boxShadow: 'none',
-            backdropFilter: 'none'
-          }}
-        >
+      <GlassmorphicLayout
+        style={{
+          ...DesignTokens.components.pageContainer,
+          overflow: 'visible',
+          background: 'transparent',
+          border: 'none',
+          boxShadow: 'none',
+          backdropFilter: 'none'
+        }}
+      >
         {/* Breadcrumb Navigation */}
         <PurpleGlassBreadcrumb
           items={[
@@ -609,7 +608,7 @@ const ProjectWorkspaceView: React.FC = () => {
                   display: 'flex', 
                   alignItems: 'center', 
                   justifyContent: 'center',
-                  color: '#1f2937',  // Use gray-900 for icon color
+                  color: 'var(--icon-default)',
                   fontSize: '32px'
                 }}>
                   <FolderRegular />
@@ -1380,7 +1379,6 @@ const ProjectWorkspaceView: React.FC = () => {
           )}
         </div>
       </GlassmorphicLayout>
-      </div>
 
       {/* Activity Wizard Modal */}
       <ActivityWizardModal

@@ -3,7 +3,6 @@ import { Settings } from 'lucide-react';
 import { SettingsRegular } from '@fluentui/react-icons';
 import { InfoTooltip } from '../components/Tooltip';
 import { autoSave } from '../utils/autoSave';
-import { DESIGN_TOKENS } from '../components/DesignSystem';
 import { DesignTokens } from '../styles/designSystem';
 import { PurpleGlassDropdown, PurpleGlassInput } from '../components/ui';
 import type { DropdownOption } from '../components/ui';
@@ -52,15 +51,15 @@ const SettingsView: React.FC = () => {
 
 
   const renderCalculationTab = () => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: DesignTokens.spacing.xl }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: DesignTokens.spacing.xxl }}>
         <div>
-          <h4 className="font-medium"
-            style={{
-              fontSize: '16px',
-              fontWeight: 600,
-              color: '#2c2c2c',
-              marginBottom: '16px'
+          <h4 style={{
+              fontSize: DesignTokens.typography.base,
+              fontWeight: DesignTokens.typography.semibold,
+              color: DesignTokens.colors.textPrimary,
+              marginBottom: DesignTokens.spacing.lg,
+              fontFamily: DesignTokens.typography.fontFamily
             }}>
             Forecasting & Planning
           </h4>
@@ -68,7 +67,7 @@ const SettingsView: React.FC = () => {
           <div className="grid gap-4">
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <label className="text-sm font-medium" style={{ color: '#4b5563' }}>
+                <label style={{ fontSize: DesignTokens.typography.sm, fontWeight: DesignTokens.typography.medium, color: DesignTokens.colors.textSecondary }}>
                   Forecast Period (months)
                 </label>
                 <InfoTooltip content="Time horizon for capacity planning calculations" />
@@ -85,7 +84,7 @@ const SettingsView: React.FC = () => {
             
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <label className="text-sm font-medium" style={{ color: '#4b5563' }}>
+                <label style={{ fontSize: DesignTokens.typography.sm, fontWeight: DesignTokens.typography.medium, color: DesignTokens.colors.textSecondary }}>
                   Planning Horizon (years)
                 </label>
                 <InfoTooltip content="Strategic planning timeframe for hardware lifecycle" />
@@ -114,12 +113,12 @@ const SettingsView: React.FC = () => {
         </div>
 
         <div>
-          <h4 className="font-medium"
-            style={{
-              fontSize: '16px',
-              fontWeight: 600,
-              color: '#2c2c2c',
-              marginBottom: '16px'
+          <h4 style={{
+              fontSize: DesignTokens.typography.base,
+              fontWeight: DesignTokens.typography.semibold,
+              color: DesignTokens.colors.textPrimary,
+              marginBottom: DesignTokens.spacing.lg,
+              fontFamily: DesignTokens.typography.fontFamily
             }}>
             Resource Overcommit Ratios
           </h4>
@@ -127,7 +126,7 @@ const SettingsView: React.FC = () => {
           <div className="grid gap-4">
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <label className="text-sm font-medium" style={{ color: '#4b5563' }}>
+                <label style={{ fontSize: DesignTokens.typography.sm, fontWeight: DesignTokens.typography.medium, color: DesignTokens.colors.textSecondary }}>
                   CPU Overcommit Ratio
                 </label>
                 <InfoTooltip content="Virtual CPUs to physical CPU cores ratio (e.g., 4:1)" />
@@ -145,7 +144,7 @@ const SettingsView: React.FC = () => {
             
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <label className="text-sm font-medium" style={{ color: '#4b5563' }}>
+                <label style={{ fontSize: DesignTokens.typography.sm, fontWeight: DesignTokens.typography.medium, color: DesignTokens.colors.textSecondary }}>
                   Memory Overcommit Ratio
                 </label>
                 <InfoTooltip content="Virtual memory to physical memory ratio" />
@@ -163,7 +162,7 @@ const SettingsView: React.FC = () => {
 
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <label className="text-sm font-medium" style={{ color: '#4b5563' }}>
+                <label style={{ fontSize: DesignTokens.typography.sm, fontWeight: DesignTokens.typography.medium, color: DesignTokens.colors.textSecondary }}>
                   Storage Efficiency Factor
                 </label>
                 <InfoTooltip content="Expected storage efficiency from compression and deduplication" />
@@ -189,26 +188,26 @@ const SettingsView: React.FC = () => {
     <div style={{...DesignTokens.components.pageContainer, overflow: 'visible'}}>
       {/* Header */}
       <div style={{ 
-        marginBottom: '32px',
-        borderBottom: '2px solid #8b5cf620',
-        paddingBottom: '16px'
+        marginBottom: DesignTokens.spacing.xxl,
+        borderBottom: `2px solid ${DesignTokens.colors.primary}20`,
+        paddingBottom: DesignTokens.spacing.lg
       }}>
         <h1 style={{
           fontSize: DesignTokens.typography.xxxl,
           fontWeight: DesignTokens.typography.semibold,
-          color: '#8b5cf6',
+          color: 'var(--brand-primary)',
           margin: '0',
           fontFamily: DesignTokens.typography.fontFamily,
           display: 'flex',
           alignItems: 'center',
           gap: '12px'
         }}>
-          <SettingsRegular style={{ fontSize: '32px', color: '#000000' }} />
+          <SettingsRegular style={{ fontSize: '32px', color: 'var(--icon-default)' }} />
           Settings
         </h1>
         <p style={{
-          fontSize: '18px',
-          color: '#64748b',
+          fontSize: DesignTokens.typography.lg,
+          color: 'var(--text-secondary)',
           margin: 0,
           fontFamily: DesignTokens.typography.fontFamily
         }}>
