@@ -10,7 +10,8 @@
  * Design: Fluent UI 2 with glassmorphic aesthetic
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
 import {
   Dialog,
   DialogSurface,
@@ -217,6 +218,16 @@ export const ClusterStrategyModal: React.FC<ClusterStrategyModalProps> = ({
     strategy_type: 'new_hardware_purchase',
   });
   
+  // Track if form has been modified from initial state
+  const [isDirty, setIsDirty] = useState(false);
+  const initialFormDataRef = useRef<ClusterStrategyFormData | null>(null);
+  
+  // Browser close protection when form has unsaved changes and modal is open
+  useUnsavedChanges({
+    when: isOpen && isDirty,
+    message: 'You have unsaved changes to your cluster strategy. Are you sure you want to leave?',
+  });
+  
   const [isValidating, setIsValidating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [capacityValidation, setCapacityValidation] = useState<CapacityValidation | null>(null);
@@ -305,23 +316,42 @@ export const ClusterStrategyModal: React.FC<ClusterStrategyModalProps> = ({
   useEffect(() => {
     if (existingStrategy) {
       setFormData(existingStrategy);
+      initialFormDataRef.current = existingStrategy;
     } else {
       // Reset form when modal opens for new strategy
-      setFormData({
+      const defaultData: ClusterStrategyFormData = {
         source_cluster_name: '',
         target_cluster_name: '',
         strategy_type: 'new_hardware_purchase',
-      });
+      };
+      setFormData(defaultData);
+      initialFormDataRef.current = defaultData;
       setCapacityValidation(null);
       setErrors({});
     }
+    // Reset dirty state when modal opens/closes or strategy changes
+    setIsDirty(false);
   }, [existingStrategy, isOpen]);
   
   const handleFieldChange = (field: keyof ClusterStrategyFormData, value: any) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+    setFormData((prev) => {
+      const newData = {
+        ...prev,
+        [field]: value,
+      };
+      
+      // Mark form as dirty if value differs from initial
+      if (initialFormDataRef.current) {
+        const initialValue = initialFormDataRef.current[field];
+        if (value !== initialValue) {
+          setIsDirty(true);
+        }
+      } else {
+        setIsDirty(true);
+      }
+      
+      return newData;
+    });
     
     // Clear error for this field
     if (errors[field]) {
@@ -413,6 +443,8 @@ export const ClusterStrategyModal: React.FC<ClusterStrategyModalProps> = ({
     setIsSaving(true);
     try {
       await onSave(formData);
+      // Reset dirty state before closing to prevent browser warning
+      setIsDirty(false);
       onClose();
     } catch (error) {
       console.error('Error saving strategy:', error);

@@ -11,6 +11,7 @@ import {
   Input,
   Textarea,
 } from '@fluentui/react-components';
+import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
 
 interface CreateActivityFormProps {
   isOpen: boolean;
@@ -27,6 +28,15 @@ const CreateActivityForm: React.FC<CreateActivityFormProps> = ({ isOpen, onClose
   const [formData, setFormData] = useState<ActivityData>({
     name: '',
     description: ''
+  });
+
+  // Track if form has any content (unsaved work)
+  const hasContent = formData.name.trim() !== '' || formData.description.trim() !== '';
+  
+  // Browser close protection when form has content and dialog is open
+  useUnsavedChanges({
+    when: isOpen && hasContent,
+    message: 'You have unsaved activity data. Are you sure you want to leave?',
   });
 
   const handleSubmit = (e: React.FormEvent) => {

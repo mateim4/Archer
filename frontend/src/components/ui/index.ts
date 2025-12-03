@@ -115,3 +115,7 @@ export type { TopNavigationBarProps } from './TopNavigationBar';
 // Migration Notice - User education about navigation restructure
 export { MigrationNotice } from './MigrationNotice';
 export type { MigrationNoticeProps } from './MigrationNotice';
+
+// Drawer - Sliding panel for detail views
+export { PurpleGlassDrawer } from './PurpleGlassDrawer';
+export type { PurpleGlassDrawerProps, DrawerSize, DrawerPosition } from './PurpleGlassDrawer';

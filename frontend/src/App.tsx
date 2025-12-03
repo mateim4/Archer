@@ -4,6 +4,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import './styles/fluent2-design-system.css';
 import { ThemeProvider, useTheme } from './hooks/useTheme';
 import { KeyboardShortcutsProvider } from './hooks/useKeyboardShortcuts';
+import { NotificationsProvider, useNotificationState } from './hooks/useNotifications';
 import { AnimatedBackground } from './components/background/AnimatedBackground';
 import { useStyles } from './styles/useStyles';
 import NavigationSidebar from './components/NavigationSidebar';
@@ -45,6 +46,9 @@ function AppContent() {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
   const [isProjectOpen, setProjectOpen] = useState(false); // TODO: connect to project store
   const [isCommandPaletteOpen, setCommandPaletteOpen] = useState(false);
+  
+  // Get notification state for TopNavigationBar
+  const { unreadCount } = useNotificationState();
 
   const handleSidebarToggle = () => {
     setSidebarOpen(!isSidebarOpen);
@@ -97,6 +101,7 @@ function AppContent() {
               {/* Top Navigation Bar */}
               <TopNavigationBar 
                 onSearchClick={() => setCommandPaletteOpen(true)}
+                notificationCount={unreadCount}
               />
               
               {/* Content area below top nav */}
@@ -175,11 +180,13 @@ function AppContent() {
   );
 }
 
-// Main App wrapper with ThemeProvider
+// Main App wrapper with ThemeProvider and NotificationsProvider
 function App() {
   return (
     <ThemeProvider defaultMode="light">
-      <AppContent />
+      <NotificationsProvider>
+        <AppContent />
+      </NotificationsProvider>
     </ThemeProvider>
   );
 }
