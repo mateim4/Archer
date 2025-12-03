@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { tokens, colors, glassEffects, gradients, zIndex } from '@/styles/design-tokens';
+import { tokens, colors, gradients, zIndex } from '@/styles/design-tokens';
 import { 
   DatabaseRegular,
   DatabaseFilled,
@@ -132,10 +132,10 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
         <nav role="navigation" aria-label="Primary" 
       style={{
         position: 'fixed',
-        top: 0,
+        top: '60px', /* Account for TopNavigationBar height */
         left: 0,
         width: isOpen ? '280px' : '60px',
-        height: '100vh',
+        height: 'calc(100vh - 60px)', /* Full height minus TopNavigationBar */
         background: 'var(--lcm-bg-sidebar, rgba(255, 255, 255, 0.78))',
         backdropFilter: 'var(--lcm-backdrop-filter-sidebar, blur(30px) saturate(140%))',
         WebkitBackdropFilter: 'var(--lcm-backdrop-filter-sidebar, blur(30px) saturate(140%))',
@@ -148,9 +148,9 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
         overflow: 'hidden'
       }}
     >
-      {/* Header */}
+      {/* Header - Sidebar Toggle */}
       <div style={{ 
-        padding: `${tokens.xl} ${tokens.l}`,
+        padding: `${tokens.m} ${tokens.l}`,
         borderBottom: '1px solid var(--lcm-primary-border, rgba(139, 92, 246, 0.18))',
         background: 'transparent'
       }}>
@@ -158,10 +158,12 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
           display: 'flex', 
           alignItems: 'center', 
           gap: tokens.m,
-          justifyContent: isOpen ? 'space-between' : 'center'
+          justifyContent: isOpen ? 'flex-start' : 'center'
         }}>
           <button
             onClick={onToggle}
+            aria-label={isOpen ? 'Collapse sidebar' : 'Expand sidebar'}
+            title={isOpen ? 'Collapse sidebar' : 'Expand sidebar'}
             style={{
               padding: tokens.s,
               borderRadius: tokens.large,
@@ -193,29 +195,14 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
           </button>
           
           {isOpen && (
-            <div style={{ flex: 1 }}>
-              <div role="heading" aria-level={2} style={{ 
-                margin: 0,
-                fontSize: tokens.fontSizeBase500,
-                fontWeight: tokens.fontWeightBold,
-                background: gradients.purplePrimary,
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-                fontFamily: tokens.fontFamilyHeading
-              }}>
-                Archer
-              </div>
-              <p style={{ 
-                margin: 0,
-                fontSize: tokens.fontSizeBase200,
-                color: tokens.colorNeutralForeground2,
-                fontWeight: tokens.fontWeightRegular,
-                fontFamily: tokens.fontFamilyBody
-              }}>
-                Infrastructure Planning
-              </p>
-            </div>
+            <span style={{
+              fontSize: tokens.fontSizeBase300,
+              fontWeight: tokens.fontWeightSemibold,
+              color: 'var(--lcm-text-primary, #1f2937)',
+              fontFamily: tokens.fontFamilyBody
+            }}>
+              Navigation
+            </span>
           )}
         </div>
       </div>

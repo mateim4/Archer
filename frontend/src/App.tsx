@@ -1,13 +1,13 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 // Import ONLY Fluent UI 2 Design System
 import './styles/fluent2-design-system.css';
 import { ThemeProvider, useTheme } from './hooks/useTheme';
+import { KeyboardShortcutsProvider } from './hooks/useKeyboardShortcuts';
 import { AnimatedBackground } from './components/background/AnimatedBackground';
 import { useStyles } from './styles/useStyles';
 import NavigationSidebar from './components/NavigationSidebar';
-import { BreadcrumbNavigation, CommandPalette } from './components/ui';
-import ThemeToggle from './components/ThemeToggle';
+import { BreadcrumbNavigation, CommandPalette, TopNavigationBar } from './components/ui';
 import { lazyWithRetry } from './utils/lazyLoad';
 
 // Eager-loaded views (critical path)
@@ -50,38 +50,20 @@ function AppContent() {
     setSidebarOpen(!isSidebarOpen);
   };
 
-  // Command Palette keyboard shortcut (Ctrl+K / Cmd+K)
-  const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-      e.preventDefault();
-      setCommandPaletteOpen(prev => !prev);
-    }
+  const handleOpenCommandPalette = useCallback(() => {
+    setCommandPaletteOpen(true);
   }, []);
 
-  useEffect(() => {
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [handleKeyDown]);
-
   return (
-    <div className={`${styles.root} ${isDark ? styles.rootDark : styles.rootLight}`}>
-      <AnimatedBackground isDarkTheme={isDark} />
-      <div className={styles.mainUI}>
-        {/* Command Palette (Ctrl+K / Cmd+K) */}
-        <CommandPalette
-          isOpen={isCommandPaletteOpen}
-          onClose={() => setCommandPaletteOpen(false)}
-        />
-        
-        {/* Theme Toggle - Top Right */}
-        <ThemeToggle 
-          style={{ 
-            position: 'fixed', 
-            top: '24px', 
-            right: '32px', 
-            zIndex: 1001 
-          }} 
-        />
+    <KeyboardShortcutsProvider onOpenCommandPalette={handleOpenCommandPalette}>
+      <div className={`${styles.root} ${isDark ? styles.rootDark : styles.rootLight}`}>
+        <AnimatedBackground isDarkTheme={isDark} />
+        <div className={styles.mainUI}>
+          {/* Command Palette (Ctrl+K / Cmd+K) - Now also triggered from TopNavigationBar search */}
+          <CommandPalette
+            isOpen={isCommandPaletteOpen}
+            onClose={() => setCommandPaletteOpen(false)}
+          />
         
         <Routes>
           {/* Landing page - full screen without sidebar */}
@@ -96,39 +78,52 @@ function AppContent() {
           <Route path="/capacity-visualizer" element={<Navigate to="/app/capacity-visualizer" replace />} />
           <Route path="/data-collection" element={<Navigate to="/app/data-collection" replace />} />
 
-          {/* App routes with sidebar navigation */}
+          {/* App routes with top navigation bar and sidebar */}
           <Route path="/app/*" element={
             <div style={{ 
               minHeight: '100vh',
               display: 'flex',
+              flexDirection: 'column',
               position: 'relative',
-              overflowY: 'auto',
               background: 'transparent' /* Allow wallpaper background to show through */
             }}>
-              <NavigationSidebar 
-                isOpen={isSidebarOpen}
-                onToggle={handleSidebarToggle}
-                isProjectOpen={isProjectOpen}
+              {/* Top Navigation Bar */}
+              <TopNavigationBar 
+                onSearchClick={() => setCommandPaletteOpen(true)}
               />
               
-              <main role="main" aria-label="Main content" style={{ 
+              {/* Content area below top nav */}
+              <div style={{
                 flex: 1,
-                marginLeft: isSidebarOpen ? '280px' : '60px',
-                transition: 'margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                padding: '32px',
-                overflowX: 'hidden',
-                minHeight: '100vh'
+                display: 'flex',
+                position: 'relative',
+                marginTop: '60px', /* TopNavigationBar height */
+                minHeight: 'calc(100vh - 60px)'
               }}>
-                {/* Breadcrumb Navigation */}
-                <BreadcrumbNavigation glass="light" style={{ marginBottom: '24px' }} />
+                <NavigationSidebar 
+                  isOpen={isSidebarOpen}
+                  onToggle={handleSidebarToggle}
+                  isProjectOpen={isProjectOpen}
+                />
                 
-                {/* Single Card Container for All Content */}
-                <div style={{
-                  background: 'transparent', /* Let individual views handle their own backgrounds */
-                  padding: '24px',
-                  minHeight: 'calc(100vh - 128px)'
+                <main role="main" aria-label="Main content" style={{ 
+                  flex: 1,
+                  marginLeft: isSidebarOpen ? '280px' : '60px',
+                  transition: 'margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  padding: '32px',
+                  overflowX: 'hidden',
+                  minHeight: 'calc(100vh - 60px)'
                 }}>
-                  <Routes>
+                  {/* Breadcrumb Navigation */}
+                  <BreadcrumbNavigation glass="light" style={{ marginBottom: '24px' }} />
+                  
+                  {/* Single Card Container for All Content */}
+                  <div style={{
+                    background: 'transparent', /* Let individual views handle their own backgrounds */
+                    padding: '24px',
+                    minHeight: 'calc(100vh - 188px)' /* Adjusted for top nav */
+                  }}>
+                    <Routes>
                     <Route path="projects" element={<ProjectsView />} />
                     <Route path="tasks" element={<TasksView />} />
                     <Route path="service-desk" element={<ServiceDeskView />} />
@@ -157,11 +152,13 @@ function AppContent() {
                   </Routes>
                 </div>
               </main>
+              </div>
             </div>
           } />
         </Routes>
       </div>
-    </div>
+      </div>
+    </KeyboardShortcutsProvider>
   );
 }
 

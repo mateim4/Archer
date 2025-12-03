@@ -107,3 +107,7 @@ export type { CommandPaletteProps, SearchResult } from './CommandPalette';
 // Create Incident Modal - One-click incident from alert
 export { CreateIncidentModal } from './CreateIncidentModal';
 export type { CreateIncidentModalProps, CreateIncidentData, AlertContext } from './CreateIncidentModal';
+
+// Top Navigation Bar - Main app header with search, notifications, profile
+export { TopNavigationBar } from './TopNavigationBar';
+export type { TopNavigationBarProps } from './TopNavigationBar';
