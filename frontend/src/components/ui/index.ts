@@ -91,6 +91,19 @@ export type { WorkflowTemplateManagerProps, WorkflowTemplate, WorkflowStep } fro
 export { BulkOperationPanel } from './BulkOperationPanel';
 export type { BulkOperationPanelProps, BulkOperation, BulkOperationExecution } from './BulkOperationPanel';
 
-// export { PurpleGlassCheckbox } from './PurpleGlassCheckbox';
-// export { PurpleGlassRadio } from './PurpleGlassRadio';
-// export { PurpleGlassSwitch } from './PurpleGlassSwitch';
+// Integration Layer Components (Phase 2)
+// Linked Asset Badge - Shows CMDB asset links on tickets
+export { LinkedAssetBadge } from './LinkedAssetBadge';
+export type { LinkedAssetBadgeProps, AssetStatus, AssetType } from './LinkedAssetBadge';
+
+// SLA Indicator - Visual timer for SLA tracking
+export { SLAIndicator } from './SLAIndicator';
+export type { SLAIndicatorProps, SLAStatus } from './SLAIndicator';
+
+// Command Palette - Unified search (Ctrl+K)
+export { CommandPalette } from './CommandPalette';
+export type { CommandPaletteProps, SearchResult } from './CommandPalette';
+
+// Create Incident Modal - One-click incident from alert
+export { CreateIncidentModal } from './CreateIncidentModal';
+export type { CreateIncidentModalProps, CreateIncidentData, AlertContext } from './CreateIncidentModal';
