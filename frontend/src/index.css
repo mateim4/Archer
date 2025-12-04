@@ -152,6 +152,22 @@
     --card-shadow-hover: 0 8px 25px rgba(107, 76, 230, 0.15);
 
     /* ========================================================================
+       NOTICE/BANNER TOKENS (Light Mode)
+       ======================================================================== */
+    --notice-gradient-bg: linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(147, 197, 253, 0.08));
+    --notice-border-color: rgba(59, 130, 246, 0.15);
+    --notice-shadow: 0 4px 16px rgba(59, 130, 246, 0.08);
+    --notice-heading-color: #1e40af;
+    --notice-text-color: #1e40af;
+    --notice-icon-color: #3b82f6;
+
+    /* ========================================================================
+       STATISTICS TOKENS (Light Mode) - High contrast colors
+       ======================================================================== */
+    --stat-primary: #7c3aed;
+    --stat-secondary: #2563eb;
+
+    /* ========================================================================
        DIVIDER TOKENS (Light Mode)
        ======================================================================== */
     --divider-color: rgba(229, 231, 235, 0.5);
@@ -303,6 +319,22 @@
     --card-border-hover: rgba(139, 92, 246, 0.25);
     --card-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
     --card-shadow-hover: 0 8px 25px rgba(107, 76, 230, 0.2);
+
+    /* ========================================================================
+       NOTICE/BANNER TOKENS (Dark Mode) - Light blue on dark for readability
+       ======================================================================== */
+    --notice-gradient-bg: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(96, 165, 250, 0.12));
+    --notice-border-color: rgba(96, 165, 250, 0.25);
+    --notice-shadow: 0 4px 16px rgba(59, 130, 246, 0.15);
+    --notice-heading-color: #93c5fd;
+    --notice-text-color: #bfdbfe;
+    --notice-icon-color: #60a5fa;
+
+    /* ========================================================================
+       STATISTICS TOKENS (Dark Mode) - Bright colors for contrast
+       ======================================================================== */
+    --stat-primary: #c4b5fd;
+    --stat-secondary: #93c5fd;
 
     /* ========================================================================
        DIVIDER TOKENS (Dark Mode)

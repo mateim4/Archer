@@ -211,7 +211,7 @@ const MonitoringView: React.FC = () => {
                     <div 
                       className="p-2 rounded-md"
                       style={{ 
-                        background: 'rgba(255,255,255,0.05)', 
+                        background: 'var(--btn-secondary-bg)', 
                         color: getStatusColor(asset.status || 'HEALTHY') 
                       }}
                     >
@@ -221,7 +221,7 @@ const MonitoringView: React.FC = () => {
                       <div className="flex justify-between">
                         <h3 
                           className="font-medium truncate"
-                          style={{ color: 'var(--colorNeutralForeground1, #ffffff)' }}
+                          style={{ color: 'var(--text-primary)' }}
                         >
                           {asset.name}
                         </h3>
@@ -234,12 +234,12 @@ const MonitoringView: React.FC = () => {
                       </div>
                       <p 
                         className="text-xs"
-                        style={{ color: 'var(--colorNeutralForeground3, rgba(255,255,255,0.4))' }}
+                        style={{ color: 'var(--text-secondary)' }}
                       >
                         {asset.asset_type}
                       </p>
                     </div>
-                    <ChevronRightRegular style={{ color: 'var(--colorNeutralForeground3, rgba(255,255,255,0.3))' }} />
+                    <ChevronRightRegular style={{ color: 'var(--text-muted)' }} />
                   </div>
                 </PurpleGlassCard>
               ))}
@@ -275,19 +275,19 @@ const MonitoringView: React.FC = () => {
                             <stop offset="95%" stopColor="#8884d8" stopOpacity={0}/>
                           </linearGradient>
                         </defs>
-                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                        <CartesianGrid strokeDasharray="3 3" stroke="var(--card-border)" />
                         <XAxis 
                           dataKey="timestamp" 
                           tickFormatter={formatTime} 
-                          stroke="rgba(255,255,255,0.5)" 
-                          tick={{fill: 'rgba(255,255,255,0.5)', fontSize: 12}}
+                          stroke="var(--text-muted)" 
+                          tick={{fill: 'var(--text-secondary)', fontSize: 12}}
                         />
                         <YAxis 
-                          stroke="rgba(255,255,255,0.5)" 
-                          tick={{fill: 'rgba(255,255,255,0.5)', fontSize: 12}}
+                          stroke="var(--text-muted)" 
+                          tick={{fill: 'var(--text-secondary)', fontSize: 12}}
                         />
                         <Tooltip 
-                          contentStyle={{ backgroundColor: '#1f1f1f', border: '1px solid rgba(255,255,255,0.1)' }}
+                          contentStyle={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--card-border)' }}
                           labelFormatter={(label) => new Date(label).toLocaleString()}
                         />
                         <Area type="monotone" dataKey="value" stroke="#8884d8" fillOpacity={1} fill="url(#colorCpu)" />
@@ -306,19 +306,19 @@ const MonitoringView: React.FC = () => {
                             <stop offset="95%" stopColor="#82ca9d" stopOpacity={0}/>
                           </linearGradient>
                         </defs>
-                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                        <CartesianGrid strokeDasharray="3 3" stroke="var(--card-border)" />
                         <XAxis 
                           dataKey="timestamp" 
                           tickFormatter={formatTime} 
-                          stroke="rgba(255,255,255,0.5)" 
-                          tick={{fill: 'rgba(255,255,255,0.5)', fontSize: 12}}
+                          stroke="var(--text-muted)" 
+                          tick={{fill: 'var(--text-secondary)', fontSize: 12}}
                         />
                         <YAxis 
-                          stroke="rgba(255,255,255,0.5)" 
-                          tick={{fill: 'rgba(255,255,255,0.5)', fontSize: 12}}
+                          stroke="var(--text-muted)" 
+                          tick={{fill: 'var(--text-secondary)', fontSize: 12}}
                         />
                         <Tooltip 
-                          contentStyle={{ backgroundColor: '#1f1f1f', border: '1px solid rgba(255,255,255,0.1)' }}
+                          contentStyle={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--card-border)' }}
                           labelFormatter={(label) => new Date(label).toLocaleString()}
                         />
                         <Area type="monotone" dataKey="value" stroke="#82ca9d" fillOpacity={1} fill="url(#colorMem)" />
@@ -331,19 +331,19 @@ const MonitoringView: React.FC = () => {
                   <div className="w-full h-full p-4">
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart data={metrics.network_throughput}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                        <CartesianGrid strokeDasharray="3 3" stroke="var(--card-border)" />
                         <XAxis 
                           dataKey="timestamp" 
                           tickFormatter={formatTime} 
-                          stroke="rgba(255,255,255,0.5)" 
-                          tick={{fill: 'rgba(255,255,255,0.5)', fontSize: 12}}
+                          stroke="var(--text-muted)" 
+                          tick={{fill: 'var(--text-secondary)', fontSize: 12}}
                         />
                         <YAxis 
-                          stroke="rgba(255,255,255,0.5)" 
-                          tick={{fill: 'rgba(255,255,255,0.5)', fontSize: 12}}
+                          stroke="var(--text-muted)" 
+                          tick={{fill: 'var(--text-secondary)', fontSize: 12}}
                         />
                         <Tooltip 
-                          contentStyle={{ backgroundColor: '#1f1f1f', border: '1px solid rgba(255,255,255,0.1)' }}
+                          contentStyle={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--card-border)' }}
                           labelFormatter={(label) => new Date(label).toLocaleString()}
                         />
                         <Line type="monotone" dataKey="value" stroke="#ffc658" strokeWidth={2} dot={false} />
@@ -402,13 +402,13 @@ const SummaryCard: React.FC<{ label: string; value: string | number; color: stri
       <div>
         <div 
           className="text-xs uppercase tracking-wider"
-          style={{ color: 'var(--colorNeutralForeground3, rgba(255,255,255,0.4))' }}
+          style={{ color: 'var(--text-secondary)' }}
         >
           {label}
         </div>
         <div 
           className="font-bold text-xl"
-          style={{ color: 'var(--colorNeutralForeground1, #ffffff)' }}
+          style={{ color: 'var(--text-primary)' }}
         >
           {value}
         </div>

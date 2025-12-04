@@ -333,7 +333,7 @@ export default function ProjectsView() {
               <div style={{
                 fontSize: DesignTokens.typography.xxl,
                 fontWeight: DesignTokens.typography.bold,
-                color: DesignTokens.customPalette.statisticsColors.primary,
+                color: 'var(--stat-primary)',
                 fontFamily: DesignTokens.typography.fontFamily,
                 margin: 0,
                 lineHeight: '1'
@@ -357,7 +357,7 @@ export default function ProjectsView() {
               <div style={{
                 fontSize: DesignTokens.typography.xxl,
                 fontWeight: DesignTokens.typography.bold,
-                color: DesignTokens.customPalette.statisticsColors.secondary,
+                color: 'var(--stat-secondary)',
                 fontFamily: DesignTokens.typography.fontFamily,
                 margin: 0,
                 lineHeight: '1'

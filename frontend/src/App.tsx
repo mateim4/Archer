@@ -17,7 +17,6 @@ import DashboardView from './views/DashboardView';
 import ProjectsView from './views/ProjectsView';
 import ProjectWorkspaceView from './views/ProjectWorkspaceView';
 import HardwarePoolView from './views/HardwarePoolView';
-import HardwareBasketView from './views/HardwareBasketView';
 import TasksView from './views/TasksView';
 
 // Lazy-loaded views (code splitting for performance)
@@ -86,10 +85,9 @@ function AppContent() {
           <Route path="/data-collection" element={<Navigate to="/app/data-collection" replace />} />
 
           {/* Legacy route redirects for CMO to FMO migration */}
-          <Route path="/vendor-data-collection" element={<Navigate to="/app/hardware-basket" replace />} />
+          <Route path="/vendor-data-collection" element={<Navigate to="/app/projects" replace />} />
           <Route path="/migration-planner" element={<Navigate to="/app/projects" replace />} />
           <Route path="/lifecycle-planner" element={<Navigate to="/app/projects" replace />} />
-          <Route path="/hardware-basket" element={<Navigate to="/app/hardware-basket" replace />} />
           <Route path="/hardware-pool" element={<Navigate to="/app/hardware-pool" replace />} />
 
           {/* App routes with top navigation bar and sidebar */}
@@ -151,7 +149,6 @@ function AppContent() {
                     <Route path="projects/:projectId/activities/:activityId/cluster-strategies" element={<ClusterStrategyManagerView />} />
                     {/* Phase 7: Activity Wizard now modal-only - accessible via "Add Activity" buttons in project views */}
                     <Route path="hardware-pool" element={<HardwarePoolView />} />
-                    <Route path="hardware-basket" element={<HardwareBasketView />} />
                     <Route path="guides" element={<GuidesView />} />
                     <Route path="document-templates" element={<DocumentTemplatesView />} />
                     <Route path="enhanced-rvtools" element={<EnhancedRVToolsReportView />} />

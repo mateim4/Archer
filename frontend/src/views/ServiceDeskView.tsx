@@ -651,10 +651,16 @@ const ServiceDeskView: React.FC = () => {
 // --- Sub-Components ---
 
 const KPICard: React.FC<{ title: string; value: string | number; trend: string; trendType: 'positive' | 'negative' | 'neutral'; icon?: React.ReactNode }> = ({ title, value, trend, trendType, icon }) => (
-  <PurpleGlassCard glass variant="subtle" style={{ padding: DesignTokens.spacing.lg, transition: 'transform 0.2s ease' }}>
+  <div style={{ 
+    padding: DesignTokens.spacing.lg, 
+    transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+    border: '1px solid var(--card-border)',
+    borderRadius: DesignTokens.borderRadius.lg,
+    background: 'transparent',
+  }}>
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
       <span style={{ color: 'var(--text-secondary)', fontSize: DesignTokens.typography.sm, fontWeight: DesignTokens.typography.medium }}>{title}</span>
-      {icon && <span style={{ color: DesignTokens.colors.textMuted }}>{icon}</span>}
+      {icon && <span style={{ color: 'var(--text-muted)' }}>{icon}</span>}
     </div>
     <div style={{ display: 'flex', alignItems: 'flex-end', gap: '8px' }}>
       <span style={{ color: 'var(--text-primary)', fontSize: DesignTokens.typography.xxl, fontWeight: DesignTokens.typography.bold }}>{value}</span>
@@ -664,13 +670,13 @@ const KPICard: React.FC<{ title: string; value: string | number; trend: string; 
           marginBottom: '4px',
           color: trendType === 'positive' ? DesignTokens.colors.success : 
                  trendType === 'negative' ? DesignTokens.colors.error : 
-                 DesignTokens.colors.textMuted
+                 'var(--text-muted)'
         }}
       >
         {trend}
       </span>
     </div>
-  </PurpleGlassCard>
+  </div>
 );
 
 const TicketListItem: React.FC<{ ticket: ExtendedTicket; getPriorityIcon: (p: string) => React.ReactNode; onClick?: () => void }> = ({ ticket, getPriorityIcon, onClick }) => (

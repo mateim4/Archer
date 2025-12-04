@@ -41,13 +41,6 @@ const LandingView: React.FC = () => {
       color: '#10b981'
     },
     {
-      title: 'Hardware Baskets',
-      description: 'Vendor quotations and hardware catalogs',
-      icon: <BoxRegular />,
-      path: '/app/hardware-basket',
-      color: '#8b5cf6'
-    },
-    {
       title: 'RVTools',
       description: 'VMware environment analysis and reporting',
       icon: <Flash24Regular />,

@@ -128,13 +128,13 @@ const GuidesView: React.FC = () => {
       difficulty: 'beginner'
     },
     {
-      id: 'hardware-basket',
-      title: 'Using the Hardware Basket',
-      description: 'Managing hardware selections and configurations',
-      category: 'hardware',
+      id: 'capacity-planning',
+      title: 'Capacity Planning & Analysis',
+      description: 'Using the capacity visualizer for infrastructure planning',
+      category: 'migration',
       type: 'tutorial',
       duration: '25 min',
-      difficulty: 'beginner'
+      difficulty: 'intermediate'
     },
     {
       id: 'document-generation',

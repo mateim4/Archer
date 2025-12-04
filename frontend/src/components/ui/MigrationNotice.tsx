@@ -21,13 +21,17 @@ import {
  * Migration Notice color palette - using blue tones for informational notices
  * These are intentionally different from the main purple brand colors
  * to distinguish informational banners from the core UI.
+ * Uses CSS variables for theme awareness in light/dark modes.
  */
 const NOTICE_COLORS = {
-  primary: '#3b82f6',      // Blue primary
-  primaryDark: '#2563eb',  // Darker blue for gradients
-  text: '#1e40af',         // Blue text
-  background: 'rgba(59, 130, 246, 0.08)',
-  border: 'rgba(59, 130, 246, 0.15)',
+  primary: 'var(--notice-primary, #3b82f6)',           // Blue primary
+  primaryDark: 'var(--notice-primary-dark, #2563eb)',  // Darker blue for gradients
+  text: 'var(--notice-text, #1e40af)',                 // Blue text - light mode
+  textDark: 'var(--notice-text-dark, #93c5fd)',        // Light blue text - dark mode
+  background: 'var(--notice-bg, rgba(59, 130, 246, 0.08))',
+  backgroundDark: 'var(--notice-bg-dark, rgba(59, 130, 246, 0.15))',
+  border: 'var(--notice-border, rgba(59, 130, 246, 0.15))',
+  borderDark: 'var(--notice-border-dark, rgba(59, 130, 246, 0.3))',
   neutral: 'var(--text-secondary)',
   neutralHover: 'var(--text-primary)',
 } as const;
@@ -92,19 +96,19 @@ export const MigrationNotice: React.FC<MigrationNoticeProps> = ({
 
   return (
     <div
-      className={className}
+      className={`migration-notice ${className}`}
       role="alert"
       aria-live="polite"
       style={{
         margin: '0 0 24px 0',
         padding: '20px 24px',
-        background: `linear-gradient(135deg, ${NOTICE_COLORS.background}, rgba(147, 197, 253, 0.08))`,
+        background: 'var(--notice-gradient-bg)',
         backdropFilter: 'blur(12px) saturate(150%)',
         WebkitBackdropFilter: 'blur(12px) saturate(150%)',
-        border: `1px solid ${NOTICE_COLORS.border}`,
+        border: '1px solid var(--notice-border-color)',
         borderRadius: '12px',
         position: 'relative',
-        boxShadow: `0 4px 16px ${NOTICE_COLORS.background}`,
+        boxShadow: 'var(--notice-shadow)',
         ...style,
       }}
     >
@@ -132,7 +136,7 @@ export const MigrationNotice: React.FC<MigrationNoticeProps> = ({
               margin: '0 0 8px 0',
               fontSize: '16px',
               fontWeight: '600',
-              color: NOTICE_COLORS.text,
+              color: 'var(--notice-heading-color)',
               fontFamily: "'Poppins', 'Montserrat', sans-serif",
               display: 'flex',
               alignItems: 'center',
@@ -146,7 +150,7 @@ export const MigrationNotice: React.FC<MigrationNoticeProps> = ({
             style={{
               margin: '0 0 16px 0',
               fontSize: '14px',
-              color: NOTICE_COLORS.text,
+              color: 'var(--notice-text-color)',
               lineHeight: 1.6,
               fontFamily: "'Poppins', 'Montserrat', sans-serif",
               opacity: 0.9,

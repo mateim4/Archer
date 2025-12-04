@@ -114,13 +114,6 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
       path: '/app/document-templates' 
     },
     { 
-      id: 'hardware-basket', 
-      title: 'Hardware Basket', 
-      icon: <DatabaseRegular />, 
-      iconFilled: <DatabaseFilled />, 
-      path: '/app/hardware-basket' 
-    },
-    { 
       id: 'settings', 
       title: 'Settings', 
       icon: <SettingsRegular />, 
