@@ -36,6 +36,7 @@ const DocumentTemplatesView = lazyWithRetry(() => import('./views/DocumentTempla
 const SettingsView = lazyWithRetry(() => import('./views/SettingsView'));
 const DataCollectionView = lazyWithRetry(() => import('./views/DataCollectionView'));
 const ServiceDeskView = lazyWithRetry(() => import('./views/ServiceDeskView'));
+const TicketDetailView = lazyWithRetry(() => import('./views/TicketDetailView'));
 const InventoryView = lazyWithRetry(() => import('./views/InventoryView'));
 const MonitoringView = lazyWithRetry(() => import('./views/MonitoringView'));
 
@@ -141,6 +142,7 @@ function AppContent() {
                     <Route path="projects" element={<ProjectsView />} />
                     <Route path="tasks" element={<TasksView />} />
                     <Route path="service-desk" element={<ServiceDeskView />} />
+                    <Route path="service-desk/ticket/:ticketId" element={<TicketDetailView />} />
                     <Route path="inventory" element={<InventoryView />} />
                     <Route path="monitoring" element={<MonitoringView />} />
                     <Route path="projects/:projectId" element={<ProjectWorkspaceView />} />

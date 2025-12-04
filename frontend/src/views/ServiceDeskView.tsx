@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   PurpleGlassCard, 
   PurpleGlassButton, 
@@ -39,12 +40,17 @@ interface ExtendedTicket extends Omit<Ticket, 'ticket_type'> {
 }
 
 const ServiceDeskView: React.FC = () => {
+  const navigate = useNavigate();
   const [viewMode, setViewMode] = useState<'list' | 'kanban'>('list');
   const [filter, setFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [tickets, setTickets] = useState<ExtendedTicket[]>([]);
   const [isCreateModalOpen, setCreateModalOpen] = useState(false);
   const { isLoading, withLoading } = useEnhancedUX();
+
+  const handleTicketClick = (ticketId: string) => {
+    navigate(`/app/service-desk/ticket/${ticketId}`);
+  };
 
   useEffect(() => {
     loadTickets();
@@ -212,7 +218,12 @@ const ServiceDeskView: React.FC = () => {
           {viewMode === 'list' ? (
             <div style={{ height: '100%', overflowY: 'auto', paddingRight: '8px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {filteredTickets.map(ticket => (
-                <TicketListItem key={ticket.id?.toString()} ticket={ticket} getPriorityIcon={getPriorityIcon} />
+                <TicketListItem 
+                  key={ticket.id?.toString()} 
+                  ticket={ticket} 
+                  getPriorityIcon={getPriorityIcon}
+                  onClick={() => handleTicketClick(ticket.id?.toString() || '')}
+                />
               ))}
             </div>
           ) : (
@@ -258,7 +269,12 @@ const ServiceDeskView: React.FC = () => {
                     {filteredTickets
                       .filter(t => t.status === col.id || (col.id === 'RESOLVED' && ['RESOLVED', 'CLOSED'].includes(t.status)))
                       .map(ticket => (
-                        <TicketKanbanCard key={ticket.id?.toString()} ticket={ticket} getPriorityIcon={getPriorityIcon} />
+                        <TicketKanbanCard 
+                          key={ticket.id?.toString()} 
+                          ticket={ticket} 
+                          getPriorityIcon={getPriorityIcon}
+                          onClick={() => handleTicketClick(ticket.id?.toString() || '')}
+                        />
                       ))}
                   </div>
                 </div>
@@ -303,8 +319,8 @@ const KPICard: React.FC<{ title: string; value: string | number; trend: string; 
   </PurpleGlassCard>
 );
 
-const TicketListItem: React.FC<{ ticket: ExtendedTicket; getPriorityIcon: (p: string) => React.ReactNode }> = ({ ticket, getPriorityIcon }) => (
-  <PurpleGlassCard glass variant="interactive" style={{ padding: DesignTokens.spacing.md }}>
+const TicketListItem: React.FC<{ ticket: ExtendedTicket; getPriorityIcon: (p: string) => React.ReactNode; onClick?: () => void }> = ({ ticket, getPriorityIcon, onClick }) => (
+  <PurpleGlassCard glass variant="interactive" style={{ padding: DesignTokens.spacing.md, cursor: 'pointer' }} onClick={onClick}>
     <div style={{ display: 'flex', alignItems: 'center', gap: DesignTokens.spacing.lg }}>
       <div style={{ flexShrink: 0 }} title={`Priority: ${ticket.priority}`}>
         {getPriorityIcon(ticket.priority.toString())}
@@ -363,8 +379,8 @@ const TicketListItem: React.FC<{ ticket: ExtendedTicket; getPriorityIcon: (p: st
   </PurpleGlassCard>
 );
 
-const TicketKanbanCard: React.FC<{ ticket: ExtendedTicket; getPriorityIcon: (p: string) => React.ReactNode }> = ({ ticket, getPriorityIcon }) => (
-  <PurpleGlassCard glass variant="interactive" style={{ padding: DesignTokens.spacing.md }}>
+const TicketKanbanCard: React.FC<{ ticket: ExtendedTicket; getPriorityIcon: (p: string) => React.ReactNode; onClick?: () => void }> = ({ ticket, getPriorityIcon, onClick }) => (
+  <PurpleGlassCard glass variant="interactive" style={{ padding: DesignTokens.spacing.md, cursor: 'pointer' }} onClick={onClick}>
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
       <span style={{ fontSize: DesignTokens.typography.xs, fontFamily: 'monospace', color: DesignTokens.colors.textMuted }}>
         {ticket.id?.toString() || 'NEW'}
