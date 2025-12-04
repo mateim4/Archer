@@ -129,3 +129,13 @@ export type {
   RowAction, 
   BulkAction 
 } from './PurpleGlassDataTable';
+
+// AI Insight Card - AI-powered suggestions and predictions
+export { AIInsightCard, AIInsightsPanel } from './AIInsightCard';
+export type { 
+  AIInsightCardProps, 
+  AIInsightsPanelProps, 
+  AIInsight, 
+  InsightType, 
+  InsightSeverity 
+} from './AIInsightCard';

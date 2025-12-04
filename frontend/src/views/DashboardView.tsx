@@ -28,7 +28,7 @@ import {
 } from '@fluentui/react-icons';
 import { useTheme } from '../hooks/useTheme';
 import { useNotificationState } from '../hooks/useNotifications';
-import { PurpleGlassCard, PurpleGlassButton, SLAIndicator } from '../components/ui';
+import { PurpleGlassCard, PurpleGlassButton, SLAIndicator, AIInsightsPanel, AIInsight } from '../components/ui';
 
 /**
  * Dashboard time range options
@@ -255,6 +255,89 @@ const MOCK_ALERTS: CriticalAlert[] = [
     source: 'Certificate Monitor',
     timestamp: '2025-12-03T09:00:00Z',
     acknowledged: false,
+  },
+];
+
+// AI-powered insights (would come from ML backend in production)
+const MOCK_AI_INSIGHTS: AIInsight[] = [
+  {
+    id: 'ai-1',
+    type: 'prediction',
+    severity: 'warning',
+    title: 'Predicted SLA Breach Risk',
+    description: 'Based on current workload patterns, TKT-001 has a 78% chance of breaching SLA in the next 2 hours. Similar tickets have historically required 4+ hours to resolve.',
+    confidence: 85,
+    actionLabel: 'View Ticket',
+    actionPath: '/app/service-desk/ticket/TKT-001',
+    metadata: {
+      source: 'Predictive Analytics',
+      relatedItems: ['TKT-001', 'TKT-045', 'TKT-089'],
+      timeframe: 'Next 2 hours',
+      impact: 'high',
+    },
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'ai-2',
+    type: 'anomaly',
+    severity: 'critical',
+    title: 'Unusual Ticket Volume Detected',
+    description: 'Email-related incidents have increased 340% in the last hour compared to the same time last week. This may indicate a service outage.',
+    confidence: 92,
+    actionLabel: 'Investigate',
+    actionPath: '/app/service-desk?category=email',
+    metadata: {
+      source: 'Anomaly Detection',
+      timeframe: 'Last hour',
+      impact: 'high',
+    },
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'ai-3',
+    type: 'suggestion',
+    severity: 'info',
+    title: 'Knowledge Base Recommendation',
+    description: 'TKT-002 matches 94% with known issue KB-1234 "Password Reset Email Delays". Consider linking this article to speed up resolution.',
+    confidence: 94,
+    actionLabel: 'View KB Article',
+    actionPath: '/app/knowledge/KB-1234',
+    metadata: {
+      source: 'Knowledge Matching',
+      relatedItems: ['KB-1234', 'TKT-002'],
+      impact: 'medium',
+    },
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'ai-4',
+    type: 'optimization',
+    severity: 'success',
+    title: 'Team Performance Improving',
+    description: 'Your team\'s average resolution time has decreased 23% this week. Top contributors: Sarah Chen (15 tickets), Mike Johnson (12 tickets).',
+    confidence: 100,
+    metadata: {
+      source: 'Performance Analytics',
+      timeframe: 'This week vs last week',
+      impact: 'low',
+    },
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'ai-5',
+    type: 'trend',
+    severity: 'warning',
+    title: 'Recurring Issue Pattern',
+    description: 'VPN connectivity issues have occurred 5 times in the past month, always on Monday mornings. Consider proactive maintenance or capacity review.',
+    confidence: 78,
+    actionLabel: 'View Pattern Report',
+    actionPath: '/app/analytics/patterns',
+    metadata: {
+      source: 'Trend Analysis',
+      timeframe: 'Last 30 days',
+      impact: 'medium',
+    },
+    createdAt: new Date().toISOString(),
   },
 ];
 
@@ -805,6 +888,26 @@ export const DashboardView: React.FC = () => {
             onClick={stat.link ? () => handleStatClick(stat.link) : undefined}
           />
         ))}
+      </div>
+
+      {/* AI Insights Section */}
+      <div style={{
+        marginBottom: '24px',
+        padding: '24px',
+        background: isDark 
+          ? 'rgba(30, 41, 59, 0.6)' 
+          : 'rgba(255, 255, 255, 0.7)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+        borderRadius: '16px',
+        border: `1px solid ${isDark ? 'rgba(71, 85, 105, 0.3)' : 'rgba(139, 92, 246, 0.15)'}`,
+      }}>
+        <AIInsightsPanel
+          insights={MOCK_AI_INSIGHTS}
+          maxVisible={3}
+          onDismiss={(id) => console.log('Dismissed insight:', id)}
+          onFeedback={(id, helpful) => console.log('Feedback:', id, helpful)}
+        />
       </div>
 
       {/* Widgets Row */}
