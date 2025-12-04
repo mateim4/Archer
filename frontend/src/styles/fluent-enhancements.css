@@ -1598,6 +1598,50 @@ input[type="number"] {
   z-index: 1;
 }
 
+/* Dark mode overrides for pill tabs */
+.dark .lcm-pill-tabs {
+  background: var(--glass-bg, rgba(30, 30, 45, 0.6));
+  border-color: var(--glass-border, rgba(139, 92, 246, 0.2));
+}
+
+.dark .lcm-pill-tab {
+  color: #c4b5fd; /* Light purple for visibility */
+  border-color: rgba(139, 92, 246, 0.35);
+  background: linear-gradient(
+    135deg,
+    rgba(139, 92, 246, 0.12) 0%,
+    rgba(99, 102, 241, 0.10) 100%
+  );
+}
+
+.dark .lcm-pill-tab:hover {
+  color: #ddd6fe;
+  border-color: rgba(139, 92, 246, 0.5);
+  background: linear-gradient(
+    135deg,
+    rgba(139, 92, 246, 0.2) 0%,
+    rgba(99, 102, 241, 0.18) 100%
+  );
+}
+
+.dark .lcm-pill-tab-active {
+  color: #f5f3ff; /* Very light purple/white for active */
+  border-color: rgba(139, 92, 246, 0.7);
+  background: linear-gradient(
+    135deg,
+    rgba(139, 92, 246, 0.35) 0%,
+    rgba(99, 102, 241, 0.30) 100%
+  );
+}
+
+.dark .lcm-pill-tab-inactive {
+  color: #a5b4fc;
+}
+
+.dark .lcm-pill-tab-inactive:hover {
+  color: #c4b5fd;
+}
+
 /* ===================
    RESPONSIVE DESIGN UTILITIES
    =================== */
