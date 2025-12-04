@@ -24,7 +24,8 @@ import {
   AddRegular,
   DataPieRegular,
   OrganizationRegular,
-  InfoRegular
+  InfoRegular,
+  PulseRegular
 } from '@fluentui/react-icons';
 import { 
   LineChart, 
@@ -166,8 +167,25 @@ const MonitoringView: React.FC = () => {
         {/* Header & Summary */}
         <div className="flex justify-between items-end shrink-0">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight mb-1" style={{ color: 'var(--text-primary)' }}>Monitoring Dashboard</h1>
-            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Real-time Infrastructure Health & Performance</p>
+            <h1 style={{ 
+              margin: 0,
+              fontSize: 'var(--lcm-font-size-xxxl, 32px)',
+              fontWeight: 600,
+              color: 'var(--brand-primary)',
+              fontFamily: 'var(--lcm-font-family-heading, Poppins, sans-serif)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px'
+            }}>
+              <PulseRegular style={{ fontSize: '32px', color: 'var(--icon-default)' }} />
+              Monitoring Dashboard
+            </h1>
+            <p style={{ 
+              margin: '8px 0 0 0',
+              fontSize: '16px',
+              color: 'var(--text-secondary)',
+              fontFamily: 'var(--lcm-font-family-body, Poppins, sans-serif)'
+            }}>Real-time Infrastructure Health & Performance</p>
           </div>
           <div className="flex gap-4">
             <SummaryCard 

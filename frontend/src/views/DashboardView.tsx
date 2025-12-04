@@ -800,17 +800,22 @@ export const DashboardView: React.FC = () => {
         <div>
           <h1 style={{
             margin: 0,
-            fontSize: '28px',
-            fontWeight: 700,
-            color: 'var(--text-primary)',
+            fontSize: 'var(--lcm-font-size-xxxl, 32px)',
+            fontWeight: 600,
+            color: 'var(--brand-primary)',
             fontFamily: 'var(--lcm-font-family-heading, Poppins, sans-serif)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px'
           }}>
+            <ArrowTrendingRegular style={{ fontSize: '32px', color: 'var(--icon-default)' }} />
             Dashboard
           </h1>
           <p style={{
-            margin: '4px 0 0 0',
-            fontSize: '14px',
-            color: 'var(--text-muted)',
+            margin: '8px 0 0 0',
+            fontSize: '16px',
+            color: 'var(--text-secondary)',
+            fontFamily: 'var(--lcm-font-family-body, Poppins, sans-serif)',
           }}>
             Welcome back! Here's your ITSM overview.
           </p>

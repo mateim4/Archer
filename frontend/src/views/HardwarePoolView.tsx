@@ -185,11 +185,11 @@ const HardwarePoolView: React.FC = () => {
           gap: '12px',
           marginBottom: '8px'
         }}>
-          <ServerRegular style={{ fontSize: '32px', color: 'var(--text-primary)' }} />
+          <ServerRegular style={{ fontSize: '32px', color: 'var(--icon-default)' }} />
           <h1 style={{ 
             fontSize: DesignTokens.typography.xxxl,
             fontWeight: DesignTokens.typography.semibold,
-            color: DesignTokens.colors.primary,
+            color: 'var(--brand-primary)',
             margin: '0',
             fontFamily: DesignTokens.typography.fontFamily
           }}>
@@ -198,7 +198,7 @@ const HardwarePoolView: React.FC = () => {
         </div>
         <p style={{
           fontSize: '16px',
-          color: DesignTokens.colors.gray600,
+          color: 'var(--text-secondary)',
           margin: 0,
           fontFamily: DesignTokens.typography.fontFamily,
           paddingLeft: '44px'

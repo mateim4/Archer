@@ -257,14 +257,21 @@ export class ApiClient {
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
     
+    // Create abort controller for timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+    
     try {
       const response = await fetch(url, {
         headers: {
           'Content-Type': 'application/json',
           ...options.headers,
         },
+        signal: controller.signal,
         ...options,
       });
+      
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
         let data: any = undefined;
@@ -278,10 +285,15 @@ export class ApiClient {
       this.usingMockData = false;
       return response.json();
     } catch (error) {
-      // If it's a network error (connection refused, etc.), use mock data for GET requests
-      if (error instanceof TypeError && error.message.includes('fetch')) {
+      clearTimeout(timeoutId);
+      
+      // If it's a timeout or network error, use mock data for GET requests
+      const isTimeout = error instanceof DOMException && error.name === 'AbortError';
+      const isNetworkError = error instanceof TypeError && error.message.includes('fetch');
+      
+      if (isTimeout || isNetworkError) {
         if (options.method === undefined || options.method === 'GET') {
-          console.warn('Backend unavailable, using mock data for:', endpoint);
+          console.warn('Backend unavailable (timeout or connection error), using mock data for:', endpoint);
           this.usingMockData = true;
           return this.getMockResponse<T>(endpoint);
         }

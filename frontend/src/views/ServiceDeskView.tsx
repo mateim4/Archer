@@ -37,7 +37,8 @@ import {
   BookmarkRegular,
   ChevronDownRegular,
   DismissRegular,
-  ArrowExportRegular
+  ArrowExportRegular,
+  TicketDiagonalRegular
 } from '@fluentui/react-icons';
 import { apiClient, Ticket } from '../utils/apiClient';
 import { useEnhancedUX } from '../hooks/useEnhancedUX';
@@ -241,8 +242,20 @@ const ServiceDeskView: React.FC = () => {
         {/* Header Section */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', borderBottom: `2px solid ${DesignTokens.colors.primary}20`, paddingBottom: DesignTokens.spacing.lg }}>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '4px' }}>
-              <h1 style={{ fontSize: DesignTokens.typography.xxxl, fontWeight: DesignTokens.typography.bold, color: 'var(--brand-primary)', margin: 0, fontFamily: DesignTokens.typography.fontFamily }}>Service Desk</h1>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+              <h1 style={{ 
+                fontSize: DesignTokens.typography.xxxl, 
+                fontWeight: DesignTokens.typography.semibold, 
+                color: 'var(--brand-primary)', 
+                margin: 0, 
+                fontFamily: DesignTokens.typography.fontFamily,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px'
+              }}>
+                <TicketDiagonalRegular style={{ fontSize: '32px', color: 'var(--icon-default)' }} />
+                Service Desk
+              </h1>
               <span style={{
                 padding: '2px 8px',
                 borderRadius: DesignTokens.borderRadius.full,
@@ -255,7 +268,7 @@ const ServiceDeskView: React.FC = () => {
                 ITIL v4 Aligned
               </span>
             </div>
-            <p style={{ color: 'var(--text-secondary)', fontSize: DesignTokens.typography.sm, margin: 0 }}>Manage Incidents, Problems, and Change Requests</p>
+            <p style={{ color: 'var(--text-secondary)', fontSize: DesignTokens.typography.base, margin: 0, fontFamily: DesignTokens.typography.fontFamily }}>Manage Incidents, Problems, and Change Requests</p>
           </div>
           
           <div style={{ display: 'flex', gap: '12px' }}>

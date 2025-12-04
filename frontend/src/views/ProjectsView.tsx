@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   AddRegular,
@@ -89,8 +89,8 @@ export default function ProjectsView() {
     return formatDate(dateString);
   };
 
-  // Data operations
-  const fetchProjects = async () => {
+  // Data operations - memoized callback
+  const fetchProjects = useCallback(async () => {
     try {
       setLoading(true);
       const response = await apiClient.getProjects();
@@ -100,7 +100,7 @@ export default function ProjectsView() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [handleError]);
 
   // Handle project type selection
   const toggleProjectType = (type: 'migration' | 'deployment' | 'upgrade' | 'custom') => {
@@ -226,23 +226,26 @@ export default function ProjectsView() {
     setOpenMenuId(null);
   };
 
-  // Filtering and sorting
-  const filteredAndSortedProjects = projects
-    .filter(project => 
-      project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (project.description && project.description.toLowerCase().includes(searchTerm.toLowerCase()))
-    )
-    .sort((a, b) => {
-      switch (sortBy) {
-        case 'name':
-          return a.name.localeCompare(b.name);
-        case 'created_at':
-          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-        case 'updated_at':
-        default:
-          return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
-      }
-    });
+  // Memoized filtering and sorting for performance
+  const filteredAndSortedProjects = useMemo(() => {
+    const searchLower = searchTerm.toLowerCase();
+    return projects
+      .filter(project => 
+        project.name.toLowerCase().includes(searchLower) ||
+        (project.description && project.description.toLowerCase().includes(searchLower))
+      )
+      .sort((a, b) => {
+        switch (sortBy) {
+          case 'name':
+            return a.name.localeCompare(b.name);
+          case 'created_at':
+            return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+          case 'updated_at':
+          default:
+            return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+        }
+      });
+  }, [projects, searchTerm, sortBy]);
 
   // Effects
   useEffect(() => {
@@ -275,12 +278,9 @@ export default function ProjectsView() {
     <div role="region" aria-label="Projects" data-testid="projects-view" style={{...DesignTokens.components.pageContainer, overflow: 'visible'}}>
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
       
-      {/* Migration Notice - User education for CMO to FMO transition */}
-      <MigrationNotice storageKey="migration-notice-projects-dismissed" />
-      
       <h1 style={{position:'absolute',width:0,height:0,overflow:'hidden',clip:'rect(0 0 0 0)'}}>Projects</h1>
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: DesignTokens.spacing.xl, borderBottom: `2px solid ${DesignTokens.colors.primary}20`, paddingBottom: DesignTokens.spacing.lg }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: DesignTokens.spacing.lg, borderBottom: `2px solid ${DesignTokens.colors.primary}20`, paddingBottom: DesignTokens.spacing.lg }}>
         <h2 style={{ fontSize: DesignTokens.typography.xxxl, fontWeight: DesignTokens.typography.semibold, color: 'var(--brand-primary)', margin: '0', fontFamily: DesignTokens.typography.fontFamily, display: 'flex', alignItems: 'center', gap: '12px' }}>
           <FolderRegular style={{ fontSize: '32px', color: 'var(--icon-default)' }} />
           Projects
@@ -294,6 +294,9 @@ export default function ProjectsView() {
           Add New Project
         </PrimaryButton>
       </div>
+
+      {/* Migration Notice - After the title header */}
+      <MigrationNotice storageKey="migration-notice-projects-dismissed" />
 
       {/* Search Bar and Toolbar with Statistics */}
       <div style={{ 

@@ -391,14 +391,14 @@ export default function TasksView() {
         <h2 style={{ 
           fontSize: DesignTokens.typography.xxxl, 
           fontWeight: DesignTokens.typography.semibold, 
-          color: DesignTokens.colors.primary, 
+          color: 'var(--brand-primary)', 
           margin: '0', 
           fontFamily: DesignTokens.typography.fontFamily, 
           display: 'flex', 
           alignItems: 'center', 
           gap: '12px' 
         }}>
-          <TaskListSquareLtrRegular style={{ fontSize: '32px', color: 'var(--text-primary)' }} />
+          <TaskListSquareLtrRegular style={{ fontSize: '32px', color: 'var(--icon-default)' }} />
           Tasks
         </h2>
         <PrimaryButton
