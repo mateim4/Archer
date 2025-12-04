@@ -37,6 +37,7 @@ const SettingsView = lazyWithRetry(() => import('./views/SettingsView'));
 const DataCollectionView = lazyWithRetry(() => import('./views/DataCollectionView'));
 const ServiceDeskView = lazyWithRetry(() => import('./views/ServiceDeskView'));
 const TicketDetailView = lazyWithRetry(() => import('./views/TicketDetailView'));
+const AssetDetailView = lazyWithRetry(() => import('./views/AssetDetailView'));
 const InventoryView = lazyWithRetry(() => import('./views/InventoryView'));
 const MonitoringView = lazyWithRetry(() => import('./views/MonitoringView'));
 
@@ -144,6 +145,7 @@ function AppContent() {
                     <Route path="service-desk" element={<ServiceDeskView />} />
                     <Route path="service-desk/ticket/:ticketId" element={<TicketDetailView />} />
                     <Route path="inventory" element={<InventoryView />} />
+                    <Route path="inventory/asset/:assetId" element={<AssetDetailView />} />
                     <Route path="monitoring" element={<MonitoringView />} />
                     <Route path="projects/:projectId" element={<ProjectWorkspaceView />} />
                     <Route path="projects/:projectId/activities/:activityId/cluster-strategies" element={<ClusterStrategyManagerView />} />

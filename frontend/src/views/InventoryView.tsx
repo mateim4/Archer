@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import GlassmorphicLayout from '../components/GlassmorphicLayout';
 import { 
   PurpleGlassCard, 
@@ -15,13 +16,15 @@ import {
   InfoRegular,
   TagRegular,
   ArrowTrendingLinesRegular,
-  AddRegular
+  AddRegular,
+  OpenRegular
 } from '@fluentui/react-icons';
 import { apiClient, Asset } from '../utils/apiClient';
 import { useEnhancedUX } from '../hooks/useEnhancedUX';
 import { purplePalette } from '../styles/design-tokens';
 
 const InventoryView: React.FC = () => {
+  const navigate = useNavigate();
   const [assets, setAssets] = useState<Asset[]>([]);
   const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
   const [filter, setFilter] = useState('');
@@ -182,7 +185,16 @@ const InventoryView: React.FC = () => {
                         </div>
                       </div>
                     </div>
-                    <PurpleGlassButton variant="secondary" size="small">Edit Asset</PurpleGlassButton>
+                    <div className="flex gap-2">
+                      <PurpleGlassButton 
+                        variant="primary" 
+                        size="small"
+                        onClick={() => navigate(`/app/inventory/asset/${selectedAsset.id}`)}
+                      >
+                        <OpenRegular className="mr-1" /> View Details
+                      </PurpleGlassButton>
+                      <PurpleGlassButton variant="secondary" size="small">Edit Asset</PurpleGlassButton>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-3 gap-4">
