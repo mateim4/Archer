@@ -159,6 +159,16 @@
   --fluent-font-size-900: 32px;   /* Title 2 */
   --fluent-font-size-1000: 40px;  /* Title 1 */
   
+  /* === Simple Font Size Tokens (rem-based for accessibility) === */
+  --font-size-xs: 0.75rem;   /* 12px */
+  --font-size-sm: 0.875rem;  /* 14px */
+  --font-size-base: 1rem;    /* 16px */
+  --font-size-lg: 1.125rem;  /* 18px */
+  --font-size-xl: 1.25rem;   /* 20px */
+  --font-size-2xl: 1.5rem;   /* 24px */
+  --font-size-3xl: 1.875rem; /* 30px */
+  --font-size-4xl: 2.25rem;  /* 36px */
+  
   /* === Fluent 2 Font Weights (increased by 200+ for Jura) === */
   --fluent-font-weight-regular: 600;
   --fluent-font-weight-medium: 700;
@@ -287,6 +297,74 @@ h6 {
 }
 
 /* ===================
+   FOCUS-VISIBLE STYLES
+   Accessibility: High-contrast focus indicators
+   WCAG 2.2 Focus Appearance compliance
+   =================== */
+
+/* Global focus-visible styles for all interactive elements */
+:focus-visible {
+  outline: 2px solid var(--fluent-color-brand-primary);
+  outline-offset: 2px;
+  border-radius: var(--fluent-border-radius-small);
+}
+
+/* Remove default outline when not using keyboard navigation */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Button focus states */
+button:focus-visible,
+[role="button"]:focus-visible,
+.fluent2-button:focus-visible {
+  outline: 2px solid var(--fluent-color-brand-primary);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(var(--fluent-color-brand-rgb, 99, 102, 241), 0.25);
+}
+
+/* Link focus states */
+a:focus-visible {
+  outline: 2px solid var(--fluent-color-brand-primary);
+  outline-offset: 2px;
+  border-radius: var(--fluent-border-radius-small);
+  text-decoration: underline;
+}
+
+/* Input focus states */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[contenteditable="true"]:focus-visible {
+  outline: 2px solid var(--fluent-color-brand-primary);
+  outline-offset: 0;
+  border-color: var(--fluent-color-brand-primary);
+}
+
+/* Card and container focus states */
+.card:focus-visible,
+[role="listitem"]:focus-visible,
+[role="option"]:focus-visible,
+[role="menuitem"]:focus-visible,
+[role="tab"]:focus-visible {
+  outline: 2px solid var(--fluent-color-brand-primary);
+  outline-offset: 2px;
+  border-radius: var(--fluent-border-radius-medium);
+}
+
+/* High contrast mode support */
+@media (forced-colors: active) {
+  :focus-visible {
+    outline: 3px solid CanvasText;
+    outline-offset: 2px;
+  }
+}
+
+/* Reduced motion: Ensure focus is still visible without animation */
+@media (prefers-reduced-motion: reduce) {
+  :focus-visible {
+    transition: none;
+  }
 }
 
 /* ===================
@@ -309,7 +387,7 @@ h6 {
   transition: all var(--fluent-duration-fast) var(--fluent-curve-ease);
   outline: none;
   position: relative;
-  min-height: 32px;
+  min-height: 36px;
   text-decoration: none;
   box-sizing: border-box;
   transform: translateY(0);
@@ -317,13 +395,13 @@ h6 {
 
 /* Button sizes */
 .fluent2-button-small {
-  min-height: 28px;
+  min-height: 32px;
   padding: var(--fluent-spacing-s) var(--fluent-spacing-l);
   font-size: var(--fluent-font-size-200);
 }
 
 .fluent2-button-large {
-  min-height: 40px;
+  min-height: 44px;
   padding: var(--fluent-spacing-l) var(--fluent-spacing-xxl);
   font-size: var(--fluent-font-size-400);
 }
@@ -403,8 +481,8 @@ h6 {
 /* Icon Button */
 .fluent2-button-icon {
   padding: var(--fluent-spacing-m);
-  min-width: 32px;
-  min-height: 32px;
+  min-width: 44px;
+  min-height: 44px;
 }
 
 /* ===================
@@ -494,7 +572,7 @@ h6 {
   color: var(--fluent-color-neutral-foreground-1);
   outline: none;
   transition: all var(--fluent-duration-fast) var(--fluent-curve-ease);
-  min-height: 32px;
+  min-height: 36px;
   box-sizing: border-box;
   backdrop-filter: blur(16px) saturate(150%);
   -webkit-backdrop-filter: blur(16px) saturate(150%);
@@ -515,13 +593,13 @@ h6 {
 }
 
 .fluent2-input-small {
-  min-height: 28px;
+  min-height: 32px;
   padding: var(--fluent-spacing-s) var(--fluent-spacing-l);
   font-size: var(--fluent-font-size-200);
 }
 
 .fluent2-input-large {
-  min-height: 40px;
+  min-height: 44px;
   padding: var(--fluent-spacing-l) var(--fluent-spacing-xl);
   font-size: var(--fluent-font-size-400);
 }

@@ -172,7 +172,7 @@
 .purple-glass-data-table .data-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 14px;
+  font-size: var(--font-size-sm, 0.875rem);
 }
 
 /* Header */
@@ -284,12 +284,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 44px;
+  height: 44px;
   padding: 0;
   background: transparent;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   color: var(--text-muted, #94a3b8);
   cursor: pointer;
   transition: all 150ms ease;
