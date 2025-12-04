@@ -940,7 +940,7 @@ const SimpleVisualizer: React.FC<SimpleVisualizerProps> = ({
                 fill="#8b5cf6"
                 opacity={0.8}
               />
-              <Text x={20} y={12} fontSize={12} fill="#4b5563">
+              <Text x={20} y={12} fontSize={12} style={{ fill: 'var(--text-secondary)' }}>
                 Hosts (Inner)
               </Text>
               <rect
@@ -951,7 +951,7 @@ const SimpleVisualizer: React.FC<SimpleVisualizerProps> = ({
                 fill="#ef4444"
                 opacity={0.7}
               />
-              <Text x={140} y={12} fontSize={12} fill="#4b5563">
+              <Text x={140} y={12} fontSize={12} style={{ fill: 'var(--text-secondary)' }}>
                 VMs (Outer)
               </Text>
             </Group>

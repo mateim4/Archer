@@ -323,7 +323,7 @@ const MigrationPlannerView: React.FC = () => {
             textAnchor="middle"
             fontSize="10"
             fontWeight="600"
-            fill="#374151"
+            style={{ fill: 'var(--text-primary)' }}
           >
             {percentage}%
           </text>
@@ -333,7 +333,7 @@ const MigrationPlannerView: React.FC = () => {
             textAnchor="middle"
             fontSize="9"
             fontWeight="500"
-            fill="#6b7280"
+            style={{ fill: 'var(--text-secondary)' }}
           >
             {label}
           </text>
@@ -410,7 +410,7 @@ const MigrationPlannerView: React.FC = () => {
             textAnchor="middle"
             fontSize="14"
             fontWeight="700"
-            fill="#374151"
+            style={{ fill: 'var(--text-primary)' }}
           >
             {totalVMs}
           </text>
@@ -420,7 +420,7 @@ const MigrationPlannerView: React.FC = () => {
             textAnchor="middle"
             fontSize="10"
             fontWeight="600"
-            fill="#6b7280"
+            style={{ fill: 'var(--text-secondary)' }}
           >
             VMs
           </text>

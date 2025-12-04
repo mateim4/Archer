@@ -142,7 +142,7 @@ const VisualNetworkDiagram: React.FC<VisualNetworkDiagramProps> = ({
           textAnchor="middle"
           fontSize={12}
           fontWeight="500"
-          fill="#374151"
+          style={{ fill: 'var(--text-primary)' }}
           fontFamily="Oxanium, sans-serif"
         >
           {node.name.length > 12 ? `${node.name.substring(0, 12)}...` : node.name}
@@ -154,7 +154,7 @@ const VisualNetworkDiagram: React.FC<VisualNetworkDiagramProps> = ({
           y={70}
           textAnchor="middle"
           fontSize={10}
-          fill="#6b7280"
+          style={{ fill: 'var(--text-secondary)' }}
           fontFamily="Oxanium, sans-serif"
         >
           {node.type}
@@ -203,7 +203,7 @@ const VisualNetworkDiagram: React.FC<VisualNetworkDiagramProps> = ({
               y={midY + 4}
               textAnchor="middle"
               fontSize={10}
-              fill="#374151"
+              style={{ fill: 'var(--text-primary)' }}
               fontFamily="Oxanium, sans-serif"
             >
               {connection.label}
@@ -263,7 +263,7 @@ const VisualNetworkDiagram: React.FC<VisualNetworkDiagramProps> = ({
           y={30}
           fontSize={16}
           fontWeight="600"
-          fill="#374151"
+          style={{ fill: 'var(--text-primary)' }}
           fontFamily="Oxanium, sans-serif"
         >
           {technology === 'vmware' ? 'VMware vSphere Infrastructure' : 

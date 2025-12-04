@@ -70,7 +70,7 @@ export const TimelineMini: React.FC<TimelineMiniProps> = ({
         {tickTimes.map((t, i) => (
           <g key={`tick-${i}`}>
             <line x1={scale(t)} x2={scale(t)} y1={axisY - 3} y2={axisY + 3} stroke="#94A3B8" />
-            <text x={scale(t)} y={axisY - 6} textAnchor="middle" fontSize={10} fill="#475569">
+            <text x={scale(t)} y={axisY - 6} textAnchor="middle" fontSize={10} style={{ fill: 'var(--text-secondary)' }}>
               {new Date(t).toLocaleDateString()}
             </text>
           </g>
@@ -81,7 +81,7 @@ export const TimelineMini: React.FC<TimelineMiniProps> = ({
           const y = rowsY(idx);
           return (
             <g key={track.id} transform={`translate(0, ${y})`}>
-              <text x={padding} y={-4} fontSize={12} fill="#334155">
+              <text x={padding} y={-4} fontSize={12} style={{ fill: 'var(--text-primary)' }}>
                 {track.label}
               </text>
               {/* Row bg */}
