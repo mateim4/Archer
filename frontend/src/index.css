@@ -1,195 +1,504 @@
-/* Import Fluent Enhancements - IMPORTANT: This contains the glassmorphic search bar styles */
-@import './fluent-enhancements.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-/* Modern CSS Reset and Fluent UI 2 Integration */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: var(--font-family-body) !important;
-}
+@layer base {
+  :root {
+    /* ========================================================================
+       LIGHT MODE - Slightly Muted for Better Panel Contrast
+       ======================================================================== */
+    --background: 220 14% 96%;        /* Slightly warm grey, not pure white */
+    --foreground: 220 9% 12%;         /* Near black for text */
 
-html, body {
-  height: 100%;
-  font-family: var(--font-family-body) !important;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden; /* Prevent horizontal scrolling */
-  overflow-y: auto; /* Allow vertical scrolling */
-  background: url('/images/rianne-zuur-aeGLb-6DPp8-unsplash.jpg?v=14') center center / cover no-repeat fixed !important;
-  background-attachment: fixed !important;
-}
+    --card: 0 0% 100%;
+    --card-foreground: 220 9% 12%;
 
-html::before, body::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.1);
-  pointer-events: none;
-  z-index: -1;
-}
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 9% 12%;
 
-/* Force design system font on ALL Fluent UI components and elements */
-*,
-*::before,
-*::after,
-[class*="fui-"], 
-[class*="ms-"],
-.fui-FluentProvider,
-.ms-Button,
-.ms-Text,
-.ms-Label,
-.ms-Dropdown,
-.ms-TextField,
-.ms-ComboBox,
-.ms-Pivot,
-.ms-Nav,
-.ms-CommandBar,
-.ms-DetailsList,
-.ms-MessageBar,
-.ms-Dialog,
-.ms-Panel,
-.ms-Callout,
-div, span, p, h1, h2, h3, h4, h5, h6,
-button, input, textarea, select, label,
-[data-fluent-react*=""],
-[role="button"],
-[role="tab"],
-[role="tabpanel"],
-[role="dialog"],
-[role="listbox"],
-[role="option"],
-[role="menuitem"],
-[aria-label],
-.fluent2-text,
-.fluent2-button,
-.fluent2-input,
-.fluent2-nav,
-.fluent2-badge,
-.fluent2-toast {
-  font-family: var(--font-family-body) !important;
-}
+    --primary: 262 83% 58%;           /* Purple #8b5cf6 */
+    --primary-foreground: 0 0% 100%;
 
-/* Override any inherited font families */
-.fui-FluentProvider * {
-  font-family: var(--font-family-body) !important;
-}
+    --secondary: 220 14% 92%;
+    --secondary-foreground: 220 9% 12%;
 
-#root {
-  min-height: 100vh; /* Allow content to expand beyond viewport */
-  width: 100vw;
-  background: url('/images/rianne-zuur-aeGLb-6DPp8-unsplash.jpg?v=14') center center / cover no-repeat fixed !important;
-  background-attachment: fixed !important;
-  position: relative;
-}
+    --muted: 220 14% 92%;
+    --muted-foreground: 220 9% 46%;
 
-#root::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.1);
-  pointer-events: none;
-  z-index: 1;
-}
+    --accent: 262 83% 95%;            /* Light purple tint */
+    --accent-foreground: 262 83% 40%;
 
-/* Apply wallpaper to FluentProvider */
-.fui-FluentProvider > div {
-  background: url('/images/rianne-zuur-aeGLb-6DPp8-unsplash.jpg?v=14') center center / cover no-repeat fixed !important;
-  background-attachment: fixed !important;
-  min-height: 100vh;
-}
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
 
-/* Ensure FluentProvider itself has transparent background */
-.fui-FluentProvider {
-  background: transparent !important;
-  min-height: 100vh;
-}
+    --border: 220 13% 87%;
+    --input: 220 13% 87%;
+    --ring: 262 83% 58%;              /* Purple focus ring */
 
-/* Glassmorphic Background Animation */
-@keyframes gradientShift {
-  0% {
-    background-position: 0% 50%;
+    --radius: 0.5rem;
+
+    /* Fluent UI 2 Acrylic tokens - Higher opacity for readability */
+    --glass-bg: rgba(255, 255, 255, 0.78);
+    --glass-hover-bg: rgba(255, 255, 255, 0.85);
+    --glass-press-bg: rgba(255, 255, 255, 0.72);
+    --glass-border: rgba(139, 92, 246, 0.15);
+    --glass-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.06), 0 8px 24px 0 rgba(0, 0, 0, 0.04);
+    --glass-tint: rgba(139, 92, 246, 0.04);
+    
+    /* Acrylic surface tokens for cards and panels */
+    --acrylic-surface: rgba(255, 255, 255, 0.82);
+    --acrylic-surface-hover: rgba(255, 255, 255, 0.88);
+    --acrylic-thin: rgba(255, 255, 255, 0.65);
+    --acrylic-base: rgba(255, 255, 255, 0.75);
+
+    /* Confirm button gradient (RGB channel values) */
+    --confirm-grad-1: 207 186 240; /* #cfbaf0 */
+    --confirm-grad-2: 163 196 243; /* #a3c4f3 */
+    --confirm-grad-3: 144 219 244; /* #90dbf4 */
+    --confirm-grad-opacity: 0.30;
+
+    /* ========================================================================
+       PAGE CONTAINER TOKENS (Main content area layout)
+       ======================================================================== */
+    --page-container-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.40), rgba(255, 255, 255, 0.40));
+    --page-container-backdrop: blur(30px) saturate(135%) brightness(145%) contrast(85%);
+    --page-container-border: 1px solid rgba(255, 255, 255, 0.3);
+    --page-container-border-radius: 20px;
+    --page-container-padding: 40px;
+    --page-container-margin: 20px;
+    --page-container-min-height: calc(100vh - 120px);
+    --page-container-shadow: inset 0 0 20px rgba(255, 255, 255, 0.1), 0 0 40px rgba(255, 255, 255, 0.05);
+
+    /* ========================================================================
+       TEXT COLOR TOKENS (Theme-aware) - WCAG AA Compliant
+       ======================================================================== */
+    --text-primary: #18181b;          /* zinc-900 - Maximum contrast */
+    --text-secondary: #3f3f46;        /* zinc-700 - Strong secondary */
+    --text-muted: #71717a;            /* zinc-500 - Muted but readable */
+    --text-on-primary: #ffffff;
+    --brand-primary: #8b5cf6;         /* Purple 600 */
+    --brand-primary-light: #a78bfa;   /* Purple 400 */
+    --color-success: #059669;         /* Emerald 600 */
+    --color-warning: #d97706;         /* Amber 600 */
+    --color-error: #dc2626;           /* Red 600 */
+    --icon-default: #3f3f46;          /* zinc-700 */
+
+    /* ========================================================================
+       SIDEBAR TOKENS (Light Mode)
+       ======================================================================== */
+    --lcm-bg-sidebar: rgba(255, 255, 255, 0.82);
+    --lcm-backdrop-filter-sidebar: blur(30px) saturate(140%);
+    --lcm-primary-border: rgba(139, 92, 246, 0.15);
+    --lcm-shadow-sidebar: 0 0 1px 0 rgba(0, 0, 0, 0.08), 2px 0 8px 0 rgba(0, 0, 0, 0.04);
+    --lcm-sidebar-item-hover: rgba(139, 92, 246, 0.08);
+    --lcm-sidebar-item-active: rgba(139, 92, 246, 0.12);
+
+    /* ========================================================================
+       BUTTON TOKENS (Light Mode) - Standardized
+       ======================================================================== */
+    --btn-primary-bg: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    --btn-primary-bg-hover: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+    --btn-primary-text: #ffffff;
+    --btn-primary-border: transparent;
+    --btn-primary-shadow: 0 2px 8px rgba(139, 92, 246, 0.25);
+    --btn-primary-shadow-hover: 0 4px 12px rgba(139, 92, 246, 0.35);
+    
+    --btn-secondary-bg: rgba(139, 92, 246, 0.08);
+    --btn-secondary-bg-hover: rgba(139, 92, 246, 0.15);
+    --btn-secondary-text: #7c3aed;
+    --btn-secondary-border: rgba(139, 92, 246, 0.25);
+    
+    --btn-ghost-bg: transparent;
+    --btn-ghost-bg-hover: rgba(139, 92, 246, 0.08);
+    --btn-ghost-text: #3f3f46;
+    --btn-ghost-text-hover: #7c3aed;
+
+    /* ========================================================================
+       INPUT/SEARCH TOKENS (Light Mode)
+       ======================================================================== */
+    --input-bg: rgba(255, 255, 255, 0.9);
+    --input-border: rgba(0, 0, 0, 0.12);
+    --input-border-focus: rgba(139, 92, 246, 0.5);
+    --input-text: #18181b;
+    --input-placeholder: #a1a1aa;
+
+    /* ========================================================================
+       TAB/TOGGLE TOKENS (Light Mode)
+       ======================================================================== */
+    --tab-bg: rgba(0, 0, 0, 0.04);
+    --tab-bg-active: rgba(255, 255, 255, 0.9);
+    --tab-text: #71717a;
+    --tab-text-active: #18181b;
+    --tab-border: rgba(0, 0, 0, 0.08);
+    --tab-shadow-active: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+    /* ========================================================================
+       STATUS TOKENS (Light Mode)
+       ======================================================================== */
+    --status-success: #22c55e;
+    --status-warning: #f59e0b;
+    --status-critical: #ef4444;
+    --status-info: #3b82f6;
+    --status-neutral: #71717a;
+
+    /* ========================================================================
+       CARD TOKENS (Light Mode)
+       ======================================================================== */
+    --card-bg: rgba(255, 255, 255, 0.7);
+    --card-bg-hover: rgba(255, 255, 255, 0.85);
+    --card-border: rgba(139, 92, 246, 0.15);
+    --card-border-hover: rgba(139, 92, 246, 0.25);
+    --card-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    --card-shadow-hover: 0 8px 25px rgba(107, 76, 230, 0.15);
+
+    /* ========================================================================
+       DIVIDER TOKENS (Light Mode)
+       ======================================================================== */
+    --divider-color: rgba(229, 231, 235, 0.5);
+    --divider-color-subtle: rgba(229, 231, 235, 0.3);
   }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
+
+  /* ========================================================================
+     DARK MODE - Obsidian/Grey Palette (NOT Blue)
+     ======================================================================== */
+  .dark {
+    --background: 0 0% 9%;            /* #171717 - True neutral dark */
+    --foreground: 0 0% 95%;           /* #f2f2f2 - Off-white */
+
+    --card: 0 0% 12%;                 /* #1e1e1e - Card surface */
+    --card-foreground: 0 0% 95%;
+
+    --popover: 0 0% 10%;              /* #1a1a1a - Popover surface */
+    --popover-foreground: 0 0% 95%;
+
+    --primary: 262 83% 68%;           /* Lighter purple for dark mode */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 0% 15%;            /* #262626 - Secondary surface */
+    --secondary-foreground: 0 0% 90%;
+
+    --muted: 0 0% 18%;                /* #2e2e2e - Muted surface */
+    --muted-foreground: 0 0% 65%;
+
+    --accent: 0 0% 15%;
+    --accent-foreground: 262 83% 75%;
+
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 20%;               /* #333333 - Subtle borders */
+    --input: 0 0% 15%;
+    --ring: 262 83% 65%;
+
+    /* Fluent UI 2 Acrylic tokens (dark/smoke mode) - Obsidian */
+    --glass-bg: rgba(23, 23, 23, 0.85);
+    --glass-hover-bg: rgba(30, 30, 30, 0.90);
+    --glass-press-bg: rgba(20, 20, 20, 0.80);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.4), 0 8px 28px 0 rgba(0, 0, 0, 0.3);
+    --glass-tint: rgba(139, 92, 246, 0.06);
+    
+    /* Acrylic surface tokens for cards and panels (dark) */
+    --acrylic-surface: rgba(30, 30, 30, 0.85);
+    --acrylic-surface-hover: rgba(38, 38, 38, 0.90);
+    --acrylic-thin: rgba(23, 23, 23, 0.70);
+    --acrylic-base: rgba(26, 26, 26, 0.80);
+
+    /* Confirm button gradient uses same colors in dark */
+    --confirm-grad-1: 207 186 240;
+    --confirm-grad-2: 163 196 243;
+    --confirm-grad-3: 144 219 244;
+    --confirm-grad-opacity: 0.25;
+
+    /* ========================================================================
+       PAGE CONTAINER TOKENS (Dark Mode) - Obsidian
+       ======================================================================== */
+    --page-container-bg: linear-gradient(135deg, rgba(30, 30, 30, 0.50), rgba(26, 26, 26, 0.50));
+    --page-container-backdrop: blur(30px) saturate(120%) brightness(95%) contrast(95%);
+    --page-container-border: 1px solid rgba(255, 255, 255, 0.06);
+    --page-container-border-radius: 20px;
+    --page-container-padding: 40px;
+    --page-container-margin: 20px;
+    --page-container-min-height: calc(100vh - 120px);
+    --page-container-shadow: inset 0 0 20px rgba(0, 0, 0, 0.2), 0 0 40px rgba(0, 0, 0, 0.3);
+
+    /* ========================================================================
+       TEXT COLOR TOKENS (Dark Mode) - High Contrast on Obsidian
+       ======================================================================== */
+    --text-primary: #fafafa;          /* zinc-50 - Pure white-ish */
+    --text-secondary: #d4d4d8;        /* zinc-300 - Clear secondary */
+    --text-muted: #a1a1aa;            /* zinc-400 - Readable muted */
+    --text-on-primary: #ffffff;
+    --brand-primary: #a78bfa;         /* Purple 400 - Brighter for dark */
+    --brand-primary-light: #c4b5fd;   /* Purple 300 */
+    --color-success: #34d399;         /* Emerald 400 */
+    --color-warning: #fbbf24;         /* Amber 400 */
+    --color-error: #f87171;           /* Red 400 */
+    --icon-default: #d4d4d8;          /* zinc-300 */
+
+    /* ========================================================================
+       SIDEBAR TOKENS (Dark Mode) - Obsidian
+       ======================================================================== */
+    --lcm-bg-sidebar: rgba(23, 23, 23, 0.92);
+    --lcm-backdrop-filter-sidebar: blur(30px) saturate(120%);
+    --lcm-primary-border: rgba(255, 255, 255, 0.06);
+    --lcm-shadow-sidebar: 0 0 1px 0 rgba(0, 0, 0, 0.5), 2px 0 12px 0 rgba(0, 0, 0, 0.4);
+    --lcm-sidebar-item-hover: rgba(255, 255, 255, 0.06);
+    --lcm-sidebar-item-active: rgba(139, 92, 246, 0.15);
+
+    /* ========================================================================
+       BUTTON TOKENS (Dark Mode) - Standardized
+       ======================================================================== */
+    --btn-primary-bg: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    --btn-primary-bg-hover: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%);
+    --btn-primary-text: #ffffff;
+    --btn-primary-border: transparent;
+    --btn-primary-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+    --btn-primary-shadow-hover: 0 4px 12px rgba(139, 92, 246, 0.4);
+    
+    --btn-secondary-bg: rgba(139, 92, 246, 0.12);
+    --btn-secondary-bg-hover: rgba(139, 92, 246, 0.20);
+    --btn-secondary-text: #a78bfa;
+    --btn-secondary-border: rgba(139, 92, 246, 0.30);
+    
+    --btn-ghost-bg: transparent;
+    --btn-ghost-bg-hover: rgba(255, 255, 255, 0.08);
+    --btn-ghost-text: #d4d4d8;
+    --btn-ghost-text-hover: #a78bfa;
+
+    /* ========================================================================
+       INPUT/SEARCH TOKENS (Dark Mode)
+       ======================================================================== */
+    --input-bg: rgba(30, 30, 30, 0.8);
+    --input-border: rgba(255, 255, 255, 0.10);
+    --input-border-focus: rgba(139, 92, 246, 0.5);
+    --input-text: #fafafa;
+    --input-placeholder: #71717a;
+
+    /* ========================================================================
+       TAB/TOGGLE TOKENS (Dark Mode)
+       ======================================================================== */
+    --tab-bg: rgba(255, 255, 255, 0.04);
+    --tab-bg-active: rgba(255, 255, 255, 0.10);
+    --tab-text: #a1a1aa;
+    --tab-text-active: #fafafa;
+    --tab-border: rgba(255, 255, 255, 0.06);
+    --tab-shadow-active: 0 1px 3px rgba(0, 0, 0, 0.3);
+
+    /* ========================================================================
+       STATUS TOKENS (Dark Mode)
+       ======================================================================== */
+    --status-success: #4ade80;
+    --status-warning: #fbbf24;
+    --status-critical: #f87171;
+    --status-info: #60a5fa;
+    --status-neutral: #a1a1aa;
+
+    /* ========================================================================
+       CARD TOKENS (Dark Mode)
+       ======================================================================== */
+    --card-bg: rgba(30, 30, 30, 0.6);
+    --card-bg-hover: rgba(40, 40, 40, 0.7);
+    --card-border: rgba(255, 255, 255, 0.08);
+    --card-border-hover: rgba(139, 92, 246, 0.25);
+    --card-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    --card-shadow-hover: 0 8px 25px rgba(107, 76, 230, 0.2);
+
+    /* ========================================================================
+       DIVIDER TOKENS (Dark Mode)
+       ======================================================================== */
+    --divider-color: rgba(255, 255, 255, 0.08);
+    --divider-color-subtle: rgba(255, 255, 255, 0.04);
   }
 }
 
-/* Button Spinner Animation */
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
+@layer base {
+  * {
+    box-sizing: border-box;
   }
-  100% {
-    transform: rotate(360deg);
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* ============================================================================
+   PHASE 6: ANIMATIONS & TRANSITIONS
+   Polish phase - smooth micro-interactions and page transitions
+   ============================================================================ */
+
+/* Respect user's motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Page transition wrapper */
+.page-transition-enter {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.page-transition-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 200ms ease-out, transform 200ms ease-out;
+}
+
+.page-transition-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.page-transition-exit-active {
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: opacity 150ms ease-in, transform 150ms ease-in;
+}
+
+/* Fade-in animation for cards and elements */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
 }
 
 @keyframes slideInRight {
   from {
-    transform: translateX(100%);
     opacity: 0;
+    transform: translateX(20px);
   }
   to {
-    transform: translateX(0);
     opacity: 1;
+    transform: translateX(0);
   }
 }
 
-@keyframes shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* Utility CSS Classes (replacing Tailwind) */
-.flex { display: flex; }
-.flex-col { flex-direction: column; }
-.items-center { align-items: center; }
-.justify-center { justify-content: center; }
-.text-center { text-align: center; }
-.fixed { position: fixed; }
-.inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
-.z-50 { z-index: 50; }
-.p-8 { padding: 2rem; }
-.p-6 { padding: 1.5rem; }
-.p-4 { padding: 1rem; }
-.p-2 { padding: 0.5rem; }
-.rounded-xl { border-radius: 0.75rem; }
-.rounded-lg { border-radius: 0.5rem; }
-.rounded { border-radius: 0.25rem; }
-.border { border: 1px solid #e5e7eb; }
-.shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
-.shadow-sm { box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
-.mt-4 { margin-top: 1rem; }
-.mb-4 { margin-bottom: 1rem; }
-.mb-2 { margin-bottom: 0.5rem; }
-.font-semibold { font-weight: 600; }
-.font-medium { font-weight: 500; }
-.font-bold { font-weight: 700; }
-.text-lg { font-size: 1.125rem; }
-.text-xl { font-size: 1.25rem; }
-.text-3xl { font-size: 1.875rem; }
-.grid { display: grid; }
-.grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-.gap-4 { gap: 1rem; }
-.text-gray-600 { color: #6b7280; }
-.bg-gray-100 { background-color: #f3f4f6; }
-.bg-gray-50 { background-color: #f9fafb; }
-.bg-gray-200 { background-color: #e5e7eb; }
-.bg-white { background-color: white; }
-.min-h-100 { min-height: 100px; }
-.space-x-4 > * + * { margin-left: 1rem; }
-.w-4 { width: 1rem; }
-.h-4 { height: 1rem; }
-.w-full { width: 100%; }
-.h-2 { height: 0.5rem; }
-.rounded-full { border-radius: 9999px; }
+/* Skeleton loading animation */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--card-bg) 25%,
+    var(--card-bg-hover) 50%,
+    var(--card-bg) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius);
+}
+
+/* Utility animation classes */
+.animate-fadeIn {
+  animation: fadeIn 300ms ease-out forwards;
+}
+
+.animate-fadeInScale {
+  animation: fadeInScale 200ms ease-out forwards;
+}
+
+.animate-slideInRight {
+  animation: slideInRight 300ms ease-out forwards;
+}
+
+.animate-slideInUp {
+  animation: slideInUp 300ms ease-out forwards;
+}
+
+/* Staggered animation delays for lists */
+.stagger-1 { animation-delay: 50ms; }
+.stagger-2 { animation-delay: 100ms; }
+.stagger-3 { animation-delay: 150ms; }
+.stagger-4 { animation-delay: 200ms; }
+.stagger-5 { animation-delay: 250ms; }
+.stagger-6 { animation-delay: 300ms; }
+
+/* Smooth hover transitions for interactive elements */
+.hover-lift {
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--card-shadow-hover);
+}
+
+/* Focus-visible styles for accessibility */
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* Button press feedback */
+.press-feedback:active {
+  transform: scale(0.98);
+  transition: transform 50ms ease;
+}
+
+/* Loading spinner animation */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Pulse animation for notifications/badges */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s ease-in-out infinite;
+}
+

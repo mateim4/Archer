@@ -3,7 +3,8 @@ import { apiClient } from '../utils/apiClient';
 import GlassmorphicSearchBar from '../components/GlassmorphicSearchBar';
 import { DESIGN_TOKENS } from '../components/DesignSystem';
 import { DesignTokens } from '../styles/designSystem';
-import { PurpleGlassButton } from '@/components/ui';
+import { PurpleGlassButton, PrimaryButton } from '@/components/ui';
+import GlassmorphicLayout from '../components/GlassmorphicLayout';
 import {
   ErrorCircleRegular,
   SearchRegular,
@@ -266,9 +267,9 @@ const HardwareBasketView: React.FC = () => {
     return (
       <div style={DesignTokens.components.pageContainer}>
         <div style={{ 
-          fontSize: '18px',
-          color: '#6366f1',
-          fontFamily: 'Oxanium, sans-serif',
+          fontSize: DesignTokens.typography.lg,
+          color: DesignTokens.colors.primary,
+          fontFamily: DesignTokens.typography.fontFamily,
           textAlign: 'center'
         }}>
           🔄 Loading hardware baskets...
@@ -281,9 +282,9 @@ const HardwareBasketView: React.FC = () => {
     return (
       <div style={DesignTokens.components.pageContainer}>
         <div style={{ 
-          color: '#ef4444',
-          fontSize: '16px',
-          fontFamily: 'Oxanium, sans-serif'
+          color: DesignTokens.colors.error,
+          fontSize: DesignTokens.typography.base,
+          fontFamily: DesignTokens.typography.fontFamily
         }}>
           <ErrorCircleRegular style={{ marginRight: '8px' }} />Error: {error}
         </div>
@@ -292,7 +293,13 @@ const HardwareBasketView: React.FC = () => {
   }
 
   return (
-    <div style={DesignTokens.components.pageContainer}>
+    <GlassmorphicLayout style={{
+      ...DesignTokens.components.pageContainer,
+      background: 'transparent',
+      border: 'none',
+      boxShadow: 'none',
+      backdropFilter: 'none'
+    }}>
       {/* Header */}
       <div style={{ 
         display: 'flex',
@@ -305,7 +312,7 @@ const HardwareBasketView: React.FC = () => {
         <h1 style={{ 
           fontSize: DesignTokens.typography.xxxl,
           fontWeight: DesignTokens.typography.semibold,
-          color: '#8b5cf6',
+          color: DesignTokens.colors.primary,
           margin: '0',
           fontFamily: DesignTokens.typography.fontFamily,
           display: 'flex',
@@ -316,14 +323,11 @@ const HardwareBasketView: React.FC = () => {
           Hardware Basket Management
         </h1>
         
-        <PurpleGlassButton
-          variant="primary"
-          size="medium"
+        <PrimaryButton
           onClick={() => setShowCreateDialog(true)}
-          glass
         >
           <span style={{ color: 'white' }}>+</span> Create Hardware Basket
-        </PurpleGlassButton>
+        </PrimaryButton>
       </div>
 
       {/* Search and Filter Controls */}
@@ -1089,7 +1093,7 @@ const HardwareBasketView: React.FC = () => {
           </div>
         </div>
       </div>
-    </div>
+    </GlassmorphicLayout>
   );
 };
 

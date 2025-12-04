@@ -209,15 +209,7 @@ const GuidesView: React.FC = () => {
   };
 
   return (
-    <div style={{
-      background: 'rgba(255, 255, 255, 0.40)',
-      backdropFilter: 'blur(30px) saturate(35%) brightness(145%) contrast(85%)',
-      borderRadius: '16px',
-      padding: '24px',
-      minHeight: '100%',
-      border: '1px solid rgba(139, 92, 246, 0.2)',
-      boxShadow: '0 8px 32px rgba(139, 92, 246, 0.1)'
-    }}>
+    <div style={{...DesignTokens.components.pageContainer, overflow: 'visible'}}>
       {/* Header */}
       <div style={{
         display: 'flex',
@@ -231,19 +223,19 @@ const GuidesView: React.FC = () => {
           <h1 style={{
             fontSize: DesignTokens.typography.xxxl,
             fontWeight: DesignTokens.typography.semibold,
-            color: '#8b5cf6',
+            color: 'var(--brand-primary)',
             margin: '0',
             fontFamily: DesignTokens.typography.fontFamily,
             display: 'flex',
             alignItems: 'center',
             gap: '12px'
           }}>
-            <NavigationRegular style={{ fontSize: '32px', color: '#000000' }} />
+            <NavigationRegular style={{ fontSize: '32px', color: 'var(--icon-default)' }} />
             Guides & Documentation
           </h1>
           <p style={{
-            fontSize: '18px',
-            color: '#64748b',
+            fontSize: DesignTokens.typography.lg,
+            color: 'var(--text-secondary)',
             fontFamily: DesignTokens.typography.fontFamily,
             margin: 0
           }}>
@@ -258,8 +250,8 @@ const GuidesView: React.FC = () => {
         borderRadius: '16px',
         padding: '24px',
         marginBottom: '32px',
-        background: 'rgba(255, 255, 255, 0.40)',
-        backdropFilter: 'blur(30px) saturate(35%) brightness(145%) contrast(85%)'
+        background: 'var(--lcm-bg-card)',
+        backdropFilter: 'var(--lcm-backdrop-filter)'
       }}>
         <div style={{
           display: 'grid',

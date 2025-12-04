@@ -1,12 +1,14 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { SettingsRegular, SettingsFilled } from '@fluentui/react-icons';
+import { tokens } from '../styles/design-tokens';
 
 interface HeaderSettingsProps {
   className?: string;
+  isDark?: boolean;
 }
 
-const HeaderSettings: React.FC<HeaderSettingsProps> = ({ className }) => {
+const HeaderSettings: React.FC<HeaderSettingsProps> = ({ className, isDark = false }) => {
   const navigate = useNavigate();
   const location = useLocation();
   
@@ -19,34 +21,38 @@ const HeaderSettings: React.FC<HeaderSettingsProps> = ({ className }) => {
       style={{
         position: 'absolute',
         top: '24px',
-        right: '32px',
+        right: '96px', // Moved left to make room for ThemeToggle
         padding: '12px',
-        borderRadius: '12px',
-        border: 'none',
-        background: 'rgba(255, 255, 255, 0.15)',
-        backdropFilter: 'blur(10px)',
-        WebkitBackdropFilter: 'blur(10px)',
-        color: isActive ? '#8b5cf6' : '#2c2c2c',
+        borderRadius: tokens.xLarge,
+        border: '1px solid var(--card-border)',
+        background: 'var(--card-bg)',
+        backdropFilter: 'blur(20px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+        color: isActive 
+          ? 'var(--brand-primary)' 
+          : 'var(--text-primary)',
         cursor: 'pointer',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-        boxShadow: '0 4px 16px rgba(0, 0, 0, 0.1)',
+        transition: `all ${tokens.durationNormal} ${tokens.curveEasyEase}`,
+        boxShadow: 'var(--card-shadow)',
         fontSize: '18px',
         width: '44px',
         height: '44px',
         zIndex: 1001
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.background = 'rgba(139, 92, 246, 0.15)';
+        e.currentTarget.style.background = 'var(--btn-secondary-bg)';
         e.currentTarget.style.transform = 'translateY(-2px)';
-        e.currentTarget.style.boxShadow = '0 6px 20px rgba(139, 92, 246, 0.25)';
+        e.currentTarget.style.boxShadow = 'var(--card-shadow-hover)';
+        e.currentTarget.style.borderColor = 'var(--card-border-hover)';
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
+        e.currentTarget.style.background = 'var(--card-bg)';
         e.currentTarget.style.transform = 'translateY(0)';
-        e.currentTarget.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.1)';
+        e.currentTarget.style.boxShadow = 'var(--card-shadow)';
+        e.currentTarget.style.borderColor = 'var(--card-border)';
       }}
       title="Settings"
       aria-label="Open Settings"

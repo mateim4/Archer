@@ -1,11 +1,65 @@
 import '@testing-library/jest-dom';
 import { cleanup } from '@testing-library/react';
-import { afterEach, beforeAll, afterAll, vi } from 'vitest';
-import { setupMockServer } from './utils/mock-server';
+import { afterEach, vi } from 'vitest';
 import './utils/custom-matchers';
 
-// Setup mock server for API testing
-setupMockServer();
+// Mock localStorage (required before MSW loads)
+// This MUST be done synchronously at module load time
+class LocalStorageMock {
+  private store: Record<string, string> = {};
+  
+  getItem(key: string): string | null {
+    return this.store[key] ?? null;
+  }
+  
+  setItem(key: string, value: string): void {
+    this.store[key] = String(value);
+  }
+  
+  removeItem(key: string): void {
+    delete this.store[key];
+  }
+  
+  clear(): void {
+    this.store = {};
+  }
+  
+  get length(): number {
+    return Object.keys(this.store).length;
+  }
+  
+  key(index: number): string | null {
+    return Object.keys(this.store)[index] ?? null;
+  }
+}
+
+const localStorageInstance = new LocalStorageMock();
+
+// Set up localStorage mock immediately
+Object.defineProperty(globalThis, 'localStorage', {
+  value: localStorageInstance,
+  writable: true,
+  configurable: true,
+});
+
+// For jsdom environment
+if (typeof window !== 'undefined') {
+  Object.defineProperty(window, 'localStorage', {
+    value: localStorageInstance,
+    writable: true,
+    configurable: true,
+  });
+}
+
+// Now import MSW (after localStorage is set up)
+// Using dynamic import to ensure localStorage is available first
+const setupMSW = async () => {
+  const { setupMockServer } = await import('./utils/mock-server');
+  setupMockServer();
+};
+
+// Run MSW setup
+setupMSW();
 
 // Clean up after each test
 afterEach(() => {

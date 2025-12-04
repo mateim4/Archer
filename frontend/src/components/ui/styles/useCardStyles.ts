@@ -38,11 +38,11 @@ export const useCardStyles = makeStyles({
   },
 
   defaultGlass: {
-    backgroundColor: tokens.colorGlassBackground,
-    backdropFilter: tokens.blurMedium,
-    WebkitBackdropFilter: tokens.blurMedium,
-    ...shorthands.borderColor('rgba(255, 255, 255, 0.2)'),
-    boxShadow: `${tokens.shadow4}, inset 0 1px 0 rgba(255, 255, 255, 0.1)`,
+    backgroundColor: 'var(--glass-bg)',
+    backdropFilter: 'blur(24px) saturate(180%)',
+    WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+    ...shorthands.borderColor('var(--glass-border)'),
+    boxShadow: 'var(--glass-shadow)',
   },
 
   // ============================================================================
@@ -71,19 +71,21 @@ export const useCardStyles = makeStyles({
   },
 
   interactiveGlass: {
-    backgroundColor: tokens.colorGlassBackground,
-    backdropFilter: tokens.blurMedium,
-    WebkitBackdropFilter: tokens.blurMedium,
+    backgroundColor: 'var(--glass-bg)',
+    backdropFilter: 'blur(24px) saturate(180%)',
+    WebkitBackdropFilter: 'blur(24px) saturate(180%)',
     cursor: 'pointer',
+    ...shorthands.borderColor('var(--glass-border)'),
 
     '&:hover': {
-      backgroundColor: 'rgba(255, 255, 255, 0.95)',
-      ...shorthands.borderColor('rgba(139, 92, 246, 0.4)'),
-      boxShadow: `${tokens.shadow16}, ${tokens.glowSmall}`,
+      backgroundColor: 'var(--glass-hover-bg)',
+      ...shorthands.borderColor('var(--accent)'),
+      boxShadow: 'var(--glass-shadow)',
       transform: 'translateY(-2px)',
     },
 
     '&:active': {
+      backgroundColor: 'var(--glass-press-bg)',
       transform: 'translateY(0) scale(0.99)',
     },
   },

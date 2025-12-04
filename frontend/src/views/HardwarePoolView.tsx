@@ -18,7 +18,8 @@ import {
   ArrowUploadRegular,
   DiagramRegular
 } from '@fluentui/react-icons';
-import { PurpleGlassButton, PurpleGlassCard } from '../components/ui';
+import { PurpleGlassButton, PurpleGlassCard, PrimaryButton } from '../components/ui';
+import GlassmorphicLayout from '../components/GlassmorphicLayout';
 import { useNavigate } from 'react-router-dom';
 
 const HardwarePoolView: React.FC = () => {
@@ -139,9 +140,9 @@ const HardwarePoolView: React.FC = () => {
     return (
       <div style={DesignTokens.components.pageContainer}>
         <div style={{ 
-          fontSize: '18px',
-          color: '#6366f1',
-          fontFamily: 'Oxanium, sans-serif',
+          fontSize: DesignTokens.typography.lg,
+          color: DesignTokens.colors.primary,
+          fontFamily: DesignTokens.typography.fontFamily,
           textAlign: 'center'
         }}>
           <ArrowClockwiseRegular style={{ marginRight: '8px' }} />Loading hardware assets...
@@ -154,9 +155,9 @@ const HardwarePoolView: React.FC = () => {
     return (
       <div style={DesignTokens.components.pageContainer}>
         <div style={{ 
-          color: '#ef4444',
-          fontSize: '16px',
-          fontFamily: 'Oxanium, sans-serif'
+          color: DesignTokens.colors.error,
+          fontSize: DesignTokens.typography.base,
+          fontFamily: DesignTokens.typography.fontFamily
         }}>
           <ErrorCircleRegular style={{ marginRight: '8px' }} />Error: {error}
         </div>
@@ -165,7 +166,13 @@ const HardwarePoolView: React.FC = () => {
   }
 
   return (
-    <div style={DesignTokens.components.pageContainer}>
+    <GlassmorphicLayout style={{
+      ...DesignTokens.components.pageContainer,
+      background: 'transparent',
+      border: 'none',
+      boxShadow: 'none',
+      backdropFilter: 'none'
+    }}>
       {/* Header */}
       <div style={{ 
         marginBottom: '24px',
@@ -647,7 +654,7 @@ const HardwarePoolView: React.FC = () => {
           }
         }}
       />
-    </div>
+    </GlassmorphicLayout>
   );
 };
 

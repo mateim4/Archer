@@ -29,7 +29,9 @@ import {
   PurpleGlassInput,
   PurpleGlassTextarea,
   PurpleGlassCard,
-  PurpleGlassSkeleton
+  PurpleGlassSkeleton,
+  PrimaryButton,
+  MigrationNotice
 } from '@/components/ui';
 import { useFormValidation } from '../hooks/useFormValidation';
 import { useErrorHandler } from '../hooks/useErrorHandler';
@@ -272,23 +274,25 @@ export default function ProjectsView() {
   return (
     <div role="region" aria-label="Projects" data-testid="projects-view" style={{...DesignTokens.components.pageContainer, overflow: 'visible'}}>
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
+      
+      {/* Migration Notice - User education for CMO to FMO transition */}
+      <MigrationNotice storageKey="migration-notice-projects-dismissed" />
+      
       <h1 style={{position:'absolute',width:0,height:0,overflow:'hidden',clip:'rect(0 0 0 0)'}}>Projects</h1>
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: DesignTokens.spacing.xl, borderBottom: `2px solid ${DesignTokens.colors.primary}20`, paddingBottom: DesignTokens.spacing.lg }}>
-        <h2 style={{ fontSize: DesignTokens.typography.xxxl, fontWeight: DesignTokens.typography.semibold, color: DesignTokens.colors.primary, margin: '0', fontFamily: DesignTokens.typography.fontFamily, display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <FolderRegular style={{ fontSize: '32px', color: DesignTokens.colors.gray900 }} />
+        <h2 style={{ fontSize: DesignTokens.typography.xxxl, fontWeight: DesignTokens.typography.semibold, color: 'var(--brand-primary)', margin: '0', fontFamily: DesignTokens.typography.fontFamily, display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <FolderRegular style={{ fontSize: '32px', color: 'var(--icon-default)' }} />
           Projects
         </h2>
-        <PurpleGlassButton
+        <PrimaryButton
           data-testid="create-project-button"
-          variant="primary"
           size="large"
           icon={<AddRegular />}
           onClick={() => setShowCreateDialog(true)}
-          glass={true}
         >
           Add New Project
-        </PurpleGlassButton>
+        </PrimaryButton>
       </div>
 
       {/* Search Bar and Toolbar with Statistics */}
@@ -393,15 +397,13 @@ export default function ProjectsView() {
                 }
               </p>
               {!searchTerm && (
-                <PurpleGlassButton
-                  variant="primary"
+                <PrimaryButton
                   size="medium"
                   icon={<AddRegular />}
                   onClick={() => setShowCreateDialog(true)}
-                  glass={true}
                 >
                   Create your first project
-                </PurpleGlassButton>
+                </PrimaryButton>
               )}
             </PurpleGlassCard>
           ) : (
@@ -742,13 +744,12 @@ export default function ProjectsView() {
               >
                 Cancel
               </PurpleGlassButton>
-              <PurpleGlassButton
+              <PrimaryButton
                 type="submit"
-                variant="primary"
                 data-testid="submit-project-button"
               >
                 Create Project
-              </PurpleGlassButton>
+              </PrimaryButton>
             </div>
           </form>
         </PurpleGlassCard>

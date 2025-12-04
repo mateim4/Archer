@@ -43,7 +43,8 @@ import { useEnhancedUX } from '../hooks/useEnhancedUX';
 import { DesignTokens } from '../styles/designSystem';
 import { ActivityWizardModal } from '../components/Activity/ActivityWizardModal';
 import { tokens, colors } from '@/styles/design-tokens';
-import { PurpleGlassButton, PurpleGlassBreadcrumb } from '@/components/ui';
+import { PurpleGlassButton, PurpleGlassBreadcrumb, PrimaryButton } from '@/components/ui';
+import GlassmorphicLayout from '../components/GlassmorphicLayout';
 
 interface Activity {
   id: string;
@@ -579,12 +580,14 @@ const ProjectWorkspaceView: React.FC = () => {
       </div>
 
       {/* Main Unified Card - Same positioning as Projects view */}
-      <div 
-        role="main" 
-        aria-label={`Project Details: ${project?.name ?? ''}`}
+      <GlassmorphicLayout
         style={{
           ...DesignTokens.components.pageContainer,
-          overflow: 'visible'
+          overflow: 'visible',
+          background: 'transparent',
+          border: 'none',
+          boxShadow: 'none',
+          backdropFilter: 'none'
         }}
       >
         {/* Breadcrumb Navigation */}
@@ -605,7 +608,7 @@ const ProjectWorkspaceView: React.FC = () => {
                   display: 'flex', 
                   alignItems: 'center', 
                   justifyContent: 'center',
-                  color: '#1f2937',  // Use gray-900 for icon color
+                  color: 'var(--icon-default)',
                   fontSize: '32px'
                 }}>
                   <FolderRegular />
@@ -1375,7 +1378,7 @@ const ProjectWorkspaceView: React.FC = () => {
             </div>
           )}
         </div>
-      </div>
+      </GlassmorphicLayout>
 
       {/* Activity Wizard Modal */}
       <ActivityWizardModal

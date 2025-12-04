@@ -8,6 +8,10 @@ pub mod project_lifecycle;
 pub mod project_workflow;
 pub mod rvtools;
 pub mod settings; // Global settings API
+pub mod tickets; // Tickets API
+pub mod assets; // CMDB Assets API
+pub mod monitoring; // Monitoring API
+pub mod integration; // Integration Hub API
 pub mod wizard; // Activity wizard API
 pub mod vm_placement; // VM placement API
 pub mod network_templates; // Network templates API
@@ -50,7 +54,12 @@ pub fn api_router(state: AppState) -> Router {
         .nest("/vm-placement", vm_placement::create_vm_placement_router(state.clone()))
         .nest("/network-templates", network_templates::create_network_templates_router(state.clone()))
         .nest("/hld", hld::create_hld_router(state.clone()))
-        .nest("/migration-wizard", migration_wizard::create_migration_wizard_router(state.clone()));
+        .nest("/migration-wizard", migration_wizard::create_migration_wizard_router(state.clone()))
+        .nest("/tickets", tickets::create_tickets_router(state.clone()))
+        .nest("/assets", assets::create_assets_router(state.clone()))
+        .nest("/monitoring", monitoring::routes(state.clone()))
+        .nest("/integration", integration::create_integration_router(state.clone()))
+        .nest("/settings", settings::create_settings_router(state.clone()));
 
     Router::new()
         .route("/health", get(health_check))

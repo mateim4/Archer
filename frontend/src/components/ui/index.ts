@@ -7,6 +7,9 @@
  * @module components/ui
  */
 
+// New Acrylic Components
+export { PrimaryButton } from './PrimaryButton';
+
 // Input Components
 export { PurpleGlassInput } from './PurpleGlassInput';
 export type { PurpleGlassInputProps, GlassVariant, ValidationState } from './PurpleGlassInput';
@@ -88,6 +91,69 @@ export type { WorkflowTemplateManagerProps, WorkflowTemplate, WorkflowStep } fro
 export { BulkOperationPanel } from './BulkOperationPanel';
 export type { BulkOperationPanelProps, BulkOperation, BulkOperationExecution } from './BulkOperationPanel';
 
-// export { PurpleGlassCheckbox } from './PurpleGlassCheckbox';
-// export { PurpleGlassRadio } from './PurpleGlassRadio';
-// export { PurpleGlassSwitch } from './PurpleGlassSwitch';
+// Integration Layer Components (Phase 2)
+// Linked Asset Badge - Shows CMDB asset links on tickets
+export { LinkedAssetBadge } from './LinkedAssetBadge';
+export type { LinkedAssetBadgeProps, AssetStatus, AssetType } from './LinkedAssetBadge';
+
+// SLA Indicator - Visual timer for SLA tracking
+export { SLAIndicator } from './SLAIndicator';
+export type { SLAIndicatorProps, SLAStatus } from './SLAIndicator';
+
+// Command Palette - Unified search (Ctrl+K)
+export { CommandPalette } from './CommandPalette';
+export type { CommandPaletteProps, SearchResult } from './CommandPalette';
+
+// Create Incident Modal - One-click incident from alert
+export { CreateIncidentModal } from './CreateIncidentModal';
+export type { CreateIncidentModalProps, CreateIncidentData, AlertContext } from './CreateIncidentModal';
+
+// Top Navigation Bar - Main app header with search, notifications, profile
+export { TopNavigationBar } from './TopNavigationBar';
+export type { TopNavigationBarProps } from './TopNavigationBar';
+
+// Migration Notice - User education about navigation restructure
+export { MigrationNotice } from './MigrationNotice';
+export type { MigrationNoticeProps } from './MigrationNotice';
+
+// Drawer - Sliding panel for detail views
+export { PurpleGlassDrawer } from './PurpleGlassDrawer';
+export type { PurpleGlassDrawerProps, DrawerSize, DrawerPosition } from './PurpleGlassDrawer';
+
+// Data Table - Enhanced table with sorting, selection, export
+export { PurpleGlassDataTable } from './PurpleGlassDataTable';
+export type { 
+  PurpleGlassDataTableProps, 
+  TableColumn, 
+  SortState, 
+  RowAction, 
+  BulkAction 
+} from './PurpleGlassDataTable';
+
+// AI Insight Card - AI-powered suggestions and predictions
+export { AIInsightCard, AIInsightsPanel } from './AIInsightCard';
+export type { 
+  AIInsightCardProps, 
+  AIInsightsPanelProps, 
+  AIInsight, 
+  InsightType, 
+  InsightSeverity 
+} from './AIInsightCard';
+
+// Skeleton Loader - Loading state placeholders
+export { 
+  Skeleton, 
+  SkeletonText, 
+  SkeletonAvatar, 
+  SkeletonCard, 
+  SkeletonTable, 
+  SkeletonDashboard 
+} from './SkeletonLoader';
+export type { 
+  SkeletonProps, 
+  SkeletonTextProps, 
+  SkeletonAvatarProps, 
+  SkeletonCardProps, 
+  SkeletonTableProps, 
+  SkeletonDashboardProps 
+} from './SkeletonLoader';

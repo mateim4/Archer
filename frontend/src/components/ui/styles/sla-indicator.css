@@ -1,0 +1,49 @@
+/**
+ * SLA Indicator Styles
+ * CSS animations and shared styles for the SLAIndicator component
+ */
+
+/* Pulse animation for breached SLA status */
+@keyframes sla-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.sla-indicator-pulse {
+  animation: sla-pulse 2s infinite;
+}
+
+/* SLA status color variations */
+.sla-on-track {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.3);
+  color: #10b981;
+}
+
+.sla-at-risk {
+  background: rgba(245, 158, 11, 0.1);
+  border-color: rgba(245, 158, 11, 0.3);
+  color: #f59e0b;
+}
+
+.sla-breached {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+}
+
+.sla-paused {
+  background: rgba(107, 114, 128, 0.1);
+  border-color: rgba(107, 114, 128, 0.3);
+  color: #6b7280;
+}
+
+.sla-resolved {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.3);
+  color: #10b981;
+}

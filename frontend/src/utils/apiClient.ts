@@ -155,6 +155,90 @@ export class ApiError extends Error {
   }
 }
 
+export interface Ticket {
+  id: string;
+  title: string;
+  description?: string;
+  type: 'INCIDENT' | 'PROBLEM' | 'CHANGE' | 'SERVICE_REQUEST';
+  priority: 'P1' | 'P2' | 'P3' | 'P4';
+  status: 'NEW' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED';
+  related_asset?: string;
+  related_project?: string;
+  assignee?: string;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateTicketRequest {
+  title: string;
+  description?: string;
+  type: 'INCIDENT' | 'PROBLEM' | 'CHANGE' | 'SERVICE_REQUEST';
+  priority: 'P1' | 'P2' | 'P3' | 'P4';
+  related_asset?: string;
+  related_project?: string;
+  assignee?: string;
+  created_by: string;
+}
+
+export interface Ticket {
+  id: string;
+  title: string;
+  description?: string;
+  ticket_type: 'INCIDENT' | 'PROBLEM' | 'CHANGE' | 'SERVICE_REQUEST';
+  priority: 'P1' | 'P2' | 'P3' | 'P4';
+  status: 'NEW' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED';
+  assignee?: string;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+  related_asset?: string;
+  related_project?: string;
+}
+
+export interface CreateTicketRequest {
+  title: string;
+  description?: string;
+  ticket_type: Ticket['ticket_type'];
+  priority: Ticket['priority'];
+  assignee?: string;
+  related_asset?: string;
+  related_project?: string;
+  created_by: string;
+}
+
+export interface Asset {
+  id: string;
+  name: string;
+  asset_type: 'CLUSTER' | 'HOST' | 'VM' | 'SWITCH';
+  status: 'HEALTHY' | 'WARNING' | 'CRITICAL';
+  external_id?: string;
+  raw_data?: any;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface MetricPoint {
+  timestamp: string;
+  value: number;
+}
+
+export interface AssetMetrics {
+  asset_id: string;
+  cpu_usage: MetricPoint[];
+  memory_usage: MetricPoint[];
+  storage_usage: MetricPoint[];
+  network_throughput: MetricPoint[];
+}
+
+export interface DashboardSummary {
+  total_alerts: number;
+  critical_alerts: number;
+  warning_alerts: number;
+  avg_cluster_health: number;
+  active_incidents: number;
+}
+
 export class ApiClient {
   private baseUrl: string;
   private usingMockData: boolean = false;
@@ -522,6 +606,55 @@ export class ApiClient {
 
   async deleteUser(userId: string): Promise<void> {
     return this.request(`/api/users/${userId}`, { method: 'DELETE' });
+  }
+
+  // ===== Tickets (ITIL) =====
+  async getTickets(): Promise<Ticket[]> {
+    return this.request('/api/v1/tickets');
+  }
+
+  async getTicket(id: string): Promise<Ticket> {
+    return this.request(`/api/v1/tickets/${id}`);
+  }
+
+  async createTicket(data: CreateTicketRequest): Promise<Ticket> {
+    return this.request('/api/v1/tickets', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateTicket(id: string, updates: Partial<Ticket>): Promise<Ticket> {
+    return this.request(`/api/v1/tickets/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(updates),
+    });
+  }
+
+  async deleteTicket(id: string): Promise<void> {
+    return this.request(`/api/v1/tickets/${id}`, { method: 'DELETE' });
+  }
+
+  // ===== Assets (CMDB) =====
+  async getAssets(filter?: { asset_type?: string; status?: string }): Promise<Asset[]> {
+    const queryParams = new URLSearchParams();
+    if (filter?.asset_type) queryParams.append('asset_type', filter.asset_type);
+    if (filter?.status) queryParams.append('status', filter.status);
+    
+    return this.request(`/api/v1/assets?${queryParams.toString()}`);
+  }
+
+  async getAsset(id: string): Promise<Asset> {
+    return this.request(`/api/v1/assets/${id}`);
+  }
+
+  // ===== Monitoring =====
+  async getDashboardSummary(): Promise<DashboardSummary> {
+    return this.request('/api/v1/monitoring/dashboard');
+  }
+
+  async getAssetMetrics(assetId: string): Promise<AssetMetrics> {
+    return this.request(`/api/v1/monitoring/assets/${assetId}`);
   }
 }
 

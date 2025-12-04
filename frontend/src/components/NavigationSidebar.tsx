@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { tokens, colors, glassEffects, gradients, zIndex } from '@/styles/design-tokens';
+import { tokens, colors, gradients, zIndex } from '@/styles/design-tokens';
 import { 
   DatabaseRegular,
   DatabaseFilled,
@@ -16,7 +16,13 @@ import {
   TableRegular,
   TableFilled,
   DiagramRegular,
-  DiagramFilled
+  DiagramFilled,
+  TaskListSquareLtrRegular,
+  TaskListSquareLtrFilled,
+  ClipboardTaskRegular,
+  ClipboardTaskFilled,
+  HomeRegular,
+  HomeFilled,
 } from '@fluentui/react-icons';
 
 interface NavigationSidebarProps {
@@ -44,6 +50,13 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
 
   const mainMenuItems: MenuItem[] = [
     { 
+      id: 'dashboard', 
+      title: 'Dashboard', 
+      icon: <HomeRegular />, 
+      iconFilled: <HomeFilled />, 
+      path: '/app/dashboard',
+    },
+    { 
       id: 'projects', 
       title: 'Projects', 
       icon: <FolderRegular />, 
@@ -53,20 +66,38 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
       badgeType: 'brand'
     },
     { 
-      id: 'hardware-pool', 
-      title: 'Inventory', 
+      id: 'tasks', 
+      title: 'Tasks', 
+      icon: <TaskListSquareLtrRegular />, 
+      iconFilled: <TaskListSquareLtrFilled />, 
+      path: '/app/tasks',
+      badge: 'New',
+      badgeType: 'success'
+    },
+    { 
+      id: 'service-desk', 
+      title: 'Service Desk', 
+      icon: <ClipboardTaskRegular />, 
+      iconFilled: <ClipboardTaskFilled />, 
+      path: '/app/service-desk',
+      badge: 'ITIL',
+      badgeType: 'brand'
+    },
+    { 
+      id: 'inventory', 
+      title: 'Inventory (CMDB)', 
       icon: <ServerRegular />, 
       iconFilled: <ServerFilled />, 
       path: '/app/inventory' 
     },
     { 
-      id: 'infra-visualizer', 
-      title: 'Infrastructure Visualizer', 
+      id: 'monitoring', 
+      title: 'Monitoring', 
       icon: <DiagramRegular />, 
       iconFilled: <DiagramFilled />, 
-      path: '/app/tools/infra-visualizer',
-      badge: 'New',
-      badgeType: 'success'
+      path: '/app/monitoring',
+      badge: 'Beta',
+      badgeType: 'warning'
     },
     { 
       id: 'guides', 
@@ -110,60 +141,61 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
         <nav role="navigation" aria-label="Primary" 
       style={{
         position: 'fixed',
-        top: 0,
+        top: '60px', /* Account for TopNavigationBar height */
         left: 0,
         width: isOpen ? '280px' : '60px',
-        height: '100vh',
-        background: glassEffects.backgroundMedium,
-        backdropFilter: 'blur(30px) saturate(35%) brightness(145%) contrast(85%)',
-        WebkitBackdropFilter: 'blur(30px) saturate(35%) brightness(145%) contrast(85%)',
-        borderRight: `1px solid ${colors.purple200}`,
+        height: 'calc(100vh - 60px)', /* Full height minus TopNavigationBar */
+        background: 'var(--lcm-bg-sidebar, rgba(255, 255, 255, 0.78))',
+        backdropFilter: 'var(--lcm-backdrop-filter-sidebar, blur(30px) saturate(140%))',
+        WebkitBackdropFilter: 'var(--lcm-backdrop-filter-sidebar, blur(30px) saturate(140%))',
+        borderRight: '1px solid var(--lcm-primary-border, rgba(139, 92, 246, 0.18))',
         transition: `all ${tokens.durationNormal} ${tokens.curveEasyEase}`,
         zIndex: zIndex.sticky,
         display: 'flex',
         flexDirection: 'column',
-        boxShadow: tokens.shadow16,
+        boxShadow: 'var(--lcm-shadow-sidebar, 0 0 1px 0 rgba(0, 0, 0, 0.08), 2px 0 8px 0 rgba(0, 0, 0, 0.04))',
         overflow: 'hidden'
       }}
     >
-      {/* Header */}
+      {/* Header - Sidebar Toggle */}
       <div style={{ 
-        padding: `${tokens.xl} ${tokens.l}`,
-        borderBottom: `1px solid ${colors.purple100}`,
-        background: glassEffects.backgroundLight,
-        backdropFilter: glassEffects.blurLight
+        padding: `${tokens.m} ${tokens.l}`,
+        borderBottom: '1px solid var(--lcm-primary-border, rgba(139, 92, 246, 0.18))',
+        background: 'transparent'
       }}>
         <div style={{ 
           display: 'flex', 
           alignItems: 'center', 
           gap: tokens.m,
-          justifyContent: isOpen ? 'space-between' : 'center'
+          justifyContent: isOpen ? 'flex-start' : 'center'
         }}>
           <button
             onClick={onToggle}
+            aria-label={isOpen ? 'Collapse sidebar' : 'Expand sidebar'}
+            title={isOpen ? 'Collapse sidebar' : 'Expand sidebar'}
             style={{
               padding: tokens.s,
               borderRadius: tokens.large,
               border: 'none',
-              background: colors.purple100,
-              color: tokens.colorBrandPrimary,
+              background: 'var(--btn-secondary-bg)',
+              color: 'var(--brand-primary)',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               transition: `all ${tokens.durationFast} ease`,
-              backdropFilter: glassEffects.blurLight,
+              backdropFilter: 'var(--lcm-backdrop-filter-sidebar)',
               fontSize: '18px',
               width: '36px',
               height: '36px'
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = colors.purple200;
+              e.currentTarget.style.background = 'var(--btn-secondary-bg-hover)';
               e.currentTarget.style.transform = 'scale(1.05)';
-              e.currentTarget.style.boxShadow = tokens.glowSmall;
+              e.currentTarget.style.boxShadow = 'var(--btn-primary-shadow)';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.background = colors.purple100;
+              e.currentTarget.style.background = 'var(--btn-secondary-bg)';
               e.currentTarget.style.transform = 'scale(1)';
               e.currentTarget.style.boxShadow = 'none';
             }}
@@ -172,29 +204,14 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
           </button>
           
           {isOpen && (
-            <div style={{ flex: 1 }}>
-              <div role="heading" aria-level={2} style={{ 
-                margin: 0,
-                fontSize: tokens.fontSizeBase500,
-                fontWeight: tokens.fontWeightBold,
-                background: gradients.purplePrimary,
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-                fontFamily: tokens.fontFamilyHeading
-              }}>
-                Archer
-              </div>
-              <p style={{ 
-                margin: 0,
-                fontSize: tokens.fontSizeBase200,
-                color: tokens.colorNeutralForeground2,
-                fontWeight: tokens.fontWeightRegular,
-                fontFamily: tokens.fontFamilyBody
-              }}>
-                Infrastructure Planning
-              </p>
-            </div>
+            <span style={{
+              fontSize: tokens.fontSizeBase300,
+              fontWeight: tokens.fontWeightSemibold,
+              color: 'var(--text-primary)',
+              fontFamily: tokens.fontFamilyBody
+            }}>
+              Navigation
+            </span>
           )}
         </div>
       </div>
@@ -225,9 +242,9 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
                 borderRadius: tokens.xxLarge,
                 border: 'none',
                 background: isItemActive(item.path) 
-                  ? gradients.buttonPrimary
+                  ? 'var(--btn-primary-bg)'
                   : 'transparent',
-                color: isItemActive(item.path) ? '#ffffff' : tokens.colorNeutralForeground1,
+                color: isItemActive(item.path) ? 'var(--btn-primary-text)' : 'var(--text-primary)',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
@@ -239,19 +256,19 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
                 fontSize: tokens.fontSizeBase300,
                 fontWeight: tokens.fontWeightMedium,
                 transition: `all ${tokens.durationNormal} ${tokens.curveEasyEase}`,
-                backdropFilter: isItemActive(item.path) ? glassEffects.blurLight : 'none',
+                backdropFilter: isItemActive(item.path) ? 'var(--lcm-backdrop-filter-sidebar)' : 'none',
                 boxShadow: isItemActive(item.path) 
-                  ? `0 4px 16px ${colors.purple200}, inset 0 1px 0 ${colors.purple50}` 
+                  ? 'var(--btn-primary-shadow)' 
                   : 'none',
                 textShadow: isItemActive(item.path) ? '0 1px 2px rgba(0, 0, 0, 0.1)' : 'none'
               }}
               onMouseEnter={(e) => {
                 const target = e.currentTarget as HTMLElement;
                 if (!isItemActive(item.path)) {
-                  target.style.background = glassEffects.purpleGlassLight;
-                  target.style.backdropFilter = glassEffects.blurMedium;
+                  target.style.background = 'var(--lcm-sidebar-item-hover)';
+                  target.style.backdropFilter = 'var(--lcm-backdrop-filter-sidebar)';
                   target.style.transform = 'translateY(-2px)';
-                  target.style.boxShadow = `0 6px 20px ${colors.purple100}`;
+                  target.style.boxShadow = 'var(--glass-shadow)';
                 }
               }}
               onMouseLeave={(e) => {
@@ -295,7 +312,7 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
                       fontWeight: tokens.fontWeightBold,
                       textTransform: 'uppercase',
                       letterSpacing: '0.5px',
-                      backdropFilter: glassEffects.blurLight,
+                      backdropFilter: 'var(--lcm-backdrop-filter, blur(20px) saturate(150%))',
                       boxShadow: tokens.shadow2
                     }}>
                       {item.badge}

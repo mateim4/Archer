@@ -383,9 +383,9 @@ const DocumentTemplatesView: React.FC = () => {
         }}>
           <Spinner size="large" />
           <div style={{
-            fontSize: '18px',
-            color: '#6366f1',
-            fontFamily: 'Oxanium, sans-serif'
+            fontSize: DesignTokens.typography.lg,
+            color: DesignTokens.colors.primary,
+            fontFamily: DesignTokens.typography.fontFamily
           }}>
             Loading document templates...
           </div>
@@ -408,19 +408,19 @@ const DocumentTemplatesView: React.FC = () => {
         <h1 style={{
           fontSize: DesignTokens.typography.xxxl,
           fontWeight: DesignTokens.typography.semibold,
-          color: '#8b5cf6',
+          color: DesignTokens.colors.primary,
           margin: '0',
           fontFamily: DesignTokens.typography.fontFamily,
           display: 'flex',
           alignItems: 'center',
           gap: '12px'
         }}>
-          <DocumentRegular style={{ fontSize: '32px', color: '#000000' }} />
+          <DocumentRegular style={{ fontSize: '32px', color: DesignTokens.colors.gray900 }} />
           Document Templates
         </h1>
         <p style={{
-          fontSize: '18px',
-          color: '#64748b',
+          fontSize: DesignTokens.typography.lg,
+          color: DesignTokens.colors.textSecondary,
           margin: 0,
           fontFamily: DesignTokens.typography.fontFamily
         }}>
@@ -475,7 +475,7 @@ const DocumentTemplatesView: React.FC = () => {
                 borderRadius: '8px',
                 fontSize: '14px',
                 fontWeight: '600',
-                fontFamily: 'Oxanium, sans-serif',
+                fontFamily: DesignTokens.typography.fontFamily,
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
@@ -525,9 +525,9 @@ const DocumentTemplatesView: React.FC = () => {
                   <h3 style={{
                     fontSize: '18px',
                     fontWeight: '600',
-                    color: '#1f2937',
+                    color: 'var(--text-primary)',
                     margin: 0,
-                    fontFamily: 'Oxanium, sans-serif'
+                    fontFamily: DesignTokens.typography.fontFamily
                   }}>
                     {template.name}
                   </h3>
@@ -538,7 +538,7 @@ const DocumentTemplatesView: React.FC = () => {
                       borderRadius: '8px',
                       background: 'rgba(99, 102, 241, 0.1)',
                       color: '#4f46e5',
-                      fontFamily: 'Oxanium, sans-serif',
+                      fontFamily: DesignTokens.typography.fontFamily,
                       fontWeight: '500'
                     }}>
                       OFFICIAL
@@ -552,7 +552,7 @@ const DocumentTemplatesView: React.FC = () => {
                     borderRadius: '12px',
                     background: 'rgba(99, 102, 241, 0.1)',
                     color: '#4f46e5',
-                    fontFamily: 'Oxanium, sans-serif'
+                    fontFamily: DesignTokens.typography.fontFamily
                   }}>
                     {template.category.toUpperCase()}
                   </span>
@@ -562,7 +562,7 @@ const DocumentTemplatesView: React.FC = () => {
                     borderRadius: '12px',
                     background: 'rgba(16, 185, 129, 0.1)',
                     color: '#047857',
-                    fontFamily: 'Oxanium, sans-serif'
+                    fontFamily: DesignTokens.typography.fontFamily
                   }}>
                     {template.format.toUpperCase()}
                   </span>
@@ -571,8 +571,8 @@ const DocumentTemplatesView: React.FC = () => {
                     padding: '3px 8px',
                     borderRadius: '12px',
                     background: 'rgba(107, 114, 128, 0.1)',
-                    color: '#374151',
-                    fontFamily: 'Oxanium, sans-serif'
+                    color: 'var(--text-secondary)',
+                    fontFamily: DesignTokens.typography.fontFamily
                   }}>
                     {template.size}
                   </span>
@@ -582,7 +582,7 @@ const DocumentTemplatesView: React.FC = () => {
                   color: '#64748b',
                   margin: '0 0 12px 0',
                   lineHeight: '1.5',
-                  fontFamily: 'Oxanium, sans-serif'
+                  fontFamily: DesignTokens.typography.fontFamily
                 }}>
                   {template.description}
                 </p>
@@ -604,7 +604,7 @@ const DocumentTemplatesView: React.FC = () => {
                   borderRadius: '6px',
                   fontSize: '12px',
                   cursor: 'pointer',
-                  fontFamily: 'Oxanium, sans-serif'
+                  fontFamily: DesignTokens.typography.fontFamily
                 }}
                 title="Preview Template"
               >
@@ -620,7 +620,7 @@ const DocumentTemplatesView: React.FC = () => {
                   borderRadius: '6px',
                   fontSize: '12px',
                   cursor: 'pointer',
-                  fontFamily: 'Oxanium, sans-serif'
+                  fontFamily: DesignTokens.typography.fontFamily
                 }}
                 title="Edit Template"
               >
@@ -635,7 +635,7 @@ const DocumentTemplatesView: React.FC = () => {
                   borderRadius: '6px',
                   fontSize: '12px',
                   cursor: 'pointer',
-                  fontFamily: 'Oxanium, sans-serif'
+                  fontFamily: DesignTokens.typography.fontFamily
                 }}
                 title="Download"
               >
@@ -657,15 +657,15 @@ const DocumentTemplatesView: React.FC = () => {
           <h2 style={{
             fontSize: '24px',
             fontWeight: '600',
-            color: '#1f2937',
+            color: 'var(--text-primary)',
             margin: '0 0 8px 0',
-            fontFamily: 'Oxanium, sans-serif'
+            fontFamily: DesignTokens.typography.fontFamily
           }}>No templates found</h2>
           <p style={{
             fontSize: '16px',
             color: '#64748b',
             margin: 0,
-            fontFamily: 'Oxanium, sans-serif'
+            fontFamily: DesignTokens.typography.fontFamily
           }}>
             Try adjusting your search or filter criteria. Loading from: /api/enhanced-rvtools/reports/templates
           </p>
