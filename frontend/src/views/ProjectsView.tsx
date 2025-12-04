@@ -429,40 +429,102 @@ export default function ProjectsView() {
                     height: '100%',
                     overflow: 'visible'
                   }}>
-                    {/* Three dots button with dropdown menu */}
-                    <div 
-                      className="project-menu"
-                      style={{ 
-                        position: 'absolute', 
-                        top: DesignTokens.spacing.sm, 
-                        right: DesignTokens.spacing.sm,
-                        zIndex: 1000
-                      }}
-                    >
-                      <PurpleGlassButton
-                        variant="ghost"
-                        size="small"
-                        icon={<MoreVerticalRegular />}
-                        onClick={(e) => handleMenuToggle(extractProjectId(project.id), e)}
-                      />
-
-                      {/* Dropdown Menu */}
-                      {openMenuId === extractProjectId(project.id) && (
+                    {/* Project Icon and Title Row with Menu Button */}
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      gap: DesignTokens.spacing.md,
+                      marginBottom: DesignTokens.spacing.lg
+                    }}>
+                      {/* Left side: Icon + Title */}
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: DesignTokens.spacing.md,
+                        flex: 1,
+                        minWidth: 0
+                      }}>
                         <div style={{
-                          position: 'absolute',
-                          top: '100%',
-                          right: '0',
-                          zIndex: 10000,
-                          background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.90))',
-                          backdropFilter: 'blur(60px) saturate(220%) brightness(145%) contrast(105%)',
-                          WebkitBackdropFilter: 'blur(60px) saturate(220%) brightness(145%) contrast(105%)',
+                          width: '42px',
+                          height: '42px',
                           borderRadius: '12px',
-                          border: '1px solid rgba(255, 255, 255, 0.4)',
-                          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12), inset 0 0 20px rgba(255, 255, 255, 0.15)',
-                          padding: '8px',
-                          minWidth: '180px',
-                          marginTop: '4px'
+                          background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: '#ffffff',
+                          fontSize: '20px',
+                          flexShrink: 0,
+                          boxShadow: '0 3px 12px rgba(99, 102, 241, 0.3)'
                         }}>
+                          <FolderFilled />
+                        </div>
+                        <h3 style={{
+                          margin: 0,
+                          fontFamily: DesignTokens.typography.fontFamily,
+                          color: 'var(--text-primary)',
+                          fontSize: DesignTokens.typography.lg,
+                          fontWeight: DesignTokens.typography.semibold,
+                          lineHeight: '1.3',
+                          textAlign: 'left'
+                        }}>
+                          {project.name}
+                        </h3>
+                      </div>
+                      
+                      {/* Right side: Menu Button */}
+                      <div 
+                        className="project-menu"
+                        style={{ 
+                          flexShrink: 0,
+                          zIndex: 1000
+                        }}
+                      >
+                        <button
+                          onClick={(e) => handleMenuToggle(extractProjectId(project.id), e)}
+                          style={{
+                            width: '36px',
+                            height: '36px',
+                            borderRadius: '8px',
+                            border: '1px solid var(--card-border)',
+                            background: 'var(--btn-ghost-bg)',
+                            color: 'var(--text-primary)',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            transition: 'all 0.2s ease',
+                            fontSize: '20px'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = 'var(--btn-ghost-bg-hover)';
+                            e.currentTarget.style.borderColor = 'var(--card-border-hover)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = 'var(--btn-ghost-bg)';
+                            e.currentTarget.style.borderColor = 'var(--card-border)';
+                          }}
+                        >
+                          <MoreVerticalRegular />
+                        </button>
+
+                        {/* Dropdown Menu */}
+                        {openMenuId === extractProjectId(project.id) && (
+                          <div style={{
+                            position: 'absolute',
+                            top: '60px',
+                            right: DesignTokens.spacing.md,
+                            zIndex: 10000,
+                            background: 'var(--glass-bg)',
+                            backdropFilter: 'blur(20px) saturate(150%)',
+                            WebkitBackdropFilter: 'blur(20px) saturate(150%)',
+                            borderRadius: '12px',
+                            border: '1px solid var(--card-border)',
+                            boxShadow: 'var(--glass-shadow)',
+                            padding: '8px',
+                            minWidth: '180px'
+                          }}>
                           <div
                             style={{
                               display: 'flex',
@@ -558,40 +620,6 @@ export default function ProjectsView() {
                         </div>
                       )}
                     </div>
-                    {/* Project Icon and Title */}
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'flex-start',
-                      gap: DesignTokens.spacing.md,
-                      marginBottom: DesignTokens.spacing.lg
-                    }}>
-                      <div style={{
-                        width: '42px',
-                        height: '42px',
-                        borderRadius: '12px',
-                        background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: '#ffffff',
-                        fontSize: '20px',
-                        flexShrink: 0,
-                        boxShadow: '0 3px 12px rgba(99, 102, 241, 0.3)'
-                      }}>
-                        <FolderFilled />
-                      </div>
-                      <h3 style={{
-                        margin: 0,
-                        fontFamily: DesignTokens.typography.fontFamily,
-                        color: 'var(--text-primary)',
-                        fontSize: DesignTokens.typography.lg,
-                        fontWeight: DesignTokens.typography.semibold,
-                        lineHeight: '1.2',
-                        textAlign: 'left'
-                      }}>
-                        {project.name}
-                      </h3>
                     </div>
 
                     {/* Description */}
@@ -615,7 +643,7 @@ export default function ProjectsView() {
                       justifyContent: 'space-between',
                       alignItems: 'flex-end',
                       paddingTop: DesignTokens.spacing.sm,
-                      borderTop: `1px solid rgba(0, 0, 0, 0.05)`,
+                      borderTop: `1px solid var(--divider-color)`,
                       marginTop: 'auto'
                     }}>
                       {/* Left side - Owner and Status */}
@@ -626,8 +654,8 @@ export default function ProjectsView() {
                       }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: DesignTokens.spacing.xs }}>
                           <div style={{
-                              background: 'rgba(16, 185, 129, 0.1)',
-                              color: DesignTokens.colors.success,
+                              background: 'var(--status-success-bg, rgba(16, 185, 129, 0.15))',
+                              color: 'var(--status-success)',
                               border: 'none',
                               borderRadius: '4px',
                               padding: '2px 8px',
@@ -642,7 +670,7 @@ export default function ProjectsView() {
                           display: 'flex', 
                           alignItems: 'center', 
                           gap: '6px',
-                          color: DesignTokens.colors.textMuted,
+                          color: 'var(--text-muted)',
                           fontSize: '11px'
                         }}>
                           <PersonRegular style={{ fontSize: '12px' }} />
@@ -657,7 +685,7 @@ export default function ProjectsView() {
                         alignItems: 'flex-end',
                         gap: '4px',
                         fontSize: '11px',
-                        color: DesignTokens.colors.textMuted
+                        color: 'var(--text-muted)'
                       }}>
                         <div style={{ fontWeight: '500' }}>
                           Updated {getRelativeTime(project.updated_at)}

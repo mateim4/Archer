@@ -203,9 +203,9 @@ export const MigrationNotice: React.FC<MigrationNoticeProps> = ({
                 alignItems: 'center',
                 gap: '6px',
                 padding: '10px 18px',
-                background: NOTICE_COLORS.background,
-                color: NOTICE_COLORS.primary,
-                border: `1px solid rgba(59, 130, 246, 0.2)`,
+                background: 'var(--btn-ghost-bg)',
+                color: 'var(--text-primary)',
+                border: `1px solid var(--card-border)`,
                 borderRadius: '8px',
                 fontSize: '13px',
                 fontWeight: '600',
@@ -214,12 +214,12 @@ export const MigrationNotice: React.FC<MigrationNoticeProps> = ({
                 transition: 'all 0.2s ease',
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(59, 130, 246, 0.15)';
-                e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.3)';
+                e.currentTarget.style.background = 'var(--btn-ghost-bg-hover)';
+                e.currentTarget.style.borderColor = 'var(--card-border-hover)';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = NOTICE_COLORS.background;
-                e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.2)';
+                e.currentTarget.style.background = 'var(--btn-ghost-bg)';
+                e.currentTarget.style.borderColor = 'var(--card-border)';
               }}
             >
               Learn More

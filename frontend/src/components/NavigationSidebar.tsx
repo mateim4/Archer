@@ -78,27 +78,21 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
       title: 'Projects', 
       icon: <FolderRegular />, 
       iconFilled: <FolderFilled />, 
-      path: '/app/projects',
-      badge: 'Primary',
-      badgeType: 'brand'
+      path: '/app/projects'
     },
     { 
       id: 'tasks', 
       title: 'Tasks', 
       icon: <TaskListSquareLtrRegular />, 
       iconFilled: <TaskListSquareLtrFilled />, 
-      path: '/app/tasks',
-      badge: 'New',
-      badgeType: 'success'
+      path: '/app/tasks'
     },
     { 
       id: 'service-desk', 
       title: 'Service Desk', 
       icon: <ClipboardTaskRegular />, 
       iconFilled: <ClipboardTaskFilled />, 
-      path: '/app/service-desk',
-      badge: 'ITIL',
-      badgeType: 'brand'
+      path: '/app/service-desk'
     },
     { 
       id: 'inventory', 
@@ -113,8 +107,6 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
       icon: <DiagramRegular />, 
       iconFilled: <DiagramFilled />, 
       path: '/app/monitoring',
-      badge: 'Beta',
-      badgeType: 'warning',
       subItems: [
         {
           id: 'capacity-visualizer',

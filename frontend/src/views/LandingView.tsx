@@ -93,11 +93,11 @@ const LandingView: React.FC = () => {
       }}>
         {/* Hero Section */}
         <div style={{
-          background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.40), rgba(255, 255, 255, 0.40))',
-          backdropFilter: 'blur(30px) saturate(35%) brightness(145%) contrast(85%)',
-          WebkitBackdropFilter: 'blur(30px) saturate(35%) brightness(145%) contrast(85%)',
-          border: '1px solid rgba(255, 255, 255, 0.3)',
-          boxShadow: 'inset 0 0 20px rgba(255, 255, 255, 0.1), 0 0 40px rgba(255, 255, 255, 0.05)',
+          background: 'var(--card-bg)',
+          backdropFilter: 'blur(30px) saturate(140%)',
+          WebkitBackdropFilter: 'blur(30px) saturate(140%)',
+          border: '1px solid var(--card-border)',
+          boxShadow: 'var(--card-shadow)',
           borderRadius: '20px',
           padding: '32px',
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
