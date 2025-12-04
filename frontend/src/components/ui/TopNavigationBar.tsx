@@ -404,6 +404,7 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
             onMouseEnter={(e) => e.currentTarget.style.background = 'var(--btn-ghost-bg-hover)'}
             onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
             aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+            data-testid="theme-toggle"
           >
             {isDark ? (
               <WeatherSunnyRegular style={{ fontSize: '20px' }} />
