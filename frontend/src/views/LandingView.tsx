@@ -352,7 +352,7 @@ const LandingView: React.FC = () => {
 
                 {/* Card Description */}
                 <p style={{
-                  color: DesignTokens.colors.textPrimary,
+                  color: 'var(--text-primary)',
                   fontSize: DesignTokens.typography.sm,
                   lineHeight: '1.5',
                   display: '-webkit-box',

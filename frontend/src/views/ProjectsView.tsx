@@ -342,7 +342,7 @@ export default function ProjectsView() {
               </div>
               <div style={{
                 fontSize: DesignTokens.typography.xs,
-                color: DesignTokens.colors.textPrimary,
+                color: 'var(--text-primary)',
                 fontWeight: DesignTokens.typography.medium,
                 textTransform: 'uppercase',
                 letterSpacing: '0.5px',
@@ -366,7 +366,7 @@ export default function ProjectsView() {
               </div>
               <div style={{
                 fontSize: DesignTokens.typography.xs,
-                color: DesignTokens.colors.textPrimary,
+                color: 'var(--text-primary)',
                 fontWeight: DesignTokens.typography.medium,
                 textTransform: 'uppercase',
                 letterSpacing: '0.5px',
@@ -387,10 +387,10 @@ export default function ProjectsView() {
               <div style={{ fontSize: '80px', color: DesignTokens.colors.primaryLight, marginBottom: DesignTokens.spacing.xl }}>
                 <RocketRegular />
               </div>
-              <h3 style={{ fontSize: DesignTokens.typography.xxl, fontWeight: DesignTokens.typography.semibold, color: DesignTokens.colors.textPrimary, marginBottom: DesignTokens.spacing.md, fontFamily: DesignTokens.typography.fontFamily }}>
+              <h3 style={{ fontSize: DesignTokens.typography.xxl, fontWeight: DesignTokens.typography.semibold, color: 'var(--text-primary)', marginBottom: DesignTokens.spacing.md, fontFamily: DesignTokens.typography.fontFamily }}>
                 {searchTerm ? 'No projects match your search' : 'No projects yet'}
               </h3>
-              <p style={{ fontSize: DesignTokens.typography.base, color: DesignTokens.colors.textSecondary, marginBottom: DesignTokens.spacing.xxl, maxWidth: '500px', marginLeft: 'auto', marginRight: 'auto', lineHeight: '1.6' }}>
+              <p style={{ fontSize: DesignTokens.typography.base, color: 'var(--text-secondary)', marginBottom: DesignTokens.spacing.xxl, maxWidth: '500px', marginLeft: 'auto', marginRight: 'auto', lineHeight: '1.6' }}>
                 {searchTerm
                   ? 'Try adjusting your search terms or create a new project.'
                   : 'Create your first project to start organizing your infrastructure deployments, configurations, and automation workflows.'
@@ -471,7 +471,7 @@ export default function ProjectsView() {
                               transition: 'all 0.2s ease',
                               fontFamily: DesignTokens.typography.fontFamily,
                               fontSize: '14px',
-                              color: DesignTokens.colors.gray900,
+                              color: 'var(--text-primary)',
                               fontWeight: '500'
                             }}
                             onClick={(e) => {
@@ -484,7 +484,7 @@ export default function ProjectsView() {
                             }}
                             onMouseLeave={(e) => {
                               e.currentTarget.style.background = 'transparent';
-                              e.currentTarget.style.color = DesignTokens.colors.gray900;
+                              e.currentTarget.style.color = 'var(--text-primary)';
                             }}
                           >
                             <DeleteRegular style={{ fontSize: '16px' }} />
@@ -502,7 +502,7 @@ export default function ProjectsView() {
                               transition: 'all 0.2s ease',
                               fontFamily: DesignTokens.typography.fontFamily,
                               fontSize: '14px',
-                              color: DesignTokens.colors.gray900,
+                              color: 'var(--text-primary)',
                               fontWeight: '500'
                             }}
                             onClick={(e) => {
@@ -515,7 +515,7 @@ export default function ProjectsView() {
                             }}
                             onMouseLeave={(e) => {
                               e.currentTarget.style.background = 'transparent';
-                              e.currentTarget.style.color = DesignTokens.colors.gray900;
+                              e.currentTarget.style.color = 'var(--text-primary)';
                             }}
                           >
                             <CheckmarkCircleRegular style={{ fontSize: '16px' }} />
@@ -533,7 +533,7 @@ export default function ProjectsView() {
                               transition: 'all 0.2s ease',
                               fontFamily: DesignTokens.typography.fontFamily,
                               fontSize: '14px',
-                              color: DesignTokens.colors.gray900,
+                              color: 'var(--text-primary)',
                               fontWeight: '500'
                             }}
                             onClick={(e) => {
@@ -546,7 +546,7 @@ export default function ProjectsView() {
                             }}
                             onMouseLeave={(e) => {
                               e.currentTarget.style.background = 'transparent';
-                              e.currentTarget.style.color = DesignTokens.colors.gray900;
+                              e.currentTarget.style.color = 'var(--text-primary)';
                             }}
                           >
                             <PeopleRegular style={{ fontSize: '16px' }} />
@@ -581,7 +581,7 @@ export default function ProjectsView() {
                       <h3 style={{
                         margin: 0,
                         fontFamily: DesignTokens.typography.fontFamily,
-                        color: DesignTokens.colors.textPrimary,
+                        color: 'var(--text-primary)',
                         fontSize: DesignTokens.typography.lg,
                         fontWeight: DesignTokens.typography.semibold,
                         lineHeight: '1.2',
@@ -593,7 +593,7 @@ export default function ProjectsView() {
 
                     {/* Description */}
                     <p style={{
-                      color: DesignTokens.colors.textSecondary,
+                      color: 'var(--text-secondary)',
                       fontSize: DesignTokens.typography.sm,
                       lineHeight: '1.5',
                       display: '-webkit-box',
@@ -717,7 +717,7 @@ export default function ProjectsView() {
               />
             </div>
             <div style={{ marginBottom: DesignTokens.spacing.lg }}>
-              <label style={{ display: 'block', fontSize: DesignTokens.typography.sm, fontWeight: DesignTokens.typography.medium, color: DesignTokens.colors.textPrimary, marginBottom: DesignTokens.spacing.xs, fontFamily: DesignTokens.typography.fontFamily }}>Project Types</label>
+              <label style={{ display: 'block', fontSize: DesignTokens.typography.sm, fontWeight: DesignTokens.typography.medium, color: 'var(--text-primary)', marginBottom: DesignTokens.spacing.xs, fontFamily: DesignTokens.typography.fontFamily }}>Project Types</label>
               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '8px' }}>
                 {(['migration', 'deployment', 'upgrade', 'custom'] as const).map((type) => (
                   <PurpleGlassButton

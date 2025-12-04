@@ -41,12 +41,12 @@ const useStyles = makeStyles({
   },
   metricLabel: {
     fontSize: '12px',
-    color: DesignTokens.colors.textSecondary,
+    color: 'var(--text-secondary)',
     fontWeight: '500'
   },
   metricValue: {
     fontSize: '12px',
-    color: DesignTokens.colors.textPrimary,
+    color: 'var(--text-primary)',
     fontWeight: '600',
     textAlign: 'right' as const
   }
@@ -96,7 +96,7 @@ export const CapacityTooltip: React.FC<CapacityTooltipProps> = ({ data }) => {
             </div>
             <div 
               className={styles.metricValue}
-              style={{ color: metric.color || DesignTokens.colors.textPrimary }}
+              style={{ color: metric.color || 'var(--text-primary)' }}
             >
               {metric.value}
             </div>

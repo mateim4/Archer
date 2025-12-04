@@ -260,7 +260,7 @@ const ProjectDetailView: React.FC = () => {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', width: '100%' }}>
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: DesignTokens.spacing.sm }}>
-                  <FolderRegular style={{ color: DesignTokens.colors.gray900, fontSize: '32px' }} />
+                  <FolderRegular style={{ color: 'var(--text-primary)', fontSize: '32px' }} />
                   <h1 style={{ ...DesignTokens.components.sectionTitle, color: DesignTokens.colors.primary }}>{project.name}</h1>
                 </div>
                 <div style={{ marginTop: '8px' }}>
@@ -358,10 +358,10 @@ const ProjectDetailView: React.FC = () => {
           }}
         >
           {[
-            { label: 'Total Activities', value: stats.totalActivities, icon: <ChartMultipleRegular />, color: DesignTokens.colors.gray900 },
+            { label: 'Total Activities', value: stats.totalActivities, icon: <ChartMultipleRegular />, color: 'var(--text-primary)' },
             { label: 'Completed', value: stats.completedActivities, icon: <CheckmarkCircleRegular />, color: DesignTokens.colors.success },
             { label: 'In Progress', value: stats.inProgressActivities, icon: <ClockRegular />, color: DesignTokens.colors.warning },
-            { label: 'Days Remaining', value: stats.daysRemaining, icon: <TargetRegular />, color: DesignTokens.colors.gray900 },
+            { label: 'Days Remaining', value: stats.daysRemaining, icon: <TargetRegular />, color: 'var(--text-primary)' },
           ].map((stat, index) => (
             <div key={index} style={{ padding: DesignTokens.spacing.lg }}>
               <div style={{ padding: 0, backgroundColor: 'transparent', border: 'none' }}>
@@ -369,7 +369,7 @@ const ProjectDetailView: React.FC = () => {
                   <div>
                     <h2 style={{ color: stat.color }}>{stat.value}</h2>
                     <div style={{ marginTop: '4px' }}>
-                      <span style={{ color: DesignTokens.colors.gray900 }}>{stat.label}</span>
+                      <span style={{ color: 'var(--text-primary)' }}>{stat.label}</span>
                     </div>
                   </div>
                   <div
@@ -397,7 +397,7 @@ const ProjectDetailView: React.FC = () => {
             <div>
               <h2 style={{ color: DesignTokens.colors.primary }}>{stats.overallProgress}%</h2>
               <div style={{ marginTop: '4px' }}>
-                <span style={{ color: DesignTokens.colors.gray900 }}>Overall Progress</span>
+                <span style={{ color: 'var(--text-primary)' }}>Overall Progress</span>
               </div>
             </div>
             <div style={{ flex: 1, marginLeft: DesignTokens.spacing.xxl }}>
@@ -415,7 +415,7 @@ const ProjectDetailView: React.FC = () => {
                   transition: 'width 0.3s ease'
                 }} />
               </div>
-              <span style={{ color: DesignTokens.colors.gray900 }}>
+              <span style={{ color: 'var(--text-primary)' }}>
                 {stats.completedActivities} of {stats.totalActivities} activities completed
               </span>
             </div>
@@ -435,7 +435,7 @@ const ProjectDetailView: React.FC = () => {
                 style={{
                   padding: `${DesignTokens.spacing.md} ${DesignTokens.spacing.lg}`,
                   background: activeTab === tab ? DesignTokens.colors.primary : 'transparent',
-                  color: activeTab === tab ? '#fff' : DesignTokens.colors.textPrimary,
+                  color: activeTab === tab ? '#fff' : 'var(--text-primary)',
                   border: 'none',
                   borderRadius: `${DesignTokens.borderRadius.md} ${DesignTokens.borderRadius.md} 0 0`,
                   cursor: 'pointer',
@@ -826,7 +826,7 @@ const ProjectDetailView: React.FC = () => {
                         >
                           <div style={{ display: 'flex', alignItems: 'center', gap: DesignTokens.spacing.sm }}>
                             <div style={{ fontSize: '18px', color: DesignTokens.colors.primary }}>{activityType.icon}</div>
-                            <span style={{ fontWeight: '500', color: DesignTokens.colors.textPrimary }}>
+                            <span style={{ fontWeight: '500', color: 'var(--text-primary)' }}>
                               {activityType.label}
                             </span>
                           </div>

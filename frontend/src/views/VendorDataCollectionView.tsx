@@ -1233,7 +1233,7 @@ const VendorDataCollectionView: React.FC = () => {
       value: '3', 
       icon: <DatabaseRegular />, 
       change: 'Dell, HPE, Lenovo',
-      color: '#16a34a'
+      color: 'var(--text-primary)'
     },
     { 
       title: 'Configs Processed', 
@@ -1318,7 +1318,7 @@ const VendorDataCollectionView: React.FC = () => {
                       D
                     </div>
                     <div>
-                      <div style={{ fontWeight: '500', color: '#111827' }}>Dell SCP Files</div>
+                      <div style={{ fontWeight: '500', color: 'var(--text-primary)' }}>Dell SCP Files</div>
                       <div style={{ fontSize: '12px', color: '#6b7280' }}>System Configuration Profile (XML)</div>
                     </div>
                   </div>
@@ -1381,7 +1381,7 @@ const VendorDataCollectionView: React.FC = () => {
                       H
                     </div>
                     <div>
-                      <div style={{ fontWeight: '500', color: '#111827' }}>HPE iQuote Files</div>
+                      <div style={{ fontWeight: '500', color: 'var(--text-primary)' }}>HPE iQuote Files</div>
                       <div style={{ fontSize: '12px', color: '#6b7280' }}>Quote files (CSV, TXT, XLS)</div>
                     </div>
                   </div>
@@ -1430,7 +1430,7 @@ const VendorDataCollectionView: React.FC = () => {
                       L
                     </div>
                     <div>
-                      <div style={{ fontWeight: '500', color: '#111827' }}>Lenovo DCSC Files</div>
+                      <div style={{ fontWeight: '500', color: 'var(--text-primary)' }}>Lenovo DCSC Files</div>
                       <div style={{ fontSize: '12px', color: '#6b7280' }}>Data Center System Configuration (XML)</div>
                     </div>
                   </div>
@@ -1606,7 +1606,7 @@ const VendorDataCollectionView: React.FC = () => {
                 paddingTop: '24px',
                 marginTop: '24px'
               }}>
-                <h4 style={{ marginBottom: '16px', color: '#111827', fontSize: '16px', fontWeight: '600' }}>
+                <h4 style={{ marginBottom: '16px', color: 'var(--text-primary)', fontSize: '16px', fontWeight: '600' }}>
                   Recommended Configurations (3)
                 </h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -1625,7 +1625,7 @@ const VendorDataCollectionView: React.FC = () => {
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                         <ServerRegular style={{ color: '#7c3aed', fontSize: '20px' }} />
                         <div>
-                          <div style={{ fontWeight: '500', color: '#111827' }}>
+                          <div style={{ fontWeight: '500', color: 'var(--text-primary)' }}>
                             {model.model_name}
                           </div>
                           <div style={{ fontSize: '12px', color: '#6b7280' }}>
@@ -1702,7 +1702,7 @@ const VendorDataCollectionView: React.FC = () => {
                       <DataBarHorizontal24Regular />
                     </div>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: '500', color: '#111827' }}>Hardware Basket Files</div>
+                      <div style={{ fontWeight: '500', color: 'var(--text-primary)' }}>Hardware Basket Files</div>
                       <div style={{ fontSize: '12px', color: '#6b7280' }}>Excel files with pricing and configurations</div>
                     </div>
                   </div>
@@ -1906,7 +1906,7 @@ const VendorDataCollectionView: React.FC = () => {
                               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                 <ServerRegular style={{ color: '#6b7280' }} />
                                 <div>
-                                  <div style={{ fontWeight: '500', color: '#111827' }}>
+                                  <div style={{ fontWeight: '500', color: 'var(--text-primary)' }}>
                                     {model.model_name}
                                   </div>
                                   <div style={{ fontSize: '12px', color: '#6b7280' }}>
@@ -1970,7 +1970,7 @@ const VendorDataCollectionView: React.FC = () => {
                                 })()}
                               </div>
                             </td>
-                            <td style={{ padding: '12px', color: '#111827' }}>
+                            <td style={{ padding: '12px', color: 'var(--text-primary)' }}>
                               <button
                                 onClick={() => setPriceModalModel(model)}
                                 style={{
@@ -2095,7 +2095,7 @@ const VendorDataCollectionView: React.FC = () => {
             <CloudArrowUpRegular />
           </div>
           <div>
-            <h1 style={{ margin: '0', fontSize: '24px', fontWeight: '600', color: '#111827' }}>
+            <h1 style={{ margin: '0', fontSize: '24px', fontWeight: '600', color: 'var(--text-primary)' }}>
               Vendor Data Collection & Server Sizing
             </h1>
             <p style={{ margin: '4px 0 0 0', fontSize: '14px', color: '#6b7280' }}>
@@ -2156,7 +2156,7 @@ const VendorDataCollectionView: React.FC = () => {
               {message.type === 'info' && <InfoRegular style={{ color: '#2563eb' }} />}
             </div>
             <div>
-              <div style={{ fontWeight: '500', color: '#111827', fontSize: '14px' }}>
+              <div style={{ fontWeight: '500', color: 'var(--text-primary)', fontSize: '14px' }}>
                 {message.title}
               </div>
               <div style={{ color: '#6b7280', fontSize: '14px' }}>
@@ -2257,7 +2257,7 @@ const VendorDataCollectionView: React.FC = () => {
               justifyContent: 'space-between',
               marginBottom: '20px'
             }}>
-              <h3 style={{ margin: 0, color: '#111827', fontSize: '18px', fontWeight: '600' }}>
+              <h3 style={{ margin: 0, color: 'var(--text-primary)', fontSize: '18px', fontWeight: '600' }}>
                 Pricing Details
               </h3>
               <button
@@ -2284,23 +2284,23 @@ const VendorDataCollectionView: React.FC = () => {
             </div>
             
             <div style={{ marginBottom: '16px' }}>
-              <strong style={{ color: '#111827' }}>Model:</strong>
+              <strong style={{ color: 'var(--text-primary)' }}>Model:</strong>
               <div style={{ color: '#6b7280', marginTop: '4px' }}>
                 {priceModalModel.model_name}
               </div>
             </div>
 
             <div style={{ marginBottom: '16px' }}>
-              <strong style={{ color: '#111827' }}>Category:</strong>
+              <strong style={{ color: 'var(--text-primary)' }}>Category:</strong>
               <div style={{ color: '#6b7280', marginTop: '4px' }}>
                 {priceModalModel.category || 'N/A'}
               </div>
             </div>
 
             <div style={{ marginBottom: '16px' }}>
-              <strong style={{ color: '#111827' }}>Price:</strong>
+              <strong style={{ color: 'var(--text-primary)' }}>Price:</strong>
               <div style={{ 
-                color: '#111827', 
+                color: 'var(--text-primary)', 
                 marginTop: '4px',
                 fontSize: '16px',
                 fontWeight: '500'
@@ -2315,7 +2315,7 @@ const VendorDataCollectionView: React.FC = () => {
 
             {priceModalModel.lot_description && (
               <div style={{ marginBottom: '16px' }}>
-                <strong style={{ color: '#111827' }}>Description:</strong>
+                <strong style={{ color: 'var(--text-primary)' }}>Description:</strong>
                 <div style={{ color: '#6b7280', marginTop: '4px' }}>
                   {priceModalModel.lot_description}
                 </div>

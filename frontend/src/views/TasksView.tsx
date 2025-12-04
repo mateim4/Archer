@@ -398,7 +398,7 @@ export default function TasksView() {
           alignItems: 'center', 
           gap: '12px' 
         }}>
-          <TaskListSquareLtrRegular style={{ fontSize: '32px', color: DesignTokens.colors.gray900 }} />
+          <TaskListSquareLtrRegular style={{ fontSize: '32px', color: 'var(--text-primary)' }} />
           Tasks
         </h2>
         <PrimaryButton
@@ -485,7 +485,7 @@ export default function TasksView() {
             </div>
             <div style={{
               fontSize: DesignTokens.typography.xs,
-              color: DesignTokens.colors.textSecondary,
+              color: 'var(--text-secondary)',
               textTransform: 'uppercase'
             }}>
               In Progress
@@ -503,7 +503,7 @@ export default function TasksView() {
             </div>
             <div style={{
               fontSize: DesignTokens.typography.xs,
-              color: DesignTokens.colors.textSecondary,
+              color: 'var(--text-secondary)',
               textTransform: 'uppercase'
             }}>
               Pending
@@ -541,7 +541,7 @@ export default function TasksView() {
             </div>
             <div style={{
               fontSize: DesignTokens.typography.xs,
-              color: DesignTokens.colors.textSecondary,
+              color: 'var(--text-secondary)',
               textTransform: 'uppercase'
             }}>
               Completed
@@ -560,7 +560,7 @@ export default function TasksView() {
             <h3 style={{ 
               fontSize: DesignTokens.typography.xxl, 
               fontWeight: DesignTokens.typography.semibold, 
-              color: DesignTokens.colors.textPrimary, 
+              color: 'var(--text-primary)', 
               marginBottom: DesignTokens.spacing.md, 
               fontFamily: DesignTokens.typography.fontFamily 
             }}>
@@ -571,7 +571,7 @@ export default function TasksView() {
             </h3>
             <p style={{ 
               fontSize: DesignTokens.typography.base, 
-              color: DesignTokens.colors.textSecondary, 
+              color: 'var(--text-secondary)', 
               marginBottom: DesignTokens.spacing.xxl, 
               maxWidth: '500px', 
               marginLeft: 'auto', 
@@ -661,7 +661,7 @@ export default function TasksView() {
                               borderRadius: '8px',
                               cursor: 'pointer',
                               fontSize: '14px',
-                              color: DesignTokens.colors.gray900,
+                              color: 'var(--text-primary)',
                               fontWeight: '500',
                               transition: 'all 0.2s ease'
                             }}
@@ -675,7 +675,7 @@ export default function TasksView() {
                             }}
                             onMouseLeave={(e) => {
                               e.currentTarget.style.background = 'transparent';
-                              e.currentTarget.style.color = DesignTokens.colors.gray900;
+                              e.currentTarget.style.color = 'var(--text-primary)';
                             }}
                           >
                             <CheckmarkCircleRegular style={{ fontSize: '16px' }} />
@@ -693,7 +693,7 @@ export default function TasksView() {
                               borderRadius: '8px',
                               cursor: 'pointer',
                               fontSize: '14px',
-                              color: DesignTokens.colors.gray900,
+                              color: 'var(--text-primary)',
                               fontWeight: '500',
                               transition: 'all 0.2s ease'
                             }}
@@ -707,7 +707,7 @@ export default function TasksView() {
                             }}
                             onMouseLeave={(e) => {
                               e.currentTarget.style.background = 'transparent';
-                              e.currentTarget.style.color = DesignTokens.colors.gray900;
+                              e.currentTarget.style.color = 'var(--text-primary)';
                             }}
                           >
                             <ArrowSyncRegular style={{ fontSize: '16px' }} />
@@ -724,7 +724,7 @@ export default function TasksView() {
                             borderRadius: '8px',
                             cursor: 'pointer',
                             fontSize: '14px',
-                            color: DesignTokens.colors.gray900,
+                            color: 'var(--text-primary)',
                             fontWeight: '500',
                             transition: 'all 0.2s ease'
                           }}
@@ -738,7 +738,7 @@ export default function TasksView() {
                           }}
                           onMouseLeave={(e) => {
                             e.currentTarget.style.background = 'transparent';
-                            e.currentTarget.style.color = DesignTokens.colors.gray900;
+                            e.currentTarget.style.color = 'var(--text-primary)';
                           }}
                         >
                           <DeleteRegular style={{ fontSize: '16px' }} />
@@ -774,7 +774,7 @@ export default function TasksView() {
                         margin: 0,
                         fontSize: DesignTokens.typography.base,
                         fontWeight: DesignTokens.typography.semibold,
-                        color: DesignTokens.colors.textPrimary,
+                        color: 'var(--text-primary)',
                         lineHeight: '1.3',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
@@ -816,7 +816,7 @@ export default function TasksView() {
                   {/* Description */}
                   {task.description && (
                     <p style={{
-                      color: DesignTokens.colors.textSecondary,
+                      color: 'var(--text-secondary)',
                       fontSize: DesignTokens.typography.sm,
                       lineHeight: '1.5',
                       display: '-webkit-box',

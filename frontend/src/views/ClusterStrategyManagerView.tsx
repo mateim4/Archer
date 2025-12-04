@@ -568,7 +568,7 @@ const ClusterStrategyManagerView: React.FC = () => {
             <h3 style={{ 
               fontSize: DesignTokens.typography.xxl,
               fontWeight: DesignTokens.typography.semibold,
-              color: DesignTokens.colors.textPrimary,
+              color: 'var(--text-primary)',
               marginBottom: DesignTokens.spacing.md,
               fontFamily: DesignTokens.typography.fontFamily,
               margin: `0 0 ${DesignTokens.spacing.md} 0`
@@ -577,7 +577,7 @@ const ClusterStrategyManagerView: React.FC = () => {
             </h3>
             <p style={{ 
               fontSize: DesignTokens.typography.base,
-              color: DesignTokens.colors.textSecondary,
+              color: 'var(--text-secondary)',
               marginBottom: DesignTokens.spacing.xxl,
               maxWidth: '500px',
               marginLeft: 'auto',

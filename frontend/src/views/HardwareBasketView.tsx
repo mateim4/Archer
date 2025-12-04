@@ -319,7 +319,7 @@ const HardwareBasketView: React.FC = () => {
           alignItems: 'center',
           gap: '12px'
         }}>
-          <DatabaseRegular style={{ fontSize: '32px', color: DesignTokens.colors.gray900 }} />
+          <DatabaseRegular style={{ fontSize: '32px', color: 'var(--text-primary)' }} />
           Hardware Basket Management
         </h1>
         

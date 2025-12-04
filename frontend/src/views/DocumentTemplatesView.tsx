@@ -415,12 +415,12 @@ const DocumentTemplatesView: React.FC = () => {
           alignItems: 'center',
           gap: '12px'
         }}>
-          <DocumentRegular style={{ fontSize: '32px', color: DesignTokens.colors.gray900 }} />
+          <DocumentRegular style={{ fontSize: '32px', color: 'var(--text-primary)' }} />
           Document Templates
         </h1>
         <p style={{
           fontSize: DesignTokens.typography.lg,
-          color: DesignTokens.colors.textSecondary,
+          color: 'var(--text-secondary)',
           margin: 0,
           fontFamily: DesignTokens.typography.fontFamily
         }}>

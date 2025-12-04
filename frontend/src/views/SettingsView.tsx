@@ -57,7 +57,7 @@ const SettingsView: React.FC = () => {
           <h4 style={{
               fontSize: DesignTokens.typography.base,
               fontWeight: DesignTokens.typography.semibold,
-              color: DesignTokens.colors.textPrimary,
+              color: 'var(--text-primary)',
               marginBottom: DesignTokens.spacing.lg,
               fontFamily: DesignTokens.typography.fontFamily
             }}>
@@ -67,7 +67,7 @@ const SettingsView: React.FC = () => {
           <div className="grid gap-4">
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <label style={{ fontSize: DesignTokens.typography.sm, fontWeight: DesignTokens.typography.medium, color: DesignTokens.colors.textSecondary }}>
+                <label style={{ fontSize: DesignTokens.typography.sm, fontWeight: DesignTokens.typography.medium, color: 'var(--text-secondary)' }}>
                   Forecast Period (months)
                 </label>
                 <InfoTooltip content="Time horizon for capacity planning calculations" />
@@ -84,7 +84,7 @@ const SettingsView: React.FC = () => {
             
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <label style={{ fontSize: DesignTokens.typography.sm, fontWeight: DesignTokens.typography.medium, color: DesignTokens.colors.textSecondary }}>
+                <label style={{ fontSize: DesignTokens.typography.sm, fontWeight: DesignTokens.typography.medium, color: 'var(--text-secondary)' }}>
                   Planning Horizon (years)
                 </label>
                 <InfoTooltip content="Strategic planning timeframe for hardware lifecycle" />
@@ -116,7 +116,7 @@ const SettingsView: React.FC = () => {
           <h4 style={{
               fontSize: DesignTokens.typography.base,
               fontWeight: DesignTokens.typography.semibold,
-              color: DesignTokens.colors.textPrimary,
+              color: 'var(--text-primary)',
               marginBottom: DesignTokens.spacing.lg,
               fontFamily: DesignTokens.typography.fontFamily
             }}>
@@ -126,7 +126,7 @@ const SettingsView: React.FC = () => {
           <div className="grid gap-4">
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <label style={{ fontSize: DesignTokens.typography.sm, fontWeight: DesignTokens.typography.medium, color: DesignTokens.colors.textSecondary }}>
+                <label style={{ fontSize: DesignTokens.typography.sm, fontWeight: DesignTokens.typography.medium, color: 'var(--text-secondary)' }}>
                   CPU Overcommit Ratio
                 </label>
                 <InfoTooltip content="Virtual CPUs to physical CPU cores ratio (e.g., 4:1)" />
@@ -144,7 +144,7 @@ const SettingsView: React.FC = () => {
             
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <label style={{ fontSize: DesignTokens.typography.sm, fontWeight: DesignTokens.typography.medium, color: DesignTokens.colors.textSecondary }}>
+                <label style={{ fontSize: DesignTokens.typography.sm, fontWeight: DesignTokens.typography.medium, color: 'var(--text-secondary)' }}>
                   Memory Overcommit Ratio
                 </label>
                 <InfoTooltip content="Virtual memory to physical memory ratio" />
@@ -162,7 +162,7 @@ const SettingsView: React.FC = () => {
 
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <label style={{ fontSize: DesignTokens.typography.sm, fontWeight: DesignTokens.typography.medium, color: DesignTokens.colors.textSecondary }}>
+                <label style={{ fontSize: DesignTokens.typography.sm, fontWeight: DesignTokens.typography.medium, color: 'var(--text-secondary)' }}>
                   Storage Efficiency Factor
                 </label>
                 <InfoTooltip content="Expected storage efficiency from compression and deduplication" />

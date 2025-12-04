@@ -89,7 +89,7 @@ export const PurpleGlassToast: React.FC<PurpleGlassToastProps> = ({
         <div style={{
           fontSize: DesignTokens.typography.base,
           fontWeight: 600,
-          color: DesignTokens.colors.textPrimary,
+          color: 'var(--text-primary)',
           marginBottom: message ? '4px' : 0
         }}>
           {title}
@@ -97,7 +97,7 @@ export const PurpleGlassToast: React.FC<PurpleGlassToastProps> = ({
         {message && (
           <div style={{
             fontSize: DesignTokens.typography.sm,
-            color: DesignTokens.colors.textSecondary,
+            color: 'var(--text-secondary)',
             lineHeight: '1.4'
           }}>
             {message}

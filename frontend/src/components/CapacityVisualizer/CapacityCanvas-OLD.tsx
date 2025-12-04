@@ -59,7 +59,7 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
         .attr('text-anchor', 'middle')
         .attr('font-family', DesignTokens.typography.fontFamily)
         .attr('font-size', '18px')
-        .attr('fill', DesignTokens.colors.textPrimary)
+        .attr('fill', 'var(--text-primary)')
         .text('No clusters visible. Use the control panel to add clusters.');
       return;
     }
@@ -284,7 +284,7 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
         .attr('font-family', DesignTokens.typography.fontFamily)
         .attr('font-size', '11px')
         .attr('font-weight', (d: any) => d.depth <= 1 ? '600' : '400')
-        .attr('fill', (d: any) => d.data.type === 'free' ? '#666' : DesignTokens.colors.textPrimary)
+        .attr('fill', (d: any) => d.data.type === 'free' ? '#666' : 'var(--text-primary)')
         .attr('pointer-events', 'none')
         .style('opacity', (d: any) => x(d.x1) - x(d.x0) > 40 ? 1 : 0)
         .text((d: any) => {

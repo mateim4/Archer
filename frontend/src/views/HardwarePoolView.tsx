@@ -185,7 +185,7 @@ const HardwarePoolView: React.FC = () => {
           gap: '12px',
           marginBottom: '8px'
         }}>
-          <ServerRegular style={{ fontSize: '32px', color: DesignTokens.colors.gray900 }} />
+          <ServerRegular style={{ fontSize: '32px', color: 'var(--text-primary)' }} />
           <h1 style={{ 
             fontSize: DesignTokens.typography.xxxl,
             fontWeight: DesignTokens.typography.semibold,
@@ -240,7 +240,7 @@ const HardwarePoolView: React.FC = () => {
             style={{ display: 'none' }}
           />
         </div>
-        <div style={{ color: DesignTokens.colors.textSecondary, fontSize: '14px', fontFamily: DesignTokens.typography.fontFamily }}>
+        <div style={{ color: 'var(--text-secondary)', fontSize: '14px', fontFamily: DesignTokens.typography.fontFamily }}>
           {rvToolsUploads.length > 0 ? `${rvToolsUploads.length} RVTools uploads processed` : 'Upload RVTools CSV or XLSX exports to populate the inventory.'}
         </div>
       </div>
@@ -254,10 +254,10 @@ const HardwarePoolView: React.FC = () => {
           style={{ marginBottom: DesignTokens.spacing.lg }}
         >
           <div style={{ display: 'grid', gap: DesignTokens.spacing.sm }}>
-            <div style={{ fontSize: DesignTokens.typography.lg, fontWeight: DesignTokens.typography.semibold, color: DesignTokens.colors.textPrimary }}>
+            <div style={{ fontSize: DesignTokens.typography.lg, fontWeight: DesignTokens.typography.semibold, color: 'var(--text-primary)' }}>
               Added {latestRvToolsUpload.serversAddedToPool} of {latestRvToolsUpload.serversProcessed} servers
             </div>
-            <div style={{ color: DesignTokens.colors.textSecondary, fontSize: DesignTokens.typography.sm }}>
+            <div style={{ color: 'var(--text-secondary)', fontSize: DesignTokens.typography.sm }}>
               Upload ID: {latestRvToolsUpload.uploadId} · Processed at {new Date(latestRvToolsUpload.uploadTimestamp).toLocaleString()}
             </div>
             <div style={{ display: 'flex', gap: DesignTokens.spacing.lg, flexWrap: 'wrap' }}>
@@ -288,7 +288,7 @@ const HardwarePoolView: React.FC = () => {
                 </ul>
               </div>
             )}
-            <div style={{ color: DesignTokens.colors.textSecondary, fontSize: DesignTokens.typography.sm }}>
+            <div style={{ color: 'var(--text-secondary)', fontSize: DesignTokens.typography.sm }}>
               Recommendations: {latestRvToolsUpload.summary.deploymentRecommendations.join('; ') || 'No recommendations generated'}
             </div>
             <div style={{ marginTop: DesignTokens.spacing.md }}>
@@ -321,11 +321,11 @@ const HardwarePoolView: React.FC = () => {
                 borderSpacing: 0,
                 fontFamily: DesignTokens.typography.fontFamily,
                 fontSize: DesignTokens.typography.sm,
-                color: DesignTokens.colors.textPrimary
+                color: 'var(--text-primary)'
               }}
             >
               <thead>
-                <tr style={{ textAlign: 'left', color: DesignTokens.colors.textSecondary }}>
+                <tr style={{ textAlign: 'left', color: 'var(--text-secondary)' }}>
                   <th style={{ padding: DesignTokens.spacing.sm }}>File</th>
                   <th style={{ padding: DesignTokens.spacing.sm }}>Status</th>
                   <th style={{ padding: DesignTokens.spacing.sm }}>Processed</th>

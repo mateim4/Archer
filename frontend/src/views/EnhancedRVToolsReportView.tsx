@@ -258,12 +258,12 @@ export const EnhancedRVToolsReportView: React.FC = () => {
           alignItems: 'center',
           gap: '12px'
         }}>
-          <TableRegular style={{ fontSize: '32px', color: DesignTokens.colors.gray900 }} />
+          <TableRegular style={{ fontSize: '32px', color: 'var(--text-primary)' }} />
           RVTools Reports
         </h1>
         <div style={{
           fontSize: DesignTokens.typography.lg,
-          color: DesignTokens.colors.textSecondary,
+          color: 'var(--text-secondary)',
           margin: 0,
           fontFamily: DesignTokens.typography.fontFamily
         }}>
@@ -274,7 +274,7 @@ export const EnhancedRVToolsReportView: React.FC = () => {
       {/* Description */}
       <div style={{
         fontSize: DesignTokens.typography.sm,
-        color: DesignTokens.colors.textSecondary,
+        color: 'var(--text-secondary)',
         fontFamily: DesignTokens.typography.fontFamily,
         marginBottom: '24px',
         padding: '16px 0'
@@ -294,7 +294,7 @@ export const EnhancedRVToolsReportView: React.FC = () => {
           <h3 style={{
             fontSize: DesignTokens.typography.lg,
             fontWeight: DesignTokens.typography.semibold,
-            color: DesignTokens.colors.textPrimary,
+            color: 'var(--text-primary)',
             margin: '0 0 16px 0',
             fontFamily: DesignTokens.typography.fontFamily
           }}>

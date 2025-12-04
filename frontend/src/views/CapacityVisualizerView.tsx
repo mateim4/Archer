@@ -149,7 +149,7 @@ const useStyles = makeStyles({
   popupHeader: {
     fontSize: '18px',
     fontWeight: '600',
-    color: DesignTokens.colors.textPrimary,
+    color: 'var(--text-primary)',
     marginBottom: '8px'
   },
   popupActions: {

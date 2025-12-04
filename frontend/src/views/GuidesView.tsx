@@ -185,8 +185,8 @@ const GuidesView: React.FC = () => {
       case 'migration': return DesignTokens.colorVariants.indigo.base;
       case 'lifecycle': return DesignTokens.colorVariants.emerald.base;
       case 'hardware': return DesignTokens.colorVariants.amber.base;
-      case 'general': return DesignTokens.colors.textSecondary;
-      default: return DesignTokens.colors.textSecondary;
+      case 'general': return 'var(--text-secondary)';
+      default: return 'var(--text-secondary)';
     }
   };
 
@@ -195,7 +195,7 @@ const GuidesView: React.FC = () => {
       case 'beginner': return DesignTokens.colorVariants.emerald.base;
       case 'intermediate': return DesignTokens.colorVariants.amber.base;
       case 'advanced': return DesignTokens.colorVariants.red.base;
-      default: return DesignTokens.colors.textSecondary;
+      default: return 'var(--text-secondary)';
     }
   };
 
@@ -271,7 +271,7 @@ const GuidesView: React.FC = () => {
             </div>
             <div style={{
               fontSize: DesignTokens.typography.sm,
-              color: DesignTokens.colors.textSecondary,
+              color: 'var(--text-secondary)',
               fontWeight: DesignTokens.typography.medium,
               textTransform: 'uppercase',
               letterSpacing: '0.5px',
@@ -293,7 +293,7 @@ const GuidesView: React.FC = () => {
             </div>
             <div style={{
               fontSize: DesignTokens.typography.sm,
-              color: DesignTokens.colors.textSecondary,
+              color: 'var(--text-secondary)',
               fontWeight: DesignTokens.typography.medium,
               textTransform: 'uppercase',
               letterSpacing: '0.5px',
@@ -315,7 +315,7 @@ const GuidesView: React.FC = () => {
             </div>
             <div style={{
               fontSize: DesignTokens.typography.sm,
-              color: DesignTokens.colors.textSecondary,
+              color: 'var(--text-secondary)',
               fontWeight: DesignTokens.typography.medium,
               textTransform: 'uppercase',
               letterSpacing: '0.5px',
@@ -337,7 +337,7 @@ const GuidesView: React.FC = () => {
             </div>
             <div style={{
               fontSize: DesignTokens.typography.sm,
-              color: DesignTokens.colors.textSecondary,
+              color: 'var(--text-secondary)',
               fontWeight: DesignTokens.typography.medium,
               textTransform: 'uppercase',
               letterSpacing: '0.5px',
@@ -575,7 +575,7 @@ const GuidesView: React.FC = () => {
         <Title3 style={{
           fontSize: DesignTokens.typography.xxl,
           fontWeight: DesignTokens.typography.semibold,
-          color: DesignTokens.colors.textPrimary,
+          color: 'var(--text-primary)',
           marginBottom: DesignTokens.spacing.xl,
           fontFamily: DesignTokens.typography.fontFamily,
           display: 'flex',
@@ -594,7 +594,7 @@ const GuidesView: React.FC = () => {
             { name: 'API Documentation', icon: <DocumentTextRegular />, color: DesignTokens.colorVariants.indigo.base },
             { name: 'Video Library', icon: <PlayCircleRegular />, color: DesignTokens.colorVariants.emerald.base },
             { name: 'Community Forum', icon: <BookOpenRegular />, color: DesignTokens.colorVariants.amber.base },
-            { name: 'Release Notes', icon: <DocumentRegular />, color: DesignTokens.colors.textSecondary }
+            { name: 'Release Notes', icon: <DocumentRegular />, color: 'var(--text-secondary)' }
           ].map((resource, index) => (
             <Button
               key={index}

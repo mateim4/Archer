@@ -325,7 +325,7 @@ const ServiceDeskView: React.FC = () => {
                 cursor: 'pointer',
                 color: activeTab === tab.id 
                   ? DesignTokens.colors.primary 
-                  : DesignTokens.colors.textSecondary,
+                  : 'var(--text-secondary)',
                 fontWeight: activeTab === tab.id 
                   ? DesignTokens.typography.semibold 
                   : DesignTokens.typography.medium,
@@ -359,7 +359,7 @@ const ServiceDeskView: React.FC = () => {
           <div style={{ display: 'flex', gap: DesignTokens.spacing.lg, alignItems: 'center' }}>
             {/* Saved Views Dropdown */}
             <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <BookmarkRegular style={{ color: DesignTokens.colors.textSecondary }} />
+              <BookmarkRegular style={{ color: 'var(--text-secondary)' }} />
               <PurpleGlassDropdown
                 options={SAVED_VIEWS.map(v => ({ value: v.id, label: v.label }))}
                 value={activeView}
@@ -452,7 +452,7 @@ const ServiceDeskView: React.FC = () => {
                   display: 'block', 
                   fontSize: DesignTokens.typography.xs, 
                   fontWeight: DesignTokens.typography.medium,
-                  color: DesignTokens.colors.textSecondary,
+                  color: 'var(--text-secondary)',
                   marginBottom: '8px',
                   textTransform: 'uppercase',
                   letterSpacing: '0.5px'
@@ -484,7 +484,7 @@ const ServiceDeskView: React.FC = () => {
                   display: 'block', 
                   fontSize: DesignTokens.typography.xs, 
                   fontWeight: DesignTokens.typography.medium,
-                  color: DesignTokens.colors.textSecondary,
+                  color: 'var(--text-secondary)',
                   marginBottom: '8px',
                   textTransform: 'uppercase',
                   letterSpacing: '0.5px'
@@ -520,7 +520,7 @@ const ServiceDeskView: React.FC = () => {
                   display: 'block', 
                   fontSize: DesignTokens.typography.xs, 
                   fontWeight: DesignTokens.typography.medium,
-                  color: DesignTokens.colors.textSecondary,
+                  color: 'var(--text-secondary)',
                   marginBottom: '8px',
                   textTransform: 'uppercase',
                   letterSpacing: '0.5px'
@@ -560,10 +560,10 @@ const ServiceDeskView: React.FC = () => {
           justifyContent: 'space-between', 
           alignItems: 'center',
           fontSize: DesignTokens.typography.sm,
-          color: DesignTokens.colors.textSecondary
+          color: 'var(--text-secondary)'
         }}>
           <span>
-            Showing <strong style={{ color: DesignTokens.colors.textPrimary }}>{filteredTickets.length}</strong> of {tickets.length} tickets
+            Showing <strong style={{ color: 'var(--text-primary)' }}>{filteredTickets.length}</strong> of {tickets.length} tickets
           </span>
         </div>
 
@@ -597,7 +597,7 @@ const ServiceDeskView: React.FC = () => {
                   <div style={{
                     padding: DesignTokens.spacing.md,
                     fontWeight: DesignTokens.typography.semibold,
-                    color: DesignTokens.colors.textPrimary,
+                    color: 'var(--text-primary)',
                     background: `${DesignTokens.colors.primary}05`,
                     borderBottom: `1px solid ${DesignTokens.colors.gray200}`,
                     display: 'flex',
@@ -614,7 +614,7 @@ const ServiceDeskView: React.FC = () => {
                       padding: '2px 8px',
                       borderRadius: DesignTokens.borderRadius.sm,
                       fontSize: DesignTokens.typography.xs,
-                      color: DesignTokens.colors.textSecondary
+                      color: 'var(--text-secondary)'
                     }}>
                       {filteredTickets.filter(t => t.status === col.id || (col.id === 'RESOLVED' && ['RESOLVED', 'CLOSED'].includes(t.status))).length}
                     </span>
@@ -653,11 +653,11 @@ const ServiceDeskView: React.FC = () => {
 const KPICard: React.FC<{ title: string; value: string | number; trend: string; trendType: 'positive' | 'negative' | 'neutral'; icon?: React.ReactNode }> = ({ title, value, trend, trendType, icon }) => (
   <PurpleGlassCard glass variant="subtle" style={{ padding: DesignTokens.spacing.lg, transition: 'transform 0.2s ease' }}>
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-      <span style={{ color: DesignTokens.colors.textSecondary, fontSize: DesignTokens.typography.sm, fontWeight: DesignTokens.typography.medium }}>{title}</span>
+      <span style={{ color: 'var(--text-secondary)', fontSize: DesignTokens.typography.sm, fontWeight: DesignTokens.typography.medium }}>{title}</span>
       {icon && <span style={{ color: DesignTokens.colors.textMuted }}>{icon}</span>}
     </div>
     <div style={{ display: 'flex', alignItems: 'flex-end', gap: '8px' }}>
-      <span style={{ color: DesignTokens.colors.textPrimary, fontSize: DesignTokens.typography.xxl, fontWeight: DesignTokens.typography.bold }}>{value}</span>
+      <span style={{ color: 'var(--text-primary)', fontSize: DesignTokens.typography.xxl, fontWeight: DesignTokens.typography.bold }}>{value}</span>
       <span 
         style={{ 
           fontSize: DesignTokens.typography.xs,
@@ -685,10 +685,10 @@ const TicketListItem: React.FC<{ ticket: ExtendedTicket; getPriorityIcon: (p: st
         </span>
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <h3 style={{ fontWeight: DesignTokens.typography.medium, color: DesignTokens.colors.textPrimary, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', margin: 0 }}>
+        <h3 style={{ fontWeight: DesignTokens.typography.medium, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', margin: 0 }}>
           {ticket.title}
         </h3>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: DesignTokens.typography.xs, marginTop: '2px', color: DesignTokens.colors.textSecondary }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: DesignTokens.typography.xs, marginTop: '2px', color: 'var(--text-secondary)' }}>
           <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><PersonRegular style={{ fontSize: '12px' }} /> {ticket.assignee || 'Unassigned'}</span>
           {ticket.linkedCi && (
             <LinkedAssetBadge
@@ -746,7 +746,7 @@ const TicketKanbanCard: React.FC<{ ticket: ExtendedTicket; getPriorityIcon: (p: 
         fontSize: DesignTokens.typography.sm, 
         fontWeight: DesignTokens.typography.medium, 
         marginBottom: DesignTokens.spacing.md, 
-        color: DesignTokens.colors.textPrimary,
+        color: 'var(--text-primary)',
         display: '-webkit-box',
         WebkitLineClamp: 2,
         WebkitBoxOrient: 'vertical',
@@ -776,7 +776,7 @@ const TicketKanbanCard: React.FC<{ ticket: ExtendedTicket; getPriorityIcon: (p: 
           alignItems: 'center',
           gap: '4px',
           background: DesignTokens.colors.gray100,
-          color: DesignTokens.colors.textSecondary
+          color: 'var(--text-secondary)'
         }}
       >
         <TagRegular style={{ fontSize: '12px' }} /> {ticket.ticket_type}
