@@ -840,6 +840,14 @@ input[type="number"] {
     inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
+.dark .glassmorphic-search-input {
+  color: var(--text-primary, #f1f5f9);
+}
+
+.dark .glassmorphic-search-input::placeholder {
+  color: var(--text-secondary, rgba(241, 245, 249, 0.6));
+}
+
 /* ===================
    GLASSMORPHIC FILTER CONTROLS
    Standardized filters matching search bar aesthetic
