@@ -339,7 +339,7 @@ const ServerCard: React.FC<ServerCardProps> = ({
                       textAlign: 'left',
                       cursor: 'pointer',
                       fontSize: '12px',
-                      color: '#374151'
+                      color: 'var(--text-primary)'
                     }}
                   >
                     <EditRegular style={{ fontSize: '12px', marginRight: '6px' }} />

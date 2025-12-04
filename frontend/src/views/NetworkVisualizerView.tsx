@@ -41,7 +41,7 @@ const DIAGRAM_THEME = {
   // Neutral colors
   neutral: 'var(--text-secondary)',       // Gray
   neutralLight: '#d1d5db',  // Light gray
-  neutralDark: '#374151',   // Dark gray
+  neutralDark: 'var(--text-primary)',   // Dark gray
   
   // Background colors
   bgPrimary: '#ffffff',     // White

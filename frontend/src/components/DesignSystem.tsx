@@ -25,7 +25,7 @@ export const DESIGN_TOKENS = {
     
     text: {
       primary: '#1a202c',
-      secondary: '#374151',
+      secondary: 'var(--text-primary)',
       muted: '#64748b',
     }
   },

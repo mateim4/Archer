@@ -165,7 +165,7 @@ const HardwareAssetForm: React.FC<HardwareAssetFormProps> = ({
                     display: 'block',
                     marginBottom: '6px',
                     fontWeight: '500',
-                    color: '#374151',
+                    color: 'var(--text-primary)',
                     fontSize: '14px'
                   }}>
                     Asset Name *
@@ -189,7 +189,7 @@ const HardwareAssetForm: React.FC<HardwareAssetFormProps> = ({
                     display: 'block',
                     marginBottom: '6px',
                     fontWeight: '500',
-                    color: '#374151',
+                    color: 'var(--text-primary)',
                     fontSize: '14px'
                   }}>
                     Location *
@@ -216,7 +216,7 @@ const HardwareAssetForm: React.FC<HardwareAssetFormProps> = ({
                     display: 'block',
                     marginBottom: '6px',
                     fontWeight: '500',
-                    color: '#374151',
+                    color: 'var(--text-primary)',
                     fontSize: '14px'
                   }}>
                     Manufacturer *
@@ -240,7 +240,7 @@ const HardwareAssetForm: React.FC<HardwareAssetFormProps> = ({
                     display: 'block',
                     marginBottom: '6px',
                     fontWeight: '500',
-                    color: '#374151',
+                    color: 'var(--text-primary)',
                     fontSize: '14px'
                   }}>
                     Model *
@@ -267,7 +267,7 @@ const HardwareAssetForm: React.FC<HardwareAssetFormProps> = ({
                     display: 'block',
                     marginBottom: '6px',
                     fontWeight: '500',
-                    color: '#374151',
+                    color: 'var(--text-primary)',
                     fontSize: '14px'
                   }}>
                     CPU Cores *
@@ -292,7 +292,7 @@ const HardwareAssetForm: React.FC<HardwareAssetFormProps> = ({
                     display: 'block',
                     marginBottom: '6px',
                     fontWeight: '500',
-                    color: '#374151',
+                    color: 'var(--text-primary)',
                     fontSize: '14px'
                   }}>
                     Memory (GB) *
@@ -317,7 +317,7 @@ const HardwareAssetForm: React.FC<HardwareAssetFormProps> = ({
                     display: 'block',
                     marginBottom: '6px',
                     fontWeight: '500',
-                    color: '#374151',
+                    color: 'var(--text-primary)',
                     fontSize: '14px'
                   }}>
                     Storage (GB) *
@@ -344,7 +344,7 @@ const HardwareAssetForm: React.FC<HardwareAssetFormProps> = ({
                   display: 'block',
                   marginBottom: '6px',
                   fontWeight: '500',
-                  color: '#374151',
+                  color: 'var(--text-primary)',
                   fontSize: '14px'
                 }}>
                   Status

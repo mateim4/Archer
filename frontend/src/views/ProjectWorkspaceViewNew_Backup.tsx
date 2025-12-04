@@ -664,7 +664,7 @@ const ProjectWorkspaceView: React.FC = () => {
             marginBottom: '8px', 
             fontWeight: '600',
             fontFamily: 'Oxanium, sans-serif',
-            color: '#374151'
+            color: 'var(--text-primary)'
           }}>
             Documents ({workflow.documents.length})
           </Body2>
@@ -894,7 +894,7 @@ const ProjectWorkspaceView: React.FC = () => {
             <Title3 style={{ 
               marginBottom: '16px',
               fontFamily: 'Oxanium, sans-serif',
-              color: '#374151'
+              color: 'var(--text-primary)'
             }}>
               Recent Workflows
             </Title3>
@@ -963,7 +963,7 @@ const ProjectWorkspaceView: React.FC = () => {
               <Title3 style={{ 
                 marginBottom: '12px',
                 fontFamily: 'Oxanium, sans-serif',
-                color: '#374151'
+                color: 'var(--text-primary)'
               }}>
                 Timeline Visualization
               </Title3>
@@ -1010,7 +1010,7 @@ const ProjectWorkspaceView: React.FC = () => {
                       <Title3 style={{ 
                         margin: '0 0 4px 0',
                         fontFamily: 'Oxanium, sans-serif',
-                        color: '#374151'
+                        color: 'var(--text-primary)'
                       }}>
                         {doc.name}
                       </Title3>
@@ -1050,7 +1050,7 @@ const ProjectWorkspaceView: React.FC = () => {
                   <DocumentRegular fontSize={48} color="#6b7280" />
                   <Title3 style={{ 
                     marginTop: '16px', 
-                    color: '#374151',
+                    color: 'var(--text-primary)',
                     fontFamily: 'Oxanium, sans-serif'
                   }}>
                     No Documents Yet

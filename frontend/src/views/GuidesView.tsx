@@ -549,7 +549,7 @@ const GuidesView: React.FC = () => {
                     padding: '4px 8px',
                     borderRadius: '12px',
                     background: 'rgba(107, 114, 128, 0.1)',
-                    color: '#374151',
+                    color: 'var(--text-primary)',
                     fontFamily: tokens.fontFamilyBody,
                     display: 'flex',
                     alignItems: 'center',

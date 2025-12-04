@@ -2259,7 +2259,7 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
                 borderRadius: '50%',
                 background: index % 2 === 0 ? '#8b5cf6' : '#06b6d4'
               }} />
-              <span style={{ color: '#374151', fontWeight: '600' }}>
+              <span style={{ color: 'var(--text-primary)', fontWeight: '600' }}>
                 {cluster.name}
               </span>
               <span>

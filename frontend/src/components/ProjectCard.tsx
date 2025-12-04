@@ -218,7 +218,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.background = 'rgba(107, 114, 128, 0.2)';
-              e.currentTarget.style.color = '#374151';
+              e.currentTarget.style.color = 'var(--text-primary)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = 'rgba(107, 114, 128, 0.1)';

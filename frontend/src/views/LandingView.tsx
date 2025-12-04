@@ -176,7 +176,7 @@ const LandingView: React.FC = () => {
           {/* Description */}
           <p style={{
             fontSize: '20px',
-            color: '#374151',
+            color: 'var(--text-primary)',
             maxWidth: '640px',
             margin: '0 auto 40px auto',
             fontFamily: 'Oxanium, sans-serif',

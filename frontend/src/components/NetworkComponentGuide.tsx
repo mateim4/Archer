@@ -79,7 +79,7 @@ const NetworkComponentGuide: React.FC = () => {
       
       <p style={{ 
         fontSize: '14px', 
-        color: '#374151', 
+        color: 'var(--text-primary)', 
         marginBottom: '12px',
         lineHeight: '1.4'
       }}>
@@ -289,19 +289,19 @@ const NetworkComponentGuide: React.FC = () => {
         </h4>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
           <div>
-            <span style={{ fontWeight: '600', color: '#374151' }}>Total Icons:</span>
+            <span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>Total Icons:</span>
             <span style={{ marginLeft: '8px', color: 'var(--text-secondary)' }}>{Object.keys(NETWORK_ICON_INDEX).length}</span>
           </div>
           <div>
-            <span style={{ fontWeight: '600', color: '#374151' }}>Categories:</span>
+            <span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>Categories:</span>
             <span style={{ marginLeft: '8px', color: 'var(--text-secondary)' }}>{Object.keys(ICON_CATEGORIES).length}</span>
           </div>
           <div>
-            <span style={{ fontWeight: '600', color: '#374151' }}>Technologies:</span>
+            <span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>Technologies:</span>
             <span style={{ marginLeft: '8px', color: 'var(--text-secondary)' }}>VMware, Hyper-V, Azure</span>
           </div>
           <div>
-            <span style={{ fontWeight: '600', color: '#374151' }}>Source:</span>
+            <span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>Source:</span>
             <span style={{ marginLeft: '8px', color: 'var(--text-secondary)' }}>Microsoft Azure Stencils</span>
           </div>
         </div>

@@ -29,7 +29,7 @@ const NOTICE_COLORS = {
   background: 'rgba(59, 130, 246, 0.08)',
   border: 'rgba(59, 130, 246, 0.15)',
   neutral: 'var(--text-secondary)',
-  neutralHover: '#374151',
+  neutralHover: 'var(--text-primary)',
 } as const;
 
 export interface MigrationNoticeProps {

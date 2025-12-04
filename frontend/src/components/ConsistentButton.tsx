@@ -73,7 +73,7 @@ const ConsistentButton: React.FC<ConsistentButtonProps> = ({
       boxShadow: 'none',
       hover: {
         background: 'rgba(0, 0, 0, 0.05)',
-        color: '#374151'
+        color: 'var(--text-primary)'
       }
     },
     danger: {
