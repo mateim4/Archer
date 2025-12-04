@@ -605,7 +605,7 @@ export default function TasksView() {
     if (window.confirm('Are you sure you want to delete this task? This action cannot be undone.')) {
       try {
         // TODO: Add API call
-        setTasks(prev => prev.filter(t => t.id !== taskId));
+        setTasks(prevTasks => prevTasks.filter(t => t.id !== taskId));
         setOpenMenuId(null);
         showSuccess('Task deleted', 'The task has been successfully deleted.');
       } catch (error) {
@@ -617,7 +617,7 @@ export default function TasksView() {
   const handleStatusChange = useCallback(async (taskId: string, newStatus: TaskStatus) => {
     try {
       // TODO: Add API call
-      setTasks(prev => prev.map(t => 
+      setTasks(prevTasks => prevTasks.map(t => 
         t.id === taskId 
           ? { ...t, status: newStatus, updated_at: new Date().toISOString() } 
           : t
@@ -631,7 +631,7 @@ export default function TasksView() {
 
   // Memoized handler for menu toggle
   const handleMenuToggle = useCallback((taskId: string) => {
-    setOpenMenuId(prev => prev === taskId ? null : taskId);
+    setOpenMenuId(prevMenuId => prevMenuId === taskId ? null : taskId);
   }, []);
 
   // Filtering and sorting

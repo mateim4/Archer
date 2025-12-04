@@ -460,7 +460,7 @@ export default function ProjectsView() {
   // Project menu actions
   const handleMenuToggle = useCallback((projectId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    setOpenMenuId(prev => prev === projectId ? null : projectId);
+    setOpenMenuId(prevMenuId => prevMenuId === projectId ? null : projectId);
   }, []);
 
   const handleDeleteProject = useCallback(async (projectId: string) => {
@@ -468,7 +468,7 @@ export default function ProjectsView() {
       try {
         // Add your delete API call here
         // await apiClient.deleteProject(projectId);
-        setProjects(prev => prev.filter(p => extractProjectId(p.id) !== projectId));
+        setProjects(prevProjects => prevProjects.filter(p => extractProjectId(p.id) !== projectId));
         setOpenMenuId(null);
         showSuccess('Project deleted', 'The project has been successfully deleted.');
       } catch (error) {
