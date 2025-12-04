@@ -123,9 +123,26 @@ const formatKeys = (keys: string): string[] => {
 };
 
 /**
- * Check if a key event matches a shortcut definition
+ * Check if shortcut is a sequential pattern (e.g., "g+d" without modifiers)
+ */
+const isSequentialShortcut = (keys: string): boolean => {
+  const parts = keys.toLowerCase().split('+').map(p => p.trim());
+  const modifiers = ['ctrl', 'control', 'cmd', 'meta', 'alt', 'option', 'shift'];
+  // Sequential if there are no modifiers and exactly 2 letter keys
+  return parts.length === 2 && 
+    parts.every(p => p.length === 1 && /[a-z]/.test(p)) &&
+    !parts.some(p => modifiers.includes(p));
+};
+
+/**
+ * Check if a key event matches a shortcut definition (for simultaneous shortcuts)
  */
 const matchesShortcut = (event: KeyboardEvent, keys: string): boolean => {
+  // Don't match sequential shortcuts with this function
+  if (isSequentialShortcut(keys)) {
+    return false;
+  }
+  
   const parts = keys.toLowerCase().split('+').map(p => p.trim());
   
   const requiresCtrl = parts.includes('ctrl') || parts.includes('control');
@@ -174,6 +191,13 @@ const KeyboardShortcutsContext = createContext<KeyboardShortcutsContextValue | n
 
 /**
  * Default shortcuts for the application
+ * 
+ * FMO-style navigation: G+[key] for quick navigation
+ * - G+D: Dashboard
+ * - G+T: Tickets (Service Desk)
+ * - G+I: Inventory
+ * - G+M: Monitoring
+ * - G+P: Projects
  */
 const createDefaultShortcuts = (
   navigate: (path: string) => void,
@@ -199,11 +223,48 @@ const createDefaultShortcuts = (
     icon: <KeyboardRegular />,
     handler: toggleCheatSheet,
   },
-  // Navigation
+  // FMO-style Navigation (G+[key] pattern)
+  {
+    id: 'go-dashboard',
+    label: 'Go to Dashboard',
+    description: 'Navigate to dashboard (G then D)',
+    keys: 'g+d',
+    category: 'navigation',
+    icon: <HomeRegular />,
+    handler: () => navigate('/app/dashboard'),
+  },
+  {
+    id: 'go-tickets',
+    label: 'Go to Tickets',
+    description: 'Navigate to service desk (G then T)',
+    keys: 'g+t',
+    category: 'navigation',
+    icon: <FolderRegular />,
+    handler: () => navigate('/app/service-desk'),
+  },
+  {
+    id: 'go-inventory',
+    label: 'Go to Inventory',
+    description: 'Navigate to CMDB inventory (G then I)',
+    keys: 'g+i',
+    category: 'navigation',
+    icon: <FolderRegular />,
+    handler: () => navigate('/app/inventory'),
+  },
+  {
+    id: 'go-monitoring',
+    label: 'Go to Monitoring',
+    description: 'Navigate to monitoring (G then M)',
+    keys: 'g+m',
+    category: 'navigation',
+    icon: <FolderRegular />,
+    handler: () => navigate('/app/monitoring'),
+  },
+  // Standard Navigation
   {
     id: 'go-home',
     label: 'Go to Home',
-    description: 'Navigate to home/dashboard',
+    description: 'Navigate to home/landing',
     keys: 'ctrl+shift+h',
     category: 'navigation',
     icon: <HomeRegular />,
@@ -212,8 +273,8 @@ const createDefaultShortcuts = (
   {
     id: 'go-projects',
     label: 'Go to Projects',
-    description: 'Navigate to projects list',
-    keys: 'ctrl+shift+p',
+    description: 'Navigate to projects list (G then P)',
+    keys: 'g+p',
     category: 'navigation',
     icon: <FolderRegular />,
     handler: () => navigate('/app/projects'),
@@ -236,6 +297,15 @@ const createDefaultShortcuts = (
     category: 'actions',
     icon: <AddRegular />,
     handler: () => navigate('/app/projects?action=create'),
+  },
+  {
+    id: 'new-ticket',
+    label: 'New Ticket',
+    description: 'Create a new ticket',
+    keys: 'ctrl+shift+t',
+    category: 'actions',
+    icon: <AddRegular />,
+    handler: () => navigate('/app/service-desk?action=create'),
   },
   // Editing (global)
   {
@@ -282,6 +352,10 @@ export const KeyboardShortcutsProvider: React.FC<{
   const closeCheatSheet = useCallback(() => setCheatSheetOpen(false), []);
   const toggleCheatSheet = useCallback(() => setCheatSheetOpen(prev => !prev), []);
 
+  // Sequential key tracking (for G+D, G+T, etc.)
+  const [pendingKey, setPendingKey] = useState<string | null>(null);
+  const pendingKeyTimeoutRef = React.useRef<number | null>(null);
+
   // Initialize default shortcuts
   useEffect(() => {
     const defaults = createDefaultShortcuts(
@@ -326,7 +400,53 @@ export const KeyboardShortcutsProvider: React.FC<{
         if (!matchedAllowed) return;
       }
 
-      // Find matching shortcut
+      // Handle sequential shortcuts (G+D, G+T, etc.)
+      const key = event.key.toLowerCase();
+      
+      // If we have a pending key, check for sequential match
+      if (pendingKey && !event.ctrlKey && !event.metaKey && !event.altKey) {
+        const sequentialKeys = `${pendingKey}+${key}`;
+        for (const shortcut of shortcuts) {
+          if (shortcut.enabled === false) continue;
+          if (isSequentialShortcut(shortcut.keys) && shortcut.keys.toLowerCase() === sequentialKeys) {
+            event.preventDefault();
+            shortcut.handler?.();
+            setPendingKey(null);
+            if (pendingKeyTimeoutRef.current) {
+              clearTimeout(pendingKeyTimeoutRef.current);
+              pendingKeyTimeoutRef.current = null;
+            }
+            return;
+          }
+        }
+        // No match found, clear pending key
+        setPendingKey(null);
+        if (pendingKeyTimeoutRef.current) {
+          clearTimeout(pendingKeyTimeoutRef.current);
+          pendingKeyTimeoutRef.current = null;
+        }
+      }
+      
+      // Check if this key starts a sequential shortcut
+      if (!event.ctrlKey && !event.metaKey && !event.altKey && key.length === 1 && /[a-z]/.test(key)) {
+        const startsSequential = shortcuts.some(
+          s => isSequentialShortcut(s.keys) && s.keys.toLowerCase().startsWith(key + '+')
+        );
+        if (startsSequential) {
+          setPendingKey(key);
+          // Clear pending key after 1 second timeout
+          if (pendingKeyTimeoutRef.current) {
+            clearTimeout(pendingKeyTimeoutRef.current);
+          }
+          pendingKeyTimeoutRef.current = window.setTimeout(() => {
+            setPendingKey(null);
+            pendingKeyTimeoutRef.current = null;
+          }, 1000);
+          return;
+        }
+      }
+
+      // Find matching shortcut (simultaneous keys)
       for (const shortcut of shortcuts) {
         if (shortcut.enabled === false) continue;
         if (matchesShortcut(event, shortcut.keys)) {
@@ -339,7 +459,16 @@ export const KeyboardShortcutsProvider: React.FC<{
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [shortcuts]);
+  }, [shortcuts, pendingKey]);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (pendingKeyTimeoutRef.current) {
+        clearTimeout(pendingKeyTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Close cheat sheet on Escape
   useEffect(() => {

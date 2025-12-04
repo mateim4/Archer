@@ -139,3 +139,21 @@ export type {
   InsightType, 
   InsightSeverity 
 } from './AIInsightCard';
+
+// Skeleton Loader - Loading state placeholders
+export { 
+  Skeleton, 
+  SkeletonText, 
+  SkeletonAvatar, 
+  SkeletonCard, 
+  SkeletonTable, 
+  SkeletonDashboard 
+} from './SkeletonLoader';
+export type { 
+  SkeletonProps, 
+  SkeletonTextProps, 
+  SkeletonAvatarProps, 
+  SkeletonCardProps, 
+  SkeletonTableProps, 
+  SkeletonDashboardProps 
+} from './SkeletonLoader';
