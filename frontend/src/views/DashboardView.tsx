@@ -352,7 +352,7 @@ const StatCard: React.FC<{
   data: StatCardData;
   isDark: boolean;
   onClick?: () => void;
-}> = ({ data, isDark, onClick }) => {
+}> = ({ data, onClick }) => {
   const isPositiveChange = (data.change ?? 0) > 0;
   const isNegativeGood = data.id === 'avg-time'; // Lower avg time is better
   const showGreen = isNegativeGood ? !isPositiveChange : isPositiveChange;
@@ -361,13 +361,11 @@ const StatCard: React.FC<{
     <div
       onClick={onClick}
       style={{
-        background: isDark 
-          ? 'rgba(30, 41, 59, 0.6)' 
-          : 'rgba(255, 255, 255, 0.7)',
+        background: 'var(--card-bg)',
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
         borderRadius: '16px',
-        border: `1px solid ${isDark ? 'rgba(71, 85, 105, 0.3)' : 'rgba(139, 92, 246, 0.15)'}`,
+        border: '1px solid var(--card-border)',
         padding: '24px',
         cursor: onClick ? 'pointer' : 'default',
         transition: 'all 0.2s ease',
@@ -377,12 +375,14 @@ const StatCard: React.FC<{
       onMouseEnter={(e) => {
         if (onClick) {
           e.currentTarget.style.transform = 'translateY(-2px)';
-          e.currentTarget.style.boxShadow = '0 8px 25px rgba(107, 76, 230, 0.15)';
+          e.currentTarget.style.boxShadow = 'var(--card-shadow-hover)';
+          e.currentTarget.style.borderColor = 'var(--card-border-hover)';
         }
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.transform = 'translateY(0)';
         e.currentTarget.style.boxShadow = 'none';
+        e.currentTarget.style.borderColor = 'var(--card-border)';
       }}
     >
       {/* Icon */}
@@ -408,7 +408,7 @@ const StatCard: React.FC<{
         margin: 0,
         fontSize: '13px',
         fontWeight: 500,
-        color: isDark ? '#94a3b8' : '#6b7280',
+        color: 'var(--text-muted)',
         textTransform: 'uppercase',
         letterSpacing: '0.05em',
       }}>
@@ -420,7 +420,7 @@ const StatCard: React.FC<{
         margin: '8px 0 0 0',
         fontSize: '32px',
         fontWeight: 700,
-        color: isDark ? '#f1f5f9' : '#1f2937',
+        color: 'var(--text-primary)',
         fontFamily: 'var(--lcm-font-family-heading, Poppins, sans-serif)',
       }}>
         {data.value}
@@ -435,20 +435,20 @@ const StatCard: React.FC<{
           marginTop: '8px',
         }}>
           {showGreen ? (
-            <ArrowTrendingRegular style={{ color: '#10b981', fontSize: '16px' }} />
+            <ArrowTrendingRegular style={{ color: 'var(--status-success)', fontSize: '16px' }} />
           ) : (
-            <ArrowTrendingDownRegular style={{ color: '#ef4444', fontSize: '16px' }} />
+            <ArrowTrendingDownRegular style={{ color: 'var(--status-critical)', fontSize: '16px' }} />
           )}
           <span style={{
             fontSize: '13px',
             fontWeight: 500,
-            color: showGreen ? '#10b981' : '#ef4444',
+            color: showGreen ? 'var(--status-success)' : 'var(--status-critical)',
           }}>
             {Math.abs(data.change)}%
           </span>
           <span style={{
             fontSize: '12px',
-            color: isDark ? '#64748b' : '#9ca3af',
+            color: 'var(--text-muted)',
           }}>
             {data.changeLabel}
           </span>
@@ -465,19 +465,19 @@ const TicketRow: React.FC<{
   ticket: DashboardTicket;
   isDark: boolean;
   onClick?: () => void;
-}> = ({ ticket, isDark, onClick }) => {
+}> = ({ ticket, onClick }) => {
   const priorityColors = {
-    critical: '#dc2626',
-    high: '#f59e0b',
-    medium: '#3b82f6',
-    low: '#6b7280',
+    critical: 'var(--status-critical)',
+    high: 'var(--status-warning)',
+    medium: 'var(--status-info)',
+    low: 'var(--status-neutral)',
   };
 
   const statusColors = {
-    open: '#6B4CE6',
-    'in-progress': '#f59e0b',
-    pending: '#6b7280',
-    resolved: '#10b981',
+    open: 'var(--brand-primary)',
+    'in-progress': 'var(--status-warning)',
+    pending: 'var(--status-neutral)',
+    resolved: 'var(--status-success)',
   };
 
   return (
@@ -494,9 +494,7 @@ const TicketRow: React.FC<{
         background: 'transparent',
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.background = isDark 
-          ? 'rgba(71, 85, 105, 0.2)' 
-          : 'rgba(139, 92, 246, 0.05)';
+        e.currentTarget.style.background = 'var(--btn-ghost-bg-hover)';
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.background = 'transparent';
@@ -521,7 +519,7 @@ const TicketRow: React.FC<{
           <span style={{
             fontSize: '12px',
             fontWeight: 600,
-            color: '#6B4CE6',
+            color: 'var(--brand-primary)',
             fontFamily: 'var(--lcm-font-family-mono, monospace)',
           }}>
             {ticket.id}
@@ -531,7 +529,7 @@ const TicketRow: React.FC<{
             fontWeight: 500,
             padding: '2px 8px',
             borderRadius: '4px',
-            background: `${statusColors[ticket.status]}15`,
+            background: `color-mix(in srgb, ${statusColors[ticket.status]} 15%, transparent)`,
             color: statusColors[ticket.status],
             textTransform: 'capitalize',
           }}>
@@ -541,7 +539,7 @@ const TicketRow: React.FC<{
         <p style={{
           margin: '4px 0 0 0',
           fontSize: '14px',
-          color: isDark ? '#e2e8f0' : '#1f2937',
+          color: 'var(--text-primary)',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
           whiteSpace: 'nowrap',
@@ -561,7 +559,7 @@ const TicketRow: React.FC<{
 
       {/* Arrow */}
       <ChevronRightRegular style={{
-        color: isDark ? '#64748b' : '#9ca3af',
+        color: 'var(--text-muted)',
         fontSize: '16px',
         flexShrink: 0,
       }} />
@@ -575,14 +573,14 @@ const TicketRow: React.FC<{
 const ActivityItemRow: React.FC<{
   item: ActivityItem;
   isDark: boolean;
-}> = ({ item, isDark }) => {
+}> = ({ item }) => {
   const typeColors: Record<ActivityItem['type'], string> = {
-    ticket_created: '#6B4CE6',
-    ticket_resolved: '#10b981',
-    ticket_assigned: '#3b82f6',
-    comment_added: '#f59e0b',
-    status_changed: '#8b5cf6',
-    alert_triggered: '#ef4444',
+    ticket_created: 'var(--brand-primary)',
+    ticket_resolved: 'var(--status-success)',
+    ticket_assigned: 'var(--status-info)',
+    comment_added: 'var(--status-warning)',
+    status_changed: 'var(--brand-primary-light)',
+    alert_triggered: 'var(--status-critical)',
   };
 
   const formatTime = (iso: string) => {
@@ -602,7 +600,7 @@ const ActivityItemRow: React.FC<{
       display: 'flex',
       gap: '12px',
       padding: '12px 0',
-      borderBottom: `1px solid ${isDark ? 'rgba(71, 85, 105, 0.2)' : 'rgba(139, 92, 246, 0.08)'}`,
+      borderBottom: '1px solid var(--divider-color-subtle)',
     }}>
       {/* Timeline Dot */}
       <div style={{
@@ -625,13 +623,13 @@ const ActivityItemRow: React.FC<{
           <span style={{
             fontSize: '13px',
             fontWeight: 600,
-            color: isDark ? '#e2e8f0' : '#1f2937',
+            color: 'var(--text-primary)',
           }}>
             {item.title}
           </span>
           <span style={{
             fontSize: '12px',
-            color: isDark ? '#64748b' : '#9ca3af',
+            color: 'var(--text-muted)',
             flexShrink: 0,
           }}>
             {formatTime(item.timestamp)}
@@ -640,7 +638,7 @@ const ActivityItemRow: React.FC<{
         <p style={{
           margin: '4px 0 0 0',
           fontSize: '13px',
-          color: isDark ? '#94a3b8' : '#6b7280',
+          color: 'var(--text-muted)',
         }}>
           {item.description}
         </p>
@@ -657,21 +655,21 @@ const AlertCard: React.FC<{
   isDark: boolean;
   onAcknowledge?: () => void;
   onCreateTicket?: () => void;
-}> = ({ alert, isDark, onAcknowledge, onCreateTicket }) => {
+}> = ({ alert, onAcknowledge, onCreateTicket }) => {
   const severityColors = {
-    critical: '#dc2626',
-    high: '#f59e0b',
-    medium: '#3b82f6',
+    critical: 'var(--status-critical)',
+    high: 'var(--status-warning)',
+    medium: 'var(--status-info)',
   };
 
   return (
     <div style={{
       padding: '16px',
       borderRadius: '8px',
-      border: `1px solid ${alert.acknowledged ? 'transparent' : severityColors[alert.severity]}30`,
+      border: alert.acknowledged ? '1px solid transparent' : `1px solid color-mix(in srgb, ${severityColors[alert.severity]} 30%, transparent)`,
       background: alert.acknowledged 
-        ? (isDark ? 'rgba(71, 85, 105, 0.1)' : 'rgba(156, 163, 175, 0.05)')
-        : `${severityColors[alert.severity]}08`,
+        ? 'var(--btn-ghost-bg-hover)'
+        : `color-mix(in srgb, ${severityColors[alert.severity]} 8%, transparent)`,
       opacity: alert.acknowledged ? 0.7 : 1,
     }}>
       <div style={{
@@ -704,7 +702,7 @@ const AlertCard: React.FC<{
             </span>
             <span style={{
               fontSize: '12px',
-              color: isDark ? '#64748b' : '#9ca3af',
+              color: 'var(--text-muted)',
             }}>
               {alert.source}
             </span>
@@ -713,7 +711,7 @@ const AlertCard: React.FC<{
             margin: 0,
             fontSize: '14px',
             fontWeight: 500,
-            color: isDark ? '#e2e8f0' : '#1f2937',
+            color: 'var(--text-primary)',
           }}>
             {alert.title}
           </p>
@@ -731,8 +729,8 @@ const AlertCard: React.FC<{
                   fontWeight: 500,
                   borderRadius: '6px',
                   border: 'none',
-                  background: isDark ? 'rgba(71, 85, 105, 0.3)' : 'rgba(139, 92, 246, 0.1)',
-                  color: isDark ? '#e2e8f0' : '#6B4CE6',
+                  background: 'var(--btn-secondary-bg)',
+                  color: 'var(--btn-secondary-text)',
                   cursor: 'pointer',
                 }}
               >
@@ -746,8 +744,8 @@ const AlertCard: React.FC<{
                   fontWeight: 500,
                   borderRadius: '6px',
                   border: 'none',
-                  background: '#6B4CE6',
-                  color: 'white',
+                  background: 'var(--brand-primary)',
+                  color: 'var(--text-on-primary)',
                   cursor: 'pointer',
                 }}
               >

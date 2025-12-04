@@ -4,54 +4,52 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* ========================================================================
+       LIGHT MODE - Slightly Muted for Better Panel Contrast
+       ======================================================================== */
+    --background: 220 14% 96%;        /* Slightly warm grey, not pure white */
+    --foreground: 220 9% 12%;         /* Near black for text */
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 220 9% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 220 9% 12%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 262 83% 58%;           /* Purple #8b5cf6 */
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 220 14% 92%;
+    --secondary-foreground: 220 9% 12%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 220 14% 92%;
+    --muted-foreground: 220 9% 46%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 262 83% 95%;            /* Light purple tint */
+    --accent-foreground: 262 83% 40%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 220 13% 87%;
+    --input: 220 13% 87%;
+    --ring: 262 83% 58%;              /* Purple focus ring */
 
     --radius: 0.5rem;
 
     /* Fluent UI 2 Acrylic tokens - Higher opacity for readability */
-    --glass-bg: hsl(var(--background) / 0.78);
-    --glass-hover-bg: hsl(var(--background) / 0.85);
-    --glass-press-bg: hsl(var(--background) / 0.72);
-    --glass-border: hsl(var(--border) / 0.4);
-    --glass-shadow: 0 2px 8px 0 hsl(var(--foreground) / 0.06), 0 8px 24px 0 hsl(var(--foreground) / 0.04);
-    --glass-tint: hsl(var(--accent) / 0.04);
+    --glass-bg: rgba(255, 255, 255, 0.78);
+    --glass-hover-bg: rgba(255, 255, 255, 0.85);
+    --glass-press-bg: rgba(255, 255, 255, 0.72);
+    --glass-border: rgba(139, 92, 246, 0.15);
+    --glass-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.06), 0 8px 24px 0 rgba(0, 0, 0, 0.04);
+    --glass-tint: rgba(139, 92, 246, 0.04);
     
     /* Acrylic surface tokens for cards and panels */
-    --acrylic-surface: hsl(var(--background) / 0.82);
-    --acrylic-surface-hover: hsl(var(--background) / 0.88);
-    --acrylic-thin: hsl(var(--background) / 0.65);
-    --acrylic-base: hsl(var(--background) / 0.75);
-    
-    /* Text contrast - ensure WCAG AA compliance */
-    --text-primary: hsl(222 47% 11%);
-    --text-secondary: hsl(215 16% 35%);
-    --text-muted: hsl(215 14% 45%);
+    --acrylic-surface: rgba(255, 255, 255, 0.82);
+    --acrylic-surface-hover: rgba(255, 255, 255, 0.88);
+    --acrylic-thin: rgba(255, 255, 255, 0.65);
+    --acrylic-base: rgba(255, 255, 255, 0.75);
 
     /* Confirm button gradient (RGB channel values) */
     --confirm-grad-1: 207 186 240; /* #cfbaf0 */
@@ -74,98 +72,243 @@
     /* ========================================================================
        TEXT COLOR TOKENS (Theme-aware) - WCAG AA Compliant
        ======================================================================== */
-    --text-primary: #111827;      /* gray-900 - 15.1:1 contrast */
-    --text-secondary: #374151;    /* gray-700 - 9.6:1 contrast */
-    --text-muted: #6b7280;        /* gray-500 - 5.3:1 contrast */
+    --text-primary: #18181b;          /* zinc-900 - Maximum contrast */
+    --text-secondary: #3f3f46;        /* zinc-700 - Strong secondary */
+    --text-muted: #71717a;            /* zinc-500 - Muted but readable */
     --text-on-primary: #ffffff;
-    --brand-primary: #6366f1;
-    --brand-primary-light: #818cf8;
-    --color-success: #059669;     /* emerald-600 - better contrast */
-    --color-warning: #d97706;     /* amber-600 - better contrast */
-    --color-error: #dc2626;       /* red-600 - better contrast */
-    --icon-default: #111827;
+    --brand-primary: #8b5cf6;         /* Purple 600 */
+    --brand-primary-light: #a78bfa;   /* Purple 400 */
+    --color-success: #059669;         /* Emerald 600 */
+    --color-warning: #d97706;         /* Amber 600 */
+    --color-error: #dc2626;           /* Red 600 */
+    --icon-default: #3f3f46;          /* zinc-700 */
+
+    /* ========================================================================
+       SIDEBAR TOKENS (Light Mode)
+       ======================================================================== */
+    --lcm-bg-sidebar: rgba(255, 255, 255, 0.82);
+    --lcm-backdrop-filter-sidebar: blur(30px) saturate(140%);
+    --lcm-primary-border: rgba(139, 92, 246, 0.15);
+    --lcm-shadow-sidebar: 0 0 1px 0 rgba(0, 0, 0, 0.08), 2px 0 8px 0 rgba(0, 0, 0, 0.04);
+    --lcm-sidebar-item-hover: rgba(139, 92, 246, 0.08);
+    --lcm-sidebar-item-active: rgba(139, 92, 246, 0.12);
+
+    /* ========================================================================
+       BUTTON TOKENS (Light Mode) - Standardized
+       ======================================================================== */
+    --btn-primary-bg: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    --btn-primary-bg-hover: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+    --btn-primary-text: #ffffff;
+    --btn-primary-border: transparent;
+    --btn-primary-shadow: 0 2px 8px rgba(139, 92, 246, 0.25);
+    --btn-primary-shadow-hover: 0 4px 12px rgba(139, 92, 246, 0.35);
+    
+    --btn-secondary-bg: rgba(139, 92, 246, 0.08);
+    --btn-secondary-bg-hover: rgba(139, 92, 246, 0.15);
+    --btn-secondary-text: #7c3aed;
+    --btn-secondary-border: rgba(139, 92, 246, 0.25);
+    
+    --btn-ghost-bg: transparent;
+    --btn-ghost-bg-hover: rgba(139, 92, 246, 0.08);
+    --btn-ghost-text: #3f3f46;
+    --btn-ghost-text-hover: #7c3aed;
+
+    /* ========================================================================
+       INPUT/SEARCH TOKENS (Light Mode)
+       ======================================================================== */
+    --input-bg: rgba(255, 255, 255, 0.9);
+    --input-border: rgba(0, 0, 0, 0.12);
+    --input-border-focus: rgba(139, 92, 246, 0.5);
+    --input-text: #18181b;
+    --input-placeholder: #a1a1aa;
+
+    /* ========================================================================
+       TAB/TOGGLE TOKENS (Light Mode)
+       ======================================================================== */
+    --tab-bg: rgba(0, 0, 0, 0.04);
+    --tab-bg-active: rgba(255, 255, 255, 0.9);
+    --tab-text: #71717a;
+    --tab-text-active: #18181b;
+    --tab-border: rgba(0, 0, 0, 0.08);
+    --tab-shadow-active: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+    /* ========================================================================
+       STATUS TOKENS (Light Mode)
+       ======================================================================== */
+    --status-success: #22c55e;
+    --status-warning: #f59e0b;
+    --status-critical: #ef4444;
+    --status-info: #3b82f6;
+    --status-neutral: #71717a;
+
+    /* ========================================================================
+       CARD TOKENS (Light Mode)
+       ======================================================================== */
+    --card-bg: rgba(255, 255, 255, 0.7);
+    --card-bg-hover: rgba(255, 255, 255, 0.85);
+    --card-border: rgba(139, 92, 246, 0.15);
+    --card-border-hover: rgba(139, 92, 246, 0.25);
+    --card-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    --card-shadow-hover: 0 8px 25px rgba(107, 76, 230, 0.15);
+
+    /* ========================================================================
+       DIVIDER TOKENS (Light Mode)
+       ======================================================================== */
+    --divider-color: rgba(229, 231, 235, 0.5);
+    --divider-color-subtle: rgba(229, 231, 235, 0.3);
   }
 
-  /* Dark mode - activated via .dark class on html element */
+  /* ========================================================================
+     DARK MODE - Obsidian/Grey Palette (NOT Blue)
+     ======================================================================== */
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --background: 0 0% 9%;            /* #171717 - True neutral dark */
+    --foreground: 0 0% 95%;           /* #f2f2f2 - Off-white */
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 0 0% 12%;                 /* #1e1e1e - Card surface */
+    --card-foreground: 0 0% 95%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 0 0% 10%;              /* #1a1a1a - Popover surface */
+    --popover-foreground: 0 0% 95%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 262 83% 68%;           /* Lighter purple for dark mode */
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 0 0% 15%;            /* #262626 - Secondary surface */
+    --secondary-foreground: 0 0% 90%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 0 0% 18%;                /* #2e2e2e - Muted surface */
+    --muted-foreground: 0 0% 65%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 0 0% 15%;
+    --accent-foreground: 262 83% 75%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --border: 0 0% 20%;               /* #333333 - Subtle borders */
+    --input: 0 0% 15%;
+    --ring: 262 83% 65%;
 
-    /* Fluent UI 2 Acrylic tokens (dark/smoke mode) */
-    --glass-bg: hsl(var(--background) / 0.72);
-    --glass-hover-bg: hsl(var(--background) / 0.78);
-    --glass-press-bg: hsl(var(--background) / 0.68);
-    --glass-border: hsl(var(--border) / 0.35);
-    --glass-shadow: 0 2px 8px 0 hsl(var(--foreground) / 0.12), 0 8px 28px 0 hsl(var(--foreground) / 0.08);
-    --glass-tint: hsl(var(--accent) / 0.04);
+    /* Fluent UI 2 Acrylic tokens (dark/smoke mode) - Obsidian */
+    --glass-bg: rgba(23, 23, 23, 0.85);
+    --glass-hover-bg: rgba(30, 30, 30, 0.90);
+    --glass-press-bg: rgba(20, 20, 20, 0.80);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.4), 0 8px 28px 0 rgba(0, 0, 0, 0.3);
+    --glass-tint: rgba(139, 92, 246, 0.06);
     
     /* Acrylic surface tokens for cards and panels (dark) */
-    --acrylic-surface: hsl(var(--background) / 0.76);
-    --acrylic-surface-hover: hsl(var(--background) / 0.82);
-    --acrylic-thin: hsl(var(--background) / 0.58);
-    --acrylic-base: hsl(var(--background) / 0.68);
-    
-    /* Text contrast - ensure WCAG AA compliance (dark) */
-    --text-primary: hsl(210 40% 98%);
-    --text-secondary: hsl(215 20% 75%);
-    --text-muted: hsl(215 18% 60%);
+    --acrylic-surface: rgba(30, 30, 30, 0.85);
+    --acrylic-surface-hover: rgba(38, 38, 38, 0.90);
+    --acrylic-thin: rgba(23, 23, 23, 0.70);
+    --acrylic-base: rgba(26, 26, 26, 0.80);
 
     /* Confirm button gradient uses same colors in dark */
     --confirm-grad-1: 207 186 240;
     --confirm-grad-2: 163 196 243;
     --confirm-grad-3: 144 219 244;
-    --confirm-grad-opacity: 0.30;
+    --confirm-grad-opacity: 0.25;
 
     /* ========================================================================
-       PAGE CONTAINER TOKENS (Main content area layout - Dark Mode)
+       PAGE CONTAINER TOKENS (Dark Mode) - Obsidian
        ======================================================================== */
-    --page-container-bg: linear-gradient(135deg, rgba(30, 30, 45, 0.40), rgba(30, 30, 45, 0.40));
-    --page-container-backdrop: blur(30px) saturate(135%) brightness(85%) contrast(95%);
-    --page-container-border: 1px solid rgba(255, 255, 255, 0.1);
+    --page-container-bg: linear-gradient(135deg, rgba(30, 30, 30, 0.50), rgba(26, 26, 26, 0.50));
+    --page-container-backdrop: blur(30px) saturate(120%) brightness(95%) contrast(95%);
+    --page-container-border: 1px solid rgba(255, 255, 255, 0.06);
     --page-container-border-radius: 20px;
     --page-container-padding: 40px;
     --page-container-margin: 20px;
     --page-container-min-height: calc(100vh - 120px);
-    --page-container-shadow: inset 0 0 20px rgba(139, 92, 246, 0.05), 0 0 40px rgba(0, 0, 0, 0.2);
+    --page-container-shadow: inset 0 0 20px rgba(0, 0, 0, 0.2), 0 0 40px rgba(0, 0, 0, 0.3);
 
     /* ========================================================================
-       TEXT COLOR TOKENS (Dark Mode) - WCAG AA Compliant
+       TEXT COLOR TOKENS (Dark Mode) - High Contrast on Obsidian
        ======================================================================== */
-    --text-primary: #f9fafb;      /* gray-50 - 18.1:1 contrast on dark bg */
-    --text-secondary: #e5e7eb;    /* gray-200 - 13.5:1 contrast */
-    --text-muted: #9ca3af;        /* gray-400 - 6.6:1 contrast */
+    --text-primary: #fafafa;          /* zinc-50 - Pure white-ish */
+    --text-secondary: #d4d4d8;        /* zinc-300 - Clear secondary */
+    --text-muted: #a1a1aa;            /* zinc-400 - Readable muted */
     --text-on-primary: #ffffff;
-    --brand-primary: #a5b4fc;     /* indigo-300 - better visibility */
-    --brand-primary-light: #c7d2fe; /* indigo-200 */
-    --color-success: #6ee7b7;     /* emerald-300 - better on dark */
-    --color-warning: #fcd34d;     /* amber-300 - better on dark */
-    --color-error: #fca5a5;       /* red-300 - better on dark */
-    --icon-default: #f3f4f6;      /* gray-100 */
+    --brand-primary: #a78bfa;         /* Purple 400 - Brighter for dark */
+    --brand-primary-light: #c4b5fd;   /* Purple 300 */
+    --color-success: #34d399;         /* Emerald 400 */
+    --color-warning: #fbbf24;         /* Amber 400 */
+    --color-error: #f87171;           /* Red 400 */
+    --icon-default: #d4d4d8;          /* zinc-300 */
+
+    /* ========================================================================
+       SIDEBAR TOKENS (Dark Mode) - Obsidian
+       ======================================================================== */
+    --lcm-bg-sidebar: rgba(23, 23, 23, 0.92);
+    --lcm-backdrop-filter-sidebar: blur(30px) saturate(120%);
+    --lcm-primary-border: rgba(255, 255, 255, 0.06);
+    --lcm-shadow-sidebar: 0 0 1px 0 rgba(0, 0, 0, 0.5), 2px 0 12px 0 rgba(0, 0, 0, 0.4);
+    --lcm-sidebar-item-hover: rgba(255, 255, 255, 0.06);
+    --lcm-sidebar-item-active: rgba(139, 92, 246, 0.15);
+
+    /* ========================================================================
+       BUTTON TOKENS (Dark Mode) - Standardized
+       ======================================================================== */
+    --btn-primary-bg: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    --btn-primary-bg-hover: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%);
+    --btn-primary-text: #ffffff;
+    --btn-primary-border: transparent;
+    --btn-primary-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+    --btn-primary-shadow-hover: 0 4px 12px rgba(139, 92, 246, 0.4);
+    
+    --btn-secondary-bg: rgba(139, 92, 246, 0.12);
+    --btn-secondary-bg-hover: rgba(139, 92, 246, 0.20);
+    --btn-secondary-text: #a78bfa;
+    --btn-secondary-border: rgba(139, 92, 246, 0.30);
+    
+    --btn-ghost-bg: transparent;
+    --btn-ghost-bg-hover: rgba(255, 255, 255, 0.08);
+    --btn-ghost-text: #d4d4d8;
+    --btn-ghost-text-hover: #a78bfa;
+
+    /* ========================================================================
+       INPUT/SEARCH TOKENS (Dark Mode)
+       ======================================================================== */
+    --input-bg: rgba(30, 30, 30, 0.8);
+    --input-border: rgba(255, 255, 255, 0.10);
+    --input-border-focus: rgba(139, 92, 246, 0.5);
+    --input-text: #fafafa;
+    --input-placeholder: #71717a;
+
+    /* ========================================================================
+       TAB/TOGGLE TOKENS (Dark Mode)
+       ======================================================================== */
+    --tab-bg: rgba(255, 255, 255, 0.04);
+    --tab-bg-active: rgba(255, 255, 255, 0.10);
+    --tab-text: #a1a1aa;
+    --tab-text-active: #fafafa;
+    --tab-border: rgba(255, 255, 255, 0.06);
+    --tab-shadow-active: 0 1px 3px rgba(0, 0, 0, 0.3);
+
+    /* ========================================================================
+       STATUS TOKENS (Dark Mode)
+       ======================================================================== */
+    --status-success: #4ade80;
+    --status-warning: #fbbf24;
+    --status-critical: #f87171;
+    --status-info: #60a5fa;
+    --status-neutral: #a1a1aa;
+
+    /* ========================================================================
+       CARD TOKENS (Dark Mode)
+       ======================================================================== */
+    --card-bg: rgba(30, 30, 30, 0.6);
+    --card-bg-hover: rgba(40, 40, 40, 0.7);
+    --card-border: rgba(255, 255, 255, 0.08);
+    --card-border-hover: rgba(139, 92, 246, 0.25);
+    --card-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    --card-shadow-hover: 0 8px 25px rgba(107, 76, 230, 0.2);
+
+    /* ========================================================================
+       DIVIDER TOKENS (Dark Mode)
+       ======================================================================== */
+    --divider-color: rgba(255, 255, 255, 0.08);
+    --divider-color-subtle: rgba(255, 255, 255, 0.04);
   }
 }
 

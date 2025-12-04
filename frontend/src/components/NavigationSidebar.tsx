@@ -177,25 +177,25 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
               padding: tokens.s,
               borderRadius: tokens.large,
               border: 'none',
-              background: colors.purple100,
-              color: tokens.colorBrandPrimary,
+              background: 'var(--btn-secondary-bg)',
+              color: 'var(--brand-primary)',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               transition: `all ${tokens.durationFast} ease`,
-              backdropFilter: 'var(--lcm-backdrop-filter, blur(20px) saturate(150%))',
+              backdropFilter: 'var(--lcm-backdrop-filter-sidebar)',
               fontSize: '18px',
               width: '36px',
               height: '36px'
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = colors.purple200;
+              e.currentTarget.style.background = 'var(--btn-secondary-bg-hover)';
               e.currentTarget.style.transform = 'scale(1.05)';
-              e.currentTarget.style.boxShadow = tokens.glowSmall;
+              e.currentTarget.style.boxShadow = 'var(--btn-primary-shadow)';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.background = colors.purple100;
+              e.currentTarget.style.background = 'var(--btn-secondary-bg)';
               e.currentTarget.style.transform = 'scale(1)';
               e.currentTarget.style.boxShadow = 'none';
             }}
@@ -207,7 +207,7 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
             <span style={{
               fontSize: tokens.fontSizeBase300,
               fontWeight: tokens.fontWeightSemibold,
-              color: 'var(--lcm-text-primary, #1f2937)',
+              color: 'var(--text-primary)',
               fontFamily: tokens.fontFamilyBody
             }}>
               Navigation
@@ -242,9 +242,9 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
                 borderRadius: tokens.xxLarge,
                 border: 'none',
                 background: isItemActive(item.path) 
-                  ? 'hsl(var(--primary))'
+                  ? 'var(--btn-primary-bg)'
                   : 'transparent',
-                color: isItemActive(item.path) ? 'hsl(var(--primary-foreground))' : tokens.colorNeutralForeground1,
+                color: isItemActive(item.path) ? 'var(--btn-primary-text)' : 'var(--text-primary)',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
@@ -256,19 +256,19 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
                 fontSize: tokens.fontSizeBase300,
                 fontWeight: tokens.fontWeightMedium,
                 transition: `all ${tokens.durationNormal} ${tokens.curveEasyEase}`,
-                backdropFilter: isItemActive(item.path) ? 'var(--lcm-backdrop-filter, blur(20px) saturate(150%))' : 'none',
+                backdropFilter: isItemActive(item.path) ? 'var(--lcm-backdrop-filter-sidebar)' : 'none',
                 boxShadow: isItemActive(item.path) 
-                  ? 'var(--lcm-shadow-card, 0 2px 8px 0 rgba(0, 0, 0, 0.04))' 
+                  ? 'var(--btn-primary-shadow)' 
                   : 'none',
                 textShadow: isItemActive(item.path) ? '0 1px 2px rgba(0, 0, 0, 0.1)' : 'none'
               }}
               onMouseEnter={(e) => {
                 const target = e.currentTarget as HTMLElement;
                 if (!isItemActive(item.path)) {
-                  target.style.background = 'var(--lcm-bg-card-hover, rgba(255, 255, 255, 0.90))';
-                  target.style.backdropFilter = 'var(--lcm-backdrop-filter, blur(20px) saturate(150%))';
+                  target.style.background = 'var(--lcm-sidebar-item-hover)';
+                  target.style.backdropFilter = 'var(--lcm-backdrop-filter-sidebar)';
                   target.style.transform = 'translateY(-2px)';
-                  target.style.boxShadow = 'var(--lcm-shadow-card, 0 2px 8px 0 rgba(0, 0, 0, 0.04))';
+                  target.style.boxShadow = 'var(--glass-shadow)';
                 }
               }}
               onMouseLeave={(e) => {

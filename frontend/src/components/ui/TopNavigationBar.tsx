@@ -129,15 +129,11 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: '0 24px',
-    background: isDark 
-      ? 'rgba(15, 23, 42, 0.85)' 
-      : 'rgba(255, 255, 255, 0.85)',
+    background: 'var(--glass-bg)',
     backdropFilter: 'blur(12px) saturate(180%)',
     WebkitBackdropFilter: 'blur(12px) saturate(180%)',
-    borderBottom: `1px solid ${isDark ? 'rgba(71, 85, 105, 0.3)' : 'rgba(229, 231, 235, 0.5)'}`,
-    boxShadow: isDark 
-      ? '0 4px 6px -1px rgba(0, 0, 0, 0.3)' 
-      : '0 4px 6px -1px rgba(0, 0, 0, 0.05)',
+    borderBottom: `1px solid var(--glass-border)`,
+    boxShadow: 'var(--glass-shadow)',
     zIndex: 1000,
     ...style,
   };
@@ -157,9 +153,9 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
     alignItems: 'center',
     gap: '12px',
     padding: '8px 16px',
-    background: isDark ? 'rgba(51, 65, 85, 0.5)' : 'rgba(243, 244, 246, 0.8)',
+    background: 'var(--input-bg)',
     borderRadius: '9999px',
-    border: `1px solid ${isDark ? 'rgba(71, 85, 105, 0.3)' : 'rgba(209, 213, 219, 0.5)'}`,
+    border: `1px solid var(--input-border)`,
     cursor: 'pointer',
     transition: 'all 150ms ease',
     minWidth: '320px',
@@ -181,7 +177,7 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
     borderRadius: '8px',
     border: 'none',
     background: 'transparent',
-    color: isDark ? '#e2e8f0' : '#374151',
+    color: 'var(--text-secondary)',
     cursor: 'pointer',
     transition: 'all 150ms ease',
     position: 'relative',
@@ -210,13 +206,11 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
     right: 0,
     marginTop: '8px',
     minWidth: '200px',
-    background: isDark ? 'rgba(30, 41, 59, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+    background: 'var(--glass-bg)',
     backdropFilter: 'blur(12px)',
-    border: `1px solid ${isDark ? 'rgba(71, 85, 105, 0.3)' : 'rgba(229, 231, 235, 0.5)'}`,
+    border: `1px solid var(--glass-border)`,
     borderRadius: '12px',
-    boxShadow: isDark 
-      ? '0 20px 25px -5px rgba(0, 0, 0, 0.4)' 
-      : '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
+    boxShadow: 'var(--glass-shadow)',
     overflow: 'hidden',
     zIndex: 1001,
   };
@@ -229,7 +223,7 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
     padding: '12px 16px',
     border: 'none',
     background: 'transparent',
-    color: isDark ? '#e2e8f0' : '#374151',
+    color: 'var(--text-primary)',
     fontSize: '14px',
     cursor: 'pointer',
     transition: 'background 150ms ease',
@@ -243,7 +237,7 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
         <div 
           style={logoContainerStyles}
           onClick={() => navigate('/')}
-          onMouseEnter={(e) => e.currentTarget.style.background = isDark ? 'rgba(51, 65, 85, 0.5)' : 'rgba(243, 244, 246, 0.8)'}
+          onMouseEnter={(e) => e.currentTarget.style.background = 'var(--btn-ghost-bg-hover)'}
           onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
         >
           {logoSrc ? (
@@ -253,7 +247,7 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
               width: '32px',
               height: '32px',
               borderRadius: '8px',
-              background: 'linear-gradient(135deg, #6B4CE6 0%, #8B6FF0 100%)',
+              background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -267,7 +261,7 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
           <span style={{
             fontSize: '18px',
             fontWeight: 600,
-            color: isDark ? '#f1f5f9' : '#111827',
+            color: 'var(--text-primary)',
           }}>
             Archer ITSM
           </span>
@@ -278,28 +272,28 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
           style={searchContainerStyles}
           onClick={handleSearchClick}
           onMouseEnter={(e) => {
-            e.currentTarget.style.borderColor = '#6B4CE6';
-            e.currentTarget.style.boxShadow = '0 0 0 3px rgba(107, 76, 230, 0.1)';
+            e.currentTarget.style.borderColor = 'var(--input-border-focus)';
+            e.currentTarget.style.boxShadow = '0 0 0 3px rgba(139, 92, 246, 0.15)';
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.borderColor = isDark ? 'rgba(71, 85, 105, 0.3)' : 'rgba(209, 213, 219, 0.5)';
+            e.currentTarget.style.borderColor = 'var(--input-border)';
             e.currentTarget.style.boxShadow = 'none';
           }}
         >
-          <SearchRegular style={{ color: isDark ? '#94a3b8' : '#9ca3af', fontSize: '18px' }} />
+          <SearchRegular style={{ color: 'var(--input-placeholder)', fontSize: '18px' }} />
           <span style={{ 
             flex: 1, 
-            color: isDark ? '#94a3b8' : '#9ca3af',
+            color: 'var(--input-placeholder)',
             fontSize: '14px',
           }}>
             Search tickets, assets, docs...
           </span>
           <kbd style={{
             padding: '2px 8px',
-            background: isDark ? 'rgba(51, 65, 85, 0.8)' : 'rgba(229, 231, 235, 0.8)',
+            background: 'var(--tab-bg)',
             borderRadius: '4px',
             fontSize: '12px',
-            color: isDark ? '#94a3b8' : '#6b7280',
+            color: 'var(--text-muted)',
             fontFamily: 'monospace',
           }}>
             ⌘K
@@ -313,18 +307,25 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
             <button
               style={{
                 ...iconButtonStyles,
-                background: '#6B4CE6',
-                color: 'white',
+                background: 'var(--btn-primary-bg)',
+                color: 'var(--btn-primary-text)',
                 width: 'auto',
                 padding: '0 16px',
                 gap: '8px',
+                boxShadow: 'var(--btn-primary-shadow)',
               }}
               onClick={(e) => {
                 e.stopPropagation();
                 setCreateMenuOpen(!isCreateMenuOpen);
               }}
-              onMouseEnter={(e) => e.currentTarget.style.background = '#5A3DD4'}
-              onMouseLeave={(e) => e.currentTarget.style.background = '#6B4CE6'}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'var(--btn-primary-bg-hover)';
+                e.currentTarget.style.boxShadow = 'var(--btn-primary-shadow-hover)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'var(--btn-primary-bg)';
+                e.currentTarget.style.boxShadow = 'var(--btn-primary-shadow)';
+              }}
             >
               <AddRegular style={{ fontSize: '18px' }} />
               <span style={{ fontSize: '14px', fontWeight: 500 }}>Create</span>
@@ -338,7 +339,7 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
                     key={action.id}
                     style={menuItemStyles}
                     onClick={() => handleCreateAction(action.path)}
-                    onMouseEnter={(e) => e.currentTarget.style.background = isDark ? 'rgba(51, 65, 85, 0.5)' : 'rgba(243, 244, 246, 0.8)'}
+                    onMouseEnter={(e) => e.currentTarget.style.background = 'var(--btn-ghost-bg-hover)'}
                     onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                   >
                     {action.icon}
@@ -358,7 +359,7 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
                 setNotificationsOpen(!isNotificationsOpen);
                 onNotificationsClick?.();
               }}
-              onMouseEnter={(e) => e.currentTarget.style.background = isDark ? 'rgba(51, 65, 85, 0.5)' : 'rgba(243, 244, 246, 0.8)'}
+              onMouseEnter={(e) => e.currentTarget.style.background = 'var(--btn-ghost-bg-hover)'}
               onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
               aria-label="Notifications"
             >
@@ -372,12 +373,12 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
             
             {isNotificationsOpen && (
               <div style={{ ...dropdownStyles, width: '320px' }} onClick={(e) => e.stopPropagation()}>
-                <div style={{ padding: '16px', borderBottom: `1px solid ${isDark ? 'rgba(71, 85, 105, 0.3)' : 'rgba(229, 231, 235, 0.5)'}` }}>
-                  <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 600, color: isDark ? '#f1f5f9' : '#111827' }}>
+                <div style={{ padding: '16px', borderBottom: '1px solid var(--dropdown-border)' }}>
+                  <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)' }}>
                     Notifications
                   </h3>
                 </div>
-                <div style={{ padding: '16px', textAlign: 'center', color: isDark ? '#94a3b8' : '#9ca3af' }}>
+                <div style={{ padding: '16px', textAlign: 'center', color: 'var(--text-muted)' }}>
                   <AlertRegular style={{ fontSize: '32px', marginBottom: '8px', opacity: 0.5 }} />
                   <p style={{ margin: 0, fontSize: '14px' }}>No new notifications</p>
                 </div>
@@ -389,7 +390,7 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
           <button
             style={iconButtonStyles}
             onClick={() => navigate('/app/guides')}
-            onMouseEnter={(e) => e.currentTarget.style.background = isDark ? 'rgba(51, 65, 85, 0.5)' : 'rgba(243, 244, 246, 0.8)'}
+            onMouseEnter={(e) => e.currentTarget.style.background = 'var(--btn-ghost-bg-hover)'}
             onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
             aria-label="Help"
           >
@@ -400,7 +401,7 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
           <button
             style={iconButtonStyles}
             onClick={toggleMode}
-            onMouseEnter={(e) => e.currentTarget.style.background = isDark ? 'rgba(51, 65, 85, 0.5)' : 'rgba(243, 244, 246, 0.8)'}
+            onMouseEnter={(e) => e.currentTarget.style.background = 'var(--btn-ghost-bg-hover)'}
             onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
             aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
           >
@@ -424,7 +425,7 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
                 e.stopPropagation();
                 setProfileMenuOpen(!isProfileMenuOpen);
               }}
-              onMouseEnter={(e) => e.currentTarget.style.background = isDark ? 'rgba(51, 65, 85, 0.5)' : 'rgba(243, 244, 246, 0.8)'}
+              onMouseEnter={(e) => e.currentTarget.style.background = 'var(--btn-ghost-bg-hover)'}
               onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
             >
               {userAvatar ? (
@@ -441,23 +442,23 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
             
             {isProfileMenuOpen && (
               <div style={dropdownStyles} onClick={(e) => e.stopPropagation()}>
-                <div style={{ padding: '16px', borderBottom: `1px solid ${isDark ? 'rgba(71, 85, 105, 0.3)' : 'rgba(229, 231, 235, 0.5)'}` }}>
-                  <div style={{ fontWeight: 600, color: isDark ? '#f1f5f9' : '#111827' }}>{userName}</div>
-                  <div style={{ fontSize: '12px', color: isDark ? '#94a3b8' : '#9ca3af' }}>Administrator</div>
+                <div style={{ padding: '16px', borderBottom: '1px solid var(--dropdown-border)' }}>
+                  <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{userName}</div>
+                  <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Administrator</div>
                 </div>
                 <button
                   style={menuItemStyles}
                   onClick={() => { navigate('/app/settings'); setProfileMenuOpen(false); }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = isDark ? 'rgba(51, 65, 85, 0.5)' : 'rgba(243, 244, 246, 0.8)'}
+                  onMouseEnter={(e) => e.currentTarget.style.background = 'var(--btn-ghost-bg-hover)'}
                   onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                 >
                   <SettingsRegular />
                   Settings
                 </button>
                 <button
-                  style={{ ...menuItemStyles, color: '#ef4444' }}
+                  style={{ ...menuItemStyles, color: 'var(--status-critical)' }}
                   onClick={() => { /* Sign out logic */ setProfileMenuOpen(false); }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = isDark ? 'rgba(51, 65, 85, 0.5)' : 'rgba(243, 244, 246, 0.8)'}
+                  onMouseEnter={(e) => e.currentTarget.style.background = 'var(--btn-ghost-bg-hover)'}
                   onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                 >
                   <SignOutRegular />
