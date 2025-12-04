@@ -1,7 +1,6 @@
 pub mod capacity;
 pub mod cluster_strategy;
 pub mod destination_clusters;
-pub mod hardware_baskets;
 pub mod hardware_pool;
 pub mod migration_wizard; // Migration Planning Wizard API
 pub mod project_lifecycle;
@@ -29,7 +28,6 @@ use std::sync::Arc;
 pub fn api_router(state: AppState) -> Router {
     // API v1 routes with proper versioning
     let v1_routes = Router::new()
-        .merge(hardware_baskets::routes().with_state(state.clone()))
         .merge(project_workflow::routes().with_state(state.clone()))
         .merge(cluster_strategy::routes().with_state(state.clone()))
         .merge(wizard::wizard_routes().with_state(state.clone())) // Activity wizard routes
@@ -65,7 +63,6 @@ pub fn api_router(state: AppState) -> Router {
         .route("/health", get(health_check))
         .nest("/api/v1", v1_routes)
         // Legacy API routes for backward compatibility
-        .merge(hardware_baskets::routes().with_state(state.clone()))
         .nest(
             "/api/hardware-pool",
             hardware_pool::create_hardware_pool_router(state.clone()),

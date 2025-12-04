@@ -21,7 +21,10 @@ import {
   CheckmarkCircleRegular,
   ArrowClockwiseRegular,
   TicketDiagonalRegular,
-  AddRegular
+  AddRegular,
+  DataPieRegular,
+  OrganizationRegular,
+  InfoRegular
 } from '@fluentui/react-icons';
 import { 
   LineChart, 
@@ -38,6 +41,11 @@ import { apiClient, Asset, AssetMetrics, DashboardSummary } from '../utils/apiCl
 import { useEnhancedUX } from '../hooks/useEnhancedUX';
 import { purplePalette } from '../styles/design-tokens';
 import { MonitoringAlert, getMockAlerts } from '../utils/mockMonitoringData';
+import { InfraVisualizerCanvas } from '@/components/infra-visualizer';
+import { useInfraVisualizerStore } from '@/stores/useInfraVisualizerStore';
+import { DesignTokens } from '../styles/designSystem';
+
+type MonitoringTab = 'metrics' | 'topology';
 
 const MonitoringView: React.FC = () => {
   const [assets, setAssets] = useState<Asset[]>([]);
@@ -48,7 +56,11 @@ const MonitoringView: React.FC = () => {
   const [isCreateIncidentOpen, setCreateIncidentOpen] = useState(false);
   const [selectedAlertContext, setSelectedAlertContext] = useState<AlertContext | null>(null);
   const [alerts, setAlerts] = useState<MonitoringAlert[]>([]);
+  const [activeTab, setActiveTab] = useState<MonitoringTab>('metrics');
   const { withLoading } = useEnhancedUX();
+  
+  // Infrastructure visualizer store
+  const { selectedNodeId, selectNode, clearSelection } = useInfraVisualizerStore();
 
   useEffect(() => {
     loadData();
@@ -179,8 +191,32 @@ const MonitoringView: React.FC = () => {
           </div>
         </div>
 
-        {/* Main Split View */}
-        <div className="flex-1 flex gap-6 min-h-0">
+        {/* Tab Navigation */}
+        <div style={{ 
+          display: 'flex', 
+          gap: '4px',
+          borderBottom: '1px solid var(--card-border)',
+          marginBottom: '-8px'
+        }}>
+          <TabButton 
+            isActive={activeTab === 'metrics'} 
+            onClick={() => setActiveTab('metrics')}
+            icon={<DataPieRegular />}
+            label="Metrics & Alerts"
+          />
+          <TabButton 
+            isActive={activeTab === 'topology'} 
+            onClick={() => setActiveTab('topology')}
+            icon={<OrganizationRegular />}
+            label="Infrastructure Topology"
+          />
+        </div>
+
+        {/* Tab Content */}
+        {activeTab === 'metrics' ? (
+          <>
+            {/* Main Split View */}
+            <div className="flex-1 flex gap-6 min-h-0">
           
           {/* Left Pane: Asset List */}
           <div className="w-1/3 flex flex-col gap-4">
@@ -359,26 +395,84 @@ const MonitoringView: React.FC = () => {
             )}
           </div>
 
-        </div>
-
-        {/* Alert Feed Section */}
-        <PurpleGlassCard glass header="Active Alerts" className="shrink-0">
-          <div className="p-4 space-y-3 max-h-[200px] overflow-y-auto">
-            {alerts.length === 0 ? (
-              <div className="text-center py-4" style={{ color: 'var(--text-muted)' }}>
-                No active alerts
-              </div>
-            ) : (
-              alerts.map(alert => (
-                <AlertCard
-                  key={alert.id}
-                  alert={alert}
-                  onCreateIncident={() => handleCreateIncidentFromAlert(alert)}
-                />
-              ))
-            )}
           </div>
-        </PurpleGlassCard>
+
+            {/* Alert Feed Section */}
+            <PurpleGlassCard glass header="Active Alerts" className="shrink-0">
+              <div className="p-4 space-y-3 max-h-[200px] overflow-y-auto">
+                {alerts.length === 0 ? (
+                  <div className="text-center py-4" style={{ color: 'var(--text-muted)' }}>
+                    No active alerts
+                  </div>
+                ) : (
+                  alerts.map(alert => (
+                    <AlertCard
+                      key={alert.id}
+                      alert={alert}
+                      onCreateIncident={() => handleCreateIncidentFromAlert(alert)}
+                    />
+                  ))
+                )}
+              </div>
+            </PurpleGlassCard>
+          </>
+        ) : (
+          /* Topology Tab Content */
+          <div className="flex-1 flex flex-col gap-4 min-h-0">
+            {/* Topology View with Infrastructure Visualizer */}
+            <div className="flex-1 relative rounded-lg overflow-hidden" style={{ 
+              border: '1px solid var(--card-border)',
+              background: 'var(--card-bg)',
+              minHeight: '500px'
+            }}>
+              <InfraVisualizerCanvas
+                showToolbar={true}
+                showControls={true}
+                showMinimap={true}
+                showFilterPanel={false}
+                showLegend={true}
+                readOnly={false}
+              />
+              
+              {/* Selected Node Details Panel */}
+              {selectedNodeId && (
+                <NodeDetailsPanel 
+                  nodeId={selectedNodeId} 
+                  assets={assets}
+                  onClose={clearSelection}
+                />
+              )}
+            </div>
+
+            {/* Quick Stats for Topology */}
+            <div className="grid grid-cols-4 gap-4 shrink-0">
+              <TopologyStatCard 
+                label="Clusters" 
+                value={assets.filter(a => a.asset_type === 'CLUSTER').length}
+                icon={<CubeRegular />}
+                color={purplePalette.purple500}
+              />
+              <TopologyStatCard 
+                label="Hosts" 
+                value={assets.filter(a => a.asset_type === 'HOST').length}
+                icon={<ServerRegular />}
+                color={purplePalette.info}
+              />
+              <TopologyStatCard 
+                label="VMs" 
+                value={assets.filter(a => a.asset_type === 'VM').length}
+                icon={<DesktopRegular />}
+                color={purplePalette.success}
+              />
+              <TopologyStatCard 
+                label="Switches" 
+                value={assets.filter(a => a.asset_type === 'SWITCH').length}
+                icon={<RouterRegular />}
+                color={purplePalette.warning}
+              />
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Create Incident Modal */}
@@ -394,6 +488,154 @@ const MonitoringView: React.FC = () => {
     </GlassmorphicLayout>
   );
 };
+
+// Tab Button Component
+const TabButton: React.FC<{ isActive: boolean; onClick: () => void; icon: React.ReactNode; label: string }> = ({ 
+  isActive, onClick, icon, label 
+}) => (
+  <button
+    onClick={onClick}
+    style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px',
+      padding: '12px 20px',
+      background: isActive 
+        ? `linear-gradient(135deg, ${DesignTokens.colors.primary}15 0%, ${DesignTokens.colors.primary}08 100%)`
+        : 'transparent',
+      border: 'none',
+      borderBottom: isActive 
+        ? `2px solid ${DesignTokens.colors.primary}`
+        : '2px solid transparent',
+      borderRadius: '8px 8px 0 0',
+      cursor: 'pointer',
+      color: isActive 
+        ? DesignTokens.colors.primary 
+        : 'var(--text-secondary)',
+      fontWeight: isActive 
+        ? DesignTokens.typography.semibold 
+        : DesignTokens.typography.medium,
+      fontSize: DesignTokens.typography.sm,
+      fontFamily: DesignTokens.typography.fontFamily,
+      transition: 'all 0.2s ease',
+    }}
+  >
+    {icon}
+    <span>{label}</span>
+  </button>
+);
+
+// Topology Stat Card
+const TopologyStatCard: React.FC<{ label: string; value: number; icon: React.ReactNode; color: string }> = ({ 
+  label, value, icon, color 
+}) => (
+  <div style={{ 
+    padding: DesignTokens.spacing.md, 
+    border: '1px solid var(--card-border)',
+    borderRadius: DesignTokens.borderRadius.lg,
+    background: 'transparent',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px'
+  }}>
+    <div style={{ color, fontSize: '24px' }}>{icon}</div>
+    <div>
+      <div style={{ fontWeight: 600, fontSize: '20px', color: 'var(--text-primary)' }}>{value}</div>
+      <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{label}</div>
+    </div>
+  </div>
+);
+
+// Node Details Panel - shows on node selection in topology view
+const NodeDetailsPanel: React.FC<{ nodeId: string; assets: Asset[]; onClose: () => void }> = ({ 
+  nodeId, assets, onClose 
+}) => {
+  const asset = assets.find(a => a.id === nodeId || a.name === nodeId);
+  
+  if (!asset) return null;
+  
+  return (
+    <div style={{
+      position: 'absolute',
+      top: '16px',
+      right: '16px',
+      width: '320px',
+      background: 'var(--card-bg)',
+      backdropFilter: 'blur(20px)',
+      border: '1px solid var(--card-border)',
+      borderRadius: DesignTokens.borderRadius.lg,
+      boxShadow: 'var(--card-shadow)',
+      zIndex: 100,
+      overflow: 'hidden'
+    }}>
+      {/* Header */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: '12px 16px',
+        borderBottom: '1px solid var(--card-border)',
+        background: 'var(--card-bg-hover)'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <InfoRegular style={{ color: DesignTokens.colors.primary }} />
+          <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>Asset Details</span>
+        </div>
+        <button 
+          onClick={onClose}
+          style={{
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            color: 'var(--text-muted)',
+            fontSize: '18px',
+            lineHeight: 1
+          }}
+        >
+          ×
+        </button>
+      </div>
+      
+      {/* Content */}
+      <div style={{ padding: '16px' }}>
+        <h3 style={{ 
+          margin: '0 0 12px 0', 
+          fontSize: '16px', 
+          fontWeight: 600,
+          color: 'var(--text-primary)' 
+        }}>
+          {asset.name}
+        </h3>
+        
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <DetailRow label="Type" value={asset.asset_type} />
+          <DetailRow label="Status" value={asset.status || 'Unknown'} />
+          {asset.external_id && <DetailRow label="External ID" value={asset.external_id} />}
+          {asset.created_at && <DetailRow label="Created" value={new Date(asset.created_at).toLocaleDateString()} />}
+        </div>
+        
+        {/* Action Button */}
+        <div style={{ marginTop: '16px' }}>
+          <PurpleGlassButton 
+            variant="secondary" 
+            size="small"
+            style={{ width: '100%' }}
+            onClick={() => window.location.href = `/app/inventory/asset/${asset.id}`}
+          >
+            View Full Details
+          </PurpleGlassButton>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const DetailRow: React.FC<{ label: string; value: string }> = ({ label, value }) => (
+  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
+    <span style={{ color: 'var(--text-muted)' }}>{label}</span>
+    <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>{value}</span>
+  </div>
+);
 
 const SummaryCard: React.FC<{ label: string; value: string | number; color: string; icon: React.ReactNode }> = ({ label, value, color, icon }) => (
   <PurpleGlassCard glass variant="subtle" className="p-4 min-w-[160px]">
