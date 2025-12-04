@@ -731,7 +731,7 @@ const HardwareBasketView: React.FC = () => {
                 display: 'block',
                 fontSize: '14px',
                 fontWeight: '500',
-                color: '#374151',
+                color: 'var(--text-primary)',
                 marginBottom: '6px'
               }}>
                 Basket Name *
@@ -757,7 +757,7 @@ const HardwareBasketView: React.FC = () => {
                 display: 'block',
                 fontSize: '14px',
                 fontWeight: '500',
-                color: '#374151',
+                color: 'var(--text-primary)',
                 marginBottom: '6px'
               }}>
                 Vendor *
@@ -789,7 +789,7 @@ const HardwareBasketView: React.FC = () => {
                   display: 'block',
                   fontSize: '14px',
                   fontWeight: '500',
-                  color: '#374151',
+                  color: 'var(--text-primary)',
                   marginBottom: '6px'
                 }}>
                   Quarter
@@ -817,7 +817,7 @@ const HardwareBasketView: React.FC = () => {
                   display: 'block',
                   fontSize: '14px',
                   fontWeight: '500',
-                  color: '#374151',
+                  color: 'var(--text-primary)',
                   marginBottom: '6px'
                 }}>
                   Year

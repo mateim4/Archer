@@ -436,7 +436,7 @@ const MigrationPlannerView: React.FC = () => {
             display: 'flex', 
             alignItems: 'center',
             fontSize: '10px',
-            color: '#6b7280'
+            color: 'var(--text-secondary)'
           }}>
             <div style={{ 
               width: '8px', 
@@ -722,7 +722,7 @@ const MigrationPlannerView: React.FC = () => {
                 <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#111827', marginBottom: '4px' }}>
                   {stat.value}
                 </div>
-                <div style={{ fontSize: '14px', fontWeight: '500', color: '#6b7280', marginBottom: '12px' }}>
+                <div style={{ fontSize: '14px', fontWeight: '500', color: 'var(--text-secondary)', marginBottom: '12px' }}>
                   {stat.title}
                 </div>
                 <div style={{ 

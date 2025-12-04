@@ -441,7 +441,7 @@ export const EnhancedRVToolsReportView: React.FC = () => {
             <label style={{
               fontSize: '14px',
               fontWeight: '600',
-              color: '#374151',
+              color: 'var(--text-primary)',
               marginBottom: '8px',
               display: 'block',
               fontFamily: DesignTokens.typography.fontFamily

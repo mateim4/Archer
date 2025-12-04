@@ -142,7 +142,7 @@ const MOCK_STATS: StatCardData[] = [
     change: -15,
     changeLabel: 'improved',
     icon: <TimerRegular />,
-    color: '#3b82f6',
+    color: 'var(--brand-primary)',
   },
 ];
 

@@ -424,7 +424,7 @@ const LifecyclePlannerView: React.FC = () => {
             display: 'flex', 
             alignItems: 'center',
             fontSize: '10px',
-            color: '#6b7280'
+            color: 'var(--text-secondary)'
           }}>
             <div style={{ 
               width: '8px', 
@@ -694,7 +694,7 @@ const LifecyclePlannerView: React.FC = () => {
                 <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#111827', marginBottom: '4px' }}>
                   {stat.value}
                 </div>
-                <div style={{ fontSize: '14px', fontWeight: '500', color: '#6b7280', marginBottom: '12px' }}>
+                <div style={{ fontSize: '14px', fontWeight: '500', color: 'var(--text-secondary)', marginBottom: '12px' }}>
                   {stat.title}
                 </div>
                 <div style={{ 
@@ -703,7 +703,7 @@ const LifecyclePlannerView: React.FC = () => {
                   background: 'rgba(59, 130, 246, 0.1)', 
                   borderRadius: '6px',
                   fontSize: '12px',
-                  color: '#374151'
+                  color: 'var(--text-primary)'
                 }}>
                   {stat.change}
                 </div>
@@ -963,7 +963,7 @@ const LifecyclePlannerView: React.FC = () => {
                       }}>
                         {/* CPU Metrics */}
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                          <div style={{ fontSize: '12px', fontWeight: '600', marginBottom: '8px', color: '#374151' }}>CPU</div>
+                          <div style={{ fontSize: '12px', fontWeight: '600', marginBottom: '8px', color: 'var(--text-primary)' }}>CPU</div>
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
                             <PieChart percentage={cpuAllocated} label="Allocated" color="url(#allocatedGradient)" />
                             <PieChart percentage={cpuConsumed} label="Consumed" color="url(#consumedGradient)" />
@@ -972,7 +972,7 @@ const LifecyclePlannerView: React.FC = () => {
                         </div>
                         {/* Memory Metrics */}
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                          <div style={{ fontSize: '12px', fontWeight: '600', marginBottom: '8px', color: '#374151' }}>MEM</div>
+                          <div style={{ fontSize: '12px', fontWeight: '600', marginBottom: '8px', color: 'var(--text-primary)' }}>MEM</div>
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
                             <PieChart percentage={memAllocated} label="Allocated" color="url(#allocatedGradient)" />
                             <PieChart percentage={memConsumed} label="Consumed" color="url(#consumedGradient)" />

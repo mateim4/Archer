@@ -470,7 +470,7 @@ const NetworkVisualizerView = () => {
                   border: '1px solid rgba(59, 130, 246, 0.3)', 
                   borderRadius: '6px',
                   fontSize: '12px',
-                  color: '#374151'
+                  color: 'var(--text-primary)'
                 }}>
                   {stat.change}
                 </div>
@@ -547,7 +547,7 @@ const NetworkVisualizerView = () => {
                 margin: '0 0 12px 0', 
                 fontSize: '16px', 
                 fontWeight: '600', 
-                color: '#374151',
+                color: 'var(--text-primary)',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px'
