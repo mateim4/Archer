@@ -10,7 +10,7 @@
 
 /* Force font overrides for FluentProvider components */
 .fui-FluentProvider {
-  font-family: var(--font-family-body) !important;
+  font-family: var(--font-family-body);
 }
 
 .fui-FluentProvider h1,
@@ -22,7 +22,7 @@
 .fui-FluentProvider strong,
 .fui-FluentProvider b,
 .fui-FluentProvider th {
-  font-family: var(--font-family-heading) !important;
+  font-family: var(--font-family-heading);
 }
 
 /* Override Fluent UI Typography components */
@@ -33,7 +33,7 @@
 .fui-Subtitle2,
 .fui-Display,
 .fui-LargeTitle {
-  font-family: var(--font-family-heading) !important;
+  font-family: var(--font-family-heading);
 }
 
 .fui-Body1,
@@ -45,7 +45,7 @@
 .fui-Caption1Stronger,
 .fui-Caption2,
 .fui-Text {
-  font-family: var(--font-family-body) !important;
+  font-family: var(--font-family-body);
 }
 
 /* Provider and Theme System */
@@ -260,7 +260,7 @@ h1, h2, h3, h4, h5, h6,
 strong,
 b,
 th {
-  font-family: var(--fluent-font-family-heading) !important;
+  font-family: var(--fluent-font-family-heading);
   font-weight: var(--fluent-font-weight-bold);
   letter-spacing: 0.02em;
 }
@@ -893,25 +893,25 @@ select:focus-visible,
   }
   
   .fluent2-button {
-    min-height: 44px !important;
+    min-height: 44px;
     font-size: var(--fluent-font-size-400);
     padding: var(--fluent-spacing-l) var(--fluent-spacing-xl);
   }
   
   .fluent2-button-small {
-    min-height: 40px !important;
+    min-height: 40px;
     padding: var(--fluent-spacing-m) var(--fluent-spacing-l);
     font-size: var(--fluent-font-size-300);
   }
   
   .fluent2-input {
-    min-height: 44px !important;
+    min-height: 44px;
     font-size: var(--fluent-font-size-400);
     padding: var(--fluent-spacing-l) var(--fluent-spacing-xl);
   }
   
   .fluent2-nav-item {
-    min-height: 48px !important;
+    min-height: 48px;
     padding: var(--fluent-spacing-l) var(--fluent-spacing-xl);
   }
 }
@@ -1228,28 +1228,28 @@ select:focus-visible,
 /* Fluent UI Dialog Backdrop - Add blur and glassmorphic effect */
 .fui-DialogBackdrop,
 [class*="fui-Dialog"] [role="presentation"] {
-  backdrop-filter: blur(12px) saturate(120%) !important;
-  -webkit-backdrop-filter: blur(12px) saturate(120%) !important;
-  background-color: rgba(0, 0, 0, 0.4) !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  backdrop-filter: blur(12px) saturate(120%);
+  -webkit-backdrop-filter: blur(12px) saturate(120%);
+  background-color: rgba(0, 0, 0, 0.4);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Dialog Surface - Purple glass styling */
 .fui-DialogSurface,
 [class*="fui-Dialog"] [role="dialog"] {
-  background: rgba(255, 255, 255, 0.98) !important;
-  backdrop-filter: blur(40px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(40px) saturate(180%) !important;
-  border: 1px solid rgba(139, 92, 246, 0.15) !important;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border: 1px solid rgba(139, 92, 246, 0.15);
   box-shadow: 
     0 20px 60px rgba(139, 92, 246, 0.25),
     0 8px 16px rgba(0, 0, 0, 0.15),
-    0 0 0 1px rgba(139, 92, 246, 0.1) !important;
+    0 0 0 1px rgba(139, 92, 246, 0.1);
 }
 
 /* Ensure no forced backgrounds on dialog content */
 .fui-DialogBody {
-  background: transparent !important;
+  background: transparent;
 }
 
 /* Modal animation */
