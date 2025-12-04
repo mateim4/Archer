@@ -261,7 +261,7 @@ const ProjectDetailView: React.FC = () => {
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: DesignTokens.spacing.sm }}>
                   <FolderRegular style={{ color: 'var(--icon-default)', fontSize: '32px' }} />
-                  <h1 style={{ ...DesignTokens.components.sectionTitle, color: 'var(--brand-primary)' }}>{project.name}</h1>
+                  <h1 style={{ ...DesignTokens.components.sectionTitle, color: 'var(--text-primary)' }}>{project.name}</h1>
                 </div>
                 <div style={{ marginTop: '8px' }}>
                   <p style={DesignTokens.components.cardDescription}>

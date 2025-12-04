@@ -24,7 +24,9 @@ import {
   ArrowTrendingRegular,
   FolderRegular,
   DiagramRegular,
-  HomeRegular
+  HomeRegular,
+  ArrowUpRegular,
+  ArrowDownRegular
 } from '@fluentui/react-icons';
 import GanttChart from '../components/GanttChart';
 import GlassmorphicSearchBar from '../components/GlassmorphicSearchBar';
@@ -616,7 +618,7 @@ const ProjectWorkspaceView: React.FC = () => {
                 <h1 style={{
                   fontSize: '30px',
                   fontWeight: '700',
-                  color: colors.purple600,
+                  color: 'var(--text-primary)',
                   fontFamily: tokens.fontFamilyBody,
                   margin: 0
                 }}>{project.name}</h1>
@@ -730,22 +732,32 @@ const ProjectWorkspaceView: React.FC = () => {
                     </select>
                   </div>
 
-                  {/* Sort Order - Glassmorphic Toggle Buttons */}
-                  <div className="flex items-center gap-1.5 ml-auto">
-                    <button
+                  {/* Sort Order - Toggle Slider Style (like ServiceDesk view toggle) */}
+                  <div style={{ 
+                    display: 'flex', 
+                    borderRadius: DesignTokens.borderRadius.md, 
+                    overflow: 'hidden', 
+                    border: '1px solid var(--glass-border)',
+                    marginLeft: 'auto'
+                  }}>
+                    <PurpleGlassButton 
+                      variant={sortOrder === 'asc' ? 'primary' : 'ghost'}
+                      size="small"
                       onClick={() => setSortOrder('asc')}
-                      className={`glassmorphic-filter-button ${sortOrder === 'asc' ? 'glassmorphic-filter-button-active' : ''}`}
+                      icon={<ArrowUpRegular />}
+                      glass={sortOrder === 'asc'}
+                      style={{ borderRadius: '8px 0 0 8px' }}
                       title="Sort Ascending"
-                    >
-                      ↑ Asc
-                    </button>
-                    <button
+                    />
+                    <PurpleGlassButton 
+                      variant={sortOrder === 'desc' ? 'primary' : 'ghost'}
+                      size="small"
                       onClick={() => setSortOrder('desc')}
-                      className={`glassmorphic-filter-button ${sortOrder === 'desc' ? 'glassmorphic-filter-button-active' : ''}`}
+                      icon={<ArrowDownRegular />}
+                      glass={sortOrder === 'desc'}
+                      style={{ borderRadius: '0 8px 8px 0' }}
                       title="Sort Descending"
-                    >
-                      ↓ Desc
-                    </button>
+                    />
                   </div>
                     </div>
                   </div>

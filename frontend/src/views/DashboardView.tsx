@@ -802,7 +802,7 @@ export const DashboardView: React.FC = () => {
             margin: 0,
             fontSize: 'var(--lcm-font-size-xxxl, 32px)',
             fontWeight: 600,
-            color: 'var(--brand-primary)',
+            color: 'var(--text-primary)',
             fontFamily: 'var(--lcm-font-family-heading, Poppins, sans-serif)',
             display: 'flex',
             alignItems: 'center',

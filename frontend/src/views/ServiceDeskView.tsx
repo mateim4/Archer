@@ -246,7 +246,7 @@ const ServiceDeskView: React.FC = () => {
               <h1 style={{ 
                 fontSize: DesignTokens.typography.xxxl, 
                 fontWeight: DesignTokens.typography.semibold, 
-                color: 'var(--brand-primary)', 
+                color: 'var(--text-primary)', 
                 margin: 0, 
                 fontFamily: DesignTokens.typography.fontFamily,
                 display: 'flex',
