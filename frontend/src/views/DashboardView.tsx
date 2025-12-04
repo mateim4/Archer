@@ -789,7 +789,7 @@ export const DashboardView: React.FC = () => {
   }, [navigate]);
 
   return (
-    <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+    <div data-testid="dashboard-view" style={{ maxWidth: '1400px', margin: '0 auto' }}>
       {/* Page Header */}
       <div style={{
         display: 'flex',

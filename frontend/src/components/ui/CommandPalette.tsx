@@ -428,6 +428,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       {/* Command Palette */}
       <div
         ref={containerRef}
+        data-testid="command-palette"
         style={{
           position: 'fixed',
           top: '15%',
@@ -459,6 +460,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={placeholder}
+            data-testid="command-palette-input"
             style={{
               flex: 1,
               border: 'none',

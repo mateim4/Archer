@@ -25,6 +25,7 @@ const ThemeToggle: React.FC<ThemeToggleProps> = ({ className, style }) => {
       className={className}
       title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
       aria-label={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+      data-testid="theme-toggle"
       style={{
         position: 'relative',
         width: '48px',

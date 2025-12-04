@@ -549,6 +549,7 @@ const KeyboardShortcutsCheatSheet: React.FC<{ onClose: () => void }> = ({ onClos
         role="dialog"
         aria-labelledby="cheatsheet-title"
         aria-modal="true"
+        data-testid="keyboard-shortcuts-modal"
         style={{
           position: 'fixed',
           top: '50%',

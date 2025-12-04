@@ -418,7 +418,7 @@ const AssetDetailView: React.FC = () => {
   };
 
   return (
-    <div style={containerStyle}>
+    <div data-testid="asset-detail-view" style={containerStyle}>
       {/* Header */}
       <div style={headerStyle}>
         <PurpleGlassButton 

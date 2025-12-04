@@ -236,7 +236,7 @@ const ServiceDeskView: React.FC = () => {
   ];
 
   return (
-    <div style={{...DesignTokens.components.pageContainer, overflow: 'visible'}}>
+    <div data-testid="service-desk-view" style={{...DesignTokens.components.pageContainer, overflow: 'visible'}}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: DesignTokens.spacing.xl }}>
         {/* Header Section */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', borderBottom: `2px solid ${DesignTokens.colors.primary}20`, paddingBottom: DesignTokens.spacing.lg }}>

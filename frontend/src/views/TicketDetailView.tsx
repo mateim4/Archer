@@ -447,7 +447,7 @@ const TicketDetailView: React.FC = () => {
   };
 
   return (
-    <div style={containerStyle}>
+    <div data-testid="ticket-detail-view" style={containerStyle}>
       {/* Header with back button and actions */}
       <div style={headerStyle}>
         <PurpleGlassButton 
