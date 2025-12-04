@@ -28,7 +28,7 @@ import {
 } from '@fluentui/react-icons';
 import { CheckmarkCircleRegular } from '@fluentui/react-icons';
 
-import { PurpleGlassDropdown, PurpleGlassButton, PurpleGlassInput } from '@/components/ui';
+import { PurpleGlassDropdown, PurpleGlassButton, PurpleGlassInput, PurpleGlassCard } from '@/components/ui';
 import { ACTIVITY_STATUS_OPTIONS } from '@/constants/projectFilters';
 
 import GanttChart from '../components/EnhancedGanttChart';
@@ -255,13 +255,13 @@ const ProjectDetailView: React.FC = () => {
         <div style={{ marginBottom: '80px', overflow: 'visible' }}>
         <main role="main" aria-label={`Project Details: ${project.name}`}>
         {/* Header section with padding */}
-        <div style={{ marginBottom: DesignTokens.spacing.xl, padding: DesignTokens.spacing.lg }}>
-          <div style={{ padding: 0, backgroundColor: 'transparent', border: 'none' }}>
+        <PurpleGlassCard style={{ marginBottom: DesignTokens.spacing.xl }}>
+          <div style={{ padding: DesignTokens.spacing.lg }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', width: '100%' }}>
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: DesignTokens.spacing.sm }}>
-                  <FolderRegular style={{ color: 'var(--text-primary)', fontSize: '32px' }} />
-                  <h1 style={{ ...DesignTokens.components.sectionTitle, color: DesignTokens.colors.primary }}>{project.name}</h1>
+                  <FolderRegular style={{ color: 'var(--icon-default)', fontSize: '32px' }} />
+                  <h1 style={{ ...DesignTokens.components.sectionTitle, color: 'var(--brand-primary)' }}>{project.name}</h1>
                 </div>
                 <div style={{ marginTop: '8px' }}>
                   <p style={DesignTokens.components.cardDescription}>
@@ -282,13 +282,13 @@ const ProjectDetailView: React.FC = () => {
                       alignItems: 'center',
                       gap: DesignTokens.spacing.xs,
                       padding: DesignTokens.spacing.sm,
-                      background: 'transparent',
+                      background: 'rgba(139, 92, 246, 0.05)',
                       borderRadius: DesignTokens.borderRadius.lg,
-                      border: `1px solid ${DesignTokens.colors.gray300}`,
+                      border: `1px solid rgba(139, 92, 246, 0.2)`,
                     }}
                   >
                     <PeopleRegular style={{ color: DesignTokens.colorVariants.indigo.base, fontSize: '16px' }} />
-                    <span style={{ fontSize: '12px', color: DesignTokens.colors.gray600 }}>
+                    <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
                       Owner: {project.owner_id ? project.owner_id.replace('user:', '') : 'Unknown'}
                     </span>
                   </div>
@@ -298,13 +298,13 @@ const ProjectDetailView: React.FC = () => {
                       alignItems: 'center',
                       gap: DesignTokens.spacing.xs,
                       padding: '8px 16px',
-                      background: 'transparent',
+                      background: 'rgba(139, 92, 246, 0.05)',
                       borderRadius: '12px',
-                      border: `1px solid ${DesignTokens.colors.gray300}`,
+                      border: `1px solid rgba(139, 92, 246, 0.2)`,
                     }}
                   >
                     <CalendarRegular style={{ color: DesignTokens.colorVariants.indigo.base, fontSize: '16px' }} />
-                    <span style={{ fontSize: '12px', color: DesignTokens.colors.gray600 }}>
+                    <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
                       Created: {new Date(project.created_at).toLocaleDateString()}
                     </span>
                   </div>
@@ -314,13 +314,13 @@ const ProjectDetailView: React.FC = () => {
                       alignItems: 'center',
                       gap: DesignTokens.spacing.xs,
                       padding: DesignTokens.spacing.sm,
-                      background: 'transparent',
+                      background: 'rgba(139, 92, 246, 0.05)',
                       borderRadius: DesignTokens.borderRadius.lg,
-                      border: `1px solid ${DesignTokens.colors.gray300}`,
+                      border: `1px solid rgba(139, 92, 246, 0.2)`,
                     }}
                   >
                     <ClockRegular style={{ color: DesignTokens.colorVariants.indigo.base, fontSize: '16px' }} />
-                    <span style={{ fontSize: '12px', color: DesignTokens.colors.gray600 }}>
+                    <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
                       Updated: {new Date(project.updated_at).toLocaleDateString()}
                     </span>
                   </div>
@@ -346,107 +346,143 @@ const ProjectDetailView: React.FC = () => {
               </div>
             </div>
           </div>
-        </div>
+        </PurpleGlassCard>
 
-        {/* Stats grid (border-only cards) */}
+        {/* Stats grid with glassmorphic cards */}
         <div
           style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-            gap: DesignTokens.spacing.xl,
-            marginBottom: DesignTokens.spacing.xxl,
+            gap: DesignTokens.spacing.lg,
+            marginBottom: DesignTokens.spacing.xl,
           }}
         >
           {[
-            { label: 'Total Activities', value: stats.totalActivities, icon: <ChartMultipleRegular />, color: 'var(--text-primary)' },
+            { label: 'Total Activities', value: stats.totalActivities, icon: <ChartMultipleRegular />, color: 'var(--stat-primary)' },
             { label: 'Completed', value: stats.completedActivities, icon: <CheckmarkCircleRegular />, color: DesignTokens.colors.success },
             { label: 'In Progress', value: stats.inProgressActivities, icon: <ClockRegular />, color: DesignTokens.colors.warning },
-            { label: 'Days Remaining', value: stats.daysRemaining, icon: <TargetRegular />, color: 'var(--text-primary)' },
+            { label: 'Days Remaining', value: stats.daysRemaining, icon: <TargetRegular />, color: 'var(--stat-primary)' },
           ].map((stat, index) => (
-            <div key={index} style={{ padding: DesignTokens.spacing.lg }}>
-              <div style={{ padding: 0, backgroundColor: 'transparent', border: 'none' }}>
+            <PurpleGlassCard key={index}>
+              <div style={{ padding: DesignTokens.spacing.lg }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
-                    <h2 style={{ color: stat.color }}>{stat.value}</h2>
-                    <div style={{ marginTop: '4px' }}>
-                      <span style={{ color: 'var(--text-primary)' }}>{stat.label}</span>
+                    <div style={{ 
+                      fontSize: DesignTokens.typography.xxl, 
+                      fontWeight: DesignTokens.typography.bold, 
+                      color: stat.color,
+                      fontFamily: DesignTokens.typography.fontFamily,
+                      lineHeight: 1
+                    }}>
+                      {stat.value}
+                    </div>
+                    <div style={{ 
+                      marginTop: '8px',
+                      fontSize: DesignTokens.typography.sm,
+                      color: 'var(--text-secondary)',
+                      fontFamily: DesignTokens.typography.fontFamily
+                    }}>
+                      {stat.label}
                     </div>
                   </div>
                   <div
                     style={{
                       padding: DesignTokens.spacing.md,
-                      background: 'transparent',
+                      background: `${stat.color}10`,
                       borderRadius: '12px',
                       color: stat.color,
-                      fontSize: '20px',
-                      border: `1px solid ${DesignTokens.colors.gray300}`,
-                      boxShadow: 'none',
+                      fontSize: '24px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
                     }}
                   >
                     {stat.icon}
                   </div>
                 </div>
               </div>
-            </div>
+            </PurpleGlassCard>
           ))}
         </div>
 
-        {/* Overall Progress (border-only card) */}
-        <div style={{ marginTop: DesignTokens.spacing.xl, marginBottom: DesignTokens.spacing.xxl }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div>
-              <h2 style={{ color: DesignTokens.colors.primary }}>{stats.overallProgress}%</h2>
-              <div style={{ marginTop: '4px' }}>
-                <span style={{ color: 'var(--text-primary)' }}>Overall Progress</span>
-              </div>
-            </div>
-            <div style={{ flex: 1, marginLeft: DesignTokens.spacing.xxl }}>
-              <div style={{
-                width: '100%',
-                height: '8px',
-                background: DesignTokens.colors.gray200,
-                borderRadius: DesignTokens.borderRadius.md,
-                overflow: 'hidden'
-              }}>
-                <div style={{
-                  width: `${stats.overallProgress}%`,
-                  height: '100%',
-                  background: DesignTokens.colors.primary,
-                  transition: 'width 0.3s ease'
-                }} />
-              </div>
-              <span style={{ color: 'var(--text-primary)' }}>
-                {stats.completedActivities} of {stats.totalActivities} activities completed
-              </span>
-            </div>
-          </div>
-          
-          {/* Tab header integrated with main header */}
-          <div style={{
-            display: 'flex',
-            gap: DesignTokens.spacing.md,
-            borderBottom: `1px solid ${DesignTokens.colors.gray200}`,
-            marginTop: DesignTokens.spacing.lg
-          }}>
-            {['timeline', 'activities', 'overview', 'capacity'].map(tab => (
-              <button
-                key={tab}
-                onClick={() => handleTabChange(tab as any)}
-                style={{
-                  padding: `${DesignTokens.spacing.md} ${DesignTokens.spacing.lg}`,
-                  background: activeTab === tab ? DesignTokens.colors.primary : 'transparent',
-                  color: activeTab === tab ? '#fff' : 'var(--text-primary)',
-                  border: 'none',
-                  borderRadius: `${DesignTokens.borderRadius.md} ${DesignTokens.borderRadius.md} 0 0`,
-                  cursor: 'pointer',
+        {/* Overall Progress and Tabs Card */}
+        <PurpleGlassCard style={{ marginBottom: DesignTokens.spacing.xl }}>
+          <div style={{ padding: DesignTokens.spacing.lg }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: DesignTokens.spacing.lg }}>
+              <div>
+                <div style={{ 
+                  fontSize: DesignTokens.typography.xxl, 
+                  fontWeight: DesignTokens.typography.bold, 
+                  color: 'var(--brand-primary)',
                   fontFamily: DesignTokens.typography.fontFamily,
-                  fontSize: DesignTokens.typography.base,
-                  fontWeight: activeTab === tab ? 600 : 400
-                }}
-              >
-                {tab.charAt(0).toUpperCase() + tab.slice(1)}
-              </button>
-            ))}
+                  lineHeight: 1
+                }}>
+                  {stats.overallProgress}%
+                </div>
+                <div style={{ 
+                  marginTop: '8px',
+                  fontSize: DesignTokens.typography.sm,
+                  color: 'var(--text-secondary)',
+                  fontFamily: DesignTokens.typography.fontFamily
+                }}>
+                  Overall Progress
+                </div>
+              </div>
+              <div style={{ flex: 1, marginLeft: DesignTokens.spacing.xxl }}>
+                <div style={{
+                  width: '100%',
+                  height: '8px',
+                  background: 'var(--glass-border)',
+                  borderRadius: DesignTokens.borderRadius.md,
+                  overflow: 'hidden'
+                }}>
+                  <div style={{
+                    width: `${stats.overallProgress}%`,
+                    height: '100%',
+                    background: 'var(--brand-primary)',
+                    transition: 'width 0.3s ease'
+                  }} />
+                </div>
+                <span style={{ 
+                  color: 'var(--text-secondary)',
+                  fontSize: DesignTokens.typography.sm,
+                  fontFamily: DesignTokens.typography.fontFamily,
+                  marginTop: '4px',
+                  display: 'block'
+                }}>
+                  {stats.completedActivities} of {stats.totalActivities} activities completed
+                </span>
+              </div>
+            </div>
+          
+            {/* Tab header */}
+            <div style={{
+              display: 'flex',
+              gap: DesignTokens.spacing.sm,
+              borderBottom: `1px solid var(--glass-border)`,
+              marginTop: DesignTokens.spacing.md
+            }}>
+              {['timeline', 'activities', 'overview', 'capacity'].map(tab => (
+                <button
+                  key={tab}
+                  onClick={() => handleTabChange(tab as any)}
+                  style={{
+                    padding: `${DesignTokens.spacing.md} ${DesignTokens.spacing.lg}`,
+                    background: activeTab === tab ? 'var(--brand-primary)' : 'transparent',
+                    color: activeTab === tab ? '#fff' : 'var(--text-primary)',
+                    border: 'none',
+                    borderRadius: `${DesignTokens.borderRadius.md} ${DesignTokens.borderRadius.md} 0 0`,
+                    cursor: 'pointer',
+                    fontFamily: DesignTokens.typography.fontFamily,
+                    fontSize: DesignTokens.typography.base,
+                    fontWeight: activeTab === tab ? 600 : 400,
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Tab content */}
@@ -455,7 +491,7 @@ const ProjectDetailView: React.FC = () => {
             aria-labelledby={`tab-${activeTab}`}
             style={{
               padding: DesignTokens.spacing.lg,
-              minHeight: 'calc(100% - 80px)'
+              minHeight: '400px'
             }}
           >
           {activeTab === 'timeline' && (
@@ -858,7 +894,7 @@ const ProjectDetailView: React.FC = () => {
             </div>
           )}
           </div>
-        </div>
+        </PurpleGlassCard>
 
         {/* Activity Wizard Modal */}
         <ActivityWizardModal
