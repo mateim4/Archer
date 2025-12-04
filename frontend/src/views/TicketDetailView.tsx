@@ -45,7 +45,6 @@ import {
   LinkedAssetBadge,
 } from '../components/ui';
 import type { AssetType, AssetStatus, SLAStatus } from '../components/ui';
-import { useTheme } from '../hooks/useTheme';
 import { DesignTokens } from '../styles/designSystem';
 
 // Extended ticket interface with all detail fields (standalone, not extending base Ticket)
@@ -203,8 +202,6 @@ The production PostgreSQL database is experiencing connection pool exhaustion du
 const TicketDetailView: React.FC = () => {
   const { ticketId } = useParams<{ ticketId: string }>();
   const navigate = useNavigate();
-  const { mode } = useTheme();
-  const isDark = mode === 'dark';
 
   const [ticket, setTicket] = useState<TicketDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -322,7 +319,7 @@ const TicketDetailView: React.FC = () => {
       }}>
         <div style={{ textAlign: 'center' }}>
           <div className="spinner" style={{ marginBottom: '16px' }} />
-          <p style={{ color: isDark ? '#94a3b8' : '#6b7280' }}>Loading ticket details...</p>
+          <p style={{ color: 'var(--text-muted)' }}>Loading ticket details...</p>
         </div>
       </div>
     );
@@ -338,9 +335,9 @@ const TicketDetailView: React.FC = () => {
         minHeight: '60vh',
       }}>
         <PurpleGlassCard style={{ padding: '48px', textAlign: 'center' }}>
-          <ErrorCircleRegular style={{ fontSize: '48px', color: '#ef4444', marginBottom: '16px' }} />
-          <h2 style={{ color: isDark ? '#f1f5f9' : '#111827', marginBottom: '8px' }}>Ticket Not Found</h2>
-          <p style={{ color: isDark ? '#94a3b8' : '#6b7280', marginBottom: '24px' }}>
+          <ErrorCircleRegular style={{ fontSize: '48px', color: 'var(--status-critical)', marginBottom: '16px' }} />
+          <h2 style={{ color: 'var(--text-primary)', marginBottom: '8px' }}>Ticket Not Found</h2>
+          <p style={{ color: 'var(--text-muted)', marginBottom: '24px' }}>
             The ticket you're looking for doesn't exist or has been deleted.
           </p>
           <PurpleGlassButton onClick={() => navigate('/app/service-desk')}>
@@ -392,7 +389,7 @@ const TicketDetailView: React.FC = () => {
     alignItems: 'center',
     gap: '8px',
     marginBottom: '12px',
-    color: isDark ? '#94a3b8' : '#6b7280',
+    color: 'var(--text-muted)',
     fontSize: '12px',
     fontWeight: 600,
     textTransform: 'uppercase',
@@ -404,11 +401,11 @@ const TicketDetailView: React.FC = () => {
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: '12px 0',
-    borderBottom: `1px solid ${isDark ? 'rgba(71, 85, 105, 0.3)' : 'rgba(229, 231, 235, 0.5)'}`,
+    borderBottom: '1px solid var(--divider-color)',
   };
 
   const metadataLabelStyle: React.CSSProperties = {
-    color: isDark ? '#94a3b8' : '#6b7280',
+    color: 'var(--text-muted)',
     fontSize: '13px',
     display: 'flex',
     alignItems: 'center',
@@ -416,19 +413,17 @@ const TicketDetailView: React.FC = () => {
   };
 
   const metadataValueStyle: React.CSSProperties = {
-    color: isDark ? '#f1f5f9' : '#111827',
+    color: 'var(--text-primary)',
     fontSize: '14px',
     fontWeight: 500,
   };
 
   const tabStyle = (isActive: boolean): React.CSSProperties => ({
     padding: '12px 16px',
-    background: isActive 
-      ? isDark ? 'rgba(107, 76, 230, 0.15)' : 'rgba(107, 76, 230, 0.1)'
-      : 'transparent',
+    background: isActive ? 'var(--btn-secondary-bg)' : 'transparent',
     border: 'none',
-    borderBottom: isActive ? '2px solid #6B4CE6' : '2px solid transparent',
-    color: isActive ? '#6B4CE6' : isDark ? '#94a3b8' : '#6b7280',
+    borderBottom: isActive ? '2px solid var(--brand-primary)' : '2px solid transparent',
+    color: isActive ? 'var(--brand-primary)' : 'var(--text-muted)',
     fontSize: '14px',
     fontWeight: isActive ? 600 : 500,
     cursor: 'pointer',
@@ -438,17 +433,17 @@ const TicketDetailView: React.FC = () => {
   const commentStyle = (isInternal: boolean): React.CSSProperties => ({
     padding: '16px',
     background: isInternal 
-      ? isDark ? 'rgba(251, 191, 36, 0.1)' : 'rgba(251, 191, 36, 0.1)'
-      : isDark ? 'rgba(51, 65, 85, 0.3)' : 'rgba(249, 250, 251, 0.8)',
+      ? 'rgba(251, 191, 36, 0.1)'
+      : 'var(--card-bg)',
     borderRadius: '12px',
-    borderLeft: isInternal ? '3px solid #fbbf24' : 'none',
+    borderLeft: isInternal ? '3px solid var(--status-warning)' : 'none',
   });
 
   const activityItemStyle: React.CSSProperties = {
     display: 'flex',
     gap: '12px',
     padding: '12px 0',
-    borderBottom: `1px solid ${isDark ? 'rgba(71, 85, 105, 0.2)' : 'rgba(229, 231, 235, 0.3)'}`,
+    borderBottom: '1px solid var(--divider-color-subtle)',
   };
 
   return (
@@ -491,7 +486,7 @@ const TicketDetailView: React.FC = () => {
               {ticket.status.replace('_', ' ')}
             </span>
             <span style={{
-              color: isDark ? '#94a3b8' : '#6b7280',
+              color: 'var(--text-muted)',
               fontSize: '14px',
             }}>
               {ticket.id}
@@ -534,7 +529,7 @@ const TicketDetailView: React.FC = () => {
                 style={{ 
                   fontSize: '24px', 
                   fontWeight: 600, 
-                  color: isDark ? '#f1f5f9' : '#111827',
+                  color: 'var(--text-primary)',
                   margin: 0,
                   cursor: 'pointer',
                   display: 'flex',
@@ -551,7 +546,7 @@ const TicketDetailView: React.FC = () => {
             {/* Description */}
             <div style={{ 
               marginTop: '20px',
-              color: isDark ? '#cbd5e1' : '#374151',
+              color: 'var(--text-secondary)',
               fontSize: '15px',
               lineHeight: 1.7,
               whiteSpace: 'pre-wrap',
@@ -567,8 +562,8 @@ const TicketDetailView: React.FC = () => {
                     key={label}
                     style={{
                       padding: '4px 12px',
-                      background: isDark ? 'rgba(107, 76, 230, 0.15)' : 'rgba(107, 76, 230, 0.1)',
-                      color: '#6B4CE6',
+                      background: 'var(--btn-secondary-bg)',
+                      color: 'var(--brand-primary)',
                       borderRadius: '9999px',
                       fontSize: '12px',
                       fontWeight: 500,
@@ -586,7 +581,7 @@ const TicketDetailView: React.FC = () => {
             {/* Tab Headers */}
             <div style={{ 
               display: 'flex', 
-              borderBottom: `1px solid ${isDark ? 'rgba(71, 85, 105, 0.3)' : 'rgba(229, 231, 235, 0.5)'}`,
+              borderBottom: '1px solid var(--divider-color)',
             }}>
               <button 
                 style={tabStyle(activeTab === 'comments')}
@@ -619,7 +614,7 @@ const TicketDetailView: React.FC = () => {
                   {/* Comment Input */}
                   <div style={{ 
                     padding: '16px',
-                    background: isDark ? 'rgba(51, 65, 85, 0.3)' : 'rgba(249, 250, 251, 0.8)',
+                    background: 'var(--card-bg)',
                     borderRadius: '12px',
                   }}>
                     <PurpleGlassTextarea
@@ -634,7 +629,7 @@ const TicketDetailView: React.FC = () => {
                         display: 'flex', 
                         alignItems: 'center', 
                         gap: '8px',
-                        color: isDark ? '#94a3b8' : '#6b7280',
+                        color: 'var(--text-muted)',
                         fontSize: '13px',
                         cursor: 'pointer',
                       }}>
@@ -701,21 +696,21 @@ const TicketDetailView: React.FC = () => {
                           </div>
                           <span style={{ 
                             fontWeight: 600, 
-                            color: isDark ? '#f1f5f9' : '#111827',
+                            color: 'var(--text-primary)',
                           }}>
                             {comment.author}
                           </span>
                         </div>
                         <span style={{ 
                           fontSize: '12px', 
-                          color: isDark ? '#64748b' : '#9ca3af',
+                          color: 'var(--text-muted)',
                         }}>
                           {formatRelativeTime(comment.createdAt)}
                         </span>
                       </div>
                       <p style={{ 
                         margin: 0,
-                        color: isDark ? '#cbd5e1' : '#374151',
+                        color: 'var(--text-secondary)',
                         fontSize: '14px',
                         lineHeight: 1.6,
                       }}>
@@ -741,19 +736,19 @@ const TicketDetailView: React.FC = () => {
                       }} />
                       <div style={{ flex: 1 }}>
                         <div style={{ 
-                          color: isDark ? '#f1f5f9' : '#111827',
+                          color: 'var(--text-primary)',
                           fontSize: '14px',
                         }}>
                           <strong>{activity.user}</strong> {activity.description}
                           {activity.oldValue && activity.newValue && (
-                            <span style={{ color: isDark ? '#94a3b8' : '#6b7280' }}>
+                            <span style={{ color: 'var(--text-muted)' }}>
                               {' '}from <strong>{activity.oldValue}</strong> to <strong>{activity.newValue}</strong>
                             </span>
                           )}
                         </div>
                         <div style={{ 
                           fontSize: '12px', 
-                          color: isDark ? '#64748b' : '#9ca3af',
+                          color: 'var(--text-muted)',
                           marginTop: '4px',
                         }}>
                           {formatDate(activity.timestamp)}
@@ -772,7 +767,7 @@ const TicketDetailView: React.FC = () => {
                       key={related.id}
                       style={{
                         padding: '12px 16px',
-                        background: isDark ? 'rgba(51, 65, 85, 0.3)' : 'rgba(249, 250, 251, 0.8)',
+                        background: 'var(--card-bg)',
                         borderRadius: '8px',
                         cursor: 'pointer',
                         transition: 'background 150ms ease',
@@ -787,7 +782,7 @@ const TicketDetailView: React.FC = () => {
                         <div>
                           <span style={{ 
                             fontSize: '12px', 
-                            color: isDark ? '#94a3b8' : '#6b7280',
+                            color: 'var(--text-muted)',
                             marginRight: '8px',
                           }}>
                             {related.id}
@@ -795,8 +790,8 @@ const TicketDetailView: React.FC = () => {
                           <span style={{
                             fontSize: '10px',
                             padding: '2px 6px',
-                            background: isDark ? 'rgba(107, 76, 230, 0.15)' : 'rgba(107, 76, 230, 0.1)',
-                            color: '#6B4CE6',
+                            background: 'var(--btn-secondary-bg)',
+                            color: 'var(--brand-primary)',
                             borderRadius: '4px',
                             textTransform: 'uppercase',
                           }}>
@@ -816,7 +811,7 @@ const TicketDetailView: React.FC = () => {
                       </div>
                       <div style={{ 
                         marginTop: '8px',
-                        color: isDark ? '#f1f5f9' : '#111827',
+                        color: 'var(--text-primary)',
                         fontSize: '14px',
                       }}>
                         {related.title}
@@ -850,7 +845,7 @@ const TicketDetailView: React.FC = () => {
                 <div style={{ 
                   marginTop: '12px',
                   fontSize: '12px',
-                  color: isDark ? '#94a3b8' : '#6b7280',
+                  color: 'var(--text-muted)',
                 }}>
                   Due: {formatDate(ticket.slaDueDate)}
                 </div>
@@ -962,13 +957,13 @@ const TicketDetailView: React.FC = () => {
                     key={attachment.id}
                     style={{
                       padding: '8px 12px',
-                      background: isDark ? 'rgba(51, 65, 85, 0.3)' : 'rgba(249, 250, 251, 0.8)',
+                      background: 'var(--card-bg)',
                       borderRadius: '8px',
                       cursor: 'pointer',
                     }}
                   >
                     <div style={{ 
-                      color: isDark ? '#f1f5f9' : '#111827',
+                      color: 'var(--text-primary)',
                       fontSize: '13px',
                       fontWeight: 500,
                     }}>
@@ -976,7 +971,7 @@ const TicketDetailView: React.FC = () => {
                     </div>
                     <div style={{ 
                       fontSize: '11px',
-                      color: isDark ? '#64748b' : '#9ca3af',
+                      color: 'var(--text-muted)',
                       marginTop: '2px',
                     }}>
                       {attachment.size} • {attachment.uploadedBy}
@@ -1004,10 +999,10 @@ const TicketDetailView: React.FC = () => {
                     key={watcher}
                     style={{
                       padding: '4px 10px',
-                      background: isDark ? 'rgba(51, 65, 85, 0.3)' : 'rgba(249, 250, 251, 0.8)',
+                      background: 'var(--card-bg)',
                       borderRadius: '9999px',
                       fontSize: '12px',
-                      color: isDark ? '#cbd5e1' : '#374151',
+                      color: 'var(--text-secondary)',
                     }}
                   >
                     {watcher.split('@')[0]}

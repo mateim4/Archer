@@ -50,7 +50,6 @@ import {
   SLAIndicator,
 } from '../components/ui';
 import type { AssetType, AssetStatus } from '../components/ui';
-import { useTheme } from '../hooks/useTheme';
 import { DesignTokens } from '../styles/designSystem';
 
 // Asset detail interface
@@ -181,8 +180,6 @@ type TabId = 'overview' | 'metrics' | 'dependencies' | 'tickets' | 'history';
 const AssetDetailView: React.FC = () => {
   const { assetId } = useParams<{ assetId: string }>();
   const navigate = useNavigate();
-  const { mode } = useTheme();
-  const isDark = mode === 'dark';
 
   const [asset, setAsset] = useState<AssetDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -309,7 +306,7 @@ const AssetDetailView: React.FC = () => {
       }}>
         <div style={{ textAlign: 'center' }}>
           <div className="spinner" style={{ marginBottom: '16px' }} />
-          <p style={{ color: isDark ? '#94a3b8' : '#6b7280' }}>Loading asset details...</p>
+          <p style={{ color: 'var(--text-muted)' }}>Loading asset details...</p>
         </div>
       </div>
     );
@@ -326,8 +323,8 @@ const AssetDetailView: React.FC = () => {
       }}>
         <PurpleGlassCard style={{ padding: '48px', textAlign: 'center' }}>
           <ErrorCircleRegular style={{ fontSize: '48px', color: '#ef4444', marginBottom: '16px' }} />
-          <h2 style={{ color: isDark ? '#f1f5f9' : '#111827', marginBottom: '8px' }}>Asset Not Found</h2>
-          <p style={{ color: isDark ? '#94a3b8' : '#6b7280', marginBottom: '24px' }}>
+          <h2 style={{ color: 'var(--text-primary)', marginBottom: '8px' }}>Asset Not Found</h2>
+          <p style={{ color: 'var(--text-muted)', marginBottom: '24px' }}>
             The asset you're looking for doesn't exist or has been removed.
           </p>
           <PurpleGlassButton onClick={() => navigate('/app/inventory')}>
@@ -356,11 +353,11 @@ const AssetDetailView: React.FC = () => {
   const tabStyle = (isActive: boolean): React.CSSProperties => ({
     padding: '12px 20px',
     background: isActive 
-      ? isDark ? 'rgba(107, 76, 230, 0.15)' : 'rgba(107, 76, 230, 0.1)'
+      ? 'var(--btn-secondary-bg)'
       : 'transparent',
     border: 'none',
     borderBottom: isActive ? '2px solid #6B4CE6' : '2px solid transparent',
-    color: isActive ? '#6B4CE6' : isDark ? '#94a3b8' : '#6b7280',
+    color: isActive ? '#6B4CE6' : 'var(--text-muted)',
     fontSize: '14px',
     fontWeight: isActive ? 600 : 500,
     cursor: 'pointer',
@@ -369,13 +366,13 @@ const AssetDetailView: React.FC = () => {
 
   const metricCardStyle: React.CSSProperties = {
     padding: '20px',
-    background: isDark ? 'rgba(51, 65, 85, 0.3)' : 'rgba(249, 250, 251, 0.8)',
+    background: 'var(--card-bg)',
     borderRadius: '12px',
     textAlign: 'center',
   };
 
   const metricLabelStyle: React.CSSProperties = {
-    color: isDark ? '#94a3b8' : '#6b7280',
+    color: 'var(--text-muted)',
     fontSize: '12px',
     fontWeight: 500,
     textTransform: 'uppercase',
@@ -383,7 +380,7 @@ const AssetDetailView: React.FC = () => {
   };
 
   const metricValueStyle: React.CSSProperties = {
-    color: isDark ? '#f1f5f9' : '#111827',
+    color: 'var(--text-primary)',
     fontSize: '28px',
     fontWeight: 700,
   };
@@ -393,11 +390,11 @@ const AssetDetailView: React.FC = () => {
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: '12px 0',
-    borderBottom: `1px solid ${isDark ? 'rgba(71, 85, 105, 0.3)' : 'rgba(229, 231, 235, 0.5)'}`,
+    borderBottom: '1px solid var(--divider-color)',
   };
 
   const infoLabelStyle: React.CSSProperties = {
-    color: isDark ? '#94a3b8' : '#6b7280',
+    color: 'var(--text-muted)',
     fontSize: '13px',
     display: 'flex',
     alignItems: 'center',
@@ -405,7 +402,7 @@ const AssetDetailView: React.FC = () => {
   };
 
   const infoValueStyle: React.CSSProperties = {
-    color: isDark ? '#f1f5f9' : '#111827',
+    color: 'var(--text-primary)',
     fontSize: '14px',
     fontWeight: 500,
   };
@@ -415,7 +412,7 @@ const AssetDetailView: React.FC = () => {
     alignItems: 'center',
     gap: '8px',
     marginBottom: '16px',
-    color: isDark ? '#f1f5f9' : '#111827',
+    color: 'var(--text-primary)',
     fontSize: '16px',
     fontWeight: 600,
   };
@@ -450,7 +447,7 @@ const AssetDetailView: React.FC = () => {
               <h1 style={{ 
                 fontSize: '24px', 
                 fontWeight: 600, 
-                color: isDark ? '#f1f5f9' : '#111827',
+                color: 'var(--text-primary)',
                 margin: 0,
               }}>
                 {asset.name}
@@ -463,7 +460,7 @@ const AssetDetailView: React.FC = () => {
               }}>
                 <span style={{
                   padding: '2px 8px',
-                  background: isDark ? 'rgba(107, 76, 230, 0.15)' : 'rgba(107, 76, 230, 0.1)',
+                  background: 'var(--btn-secondary-bg)',
                   color: '#6B4CE6',
                   borderRadius: '4px',
                   fontSize: '11px',
@@ -534,7 +531,7 @@ const AssetDetailView: React.FC = () => {
       <PurpleGlassCard style={{ padding: 0, overflow: 'hidden' }}>
         <div style={{ 
           display: 'flex', 
-          borderBottom: `1px solid ${isDark ? 'rgba(71, 85, 105, 0.3)' : 'rgba(229, 231, 235, 0.5)'}`,
+          borderBottom: '1px solid var(--divider-color)',
         }}>
           <button style={tabStyle(activeTab === 'overview')} onClick={() => setActiveTab('overview')}>
             <InfoRegular style={{ marginRight: '8px' }} />
@@ -570,7 +567,7 @@ const AssetDetailView: React.FC = () => {
                 </div>
                 {asset.description && (
                   <p style={{ 
-                    color: isDark ? '#cbd5e1' : '#374151',
+                    color: 'var(--text-secondary)',
                     fontSize: '14px',
                     lineHeight: 1.6,
                     marginBottom: '20px',
@@ -628,7 +625,7 @@ const AssetDetailView: React.FC = () => {
                           key={tag}
                           style={{
                             padding: '4px 12px',
-                            background: isDark ? 'rgba(107, 76, 230, 0.15)' : 'rgba(107, 76, 230, 0.1)',
+                            background: 'var(--btn-secondary-bg)',
                             color: '#6B4CE6',
                             borderRadius: '9999px',
                             fontSize: '12px',
@@ -714,7 +711,7 @@ const AssetDetailView: React.FC = () => {
                           key={i}
                           style={{
                             padding: '12px 16px',
-                            background: isDark ? 'rgba(51, 65, 85, 0.3)' : 'rgba(249, 250, 251, 0.8)',
+                            background: 'var(--card-bg)',
                             borderRadius: '8px',
                             display: 'flex',
                             justifyContent: 'space-between',
@@ -722,10 +719,10 @@ const AssetDetailView: React.FC = () => {
                           }}
                         >
                           <div>
-                            <div style={{ color: isDark ? '#f1f5f9' : '#111827', fontWeight: 500 }}>
+                            <div style={{ color: 'var(--text-primary)', fontWeight: 500 }}>
                               {sw.name}
                             </div>
-                            <div style={{ color: isDark ? '#94a3b8' : '#6b7280', fontSize: '12px' }}>
+                            <div style={{ color: 'var(--text-muted)', fontSize: '12px' }}>
                               {sw.vendor} • v{sw.version}
                             </div>
                           </div>
@@ -758,13 +755,13 @@ const AssetDetailView: React.FC = () => {
                   <PurpleGlassCard style={{ padding: '20px' }}>
                     <div style={metricLabelStyle}>CPU Utilization</div>
                     <div style={{ ...metricValueStyle, marginBottom: '12px' }}>{asset.metrics.cpu.current}%</div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: isDark ? '#94a3b8' : '#6b7280' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: 'var(--text-muted)' }}>
                       <span>Avg: {asset.metrics.cpu.average}%</span>
                       <span>Peak: {asset.metrics.cpu.peak}%</span>
                     </div>
                     <div style={{
                       height: '8px',
-                      background: isDark ? 'rgba(51, 65, 85, 0.5)' : '#e5e7eb',
+                      background: 'var(--divider-color-subtle)',
                       borderRadius: '4px',
                       marginTop: '8px',
                       overflow: 'hidden',
@@ -783,12 +780,12 @@ const AssetDetailView: React.FC = () => {
                   <PurpleGlassCard style={{ padding: '20px' }}>
                     <div style={metricLabelStyle}>Memory Utilization</div>
                     <div style={{ ...metricValueStyle, marginBottom: '12px' }}>{asset.metrics.memory.current}%</div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: isDark ? '#94a3b8' : '#6b7280' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: 'var(--text-muted)' }}>
                       <span>{Math.round(asset.metrics.memory.total * asset.metrics.memory.current / 100)} / {asset.metrics.memory.total} GB</span>
                     </div>
                     <div style={{
                       height: '8px',
-                      background: isDark ? 'rgba(51, 65, 85, 0.5)' : '#e5e7eb',
+                      background: 'var(--divider-color-subtle)',
                       borderRadius: '4px',
                       marginTop: '8px',
                       overflow: 'hidden',
@@ -807,12 +804,12 @@ const AssetDetailView: React.FC = () => {
                   <PurpleGlassCard style={{ padding: '20px' }}>
                     <div style={metricLabelStyle}>Storage Usage</div>
                     <div style={{ ...metricValueStyle, marginBottom: '12px' }}>{asset.metrics.storage.used}%</div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: isDark ? '#94a3b8' : '#6b7280' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: 'var(--text-muted)' }}>
                       <span>{asset.metrics.storage.used} / {asset.metrics.storage.total} TB</span>
                     </div>
                     <div style={{
                       height: '8px',
-                      background: isDark ? 'rgba(51, 65, 85, 0.5)' : '#e5e7eb',
+                      background: 'var(--divider-color-subtle)',
                       borderRadius: '4px',
                       marginTop: '8px',
                       overflow: 'hidden',
@@ -831,7 +828,7 @@ const AssetDetailView: React.FC = () => {
                   <PurpleGlassCard style={{ padding: '20px' }}>
                     <div style={metricLabelStyle}>Network I/O</div>
                     <div style={{ ...metricValueStyle, marginBottom: '12px' }}>{asset.metrics.network.inbound}Gbps</div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: isDark ? '#94a3b8' : '#6b7280' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: 'var(--text-muted)' }}>
                       <span>↓ In: {asset.metrics.network.inbound}G</span>
                       <span>↑ Out: {asset.metrics.network.outbound}G</span>
                     </div>
@@ -841,8 +838,8 @@ const AssetDetailView: React.FC = () => {
               
               {/* Placeholder for charts */}
               <PurpleGlassCard style={{ padding: '40px', textAlign: 'center' }}>
-                <ChartMultipleRegular style={{ fontSize: '48px', color: isDark ? '#64748b' : '#9ca3af', marginBottom: '16px' }} />
-                <p style={{ color: isDark ? '#94a3b8' : '#6b7280' }}>
+                <ChartMultipleRegular style={{ fontSize: '48px', color: 'var(--text-muted)', marginBottom: '16px' }} />
+                <p style={{ color: 'var(--text-muted)' }}>
                   Historical metrics charts would be displayed here.<br />
                   Integration with monitoring backend required.
                 </p>
@@ -865,7 +862,7 @@ const AssetDetailView: React.FC = () => {
                       key={dep.id}
                       style={{
                         padding: '12px 16px',
-                        background: isDark ? 'rgba(51, 65, 85, 0.3)' : 'rgba(249, 250, 251, 0.8)',
+                        background: 'var(--card-bg)',
                         borderRadius: '8px',
                         cursor: 'pointer',
                       }}
@@ -880,14 +877,14 @@ const AssetDetailView: React.FC = () => {
                       <div style={{ 
                         marginTop: '8px',
                         fontSize: '12px',
-                        color: isDark ? '#94a3b8' : '#6b7280',
+                        color: 'var(--text-muted)',
                       }}>
                         Relationship: {dep.relationship.replace('_', ' ')}
                       </div>
                     </div>
                   ))}
                   {(!asset.dependencies?.upstream || asset.dependencies.upstream.length === 0) && (
-                    <p style={{ color: isDark ? '#64748b' : '#9ca3af', fontSize: '14px' }}>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>
                       No upstream dependencies
                     </p>
                   )}
@@ -906,7 +903,7 @@ const AssetDetailView: React.FC = () => {
                       key={dep.id}
                       style={{
                         padding: '12px 16px',
-                        background: isDark ? 'rgba(51, 65, 85, 0.3)' : 'rgba(249, 250, 251, 0.8)',
+                        background: 'var(--card-bg)',
                         borderRadius: '8px',
                         cursor: 'pointer',
                       }}
@@ -921,14 +918,14 @@ const AssetDetailView: React.FC = () => {
                       <div style={{ 
                         marginTop: '8px',
                         fontSize: '12px',
-                        color: isDark ? '#94a3b8' : '#6b7280',
+                        color: 'var(--text-muted)',
                       }}>
                         Relationship: {dep.relationship.replace('_', ' ')}
                       </div>
                     </div>
                   ))}
                   {(!asset.dependencies?.downstream || asset.dependencies.downstream.length === 0) && (
-                    <p style={{ color: isDark ? '#64748b' : '#9ca3af', fontSize: '14px' }}>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>
                       No downstream dependencies
                     </p>
                   )}
@@ -945,7 +942,7 @@ const AssetDetailView: React.FC = () => {
                   key={ticket.id}
                   style={{
                     padding: '16px',
-                    background: isDark ? 'rgba(51, 65, 85, 0.3)' : 'rgba(249, 250, 251, 0.8)',
+                    background: 'var(--card-bg)',
                     borderRadius: '12px',
                     cursor: 'pointer',
                   }}
@@ -962,13 +959,13 @@ const AssetDetailView: React.FC = () => {
                         <span style={{ 
                           fontSize: '12px', 
                           fontFamily: 'monospace',
-                          color: isDark ? '#94a3b8' : '#6b7280',
+                          color: 'var(--text-muted)',
                         }}>
                           {ticket.id}
                         </span>
                         <span style={{
                           padding: '2px 6px',
-                          background: isDark ? 'rgba(107, 76, 230, 0.15)' : 'rgba(107, 76, 230, 0.1)',
+                          background: 'var(--btn-secondary-bg)',
                           color: '#6B4CE6',
                           borderRadius: '4px',
                           fontSize: '10px',
@@ -989,7 +986,7 @@ const AssetDetailView: React.FC = () => {
                       </div>
                       <h4 style={{ 
                         margin: 0,
-                        color: isDark ? '#f1f5f9' : '#111827',
+                        color: 'var(--text-primary)',
                         fontSize: '14px',
                         fontWeight: 500,
                       }}>
@@ -1014,7 +1011,7 @@ const AssetDetailView: React.FC = () => {
                   <div style={{ 
                     marginTop: '8px',
                     fontSize: '12px',
-                    color: isDark ? '#64748b' : '#9ca3af',
+                    color: 'var(--text-muted)',
                   }}>
                     Created {formatRelativeTime(ticket.createdAt)}
                   </div>
@@ -1024,7 +1021,7 @@ const AssetDetailView: React.FC = () => {
                 <div style={{ 
                   padding: '40px',
                   textAlign: 'center',
-                  color: isDark ? '#64748b' : '#9ca3af',
+                  color: 'var(--text-muted)',
                 }}>
                   <DocumentRegular style={{ fontSize: '48px', marginBottom: '16px' }} />
                   <p>No related tickets found for this asset.</p>
@@ -1044,7 +1041,7 @@ const AssetDetailView: React.FC = () => {
                     gap: '16px',
                     padding: '16px 0',
                     borderBottom: i < (asset.history?.length || 0) - 1 
-                      ? `1px solid ${isDark ? 'rgba(71, 85, 105, 0.2)' : 'rgba(229, 231, 235, 0.3)'}` 
+                      ? '1px solid var(--divider-color-subtle)' 
                       : 'none',
                   }}
                 >
@@ -1067,7 +1064,7 @@ const AssetDetailView: React.FC = () => {
                   </div>
                   <div style={{ flex: 1 }}>
                     <div style={{ 
-                      color: isDark ? '#f1f5f9' : '#111827',
+                      color: 'var(--text-primary)',
                       fontSize: '14px',
                     }}>
                       {entry.description}
@@ -1077,7 +1074,7 @@ const AssetDetailView: React.FC = () => {
                       gap: '12px',
                       marginTop: '4px',
                       fontSize: '12px',
-                      color: isDark ? '#64748b' : '#9ca3af',
+                      color: 'var(--text-muted)',
                     }}>
                       {entry.user && <span>{entry.user}</span>}
                       <span>{formatDate(entry.timestamp)}</span>
@@ -1089,7 +1086,7 @@ const AssetDetailView: React.FC = () => {
                 <div style={{ 
                   padding: '40px',
                   textAlign: 'center',
-                  color: isDark ? '#64748b' : '#9ca3af',
+                  color: 'var(--text-muted)',
                 }}>
                   <HistoryRegular style={{ fontSize: '48px', marginBottom: '16px' }} />
                   <p>No history available for this asset.</p>
