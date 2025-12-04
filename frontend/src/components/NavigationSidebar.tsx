@@ -20,7 +20,9 @@ import {
   TaskListSquareLtrRegular,
   TaskListSquareLtrFilled,
   ClipboardTaskRegular,
-  ClipboardTaskFilled
+  ClipboardTaskFilled,
+  HomeRegular,
+  HomeFilled,
 } from '@fluentui/react-icons';
 
 interface NavigationSidebarProps {
@@ -47,6 +49,13 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
   const location = useLocation();
 
   const mainMenuItems: MenuItem[] = [
+    { 
+      id: 'dashboard', 
+      title: 'Dashboard', 
+      icon: <HomeRegular />, 
+      iconFilled: <HomeFilled />, 
+      path: '/app/dashboard',
+    },
     { 
       id: 'projects', 
       title: 'Projects', 

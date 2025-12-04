@@ -13,6 +13,7 @@ import { lazyWithRetry } from './utils/lazyLoad';
 
 // Eager-loaded views (critical path)
 import LandingView from './views/LandingView';
+import DashboardView from './views/DashboardView';
 import ProjectsView from './views/ProjectsView';
 import ProjectWorkspaceView from './views/ProjectWorkspaceView';
 import HardwarePoolView from './views/HardwarePoolView';
@@ -136,6 +137,7 @@ function AppContent() {
                     minHeight: 'calc(100vh - 188px)' /* Adjusted for top nav */
                   }}>
                     <Routes>
+                    <Route path="dashboard" element={<DashboardView />} />
                     <Route path="projects" element={<ProjectsView />} />
                     <Route path="tasks" element={<TasksView />} />
                     <Route path="service-desk" element={<ServiceDeskView />} />
@@ -162,11 +164,11 @@ function AppContent() {
                     <Route path="zoom-test" element={<ZoomTestPage />} />
                     <Route path="tools/infra-visualizer" element={<InfraVisualizerView />} />
                     
-                    {/* Default /app route - redirect to projects (primary workflow) */}
-                    <Route index element={<Navigate to="projects" replace />} />
+                    {/* Default /app route - redirect to dashboard (primary view) */}
+                    <Route index element={<Navigate to="dashboard" replace />} />
                     
                     {/* 404 fallback for unknown /app routes */}
-                    <Route path="*" element={<Navigate to="projects" replace />} />
+                    <Route path="*" element={<Navigate to="dashboard" replace />} />
                   </Routes>
                 </div>
               </main>
