@@ -202,17 +202,6 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
           >
             <NavigationRegular />
           </button>
-          
-          {isOpen && (
-            <span style={{
-              fontSize: tokens.fontSizeBase300,
-              fontWeight: tokens.fontWeightSemibold,
-              color: 'var(--text-primary)',
-              fontFamily: tokens.fontFamilyBody
-            }}>
-              Navigation
-            </span>
-          )}
         </div>
       </div>
 
