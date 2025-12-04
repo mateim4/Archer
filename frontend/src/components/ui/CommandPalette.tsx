@@ -3,8 +3,10 @@
  * 
  * Unified search across all modules (Ctrl+K / Cmd+K).
  * Provides quick access to tickets, assets, alerts, and actions.
+ * Now enhanced with AI-powered natural language understanding.
  * 
  * Part of Phase 2: Integration Layer (Unified Search)
+ * Phase 4: AI Integration (Smart Search)
  */
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
@@ -23,6 +25,7 @@ import {
   AddRegular,
   CubeRegular,
   DesktopRegular,
+  SparkleRegular,
 } from '@fluentui/react-icons';
 import { tokens } from '@fluentui/react-components';
 import { PurpleGlassInput } from './PurpleGlassInput';
@@ -104,6 +107,12 @@ const mockSearch = async (query: string): Promise<SearchResult[]> => {
 
   const lowerQuery = query.toLowerCase();
   const results: SearchResult[] = [];
+  
+  // AI-powered smart suggestions based on natural language
+  const aiSuggestions = getAISuggestions(lowerQuery);
+  if (aiSuggestions.length > 0) {
+    results.push(...aiSuggestions);
+  }
 
   // Filter default actions
   DEFAULT_ACTIONS.forEach(action => {
@@ -163,6 +172,123 @@ const mockSearch = async (query: string): Promise<SearchResult[]> => {
   }
 
   return results;
+};
+
+// AI-powered natural language understanding for search
+const getAISuggestions = (query: string): SearchResult[] => {
+  const suggestions: SearchResult[] = [];
+  
+  // Natural language patterns for common queries
+  const patterns = [
+    {
+      match: /show me (all )?(open|active) (tickets|incidents)/i,
+      result: {
+        id: 'ai-open-tickets',
+        type: 'action' as const,
+        title: '✨ Show Open Tickets',
+        subtitle: 'AI Suggestion • Navigate to open tickets view',
+        path: '/app/service-desk?status=open',
+      },
+    },
+    {
+      match: /what('s| is) (breaking|broken|down|failing)/i,
+      result: {
+        id: 'ai-critical-issues',
+        type: 'action' as const,
+        title: '✨ View Critical Issues',
+        subtitle: 'AI Suggestion • Show critical alerts and incidents',
+        path: '/app/monitoring?severity=critical',
+      },
+    },
+    {
+      match: /(create|open|new) (a )?(ticket|incident|case)/i,
+      result: {
+        id: 'ai-create-ticket',
+        type: 'action' as const,
+        title: '✨ Create New Ticket',
+        subtitle: 'AI Suggestion • Open ticket creation form',
+        path: '/app/service-desk?action=create',
+      },
+    },
+    {
+      match: /my (assigned|open) (tickets|work|tasks)/i,
+      result: {
+        id: 'ai-my-tickets',
+        type: 'action' as const,
+        title: '✨ My Assigned Tickets',
+        subtitle: 'AI Suggestion • View your assigned work',
+        path: '/app/service-desk?assignee=me',
+      },
+    },
+    {
+      match: /(sla|overdue|breach|late)/i,
+      result: {
+        id: 'ai-sla-risk',
+        type: 'action' as const,
+        title: '✨ SLA At Risk Tickets',
+        subtitle: 'AI Suggestion • Tickets approaching or past SLA',
+        path: '/app/service-desk?sla=at_risk',
+      },
+    },
+    {
+      match: /(health|status|monitoring|alerts)/i,
+      result: {
+        id: 'ai-monitoring',
+        type: 'action' as const,
+        title: '✨ Infrastructure Health',
+        subtitle: 'AI Suggestion • View monitoring dashboard',
+        path: '/app/monitoring',
+      },
+    },
+    {
+      match: /(migrate|migration|move)/i,
+      result: {
+        id: 'ai-migration',
+        type: 'action' as const,
+        title: '✨ Migration Projects',
+        subtitle: 'AI Suggestion • View active migrations',
+        path: '/app/projects?type=migration',
+      },
+    },
+    {
+      match: /(capacity|sizing|resources|utilization)/i,
+      result: {
+        id: 'ai-capacity',
+        type: 'action' as const,
+        title: '✨ Capacity Planning',
+        subtitle: 'AI Suggestion • Analyze resource utilization',
+        path: '/app/capacity',
+      },
+    },
+    {
+      match: /(unassigned|waiting|queue)/i,
+      result: {
+        id: 'ai-unassigned',
+        type: 'action' as const,
+        title: '✨ Unassigned Queue',
+        subtitle: 'AI Suggestion • Tickets awaiting assignment',
+        path: '/app/service-desk?assignee=none',
+      },
+    },
+    {
+      match: /(report|analytics|metrics|dashboard)/i,
+      result: {
+        id: 'ai-analytics',
+        type: 'action' as const,
+        title: '✨ Analytics Dashboard',
+        subtitle: 'AI Suggestion • View reports and metrics',
+        path: '/app/analytics',
+      },
+    },
+  ];
+  
+  for (const pattern of patterns) {
+    if (pattern.match.test(query)) {
+      suggestions.push(pattern.result);
+    }
+  }
+  
+  return suggestions;
 };
 
 const getTypeIcon = (type: SearchResult['type']) => {
