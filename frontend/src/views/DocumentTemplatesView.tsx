@@ -694,7 +694,7 @@ const DocumentTemplatesView: React.FC = () => {
                   <Badge appearance="outline" color="brand" size="small">Official</Badge>
                 )}
               </div>
-              <Body1 style={{ color: '#6b7280' }}>
+              <Body1 style={{ color: 'var(--text-secondary)' }}>
                 {previewTemplate?.description}
               </Body1>
             </div>
@@ -716,7 +716,7 @@ const DocumentTemplatesView: React.FC = () => {
               <div style={{ 
                 textAlign: 'center', 
                 padding: '40px',
-                color: '#6b7280'
+                color: 'var(--text-secondary)'
               }}>
                 <DocumentRegular style={{ fontSize: '48px', marginBottom: '16px' }} />
                 <Body1>No content preview available</Body1>
