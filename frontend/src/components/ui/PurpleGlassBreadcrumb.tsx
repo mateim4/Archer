@@ -27,24 +27,35 @@ const useStyles = makeStyles({
     display: 'flex',
     alignItems: 'center',
     gap: tokens.spacingHorizontalXS,
-    color: tokens.colorNeutralForeground2,
+    color: tokens.colorNeutralForeground3, // Grey like chevron
     textDecoration: 'none',
     transition: 'color 0.2s ease',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    maxWidth: '200px',
     ':hover': {
       color: tokens.colorBrandForeground1,
     },
   },
   current: {
-    color: tokens.colorNeutralForeground1,
+    color: tokens.colorBrandForeground1, // Purple
     fontWeight: tokens.fontWeightSemibold,
+    textDecoration: 'underline',
+    textDecorationColor: tokens.colorBrandForeground1,
+    textUnderlineOffset: '4px',
+    maxWidth: 'none', // Never truncate current step
+    overflow: 'visible',
   },
   separator: {
     color: tokens.colorNeutralForeground3,
     fontSize: tokens.fontSizeBase200,
+    flexShrink: 0,
   },
   icon: {
     display: 'flex',
     alignItems: 'center',
+    flexShrink: 0,
   },
 });
 

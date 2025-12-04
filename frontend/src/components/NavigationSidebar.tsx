@@ -23,6 +23,7 @@ import {
   ClipboardTaskFilled,
   HomeRegular,
   HomeFilled,
+  DismissRegular,
 } from '@fluentui/react-icons';
 
 interface NavigationSidebarProps {
@@ -193,7 +194,7 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
               e.currentTarget.style.boxShadow = 'none';
             }}
           >
-            <NavigationRegular />
+            {isOpen ? <DismissRegular /> : <NavigationRegular />}
           </button>
         </div>
       </div>

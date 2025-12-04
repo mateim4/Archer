@@ -645,9 +645,9 @@ input[type="number"] {
   background: transparent;
   backdrop-filter: blur(60px) saturate(220%) brightness(115%) contrast(105%);
   -webkit-backdrop-filter: blur(60px) saturate(220%) brightness(115%) contrast(105%);
-  border-radius: 30px;
+  border-radius: 32px;
   border: 1px solid rgba(255, 255, 255, 0.3);
-  padding: 4px 8px;
+  padding: 4px;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
   max-width: 440px;
@@ -673,9 +673,9 @@ input[type="number"] {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 52px;
-  height: 52px;
-  border-radius: 26px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
   background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
@@ -685,7 +685,7 @@ input[type="number"] {
   font-size: 20px;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   flex-shrink: 0;
-  margin-right: 16px;
+  margin-right: 12px;
   box-shadow: 
     0 6px 24px rgba(139, 92, 246, 0.15),
     0 2px 8px rgba(0, 0, 0, 0.1),
@@ -1466,6 +1466,12 @@ input[type="number"] {
   flex-wrap: wrap;
   gap: var(--lcm-spacing-sm);
   margin: var(--lcm-spacing-lg) 0;
+  padding: 8px 12px;
+  background: var(--glass-bg, rgba(255, 255, 255, 0.6));
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  border-radius: 16px;
+  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.2));
 }
 
 .lcm-pill-tab {

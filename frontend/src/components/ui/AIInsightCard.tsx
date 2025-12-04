@@ -559,10 +559,10 @@ export const AIInsightsPanel: React.FC<AIInsightsPanelProps> = ({
             style={{
               padding: '2px 8px',
               borderRadius: '9999px',
-              background: 'color-mix(in srgb, var(--brand-primary, #8b5cf6) 15%, transparent)',
-              color: 'var(--brand-primary)',
+              background: 'rgba(139, 92, 246, 0.15)',
+              color: 'var(--text-primary)',
               fontSize: '0.75rem',
-              fontWeight: 500,
+              fontWeight: 600,
             }}
           >
             {insights.length} insight{insights.length !== 1 ? 's' : ''}
@@ -578,7 +578,7 @@ export const AIInsightsPanel: React.FC<AIInsightsPanelProps> = ({
       </div>
       
       {/* Insights List */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
         {visibleInsights.map(insight => (
           <AIInsightCard
             key={insight.id}

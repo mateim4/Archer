@@ -790,14 +790,22 @@ export const DashboardView: React.FC = () => {
 
   return (
     <div data-testid="dashboard-view" style={{ maxWidth: '1400px', margin: '0 auto' }}>
-      {/* Page Header */}
+      {/* Page Header - wrapped in card */}
       <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
+        background: 'var(--card-bg)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+        borderRadius: '16px',
+        border: '1px solid var(--card-border)',
+        padding: '20px 24px',
         marginBottom: '24px',
       }}>
-        <div>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}>
+          <div>
           <h1 style={{
             margin: 0,
             fontSize: 'var(--lcm-font-size-xxxl, 32px)',
@@ -874,28 +882,38 @@ export const DashboardView: React.FC = () => {
             Refresh
           </button>
         </div>
+        </div>
       </div>
 
-      {/* Stat Cards Row */}
+      {/* Stat Cards Row - wrapped in card */}
       <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-        gap: '20px',
+        background: 'var(--card-bg)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+        borderRadius: '16px',
+        border: '1px solid var(--card-border)',
+        padding: '20px 24px',
         marginBottom: '24px',
       }}>
-        {MOCK_STATS.map((stat) => (
-          <StatCard
-            key={stat.id}
-            data={stat}
-            isDark={isDark}
-            onClick={stat.link ? () => handleStatClick(stat.link) : undefined}
-          />
-        ))}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+          gap: '20px',
+        }}>
+          {MOCK_STATS.map((stat) => (
+            <StatCard
+              key={stat.id}
+              data={stat}
+              isDark={isDark}
+              onClick={stat.link ? () => handleStatClick(stat.link) : undefined}
+            />
+          ))}
+        </div>
       </div>
 
       {/* AI Insights Section */}
       <div style={{
-        marginBottom: '24px',
+        marginBottom: '32px',
         padding: '24px',
         background: 'var(--card-bg)',
         backdropFilter: 'blur(20px)',
@@ -968,7 +986,7 @@ export const DashboardView: React.FC = () => {
                 borderRadius: '6px',
                 border: 'none',
                 background: 'transparent',
-                color: '#6B4CE6',
+                color: 'var(--text-primary)',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
