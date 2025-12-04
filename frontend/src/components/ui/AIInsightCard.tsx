@@ -175,7 +175,7 @@ export const AIInsightCard: React.FC<AIInsightCardProps> = ({
                 margin: 0,
                 fontSize: compact ? DesignTokens.typography.sm : DesignTokens.typography.base,
                 fontWeight: DesignTokens.typography.semibold,
-                color: DesignTokens.colors.textPrimary,
+                color: DesignTokens.colors.textPrimaryVar,
                 fontFamily: DesignTokens.typography.fontFamily,
               }}
             >
@@ -459,13 +459,13 @@ export const AIInsightsPanel: React.FC<AIInsightsPanelProps> = ({
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: DesignTokens.spacing.lg }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <SparkleRegular style={{ color: DesignTokens.colors.primary, fontSize: '20px' }} />
+          <SparkleRegular style={{ color: DesignTokens.colors.primaryVar, fontSize: '20px' }} />
           <h3
             style={{
               margin: 0,
               fontSize: DesignTokens.typography.lg,
               fontWeight: DesignTokens.typography.semibold,
-              color: DesignTokens.colors.textPrimary,
+              color: DesignTokens.colors.textPrimaryVar,
               fontFamily: DesignTokens.typography.fontFamily,
             }}
           >
@@ -476,7 +476,7 @@ export const AIInsightsPanel: React.FC<AIInsightsPanelProps> = ({
               padding: '2px 8px',
               borderRadius: DesignTokens.borderRadius.full,
               background: `${DesignTokens.colors.primary}15`,
-              color: DesignTokens.colors.primary,
+              color: DesignTokens.colors.primaryVar,
               fontSize: DesignTokens.typography.xs,
               fontWeight: DesignTokens.typography.medium,
             }}

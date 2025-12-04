@@ -15,20 +15,20 @@ export interface BreadcrumbNavigationProps {
 const GLASS_STYLES = {
   none: {},
   light: {
-    background: 'var(--lcm-bg-surface, rgba(255, 255, 255, 0.75))',
+    background: 'var(--glass-bg)',
     backdropFilter: 'var(--lcm-backdrop-filter, blur(20px) saturate(150%))',
     borderRadius: '12px',
     padding: '12px 16px',
-    border: '1px solid var(--lcm-primary-border, rgba(139, 92, 246, 0.18))',
-    boxShadow: 'var(--lcm-shadow-card, 0 2px 8px 0 rgba(0, 0, 0, 0.04))'
+    border: '1px solid var(--glass-border)',
+    boxShadow: 'var(--glass-shadow)'
   },
   medium: {
-    background: 'var(--lcm-bg-card, rgba(255, 255, 255, 0.82))',
+    background: 'var(--glass-bg)',
     backdropFilter: 'var(--lcm-backdrop-filter, blur(20px) saturate(150%))',
     borderRadius: '12px',
     padding: '12px 16px',
-    border: '1px solid var(--lcm-primary-border, rgba(139, 92, 246, 0.18))',
-    boxShadow: 'var(--lcm-shadow-card, 0 2px 8px 0 rgba(0, 0, 0, 0.04))'
+    border: '1px solid var(--glass-border)',
+    boxShadow: 'var(--glass-shadow)'
   }
 };
 
@@ -84,7 +84,7 @@ export const BreadcrumbNavigation: React.FC<BreadcrumbNavigationProps> = ({
                 <ChevronRightRegular
                   style={{
                     fontSize: '14px',
-                    color: '#9ca3af',
+                    color: 'var(--text-muted)',
                     flexShrink: 0
                   }}
                 />
@@ -96,7 +96,7 @@ export const BreadcrumbNavigation: React.FC<BreadcrumbNavigationProps> = ({
                   style={{
                     fontSize: '14px',
                     fontWeight: 600,
-                    color: '#7c3aed',
+                    color: 'var(--brand-primary)',
                     fontFamily: 'inherit'
                   }}
                 >
@@ -114,7 +114,7 @@ export const BreadcrumbNavigation: React.FC<BreadcrumbNavigationProps> = ({
                     cursor: 'pointer',
                     fontSize: '14px',
                     fontWeight: 500,
-                    color: '#6b7280',
+                    color: 'var(--text-secondary)',
                     fontFamily: 'inherit',
                     transition: 'all 0.2s ease',
                     display: 'flex',
@@ -122,12 +122,12 @@ export const BreadcrumbNavigation: React.FC<BreadcrumbNavigationProps> = ({
                     gap: '4px'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'rgba(124, 58, 237, 0.1)';
-                    e.currentTarget.style.color = '#7c3aed';
+                    e.currentTarget.style.background = 'rgba(139, 92, 246, 0.1)';
+                    e.currentTarget.style.color = 'var(--brand-primary)';
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.background = 'none';
-                    e.currentTarget.style.color = '#6b7280';
+                    e.currentTarget.style.color = 'var(--text-secondary)';
                   }}
                 >
                   {isFirst && <HomeRegular style={{ fontSize: '16px' }} />}
