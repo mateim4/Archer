@@ -225,7 +225,7 @@ const SearchWithDropdown: React.FC<SearchWithDropdownProps> = ({
       case 'vm':
         return '#d2d4da';
       default:
-        return '#6b7280';
+        return 'var(--text-secondary)';
     }
   };
 
@@ -293,7 +293,7 @@ const SearchWithDropdown: React.FC<SearchWithDropdownProps> = ({
                 </div>
                 <div style={{
                   fontSize: '12px',
-                  color: '#6b7280',
+                  color: 'var(--text-secondary)',
                   marginTop: '2px'
                 }}>
                   <span style={{

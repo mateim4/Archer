@@ -430,7 +430,7 @@ export const EnhancedRVToolsReportView: React.FC = () => {
           <h3 style={{
             fontSize: '18px',
             fontWeight: '600',
-            color: '#1f2937',
+            color: 'var(--text-primary)',
             margin: '0 0 16px 0',
             fontFamily: DesignTokens.typography.fontFamily
           }}>
@@ -573,7 +573,7 @@ export const EnhancedRVToolsReportView: React.FC = () => {
           <h2 style={{
             fontSize: '24px',
             fontWeight: '600',
-            color: '#1f2937',
+            color: 'var(--text-primary)',
             margin: '0 0 24px 0',
             fontFamily: DesignTokens.typography.fontFamily
           }}>
@@ -615,7 +615,7 @@ export const EnhancedRVToolsReportView: React.FC = () => {
                 <div style={{
                   fontSize: '20px',
                   fontWeight: '600',
-                  color: '#1f2937',
+                  color: 'var(--text-primary)',
                   marginBottom: '4px',
                   fontFamily: DesignTokens.typography.fontFamily
                 }}>
@@ -623,7 +623,7 @@ export const EnhancedRVToolsReportView: React.FC = () => {
                 </div>
                 <div style={{
                   fontSize: '12px',
-                  color: '#6b7280',
+                  color: 'var(--text-secondary)',
                   fontFamily: DesignTokens.typography.fontFamily
                 }}>
                   {stat.label}

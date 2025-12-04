@@ -243,7 +243,7 @@ const AssetDetailView: React.FC = () => {
       case 'healthy': return '#10b981';
       case 'warning': return '#f59e0b';
       case 'critical': return '#ef4444';
-      default: return '#6b7280';
+      default: return 'var(--text-secondary)';
     }
   };
 
@@ -271,7 +271,7 @@ const AssetDetailView: React.FC = () => {
       case 'staging': return '#f59e0b';
       case 'development': return '#3b82f6';
       case 'test': return '#10b981';
-      default: return '#6b7280';
+      default: return 'var(--text-secondary)';
     }
   };
 
@@ -281,7 +281,7 @@ const AssetDetailView: React.FC = () => {
       case 'high': return '#f59e0b';
       case 'medium': return '#3b82f6';
       case 'low': return '#10b981';
-      default: return '#6b7280';
+      default: return 'var(--text-secondary)';
     }
   };
 
@@ -731,7 +731,7 @@ const AssetDetailView: React.FC = () => {
                             background: sw.status === 'compliant' ? '#10b98120' : 
                                        sw.status === 'non-compliant' ? '#ef444420' : '#6b728020',
                             color: sw.status === 'compliant' ? '#10b981' : 
-                                  sw.status === 'non-compliant' ? '#ef4444' : '#6b7280',
+                                  sw.status === 'non-compliant' ? '#ef4444' : 'var(--text-secondary)',
                             borderRadius: '4px',
                             fontSize: '11px',
                             fontWeight: 600,

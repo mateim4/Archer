@@ -1864,7 +1864,7 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
             .attr('height', checkboxSize)
             .attr('rx', 3)
             .attr('fill', isSelected ? '#10b981' : '#ffffff')
-            .attr('stroke', isSelected ? '#10b981' : '#6b7280')
+            .attr('stroke', isSelected ? '#10b981' : 'var(--text-secondary)')
             .attr('stroke-width', 1.5)
             .attr('opacity', 0.95) // Slightly transparent for better visibility on various backgrounds
             .style('cursor', 'pointer')
@@ -2242,7 +2242,7 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
               WebkitBackdropFilter: 'blur(10px)',
               fontSize: '12px',
               fontWeight: '500',
-              color: '#6b7280',
+              color: 'var(--text-secondary)',
               cursor: 'pointer',
               transition: 'all 0.2s ease',
               opacity: cluster.isVisible !== false ? 1 : 0.5
@@ -2519,7 +2519,7 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <span style={{
                   fontSize: '11px',
-                  color: '#6b7280',
+                  color: 'var(--text-secondary)',
                   fontFamily: tokens.fontFamilyBody
                 }}>
                   CPU
@@ -2545,13 +2545,13 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
                     fontFamily: tokens.fontFamilyBody
                   }}
                 />
-                <span style={{ fontSize: '10px', color: '#6b7280' }}>x</span>
+                <span style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>x</span>
               </div>
               
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <span style={{
                   fontSize: '11px',
-                  color: '#6b7280',
+                  color: 'var(--text-secondary)',
                   fontFamily: tokens.fontFamilyBody
                 }}>
                   Memory
@@ -2577,13 +2577,13 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
                     fontFamily: tokens.fontFamilyBody
                   }}
                 />
-                <span style={{ fontSize: '10px', color: '#6b7280' }}>x</span>
+                <span style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>x</span>
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <span style={{
                   fontSize: '11px',
-                  color: '#6b7280',
+                  color: 'var(--text-secondary)',
                   fontFamily: tokens.fontFamilyBody
                 }}>
                   Storage
@@ -2609,7 +2609,7 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
                     fontFamily: tokens.fontFamilyBody
                   }}
                 />
-                <span style={{ fontSize: '10px', color: '#6b7280' }}>x</span>
+                <span style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>x</span>
               </div>
             </div>
           </div>
@@ -2638,7 +2638,7 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
               </span>
               <span style={{
                 fontSize: '11px',
-                color: '#6b7280',
+                color: 'var(--text-secondary)',
                 fontFamily: tokens.fontFamilyBody
               }}>
                 VMs
@@ -2659,7 +2659,7 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
               </span>
               <span style={{
                 fontSize: '11px',
-                color: '#6b7280',
+                color: 'var(--text-secondary)',
                 fontFamily: tokens.fontFamilyBody
               }}>
                 Hosts
@@ -2680,7 +2680,7 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
               </span>
               <span style={{
                 fontSize: '11px',
-                color: '#6b7280',
+                color: 'var(--text-secondary)',
                 fontFamily: tokens.fontFamilyBody
               }}>
                 Clusters
@@ -2701,7 +2701,7 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
               </span>
               <span style={{
                 fontSize: '11px',
-                color: '#6b7280',
+                color: 'var(--text-secondary)',
                 fontFamily: tokens.fontFamilyBody
               }}>
                 Avg Util

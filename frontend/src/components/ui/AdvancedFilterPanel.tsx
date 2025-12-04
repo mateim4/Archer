@@ -154,7 +154,7 @@ export const AdvancedFilterPanel: React.FC<AdvancedFilterPanelProps> = ({
               margin: 0,
               fontSize: '18px',
               fontWeight: 600,
-              color: '#1f2937',
+              color: 'var(--text-primary)',
               fontFamily: 'inherit'
             }}
           >
@@ -169,7 +169,7 @@ export const AdvancedFilterPanel: React.FC<AdvancedFilterPanelProps> = ({
               background: 'none',
               border: 'none',
               cursor: 'pointer',
-              color: '#6b7280',
+              color: 'var(--text-secondary)',
               padding: '4px',
               borderRadius: '6px',
               display: 'flex',
@@ -179,11 +179,11 @@ export const AdvancedFilterPanel: React.FC<AdvancedFilterPanelProps> = ({
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.background = 'rgba(107, 114, 128, 0.1)';
-              e.currentTarget.style.color = '#1f2937';
+              e.currentTarget.style.color = 'var(--text-primary)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = 'none';
-              e.currentTarget.style.color = '#6b7280';
+              e.currentTarget.style.color = 'var(--text-secondary)';
             }}
           >
             <DismissRegular style={{ fontSize: '20px' }} />
@@ -247,7 +247,7 @@ export const AdvancedFilterPanel: React.FC<AdvancedFilterPanelProps> = ({
             style={{
               fontSize: '14px',
               fontWeight: 600,
-              color: '#6b7280',
+              color: 'var(--text-secondary)',
               marginBottom: '12px',
               fontFamily: 'inherit'
             }}

@@ -65,7 +65,7 @@ const CHART_COLORS = {
   success: ['#10b981', '#34d399', '#6ee7b7', '#9decdb', '#c6f6d5'],
   warning: ['#f59e0b', '#fbbf24', '#fcd34d', '#fde68a', '#fef3c7'],
   danger: ['#ef4444', '#f87171', '#fca5a5', '#fecaca', '#fee2e2'],
-  neutral: ['#6b7280', '#9ca3af', '#d1d5db', '#e5e7eb', '#f3f4f6'],
+  neutral: ['var(--text-secondary)', '#9ca3af', '#d1d5db', '#e5e7eb', '#f3f4f6'],
 };
 
 // =============================================================================

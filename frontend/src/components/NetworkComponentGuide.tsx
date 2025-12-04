@@ -68,7 +68,7 @@ const NetworkComponentGuide: React.FC = () => {
           </h4>
           <span style={{ 
             fontSize: '12px', 
-            color: '#6b7280',
+            color: 'var(--text-secondary)',
             textTransform: 'uppercase',
             fontWeight: '500'
           }}>
@@ -90,7 +90,7 @@ const NetworkComponentGuide: React.FC = () => {
         <span style={{ 
           fontSize: '12px', 
           fontWeight: '600', 
-          color: '#6b7280',
+          color: 'var(--text-secondary)',
           marginBottom: '4px',
           display: 'block'
         }}>
@@ -139,7 +139,7 @@ const NetworkComponentGuide: React.FC = () => {
               border: selectedCategory === category ? '2px solid #8b5cf6' : '1px solid #d1d5db',
               borderRadius: '8px',
               background: selectedCategory === category ? 'rgba(139, 92, 246, 0.1)' : 'white',
-              color: selectedCategory === category ? '#8b5cf6' : '#6b7280',
+              color: selectedCategory === category ? '#8b5cf6' : 'var(--text-secondary)',
               cursor: 'pointer',
               fontSize: '14px',
               fontWeight: '500',
@@ -153,7 +153,7 @@ const NetworkComponentGuide: React.FC = () => {
       </div>
       
       <h3 style={{ 
-        color: '#111827', 
+        color: 'var(--text-primary)', 
         marginBottom: '16px',
         textTransform: 'capitalize',
         fontSize: '20px',
@@ -194,7 +194,7 @@ const NetworkComponentGuide: React.FC = () => {
                 border: selectedTechnology === tech ? '2px solid #8b5cf6' : '1px solid #d1d5db',
                 borderRadius: '10px',
                 background: selectedTechnology === tech ? 'rgba(139, 92, 246, 0.1)' : 'white',
-                color: selectedTechnology === tech ? '#8b5cf6' : '#6b7280',
+                color: selectedTechnology === tech ? '#8b5cf6' : 'var(--text-secondary)',
                 cursor: 'pointer',
                 fontSize: '14px',
                 fontWeight: '600',
@@ -208,7 +208,7 @@ const NetworkComponentGuide: React.FC = () => {
         </div>
         
         <h3 style={{ 
-          color: '#111827', 
+          color: 'var(--text-primary)', 
           marginBottom: '16px',
           fontSize: '20px',
           fontWeight: '600'
@@ -240,7 +240,7 @@ const NetworkComponentGuide: React.FC = () => {
           <h4 style={{ color: '#8b5cf6', marginBottom: '12px', fontSize: '16px', fontWeight: '600' }}>
             Technology Overview
           </h4>
-          <p style={{ color: '#6b7280', fontSize: '14px', lineHeight: '1.6' }}>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '14px', lineHeight: '1.6' }}>
             {selectedTechnology === 'vmware' && 
               'VMware vSphere provides enterprise-class virtualization with features like vMotion, DRS, HA, and distributed switching. The diagram includes vCenter management, ESXi hosts, distributed virtual switches, port groups, VMkernel interfaces, and physical NICs.'
             }
@@ -259,7 +259,7 @@ const NetworkComponentGuide: React.FC = () => {
   const renderCompleteView = () => (
     <div>
       <h3 style={{ 
-        color: '#111827', 
+        color: 'var(--text-primary)', 
         marginBottom: '24px',
         fontSize: '20px',
         fontWeight: '600'
@@ -290,19 +290,19 @@ const NetworkComponentGuide: React.FC = () => {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
           <div>
             <span style={{ fontWeight: '600', color: '#374151' }}>Total Icons:</span>
-            <span style={{ marginLeft: '8px', color: '#6b7280' }}>{Object.keys(NETWORK_ICON_INDEX).length}</span>
+            <span style={{ marginLeft: '8px', color: 'var(--text-secondary)' }}>{Object.keys(NETWORK_ICON_INDEX).length}</span>
           </div>
           <div>
             <span style={{ fontWeight: '600', color: '#374151' }}>Categories:</span>
-            <span style={{ marginLeft: '8px', color: '#6b7280' }}>{Object.keys(ICON_CATEGORIES).length}</span>
+            <span style={{ marginLeft: '8px', color: 'var(--text-secondary)' }}>{Object.keys(ICON_CATEGORIES).length}</span>
           </div>
           <div>
             <span style={{ fontWeight: '600', color: '#374151' }}>Technologies:</span>
-            <span style={{ marginLeft: '8px', color: '#6b7280' }}>VMware, Hyper-V, Azure</span>
+            <span style={{ marginLeft: '8px', color: 'var(--text-secondary)' }}>VMware, Hyper-V, Azure</span>
           </div>
           <div>
             <span style={{ fontWeight: '600', color: '#374151' }}>Source:</span>
-            <span style={{ marginLeft: '8px', color: '#6b7280' }}>Microsoft Azure Stencils</span>
+            <span style={{ marginLeft: '8px', color: 'var(--text-secondary)' }}>Microsoft Azure Stencils</span>
           </div>
         </div>
       </div>
@@ -320,7 +320,7 @@ const NetworkComponentGuide: React.FC = () => {
       margin: '16px 0'
     }}>
       <h2 style={{ 
-        color: '#111827', 
+        color: 'var(--text-primary)', 
         marginBottom: '24px', 
         fontSize: '24px', 
         fontWeight: '700' 
@@ -356,7 +356,7 @@ const NetworkComponentGuide: React.FC = () => {
               cursor: 'pointer',
               transition: 'all 0.2s ease',
               background: activeTab === tab.id ? 'rgba(139, 92, 246, 0.1)' : 'transparent',
-              color: activeTab === tab.id ? '#8b5cf6' : '#6b7280'
+              color: activeTab === tab.id ? '#8b5cf6' : 'var(--text-secondary)'
             }}
           >
             {tab.label}

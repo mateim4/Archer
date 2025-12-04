@@ -616,7 +616,7 @@ const LifecyclePlannerView: React.FC = () => {
           fontFamily: 'var(--fluent-font-family-base)',
           fontSize: '14px',
           fontWeight: isActive ? '600' : '400',
-          color: isActive ? '#8b5cf6' : '#6b7280',
+          color: isActive ? '#8b5cf6' : 'var(--text-secondary)',
           lineHeight: '1.4'
         }}
       >
@@ -691,7 +691,7 @@ const LifecyclePlannerView: React.FC = () => {
                 <div style={{ color: stat.color, fontSize: '24px', marginBottom: '12px' }}>
                   {stat.icon}
                 </div>
-                <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#111827', marginBottom: '4px' }}>
+                <div style={{ fontSize: '28px', fontWeight: 'bold', color: 'var(--text-primary)', marginBottom: '4px' }}>
                   {stat.value}
                 </div>
                 <div style={{ fontSize: '14px', fontWeight: '500', color: 'var(--text-secondary)', marginBottom: '12px' }}>
@@ -1355,7 +1355,7 @@ const LifecyclePlannerView: React.FC = () => {
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
                 background: activeTab === tab.id ? 'rgba(255, 255, 255, 0.9)' : 'transparent',
-                color: activeTab === tab.id ? '#111827' : '#6b7280',
+                color: activeTab === tab.id ? 'var(--text-primary)' : 'var(--text-secondary)',
                 boxShadow: activeTab === tab.id ? '0 2px 4px rgba(0, 0, 0, 0.1)' : 'none'
               }}
             >

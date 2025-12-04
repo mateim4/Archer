@@ -72,7 +72,7 @@ export const WizardResumePrompt: React.FC<WizardResumePromptProps> = ({
             background: 'none',
             border: 'none',
             cursor: 'pointer',
-            color: '#6b7280',
+            color: 'var(--text-secondary)',
             padding: '4px',
             borderRadius: '6px',
             display: 'flex',
@@ -82,11 +82,11 @@ export const WizardResumePrompt: React.FC<WizardResumePromptProps> = ({
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.background = 'rgba(107, 114, 128, 0.1)';
-            e.currentTarget.style.color = '#1f2937';
+            e.currentTarget.style.color = 'var(--text-primary)';
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.background = 'none';
-            e.currentTarget.style.color = '#6b7280';
+            e.currentTarget.style.color = 'var(--text-secondary)';
           }}
         >
           <DismissRegular style={{ fontSize: '20px' }} />
@@ -117,7 +117,7 @@ export const WizardResumePrompt: React.FC<WizardResumePromptProps> = ({
               margin: 0,
               fontSize: '18px',
               fontWeight: 600,
-              color: '#1f2937',
+              color: 'var(--text-primary)',
               fontFamily: 'inherit'
             }}
           >
@@ -127,7 +127,7 @@ export const WizardResumePrompt: React.FC<WizardResumePromptProps> = ({
             style={{
               margin: '4px 0 0 0',
               fontSize: '14px',
-              color: '#6b7280',
+              color: 'var(--text-secondary)',
               fontFamily: 'inherit'
             }}
           >

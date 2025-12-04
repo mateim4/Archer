@@ -119,7 +119,7 @@ const useStyles = makeStyles({
     margin: '0 0 8px 0',
     fontFamily: 'Oxanium, sans-serif',
     fontWeight: '700',
-    color: '#1f2937',
+    color: 'var(--text-primary)',
     fontSize: '28px'
   },
   
@@ -203,7 +203,7 @@ const useStyles = makeStyles({
   statValue: {
     fontSize: '24px',
     fontWeight: '700',
-    color: '#1f2937',
+    color: 'var(--text-primary)',
     fontFamily: 'Oxanium, sans-serif',
     margin: '8px 0 4px 0'
   },
@@ -240,7 +240,7 @@ const useStyles = makeStyles({
   workflowTitle: {
     fontSize: '16px',
     fontWeight: '600',
-    color: '#1f2937',
+    color: 'var(--text-primary)',
     fontFamily: 'Oxanium, sans-serif',
     marginBottom: '12px'
   },
@@ -323,7 +323,7 @@ const ProjectWorkspaceView: React.FC = () => {
       case 'active': return '#10b981';
       case 'planning': return '#f59e0b';
       case 'completed': return '#6366f1';
-      default: return '#6b7280';
+      default: return 'var(--text-secondary)';
     }
   };
   
@@ -417,7 +417,7 @@ const ProjectWorkspaceView: React.FC = () => {
               <Title2 style={{ 
                 marginBottom: '24px',
                 fontFamily: 'Oxanium, sans-serif',
-                color: '#1f2937'
+                color: 'var(--text-primary)'
               }}>
                 Project Overview
               </Title2>
@@ -469,7 +469,7 @@ const ProjectWorkspaceView: React.FC = () => {
               <Title3 style={{ 
                 marginBottom: '16px',
                 fontFamily: 'Oxanium, sans-serif',
-                color: '#1f2937'
+                color: 'var(--text-primary)'
               }}>
                 Active Workflows
               </Title3>
@@ -527,7 +527,7 @@ const ProjectWorkspaceView: React.FC = () => {
               <Title2 style={{ 
                 marginBottom: '24px',
                 fontFamily: 'Oxanium, sans-serif',
-                color: '#1f2937'
+                color: 'var(--text-primary)'
               }}>
                 Project Timeline
               </Title2>
@@ -545,7 +545,7 @@ const ProjectWorkspaceView: React.FC = () => {
               <Title2 style={{ 
                 marginBottom: '24px',
                 fontFamily: 'Oxanium, sans-serif',
-                color: '#1f2937'
+                color: 'var(--text-primary)'
               }}>
                 Infrastructure Resources
               </Title2>
@@ -563,7 +563,7 @@ const ProjectWorkspaceView: React.FC = () => {
               <Title2 style={{ 
                 marginBottom: '24px',
                 fontFamily: 'Oxanium, sans-serif',
-                color: '#1f2937'
+                color: 'var(--text-primary)'
               }}>
                 Project Documentation
               </Title2>
@@ -581,7 +581,7 @@ const ProjectWorkspaceView: React.FC = () => {
               <Title2 style={{ 
                 marginBottom: '24px',
                 fontFamily: 'Oxanium, sans-serif',
-                color: '#1f2937'
+                color: 'var(--text-primary)'
               }}>
                 Project Settings
               </Title2>

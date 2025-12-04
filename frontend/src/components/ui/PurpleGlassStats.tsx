@@ -54,9 +54,9 @@ const VARIANT_COLORS = {
     icon: '#3b82f6'
   },
   neutral: {
-    value: '#6b7280',
+    value: 'var(--text-secondary)',
     background: 'rgba(107, 114, 128, 0.1)',
-    icon: '#6b7280'
+    icon: 'var(--text-secondary)'
   }
 };
 
@@ -142,7 +142,7 @@ export const PurpleGlassStats: React.FC<PurpleGlassStatsProps> = ({
       case 'down':
         return '#ef4444';
       default:
-        return '#6b7280';
+        return 'var(--text-secondary)';
     }
   };
 
@@ -232,7 +232,7 @@ export const PurpleGlassStats: React.FC<PurpleGlassStatsProps> = ({
         style={{
           fontSize: sizeStyle.labelFontSize,
           fontWeight: 500,
-          color: '#6b7280',
+          color: 'var(--text-secondary)',
           marginBottom: trend ? '8px' : 0,
           fontFamily: 'inherit'
         }}

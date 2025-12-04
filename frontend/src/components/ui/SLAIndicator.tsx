@@ -43,7 +43,7 @@ const getStatusColor = (status: SLAStatus): string => {
     case 'on_track': return '#10b981'; // green
     case 'at_risk': return '#f59e0b'; // amber
     case 'breached': return '#ef4444'; // red
-    case 'paused': return '#6b7280'; // gray
+    case 'paused': return 'var(--text-secondary)'; // gray
     case 'resolved': return '#10b981'; // green
     default: return tokens.colorNeutralForeground3;
   }

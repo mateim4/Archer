@@ -28,7 +28,7 @@ const NOTICE_COLORS = {
   text: '#1e40af',         // Blue text
   background: 'rgba(59, 130, 246, 0.08)',
   border: 'rgba(59, 130, 246, 0.15)',
-  neutral: '#6b7280',
+  neutral: 'var(--text-secondary)',
   neutralHover: '#374151',
 } as const;
 

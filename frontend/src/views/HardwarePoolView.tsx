@@ -131,7 +131,7 @@ const HardwarePoolView: React.FC = () => {
       case 'InUse': return '#f59e0b';
       case 'Locked': return '#ef4444';
       case 'Maintenance': return '#8b5cf6';
-      case 'Decommissioned': return '#6b7280';
+      case 'Decommissioned': return 'var(--text-secondary)';
       default: return '#6366f1';
     }
   };
@@ -389,7 +389,7 @@ const HardwarePoolView: React.FC = () => {
               fontFamily: 'Oxanium, sans-serif',
               cursor: 'pointer',
               outline: 'none',
-              color: '#1f2937',
+              color: 'var(--text-primary)',
               width: '100%'
             }}
           >
@@ -414,7 +414,7 @@ const HardwarePoolView: React.FC = () => {
               fontFamily: 'Oxanium, sans-serif',
               cursor: 'pointer',
               outline: 'none',
-              color: '#1f2937',
+              color: 'var(--text-primary)',
               width: '100%'
             }}
           >
@@ -497,7 +497,7 @@ const HardwarePoolView: React.FC = () => {
         <div style={{
           textAlign: 'center',
           padding: '40px',
-          color: '#6b7280',
+          color: 'var(--text-secondary)',
           fontSize: '16px',
           fontFamily: 'Oxanium, sans-serif'
         }}>

@@ -36,26 +36,26 @@ const VARIANT_STYLES = {
   default: {
     iconColor: '#7c3aed',
     iconBackground: 'rgba(124, 58, 237, 0.1)',
-    titleColor: '#1f2937',
-    descriptionColor: '#6b7280'
+    titleColor: 'var(--text-primary)',
+    descriptionColor: 'var(--text-secondary)'
   },
   search: {
     iconColor: '#3b82f6',
     iconBackground: 'rgba(59, 130, 246, 0.1)',
-    titleColor: '#1f2937',
-    descriptionColor: '#6b7280'
+    titleColor: 'var(--text-primary)',
+    descriptionColor: 'var(--text-secondary)'
   },
   error: {
     iconColor: '#ef4444',
     iconBackground: 'rgba(239, 68, 68, 0.1)',
-    titleColor: '#1f2937',
-    descriptionColor: '#6b7280'
+    titleColor: 'var(--text-primary)',
+    descriptionColor: 'var(--text-secondary)'
   },
   maintenance: {
     iconColor: '#f59e0b',
     iconBackground: 'rgba(245, 158, 11, 0.1)',
-    titleColor: '#1f2937',
-    descriptionColor: '#6b7280'
+    titleColor: 'var(--text-primary)',
+    descriptionColor: 'var(--text-secondary)'
   }
 };
 

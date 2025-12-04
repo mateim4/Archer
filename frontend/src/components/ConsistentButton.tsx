@@ -68,7 +68,7 @@ const ConsistentButton: React.FC<ConsistentButtonProps> = ({
     },
     ghost: {
       background: 'transparent',
-      color: '#6b7280',
+      color: 'var(--text-secondary)',
       border: 'none',
       boxShadow: 'none',
       hover: {

@@ -142,7 +142,7 @@ const LandingView: React.FC = () => {
               <h2 style={{
                 fontSize: '52px',
                 fontWeight: '800',
-                color: '#1f2937',
+                color: 'var(--text-primary)',
                 margin: 0,
                 fontFamily: 'Oxanium, sans-serif',
                 lineHeight: '1.1',
@@ -163,7 +163,7 @@ const LandingView: React.FC = () => {
           {/* Subtitle */}
           <h2 style={{
             fontSize: '28px',
-            color: '#1f2937',
+            color: 'var(--text-primary)',
             marginBottom: '20px',
             fontFamily: 'Oxanium, sans-serif',
             fontWeight: '600',
@@ -258,7 +258,7 @@ const LandingView: React.FC = () => {
           <h2 style={{
             fontSize: '28px',
             fontWeight: '600',
-            color: '#1f2937',
+            color: 'var(--text-primary)',
             marginBottom: '32px',
             fontFamily: 'Oxanium, sans-serif',
             textAlign: 'center'

@@ -39,7 +39,7 @@ const DIAGRAM_THEME = {
   info: '#06b6d4',          // Cyan
   
   // Neutral colors
-  neutral: '#6b7280',       // Gray
+  neutral: 'var(--text-secondary)',       // Gray
   neutralLight: '#d1d5db',  // Light gray
   neutralDark: '#374151',   // Dark gray
   
@@ -458,10 +458,10 @@ const NetworkVisualizerView = () => {
                 <div style={{ color: stat.color, fontSize: '24px', marginBottom: '12px' }}>
                   {stat.icon}
                 </div>
-                <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#111827', marginBottom: '4px' }}>
+                <div style={{ fontSize: '28px', fontWeight: 'bold', color: 'var(--text-primary)', marginBottom: '4px' }}>
                   {stat.value}
                 </div>
-                <div style={{ fontSize: '14px', fontWeight: '500', color: '#6b7280', marginBottom: '12px' }}>
+                <div style={{ fontSize: '14px', fontWeight: '500', color: 'var(--text-secondary)', marginBottom: '12px' }}>
                   {stat.title}
                 </div>
                 <div style={{ 
@@ -529,7 +529,7 @@ const NetworkVisualizerView = () => {
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <AlertTriangle size={16} style={{ color: '#a855f7' }} />
-                  <span style={{ fontSize: '14px', color: '#6b7280' }}>
+                  <span style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
                     Currently showing sample data. Upload an RVTools file to visualize your actual infrastructure.
                   </span>
                 </div>
@@ -574,7 +574,7 @@ const NetworkVisualizerView = () => {
                 gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
                 gap: '16px',
                 fontSize: '14px',
-                color: '#6b7280'
+                color: 'var(--text-secondary)'
               }}>
                 {activeTab === 'virtual' && (
                   <>
@@ -614,7 +614,7 @@ const NetworkVisualizerView = () => {
             </div>
             
             {!networkTopology && (
-              <div style={{ textAlign: 'center', padding: '48px 0', color: '#6b7280' }}>
+              <div style={{ textAlign: 'center', padding: '48px 0', color: 'var(--text-secondary)' }}>
                 <Server size={48} style={{ margin: '0 auto 16px', opacity: 0.5 }} />
                 <p>No network topology data available.</p>
                 <p style={{ fontSize: '14px', marginTop: '8px' }}>Upload infrastructure data to generate network diagrams.</p>

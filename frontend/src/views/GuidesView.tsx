@@ -398,7 +398,7 @@ const GuidesView: React.FC = () => {
           <h3 style={{
             fontSize: '24px',
             fontWeight: '600',
-            color: '#1f2937',
+            color: 'var(--text-primary)',
             marginBottom: '12px',
             fontFamily: tokens.fontFamilyBody,
             margin: '0 0 12px 0'
@@ -494,7 +494,7 @@ const GuidesView: React.FC = () => {
                   <h3 style={{
                     fontSize: '18px',
                     fontWeight: '600',
-                    color: '#1f2937',
+                    color: 'var(--text-primary)',
                     marginBottom: '8px',
                     fontFamily: tokens.fontFamilyBody,
                     lineHeight: '1.4',

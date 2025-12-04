@@ -49,7 +49,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         return <PauseRegular style={{ color: '#f59e0b', fontSize: '18px' }} />;
       case 'planning':
       default: 
-        return <ClockRegular style={{ color: '#6b7280', fontSize: '18px' }} />;
+        return <ClockRegular style={{ color: 'var(--text-secondary)', fontSize: '18px' }} />;
     }
   };
 
@@ -59,7 +59,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
       case 'in_progress': return '#3b82f6';
       case 'on_hold': return '#f59e0b';
       case 'planning':
-      default: return '#6b7280';
+      default: return 'var(--text-secondary)';
     }
   };
 
@@ -68,8 +68,8 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
       case 'critical': return '#ef4444';
       case 'high': return '#f59e0b';
       case 'medium': return '#3b82f6';
-      case 'low': return '#6b7280';
-      default: return '#6b7280';
+      case 'low': return 'var(--text-secondary)';
+      default: return 'var(--text-secondary)';
     }
   };
 
@@ -159,7 +159,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
             margin: '0 0 8px 0', 
             fontSize: '18px', 
             fontWeight: '600', 
-            color: '#111827',
+            color: 'var(--text-primary)',
             lineHeight: 1.3,
             overflow: 'hidden',
             textOverflow: 'ellipsis',
@@ -170,7 +170,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
           <p style={{ 
             margin: '0', 
             fontSize: '14px', 
-            color: '#6b7280', 
+            color: 'var(--text-secondary)', 
             lineHeight: 1.4,
             display: '-webkit-box',
             WebkitLineClamp: 2,
@@ -213,7 +213,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
               borderRadius: '6px',
               padding: '6px',
               cursor: 'pointer',
-              color: '#6b7280',
+              color: 'var(--text-secondary)',
               transition: 'all 0.2s ease'
             }}
             onMouseEnter={(e) => {
@@ -222,7 +222,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = 'rgba(107, 114, 128, 0.1)';
-              e.currentTarget.style.color = '#6b7280';
+              e.currentTarget.style.color = 'var(--text-secondary)';
             }}
           >
             <MoreHorizontalRegular style={{ fontSize: '16px' }} />
@@ -238,13 +238,13 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
           alignItems: 'center', 
           marginBottom: '8px' 
         }}>
-          <span style={{ fontSize: '12px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase' }}>
+          <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>
             Progress
           </span>
           <span style={{ 
             fontSize: '14px', 
             fontWeight: '700', 
-            color: '#111827',
+            color: 'var(--text-primary)',
             background: 'rgba(139, 92, 246, 0.1)',
             padding: '2px 8px',
             borderRadius: '12px'
@@ -276,7 +276,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         {/* Activity Stats */}
         <div style={{ 
           fontSize: '13px', 
-          color: '#6b7280',
+          color: 'var(--text-secondary)',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center'
@@ -306,7 +306,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
           <div style={{ 
             fontSize: '12px', 
             fontWeight: '600', 
-            color: '#6b7280', 
+            color: 'var(--text-secondary)', 
             textTransform: 'uppercase',
             marginBottom: '4px'
           }}>
@@ -314,12 +314,12 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
           </div>
           <div style={{ 
             fontSize: '13px', 
-            color: '#111827',
+            color: 'var(--text-primary)',
             display: 'flex',
             alignItems: 'center',
             gap: '4px'
           }}>
-            <CalendarRegular style={{ fontSize: '12px', color: '#6b7280' }} />
+            <CalendarRegular style={{ fontSize: '12px', color: 'var(--text-secondary)' }} />
             {new Date(project.end_date).toLocaleDateString('en-US', { 
               month: 'short', 
               day: 'numeric' 
@@ -338,7 +338,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
           {!isOverdue() && getDaysRemaining() > 0 && (
             <div style={{ 
               fontSize: '11px', 
-              color: getDaysRemaining() <= 7 ? '#f59e0b' : '#6b7280',
+              color: getDaysRemaining() <= 7 ? '#f59e0b' : 'var(--text-secondary)',
               marginTop: '2px'
             }}>
               {getDaysRemaining()} days remaining
@@ -350,7 +350,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
           <div style={{ 
             fontSize: '12px', 
             fontWeight: '600', 
-            color: '#6b7280', 
+            color: 'var(--text-secondary)', 
             textTransform: 'uppercase',
             marginBottom: '4px'
           }}>
@@ -358,12 +358,12 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
           </div>
           <div style={{ 
             fontSize: '13px', 
-            color: '#111827',
+            color: 'var(--text-primary)',
             display: 'flex',
             alignItems: 'center',
             gap: '4px'
           }}>
-            <PersonRegular style={{ fontSize: '12px', color: '#6b7280' }} />
+            <PersonRegular style={{ fontSize: '12px', color: 'var(--text-secondary)' }} />
             {project.assignees.length > 0 ? (
               <>
                 {project.assignees.slice(0, 2).join(', ')}
@@ -378,7 +378,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
                 )}
               </>
             ) : (
-              <span style={{ color: '#6b7280', fontStyle: 'italic' }}>
+              <span style={{ color: 'var(--text-secondary)', fontStyle: 'italic' }}>
                 Unassigned
               </span>
             )}
@@ -398,7 +398,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
           <div style={{ 
             fontSize: '12px', 
             fontWeight: '600', 
-            color: '#6b7280', 
+            color: 'var(--text-secondary)', 
             textTransform: 'uppercase',
             marginBottom: '4px'
           }}>

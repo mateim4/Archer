@@ -110,7 +110,7 @@ const ConsistentCard: React.FC<ConsistentCardProps> = ({
                   <p style={{
                     margin: title ? '4px 0 0 0' : 0,
                     fontSize: '14px',
-                    color: '#6b7280',
+                    color: 'var(--text-secondary)',
                     fontFamily: "'Oxanium', system-ui, sans-serif",
                     lineHeight: '1.5'
                   }}>

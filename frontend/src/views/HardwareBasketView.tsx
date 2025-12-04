@@ -360,7 +360,7 @@ const HardwareBasketView: React.FC = () => {
               fontFamily: 'Oxanium, sans-serif',
               cursor: 'pointer',
               outline: 'none',
-              color: '#1f2937',
+              color: 'var(--text-primary)',
               width: '100%'
             }}
           >
@@ -383,7 +383,7 @@ const HardwareBasketView: React.FC = () => {
               fontFamily: 'Oxanium, sans-serif',
               cursor: 'pointer',
               outline: 'none',
-              color: '#1f2937',
+              color: 'var(--text-primary)',
               width: '100%'
             }}
           >
@@ -587,7 +587,7 @@ const HardwareBasketView: React.FC = () => {
               <div style={{
                 fontSize: '16px',
                 fontWeight: '600',
-                color: '#1f2937',
+                color: 'var(--text-primary)',
                 marginBottom: '8px',
                 fontFamily: 'Oxanium, sans-serif',
                 lineHeight: '1.4'

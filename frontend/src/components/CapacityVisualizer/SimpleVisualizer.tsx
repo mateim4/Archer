@@ -385,7 +385,7 @@ const SimpleVisualizer: React.FC<SimpleVisualizerProps> = ({
                 {allocatedResource.toFixed(0)}
               </span>
               <span style={{ color: '#9ca3af' }}>/</span>
-              <span style={{ color: '#6b7280' }}>
+              <span style={{ color: 'var(--text-secondary)' }}>
                 {totalResource.toFixed(0)}
               </span>
               <span style={{
@@ -707,28 +707,28 @@ const SimpleVisualizer: React.FC<SimpleVisualizerProps> = ({
                         </td>
                         <td style={{ 
                           padding: '10px 8px',
-                          color: '#6b7280',
+                          color: 'var(--text-secondary)',
                           fontWeight: '500'
                         }}>
                           {vm.allocatedVCPUs || vm.cores || 1}
                         </td>
                         <td style={{ 
                           padding: '10px 8px',
-                          color: '#6b7280',
+                          color: 'var(--text-secondary)',
                           fontWeight: '500'
                         }}>
                           {((vm.memory || 1024) / 1024).toFixed(1)}GB
                         </td>
                         <td style={{ 
                           padding: '10px 8px',
-                          color: '#6b7280',
+                          color: 'var(--text-secondary)',
                           fontWeight: '500'
                         }}>
                           {(vm.storage || 100)}GB
                         </td>
                         <td style={{ 
                           padding: '10px 8px',
-                          color: '#6b7280',
+                          color: 'var(--text-secondary)',
                           fontSize: '10px',
                           fontWeight: '500'
                         }}>
@@ -814,7 +814,7 @@ const SimpleVisualizer: React.FC<SimpleVisualizerProps> = ({
                     display: 'flex',
                     alignItems: 'center',
                     gap: '4px',
-                    color: '#6b7280'
+                    color: 'var(--text-secondary)'
                   }}>
                     <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(createHostIcon(42)) }} />
                     <span>{host.totalCores}c</span>
@@ -823,7 +823,7 @@ const SimpleVisualizer: React.FC<SimpleVisualizerProps> = ({
                     display: 'flex',
                     alignItems: 'center',
                     gap: '4px',
-                    color: '#6b7280'
+                    color: 'var(--text-secondary)'
                   }}>
                     <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(createVMIcon(42)) }} />
                     <span>{(host.totalMemory / 1024).toFixed(0)}GB</span>
@@ -832,7 +832,7 @@ const SimpleVisualizer: React.FC<SimpleVisualizerProps> = ({
                     display: 'flex',
                     alignItems: 'center',
                     gap: '4px',
-                    color: '#6b7280',
+                    color: 'var(--text-secondary)',
                     gridColumn: '1 / -1'
                   }}>
                     <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(createClusterIcon(42)) }} />
@@ -1038,7 +1038,7 @@ const SimpleVisualizer: React.FC<SimpleVisualizerProps> = ({
           animation: 'spin 1s linear infinite'
         }} />
         <span style={{ 
-          color: '#6b7280', 
+          color: 'var(--text-secondary)', 
           fontWeight: '500',
           fontSize: '16px'
         }}>
@@ -1076,7 +1076,7 @@ const SimpleVisualizer: React.FC<SimpleVisualizerProps> = ({
           Error Loading Data
         </h3>
         <p style={{ 
-          color: '#6b7280',
+          color: 'var(--text-secondary)',
           textAlign: 'center',
           margin: 0,
           fontSize: '14px'

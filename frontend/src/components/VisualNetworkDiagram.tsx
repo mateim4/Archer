@@ -58,7 +58,7 @@ const VisualNetworkDiagram: React.FC<VisualNetworkDiagramProps> = ({
       case 'healthy': return '#10b981';
       case 'warning': return '#f59e0b';
       case 'error': return '#ef4444';
-      default: return '#6b7280';
+      default: return 'var(--text-secondary)';
     }
   };
 
@@ -71,7 +71,7 @@ const VisualNetworkDiagram: React.FC<VisualNetworkDiagramProps> = ({
       case 'virtual':
         return { stroke: '#06b6d4', strokeWidth: 2, strokeDasharray: '3,3' };
       default:
-        return { stroke: '#6b7280', strokeWidth: 2, strokeDasharray: '0' };
+        return { stroke: 'var(--text-secondary)', strokeWidth: 2, strokeDasharray: '0' };
     }
   };
 
