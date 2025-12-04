@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, memo } from 'react';
 import {
   AddRegular,
   SearchRegular,
@@ -41,6 +41,50 @@ import {
   TASK_CATEGORY_LABELS,
   TASK_CATEGORY_COLORS
 } from '../types/taskTypes';
+
+// Helper functions moved outside component to avoid recreation on each render
+const formatDate = (dateString: string) => {
+  return new Date(dateString).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  });
+};
+
+const getRelativeTime = (dateString: string) => {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+  
+  if (diffInSeconds < 60) return 'Just now';
+  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+  if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}d ago`;
+  
+  return formatDate(dateString);
+};
+
+const isOverdue = (task: Task) => {
+  if (!task.due_date || task.status === 'completed' || task.status === 'cancelled') return false;
+  return new Date(task.due_date) < new Date();
+};
+
+// Category icon mapping - memoized to avoid creating new React elements
+const CATEGORY_ICONS: Record<TaskCategory, React.ReactNode> = {
+  incident: <WarningRegular />,
+  service_request: <PersonRegular />,
+  change: <ArrowSyncRegular />,
+  problem: <SearchRegular />,
+  maintenance: <WrenchRegular />,
+  migration: <ArrowRightRegular />,
+  deployment: <RocketRegular />,
+  decommission: <DeleteRegular />,
+  other: <TaskListSquareLtrRegular />
+};
+
+const getCategoryIcon = (category: TaskCategory): React.ReactNode => {
+  return CATEGORY_ICONS[category] || CATEGORY_ICONS.other;
+};
 
 // Mock data for development
 const MOCK_TASKS: Task[] = [
@@ -127,20 +171,338 @@ const MOCK_TASKS: Task[] = [
   }
 ];
 
-// Category icon mapping
-const getCategoryIcon = (category: TaskCategory) => {
-  switch (category) {
-    case 'incident': return <WarningRegular />;
-    case 'service_request': return <PersonRegular />;
-    case 'change': return <ArrowSyncRegular />;
-    case 'problem': return <SearchRegular />;
-    case 'maintenance': return <WrenchRegular />;
-    case 'migration': return <ArrowRightRegular />;
-    case 'deployment': return <RocketRegular />;
-    case 'decommission': return <DeleteRegular />;
-    default: return <TaskListSquareLtrRegular />;
-  }
-};
+// Memoized TaskCard component to prevent unnecessary re-renders
+interface TaskCardProps {
+  task: Task;
+  openMenuId: string | null;
+  onMenuToggle: (taskId: string) => void;
+  onStatusChange: (taskId: string, newStatus: TaskStatus) => void;
+  onDeleteTask: (taskId: string) => void;
+}
+
+const TaskCard = memo(function TaskCard({
+  task,
+  openMenuId,
+  onMenuToggle,
+  onStatusChange,
+  onDeleteTask
+}: TaskCardProps) {
+  const isMenuOpen = openMenuId === task.id;
+  const taskOverdue = isOverdue(task);
+
+  return (
+    <PurpleGlassCard
+      variant="interactive"
+      style={{ 
+        position: 'relative',
+        borderLeft: `4px solid ${TASK_PRIORITY_COLORS[task.priority]}`
+      }}
+    >
+      <div style={{
+        padding: DesignTokens.spacing.md,
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+        overflow: 'visible'
+      }}>
+        {/* Menu button */}
+        <div 
+          className="task-menu"
+          style={{ 
+            position: 'absolute', 
+            top: DesignTokens.spacing.sm, 
+            right: DesignTokens.spacing.sm,
+            zIndex: 1000
+          }}
+        >
+          <PurpleGlassButton
+            variant="ghost"
+            size="small"
+            icon={<MoreVerticalRegular />}
+            onClick={(e) => {
+              e.stopPropagation();
+              onMenuToggle(task.id);
+            }}
+          />
+
+          {/* Dropdown Menu */}
+          {isMenuOpen && (
+            <div style={{
+              position: 'absolute',
+              top: '100%',
+              right: '0',
+              zIndex: 10000,
+              background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.90))',
+              backdropFilter: 'blur(60px)',
+              borderRadius: '12px',
+              border: '1px solid rgba(255, 255, 255, 0.4)',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)',
+              padding: '8px',
+              minWidth: '180px',
+              marginTop: '4px'
+            }}>
+              {task.status !== 'completed' && (
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    padding: '12px 16px',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    color: DesignTokens.colors.gray900,
+                    fontWeight: '500',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onStatusChange(task.id, 'completed');
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(16, 185, 129, 0.1)';
+                    e.currentTarget.style.color = DesignTokens.colors.success;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'transparent';
+                    e.currentTarget.style.color = DesignTokens.colors.gray900;
+                  }}
+                >
+                  <CheckmarkCircleRegular style={{ fontSize: '16px' }} />
+                  <span>Mark Complete</span>
+                </div>
+              )}
+              
+              {task.status !== 'in_progress' && task.status !== 'completed' && (
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    padding: '12px 16px',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    color: DesignTokens.colors.gray900,
+                    fontWeight: '500',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onStatusChange(task.id, 'in_progress');
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(59, 130, 246, 0.1)';
+                    e.currentTarget.style.color = TASK_STATUS_COLORS.in_progress;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'transparent';
+                    e.currentTarget.style.color = DesignTokens.colors.gray900;
+                  }}
+                >
+                  <ArrowSyncRegular style={{ fontSize: '16px' }} />
+                  <span>Start Task</span>
+                </div>
+              )}
+
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  padding: '12px 16px',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  color: DesignTokens.colors.gray900,
+                  fontWeight: '500',
+                  transition: 'all 0.2s ease'
+                }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDeleteTask(task.id);
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
+                  e.currentTarget.style.color = DesignTokens.colors.error;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'transparent';
+                  e.currentTarget.style.color = DesignTokens.colors.gray900;
+                }}
+              >
+                <DeleteRegular style={{ fontSize: '16px' }} />
+                <span>Delete Task</span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Header */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'flex-start',
+          gap: DesignTokens.spacing.md,
+          marginBottom: DesignTokens.spacing.md
+        }}>
+          <div style={{
+            width: '42px',
+            height: '42px',
+            borderRadius: '12px',
+            background: `linear-gradient(135deg, ${TASK_CATEGORY_COLORS[task.category]}20, ${TASK_CATEGORY_COLORS[task.category]}40)`,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: TASK_CATEGORY_COLORS[task.category],
+            fontSize: '20px',
+            flexShrink: 0
+          }}>
+            {getCategoryIcon(task.category)}
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <h3 style={{
+              margin: 0,
+              fontSize: DesignTokens.typography.base,
+              fontWeight: DesignTokens.typography.semibold,
+              color: DesignTokens.colors.textPrimary,
+              lineHeight: '1.3',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              paddingRight: '40px'
+            }}>
+              {task.title}
+            </h3>
+            <div style={{
+              display: 'flex',
+              gap: '8px',
+              marginTop: '6px',
+              flexWrap: 'wrap'
+            }}>
+              <span style={{
+                background: `${TASK_STATUS_COLORS[task.status]}20`,
+                color: TASK_STATUS_COLORS[task.status],
+                padding: '2px 8px',
+                borderRadius: '4px',
+                fontSize: '11px',
+                fontWeight: '600'
+              }}>
+                {TASK_STATUS_LABELS[task.status]}
+              </span>
+              <span style={{
+                background: `${TASK_CATEGORY_COLORS[task.category]}15`,
+                color: TASK_CATEGORY_COLORS[task.category],
+                padding: '2px 8px',
+                borderRadius: '4px',
+                fontSize: '11px',
+                fontWeight: '500'
+              }}>
+                {TASK_CATEGORY_LABELS[task.category]}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Description */}
+        {task.description && (
+          <p style={{
+            color: DesignTokens.colors.textSecondary,
+            fontSize: DesignTokens.typography.sm,
+            lineHeight: '1.5',
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+            margin: `0 0 ${DesignTokens.spacing.md} 0`
+          }}>
+            {task.description}
+          </p>
+        )}
+
+        {/* Tags */}
+        {task.tags && task.tags.length > 0 && (
+          <div style={{
+            display: 'flex',
+            gap: '6px',
+            flexWrap: 'wrap',
+            marginBottom: DesignTokens.spacing.md
+          }}>
+            {task.tags.slice(0, 3).map((tag, index) => (
+              <span key={index} style={{
+                background: 'rgba(99, 102, 241, 0.1)',
+                color: DesignTokens.colors.primary,
+                padding: '2px 8px',
+                borderRadius: '4px',
+                fontSize: '11px',
+                fontWeight: '500'
+              }}>
+                #{tag}
+              </span>
+            ))}
+            {task.tags.length > 3 && (
+              <span style={{
+                color: DesignTokens.colors.textMuted,
+                fontSize: '11px'
+              }}>
+                +{task.tags.length - 3} more
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Footer */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'flex-end',
+          marginTop: 'auto',
+          paddingTop: DesignTokens.spacing.sm,
+          borderTop: '1px solid rgba(0, 0, 0, 0.05)'
+        }}>
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '4px'
+          }}>
+            {task.assignee_name && (
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '6px',
+                color: DesignTokens.colors.textMuted,
+                fontSize: '11px'
+              }}>
+                <PersonRegular style={{ fontSize: '12px' }} />
+                <span>{task.assignee_name}</span>
+              </div>
+            )}
+            {task.due_date && (
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '6px',
+                color: taskOverdue ? DesignTokens.colors.error : DesignTokens.colors.textMuted,
+                fontSize: '11px',
+                fontWeight: taskOverdue ? '600' : '400'
+              }}>
+                <CalendarRegular style={{ fontSize: '12px' }} />
+                <span>Due {formatDate(task.due_date)}</span>
+                {taskOverdue && <ErrorCircleRegular style={{ fontSize: '12px' }} />}
+              </div>
+            )}
+          </div>
+          
+          <div style={{
+            fontSize: '11px',
+            color: DesignTokens.colors.textMuted
+          }}>
+            {getRelativeTime(task.updated_at)}
+          </div>
+        </div>
+      </div>
+    </PurpleGlassCard>
+  );
+});
 
 export default function TasksView() {
   const { toasts, dismissToast, handleError, showSuccess } = useErrorHandler();
@@ -175,44 +537,17 @@ export default function TasksView() {
   );
 
   // Reset form helper
-  const resetForm = () => {
+  const resetForm = useCallback(() => {
     setValues({
       title: '',
       description: '',
       category: 'service_request' as TaskCategory,
       priority: 'medium' as TaskPriority
     });
-  };
-
-  // Helper functions
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
-
-  const getRelativeTime = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-    
-    if (diffInSeconds < 60) return 'Just now';
-    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
-    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
-    if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}d ago`;
-    
-    return formatDate(dateString);
-  };
-
-  const isOverdue = (task: Task) => {
-    if (!task.due_date || task.status === 'completed' || task.status === 'cancelled') return false;
-    return new Date(task.due_date) < new Date();
-  };
+  }, [setValues]);
 
   // Data operations
-  const fetchTasks = async () => {
+  const fetchTasks = useCallback(async () => {
     try {
       setLoading(true);
       // TODO: Replace with actual API call
@@ -227,7 +562,7 @@ export default function TasksView() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [handleError]);
 
   const handleCreateTask = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -266,23 +601,23 @@ export default function TasksView() {
     }
   };
 
-  const handleDeleteTask = async (taskId: string) => {
+  const handleDeleteTask = useCallback(async (taskId: string) => {
     if (window.confirm('Are you sure you want to delete this task? This action cannot be undone.')) {
       try {
         // TODO: Add API call
-        setTasks(tasks.filter(t => t.id !== taskId));
+        setTasks(prev => prev.filter(t => t.id !== taskId));
         setOpenMenuId(null);
         showSuccess('Task deleted', 'The task has been successfully deleted.');
       } catch (error) {
         handleError(error, 'Delete Task');
       }
     }
-  };
+  }, [showSuccess, handleError]);
 
-  const handleStatusChange = async (taskId: string, newStatus: TaskStatus) => {
+  const handleStatusChange = useCallback(async (taskId: string, newStatus: TaskStatus) => {
     try {
       // TODO: Add API call
-      setTasks(tasks.map(t => 
+      setTasks(prev => prev.map(t => 
         t.id === taskId 
           ? { ...t, status: newStatus, updated_at: new Date().toISOString() } 
           : t
@@ -292,7 +627,12 @@ export default function TasksView() {
     } catch (error) {
       handleError(error, 'Update Task');
     }
-  };
+  }, [showSuccess, handleError]);
+
+  // Memoized handler for menu toggle
+  const handleMenuToggle = useCallback((taskId: string) => {
+    setOpenMenuId(prev => prev === taskId ? null : taskId);
+  }, []);
 
   // Filtering and sorting
   const filteredAndSortedTasks = useMemo(() => {
@@ -600,317 +940,14 @@ export default function TasksView() {
             gap: DesignTokens.spacing.lg
           }} data-testid="tasks-grid">
             {filteredAndSortedTasks.map((task) => (
-              <PurpleGlassCard
+              <TaskCard
                 key={task.id}
-                variant="interactive"
-                style={{ 
-                  position: 'relative',
-                  borderLeft: `4px solid ${TASK_PRIORITY_COLORS[task.priority]}`
-                }}
-              >
-                <div style={{
-                  padding: DesignTokens.spacing.md,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  height: '100%',
-                  overflow: 'visible'
-                }}>
-                  {/* Menu button */}
-                  <div 
-                    className="task-menu"
-                    style={{ 
-                      position: 'absolute', 
-                      top: DesignTokens.spacing.sm, 
-                      right: DesignTokens.spacing.sm,
-                      zIndex: 1000
-                    }}
-                  >
-                    <PurpleGlassButton
-                      variant="ghost"
-                      size="small"
-                      icon={<MoreVerticalRegular />}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setOpenMenuId(openMenuId === task.id ? null : task.id);
-                      }}
-                    />
-
-                    {/* Dropdown Menu */}
-                    {openMenuId === task.id && (
-                      <div style={{
-                        position: 'absolute',
-                        top: '100%',
-                        right: '0',
-                        zIndex: 10000,
-                        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.90))',
-                        backdropFilter: 'blur(60px)',
-                        borderRadius: '12px',
-                        border: '1px solid rgba(255, 255, 255, 0.4)',
-                        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)',
-                        padding: '8px',
-                        minWidth: '180px',
-                        marginTop: '4px'
-                      }}>
-                        {task.status !== 'completed' && (
-                          <div
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '12px',
-                              padding: '12px 16px',
-                              borderRadius: '8px',
-                              cursor: 'pointer',
-                              fontSize: '14px',
-                              color: DesignTokens.colors.gray900,
-                              fontWeight: '500',
-                              transition: 'all 0.2s ease'
-                            }}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleStatusChange(task.id, 'completed');
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.background = 'rgba(16, 185, 129, 0.1)';
-                              e.currentTarget.style.color = DesignTokens.colors.success;
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.background = 'transparent';
-                              e.currentTarget.style.color = DesignTokens.colors.gray900;
-                            }}
-                          >
-                            <CheckmarkCircleRegular style={{ fontSize: '16px' }} />
-                            <span>Mark Complete</span>
-                          </div>
-                        )}
-                        
-                        {task.status !== 'in_progress' && task.status !== 'completed' && (
-                          <div
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '12px',
-                              padding: '12px 16px',
-                              borderRadius: '8px',
-                              cursor: 'pointer',
-                              fontSize: '14px',
-                              color: DesignTokens.colors.gray900,
-                              fontWeight: '500',
-                              transition: 'all 0.2s ease'
-                            }}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleStatusChange(task.id, 'in_progress');
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.background = 'rgba(59, 130, 246, 0.1)';
-                              e.currentTarget.style.color = TASK_STATUS_COLORS.in_progress;
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.background = 'transparent';
-                              e.currentTarget.style.color = DesignTokens.colors.gray900;
-                            }}
-                          >
-                            <ArrowSyncRegular style={{ fontSize: '16px' }} />
-                            <span>Start Task</span>
-                          </div>
-                        )}
-
-                        <div
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '12px',
-                            padding: '12px 16px',
-                            borderRadius: '8px',
-                            cursor: 'pointer',
-                            fontSize: '14px',
-                            color: DesignTokens.colors.gray900,
-                            fontWeight: '500',
-                            transition: 'all 0.2s ease'
-                          }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteTask(task.id);
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
-                            e.currentTarget.style.color = DesignTokens.colors.error;
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.background = 'transparent';
-                            e.currentTarget.style.color = DesignTokens.colors.gray900;
-                          }}
-                        >
-                          <DeleteRegular style={{ fontSize: '16px' }} />
-                          <span>Delete Task</span>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Header */}
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'flex-start',
-                    gap: DesignTokens.spacing.md,
-                    marginBottom: DesignTokens.spacing.md
-                  }}>
-                    <div style={{
-                      width: '42px',
-                      height: '42px',
-                      borderRadius: '12px',
-                      background: `linear-gradient(135deg, ${TASK_CATEGORY_COLORS[task.category]}20, ${TASK_CATEGORY_COLORS[task.category]}40)`,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: TASK_CATEGORY_COLORS[task.category],
-                      fontSize: '20px',
-                      flexShrink: 0
-                    }}>
-                      {getCategoryIcon(task.category)}
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <h3 style={{
-                        margin: 0,
-                        fontSize: DesignTokens.typography.base,
-                        fontWeight: DesignTokens.typography.semibold,
-                        color: DesignTokens.colors.textPrimary,
-                        lineHeight: '1.3',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                        paddingRight: '40px'
-                      }}>
-                        {task.title}
-                      </h3>
-                      <div style={{
-                        display: 'flex',
-                        gap: '8px',
-                        marginTop: '6px',
-                        flexWrap: 'wrap'
-                      }}>
-                        <span style={{
-                          background: `${TASK_STATUS_COLORS[task.status]}20`,
-                          color: TASK_STATUS_COLORS[task.status],
-                          padding: '2px 8px',
-                          borderRadius: '4px',
-                          fontSize: '11px',
-                          fontWeight: '600'
-                        }}>
-                          {TASK_STATUS_LABELS[task.status]}
-                        </span>
-                        <span style={{
-                          background: `${TASK_CATEGORY_COLORS[task.category]}15`,
-                          color: TASK_CATEGORY_COLORS[task.category],
-                          padding: '2px 8px',
-                          borderRadius: '4px',
-                          fontSize: '11px',
-                          fontWeight: '500'
-                        }}>
-                          {TASK_CATEGORY_LABELS[task.category]}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Description */}
-                  {task.description && (
-                    <p style={{
-                      color: DesignTokens.colors.textSecondary,
-                      fontSize: DesignTokens.typography.sm,
-                      lineHeight: '1.5',
-                      display: '-webkit-box',
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: 'vertical',
-                      overflow: 'hidden',
-                      margin: `0 0 ${DesignTokens.spacing.md} 0`
-                    }}>
-                      {task.description}
-                    </p>
-                  )}
-
-                  {/* Tags */}
-                  {task.tags && task.tags.length > 0 && (
-                    <div style={{
-                      display: 'flex',
-                      gap: '6px',
-                      flexWrap: 'wrap',
-                      marginBottom: DesignTokens.spacing.md
-                    }}>
-                      {task.tags.slice(0, 3).map((tag, index) => (
-                        <span key={index} style={{
-                          background: 'rgba(99, 102, 241, 0.1)',
-                          color: DesignTokens.colors.primary,
-                          padding: '2px 8px',
-                          borderRadius: '4px',
-                          fontSize: '11px',
-                          fontWeight: '500'
-                        }}>
-                          #{tag}
-                        </span>
-                      ))}
-                      {task.tags.length > 3 && (
-                        <span style={{
-                          color: DesignTokens.colors.textMuted,
-                          fontSize: '11px'
-                        }}>
-                          +{task.tags.length - 3} more
-                        </span>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Footer */}
-                  <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'flex-end',
-                    marginTop: 'auto',
-                    paddingTop: DesignTokens.spacing.sm,
-                    borderTop: '1px solid rgba(0, 0, 0, 0.05)'
-                  }}>
-                    <div style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '4px'
-                    }}>
-                      {task.assignee_name && (
-                        <div style={{ 
-                          display: 'flex', 
-                          alignItems: 'center', 
-                          gap: '6px',
-                          color: DesignTokens.colors.textMuted,
-                          fontSize: '11px'
-                        }}>
-                          <PersonRegular style={{ fontSize: '12px' }} />
-                          <span>{task.assignee_name}</span>
-                        </div>
-                      )}
-                      {task.due_date && (
-                        <div style={{ 
-                          display: 'flex', 
-                          alignItems: 'center', 
-                          gap: '6px',
-                          color: isOverdue(task) ? DesignTokens.colors.error : DesignTokens.colors.textMuted,
-                          fontSize: '11px',
-                          fontWeight: isOverdue(task) ? '600' : '400'
-                        }}>
-                          <CalendarRegular style={{ fontSize: '12px' }} />
-                          <span>Due {formatDate(task.due_date)}</span>
-                          {isOverdue(task) && <ErrorCircleRegular style={{ fontSize: '12px' }} />}
-                        </div>
-                      )}
-                    </div>
-                    
-                    <div style={{
-                      fontSize: '11px',
-                      color: DesignTokens.colors.textMuted
-                    }}>
-                      {getRelativeTime(task.updated_at)}
-                    </div>
-                  </div>
-                </div>
-              </PurpleGlassCard>
+                task={task}
+                openMenuId={openMenuId}
+                onMenuToggle={handleMenuToggle}
+                onStatusChange={handleStatusChange}
+                onDeleteTask={handleDeleteTask}
+              />
             ))}
           </div>
         )}

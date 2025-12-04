@@ -1,23 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   AddRegular,
-  SearchRegular,
   FolderRegular,
   FolderFilled,
   CalendarRegular,
   PersonRegular,
-  GridDotsRegular,
-  ListRegular,
-  FilterRegular,
-  MoreHorizontalRegular,
   MoreVerticalRegular,
-  EditRegular,
   DeleteRegular,
-  ShareRegular,
   RocketRegular,
-  DocumentRegular,
-  ChevronRightRegular,
   CheckmarkCircleRegular,
   PeopleRegular
 } from '@fluentui/react-icons';
@@ -36,6 +27,324 @@ import {
 import { useFormValidation } from '../hooks/useFormValidation';
 import { useErrorHandler } from '../hooks/useErrorHandler';
 import { ToastContainer } from '../components/ui/PurpleGlassToast';
+
+// Helper functions moved outside component to avoid recreation on each render
+const formatDate = (dateString: string) => {
+  return new Date(dateString).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  });
+};
+
+const getRelativeTime = (dateString: string) => {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+  
+  if (diffInSeconds < 60) return 'Just now';
+  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+  if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}d ago`;
+  
+  return formatDate(dateString);
+};
+
+// Helper function to extract string ID from SurrealDB Thing object
+const extractProjectId = (id: unknown): string => {
+  if (typeof id === 'string') {
+    return id;
+  }
+  if (id && typeof id === 'object' && 'id' in id) {
+    const idObj = id as { id: string | { String?: string } };
+    return typeof idObj.id === 'string' ? idObj.id : idObj.id?.String || String(idObj.id);
+  }
+  return String(id);
+};
+
+// Memoized ProjectCard component to prevent unnecessary re-renders
+interface ProjectCardProps {
+  project: Project;
+  openMenuId: string | null;
+  onMenuToggle: (projectId: string, e: React.MouseEvent) => void;
+  onProjectClick: (projectId: unknown, e?: React.MouseEvent) => void;
+  onDeleteProject: (projectId: string) => void;
+  onMarkComplete: (projectId: string) => void;
+  onEditUsers: (projectId: string) => void;
+}
+
+const ProjectCard = memo(function ProjectCard({
+  project,
+  openMenuId,
+  onMenuToggle,
+  onProjectClick,
+  onDeleteProject,
+  onMarkComplete,
+  onEditUsers
+}: ProjectCardProps) {
+  const projectId = extractProjectId(project.id);
+  const isMenuOpen = openMenuId === projectId;
+
+  return (
+    <PurpleGlassCard
+      variant="interactive"
+      onClick={(e) => onProjectClick(project.id, e)}
+    >
+      <div style={{
+        position: 'relative',
+        padding: DesignTokens.spacing.md,
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+        overflow: 'visible'
+      }}>
+        {/* Three dots button with dropdown menu */}
+        <div 
+          className="project-menu"
+          style={{ 
+            position: 'absolute', 
+            top: DesignTokens.spacing.sm, 
+            right: DesignTokens.spacing.sm,
+            zIndex: 1000
+          }}
+        >
+          <PurpleGlassButton
+            variant="ghost"
+            size="small"
+            icon={<MoreVerticalRegular />}
+            onClick={(e) => onMenuToggle(projectId, e)}
+          />
+
+          {/* Dropdown Menu */}
+          {isMenuOpen && (
+            <div style={{
+              position: 'absolute',
+              top: '100%',
+              right: '0',
+              zIndex: 10000,
+              background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.90))',
+              backdropFilter: 'blur(60px) saturate(220%) brightness(145%) contrast(105%)',
+              WebkitBackdropFilter: 'blur(60px) saturate(220%) brightness(145%) contrast(105%)',
+              borderRadius: '12px',
+              border: '1px solid rgba(255, 255, 255, 0.4)',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12), inset 0 0 20px rgba(255, 255, 255, 0.15)',
+              padding: '8px',
+              minWidth: '180px',
+              marginTop: '4px'
+            }}>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  padding: '12px 16px',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  fontFamily: DesignTokens.typography.fontFamily,
+                  fontSize: '14px',
+                  color: DesignTokens.colors.gray900,
+                  fontWeight: '500'
+                }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDeleteProject(projectId);
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
+                  e.currentTarget.style.color = DesignTokens.colors.error;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'transparent';
+                  e.currentTarget.style.color = DesignTokens.colors.gray900;
+                }}
+              >
+                <DeleteRegular style={{ fontSize: '16px' }} />
+                <span>Delete Project</span>
+              </div>
+
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  padding: '12px 16px',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  fontFamily: DesignTokens.typography.fontFamily,
+                  fontSize: '14px',
+                  color: DesignTokens.colors.gray900,
+                  fontWeight: '500'
+                }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onMarkComplete(projectId);
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(16, 185, 129, 0.1)';
+                  e.currentTarget.style.color = DesignTokens.colors.success;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'transparent';
+                  e.currentTarget.style.color = DesignTokens.colors.gray900;
+                }}
+              >
+                <CheckmarkCircleRegular style={{ fontSize: '16px' }} />
+                <span>Mark Complete</span>
+              </div>
+
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  padding: '12px 16px',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  fontFamily: DesignTokens.typography.fontFamily,
+                  fontSize: '14px',
+                  color: DesignTokens.colors.gray900,
+                  fontWeight: '500'
+                }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEditUsers(projectId);
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(99, 102, 241, 0.1)';
+                  e.currentTarget.style.color = DesignTokens.colorVariants.indigo.base;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'transparent';
+                  e.currentTarget.style.color = DesignTokens.colors.gray900;
+                }}
+              >
+                <PeopleRegular style={{ fontSize: '16px' }} />
+                <span>Edit Users</span>
+              </div>
+            </div>
+          )}
+        </div>
+        {/* Project Icon and Title */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'flex-start',
+          gap: DesignTokens.spacing.md,
+          marginBottom: DesignTokens.spacing.lg
+        }}>
+          <div style={{
+            width: '42px',
+            height: '42px',
+            borderRadius: '12px',
+            background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: '#ffffff',
+            fontSize: '20px',
+            flexShrink: 0,
+            boxShadow: '0 3px 12px rgba(99, 102, 241, 0.3)'
+          }}>
+            <FolderFilled />
+          </div>
+          <h3 style={{
+            margin: 0,
+            fontFamily: DesignTokens.typography.fontFamily,
+            color: DesignTokens.colors.textPrimary,
+            fontSize: DesignTokens.typography.lg,
+            fontWeight: DesignTokens.typography.semibold,
+            lineHeight: '1.2',
+            textAlign: 'left'
+          }}>
+            {project.name}
+          </h3>
+        </div>
+
+        {/* Description */}
+        <p style={{
+          color: DesignTokens.colors.textSecondary,
+          fontSize: DesignTokens.typography.sm,
+          lineHeight: '1.5',
+          display: '-webkit-box',
+          WebkitLineClamp: 3,
+          WebkitBoxOrient: 'vertical',
+          overflow: 'hidden',
+          marginBottom: DesignTokens.spacing.lg,
+          flex: 1
+        }}>
+          {project.description || 'No description provided'}
+        </p>
+
+        {/* Compact Footer with Status and Metadata */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'flex-end',
+          paddingTop: DesignTokens.spacing.sm,
+          borderTop: `1px solid rgba(0, 0, 0, 0.05)`,
+          marginTop: 'auto'
+        }}>
+          {/* Left side - Owner and Status */}
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '4px'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: DesignTokens.spacing.xs }}>
+              <div style={{
+                  background: 'rgba(16, 185, 129, 0.1)',
+                  color: DesignTokens.colors.success,
+                  border: 'none',
+                  borderRadius: '4px',
+                  padding: '2px 8px',
+                  fontSize: '11px',
+                  fontWeight: '600',
+                  textTransform: 'uppercase'
+                }}>
+                Active
+              </div>
+            </div>
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '6px',
+              color: DesignTokens.colors.textMuted,
+              fontSize: '11px'
+            }}>
+              <PersonRegular style={{ fontSize: '12px' }} />
+              <span>{project.owner_id ? project.owner_id.replace('user:', '').split('@')[0] : 'Unknown'}</span>
+            </div>
+          </div>
+          
+          {/* Right side - Dates */}
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'flex-end',
+            gap: '4px',
+            fontSize: '11px',
+            color: DesignTokens.colors.textMuted
+          }}>
+            <div style={{ fontWeight: '500' }}>
+              Updated {getRelativeTime(project.updated_at)}
+            </div>
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '4px' 
+            }}>
+              <CalendarRegular style={{ fontSize: '11px' }} />
+              <span>{project.created_at ? formatDate(project.created_at) : 'Unknown'}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </PurpleGlassCard>
+  );
+});
 
 export default function ProjectsView() {
   const navigate = useNavigate();
@@ -67,30 +376,8 @@ export default function ProjectsView() {
     }
   );
 
-  // Helper functions
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
-
-  const getRelativeTime = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-    
-    if (diffInSeconds < 60) return 'Just now';
-    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
-    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
-    if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}d ago`;
-    
-    return formatDate(dateString);
-  };
-
   // Data operations
-  const fetchProjects = async () => {
+  const fetchProjects = useCallback(async () => {
     try {
       setLoading(true);
       const response = await apiClient.getProjects();
@@ -100,15 +387,15 @@ export default function ProjectsView() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [handleError]);
 
   // Handle project type selection
-  const toggleProjectType = (type: 'migration' | 'deployment' | 'upgrade' | 'custom') => {
+  const toggleProjectType = useCallback((type: 'migration' | 'deployment' | 'upgrade' | 'custom') => {
     const newTypes = values.project_types.includes(type)
       ? values.project_types.filter(t => t !== type)
       : [...values.project_types, type];
     handleChange('project_types', newTypes);
-  };
+  }, [values.project_types, handleChange]);
 
   const handleCreateProject = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -147,18 +434,7 @@ export default function ProjectsView() {
     }
   };
 
-  // Helper function to extract string ID from SurrealDB Thing object
-  const extractProjectId = (id: any): string => {
-    if (typeof id === 'string') {
-      return id;
-    }
-    if (id && typeof id === 'object' && id.id) {
-      return typeof id.id === 'string' ? id.id : id.id.String || id.id;
-    }
-    return String(id);
-  };
-
-  const handleProjectClick = (projectId: any, e?: React.MouseEvent) => {
+  const handleProjectClick = useCallback((projectId: unknown, e?: React.MouseEvent) => {
     const id = extractProjectId(projectId);
     try {
       const target = (e?.currentTarget as HTMLElement) ?? null;
@@ -179,29 +455,29 @@ export default function ProjectsView() {
       console.warn('Unable to record project card rect', err);
     }
     navigate(`/app/projects/${id}`);
-  };
+  }, [navigate]);
 
   // Project menu actions
-  const handleMenuToggle = (projectId: string, e: React.MouseEvent) => {
+  const handleMenuToggle = useCallback((projectId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    setOpenMenuId(openMenuId === projectId ? null : projectId);
-  };
+    setOpenMenuId(prev => prev === projectId ? null : projectId);
+  }, []);
 
-  const handleDeleteProject = async (projectId: string) => {
+  const handleDeleteProject = useCallback(async (projectId: string) => {
     if (window.confirm('Are you sure you want to delete this project? This action cannot be undone.')) {
       try {
         // Add your delete API call here
         // await apiClient.deleteProject(projectId);
-        setProjects(projects.filter(p => extractProjectId(p.id) !== projectId));
+        setProjects(prev => prev.filter(p => extractProjectId(p.id) !== projectId));
         setOpenMenuId(null);
         showSuccess('Project deleted', 'The project has been successfully deleted.');
       } catch (error) {
         handleError(error, 'Delete Project');
       }
     }
-  };
+  }, [showSuccess, handleError]);
 
-  const handleMarkComplete = async (projectId: string) => {
+  const handleMarkComplete = useCallback(async (projectId: string) => {
     try {
       // Add your API call here to mark project as complete
       // await apiClient.updateProject(projectId, { status: 'completed' });
@@ -211,38 +487,36 @@ export default function ProjectsView() {
     } catch (error) {
       handleError(error, 'Update Project');
     }
-  };
+  }, [showSuccess, handleError]);
 
-  const handleEditUsers = (projectId: string) => {
+  const handleEditUsers = useCallback((projectId: string) => {
     // Navigate to user management page or open modal
     console.log(`Editing users for project: ${projectId}`);
     setOpenMenuId(null);
     // You could navigate to a user management page or open a modal
     // navigate(`/app/projects/${projectId}/users`);
-  };
+  }, []);
 
-  // Close menu when clicking outside
-  const handleClickOutside = () => {
-    setOpenMenuId(null);
-  };
-
-  // Filtering and sorting
-  const filteredAndSortedProjects = projects
-    .filter(project => 
-      project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (project.description && project.description.toLowerCase().includes(searchTerm.toLowerCase()))
-    )
-    .sort((a, b) => {
-      switch (sortBy) {
-        case 'name':
-          return a.name.localeCompare(b.name);
-        case 'created_at':
-          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-        case 'updated_at':
-        default:
-          return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
-      }
-    });
+  // Memoized filtering and sorting to prevent recalculation on every render
+  const filteredAndSortedProjects = useMemo(() => {
+    const searchLower = searchTerm.toLowerCase();
+    return projects
+      .filter(project => 
+        project.name.toLowerCase().includes(searchLower) ||
+        (project.description && project.description.toLowerCase().includes(searchLower))
+      )
+      .sort((a, b) => {
+        switch (sortBy) {
+          case 'name':
+            return a.name.localeCompare(b.name);
+          case 'created_at':
+            return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+          case 'updated_at':
+          default:
+            return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+        }
+      });
+  }, [projects, searchTerm, sortBy]);
 
   // Effects
   useEffect(() => {
@@ -413,264 +687,16 @@ export default function ProjectsView() {
               gap: DesignTokens.spacing.xl
             }} data-testid="projects-grid">
               {filteredAndSortedProjects.map((project) => (
-                <PurpleGlassCard
-                  key={project.id} 
-                  variant="interactive"
-                  onClick={(e) => handleProjectClick(project.id, e)}
-                >
-                  <div style={{
-                    position: 'relative',
-                    padding: DesignTokens.spacing.md,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    height: '100%',
-                    overflow: 'visible'
-                  }}>
-                    {/* Three dots button with dropdown menu */}
-                    <div 
-                      className="project-menu"
-                      style={{ 
-                        position: 'absolute', 
-                        top: DesignTokens.spacing.sm, 
-                        right: DesignTokens.spacing.sm,
-                        zIndex: 1000
-                      }}
-                    >
-                      <PurpleGlassButton
-                        variant="ghost"
-                        size="small"
-                        icon={<MoreVerticalRegular />}
-                        onClick={(e) => handleMenuToggle(extractProjectId(project.id), e)}
-                      />
-
-                      {/* Dropdown Menu */}
-                      {openMenuId === extractProjectId(project.id) && (
-                        <div style={{
-                          position: 'absolute',
-                          top: '100%',
-                          right: '0',
-                          zIndex: 10000,
-                          background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.90))',
-                          backdropFilter: 'blur(60px) saturate(220%) brightness(145%) contrast(105%)',
-                          WebkitBackdropFilter: 'blur(60px) saturate(220%) brightness(145%) contrast(105%)',
-                          borderRadius: '12px',
-                          border: '1px solid rgba(255, 255, 255, 0.4)',
-                          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12), inset 0 0 20px rgba(255, 255, 255, 0.15)',
-                          padding: '8px',
-                          minWidth: '180px',
-                          marginTop: '4px'
-                        }}>
-                          <div
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '12px',
-                              padding: '12px 16px',
-                              borderRadius: '8px',
-                              cursor: 'pointer',
-                              transition: 'all 0.2s ease',
-                              fontFamily: DesignTokens.typography.fontFamily,
-                              fontSize: '14px',
-                              color: DesignTokens.colors.gray900,
-                              fontWeight: '500'
-                            }}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDeleteProject(extractProjectId(project.id));
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
-                              e.currentTarget.style.color = DesignTokens.colors.error;
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.background = 'transparent';
-                              e.currentTarget.style.color = DesignTokens.colors.gray900;
-                            }}
-                          >
-                            <DeleteRegular style={{ fontSize: '16px' }} />
-                            <span>Delete Project</span>
-                          </div>
-
-                          <div
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '12px',
-                              padding: '12px 16px',
-                              borderRadius: '8px',
-                              cursor: 'pointer',
-                              transition: 'all 0.2s ease',
-                              fontFamily: DesignTokens.typography.fontFamily,
-                              fontSize: '14px',
-                              color: DesignTokens.colors.gray900,
-                              fontWeight: '500'
-                            }}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleMarkComplete(extractProjectId(project.id));
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.background = 'rgba(16, 185, 129, 0.1)';
-                              e.currentTarget.style.color = DesignTokens.colors.success;
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.background = 'transparent';
-                              e.currentTarget.style.color = DesignTokens.colors.gray900;
-                            }}
-                          >
-                            <CheckmarkCircleRegular style={{ fontSize: '16px' }} />
-                            <span>Mark Complete</span>
-                          </div>
-
-                          <div
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '12px',
-                              padding: '12px 16px',
-                              borderRadius: '8px',
-                              cursor: 'pointer',
-                              transition: 'all 0.2s ease',
-                              fontFamily: DesignTokens.typography.fontFamily,
-                              fontSize: '14px',
-                              color: DesignTokens.colors.gray900,
-                              fontWeight: '500'
-                            }}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleEditUsers(extractProjectId(project.id));
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.background = 'rgba(99, 102, 241, 0.1)';
-                              e.currentTarget.style.color = DesignTokens.colorVariants.indigo.base;
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.background = 'transparent';
-                              e.currentTarget.style.color = DesignTokens.colors.gray900;
-                            }}
-                          >
-                            <PeopleRegular style={{ fontSize: '16px' }} />
-                            <span>Edit Users</span>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                    {/* Project Icon and Title */}
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'flex-start',
-                      gap: DesignTokens.spacing.md,
-                      marginBottom: DesignTokens.spacing.lg
-                    }}>
-                      <div style={{
-                        width: '42px',
-                        height: '42px',
-                        borderRadius: '12px',
-                        background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: '#ffffff',
-                        fontSize: '20px',
-                        flexShrink: 0,
-                        boxShadow: '0 3px 12px rgba(99, 102, 241, 0.3)'
-                      }}>
-                        <FolderFilled />
-                      </div>
-                      <h3 style={{
-                        margin: 0,
-                        fontFamily: DesignTokens.typography.fontFamily,
-                        color: DesignTokens.colors.textPrimary,
-                        fontSize: DesignTokens.typography.lg,
-                        fontWeight: DesignTokens.typography.semibold,
-                        lineHeight: '1.2',
-                        textAlign: 'left'
-                      }}>
-                        {project.name}
-                      </h3>
-                    </div>
-
-                    {/* Description */}
-                    <p style={{
-                      color: DesignTokens.colors.textSecondary,
-                      fontSize: DesignTokens.typography.sm,
-                      lineHeight: '1.5',
-                      display: '-webkit-box',
-                      WebkitLineClamp: 3,
-                      WebkitBoxOrient: 'vertical',
-                      overflow: 'hidden',
-                      marginBottom: DesignTokens.spacing.lg,
-                      flex: 1
-                    }}>
-                      {project.description || 'No description provided'}
-                    </p>
-
-                    {/* Compact Footer with Status and Metadata */}
-                    <div style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'flex-end',
-                      paddingTop: DesignTokens.spacing.sm,
-                      borderTop: `1px solid rgba(0, 0, 0, 0.05)`,
-                      marginTop: 'auto'
-                    }}>
-                      {/* Left side - Owner and Status */}
-                      <div style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '4px'
-                      }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: DesignTokens.spacing.xs }}>
-                          <div style={{
-                              background: 'rgba(16, 185, 129, 0.1)',
-                              color: DesignTokens.colors.success,
-                              border: 'none',
-                              borderRadius: '4px',
-                              padding: '2px 8px',
-                              fontSize: '11px',
-                              fontWeight: '600',
-                              textTransform: 'uppercase'
-                            }}>
-                            Active
-                          </div>
-                        </div>
-                        <div style={{ 
-                          display: 'flex', 
-                          alignItems: 'center', 
-                          gap: '6px',
-                          color: DesignTokens.colors.textMuted,
-                          fontSize: '11px'
-                        }}>
-                          <PersonRegular style={{ fontSize: '12px' }} />
-                          <span>{project.owner_id ? project.owner_id.replace('user:', '').split('@')[0] : 'Unknown'}</span>
-                        </div>
-                      </div>
-                      
-                      {/* Right side - Dates */}
-                      <div style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'flex-end',
-                        gap: '4px',
-                        fontSize: '11px',
-                        color: DesignTokens.colors.textMuted
-                      }}>
-                        <div style={{ fontWeight: '500' }}>
-                          Updated {getRelativeTime(project.updated_at)}
-                        </div>
-                        <div style={{ 
-                          display: 'flex', 
-                          alignItems: 'center', 
-                          gap: '4px' 
-                        }}>
-                          <CalendarRegular style={{ fontSize: '11px' }} />
-                          <span>{project.created_at ? formatDate(project.created_at) : 'Unknown'}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </PurpleGlassCard>
+                <ProjectCard
+                  key={extractProjectId(project.id)}
+                  project={project}
+                  openMenuId={openMenuId}
+                  onMenuToggle={handleMenuToggle}
+                  onProjectClick={handleProjectClick}
+                  onDeleteProject={handleDeleteProject}
+                  onMarkComplete={handleMarkComplete}
+                  onEditUsers={handleEditUsers}
+                />
               ))}
             </div>
           )}
