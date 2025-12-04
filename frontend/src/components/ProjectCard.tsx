@@ -420,7 +420,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         justifyContent: 'space-between', 
         alignItems: 'center',
         fontSize: '12px', 
-        color: '#9ca3af',
+        color: 'var(--text-muted)',
         paddingTop: '12px',
         borderTop: '1px solid rgba(0, 0, 0, 0.05)'
       }}>

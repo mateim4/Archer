@@ -384,7 +384,7 @@ const SimpleVisualizer: React.FC<SimpleVisualizerProps> = ({
               <span style={{ color: colors.primary }}>
                 {allocatedResource.toFixed(0)}
               </span>
-              <span style={{ color: '#9ca3af' }}>/</span>
+              <span style={{ color: 'var(--text-muted)' }}>/</span>
               <span style={{ color: 'var(--text-secondary)' }}>
                 {totalResource.toFixed(0)}
               </span>
@@ -701,7 +701,7 @@ const SimpleVisualizer: React.FC<SimpleVisualizerProps> = ({
                         <td style={{ 
                           padding: '10px 8px',
                           fontWeight: localSelectedVMs.has(vm.id) ? '600' : '500',
-                          color: localSelectedVMs.has(vm.id) ? colors.primary : '#4b5563'
+                          color: localSelectedVMs.has(vm.id) ? colors.primary : 'var(--text-secondary)'
                         }}>
                           {vm.name}
                         </td>
@@ -743,7 +743,7 @@ const SimpleVisualizer: React.FC<SimpleVisualizerProps> = ({
               <div style={{
                 textAlign: 'center',
                 padding: '40px 20px',
-                color: '#9ca3af',
+                color: 'var(--text-muted)',
                 fontSize: '14px',
                 fontStyle: 'italic'
               }}>
@@ -842,7 +842,7 @@ const SimpleVisualizer: React.FC<SimpleVisualizerProps> = ({
                 <div style={{
                   marginTop: '8px',
                   fontSize: '10px',
-                  color: '#9ca3af',
+                  color: 'var(--text-muted)',
                   textAlign: 'center',
                   padding: '4px',
                   background: 'transparent',

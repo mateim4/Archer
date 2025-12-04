@@ -113,7 +113,7 @@ const NetworkComponentGuide: React.FC = () => {
             </span>
           ))}
           {icon.useCases.length > 3 && (
-            <span style={{ fontSize: '11px', color: '#9ca3af' }}>
+            <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
               +{icon.useCases.length - 3} more
             </span>
           )}

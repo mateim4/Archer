@@ -515,7 +515,7 @@ const ServerCard: React.FC<ServerCardProps> = ({
         justifyContent: 'space-between', 
         alignItems: 'center',
         fontSize: '11px', 
-        color: '#9ca3af',
+        color: 'var(--text-muted)',
         paddingTop: '12px',
         borderTop: '1px solid rgba(0, 0, 0, 0.05)'
       }}>

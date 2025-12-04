@@ -255,7 +255,7 @@ export const PurpleGlassStats: React.FC<PurpleGlassStatsProps> = ({
         >
           <span>{getTrendIcon()}</span>
           <span>{Math.abs(trend.value)}%</span>
-          <span style={{ fontWeight: 400, color: '#9ca3af' }}>{trend.label}</span>
+          <span style={{ fontWeight: 400, color: 'var(--text-muted)' }}>{trend.label}</span>
         </div>
       )}
     </div>

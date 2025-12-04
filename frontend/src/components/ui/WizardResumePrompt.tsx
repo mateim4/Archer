@@ -141,7 +141,7 @@ export const WizardResumePrompt: React.FC<WizardResumePromptProps> = ({
         style={{
           margin: '0 0 16px 0',
           fontSize: '14px',
-          color: '#4b5563',
+          color: 'var(--text-secondary)',
           lineHeight: 1.5,
           fontFamily: 'inherit'
         }}

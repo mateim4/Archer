@@ -2251,7 +2251,7 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
             >
               {cluster.isVisible !== false ? 
                 <EyeRegular style={{ width: '16px', height: '16px', color: '#8b5cf6' }} /> : 
-                <EyeOffRegular style={{ width: '16px', height: '16px', color: '#9ca3af' }} />
+                <EyeOffRegular style={{ width: '16px', height: '16px', color: 'var(--text-muted)' }} />
               }
               <div style={{
                 width: '8px',
@@ -2397,7 +2397,7 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
             <span style={{
               fontSize: '12px',
               fontWeight: 500,
-              color: advancedVisualizer ? '#1a202c' : '#9ca3af',
+              color: advancedVisualizer ? '#1a202c' : 'var(--text-muted)',
               fontFamily: tokens.fontFamilyBody
             }}>
               Free Space
