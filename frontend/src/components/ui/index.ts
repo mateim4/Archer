@@ -119,3 +119,13 @@ export type { MigrationNoticeProps } from './MigrationNotice';
 // Drawer - Sliding panel for detail views
 export { PurpleGlassDrawer } from './PurpleGlassDrawer';
 export type { PurpleGlassDrawerProps, DrawerSize, DrawerPosition } from './PurpleGlassDrawer';
+
+// Data Table - Enhanced table with sorting, selection, export
+export { PurpleGlassDataTable } from './PurpleGlassDataTable';
+export type { 
+  PurpleGlassDataTableProps, 
+  TableColumn, 
+  SortState, 
+  RowAction, 
+  BulkAction 
+} from './PurpleGlassDataTable';

@@ -1,0 +1,430 @@
+/**
+ * PurpleGlassDataTable Styles
+ * 
+ * Glassmorphic styling for enhanced data tables.
+ * Includes toolbar, sorting indicators, selection states, and context menus.
+ */
+
+.purple-glass-data-table {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Toolbar */
+.purple-glass-data-table .table-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 0;
+}
+
+.purple-glass-data-table .toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+}
+
+.purple-glass-data-table .toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.purple-glass-data-table .search-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.purple-glass-data-table .clear-search {
+  position: absolute;
+  right: 8px;
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  color: var(--text-muted, #94a3b8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 150ms ease;
+}
+
+.purple-glass-data-table .clear-search:hover {
+  color: var(--text-primary, #f1f5f9);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Bulk Actions */
+.purple-glass-data-table .bulk-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: rgba(107, 76, 230, 0.15);
+  border-radius: 8px;
+  border: 1px solid rgba(107, 76, 230, 0.3);
+}
+
+.purple-glass-data-table .selection-count {
+  font-size: 13px;
+  font-weight: 500;
+  color: #6B4CE6;
+  padding-right: 8px;
+  border-right: 1px solid rgba(107, 76, 230, 0.3);
+  margin-right: 4px;
+}
+
+/* Dropdown */
+.purple-glass-data-table .dropdown-container {
+  position: relative;
+}
+
+.purple-glass-data-table .dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  min-width: 180px;
+  background: rgba(30, 41, 59, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(71, 85, 105, 0.4);
+  border-radius: 12px;
+  padding: 8px;
+  z-index: 100;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.purple-glass-data-table.light .dropdown-menu {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(229, 231, 235, 0.6);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+}
+
+.purple-glass-data-table .dropdown-header {
+  padding: 8px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+  border-bottom: 1px solid rgba(71, 85, 105, 0.3);
+  margin-bottom: 4px;
+}
+
+.purple-glass-data-table .dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--text-primary, #f1f5f9);
+  cursor: pointer;
+  text-align: left;
+  transition: all 150ms ease;
+}
+
+.purple-glass-data-table .dropdown-item:hover {
+  background: rgba(107, 76, 230, 0.15);
+}
+
+.purple-glass-data-table .dropdown-item.checkbox-item {
+  cursor: pointer;
+}
+
+.purple-glass-data-table .dropdown-item.checkbox-item input {
+  display: none;
+}
+
+.purple-glass-data-table .column-manager {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+/* Table Container */
+.purple-glass-data-table .table-container {
+  position: relative;
+  overflow: auto;
+  border-radius: 12px;
+}
+
+.purple-glass-data-table .table-container.glass {
+  background: rgba(30, 41, 59, 0.4);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(71, 85, 105, 0.3);
+}
+
+.purple-glass-data-table.light .table-container.glass {
+  background: rgba(255, 255, 255, 0.6);
+  border-color: rgba(229, 231, 235, 0.5);
+}
+
+/* Table */
+.purple-glass-data-table .data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+/* Header */
+.purple-glass-data-table .data-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.purple-glass-data-table .data-table th {
+  padding: 14px 16px;
+  background: rgba(51, 65, 85, 0.5);
+  color: var(--text-secondary, #94a3b8);
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid rgba(71, 85, 105, 0.3);
+  white-space: nowrap;
+}
+
+.purple-glass-data-table.light .data-table th {
+  background: rgba(249, 250, 251, 0.8);
+  color: #6b7280;
+  border-color: rgba(229, 231, 235, 0.5);
+}
+
+.purple-glass-data-table .data-table th.sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: background 150ms ease;
+}
+
+.purple-glass-data-table .data-table th.sortable:hover {
+  background: rgba(107, 76, 230, 0.15);
+}
+
+.purple-glass-data-table .data-table th .header-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.purple-glass-data-table .data-table th .sort-icon {
+  display: flex;
+  align-items: center;
+  color: #6B4CE6;
+}
+
+/* Body */
+.purple-glass-data-table .data-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(71, 85, 105, 0.15);
+  color: var(--text-primary, #f1f5f9);
+}
+
+.purple-glass-data-table.light .data-table td {
+  color: #111827;
+  border-color: rgba(229, 231, 235, 0.3);
+}
+
+.purple-glass-data-table .data-table tbody tr {
+  transition: background 150ms ease;
+}
+
+.purple-glass-data-table .data-table tbody tr:hover {
+  background: rgba(107, 76, 230, 0.08);
+}
+
+.purple-glass-data-table .data-table tbody tr.selected {
+  background: rgba(107, 76, 230, 0.15);
+}
+
+.purple-glass-data-table .data-table tbody tr.clickable {
+  cursor: pointer;
+}
+
+/* Checkbox Cell */
+.purple-glass-data-table .checkbox-cell {
+  width: 48px;
+  text-align: center;
+}
+
+.purple-glass-data-table .checkbox-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  color: #6B4CE6;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.purple-glass-data-table .checkbox-button:hover {
+  background: rgba(107, 76, 230, 0.15);
+}
+
+/* Actions Cell */
+.purple-glass-data-table .actions-cell {
+  text-align: center;
+}
+
+.purple-glass-data-table .row-actions-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--text-muted, #94a3b8);
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.purple-glass-data-table .row-actions-button:hover {
+  background: rgba(107, 76, 230, 0.15);
+  color: #6B4CE6;
+}
+
+/* Context Menu */
+.purple-glass-data-table .context-menu {
+  min-width: 160px;
+  background: rgba(30, 41, 59, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(71, 85, 105, 0.4);
+  border-radius: 10px;
+  padding: 6px;
+  z-index: 1000;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.purple-glass-data-table.light .context-menu {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(229, 231, 235, 0.6);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+}
+
+.purple-glass-data-table .context-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 14px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  color: var(--text-primary, #f1f5f9);
+  cursor: pointer;
+  text-align: left;
+  transition: all 150ms ease;
+}
+
+.purple-glass-data-table .context-menu-item:hover {
+  background: rgba(107, 76, 230, 0.15);
+}
+
+.purple-glass-data-table .context-menu-item.danger {
+  color: #ef4444;
+}
+
+.purple-glass-data-table .context-menu-item.danger:hover {
+  background: rgba(239, 68, 68, 0.15);
+}
+
+.purple-glass-data-table .context-menu-item:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Empty & Loading States */
+.purple-glass-data-table .empty-state,
+.purple-glass-data-table .loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: var(--text-muted, #94a3b8);
+  gap: 16px;
+}
+
+.purple-glass-data-table .loading-state .spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid rgba(107, 76, 230, 0.2);
+  border-top-color: #6B4CE6;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Footer */
+.purple-glass-data-table .table-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 4px;
+}
+
+.purple-glass-data-table .row-count {
+  font-size: 13px;
+  color: var(--text-muted, #94a3b8);
+}
+
+/* Light Theme Adjustments */
+.purple-glass-data-table.light .selection-count {
+  border-color: rgba(107, 76, 230, 0.3);
+}
+
+.purple-glass-data-table.light .dropdown-header {
+  color: #6b7280;
+  border-color: rgba(229, 231, 235, 0.5);
+}
+
+.purple-glass-data-table.light .dropdown-item {
+  color: #111827;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .purple-glass-data-table .table-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  
+  .purple-glass-data-table .toolbar-left {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .purple-glass-data-table .search-container {
+    width: 100%;
+  }
+  
+  .purple-glass-data-table .search-container input {
+    width: 100% !important;
+  }
+  
+  .purple-glass-data-table .toolbar-right {
+    justify-content: flex-end;
+  }
+}
