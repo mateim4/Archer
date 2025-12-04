@@ -36,7 +36,7 @@ const ThemeToggle: React.FC<ThemeToggleProps> = ({ className, style }) => {
           : 'rgba(255, 255, 255, 0.4)',
         backdropFilter: 'blur(20px) saturate(180%)',
         WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-        color: isDark ? '#f0f0f0' : '#2c2c2c',
+        color: 'var(--text-primary)',
         cursor: 'pointer',
         display: 'flex',
         alignItems: 'center',

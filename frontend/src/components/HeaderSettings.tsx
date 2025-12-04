@@ -31,8 +31,8 @@ const HeaderSettings: React.FC<HeaderSettingsProps> = ({ className, isDark = fal
         backdropFilter: 'blur(20px) saturate(180%)',
         WebkitBackdropFilter: 'blur(20px) saturate(180%)',
         color: isActive 
-          ? '#8b5cf6' 
-          : isDark ? '#f0f0f0' : '#2c2c2c',
+          ? 'var(--brand-primary)' 
+          : 'var(--text-primary)',
         cursor: 'pointer',
         display: 'flex',
         alignItems: 'center',

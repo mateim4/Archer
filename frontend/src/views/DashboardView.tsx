@@ -802,7 +802,7 @@ export const DashboardView: React.FC = () => {
             margin: 0,
             fontSize: '28px',
             fontWeight: 700,
-            color: isDark ? '#f1f5f9' : '#1f2937',
+            color: 'var(--text-primary)',
             fontFamily: 'var(--lcm-font-family-heading, Poppins, sans-serif)',
           }}>
             Dashboard
@@ -810,7 +810,7 @@ export const DashboardView: React.FC = () => {
           <p style={{
             margin: '4px 0 0 0',
             fontSize: '14px',
-            color: isDark ? '#94a3b8' : '#6b7280',
+            color: 'var(--text-muted)',
           }}>
             Welcome back! Here's your ITSM overview.
           </p>
@@ -830,9 +830,9 @@ export const DashboardView: React.FC = () => {
               padding: '8px 12px',
               fontSize: '13px',
               borderRadius: '8px',
-              border: `1px solid ${isDark ? 'rgba(71, 85, 105, 0.3)' : 'rgba(139, 92, 246, 0.2)'}`,
-              background: isDark ? 'rgba(30, 41, 59, 0.6)' : 'rgba(255, 255, 255, 0.8)',
-              color: isDark ? '#e2e8f0' : '#1f2937',
+              border: '1px solid var(--card-border)',
+              background: 'var(--card-bg)',
+              color: 'var(--text-primary)',
               cursor: 'pointer',
             }}
           >
@@ -892,13 +892,11 @@ export const DashboardView: React.FC = () => {
       <div style={{
         marginBottom: '24px',
         padding: '24px',
-        background: isDark 
-          ? 'rgba(30, 41, 59, 0.6)' 
-          : 'rgba(255, 255, 255, 0.7)',
+        background: 'var(--card-bg)',
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
         borderRadius: '16px',
-        border: `1px solid ${isDark ? 'rgba(71, 85, 105, 0.3)' : 'rgba(139, 92, 246, 0.15)'}`,
+        border: '1px solid var(--card-border)',
       }}>
         <AIInsightsPanel
           insights={MOCK_AI_INSIGHTS}
@@ -916,19 +914,17 @@ export const DashboardView: React.FC = () => {
       }}>
         {/* My Open Tickets Widget */}
         <div style={{
-          background: isDark 
-            ? 'rgba(30, 41, 59, 0.6)' 
-            : 'rgba(255, 255, 255, 0.7)',
+          background: 'var(--card-bg)',
           backdropFilter: 'blur(20px)',
           WebkitBackdropFilter: 'blur(20px)',
           borderRadius: '16px',
-          border: `1px solid ${isDark ? 'rgba(71, 85, 105, 0.3)' : 'rgba(139, 92, 246, 0.15)'}`,
+          border: '1px solid var(--card-border)',
           overflow: 'hidden',
         }}>
           {/* Widget Header */}
           <div style={{
             padding: '16px 20px',
-            borderBottom: `1px solid ${isDark ? 'rgba(71, 85, 105, 0.2)' : 'rgba(139, 92, 246, 0.1)'}`,
+            borderBottom: '1px solid var(--divider-color-subtle)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
@@ -938,12 +934,12 @@ export const DashboardView: React.FC = () => {
               alignItems: 'center',
               gap: '10px',
             }}>
-              <TicketDiagonalRegular style={{ color: '#6B4CE6', fontSize: '20px' }} />
+              <TicketDiagonalRegular style={{ color: 'var(--brand-primary)', fontSize: '20px' }} />
               <h3 style={{
                 margin: 0,
                 fontSize: '16px',
                 fontWeight: 600,
-                color: isDark ? '#f1f5f9' : '#1f2937',
+                color: 'var(--text-primary)',
               }}>
                 My Open Tickets
               </h3>
@@ -994,19 +990,17 @@ export const DashboardView: React.FC = () => {
 
         {/* Recent Activity Widget */}
         <div style={{
-          background: isDark 
-            ? 'rgba(30, 41, 59, 0.6)' 
-            : 'rgba(255, 255, 255, 0.7)',
+          background: 'var(--card-bg)',
           backdropFilter: 'blur(20px)',
           WebkitBackdropFilter: 'blur(20px)',
           borderRadius: '16px',
-          border: `1px solid ${isDark ? 'rgba(71, 85, 105, 0.3)' : 'rgba(139, 92, 246, 0.15)'}`,
+          border: '1px solid var(--card-border)',
           overflow: 'hidden',
         }}>
           {/* Widget Header */}
           <div style={{
             padding: '16px 20px',
-            borderBottom: `1px solid ${isDark ? 'rgba(71, 85, 105, 0.2)' : 'rgba(139, 92, 246, 0.1)'}`,
+            borderBottom: '1px solid var(--divider-color-subtle)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
@@ -1016,12 +1010,12 @@ export const DashboardView: React.FC = () => {
               alignItems: 'center',
               gap: '10px',
             }}>
-              <ClockRegular style={{ color: '#6B4CE6', fontSize: '20px' }} />
+              <ClockRegular style={{ color: 'var(--brand-primary)', fontSize: '20px' }} />
               <h3 style={{
                 margin: 0,
                 fontSize: '16px',
                 fontWeight: 600,
-                color: isDark ? '#f1f5f9' : '#1f2937',
+                color: 'var(--text-primary)',
               }}>
                 Recent Activity
               </h3>
@@ -1042,20 +1036,18 @@ export const DashboardView: React.FC = () => {
 
         {/* Critical Alerts Widget */}
         <div style={{
-          background: isDark 
-            ? 'rgba(30, 41, 59, 0.6)' 
-            : 'rgba(255, 255, 255, 0.7)',
+          background: 'var(--card-bg)',
           backdropFilter: 'blur(20px)',
           WebkitBackdropFilter: 'blur(20px)',
           borderRadius: '16px',
-          border: `1px solid ${isDark ? 'rgba(71, 85, 105, 0.3)' : 'rgba(139, 92, 246, 0.15)'}`,
+          border: '1px solid var(--card-border)',
           overflow: 'hidden',
           gridColumn: 'span 2',
         }}>
           {/* Widget Header */}
           <div style={{
             padding: '16px 20px',
-            borderBottom: `1px solid ${isDark ? 'rgba(71, 85, 105, 0.2)' : 'rgba(139, 92, 246, 0.1)'}`,
+            borderBottom: '1px solid var(--divider-color-subtle)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
@@ -1065,12 +1057,12 @@ export const DashboardView: React.FC = () => {
               alignItems: 'center',
               gap: '10px',
             }}>
-              <AlertRegular style={{ color: '#ef4444', fontSize: '20px' }} />
+              <AlertRegular style={{ color: 'var(--status-critical)', fontSize: '20px' }} />
               <h3 style={{
                 margin: 0,
                 fontSize: '16px',
                 fontWeight: 600,
-                color: isDark ? '#f1f5f9' : '#1f2937',
+                color: 'var(--text-primary)',
               }}>
                 Critical Alerts
               </h3>

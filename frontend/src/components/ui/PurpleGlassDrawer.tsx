@@ -271,23 +271,19 @@ export const PurpleGlassDrawer: React.FC<PurpleGlassDrawerProps> = ({
                 padding: '8px',
                 borderRadius: '8px',
                 border: 'none',
-                background: isDark ? 'rgba(71, 85, 105, 0.3)' : 'rgba(139, 92, 246, 0.08)',
+                background: 'var(--btn-secondary-bg)',
                 cursor: 'pointer',
-                color: isDark ? '#e2e8f0' : '#6B4CE6',
+                color: 'var(--btn-secondary-text)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 transition: 'all 0.15s ease',
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = isDark 
-                  ? 'rgba(71, 85, 105, 0.5)' 
-                  : 'rgba(139, 92, 246, 0.15)';
+                e.currentTarget.style.background = 'var(--btn-secondary-bg-hover)';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = isDark 
-                  ? 'rgba(71, 85, 105, 0.3)' 
-                  : 'rgba(139, 92, 246, 0.08)';
+                e.currentTarget.style.background = 'var(--btn-secondary-bg)';
               }}
             >
               {showBackButton ? (
@@ -310,7 +306,7 @@ export const PurpleGlassDrawer: React.FC<PurpleGlassDrawerProps> = ({
                     margin: 0,
                     fontSize: '18px',
                     fontWeight: 600,
-                    color: isDark ? '#f1f5f9' : '#1f2937',
+                    color: 'var(--text-primary)',
                     fontFamily: 'var(--lcm-font-family-heading, Poppins, sans-serif)',
                   }}
                 >
@@ -321,7 +317,7 @@ export const PurpleGlassDrawer: React.FC<PurpleGlassDrawerProps> = ({
                 <p style={{
                   margin: '4px 0 0 0',
                   fontSize: '13px',
-                  color: isDark ? '#94a3b8' : '#6b7280',
+                  color: 'var(--text-muted)',
                 }}>
                   {subtitle}
                 </p>
