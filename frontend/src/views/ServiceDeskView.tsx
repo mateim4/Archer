@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   PurpleGlassCard, 
   PurpleGlassButton, 
   PurpleGlassInput, 
   PurpleGlassDropdown,
+  PurpleGlassCheckbox,
   LinkedAssetBadge,
   SLAIndicator,
   CreateIncidentModal,
@@ -25,7 +26,18 @@ import {
   TagRegular,
   ArrowSortRegular,
   AlertRegular,
-  DesktopRegular
+  DesktopRegular,
+  PersonSupportRegular,
+  BugRegular,
+  ArrowSyncRegular,
+  PersonQuestionMarkRegular,
+  ArrowCircleUpRegular,
+  ClockAlarmRegular,
+  CalendarTodayRegular,
+  BookmarkRegular,
+  ChevronDownRegular,
+  DismissRegular,
+  ArrowExportRegular
 } from '@fluentui/react-icons';
 import { apiClient, Ticket } from '../utils/apiClient';
 import { useEnhancedUX } from '../hooks/useEnhancedUX';
@@ -39,6 +51,25 @@ interface ExtendedTicket extends Omit<Ticket, 'ticket_type'> {
   linkedCi?: { id: string; name: string; type?: 'CLUSTER' | 'HOST' | 'VM' | 'SWITCH'; status: 'healthy' | 'warning' | 'critical' };
 }
 
+// Ticket type tabs configuration
+const TICKET_TYPE_TABS = [
+  { id: 'all', label: 'All Tickets', icon: <ListRegular />, filter: null },
+  { id: 'incident', label: 'Incidents', icon: <WarningRegular />, filter: 'Incident' },
+  { id: 'service_request', label: 'Service Requests', icon: <PersonSupportRegular />, filter: 'Service Request' },
+  { id: 'problem', label: 'Problems', icon: <BugRegular />, filter: 'Problem' },
+  { id: 'change', label: 'Changes', icon: <ArrowSyncRegular />, filter: 'Change' },
+];
+
+// Saved views configuration
+const SAVED_VIEWS = [
+  { id: 'all', label: 'All Tickets', icon: <ListRegular />, filters: {} },
+  { id: 'my_tickets', label: 'My Tickets', icon: <PersonRegular />, filters: { assignee: 'current_user' } },
+  { id: 'unassigned', label: 'Unassigned', icon: <PersonQuestionMarkRegular />, filters: { assignee: null } },
+  { id: 'high_priority', label: 'High Priority', icon: <ArrowCircleUpRegular />, filters: { priority: ['Critical', 'High'] } },
+  { id: 'sla_at_risk', label: 'SLA At Risk', icon: <ClockAlarmRegular />, filters: { slaStatus: ['at_risk', 'breached'] } },
+  { id: 'created_today', label: 'Created Today', icon: <CalendarTodayRegular />, filters: { createdDate: 'today' } },
+];
+
 const ServiceDeskView: React.FC = () => {
   const navigate = useNavigate();
   const [viewMode, setViewMode] = useState<'list' | 'kanban'>('list');
@@ -47,6 +78,19 @@ const ServiceDeskView: React.FC = () => {
   const [tickets, setTickets] = useState<ExtendedTicket[]>([]);
   const [isCreateModalOpen, setCreateModalOpen] = useState(false);
   const { isLoading, withLoading } = useEnhancedUX();
+  
+  // New state for tabs and views
+  const [activeTab, setActiveTab] = useState('all');
+  const [activeView, setActiveView] = useState('all');
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  
+  // Advanced filter state
+  const [advancedFilters, setAdvancedFilters] = useState({
+    priority: [] as string[],
+    assignee: '',
+    dateRange: 'all' as 'all' | 'today' | 'week' | 'month',
+    slaStatus: [] as string[],
+  });
 
   const handleTicketClick = (ticketId: string) => {
     navigate(`/app/service-desk/ticket/${ticketId}`);
@@ -103,13 +147,85 @@ const ServiceDeskView: React.FC = () => {
     }
   };
 
-  const filteredTickets = tickets.filter(t => {
-    const matchesSearch = t.title.toLowerCase().includes(filter.toLowerCase()) || 
-                          t.id?.toString().toLowerCase().includes(filter.toLowerCase());
-    const matchesStatus = statusFilter === 'All' || 
-                          (statusFilter === 'Resolved' ? ['RESOLVED', 'CLOSED'].includes(t.status) : t.status === statusFilter.toUpperCase().replace(' ', '_'));
-    return matchesSearch && matchesStatus;
-  });
+  // Calculate ticket counts per type
+  const ticketCounts = useMemo(() => {
+    return {
+      all: tickets.length,
+      incident: tickets.filter(t => t.ticket_type === 'Incident').length,
+      service_request: tickets.filter(t => t.ticket_type === 'Service Request').length,
+      problem: tickets.filter(t => t.ticket_type === 'Problem').length,
+      change: tickets.filter(t => t.ticket_type === 'Change').length,
+    };
+  }, [tickets]);
+
+  // Enhanced filtering with tabs and saved views
+  const filteredTickets = useMemo(() => {
+    let result = tickets;
+    
+    // Apply tab filter (ticket type)
+    const activeTabConfig = TICKET_TYPE_TABS.find(tab => tab.id === activeTab);
+    if (activeTabConfig?.filter) {
+      result = result.filter(t => t.ticket_type === activeTabConfig.filter);
+    }
+    
+    // Apply saved view filters
+    const activeViewConfig = SAVED_VIEWS.find(v => v.id === activeView);
+    if (activeViewConfig?.filters) {
+      const viewFilters = activeViewConfig.filters;
+      if (viewFilters.assignee === 'current_user') {
+        result = result.filter(t => t.assignee); // Simplified - would check actual user
+      } else if (viewFilters.assignee === null) {
+        result = result.filter(t => !t.assignee);
+      }
+      if (viewFilters.priority) {
+        result = result.filter(t => (viewFilters.priority as string[]).includes(t.priority.toString()));
+      }
+      if (viewFilters.slaStatus) {
+        result = result.filter(t => t.slaStatus && (viewFilters.slaStatus as string[]).includes(t.slaStatus));
+      }
+      if (viewFilters.createdDate === 'today') {
+        const today = new Date().toDateString();
+        result = result.filter(t => new Date(t.created_at).toDateString() === today);
+      }
+    }
+    
+    // Apply advanced filters
+    if (advancedFilters.priority.length > 0) {
+      result = result.filter(t => advancedFilters.priority.includes(t.priority.toString()));
+    }
+    if (advancedFilters.slaStatus.length > 0) {
+      result = result.filter(t => t.slaStatus && advancedFilters.slaStatus.includes(t.slaStatus));
+    }
+    if (advancedFilters.dateRange !== 'all') {
+      const now = new Date();
+      const ranges: Record<string, number> = { today: 1, week: 7, month: 30 };
+      const daysAgo = ranges[advancedFilters.dateRange];
+      result = result.filter(t => {
+        const created = new Date(t.created_at);
+        const diffDays = Math.floor((now.getTime() - created.getTime()) / (1000 * 60 * 60 * 24));
+        return diffDays <= daysAgo;
+      });
+    }
+    
+    // Apply search filter
+    if (filter) {
+      result = result.filter(t => 
+        t.title.toLowerCase().includes(filter.toLowerCase()) || 
+        t.id?.toString().toLowerCase().includes(filter.toLowerCase())
+      );
+    }
+    
+    // Apply status filter
+    if (statusFilter !== 'All') {
+      result = result.filter(t => 
+        statusFilter === 'Resolved' 
+          ? ['RESOLVED', 'CLOSED'].includes(t.status) 
+          : t.status === statusFilter.toUpperCase().replace(' ', '_')
+      );
+    }
+    
+    return result;
+  }, [tickets, activeTab, activeView, advancedFilters, filter, statusFilter]);
 
   // Kanban Columns
   const columns = [
@@ -182,9 +298,78 @@ const ServiceDeskView: React.FC = () => {
           <KPICard title="Avg Resolution" value="4.2h" trend="-15m" trendType="positive" icon={<ClockRegular />} />
         </div>
 
-        {/* Filters Toolbar */}
+        {/* Ticket Type Tabs */}
+        <div style={{ 
+          display: 'flex', 
+          gap: '4px',
+          borderBottom: `1px solid ${DesignTokens.colors.gray200}`,
+          marginBottom: '-8px'
+        }}>
+          {TICKET_TYPE_TABS.map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '12px 20px',
+                background: activeTab === tab.id 
+                  ? `linear-gradient(135deg, ${DesignTokens.colors.primary}15 0%, ${DesignTokens.colors.primary}08 100%)`
+                  : 'transparent',
+                border: 'none',
+                borderBottom: activeTab === tab.id 
+                  ? `2px solid ${DesignTokens.colors.primary}`
+                  : '2px solid transparent',
+                borderRadius: '8px 8px 0 0',
+                cursor: 'pointer',
+                color: activeTab === tab.id 
+                  ? DesignTokens.colors.primary 
+                  : DesignTokens.colors.textSecondary,
+                fontWeight: activeTab === tab.id 
+                  ? DesignTokens.typography.semibold 
+                  : DesignTokens.typography.medium,
+                fontSize: DesignTokens.typography.sm,
+                fontFamily: DesignTokens.typography.fontFamily,
+                transition: 'all 0.2s ease',
+              }}
+            >
+              {tab.icon}
+              <span>{tab.label}</span>
+              <span style={{
+                padding: '2px 8px',
+                borderRadius: DesignTokens.borderRadius.full,
+                background: activeTab === tab.id 
+                  ? `${DesignTokens.colors.primary}20`
+                  : DesignTokens.colors.gray100,
+                fontSize: DesignTokens.typography.xs,
+                color: activeTab === tab.id 
+                  ? DesignTokens.colors.primary 
+                  : DesignTokens.colors.textMuted,
+                fontWeight: DesignTokens.typography.medium,
+              }}>
+                {ticketCounts[tab.id as keyof typeof ticketCounts]}
+              </span>
+            </button>
+          ))}
+        </div>
+
+        {/* Filters Toolbar with Saved Views */}
         <PurpleGlassCard glass style={{ padding: DesignTokens.spacing.md }}>
           <div style={{ display: 'flex', gap: DesignTokens.spacing.lg, alignItems: 'center' }}>
+            {/* Saved Views Dropdown */}
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <BookmarkRegular style={{ color: DesignTokens.colors.textSecondary }} />
+              <PurpleGlassDropdown
+                options={SAVED_VIEWS.map(v => ({ value: v.id, label: v.label }))}
+                value={activeView}
+                onChange={(val) => setActiveView(val as string)}
+                glass="none"
+              />
+            </div>
+            
+            <div style={{ width: '1px', height: '24px', background: DesignTokens.colors.gray200 }} />
+            
             <div style={{ flex: 1, maxWidth: '400px' }}>
               <PurpleGlassInput 
                 value={filter}
@@ -194,7 +379,7 @@ const ServiceDeskView: React.FC = () => {
                 glass="none"
               />
             </div>
-            <div style={{ width: '200px' }}>
+            <div style={{ width: '180px' }}>
               <PurpleGlassDropdown
                 options={[
                   { value: 'All', label: 'All Statuses' },
@@ -208,10 +393,179 @@ const ServiceDeskView: React.FC = () => {
               />
             </div>
             <div style={{ flex: 1 }} />
-            <PurpleGlassButton variant="ghost" size="small" icon={<FilterRegular />}>Advanced Filters</PurpleGlassButton>
-            <PurpleGlassButton variant="ghost" size="small" icon={<ArrowSortRegular />}>Sort</PurpleGlassButton>
+            
+            {/* Active Filters Badge */}
+            {(advancedFilters.priority.length > 0 || advancedFilters.slaStatus.length > 0 || advancedFilters.dateRange !== 'all') && (
+              <span style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '4px 12px',
+                borderRadius: DesignTokens.borderRadius.full,
+                background: `${DesignTokens.colors.primary}15`,
+                color: DesignTokens.colors.primary,
+                fontSize: DesignTokens.typography.xs,
+                fontWeight: DesignTokens.typography.medium,
+              }}>
+                {advancedFilters.priority.length + advancedFilters.slaStatus.length + (advancedFilters.dateRange !== 'all' ? 1 : 0)} filters active
+                <button
+                  onClick={() => setAdvancedFilters({ priority: [], assignee: '', dateRange: 'all', slaStatus: [] })}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    padding: '2px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    color: DesignTokens.colors.primary,
+                  }}
+                >
+                  <DismissRegular style={{ fontSize: '12px' }} />
+                </button>
+              </span>
+            )}
+            
+            <PurpleGlassButton 
+              variant={showAdvancedFilters ? 'primary' : 'ghost'} 
+              size="small" 
+              icon={<FilterRegular />}
+              onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+              glass={showAdvancedFilters}
+            >
+              Filters
+            </PurpleGlassButton>
+            <PurpleGlassButton variant="ghost" size="small" icon={<ArrowExportRegular />}>Export</PurpleGlassButton>
           </div>
+          
+          {/* Advanced Filters Panel */}
+          {showAdvancedFilters && (
+            <div style={{
+              marginTop: DesignTokens.spacing.lg,
+              paddingTop: DesignTokens.spacing.lg,
+              borderTop: `1px solid ${DesignTokens.colors.gray200}`,
+              display: 'grid',
+              gridTemplateColumns: 'repeat(4, 1fr)',
+              gap: DesignTokens.spacing.lg,
+            }}>
+              {/* Priority Filter */}
+              <div>
+                <label style={{ 
+                  display: 'block', 
+                  fontSize: DesignTokens.typography.xs, 
+                  fontWeight: DesignTokens.typography.medium,
+                  color: DesignTokens.colors.textSecondary,
+                  marginBottom: '8px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px'
+                }}>
+                  Priority
+                </label>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  {['P1', 'P2', 'P3', 'P4'].map(p => (
+                    <PurpleGlassCheckbox
+                      key={p}
+                      checked={advancedFilters.priority.includes(p)}
+                      onChange={(e) => {
+                        setAdvancedFilters(prev => ({
+                          ...prev,
+                          priority: e.target.checked 
+                            ? [...prev.priority, p]
+                            : prev.priority.filter(x => x !== p)
+                        }));
+                      }}
+                      label={p === 'P1' ? 'P1 - Critical' : p === 'P2' ? 'P2 - High' : p === 'P3' ? 'P3 - Medium' : 'P4 - Low'}
+                    />
+                  ))}
+                </div>
+              </div>
+              
+              {/* SLA Status Filter */}
+              <div>
+                <label style={{ 
+                  display: 'block', 
+                  fontSize: DesignTokens.typography.xs, 
+                  fontWeight: DesignTokens.typography.medium,
+                  color: DesignTokens.colors.textSecondary,
+                  marginBottom: '8px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px'
+                }}>
+                  SLA Status
+                </label>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  {[
+                    { value: 'on_track', label: 'On Track' },
+                    { value: 'at_risk', label: 'At Risk' },
+                    { value: 'breached', label: 'Breached' }
+                  ].map(sla => (
+                    <PurpleGlassCheckbox
+                      key={sla.value}
+                      checked={advancedFilters.slaStatus.includes(sla.value)}
+                      onChange={(e) => {
+                        setAdvancedFilters(prev => ({
+                          ...prev,
+                          slaStatus: e.target.checked 
+                            ? [...prev.slaStatus, sla.value]
+                            : prev.slaStatus.filter(x => x !== sla.value)
+                        }));
+                      }}
+                      label={sla.label}
+                    />
+                  ))}
+                </div>
+              </div>
+              
+              {/* Date Range Filter */}
+              <div>
+                <label style={{ 
+                  display: 'block', 
+                  fontSize: DesignTokens.typography.xs, 
+                  fontWeight: DesignTokens.typography.medium,
+                  color: DesignTokens.colors.textSecondary,
+                  marginBottom: '8px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px'
+                }}>
+                  Created
+                </label>
+                <PurpleGlassDropdown
+                  options={[
+                    { value: 'all', label: 'Any time' },
+                    { value: 'today', label: 'Today' },
+                    { value: 'week', label: 'Last 7 days' },
+                    { value: 'month', label: 'Last 30 days' }
+                  ]}
+                  value={advancedFilters.dateRange}
+                  onChange={(val) => setAdvancedFilters(prev => ({ ...prev, dateRange: val as 'all' | 'today' | 'week' | 'month' }))}
+                  glass="none"
+                />
+              </div>
+              
+              {/* Actions */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', justifyContent: 'flex-end' }}>
+                <PurpleGlassButton 
+                  variant="ghost" 
+                  size="small"
+                  onClick={() => setAdvancedFilters({ priority: [], assignee: '', dateRange: 'all', slaStatus: [] })}
+                >
+                  Clear All
+                </PurpleGlassButton>
+              </div>
+            </div>
+          )}
         </PurpleGlassCard>
+
+        {/* Results Count */}
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          fontSize: DesignTokens.typography.sm,
+          color: DesignTokens.colors.textSecondary
+        }}>
+          <span>
+            Showing <strong style={{ color: DesignTokens.colors.textPrimary }}>{filteredTickets.length}</strong> of {tickets.length} tickets
+          </span>
+        </div>
 
         {/* Main Content Area */}
         <div style={{ flex: 1, minHeight: 0, overflow: 'hidden' }}>
