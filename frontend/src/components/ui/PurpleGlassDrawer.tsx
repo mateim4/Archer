@@ -207,7 +207,7 @@ export const PurpleGlassDrawer: React.FC<PurpleGlassDrawerProps> = ({
         style={{
           position: 'fixed',
           inset: 0,
-          background: isDark ? 'rgba(0, 0, 0, 0.6)' : 'rgba(0, 0, 0, 0.4)',
+          background: 'rgba(0, 0, 0, 0.5)',
           backdropFilter: 'blur(4px)',
           WebkitBackdropFilter: 'blur(4px)',
           zIndex,
@@ -231,16 +231,14 @@ export const PurpleGlassDrawer: React.FC<PurpleGlassDrawerProps> = ({
           [position]: 0,
           width: drawerWidth,
           maxWidth: '100vw',
-          background: isDark 
-            ? 'rgba(30, 41, 59, 0.95)' 
-            : 'rgba(255, 255, 255, 0.92)',
+          background: 'var(--card-bg)',
           backdropFilter: 'blur(40px) saturate(180%)',
           WebkitBackdropFilter: 'blur(40px) saturate(180%)',
           borderLeft: position === 'right' 
-            ? `1px solid ${isDark ? 'rgba(71, 85, 105, 0.3)' : 'rgba(139, 92, 246, 0.18)'}` 
+            ? '1px solid var(--card-border)' 
             : 'none',
           borderRight: position === 'left' 
-            ? `1px solid ${isDark ? 'rgba(71, 85, 105, 0.3)' : 'rgba(139, 92, 246, 0.18)'}` 
+            ? '1px solid var(--card-border)' 
             : 'none',
           boxShadow: position === 'right'
             ? '-10px 0 40px rgba(0, 0, 0, 0.15)'
@@ -256,7 +254,7 @@ export const PurpleGlassDrawer: React.FC<PurpleGlassDrawerProps> = ({
         {/* Header */}
         <div style={{
           padding: '20px 24px',
-          borderBottom: `1px solid ${isDark ? 'rgba(71, 85, 105, 0.3)' : 'rgba(139, 92, 246, 0.12)'}`,
+          borderBottom: '1px solid var(--divider-color)',
           display: 'flex',
           alignItems: 'center',
           gap: '12px',
@@ -340,8 +338,8 @@ export const PurpleGlassDrawer: React.FC<PurpleGlassDrawerProps> = ({
         {footerContent && (
           <div style={{
             padding: '16px 24px',
-            borderTop: `1px solid ${isDark ? 'rgba(71, 85, 105, 0.3)' : 'rgba(139, 92, 246, 0.12)'}`,
-            background: isDark ? 'rgba(30, 41, 59, 0.5)' : 'rgba(139, 92, 246, 0.02)',
+            borderTop: '1px solid var(--divider-color)',
+            background: 'var(--tab-bg)',
             flexShrink: 0,
           }}>
             {footerContent}

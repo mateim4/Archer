@@ -24,10 +24,8 @@ const HeaderSettings: React.FC<HeaderSettingsProps> = ({ className, isDark = fal
         right: '96px', // Moved left to make room for ThemeToggle
         padding: '12px',
         borderRadius: tokens.xLarge,
-        border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.1)'}`,
-        background: isDark 
-          ? 'rgba(30, 30, 30, 0.6)' 
-          : 'rgba(255, 255, 255, 0.4)',
+        border: '1px solid var(--card-border)',
+        background: 'var(--card-bg)',
         backdropFilter: 'blur(20px) saturate(180%)',
         WebkitBackdropFilter: 'blur(20px) saturate(180%)',
         color: isActive 
@@ -38,29 +36,23 @@ const HeaderSettings: React.FC<HeaderSettingsProps> = ({ className, isDark = fal
         alignItems: 'center',
         justifyContent: 'center',
         transition: `all ${tokens.durationNormal} ${tokens.curveEasyEase}`,
-        boxShadow: isDark 
-          ? '0 4px 16px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)'
-          : '0 4px 16px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.5)',
+        boxShadow: 'var(--card-shadow)',
         fontSize: '18px',
         width: '44px',
         height: '44px',
         zIndex: 1001
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.background = 'rgba(139, 92, 246, 0.15)';
+        e.currentTarget.style.background = 'var(--btn-secondary-bg)';
         e.currentTarget.style.transform = 'translateY(-2px)';
-        e.currentTarget.style.boxShadow = '0 6px 20px rgba(139, 92, 246, 0.25)';
-        e.currentTarget.style.borderColor = 'rgba(139, 92, 246, 0.5)';
+        e.currentTarget.style.boxShadow = 'var(--card-shadow-hover)';
+        e.currentTarget.style.borderColor = 'var(--card-border-hover)';
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.background = isDark 
-          ? 'rgba(30, 30, 30, 0.6)' 
-          : 'rgba(255, 255, 255, 0.4)';
+        e.currentTarget.style.background = 'var(--card-bg)';
         e.currentTarget.style.transform = 'translateY(0)';
-        e.currentTarget.style.boxShadow = isDark 
-          ? '0 4px 16px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)'
-          : '0 4px 16px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.5)';
-        e.currentTarget.style.borderColor = isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.1)';
+        e.currentTarget.style.boxShadow = 'var(--card-shadow)';
+        e.currentTarget.style.borderColor = 'var(--card-border)';
       }}
       title="Settings"
       aria-label="Open Settings"
