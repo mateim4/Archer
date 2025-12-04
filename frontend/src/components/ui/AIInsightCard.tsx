@@ -2,7 +2,7 @@
  * AIInsightCard Component
  * 
  * Displays AI-powered insights, suggestions, and predictions.
- * Uses glassmorphic styling with subtle gradient accents.
+ * Uses glassmorphic styling with accent border (no background tinting).
  * 
  * Part of Phase 4: AI Integration
  * Features:
@@ -10,6 +10,11 @@
  * - Resource optimization suggestions
  * - Anomaly detection alerts
  * - Trend analysis insights
+ * 
+ * Design principles:
+ * - All colors use CSS variables for theme awareness
+ * - No background tinting - only left border accent
+ * - Circular confidence indicator for visual clarity
  */
 
 import React, { useState, useEffect } from 'react';
@@ -27,7 +32,6 @@ import {
   AlertRegular,
   CheckmarkCircleRegular,
 } from '@fluentui/react-icons';
-import { DesignTokens } from '../../styles/designSystem';
 
 export type InsightType = 'prediction' | 'suggestion' | 'anomaly' | 'trend' | 'optimization';
 export type InsightSeverity = 'info' | 'warning' | 'critical' | 'success';
@@ -74,50 +78,116 @@ const getInsightIcon = (type: InsightType) => {
   }
 };
 
-const getSeverityStyles = (severity: InsightSeverity) => {
+// Severity colors using CSS variables for theme awareness
+const getSeverityColor = (severity: InsightSeverity): string => {
   switch (severity) {
-    case 'critical':
-      return {
-        borderColor: DesignTokens.colors.error,
-        bgColor: `${DesignTokens.colors.error}08`,
-        iconColor: DesignTokens.colors.error,
-        badgeColor: `${DesignTokens.colors.error}15`,
-      };
-    case 'warning':
-      return {
-        borderColor: DesignTokens.colors.warning,
-        bgColor: `${DesignTokens.colors.warning}08`,
-        iconColor: DesignTokens.colors.warning,
-        badgeColor: `${DesignTokens.colors.warning}15`,
-      };
-    case 'success':
-      return {
-        borderColor: DesignTokens.colors.success,
-        bgColor: `${DesignTokens.colors.success}08`,
-        iconColor: DesignTokens.colors.success,
-        badgeColor: `${DesignTokens.colors.success}15`,
-      };
-    default: // info
-      return {
-        borderColor: DesignTokens.colors.primary,
-        bgColor: `${DesignTokens.colors.primary}08`,
-        iconColor: DesignTokens.colors.primary,
-        badgeColor: `${DesignTokens.colors.primary}15`,
-      };
+    case 'critical': return 'var(--color-error, #ef4444)';
+    case 'warning': return 'var(--color-warning, #f59e0b)';
+    case 'success': return 'var(--color-success, #10b981)';
+    default: return 'var(--brand-primary, #8b5cf6)';
   }
 };
 
-const getImpactLabel = (impact?: 'low' | 'medium' | 'high') => {
+const getImpactColor = (impact?: 'low' | 'medium' | 'high'): string | null => {
   switch (impact) {
-    case 'high': return { label: 'High Impact', color: DesignTokens.colors.error };
-    case 'medium': return { label: 'Medium Impact', color: DesignTokens.colors.warning };
-    case 'low': return { label: 'Low Impact', color: DesignTokens.colors.success };
+    case 'high': return 'var(--color-error, #ef4444)';
+    case 'medium': return 'var(--color-warning, #f59e0b)';
+    case 'low': return 'var(--color-success, #10b981)';
+    default: return null;
+  }
+};
+
+const getImpactLabel = (impact?: 'low' | 'medium' | 'high'): string | null => {
+  switch (impact) {
+    case 'high': return 'High Impact';
+    case 'medium': return 'Medium Impact';
+    case 'low': return 'Low Impact';
     default: return null;
   }
 };
 
 /**
+ * Circular Confidence Indicator
+ * Shows confidence as a ring/arc indicator
+ */
+const ConfidenceRing: React.FC<{ confidence: number; size?: number }> = ({ 
+  confidence, 
+  size = 44 
+}) => {
+  const strokeWidth = 3;
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference - (confidence / 100) * circumference;
+  
+  // Color based on confidence level
+  const getConfidenceColor = () => {
+    if (confidence >= 80) return 'var(--color-success, #10b981)';
+    if (confidence >= 60) return 'var(--color-warning, #f59e0b)';
+    return 'var(--text-muted, #9ca3af)';
+  };
+
+  return (
+    <div 
+      style={{ 
+        position: 'relative', 
+        width: size, 
+        height: size,
+        flexShrink: 0,
+      }}
+      title={`${confidence}% confidence`}
+    >
+      <svg
+        width={size}
+        height={size}
+        style={{ transform: 'rotate(-90deg)' }}
+      >
+        {/* Background circle */}
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke="var(--glass-border, rgba(255,255,255,0.1))"
+          strokeWidth={strokeWidth}
+        />
+        {/* Progress arc */}
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke={getConfidenceColor()}
+          strokeWidth={strokeWidth}
+          strokeLinecap="round"
+          strokeDasharray={circumference}
+          strokeDashoffset={strokeDashoffset}
+          style={{ transition: 'stroke-dashoffset 0.5s ease' }}
+        />
+      </svg>
+      {/* Center text */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          fontSize: '11px',
+          fontWeight: 600,
+          color: 'var(--text-primary)',
+          fontFamily: "'Poppins', sans-serif",
+        }}
+      >
+        {confidence}%
+      </div>
+    </div>
+  );
+};
+
+/**
  * Single AI Insight Card
+ * - No background tinting, uses glass/card background
+ * - Left border accent for severity indication
+ * - All colors are theme-aware via CSS variables
  */
 export const AIInsightCard: React.FC<AIInsightCardProps> = ({
   insight,
@@ -127,8 +197,9 @@ export const AIInsightCard: React.FC<AIInsightCardProps> = ({
   showConfidence = true,
 }) => {
   const [feedbackGiven, setFeedbackGiven] = useState<'helpful' | 'not-helpful' | null>(null);
-  const styles = getSeverityStyles(insight.severity);
-  const impactInfo = getImpactLabel(insight.metadata?.impact);
+  const severityColor = getSeverityColor(insight.severity);
+  const impactColor = getImpactColor(insight.metadata?.impact);
+  const impactLabel = getImpactLabel(insight.metadata?.impact);
   
   const handleFeedback = (helpful: boolean) => {
     setFeedbackGiven(helpful ? 'helpful' : 'not-helpful');
@@ -139,12 +210,13 @@ export const AIInsightCard: React.FC<AIInsightCardProps> = ({
     <div
       style={{
         position: 'relative',
-        background: styles.bgColor,
+        background: 'var(--card-bg, rgba(255, 255, 255, 0.7))',
         backdropFilter: 'blur(12px)',
-        borderRadius: DesignTokens.borderRadius.xl,
-        border: `1px solid ${styles.borderColor}30`,
-        borderLeft: `4px solid ${styles.borderColor}`,
-        padding: compact ? DesignTokens.spacing.md : DesignTokens.spacing.lg,
+        WebkitBackdropFilter: 'blur(12px)',
+        borderRadius: '16px',
+        border: '1px solid var(--card-border, rgba(139, 92, 246, 0.15))',
+        borderLeft: `4px solid ${severityColor}`,
+        padding: compact ? '12px' : '16px',
         transition: 'all 0.2s ease',
       }}
     >
@@ -155,12 +227,13 @@ export const AIInsightCard: React.FC<AIInsightCardProps> = ({
           style={{
             width: compact ? '32px' : '40px',
             height: compact ? '32px' : '40px',
-            borderRadius: DesignTokens.borderRadius.lg,
-            background: styles.badgeColor,
+            minWidth: compact ? '32px' : '40px',
+            borderRadius: '12px',
+            background: `color-mix(in srgb, ${severityColor} 15%, transparent)`,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: styles.iconColor,
+            color: severityColor,
             flexShrink: 0,
           }}
         >
@@ -169,14 +242,14 @@ export const AIInsightCard: React.FC<AIInsightCardProps> = ({
         
         {/* Title & Meta */}
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
             <h4
               style={{
                 margin: 0,
-                fontSize: compact ? DesignTokens.typography.sm : DesignTokens.typography.base,
-                fontWeight: DesignTokens.typography.semibold,
-                color: DesignTokens.colors.textPrimaryVar,
-                fontFamily: DesignTokens.typography.fontFamily,
+                fontSize: compact ? '0.875rem' : '1rem',
+                fontWeight: 600,
+                color: 'var(--text-primary)',
+                fontFamily: "'Poppins', sans-serif",
               }}
             >
               {insight.title}
@@ -188,11 +261,11 @@ export const AIInsightCard: React.FC<AIInsightCardProps> = ({
                   alignItems: 'center',
                   gap: '4px',
                   padding: '2px 8px',
-                  borderRadius: DesignTokens.borderRadius.full,
-                  background: `${DesignTokens.colors.success}15`,
-                  color: DesignTokens.colors.success,
-                  fontSize: DesignTokens.typography.xs,
-                  fontWeight: DesignTokens.typography.medium,
+                  borderRadius: '9999px',
+                  background: 'color-mix(in srgb, var(--color-success, #10b981) 15%, transparent)',
+                  color: 'var(--color-success, #10b981)',
+                  fontSize: '0.75rem',
+                  fontWeight: 500,
                 }}
               >
                 <ShieldCheckmarkRegular style={{ fontSize: '12px' }} />
@@ -201,7 +274,14 @@ export const AIInsightCard: React.FC<AIInsightCardProps> = ({
             )}
           </div>
           
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: DesignTokens.typography.xs, color: DesignTokens.colors.textMuted }}>
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '12px', 
+            fontSize: '0.75rem', 
+            color: 'var(--text-muted)',
+            flexWrap: 'wrap',
+          }}>
             <span style={{ textTransform: 'capitalize' }}>{insight.type}</span>
             {insight.metadata?.timeframe && (
               <>
@@ -209,16 +289,21 @@ export const AIInsightCard: React.FC<AIInsightCardProps> = ({
                 <span>{insight.metadata.timeframe}</span>
               </>
             )}
-            {impactInfo && (
+            {impactLabel && impactColor && (
               <>
                 <span>•</span>
-                <span style={{ color: impactInfo.color, fontWeight: DesignTokens.typography.medium }}>
-                  {impactInfo.label}
+                <span style={{ color: impactColor, fontWeight: 500 }}>
+                  {impactLabel}
                 </span>
               </>
             )}
           </div>
         </div>
+        
+        {/* Confidence Ring (shown in header for non-compact) */}
+        {showConfidence && !compact && (
+          <ConfidenceRing confidence={insight.confidence} size={44} />
+        )}
         
         {/* Dismiss Button */}
         {onDismiss && (
@@ -229,11 +314,20 @@ export const AIInsightCard: React.FC<AIInsightCardProps> = ({
               border: 'none',
               padding: '4px',
               cursor: 'pointer',
-              color: DesignTokens.colors.textMuted,
-              borderRadius: DesignTokens.borderRadius.sm,
+              color: 'var(--text-muted)',
+              borderRadius: '6px',
               transition: 'all 0.15s ease',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
             }}
             title="Dismiss insight"
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'var(--glass-hover-bg, rgba(0,0,0,0.05))';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'none';
+            }}
           >
             <DismissRegular style={{ fontSize: '16px' }} />
           </button>
@@ -245,52 +339,16 @@ export const AIInsightCard: React.FC<AIInsightCardProps> = ({
         style={{
           margin: 0,
           marginBottom: compact ? '8px' : '16px',
-          fontSize: DesignTokens.typography.sm,
-          color: DesignTokens.colors.textSecondary,
+          fontSize: '0.875rem',
+          color: 'var(--text-secondary)',
           lineHeight: 1.5,
         }}
       >
         {insight.description}
       </p>
       
-      {/* Confidence Bar (optional) */}
-      {showConfidence && !compact && (
-        <div style={{ marginBottom: '16px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-            <span style={{ fontSize: DesignTokens.typography.xs, color: DesignTokens.colors.textMuted }}>
-              AI Confidence
-            </span>
-            <span style={{ fontSize: DesignTokens.typography.xs, fontWeight: DesignTokens.typography.medium, color: DesignTokens.colors.textSecondary }}>
-              {insight.confidence}%
-            </span>
-          </div>
-          <div
-            style={{
-              height: '4px',
-              background: DesignTokens.colors.gray100,
-              borderRadius: DesignTokens.borderRadius.full,
-              overflow: 'hidden',
-            }}
-          >
-            <div
-              style={{
-                height: '100%',
-                width: `${insight.confidence}%`,
-                background: insight.confidence >= 80 
-                  ? DesignTokens.colors.success 
-                  : insight.confidence >= 60 
-                    ? DesignTokens.colors.warning 
-                    : DesignTokens.colors.textMuted,
-                borderRadius: DesignTokens.borderRadius.full,
-                transition: 'width 0.3s ease',
-              }}
-            />
-          </div>
-        </div>
-      )}
-      
       {/* Footer: Action + Feedback */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
         {/* Action Button */}
         {(insight.actionLabel || insight.actionPath) && (
           <button
@@ -303,15 +361,21 @@ export const AIInsightCard: React.FC<AIInsightCardProps> = ({
               alignItems: 'center',
               gap: '6px',
               padding: '8px 16px',
-              background: `${styles.borderColor}15`,
-              border: `1px solid ${styles.borderColor}30`,
-              borderRadius: DesignTokens.borderRadius.md,
+              background: `color-mix(in srgb, ${severityColor} 15%, transparent)`,
+              border: `1px solid color-mix(in srgb, ${severityColor} 30%, transparent)`,
+              borderRadius: '8px',
               cursor: 'pointer',
-              color: styles.iconColor,
-              fontSize: DesignTokens.typography.sm,
-              fontWeight: DesignTokens.typography.medium,
-              fontFamily: DesignTokens.typography.fontFamily,
+              color: severityColor,
+              fontSize: '0.875rem',
+              fontWeight: 500,
+              fontFamily: "'Poppins', sans-serif",
               transition: 'all 0.15s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = `color-mix(in srgb, ${severityColor} 25%, transparent)`;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = `color-mix(in srgb, ${severityColor} 15%, transparent)`;
             }}
           >
             {insight.actionLabel || 'View Details'}
@@ -322,22 +386,31 @@ export const AIInsightCard: React.FC<AIInsightCardProps> = ({
         {/* Feedback Buttons */}
         {onFeedback && !feedbackGiven && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: 'auto' }}>
-            <span style={{ fontSize: DesignTokens.typography.xs, color: DesignTokens.colors.textMuted }}>
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
               Was this helpful?
             </span>
             <button
               onClick={() => handleFeedback(true)}
               style={{
                 background: 'none',
-                border: `1px solid ${DesignTokens.colors.gray200}`,
+                border: '1px solid var(--glass-border, rgba(255,255,255,0.1))',
                 padding: '4px 8px',
-                borderRadius: DesignTokens.borderRadius.sm,
+                borderRadius: '6px',
                 cursor: 'pointer',
-                color: DesignTokens.colors.textSecondary,
+                color: 'var(--text-secondary)',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '4px',
-                fontSize: DesignTokens.typography.xs,
+                fontSize: '0.75rem',
+                transition: 'all 0.15s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'var(--glass-hover-bg, rgba(0,0,0,0.05))';
+                e.currentTarget.style.borderColor = 'var(--color-success, #10b981)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'none';
+                e.currentTarget.style.borderColor = 'var(--glass-border, rgba(255,255,255,0.1))';
               }}
             >
               <ThumbLikeRegular style={{ fontSize: '14px' }} />
@@ -347,15 +420,24 @@ export const AIInsightCard: React.FC<AIInsightCardProps> = ({
               onClick={() => handleFeedback(false)}
               style={{
                 background: 'none',
-                border: `1px solid ${DesignTokens.colors.gray200}`,
+                border: '1px solid var(--glass-border, rgba(255,255,255,0.1))',
                 padding: '4px 8px',
-                borderRadius: DesignTokens.borderRadius.sm,
+                borderRadius: '6px',
                 cursor: 'pointer',
-                color: DesignTokens.colors.textSecondary,
+                color: 'var(--text-secondary)',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '4px',
-                fontSize: DesignTokens.typography.xs,
+                fontSize: '0.75rem',
+                transition: 'all 0.15s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'var(--glass-hover-bg, rgba(0,0,0,0.05))';
+                e.currentTarget.style.borderColor = 'var(--color-error, #ef4444)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'none';
+                e.currentTarget.style.borderColor = 'var(--glass-border, rgba(255,255,255,0.1))';
               }}
             >
               <ThumbDislikeRegular style={{ fontSize: '14px' }} />
@@ -372,8 +454,8 @@ export const AIInsightCard: React.FC<AIInsightCardProps> = ({
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
-              fontSize: DesignTokens.typography.xs,
-              color: DesignTokens.colors.success,
+              fontSize: '0.75rem',
+              color: 'var(--color-success, #10b981)',
             }}
           >
             <CheckmarkCircleRegular style={{ fontSize: '14px' }} />
@@ -430,24 +512,26 @@ export const AIInsightsPanel: React.FC<AIInsightsPanelProps> = ({
     return (
       <div
         style={{
-          padding: DesignTokens.spacing.xl,
-          background: `${DesignTokens.colors.primary}05`,
-          borderRadius: DesignTokens.borderRadius.xl,
-          border: `1px dashed ${DesignTokens.colors.gray200}`,
+          padding: '24px',
+          background: 'var(--card-bg, rgba(255, 255, 255, 0.7))',
+          backdropFilter: 'blur(12px)',
+          borderRadius: '16px',
+          border: '1px dashed var(--glass-border, rgba(255,255,255,0.1))',
           textAlign: 'center',
         }}
       >
         <SparkleRegular 
           style={{ 
             fontSize: '32px', 
-            color: DesignTokens.colors.textMuted,
+            color: 'var(--text-muted)',
             marginBottom: '12px',
+            display: 'block',
           }} 
         />
-        <p style={{ margin: 0, color: DesignTokens.colors.textSecondary, fontSize: DesignTokens.typography.sm }}>
+        <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
           No AI insights available at the moment.
         </p>
-        <p style={{ margin: '8px 0 0', color: DesignTokens.colors.textMuted, fontSize: DesignTokens.typography.xs }}>
+        <p style={{ margin: '8px 0 0', color: 'var(--text-muted)', fontSize: '0.75rem' }}>
           Insights will appear as patterns are detected in your data.
         </p>
       </div>
@@ -457,16 +541,16 @@ export const AIInsightsPanel: React.FC<AIInsightsPanelProps> = ({
   return (
     <div>
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: DesignTokens.spacing.lg }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <SparkleRegular style={{ color: DesignTokens.colors.primaryVar, fontSize: '20px' }} />
+          <SparkleRegular style={{ color: 'var(--brand-primary)', fontSize: '20px' }} />
           <h3
             style={{
               margin: 0,
-              fontSize: DesignTokens.typography.lg,
-              fontWeight: DesignTokens.typography.semibold,
-              color: DesignTokens.colors.textPrimaryVar,
-              fontFamily: DesignTokens.typography.fontFamily,
+              fontSize: '1.125rem',
+              fontWeight: 600,
+              color: 'var(--text-primary)',
+              fontFamily: "'Poppins', sans-serif",
             }}
           >
             {title}
@@ -474,11 +558,11 @@ export const AIInsightsPanel: React.FC<AIInsightsPanelProps> = ({
           <span
             style={{
               padding: '2px 8px',
-              borderRadius: DesignTokens.borderRadius.full,
-              background: `${DesignTokens.colors.primary}15`,
-              color: DesignTokens.colors.primaryVar,
-              fontSize: DesignTokens.typography.xs,
-              fontWeight: DesignTokens.typography.medium,
+              borderRadius: '9999px',
+              background: 'color-mix(in srgb, var(--brand-primary, #8b5cf6) 15%, transparent)',
+              color: 'var(--brand-primary)',
+              fontSize: '0.75rem',
+              fontWeight: 500,
             }}
           >
             {insights.length} insight{insights.length !== 1 ? 's' : ''}
@@ -486,15 +570,15 @@ export const AIInsightsPanel: React.FC<AIInsightsPanelProps> = ({
         </div>
         
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: DesignTokens.typography.xs, color: DesignTokens.colors.textMuted }}>
+          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
             Powered by AI
           </span>
-          <InfoRegular style={{ fontSize: '14px', color: DesignTokens.colors.textMuted }} />
+          <InfoRegular style={{ fontSize: '14px', color: 'var(--text-muted)' }} />
         </div>
       </div>
       
       {/* Insights List */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: DesignTokens.spacing.md }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         {visibleInsights.map(insight => (
           <AIInsightCard
             key={insight.id}
@@ -512,17 +596,23 @@ export const AIInsightsPanel: React.FC<AIInsightsPanelProps> = ({
           onClick={() => setShowAll(!showAll)}
           style={{
             width: '100%',
-            marginTop: DesignTokens.spacing.md,
+            marginTop: '12px',
             padding: '12px',
             background: 'none',
-            border: `1px dashed ${DesignTokens.colors.gray200}`,
-            borderRadius: DesignTokens.borderRadius.lg,
+            border: '1px dashed var(--glass-border, rgba(255,255,255,0.1))',
+            borderRadius: '12px',
             cursor: 'pointer',
-            color: DesignTokens.colors.primary,
-            fontSize: DesignTokens.typography.sm,
-            fontWeight: DesignTokens.typography.medium,
-            fontFamily: DesignTokens.typography.fontFamily,
+            color: 'var(--brand-primary)',
+            fontSize: '0.875rem',
+            fontWeight: 500,
+            fontFamily: "'Poppins', sans-serif",
             transition: 'all 0.15s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'var(--glass-hover-bg, rgba(0,0,0,0.05))';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'none';
           }}
         >
           {showAll ? `Show Less` : `Show ${insights.length - maxVisible} More Insights`}
