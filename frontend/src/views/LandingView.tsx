@@ -241,11 +241,11 @@ const LandingView: React.FC = () => {
 
         {/* Platform Features */}
         <div style={{
-          background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.40), rgba(255, 255, 255, 0.40))',
-          backdropFilter: 'blur(30px) saturate(35%) brightness(145%) contrast(85%)',
-          WebkitBackdropFilter: 'blur(30px) saturate(35%) brightness(145%) contrast(85%)',
-          border: '1px solid rgba(255, 255, 255, 0.3)',
-          boxShadow: 'inset 0 0 20px rgba(255, 255, 255, 0.1), 0 0 40px rgba(255, 255, 255, 0.05)',
+          background: 'var(--card-bg)',
+          backdropFilter: 'blur(30px)',
+          WebkitBackdropFilter: 'blur(30px)',
+          border: '1px solid var(--card-border)',
+          boxShadow: 'var(--card-shadow)',
           borderRadius: '20px',
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           overflow: 'hidden',
@@ -280,9 +280,9 @@ const LandingView: React.FC = () => {
                 aria-label={card.title}
                 data-testid={`nav-card-${card.title.toLowerCase().replace(/\s+/g, '-')}`}
                 style={{
-                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.65))',
-                  backdropFilter: 'blur(60px) saturate(220%) brightness(145%) contrast(105%)',
-                  WebkitBackdropFilter: 'blur(60px) saturate(220%) brightness(145%) contrast(105%)',
+                  background: 'var(--card-bg)',
+                  backdropFilter: 'blur(20px)',
+                  WebkitBackdropFilter: 'blur(20px)',
                   borderRadius: '20px',
                   cursor: 'pointer',
                   textAlign: 'left',
@@ -291,27 +291,23 @@ const LandingView: React.FC = () => {
                   height: '100%',
                   position: 'relative',
                   transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-                  border: '1px solid rgba(255, 255, 255, 0.4)',
+                  border: '1px solid var(--card-border)',
                   overflow: 'hidden',
-                  boxShadow: 'inset 0 0 15px rgba(255, 255, 255, 0.15), 0 0 30px rgba(255, 255, 255, 0.08)',
+                  boxShadow: 'var(--card-shadow)',
                   padding: DesignTokens.components.standardCard.padding,
                   textDecoration: 'none',
                 }}
                 onMouseEnter={(e) => {
                   const target = e.currentTarget as HTMLElement;
                   target.style.transform = 'translateY(-8px) scale(1.02)';
-                  target.style.background = 'linear-gradient(135deg, rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.76))';
-                  target.style.backdropFilter = 'blur(70px) saturate(240%) brightness(140%) contrast(110%)';
-                  target.style.border = '1px solid rgba(255, 255, 255, 0.6)';
-                  target.style.boxShadow = 'inset 0 0 25px rgba(255, 255, 255, 0.2), 0 0 50px rgba(255, 255, 255, 0.12), 0 20px 40px rgba(0, 0, 0, 0.1)';
+                  target.style.background = 'var(--card-bg-hover)';
+                  target.style.border = '1px solid var(--card-border-hover)';
                 }}
                 onMouseLeave={(e) => {
                   const target = e.currentTarget as HTMLElement;
                   target.style.transform = 'translateY(0) scale(1)';
-                  target.style.background = 'linear-gradient(135deg, rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.65))';
-                  target.style.backdropFilter = 'blur(60px) saturate(220%) brightness(145%) contrast(105%)';
-                  target.style.border = '1px solid rgba(255, 255, 255, 0.4)';
-                  target.style.boxShadow = 'inset 0 0 15px rgba(255, 255, 255, 0.15), 0 0 30px rgba(255, 255, 255, 0.08)';
+                  target.style.background = 'var(--card-bg)';
+                  target.style.border = '1px solid var(--card-border)';
                 }}
               >
                 {/* Card Header - Projects Page Style */}
@@ -340,7 +336,7 @@ const LandingView: React.FC = () => {
                   <h2 style={{
                     margin: 0,
                     fontFamily: DesignTokens.typography.fontFamily,
-                    color: '#0f172a',
+                    color: 'var(--text-primary)',
                     fontSize: DesignTokens.typography.lg,
                     fontWeight: DesignTokens.typography.semibold,
                     lineHeight: '1.2',

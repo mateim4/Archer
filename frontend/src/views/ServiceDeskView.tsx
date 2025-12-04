@@ -589,17 +589,17 @@ const ServiceDeskView: React.FC = () => {
                   display: 'flex',
                   flexDirection: 'column',
                   height: '100%',
-                  background: `${DesignTokens.colors.primary}05`,
+                  background: 'var(--card-bg)',
                   borderRadius: DesignTokens.borderRadius.xl,
-                  border: `1px solid ${DesignTokens.colors.gray200}`,
+                  border: '1px solid var(--card-border)',
                   overflow: 'hidden'
                 }}>
                   <div style={{
                     padding: DesignTokens.spacing.md,
                     fontWeight: DesignTokens.typography.semibold,
                     color: 'var(--text-primary)',
-                    background: `${DesignTokens.colors.primary}05`,
-                    borderBottom: `1px solid ${DesignTokens.colors.gray200}`,
+                    background: 'var(--card-bg-hover)',
+                    borderBottom: '1px solid var(--card-border)',
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
@@ -775,7 +775,7 @@ const TicketKanbanCard: React.FC<{ ticket: ExtendedTicket; getPriorityIcon: (p: 
           display: 'flex',
           alignItems: 'center',
           gap: '4px',
-          background: DesignTokens.colors.gray100,
+          background: 'var(--btn-secondary-bg)',
           color: 'var(--text-secondary)'
         }}
       >
@@ -789,7 +789,7 @@ const TicketKanbanCard: React.FC<{ ticket: ExtendedTicket; getPriorityIcon: (p: 
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingTop: '8px',
-        borderTop: `1px solid ${DesignTokens.colors.gray200}`
+        borderTop: '1px solid var(--card-border)'
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
