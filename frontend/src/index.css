@@ -61,7 +61,7 @@
        PAGE CONTAINER TOKENS (Main content area layout)
        ======================================================================== */
     --page-container-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.40), rgba(255, 255, 255, 0.40));
-    --page-container-backdrop: blur(30px) saturate(135%) brightness(145%) contrast(85%);
+    --page-container-backdrop: blur(30px) brightness(145%) contrast(85%);
     --page-container-border: 1px solid rgba(255, 255, 255, 0.3);
     --page-container-border-radius: 20px;
     --page-container-padding: 40px;
@@ -239,7 +239,7 @@
        PAGE CONTAINER TOKENS (Dark Mode) - Obsidian
        ======================================================================== */
     --page-container-bg: linear-gradient(135deg, rgba(30, 30, 30, 0.50), rgba(26, 26, 26, 0.50));
-    --page-container-backdrop: blur(30px) saturate(120%) brightness(95%) contrast(95%);
+    --page-container-backdrop: blur(30px) brightness(95%) contrast(95%);
     --page-container-border: 1px solid rgba(255, 255, 255, 0.06);
     --page-container-border-radius: 20px;
     --page-container-padding: 40px;
