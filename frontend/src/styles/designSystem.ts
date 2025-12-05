@@ -151,42 +151,41 @@ export const DesignTokens = {
       boxShadow: '0 4px 16px rgba(0, 0, 0, 0.05)',
     },
 
-    // Standard Project Card - Glassmorphic Design System Default
+    // Standard Project Card - Theme-aware using CSS variables from index.css
+    // Uses var(--card-bg), var(--card-border), etc. for light/dark mode support
     standardCard: {
-      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.65))',
-      backdropFilter: 'blur(60px) saturate(220%) brightness(145%) contrast(105%)',
-      WebkitBackdropFilter: 'blur(60px) saturate(220%) brightness(145%) contrast(105%)',
-      border: '1px solid rgba(255, 255, 255, 0.4)',
-      borderRadius: '20px',
+      background: 'var(--card-bg)',
+      backdropFilter: 'blur(20px)',
+      WebkitBackdropFilter: 'blur(20px)',
+      border: '1px solid var(--card-border)',
+      borderRadius: 'var(--radius-card, 16px)',
       padding: '16px',
-      transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+      transition: 'all 0.2s ease',
       overflow: 'visible',
       cursor: 'pointer',
-      boxShadow: 'inset 0 0 15px rgba(255, 255, 255, 0.15), 0 0 30px rgba(255, 255, 255, 0.08)',
+      boxShadow: 'var(--card-shadow)',
     },
 
     // Standard Card Hover State
     standardCardHover: {
-      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.76))',
-      backdropFilter: 'blur(70px) saturate(240%) brightness(140%) contrast(110%)',
-      WebkitBackdropFilter: 'blur(70px) saturate(240%) brightness(140%) contrast(110%)',
-      border: '1px solid rgba(255, 255, 255, 0.6)',
-      transform: 'translateY(-8px) scale(1.02)',
-      boxShadow: 'inset 0 0 25px rgba(255, 255, 255, 0.2), 0 0 50px rgba(255, 255, 255, 0.12), 0 20px 40px rgba(0, 0, 0, 0.1)',
+      background: 'var(--card-bg-hover)',
+      borderColor: 'var(--card-border-hover)',
+      transform: 'translateY(-2px)',
+      boxShadow: 'var(--card-shadow-hover)',
     },
 
-    // Standard Content Card (non-interactive)
+    // Standard Content Card (non-interactive) - Theme-aware
     standardContentCard: {
-      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.40), rgba(255, 255, 255, 0.40))',
-      backdropFilter: 'blur(30px) saturate(35%) brightness(145%) contrast(85%)',
-      WebkitBackdropFilter: 'blur(30px) saturate(35%) brightness(145%) contrast(85%)',
-      border: '1px solid rgba(255, 255, 255, 0.3)',
-      borderRadius: '20px',
+      background: 'var(--card-bg)',
+      backdropFilter: 'blur(20px)',
+      WebkitBackdropFilter: 'blur(20px)',
+      border: '1px solid var(--card-border)',
+      borderRadius: 'var(--radius-card, 16px)',
       padding: '32px',
-      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+      transition: 'all 0.2s ease',
       overflow: 'hidden',
       cursor: 'default',
-      boxShadow: 'inset 0 0 20px rgba(255, 255, 255, 0.1), 0 0 40px rgba(255, 255, 255, 0.05)',
+      boxShadow: 'var(--card-shadow)',
     },
     
     // Button Variants
@@ -404,54 +403,54 @@ export const DesignTokens = {
       letterSpacing: '0.5px',
     },
     
-    // Text Styles
+    // Text Styles - Theme-aware
     cardTitle: {
       fontSize: '18px',
       fontWeight: '600',
-      color: '#1f2937',
+      color: 'var(--text-primary)',
       lineHeight: '24px',
       marginBottom: '8px',
-      fontFamily: "'Oxanium', system-ui, sans-serif",
+      fontFamily: "'Poppins', 'Montserrat', system-ui, sans-serif",
     },
     
     cardDescription: {
       fontSize: '14px',
-      color: '#000000',
+      color: 'var(--text-secondary)',
       lineHeight: '20px',
-      fontFamily: "'Oxanium', system-ui, sans-serif",
+      fontFamily: "'Poppins', 'Montserrat', system-ui, sans-serif",
     },
     
     sectionTitle: {
       fontSize: '24px',
       fontWeight: '700',
-      color: '#1f2937',
+      color: 'var(--text-primary)',
       lineHeight: '32px',
       marginBottom: '16px',
-      fontFamily: "'Oxanium', system-ui, sans-serif",
+      fontFamily: "'Poppins', 'Montserrat', system-ui, sans-serif",
     },
 
-    // Standardized Card Header Styles
+    // Standardized Card Header Styles - Theme-aware
     standardCardTitle: {
       fontSize: '18px',
       fontWeight: '600',
-      color: '#1f2937',
+      color: 'var(--text-primary)',
       lineHeight: '1.4',
       margin: '0',
-      fontFamily: "'Oxanium', system-ui, sans-serif",
+      fontFamily: "'Poppins', 'Montserrat', system-ui, sans-serif",
     },
 
     standardCardSubtitle: {
       fontSize: '14px',
       fontWeight: '400',
-      color: '#6b7280',
+      color: 'var(--text-secondary)',
       lineHeight: '1.5',
       margin: '4px 0 0 0',
-      fontFamily: "'Oxanium', system-ui, sans-serif",
+      fontFamily: "'Poppins', 'Montserrat', system-ui, sans-serif",
     },
 
     standardCardIcon: {
       fontSize: '20px',
-      color: '#8b5cf6',
+      color: 'var(--brand-primary)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -461,18 +460,18 @@ export const DesignTokens = {
     standardTitle: {
       fontSize: '24px',
       fontWeight: '700',
-      color: '#8b5cf6',
+      color: 'var(--brand-primary)',
       lineHeight: '32px',
-      fontFamily: "'Oxanium', system-ui, sans-serif",
+      fontFamily: "'Poppins', 'Montserrat', system-ui, sans-serif",
     },
 
     standardSubtitle: {
       fontSize: '16px',
       fontWeight: '400',
-      color: '#000000',
+      color: 'var(--text-secondary)',
       lineHeight: '24px',
       marginTop: '8px',
-      fontFamily: "'Oxanium', system-ui, sans-serif",
+      fontFamily: "'Poppins', 'Montserrat', system-ui, sans-serif",
     },
   },
   
