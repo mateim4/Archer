@@ -21,13 +21,13 @@ export const useButtonStyles = makeStyles({
     alignItems: 'center',
     justifyContent: 'center',
     ...shorthands.gap(tokens.s),
-    fontFamily: tokens.fontFamilyPrimary,
+    fontFamily: '"Nasalization", "Jura", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
     fontWeight: tokens.fontWeightSemibold,
     ...shorthands.borderRadius(tokens.medium),
     ...shorthands.border('1px', 'solid', 'transparent'),
     cursor: 'pointer',
     userSelect: 'none',
-    ...shorthands.transition('all', tokens.durationNormal, tokens.curveEasyEase),
+    ...shorthands.transition('all', '0.3s', 'cubic-bezier(0.4, 0, 0.2, 1)'),
     textDecoration: 'none',
     
     '&:focus-visible': {
@@ -36,7 +36,7 @@ export const useButtonStyles = makeStyles({
     },
 
     '&:active': {
-      transform: 'scale(0.98)',
+      transform: 'translateY(-1px) scale(0.98)',
     },
   },
 
@@ -76,18 +76,18 @@ export const useButtonStyles = makeStyles({
     backdropFilter: tokens.components.button.primary.backdropFilter,
     WebkitBackdropFilter: tokens.components.button.primary.backdropFilter,
     ...shorthands.border('1px', 'solid', tokens.components.button.primary.borderColor),
-    boxShadow: tokens.components.button.primary.boxShadow,
+    boxShadow: '0 4px 15px rgba(139, 92, 246, 0.35)',
 
     '&:hover': {
       backgroundImage: tokens.components.button.primary.backgroundHover,
-      boxShadow: tokens.components.button.primary.boxShadowHover,
-      transform: 'translateY(-1px)',
+      boxShadow: '0 8px 25px rgba(139, 92, 246, 0.45)',
+      transform: 'translateY(-3px) scale(1.02)',
     },
 
     '&:active': {
       backgroundImage: tokens.components.button.primary.backgroundActive,
-      boxShadow: tokens.components.button.primary.boxShadowActive,
-      transform: 'scale(0.98)',
+      boxShadow: '0 2px 10px rgba(139, 92, 246, 0.3)',
+      transform: 'translateY(-1px) scale(0.98)',
     },
   },
 
@@ -98,18 +98,18 @@ export const useButtonStyles = makeStyles({
     backdropFilter: tokens.blurHeavy,
     WebkitBackdropFilter: tokens.blurHeavy,
     ...shorthands.border('1px', 'solid', 'rgba(255, 255, 255, 0.32)'),
-    boxShadow: `${tokens.shadow16}, ${tokens.glowMedium}`,
+    boxShadow: '0 4px 15px rgba(139, 92, 246, 0.35)',
 
     '&:hover': {
       backgroundImage: gradients.buttonPrimaryRadialHover,
-      boxShadow: `${tokens.shadow28}, ${tokens.glowLarge}`,
-      transform: 'translateY(-1px)',
+      boxShadow: '0 8px 25px rgba(139, 92, 246, 0.45)',
+      transform: 'translateY(-3px) scale(1.02)',
     },
 
     '&:active': {
       backgroundImage: gradients.buttonPrimaryRadialActive,
-      transform: 'scale(0.97)',
-      boxShadow: `${tokens.shadow8}, ${tokens.glowSmall}`,
+      transform: 'translateY(-1px) scale(0.98)',
+      boxShadow: '0 2px 10px rgba(139, 92, 246, 0.3)',
     },
   },
 
@@ -127,10 +127,12 @@ export const useButtonStyles = makeStyles({
       backgroundColor: tokens.colorBrandBackground,
       ...shorthands.borderColor(tokens.colorBrandForegroundHover),
       boxShadow: tokens.shadow4,
+      transform: 'translateY(-2px) scale(1.01)',
     },
 
     '&:active': {
       backgroundColor: tokens.colorBrandBackgroundHover,
+      transform: 'translateY(-1px) scale(0.98)',
     },
   },
 
@@ -145,6 +147,11 @@ export const useButtonStyles = makeStyles({
       backgroundColor: 'rgba(255, 255, 255, 0.95)',
       ...shorthands.borderColor('rgba(139, 92, 246, 0.5)'),
       boxShadow: tokens.glowSmall,
+      transform: 'translateY(-2px) scale(1.01)',
+    },
+
+    '&:active': {
+      transform: 'translateY(-1px) scale(0.98)',
     },
   },
 
@@ -162,10 +169,12 @@ export const useButtonStyles = makeStyles({
       backgroundColor: '#dc2626',
       ...shorthands.borderColor('#dc2626'),
       boxShadow: tokens.shadow8,
+      transform: 'translateY(-2px) scale(1.01)',
     },
 
     '&:active': {
       backgroundColor: '#b91c1c',
+      transform: 'translateY(-1px) scale(0.98)',
     },
   },
 
@@ -180,10 +189,12 @@ export const useButtonStyles = makeStyles({
 
     '&:hover': {
       backgroundColor: tokens.colorBrandBackground,
+      transform: 'translateY(-2px)',
     },
 
     '&:active': {
       backgroundColor: tokens.colorBrandBackgroundHover,
+      transform: 'translateY(-1px) scale(0.98)',
     },
   },
 
@@ -196,6 +207,11 @@ export const useButtonStyles = makeStyles({
 
     '&:hover': {
       backgroundColor: 'rgba(139, 92, 246, 0.1)',
+      transform: 'translateY(-2px)',
+    },
+
+    '&:active': {
+      transform: 'translateY(-1px) scale(0.98)',
     },
   },
 

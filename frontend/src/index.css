@@ -113,6 +113,10 @@
     --btn-ghost-text: #3f3f46;
     --btn-ghost-text-hover: #7c3aed;
 
+    /* Outline button (light mode) - Higher contrast purple */
+    --btn-outline-text: #7c3aed;
+    --btn-outline-border: #7c3aed;
+
     /* ========================================================================
        INPUT/SEARCH TOKENS (Light Mode)
        ======================================================================== */
@@ -286,6 +290,10 @@
     --btn-ghost-bg-hover: rgba(255, 255, 255, 0.08);
     --btn-ghost-text: #d4d4d8;
     --btn-ghost-text-hover: #a78bfa;
+
+    /* Outline button (dark mode) - Brighter for better contrast */
+    --btn-outline-text: #c4b5fd;
+    --btn-outline-border: #c4b5fd;
 
     /* ========================================================================
        INPUT/SEARCH TOKENS (Dark Mode)

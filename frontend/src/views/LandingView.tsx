@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import GlassmorphicLayout from '../components/GlassmorphicLayout';
-import { PrimaryButton } from '../components/ui/PrimaryButton';
 import { DesignTokens } from '../styles/designSystem';
 import {
   DataBarHorizontal24Regular,
@@ -137,7 +136,7 @@ const LandingView: React.FC = () => {
                 fontWeight: '800',
                 color: 'var(--text-primary)',
                 margin: 0,
-                fontFamily: 'Oxanium, sans-serif',
+                fontFamily: '"Nasalization", "Jura", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
                 lineHeight: '1.1',
                 letterSpacing: '-0.02em'
               }}>
@@ -158,7 +157,7 @@ const LandingView: React.FC = () => {
             fontSize: '28px',
             color: 'var(--text-primary)',
             marginBottom: '20px',
-            fontFamily: 'Oxanium, sans-serif',
+            fontFamily: 'Poppins, Montserrat, sans-serif',
             fontWeight: '600',
             lineHeight: '1.3',
             textAlign: 'center'
@@ -172,7 +171,7 @@ const LandingView: React.FC = () => {
             color: 'var(--text-primary)',
             maxWidth: '640px',
             margin: '0 auto 40px auto',
-            fontFamily: 'Oxanium, sans-serif',
+            fontFamily: 'Poppins, Montserrat, sans-serif',
             lineHeight: '1.6',
             textAlign: 'center'
           }}>
@@ -187,44 +186,78 @@ const LandingView: React.FC = () => {
             justifyContent: 'center',
             flexWrap: 'wrap'
           }}>
-            <PrimaryButton
+            <button
               onClick={() => handleNavigate('/app/projects')}
               style={{
+                background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '12px',
                 padding: '16px 32px',
                 fontSize: '16px',
                 fontWeight: '600',
-                borderRadius: '12px',
-                fontFamily: 'Oxanium, sans-serif',
-                height: 'auto',
-                minWidth: '160px'
+                cursor: 'pointer',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                fontFamily: '"Nasalization", "Jura", sans-serif',
+                minWidth: '160px',
+                boxShadow: '0 4px 15px rgba(139, 92, 246, 0.35)'
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.background = 'linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%)';
+                e.currentTarget.style.transform = 'translateY(-3px) scale(1.02)';
+                e.currentTarget.style.boxShadow = '0 8px 25px rgba(139, 92, 246, 0.45)';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.background = 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)';
+                e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                e.currentTarget.style.boxShadow = '0 4px 15px rgba(139, 92, 246, 0.35)';
+              }}
+              onMouseDown={(e) => {
+                e.currentTarget.style.transform = 'translateY(-1px) scale(0.98)';
+                e.currentTarget.style.boxShadow = '0 2px 10px rgba(139, 92, 246, 0.3)';
+              }}
+              onMouseUp={(e) => {
+                e.currentTarget.style.transform = 'translateY(-3px) scale(1.02)';
+                e.currentTarget.style.boxShadow = '0 8px 25px rgba(139, 92, 246, 0.45)';
               }}
             >
               Start Planning
-            </PrimaryButton>
+            </button>
             
             <button
               onClick={() => handleNavigate('/app/guides')}
               style={{
                 background: 'transparent',
-                color: '#6366f1',
-                border: '2px solid #6366f1',
+                color: 'var(--btn-outline-text, #a78bfa)',
+                border: '2px solid var(--btn-outline-border, #a78bfa)',
                 borderRadius: '12px',
                 padding: '14px 32px',
                 fontSize: '16px',
                 fontWeight: '600',
                 cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                fontFamily: 'Oxanium, sans-serif'
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                fontFamily: '"Nasalization", "Jura", sans-serif',
+                minWidth: '160px'
               }}
               onMouseOver={(e) => {
-                e.currentTarget.style.background = '#6366f1';
+                e.currentTarget.style.background = 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)';
                 e.currentTarget.style.color = 'white';
-                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.borderColor = 'transparent';
+                e.currentTarget.style.transform = 'translateY(-3px) scale(1.02)';
+                e.currentTarget.style.boxShadow = '0 8px 25px rgba(139, 92, 246, 0.45)';
               }}
               onMouseOut={(e) => {
                 e.currentTarget.style.background = 'transparent';
-                e.currentTarget.style.color = '#6366f1';
-                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.color = 'var(--btn-outline-text, #a78bfa)';
+                e.currentTarget.style.borderColor = 'var(--btn-outline-border, #a78bfa)';
+                e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
+              onMouseDown={(e) => {
+                e.currentTarget.style.transform = 'translateY(-1px) scale(0.98)';
+              }}
+              onMouseUp={(e) => {
+                e.currentTarget.style.transform = 'translateY(-3px) scale(1.02)';
               }}
             >
               View Guides
