@@ -19,7 +19,7 @@ export const DESIGN_TOKENS = {
       card: 'var(--card-bg)',
       cardHover: 'var(--card-bg-hover)',
       input: 'var(--input-bg)',
-      inputFocus: 'var(--input-bg)',
+      inputFocus: 'var(--card-bg-hover)', // Slightly different from input for visual distinction
       dropdown: 'var(--card-bg)',
     },
     
@@ -96,6 +96,8 @@ export const DESIGN_TOKENS = {
 
     standardCardHover: {
       background: 'var(--card-bg-hover)',
+      backdropFilter: 'blur(20px)',
+      WebkitBackdropFilter: 'blur(20px)',
       borderColor: 'var(--card-border-hover)',
       transform: 'translateY(-2px)',
       boxShadow: 'var(--card-shadow-hover)',
