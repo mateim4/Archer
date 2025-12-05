@@ -933,13 +933,9 @@ const GuidesView: React.FC = () => {
       </div>
 
       {/* Statistics Cards */}
-      <div style={{
-        border: '1px solid rgba(139, 92, 246, 0.3)',
-        borderRadius: '16px',
+      <div className="purple-glass-card static" style={{
         padding: '24px',
         marginBottom: '32px',
-        background: 'var(--lcm-bg-card)',
-        backdropFilter: 'var(--lcm-backdrop-filter)'
       }}>
         <div style={{
           display: 'grid',
@@ -1069,9 +1065,7 @@ const GuidesView: React.FC = () => {
 
       {/* Guides Grid */}
       {filteredGuides.length === 0 ? (
-        <div style={{
-          border: '1px solid rgba(139, 92, 246, 0.3)',
-          borderRadius: '16px',
+        <div className="purple-glass-card static" style={{
           padding: '32px',
           textAlign: 'center',
           margin: '32px 0'
@@ -1131,25 +1125,12 @@ const GuidesView: React.FC = () => {
           {filteredGuides.map((guide) => (
             <div 
               key={guide.id} 
+              className="purple-glass-card"
               style={{
-                border: '1px solid rgba(139, 92, 246, 0.3)',
-                borderRadius: '16px',
                 padding: '24px',
                 cursor: 'pointer',
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                background: 'transparent',
               }}
               onClick={() => setSelectedGuide(guide)}
-              onMouseOver={(e) => {
-                e.currentTarget.style.transform = 'translateY(-4px)';
-                e.currentTarget.style.borderColor = '#8b5cf6';
-                e.currentTarget.style.boxShadow = '0 8px 32px rgba(139, 92, 246, 0.2)';
-              }}
-              onMouseOut={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.borderColor = 'rgba(139, 92, 246, 0.3)';
-                e.currentTarget.style.boxShadow = 'none';
-              }}
           >
             <div style={{
               padding: '24px',
@@ -1343,18 +1324,15 @@ const GuidesView: React.FC = () => {
           onClick={() => setSelectedGuide(null)}
         >
           <div 
+            className="purple-glass-card static"
             style={{
-              background: 'var(--card-bg)',
-              backdropFilter: 'blur(20px)',
-              borderRadius: '20px',
-              border: '1px solid var(--card-border)',
               width: '100%',
               maxWidth: '900px',
               maxHeight: '85vh',
               overflow: 'hidden',
               display: 'flex',
               flexDirection: 'column',
-              boxShadow: 'var(--card-shadow-hover)'
+              borderRadius: 'var(--radius-xl)',
             }}
             onClick={(e) => e.stopPropagation()}
           >

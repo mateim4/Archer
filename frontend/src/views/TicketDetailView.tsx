@@ -612,10 +612,8 @@ const TicketDetailView: React.FC = () => {
               {activeTab === 'comments' && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   {/* Comment Input */}
-                  <div style={{ 
+                  <div className="purple-glass-card static" style={{ 
                     padding: '16px',
-                    background: 'var(--card-bg)',
-                    borderRadius: '12px',
                   }}>
                     <PurpleGlassTextarea
                       placeholder="Add a comment..."
@@ -765,12 +763,10 @@ const TicketDetailView: React.FC = () => {
                   {ticket.relatedTickets?.map(related => (
                     <div 
                       key={related.id}
+                      className="purple-glass-card"
                       style={{
                         padding: '12px 16px',
-                        background: 'var(--card-bg)',
-                        borderRadius: '8px',
                         cursor: 'pointer',
-                        transition: 'background 150ms ease',
                       }}
                       onClick={() => navigate(`/app/service-desk/ticket/${related.id}`)}
                     >
@@ -955,10 +951,9 @@ const TicketDetailView: React.FC = () => {
                 {ticket.attachments.map(attachment => (
                   <div 
                     key={attachment.id}
+                    className="purple-glass-card"
                     style={{
                       padding: '8px 12px',
-                      background: 'var(--card-bg)',
-                      borderRadius: '8px',
                       cursor: 'pointer',
                     }}
                   >

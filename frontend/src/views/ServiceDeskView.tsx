@@ -567,15 +567,12 @@ const ServiceDeskView: React.FC = () => {
           ) : (
             <div style={{ height: '100%', overflowX: 'auto', display: 'flex', gap: DesignTokens.spacing.lg, paddingBottom: '8px' }}>
               {columns.map(col => (
-                <div key={col.id} style={{
+                <div key={col.id} className="purple-glass-card static" style={{
                   width: '320px',
                   flexShrink: 0,
                   display: 'flex',
                   flexDirection: 'column',
                   height: '100%',
-                  background: 'var(--card-bg)',
-                  borderRadius: DesignTokens.borderRadius.xl,
-                  border: '1px solid var(--card-border)',
                   overflow: 'hidden'
                 }}>
                   <div style={{

@@ -446,9 +446,7 @@ const MonitoringView: React.FC = () => {
           /* Topology Tab Content */
           <div className="flex-1 flex flex-col gap-4 min-h-0">
             {/* Topology View with Infrastructure Visualizer */}
-            <div className="flex-1 relative rounded-lg overflow-hidden" style={{ 
-              border: '1px solid var(--card-border)',
-              background: 'var(--card-bg)',
+            <div className="purple-glass-card static flex-1 relative rounded-lg overflow-hidden" style={{ 
               minHeight: '500px'
             }}>
               <InfraVisualizerCanvas
@@ -586,19 +584,17 @@ const NodeDetailsPanel: React.FC<{ nodeId: string; assets: Asset[]; onClose: () 
   if (!asset) return null;
   
   return (
-    <div style={{
-      position: 'absolute',
-      top: '16px',
-      right: '16px',
-      width: '320px',
-      background: 'var(--card-bg)',
-      backdropFilter: 'blur(20px)',
-      border: '1px solid var(--card-border)',
-      borderRadius: DesignTokens.borderRadius.lg,
-      boxShadow: 'var(--card-shadow)',
-      zIndex: 100,
-      overflow: 'hidden'
-    }}>
+    <div 
+      className="purple-glass-card static"
+      style={{
+        position: 'absolute',
+        top: '16px',
+        right: '16px',
+        width: '320px',
+        zIndex: 100,
+        overflow: 'hidden'
+      }}
+    >
       {/* Header */}
       <div style={{
         display: 'flex',

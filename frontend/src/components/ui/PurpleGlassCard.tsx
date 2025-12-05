@@ -49,7 +49,7 @@ export interface PurpleGlassCardProps extends Omit<React.HTMLAttributes<HTMLDivE
 
   /**
    * Enable glassmorphism effect
-   * @default false
+   * @default true
    */
   glass?: boolean;
 
@@ -138,7 +138,7 @@ export const PurpleGlassCard = forwardRef<HTMLDivElement, PurpleGlassCardProps>(
   (
     {
       variant = 'default',
-      glass = false,
+      glass = true,
       padding = 'medium',
       header,
       headerActions,

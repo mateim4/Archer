@@ -137,14 +137,8 @@ const MOCK_API_KEYS: ApiKey[] = [
 // COMPONENT STYLES
 // =============================================================================
 
-const cardStyle: React.CSSProperties = {
-  background: 'var(--card-bg)',
-  backdropFilter: 'blur(20px)',
-  WebkitBackdropFilter: 'blur(20px)',
-  borderRadius: '16px',
-  border: '1px solid var(--card-border)',
-  padding: '24px',
-};
+// Card class is used via className="purple-glass-card static card-padding-lg"
+const cardClassName = 'purple-glass-card static';
 
 const sectionTitleStyle: React.CSSProperties = {
   fontSize: '16px',
@@ -258,7 +252,7 @@ const SettingsView: React.FC = () => {
 
   const renderGeneralTab = () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      <div style={cardStyle}>
+      <div className="purple-glass-card static" style={{ padding: '24px' }}>
         <h3 style={sectionTitleStyle}>
           <InfoRegular style={{ marginRight: '8px', verticalAlign: 'middle' }} />
           Application Settings
@@ -292,7 +286,7 @@ const SettingsView: React.FC = () => {
         </div>
       </div>
 
-      <div style={cardStyle}>
+      <div className="purple-glass-card static" style={{ padding: '24px' }}>
         <h3 style={sectionTitleStyle}>Preferences</h3>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -332,7 +326,7 @@ const SettingsView: React.FC = () => {
 
   const renderDataSourcesTab = () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      <div style={cardStyle}>
+      <div className="purple-glass-card static" style={{ padding: '24px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
           <h3 style={{ ...sectionTitleStyle, marginBottom: 0 }}>
             <DatabaseRegular style={{ marginRight: '8px', verticalAlign: 'middle' }} />
@@ -393,7 +387,7 @@ const SettingsView: React.FC = () => {
         </div>
       </div>
 
-      <div style={cardStyle}>
+      <div className="purple-glass-card static" style={{ padding: '24px' }}>
         <h3 style={sectionTitleStyle}>Import Settings</h3>
         <div style={gridStyle}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -410,7 +404,7 @@ const SettingsView: React.FC = () => {
 
   const renderCapacityThresholdsTab = () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      <div style={cardStyle}>
+      <div className="purple-glass-card static" style={{ padding: '24px' }}>
         <h3 style={sectionTitleStyle}>
           <GaugeRegular style={{ marginRight: '8px', verticalAlign: 'middle' }} />
           Forecasting & Planning
@@ -457,7 +451,7 @@ const SettingsView: React.FC = () => {
         </div>
       </div>
 
-      <div style={cardStyle}>
+      <div className="purple-glass-card static" style={{ padding: '24px' }}>
         <h3 style={sectionTitleStyle}>Resource Overcommit Ratios</h3>
         <div style={gridStyle}>
           <div>
@@ -508,7 +502,7 @@ const SettingsView: React.FC = () => {
         </div>
       </div>
 
-      <div style={cardStyle}>
+      <div className="purple-glass-card static" style={{ padding: '24px' }}>
         <h3 style={sectionTitleStyle}>Alert Thresholds</h3>
         <div style={gridStyle}>
           <div>
@@ -596,7 +590,7 @@ const SettingsView: React.FC = () => {
 
   const renderApiKeysTab = () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      <div style={cardStyle}>
+      <div className="purple-glass-card static" style={{ padding: '24px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
           <h3 style={{ ...sectionTitleStyle, marginBottom: 0 }}>
             <KeyMultipleRegular style={{ marginRight: '8px', verticalAlign: 'middle' }} />
@@ -653,7 +647,7 @@ const SettingsView: React.FC = () => {
         </div>
       </div>
 
-      <div style={cardStyle}>
+      <div className="purple-glass-card static" style={{ padding: '24px' }}>
         <h3 style={sectionTitleStyle}>System Accounts</h3>
         <p style={{ fontSize: '14px', color: 'var(--text-muted)', marginBottom: '16px' }}>
           Configure service accounts for automated integrations
@@ -668,7 +662,7 @@ const SettingsView: React.FC = () => {
 
   const renderUnitSystemsTab = () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      <div style={cardStyle}>
+      <div className="purple-glass-card static" style={{ padding: '24px' }}>
         <h3 style={sectionTitleStyle}>
           <ScalesRegular style={{ marginRight: '8px', verticalAlign: 'middle' }} />
           Measurement Units
@@ -696,7 +690,7 @@ const SettingsView: React.FC = () => {
         </div>
       </div>
 
-      <div style={cardStyle}>
+      <div className="purple-glass-card static" style={{ padding: '24px' }}>
         <h3 style={sectionTitleStyle}>Regional Settings</h3>
         <div style={gridStyle}>
           <div>
@@ -737,7 +731,7 @@ const SettingsView: React.FC = () => {
 
   const renderDocumentTemplatesTab = () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      <div style={cardStyle}>
+      <div className="purple-glass-card static" style={{ padding: '24px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
           <h3 style={{ ...sectionTitleStyle, marginBottom: 0 }}>
             <DocumentRegular style={{ marginRight: '8px', verticalAlign: 'middle' }} />
@@ -811,7 +805,7 @@ const SettingsView: React.FC = () => {
         </div>
       </div>
 
-      <div style={cardStyle}>
+      <div className="purple-glass-card static" style={{ padding: '24px' }}>
         <h3 style={sectionTitleStyle}>Default Templates</h3>
         <p style={{ fontSize: '14px', color: 'var(--text-muted)', marginBottom: '16px' }}>
           Set default templates for quick document generation
@@ -831,7 +825,7 @@ const SettingsView: React.FC = () => {
 
   const renderAppearanceTab = () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      <div style={cardStyle}>
+      <div className="purple-glass-card static" style={{ padding: '24px' }}>
         <h3 style={sectionTitleStyle}>
           <PaintBrushRegular style={{ marginRight: '8px', verticalAlign: 'middle' }} />
           Theme Settings
@@ -877,7 +871,7 @@ const SettingsView: React.FC = () => {
         </div>
       </div>
 
-      <div style={cardStyle}>
+      <div className="purple-glass-card static" style={{ padding: '24px' }}>
         <h3 style={sectionTitleStyle}>Accessibility</h3>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -917,7 +911,7 @@ const SettingsView: React.FC = () => {
 
   const renderRbacTab = () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      <div style={cardStyle}>
+      <div className="purple-glass-card static" style={{ padding: '24px' }}>
         <h3 style={sectionTitleStyle}>
           <PeopleTeamRegular style={{ marginRight: '8px', verticalAlign: 'middle' }} />
           Role-Based Access Control
@@ -959,7 +953,7 @@ const SettingsView: React.FC = () => {
         </div>
       </div>
 
-      <div style={cardStyle}>
+      <div className="purple-glass-card static" style={{ padding: '24px' }}>
         <h3 style={sectionTitleStyle}>IAM Integration</h3>
         <p style={{ fontSize: '14px', color: 'var(--text-muted)', marginBottom: '16px' }}>
           Connect to external identity providers
@@ -975,7 +969,7 @@ const SettingsView: React.FC = () => {
 
   const renderAdminTab = () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      <div style={cardStyle}>
+      <div className="purple-glass-card static" style={{ padding: '24px' }}>
         <h3 style={sectionTitleStyle}>
           <ShieldRegular style={{ marginRight: '8px', verticalAlign: 'middle' }} />
           System Administration
@@ -1012,7 +1006,7 @@ const SettingsView: React.FC = () => {
         </div>
       </div>
 
-      <div style={cardStyle}>
+      <div className="purple-glass-card static" style={{ padding: '24px' }}>
         <h3 style={sectionTitleStyle}>Maintenance</h3>
         <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
           <PurpleGlassButton variant="secondary" size="small">Clear Cache</PurpleGlassButton>
@@ -1022,7 +1016,7 @@ const SettingsView: React.FC = () => {
         </div>
       </div>
 
-      <div style={cardStyle}>
+      <div className="purple-glass-card static" style={{ padding: '24px' }}>
         <h3 style={sectionTitleStyle}>Danger Zone</h3>
         <p style={{ fontSize: '14px', color: 'var(--text-muted)', marginBottom: '16px' }}>
           These actions are irreversible. Please proceed with caution.
@@ -1070,8 +1064,8 @@ const SettingsView: React.FC = () => {
   return (
     <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
       {/* Page Header */}
-      <div style={{
-        ...cardStyle,
+      <div className="purple-glass-card static" style={{
+        padding: '24px',
         marginBottom: '24px',
       }}>
         <div style={{
@@ -1129,8 +1123,7 @@ const SettingsView: React.FC = () => {
         gap: '24px',
       }}>
         {/* Sidebar Navigation */}
-        <div style={{
-          ...cardStyle,
+        <div className="purple-glass-card static" style={{
           padding: '16px',
           height: 'fit-content',
           position: 'sticky',
@@ -1178,8 +1171,7 @@ const SettingsView: React.FC = () => {
         {/* Content Area */}
         <div>
           {/* Tab Description */}
-          <div style={{
-            ...cardStyle,
+          <div className="purple-glass-card static" style={{
             marginBottom: '24px',
             padding: '16px 24px',
           }}>
