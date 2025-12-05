@@ -268,7 +268,7 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
                   width: '100%',
                   padding: isOpen ? '14px 20px' : '14px 10px',
                   borderRadius: tokens.xxLarge,
-                  border: 'none',
+                  border: isParentActive(item) ? '1px solid rgba(255, 255, 255, 0.32)' : 'none',
                   background: isParentActive(item) 
                     ? 'var(--btn-primary-bg)'
                     : 'transparent',
@@ -280,11 +280,12 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
                   justifyContent: isOpen ? 'flex-start' : 'center',
                   position: 'relative',
                   minHeight: '48px',
-                  fontFamily: tokens.fontFamilyBody,
+                  fontFamily: isParentActive(item) ? tokens.fontFamilyHeading : tokens.fontFamilyBody,
                   fontSize: tokens.fontSizeBase300,
-                  fontWeight: tokens.fontWeightMedium,
+                  fontWeight: isParentActive(item) ? tokens.fontWeightSemibold : tokens.fontWeightMedium,
                   transition: `all ${tokens.durationNormal} ${tokens.curveEasyEase}`,
-                  backdropFilter: isParentActive(item) ? 'var(--lcm-backdrop-filter-sidebar)' : 'none',
+                  backdropFilter: isParentActive(item) ? 'blur(20px)' : 'none',
+                  WebkitBackdropFilter: isParentActive(item) ? 'blur(20px)' : 'none',
                   boxShadow: isParentActive(item) 
                     ? 'var(--btn-primary-shadow)' 
                     : 'none',

@@ -13,9 +13,16 @@ export const PrimaryButton: React.FC<ButtonProps> = ({ style, appearance = 'prim
       onMouseDown={() => setIsPressed(true)}
       onMouseUp={() => setIsPressed(false)}
       style={{
-        background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
-        border: 'none',
-        fontFamily: '"Nasalization", "Jura", sans-serif',
+        background: isPressed 
+          ? 'radial-gradient(circle at center, rgba(124, 58, 237, 1) 0%, rgba(67, 56, 202, 0.95) 100%)'
+          : isHovered 
+            ? 'radial-gradient(circle at center, rgba(139, 92, 246, 1) 0%, rgba(79, 70, 229, 0.86) 100%)'
+            : 'radial-gradient(circle at center, rgba(139, 92, 246, 0.95) 0%, rgba(99, 102, 241, 0.78) 100%)',
+        border: '1px solid rgba(255, 255, 255, 0.32)',
+        fontFamily: '"Nasalization", "Jura", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+        fontWeight: 600,
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
         boxShadow: isHovered 
           ? '0 8px 25px rgba(139, 92, 246, 0.45)' 
           : '0 4px 15px rgba(139, 92, 246, 0.35)',
