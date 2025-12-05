@@ -744,10 +744,10 @@ const HardwareBasketView: React.FC = () => {
                 style={{
                   width: '100%',
                   padding: '10px 12px',
-                  border: '2px solid rgba(99, 102, 241, 0.2)',
-                  borderRadius: '6px',
+                  border: '2px solid var(--input-border)',
+                  borderRadius: 'var(--radius-md)',
                   fontSize: '14px',
-                  background: 'rgba(255, 255, 255, 0.8)'
+                  background: 'var(--input-bg)'
                 }}
               />
             </div>
@@ -768,10 +768,10 @@ const HardwareBasketView: React.FC = () => {
                 style={{
                   width: '100%',
                   padding: '10px 12px',
-                  border: '2px solid rgba(99, 102, 241, 0.2)',
-                  borderRadius: '6px',
+                  border: '2px solid var(--input-border)',
+                  borderRadius: 'var(--radius-md)',
                   fontSize: '14px',
-                  background: 'rgba(255, 255, 255, 0.8)'
+                  background: 'var(--input-bg)'
                 }}
               >
                 <option value="">Select Vendor</option>
@@ -800,10 +800,10 @@ const HardwareBasketView: React.FC = () => {
                   style={{
                     width: '100%',
                     padding: '10px 12px',
-                    border: '2px solid rgba(99, 102, 241, 0.2)',
-                    borderRadius: '6px',
+                    border: '2px solid var(--input-border)',
+                    borderRadius: 'var(--radius-md)',
                     fontSize: '14px',
-                    background: 'rgba(255, 255, 255, 0.8)'
+                    background: 'var(--input-bg)'
                   }}
                 >
                   <option value="Q1">Q1</option>
@@ -831,10 +831,10 @@ const HardwareBasketView: React.FC = () => {
                   style={{
                     width: '100%',
                     padding: '10px 12px',
-                    border: '2px solid rgba(99, 102, 241, 0.2)',
-                    borderRadius: '6px',
+                    border: '2px solid var(--input-border)',
+                    borderRadius: 'var(--radius-md)',
                     fontSize: '14px',
-                    background: 'rgba(255, 255, 255, 0.8)'
+                    background: 'var(--input-bg)'
                   }}
                 />
               </div>

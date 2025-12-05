@@ -360,29 +360,12 @@ const StatCard: React.FC<{
   return (
     <div
       onClick={onClick}
+      className="purple-glass-card"
       style={{
-        background: 'var(--card-bg)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
-        borderRadius: '16px',
-        border: '1px solid var(--card-border)',
         padding: '24px',
         cursor: onClick ? 'pointer' : 'default',
-        transition: 'all 0.2s ease',
         position: 'relative',
         overflow: 'hidden',
-      }}
-      onMouseEnter={(e) => {
-        if (onClick) {
-          e.currentTarget.style.transform = 'translateY(-2px)';
-          e.currentTarget.style.boxShadow = 'var(--card-shadow-hover)';
-          e.currentTarget.style.borderColor = 'var(--card-border-hover)';
-        }
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.transform = 'translateY(0)';
-        e.currentTarget.style.boxShadow = 'none';
-        e.currentTarget.style.borderColor = 'var(--card-border)';
       }}
     >
       {/* Icon */}
@@ -392,7 +375,7 @@ const StatCard: React.FC<{
         right: '16px',
         width: '40px',
         height: '40px',
-        borderRadius: '10px',
+        borderRadius: 'var(--radius-md)',
         background: `${data.color}15`,
         display: 'flex',
         alignItems: 'center',
@@ -767,12 +750,7 @@ export const DashboardView: React.FC = () => {
   return (
     <div data-testid="dashboard-view" style={{ maxWidth: '1400px', margin: '0 auto' }}>
       {/* Page Header - wrapped in card */}
-      <div style={{
-        background: 'var(--card-bg)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
-        borderRadius: '16px',
-        border: '1px solid var(--card-border)',
+      <div className="purple-glass-card static" style={{
         padding: '20px 24px',
         marginBottom: '24px',
       }}>
@@ -850,12 +828,7 @@ export const DashboardView: React.FC = () => {
       </div>
 
       {/* Stat Cards Row - wrapped in card */}
-      <div style={{
-        background: 'var(--card-bg)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
-        borderRadius: '16px',
-        border: '1px solid var(--card-border)',
+      <div className="purple-glass-card static" style={{
         padding: '20px 24px',
         marginBottom: '24px',
       }}>
@@ -876,14 +849,9 @@ export const DashboardView: React.FC = () => {
       </div>
 
       {/* AI Insights Section */}
-      <div style={{
+      <div className="purple-glass-card static" style={{
         marginBottom: '32px',
         padding: '24px',
-        background: 'var(--card-bg)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
-        borderRadius: '16px',
-        border: '1px solid var(--card-border)',
       }}>
         <AIInsightsPanel
           insights={MOCK_AI_INSIGHTS}
@@ -900,14 +868,7 @@ export const DashboardView: React.FC = () => {
         gap: '20px',
       }}>
         {/* My Open Tickets Widget */}
-        <div style={{
-          background: 'var(--card-bg)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
-          borderRadius: '16px',
-          border: '1px solid var(--card-border)',
-          overflow: 'hidden',
-        }}>
+        <div className="purple-glass-card static" style={{ overflow: 'hidden' }}>
           {/* Widget Header */}
           <div style={{
             padding: '16px 20px',
@@ -964,14 +925,7 @@ export const DashboardView: React.FC = () => {
         </div>
 
         {/* Recent Activity Widget */}
-        <div style={{
-          background: 'var(--card-bg)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
-          borderRadius: '16px',
-          border: '1px solid var(--card-border)',
-          overflow: 'hidden',
-        }}>
+        <div className="purple-glass-card static" style={{ overflow: 'hidden' }}>
           {/* Widget Header */}
           <div style={{
             padding: '16px 20px',
@@ -1011,13 +965,8 @@ export const DashboardView: React.FC = () => {
 
         {/* Critical Alerts Widget */}
         <div 
-          className="critical-alerts-widget"
+          className="purple-glass-card static"
           style={{
-            background: 'var(--card-bg)',
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
-            borderRadius: '16px',
-            border: '1px solid var(--card-border)',
             overflow: 'hidden',
             gridColumn: 'span 2',
           }}>

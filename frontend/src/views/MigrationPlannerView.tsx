@@ -704,16 +704,10 @@ const MigrationPlannerView: React.FC = () => {
             {getMigrationOverview().map((stat, index) => (
               <div
                 key={index}
+                className="purple-glass-card static"
                 style={{
-                  background: 'rgba(255, 255, 255, 0.7)',
-                  backdropFilter: 'blur(20px)',
-                  WebkitBackdropFilter: 'blur(20px)',
-                  border: '1px solid rgba(139, 92, 246, 0.2)',
-                  borderRadius: '16px',
                   padding: '24px',
                   textAlign: 'center' as const,
-                  transition: 'all 0.3s ease',
-                  boxShadow: '0 8px 32px rgba(139, 92, 246, 0.1)'
                 }}
               >
                 <div style={{ color: stat.color, fontSize: '24px', marginBottom: '12px' }}>
@@ -744,12 +738,7 @@ const MigrationPlannerView: React.FC = () => {
         return (
           <div>
             {/* Wizard Progress Header */}
-            <div style={{ 
-              background: 'rgba(255, 255, 255, 0.7)',
-              backdropFilter: 'blur(20px)',
-              WebkitBackdropFilter: 'blur(20px)',
-              border: '1px solid rgba(139, 92, 246, 0.2)',
-              borderRadius: '16px',
+            <div className="purple-glass-card static" style={{ 
               marginBottom: '24px',
               padding: '16px'
             }}>
@@ -784,12 +773,7 @@ const MigrationPlannerView: React.FC = () => {
             </div>
 
             {/* Main Content */}
-            <div style={{ 
-              background: 'rgba(255, 255, 255, 0.5)',
-              backdropFilter: 'blur(16px)',
-              WebkitBackdropFilter: 'blur(16px)',
-              border: '1px solid rgba(139, 92, 246, 0.1)',
-              borderRadius: '16px',
+            <div className="purple-glass-card static" style={{ 
               overflow: 'hidden',
               display: 'flex',
               flexDirection: 'column'
@@ -809,10 +793,10 @@ const MigrationPlannerView: React.FC = () => {
                 display: 'flex', 
                 justifyContent: 'space-between', 
                 alignItems: 'center', 
-                background: 'rgba(255, 255, 255, 0.9)',
+                background: 'var(--card-bg)',
                 backdropFilter: 'blur(20px)',
                 WebkitBackdropFilter: 'blur(20px)',
-                borderTop: '1px solid rgba(139, 92, 246, 0.1)',
+                borderTop: '1px solid var(--card-border)',
                 zIndex: 10
               }}>
                 <PurpleGlassButton
@@ -1357,10 +1341,10 @@ const MigrationPlannerView: React.FC = () => {
                 justifyContent: 'center',
                 gap: '8px',
                 padding: '12px 16px',
-                borderRadius: '8px',
+                borderRadius: 'var(--radius-md)',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
-                background: activeTab === tab.id ? 'rgba(255, 255, 255, 0.9)' : 'transparent',
+                background: activeTab === tab.id ? 'var(--card-bg)' : 'transparent',
                 color: activeTab === tab.id ? 'var(--text-primary)' : 'var(--text-secondary)',
                 boxShadow: activeTab === tab.id ? '0 2px 4px rgba(0, 0, 0, 0.1)' : 'none'
               }}

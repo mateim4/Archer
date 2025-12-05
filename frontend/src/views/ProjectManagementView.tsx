@@ -109,17 +109,8 @@ const ProjectCard: React.FC<{
 
   return (
     <div
-      style={{
-        background: 'var(--card-bg)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
-        border: '1px solid var(--card-border)',
-        borderRadius: '20px',
-        padding: '24px',
-        transition: 'all 0.3s ease',
-        boxShadow: 'var(--card-shadow)'
-      }}
-      className="group hover:scale-105 hover:shadow-xl cursor-pointer relative"
+      className="purple-glass-card"
+      style={{ padding: '24px' }}
       onClick={() => onView(project)}
     >
       {/* Project Header */}
@@ -157,14 +148,8 @@ const ProjectCard: React.FC<{
                 onClick={() => setIsMenuOpen(false)}
               />
               <div
-                style={{
-                  background: 'var(--card-bg)',
-                  backdropFilter: 'blur(20px)',
-                  border: '1px solid var(--card-border)',
-                  borderRadius: '12px',
-                  boxShadow: 'var(--card-shadow)'
-                }}
-                className="absolute right-0 top-full mt-2 w-48 z-50 py-2"
+                className="purple-glass-card static absolute right-0 top-full mt-2 w-48 z-50 py-2"
+                style={{ borderRadius: 'var(--radius-lg)' }}
               >
                 <button
                   onClick={(e) => {
@@ -449,30 +434,18 @@ const ProjectManagementView: React.FC = () => {
                 <ArrowUpDown className="w-4 h-4" />
               </button>
 
-              <div className="flex rounded-lg overflow-hidden border border-white/30">
+              <div className="flex overflow-hidden" style={{ borderRadius: 'var(--radius-md)', border: '1px solid var(--card-border)' }}>
                 <button
                   onClick={() => setViewMode('grid')}
-                  style={{
-                    background: viewMode === 'grid' ? 'linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%)' : 'rgba(255, 255, 255, 0.8)',
-                    color: viewMode === 'grid' ? 'white' : '#6b7280',
-                    padding: '10px 12px',
-                    border: 'none',
-                    backdropFilter: 'blur(10px)'
-                  }}
-                  className="transition-all"
+                  className={`btn btn-icon ${viewMode === 'grid' ? 'btn-primary' : 'btn-ghost btn-glass'}`}
+                  style={{ borderRadius: 0 }}
                 >
                   <Grid className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => setViewMode('list')}
-                  style={{
-                    background: viewMode === 'list' ? 'linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%)' : 'rgba(255, 255, 255, 0.8)',
-                    color: viewMode === 'list' ? 'white' : '#6b7280',
-                    padding: '10px 12px',
-                    border: 'none',
-                    backdropFilter: 'blur(10px)'
-                  }}
-                  className="transition-all"
+                  className={`btn btn-icon ${viewMode === 'list' ? 'btn-primary' : 'btn-ghost btn-glass'}`}
+                  style={{ borderRadius: 0 }}
                 >
                   <List className="w-4 h-4" />
                 </button>
@@ -487,18 +460,7 @@ const ProjectManagementView: React.FC = () => {
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
           </div>
         ) : filteredProjects.length === 0 ? (
-          <div
-            style={{
-              background: 'var(--card-bg)',
-              backdropFilter: 'blur(20px)',
-              WebkitBackdropFilter: 'blur(20px)',
-              border: '1px solid var(--card-border)',
-              borderRadius: '20px',
-              padding: '64px',
-              textAlign: 'center' as const,
-              boxShadow: 'var(--card-shadow)'
-            }}
-          >
+          <div className="purple-glass-card static" style={{ padding: '64px', textAlign: 'center' as const }}>
             <div className="flex flex-col items-center space-y-6">
               <div className="p-6 rounded-full bg-gradient-to-br from-purple-100 to-indigo-100">
                 <FolderPlus className="w-12 h-12 text-purple-500" />

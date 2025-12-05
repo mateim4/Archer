@@ -36,6 +36,13 @@
     --ring: 262 83% 58%;              /* Purple focus ring */
 
     --radius: 0.5rem;
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --radius-2xl: 20px;
+    --radius-card: 16px;              /* Standard card radius */
+    --radius-button: 8px;             /* Standard button radius */
 
     /* Fluent UI 2 Acrylic tokens - Higher opacity for readability */
     --glass-bg: rgba(255, 255, 255, 0.82);
@@ -805,6 +812,110 @@
 .btn-dropdown:hover:not(:disabled) {
   border-color: var(--input-border-focus);
   box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+/* ========================================================================
+   CARD UTILITY CLASSES
+   ======================================================================== */
+
+/* Base card class - standard glassmorphic card */
+.purple-glass-card {
+  background: var(--card-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: var(--radius-card);
+  border: 1px solid var(--card-border);
+  box-shadow: var(--card-shadow);
+  transition: all 0.2s ease;
+}
+
+.purple-glass-card:hover {
+  border-color: var(--card-border-hover);
+  box-shadow: var(--card-shadow-hover);
+  transform: translateY(-2px);
+}
+
+/* Card without hover effects */
+.purple-glass-card.static,
+.card-static {
+  cursor: default;
+}
+
+.purple-glass-card.static:hover,
+.card-static:hover {
+  transform: none;
+  box-shadow: var(--card-shadow);
+  border-color: var(--card-border);
+}
+
+/* Interactive card (clickable) */
+.card-interactive {
+  cursor: pointer;
+}
+
+/* Card padding variants */
+.card-padding-none { padding: 0; }
+.card-padding-sm { padding: 12px; }
+.card-padding-md { padding: 20px; }
+.card-padding-lg { padding: 24px; }
+.card-padding-xl { padding: 32px; }
+
+/* Card header section */
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--divider-color);
+  margin-bottom: 16px;
+}
+
+.card-header-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+/* Card body */
+.card-body {
+  flex: 1;
+}
+
+/* Card footer */
+.card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 16px;
+  border-top: 1px solid var(--divider-color);
+  margin-top: 16px;
+}
+
+/* Elevated card variant */
+.card-elevated {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+}
+
+/* Outlined card variant (no fill) */
+.card-outlined {
+  background: transparent;
+  backdrop-filter: none;
+  border: 1px solid var(--card-border);
+  box-shadow: none;
+}
+
+.card-outlined:hover {
+  border-color: var(--card-border-hover);
+  box-shadow: none;
+}
+
+/* Subtle card variant (minimal) */
+.card-subtle {
+  background: var(--card-bg);
+  border: none;
+  box-shadow: none;
 }
 
 /* ========================================================================
