@@ -28,7 +28,7 @@ export const AnimatedBackground: React.FC<AnimatedBackgroundProps> = React.memo(
     }, [isDarkTheme, styles.fall]);
 
     const fog = useMemo(() => {
-        const fogColor = isDarkTheme ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.5)';
+        const fogColor = isDarkTheme ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.25)';
         return Array.from({ length: 15 }).map((_, i) => (
             <div
                 key={`fog-${i}`}

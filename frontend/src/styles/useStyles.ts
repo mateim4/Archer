@@ -95,8 +95,8 @@ export const useStyles = makeStyles({
     backgroundImage: 'linear-gradient(to bottom, #34495e, #2c3e50)',
   },
   rootLight: {
-    backgroundColor: '#a1c4fd',
-    backgroundImage: 'linear-gradient(to bottom, #a1c4fd, #c2e9fb)',
+    backgroundColor: '#7b9fd4',
+    backgroundImage: 'linear-gradient(to bottom, #8faed8, #a8c5e8)',
   },
   mainUI: {
     position: 'relative',
