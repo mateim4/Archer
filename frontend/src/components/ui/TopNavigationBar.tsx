@@ -24,6 +24,8 @@ import {
   TicketDiagonalRegular,
   FolderRegular,
   DocumentRegular,
+  NavigationRegular,
+  DismissRegular,
 } from '@fluentui/react-icons';
 import { tokens } from '@fluentui/react-components';
 import { useTheme } from '../../hooks/useTheme';
@@ -42,6 +44,10 @@ export interface TopNavigationBarProps {
   onNotificationsClick?: () => void;
   /** Callback when search button clicked (opens Command Palette) */
   onSearchClick?: () => void;
+  /** Callback when hamburger menu clicked (toggles sidebar on mobile) */
+  onMenuClick?: () => void;
+  /** Whether sidebar is open (for mobile hamburger state) */
+  isSidebarOpen?: boolean;
   /** Additional className */
   className?: string;
   /** Additional styles */
@@ -62,12 +68,31 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
   notificationCount = 0,
   onNotificationsClick,
   onSearchClick,
+  onMenuClick,
+  isSidebarOpen,
   className = '',
   style,
 }) => {
   const navigate = useNavigate();
   const { mode, toggleMode } = useTheme();
   const isDark = mode === 'dark';
+  
+  // Track mobile viewport for showing hamburger menu
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth < 768;
+    }
+    return false;
+  });
+
+  // Mobile detection effect
+  React.useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   
   // Internal state for Command Palette (used when onSearchClick is not provided)
   const [isInternalCommandPaletteOpen, setInternalCommandPaletteOpen] = useState(false);
@@ -233,43 +258,75 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
   return (
     <>
       <nav className={`top-nav-bar ${className}`} style={navBarStyles}>
-        {/* Left: Logo */}
-        <div 
-          style={logoContainerStyles}
-          onClick={() => navigate('/')}
-          onMouseEnter={(e) => e.currentTarget.style.background = 'var(--btn-ghost-bg-hover)'}
-          onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-        >
-          {logoSrc ? (
-            <img src={logoSrc} alt="Archer ITSM" style={{ height: '32px', width: '32px' }} />
-          ) : (
-            <div style={{
-              width: '32px',
-              height: '32px',
-              borderRadius: '8px',
-              background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'white',
-              fontWeight: 700,
-              fontSize: '16px',
-            }}>
-              A
-            </div>
+        {/* Left: Hamburger Menu (mobile only) + Logo */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {/* Mobile Hamburger Menu */}
+          {isMobile && onMenuClick && (
+            <button
+              onClick={onMenuClick}
+              style={{
+                ...iconButtonStyles,
+                width: '40px',
+                height: '40px',
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = 'var(--btn-ghost-bg-hover)'}
+              onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+              aria-label={isSidebarOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={isSidebarOpen}
+            >
+              {isSidebarOpen ? (
+                <DismissRegular style={{ fontSize: '20px' }} />
+              ) : (
+                <NavigationRegular style={{ fontSize: '20px' }} />
+              )}
+            </button>
           )}
-          <span style={{
-            fontSize: '18px',
-            fontWeight: 600,
-            color: 'var(--text-primary)',
-          }}>
-            Archer ITSM
-          </span>
+          
+          <div 
+            style={logoContainerStyles}
+            onClick={() => navigate('/')}
+            onMouseEnter={(e) => e.currentTarget.style.background = 'var(--btn-ghost-bg-hover)'}
+            onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+          >
+            {logoSrc ? (
+              <img src={logoSrc} alt="Archer ITSM" style={{ height: '32px', width: '32px' }} />
+            ) : (
+              <div style={{
+                width: '32px',
+                height: '32px',
+                borderRadius: '8px',
+                background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'white',
+                fontWeight: 700,
+                fontSize: '16px',
+              }}>
+                A
+              </div>
+            )}
+            {/* Hide app name on mobile */}
+            {!isMobile && (
+              <span style={{
+                fontSize: '18px',
+                fontWeight: 600,
+                color: 'var(--text-primary)',
+              }}>
+                Archer ITSM
+              </span>
+            )}
+          </div>
         </div>
 
-        {/* Center: Global Search */}
+        {/* Center: Global Search - compact on mobile */}
         <div 
-          style={searchContainerStyles}
+          style={{
+            ...searchContainerStyles,
+            minWidth: isMobile ? 'auto' : '320px',
+            maxWidth: isMobile ? '200px' : '500px',
+            padding: isMobile ? '8px 12px' : '8px 16px',
+          }}
           onClick={handleSearchClick}
           onMouseEnter={(e) => {
             e.currentTarget.style.borderColor = 'var(--input-border-focus)';
@@ -281,23 +338,27 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
           }}
         >
           <SearchRegular style={{ color: 'var(--input-placeholder)', fontSize: '18px' }} />
-          <span style={{ 
-            flex: 1, 
-            color: 'var(--input-placeholder)',
-            fontSize: '14px',
-          }}>
-            Search tickets, assets, docs...
-          </span>
-          <kbd style={{
-            padding: '2px 8px',
-            background: 'var(--tab-bg)',
-            borderRadius: '4px',
-            fontSize: '12px',
-            color: 'var(--text-muted)',
-            fontFamily: 'monospace',
-          }}>
-            ⌘K
-          </kbd>
+          {!isMobile && (
+            <>
+              <span style={{ 
+                flex: 1, 
+                color: 'var(--input-placeholder)',
+                fontSize: '14px',
+              }}>
+                Search tickets, assets, docs...
+              </span>
+              <kbd style={{
+                padding: '2px 8px',
+                background: 'var(--tab-bg)',
+                borderRadius: '4px',
+                fontSize: '12px',
+                color: 'var(--text-muted)',
+                fontFamily: 'monospace',
+              }}>
+                ⌘K
+              </kbd>
+            </>
+          )}
         </div>
 
         {/* Right: Actions */}

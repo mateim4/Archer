@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { tokens, colors, gradients, zIndex } from '@/styles/design-tokens';
+
+// Mobile breakpoint - should match App.tsx
+const MOBILE_BREAKPOINT = 768;
 import { 
   DatabaseRegular,
   DatabaseFilled,
@@ -62,6 +65,21 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
   const navigate = useNavigate();
   const location = useLocation();
   const [expandedItems, setExpandedItems] = useState<string[]>(['monitoring', 'settings']);
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth < MOBILE_BREAKPOINT;
+    }
+    return false;
+  });
+
+  // Track viewport size for responsive behavior
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const mainMenuItems: MenuItem[] = [
     { 
@@ -162,18 +180,20 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
         position: 'fixed',
         top: '60px', /* Account for TopNavigationBar height */
         left: 0,
-        width: isOpen ? '280px' : '60px',
+        width: isMobile ? '280px' : (isOpen ? '280px' : '60px'),
         height: 'calc(100vh - 60px)', /* Full height minus TopNavigationBar */
         background: 'var(--lcm-bg-sidebar, rgba(255, 255, 255, 0.78))',
         backdropFilter: 'var(--lcm-backdrop-filter-sidebar, blur(30px))',
         WebkitBackdropFilter: 'var(--lcm-backdrop-filter-sidebar, blur(30px))',
         borderRight: '1px solid var(--lcm-primary-border, rgba(139, 92, 246, 0.18))',
         transition: `all ${tokens.durationNormal} ${tokens.curveEasyEase}`,
-        zIndex: zIndex.sticky,
+        zIndex: isMobile ? 100 : zIndex.sticky,
         display: 'flex',
         flexDirection: 'column',
         boxShadow: 'var(--lcm-shadow-sidebar, 0 0 1px 0 rgba(0, 0, 0, 0.08), 2px 0 8px 0 rgba(0, 0, 0, 0.04))',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        // On mobile, slide in/out from left
+        transform: isMobile && !isOpen ? 'translateX(-100%)' : 'translateX(0)'
       }}
     >
       {/* Header - Sidebar Toggle */}

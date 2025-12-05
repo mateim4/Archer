@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 // Import ONLY Fluent UI 2 Design System
 import './styles/fluent2-design-system.css';
@@ -8,6 +8,9 @@ import { NotificationsProvider, useNotificationState } from './hooks/useNotifica
 import { AnimatedBackground } from './components/background/AnimatedBackground';
 import { useStyles } from './styles/useStyles';
 import NavigationSidebar from './components/NavigationSidebar';
+
+// Responsive breakpoint for sidebar collapse
+const MOBILE_BREAKPOINT = 768;
 import { BreadcrumbNavigation, CommandPalette, TopNavigationBar } from './components/ui';
 import { lazyWithRetry } from './utils/lazyLoad';
 
@@ -45,12 +48,47 @@ function AppContent() {
   const styles = useStyles();
   const { mode } = useTheme();
   const isDark = mode === 'dark';
-  const [isSidebarOpen, setSidebarOpen] = useState(true);
+  
+  // Responsive sidebar - auto-collapse on mobile
+  const [isSidebarOpen, setSidebarOpen] = useState(() => {
+    // Check if we're on mobile during initial render
+    if (typeof window !== 'undefined') {
+      return window.innerWidth >= MOBILE_BREAKPOINT;
+    }
+    return true;
+  });
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth < MOBILE_BREAKPOINT;
+    }
+    return false;
+  });
   const [isProjectOpen, setProjectOpen] = useState(false); // TODO: connect to project store
   const [isCommandPaletteOpen, setCommandPaletteOpen] = useState(false);
   
   // Get notification state for TopNavigationBar
   const { unreadCount } = useNotificationState();
+
+  // Responsive sidebar effect - collapse on mobile, expand on desktop
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth < MOBILE_BREAKPOINT;
+      setIsMobile(mobile);
+      // Auto-collapse sidebar when transitioning to mobile
+      if (mobile) {
+        setSidebarOpen(false);
+      } else {
+        // Auto-expand when transitioning to desktop
+        setSidebarOpen(true);
+      }
+    };
+
+    // Add listener
+    window.addEventListener('resize', handleResize);
+    
+    // Cleanup
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handleSidebarToggle = () => {
     setSidebarOpen(!isSidebarOpen);
@@ -103,6 +141,8 @@ function AppContent() {
               <TopNavigationBar 
                 onSearchClick={() => setCommandPaletteOpen(true)}
                 notificationCount={unreadCount}
+                onMenuClick={handleSidebarToggle}
+                isSidebarOpen={isSidebarOpen}
               />
               
               {/* Content area below top nav */}
@@ -113,6 +153,24 @@ function AppContent() {
                 marginTop: '60px', /* TopNavigationBar height */
                 minHeight: 'calc(100vh - 60px)'
               }}>
+                {/* Mobile overlay when sidebar is open */}
+                {isMobile && isSidebarOpen && (
+                  <div 
+                    onClick={() => setSidebarOpen(false)}
+                    style={{
+                      position: 'fixed',
+                      top: 60,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      background: 'rgba(0, 0, 0, 0.3)',
+                      zIndex: 99,
+                      cursor: 'pointer'
+                    }}
+                    aria-label="Close sidebar"
+                  />
+                )}
+                
                 <NavigationSidebar 
                   isOpen={isSidebarOpen}
                   onToggle={handleSidebarToggle}
@@ -121,9 +179,9 @@ function AppContent() {
                 
                 <main role="main" aria-label="Main content" style={{ 
                   flex: 1,
-                  marginLeft: isSidebarOpen ? '280px' : '60px',
+                  marginLeft: isMobile ? 0 : (isSidebarOpen ? '280px' : '60px'),
                   transition: 'margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                  padding: '32px',
+                  padding: isMobile ? '16px' : '32px',
                   overflowX: 'hidden',
                   minHeight: 'calc(100vh - 60px)'
                 }}>
