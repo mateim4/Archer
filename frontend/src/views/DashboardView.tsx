@@ -897,7 +897,7 @@ export const DashboardView: React.FC = () => {
       }}>
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))',
           gap: '20px',
         }}>
           {MOCK_STATS.map((stat) => (
@@ -932,7 +932,7 @@ export const DashboardView: React.FC = () => {
       {/* Widgets Row */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 400px), 1fr))',
         gap: '20px',
       }}>
         {/* My Open Tickets Widget */}
@@ -1058,15 +1058,17 @@ export const DashboardView: React.FC = () => {
         </div>
 
         {/* Critical Alerts Widget */}
-        <div style={{
-          background: 'var(--card-bg)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
-          borderRadius: '16px',
-          border: '1px solid var(--card-border)',
-          overflow: 'hidden',
-          gridColumn: 'span 2',
-        }}>
+        <div 
+          className="critical-alerts-widget"
+          style={{
+            background: 'var(--card-bg)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            borderRadius: '16px',
+            border: '1px solid var(--card-border)',
+            overflow: 'hidden',
+            gridColumn: 'span 2',
+          }}>
           {/* Widget Header */}
           <div style={{
             padding: '16px 20px',
@@ -1127,7 +1129,7 @@ export const DashboardView: React.FC = () => {
           <div style={{
             padding: '16px 20px',
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
             gap: '12px',
           }}>
             {MOCK_ALERTS.map((alert) => (
@@ -1143,11 +1145,18 @@ export const DashboardView: React.FC = () => {
         </div>
       </div>
 
-      {/* CSS for spin animation */}
+      {/* CSS for spin animation and responsive grid */}
       <style>{`
         @keyframes spin {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
+        }
+        
+        /* Make critical alerts span full width on mobile */
+        @media (max-width: 900px) {
+          .critical-alerts-widget {
+            grid-column: span 1 !important;
+          }
         }
       `}</style>
     </div>
