@@ -140,12 +140,14 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
 
   const handleItemClick = (item: MenuItem) => {
     if (item.subItems && item.subItems.length > 0 && isOpen) {
-      // Toggle expand/collapse for items with sub-items
+      // Toggle expand/collapse for items with sub-items AND navigate to the parent path
       setExpandedItems(prev => 
         prev.includes(item.id) 
           ? prev.filter(id => id !== item.id)
           : [...prev, item.id]
       );
+      // Also navigate to the parent item's path
+      navigate(item.path);
     } else {
       navigate(item.path);
     }

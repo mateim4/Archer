@@ -642,11 +642,11 @@ export default function TasksView() {
                         top: '100%',
                         right: '0',
                         zIndex: 10000,
-                        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.90))',
+                        background: 'var(--card-bg)',
                         backdropFilter: 'blur(60px)',
                         borderRadius: '12px',
-                        border: '1px solid rgba(255, 255, 255, 0.4)',
-                        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)',
+                        border: '1px solid var(--card-border)',
+                        boxShadow: 'var(--card-shadow)',
                         padding: '8px',
                         minWidth: '180px',
                         marginTop: '4px'
@@ -839,7 +839,7 @@ export default function TasksView() {
                     }}>
                       {task.tags.slice(0, 3).map((tag, index) => (
                         <span key={index} style={{
-                          background: 'rgba(99, 102, 241, 0.1)',
+                          background: 'var(--btn-secondary-bg)',
                           color: DesignTokens.colors.primary,
                           padding: '2px 8px',
                           borderRadius: '4px',
@@ -851,7 +851,7 @@ export default function TasksView() {
                       ))}
                       {task.tags.length > 3 && (
                         <span style={{
-                          color: DesignTokens.colors.textMuted,
+                          color: 'var(--text-muted)',
                           fontSize: '11px'
                         }}>
                           +{task.tags.length - 3} more
@@ -867,7 +867,7 @@ export default function TasksView() {
                     alignItems: 'flex-end',
                     marginTop: 'auto',
                     paddingTop: DesignTokens.spacing.sm,
-                    borderTop: '1px solid rgba(0, 0, 0, 0.05)'
+                    borderTop: '1px solid var(--card-border)'
                   }}>
                     <div style={{
                       display: 'flex',
@@ -879,7 +879,7 @@ export default function TasksView() {
                           display: 'flex', 
                           alignItems: 'center', 
                           gap: '6px',
-                          color: DesignTokens.colors.textMuted,
+                          color: 'var(--text-muted)',
                           fontSize: '11px'
                         }}>
                           <PersonRegular style={{ fontSize: '12px' }} />
@@ -891,7 +891,7 @@ export default function TasksView() {
                           display: 'flex', 
                           alignItems: 'center', 
                           gap: '6px',
-                          color: isOverdue(task) ? DesignTokens.colors.error : DesignTokens.colors.textMuted,
+                          color: isOverdue(task) ? DesignTokens.colors.error : 'var(--text-muted)',
                           fontSize: '11px',
                           fontWeight: isOverdue(task) ? '600' : '400'
                         }}>
@@ -904,7 +904,7 @@ export default function TasksView() {
                     
                     <div style={{
                       fontSize: '11px',
-                      color: DesignTokens.colors.textMuted
+                      color: 'var(--text-muted)'
                     }}>
                       {getRelativeTime(task.updated_at)}
                     </div>
