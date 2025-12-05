@@ -125,16 +125,7 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
       title: 'Settings', 
       icon: <SettingsRegular />, 
       iconFilled: <SettingsFilled />, 
-      path: '/app/settings',
-      subItems: [
-        {
-          id: 'data-collection',
-          title: 'Data Collection',
-          icon: <PlugConnectedRegular />,
-          iconFilled: <PlugConnectedFilled />,
-          path: '/app/data-collection'
-        }
-      ]
+      path: '/app/settings'
     }
   ];
 
