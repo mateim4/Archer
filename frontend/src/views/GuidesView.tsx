@@ -63,9 +63,9 @@ const useStyles = makeStyles({
     ...DesignTokens.components.borderCard,
     padding: DesignTokens.spacing.xl,
     marginBottom: DesignTokens.spacing.xxl,
-    background: 'rgba(255, 255, 255, 0.40)',
-    backdropFilter: 'blur(30px) saturate(35%) brightness(145%) contrast(85%)',
-    border: '1px solid rgba(255, 255, 255, 0.35)',
+    background: 'var(--card-bg)',
+    backdropFilter: 'blur(20px)',
+    border: '1px solid var(--card-border)',
   },
   toolbar: {
     display: 'flex',
@@ -1344,17 +1344,17 @@ const GuidesView: React.FC = () => {
         >
           <div 
             style={{
-              background: 'var(--lcm-bg-card)',
-              backdropFilter: 'blur(30px) saturate(150%)',
+              background: 'var(--card-bg)',
+              backdropFilter: 'blur(20px)',
               borderRadius: '20px',
-              border: '1px solid rgba(139, 92, 246, 0.3)',
+              border: '1px solid var(--card-border)',
               width: '100%',
               maxWidth: '900px',
               maxHeight: '85vh',
               overflow: 'hidden',
               display: 'flex',
               flexDirection: 'column',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(139, 92, 246, 0.1)'
+              boxShadow: 'var(--card-shadow-hover)'
             }}
             onClick={(e) => e.stopPropagation()}
           >

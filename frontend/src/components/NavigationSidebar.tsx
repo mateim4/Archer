@@ -165,8 +165,8 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
         width: isOpen ? '280px' : '60px',
         height: 'calc(100vh - 60px)', /* Full height minus TopNavigationBar */
         background: 'var(--lcm-bg-sidebar, rgba(255, 255, 255, 0.78))',
-        backdropFilter: 'var(--lcm-backdrop-filter-sidebar, blur(30px) saturate(140%))',
-        WebkitBackdropFilter: 'var(--lcm-backdrop-filter-sidebar, blur(30px) saturate(140%))',
+        backdropFilter: 'var(--lcm-backdrop-filter-sidebar, blur(30px))',
+        WebkitBackdropFilter: 'var(--lcm-backdrop-filter-sidebar, blur(30px))',
         borderRight: '1px solid var(--lcm-primary-border, rgba(139, 92, 246, 0.18))',
         transition: `all ${tokens.durationNormal} ${tokens.curveEasyEase}`,
         zIndex: zIndex.sticky,
@@ -326,7 +326,7 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
                         fontWeight: tokens.fontWeightBold,
                         textTransform: 'uppercase',
                         letterSpacing: '0.5px',
-                        backdropFilter: 'var(--lcm-backdrop-filter, blur(20px) saturate(150%))',
+                        backdropFilter: 'var(--lcm-backdrop-filter, blur(20px))',
                         boxShadow: tokens.shadow2
                       }}>
                         {item.badge}

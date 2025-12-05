@@ -700,8 +700,8 @@ const DashboardView: React.FC = () => {
               className="flex items-center p-4 rounded-lg border transition-all duration-200 hover:shadow-md"
               style={{
                 backgroundColor: 'var(--color-neutral-background-tertiary)',
-                backdropFilter: 'blur(20px) saturate(120%)',
-                WebkitBackdropFilter: 'blur(20px) saturate(120%)',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
                 borderColor: 'var(--color-neutral-stroke-secondary)',
                 borderRadius: 'var(--border-radius-lg)',
                 boxShadow: 'none'

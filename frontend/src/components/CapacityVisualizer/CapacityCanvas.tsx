@@ -2114,8 +2114,8 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
           border: '1px solid #e5e7eb',
           borderRadius: '8px',
           backgroundColor: 'rgba(255, 255, 255, 0.95)',
-          backdropFilter: 'blur(18px) saturate(180%)',
-          WebkitBackdropFilter: 'blur(18px) saturate(180%)'
+          backdropFilter: 'blur(18px)',
+          WebkitBackdropFilter: 'blur(18px)'
         }}
       >
       {/* Search Bar - Fixed at top */}
@@ -2129,8 +2129,8 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
         alignItems: 'center',
         flexWrap: 'wrap',
         backgroundColor: 'rgba(255, 255, 255, 0.95)', // Stronger background
-        backdropFilter: 'blur(20px) saturate(180%) brightness(110%)', // Enhanced blur
-        WebkitBackdropFilter: 'blur(20px) saturate(180%) brightness(110%)',
+        backdropFilter: 'blur(20px) brightness(110%)', // Enhanced blur
+        WebkitBackdropFilter: 'blur(20px) brightness(110%)',
         zIndex: 1000,
         padding: '12px 20px',
         gap: '12px',
@@ -2362,8 +2362,8 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
                 backgroundColor: advancedVisualizer ? '#8b5cf6' : 'rgba(139, 92, 246, 0.3)',
                 borderRadius: '12px',
                 transition: 'all 0.3s ease',
-                backdropFilter: 'blur(18px) saturate(180%)',
-                WebkitBackdropFilter: 'blur(18px) saturate(180%)',
+                backdropFilter: 'blur(18px)',
+                WebkitBackdropFilter: 'blur(18px)',
                 border: '1px solid rgba(139, 92, 246, 0.2)',
                 boxShadow: advancedVisualizer 
                   ? '0 2px 8px rgba(139, 92, 246, 0.3)' 
@@ -2431,8 +2431,8 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
                   : 'rgba(139, 92, 246, 0.1)',
                 borderRadius: '12px',
                 transition: 'all 0.3s ease',
-                backdropFilter: 'blur(18px) saturate(180%)',
-                WebkitBackdropFilter: 'blur(18px) saturate(180%)',
+                backdropFilter: 'blur(18px)',
+                WebkitBackdropFilter: 'blur(18px)',
                 border: `1px solid rgba(139, 92, 246, ${advancedVisualizer ? '0.2' : '0.1'})`,
                 boxShadow: advancedVisualizer 
                   ? (showFreeSpace 

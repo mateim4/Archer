@@ -516,12 +516,12 @@ export default function ProjectsView() {
                             top: '60px',
                             right: DesignTokens.spacing.md,
                             zIndex: 10000,
-                            background: 'var(--glass-bg)',
-                            backdropFilter: 'blur(20px) saturate(150%)',
-                            WebkitBackdropFilter: 'blur(20px) saturate(150%)',
+                            background: 'var(--card-bg)',
+                            backdropFilter: 'blur(20px)',
+                            WebkitBackdropFilter: 'blur(20px)',
                             borderRadius: '12px',
                             border: '1px solid var(--card-border)',
-                            boxShadow: 'var(--glass-shadow)',
+                            boxShadow: 'var(--card-shadow)',
                             padding: '8px',
                             minWidth: '180px'
                           }}>

@@ -447,7 +447,7 @@ const NetworkVisualizerView = () => {
               <div
                 key={index}
                 style={{
-                  WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                  WebkitBackdropFilter: 'blur(20px)',
                   border: '1px solid rgba(139, 92, 246, 0.2)',
                   borderRadius: '16px',
                   padding: '24px',
@@ -606,7 +606,7 @@ const NetworkVisualizerView = () => {
             {/* Visual Network Diagram */}
             <div style={{
               borderRadius: '12px',
-              WebkitBackdropFilter: 'blur(16px) saturate(150%)',
+              WebkitBackdropFilter: 'blur(16px)',
               border: '1px solid rgba(139, 92, 246, 0.1)',
               overflow: 'hidden'
             }}>

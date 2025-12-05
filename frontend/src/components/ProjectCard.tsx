@@ -114,7 +114,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         border: '1px solid rgba(139, 92, 246, 0.2)',
         background: 'rgba(255, 255, 255, 0.9)',
-        backdropFilter: 'blur(18px) saturate(180%)',
+        backdropFilter: 'blur(18px)',
         position: 'relative',
         overflow: 'hidden',
         minHeight: '240px',

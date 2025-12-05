@@ -52,8 +52,8 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
           className="p-8 rounded-xl border shadow-lg"
           style={{
             backgroundColor: 'var(--color-neutral-card-surface)',
-            backdropFilter: 'blur(40px) saturate(180%)',
-            WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+            backdropFilter: 'blur(40px)',
+            WebkitBackdropFilter: 'blur(40px)',
             borderColor: 'var(--color-neutral-stroke)',
             borderRadius: 'var(--border-radius-xl)',
             boxShadow: 'inset 0 1px 0 0 rgba(255, 255, 255, 0.2), 0 16px 48px rgba(0, 0, 0, 0.15)'

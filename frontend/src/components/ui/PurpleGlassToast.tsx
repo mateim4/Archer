@@ -71,7 +71,7 @@ export const PurpleGlassToast: React.FC<PurpleGlassToastProps> = ({
         maxWidth: '400px',
         padding: DesignTokens.spacing.lg,
         background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.90))',
-        backdropFilter: 'blur(20px) saturate(180%)',
+        backdropFilter: 'blur(20px)',
         border: `1px solid ${colors.border}`,
         borderRadius: DesignTokens.borderRadius.lg,
         boxShadow: DesignTokens.shadows.xl,

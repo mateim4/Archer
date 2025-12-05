@@ -38,11 +38,11 @@ export const useCardStyles = makeStyles({
   },
 
   defaultGlass: {
-    backgroundColor: 'var(--glass-bg)',
-    backdropFilter: 'blur(24px) saturate(180%)',
-    WebkitBackdropFilter: 'blur(24px) saturate(180%)',
-    ...shorthands.borderColor('var(--glass-border)'),
-    boxShadow: 'var(--glass-shadow)',
+    backgroundColor: 'var(--card-bg)',
+    backdropFilter: 'blur(20px)',
+    WebkitBackdropFilter: 'blur(20px)',
+    ...shorthands.borderColor('var(--card-border)'),
+    boxShadow: 'var(--card-shadow)',
   },
 
   // ============================================================================
@@ -71,21 +71,21 @@ export const useCardStyles = makeStyles({
   },
 
   interactiveGlass: {
-    backgroundColor: 'var(--glass-bg)',
-    backdropFilter: 'blur(24px) saturate(180%)',
-    WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+    backgroundColor: 'var(--card-bg)',
+    backdropFilter: 'blur(20px)',
+    WebkitBackdropFilter: 'blur(20px)',
     cursor: 'pointer',
-    ...shorthands.borderColor('var(--glass-border)'),
+    ...shorthands.borderColor('var(--card-border)'),
 
     '&:hover': {
-      backgroundColor: 'var(--glass-hover-bg)',
-      ...shorthands.borderColor('var(--accent)'),
-      boxShadow: 'var(--glass-shadow)',
+      backgroundColor: 'var(--card-bg)',
+      ...shorthands.borderColor('var(--card-border-hover)'),
+      boxShadow: 'var(--card-shadow-hover)',
       transform: 'translateY(-2px)',
     },
 
     '&:active': {
-      backgroundColor: 'var(--glass-press-bg)',
+      backgroundColor: 'var(--card-bg)',
       transform: 'translateY(0) scale(0.99)',
     },
   },
@@ -103,13 +103,13 @@ export const useCardStyles = makeStyles({
   },
 
   elevatedGlass: {
-    backgroundColor: tokens.components.card.elevatedGlassBackground,
-    backdropFilter: tokens.blurHeavy,
-    WebkitBackdropFilter: tokens.blurHeavy,
-    boxShadow: `${tokens.shadow16}, ${tokens.glowSmall}`,
+    backgroundColor: 'var(--card-bg)',
+    backdropFilter: 'blur(20px)',
+    WebkitBackdropFilter: 'blur(20px)',
+    boxShadow: 'var(--card-shadow-hover)',
 
     '&:hover': {
-      boxShadow: `${tokens.shadow28}, ${tokens.glowMedium}`,
+      boxShadow: `var(--card-shadow-hover), 0 0 20px rgba(139, 92, 246, 0.15)`,
     },
   },
 
@@ -124,15 +124,14 @@ export const useCardStyles = makeStyles({
   },
 
   outlinedGlass: {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    backdropFilter: tokens.blurLight,
-    WebkitBackdropFilter: tokens.blurLight,
-    ...shorthands.border('2px', 'solid', 'rgba(139, 92, 246, 0.4)'),
+    backgroundColor: 'var(--card-bg)',
+    backdropFilter: 'blur(20px)',
+    WebkitBackdropFilter: 'blur(20px)',
+    ...shorthands.border('2px', 'solid', 'var(--card-border)'),
     boxShadow: 'none',
 
     '&:hover': {
-      backgroundColor: 'rgba(255, 255, 255, 0.1)',
-      ...shorthands.borderColor('rgba(139, 92, 246, 0.6)'),
+      ...shorthands.borderColor('var(--card-border-hover)'),
     },
   },
 

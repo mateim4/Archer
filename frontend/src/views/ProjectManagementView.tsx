@@ -54,14 +54,14 @@ const ProjectStats: React.FC<{ projects: Project[] }> = ({ projects }) => {
         <div
           key={index}
           style={{
-            background: 'rgba(255, 255, 255, 0.7)',
-            backdropFilter: 'blur(20px) saturate(180%)',
-            WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-            border: '1px solid rgba(255, 255, 255, 0.3)',
+            background: 'var(--card-bg)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            border: '1px solid var(--card-border)',
             borderRadius: '16px',
             padding: '24px',
             transition: 'all 0.3s ease',
-            boxShadow: '0 8px 32px rgba(31, 38, 135, 0.15)'
+            boxShadow: 'var(--card-shadow)'
           }}
           className="group hover:scale-105 cursor-pointer"
         >
@@ -110,14 +110,14 @@ const ProjectCard: React.FC<{
   return (
     <div
       style={{
-        background: 'rgba(255, 255, 255, 0.8)',
-        backdropFilter: 'blur(20px) saturate(180%)',
-        WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-        border: '1px solid rgba(255, 255, 255, 0.3)',
+        background: 'var(--card-bg)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+        border: '1px solid var(--card-border)',
         borderRadius: '20px',
         padding: '24px',
         transition: 'all 0.3s ease',
-        boxShadow: '0 8px 32px rgba(31, 38, 135, 0.1)'
+        boxShadow: 'var(--card-shadow)'
       }}
       className="group hover:scale-105 hover:shadow-xl cursor-pointer relative"
       onClick={() => onView(project)}
@@ -158,11 +158,11 @@ const ProjectCard: React.FC<{
               />
               <div
                 style={{
-                  background: 'rgba(255, 255, 255, 0.9)',
-                  backdropFilter: 'blur(20px) saturate(180%)',
-                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                  background: 'var(--card-bg)',
+                  backdropFilter: 'blur(20px)',
+                  border: '1px solid var(--card-border)',
                   borderRadius: '12px',
-                  boxShadow: '0 8px 32px rgba(31, 38, 135, 0.2)'
+                  boxShadow: 'var(--card-shadow)'
                 }}
                 className="absolute right-0 top-full mt-2 w-48 z-50 py-2"
               >
@@ -378,14 +378,14 @@ const ProjectManagementView: React.FC = () => {
         {/* Enhanced Header Section */}
         <div
           style={{
-            background: 'rgba(255, 255, 255, 0.7)',
-            backdropFilter: 'blur(20px) saturate(180%)',
-            WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-            border: '1px solid rgba(255, 255, 255, 0.3)',
+            background: 'var(--card-bg)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            border: '1px solid var(--card-border)',
             borderRadius: '20px',
             padding: '32px',
             marginBottom: '32px',
-            boxShadow: '0 8px 32px rgba(31, 38, 135, 0.15)'
+            boxShadow: 'var(--card-shadow)'
           }}
         >
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
@@ -424,14 +424,14 @@ const ProjectManagementView: React.FC = () => {
         {/* Search and Controls */}
         <div
           style={{
-            background: 'rgba(255, 255, 255, 0.7)',
-            backdropFilter: 'blur(20px) saturate(180%)',
-            WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-            border: '1px solid rgba(255, 255, 255, 0.3)',
+            background: 'var(--card-bg)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            border: '1px solid var(--card-border)',
             borderRadius: '16px',
             padding: '24px',
             marginBottom: '24px',
-            boxShadow: '0 8px 32px rgba(31, 38, 135, 0.1)'
+            boxShadow: 'var(--card-shadow)'
           }}
         >
           <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
@@ -526,14 +526,14 @@ const ProjectManagementView: React.FC = () => {
         ) : filteredProjects.length === 0 ? (
           <div
             style={{
-              background: 'rgba(255, 255, 255, 0.7)',
-              backdropFilter: 'blur(20px) saturate(180%)',
-              WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-              border: '1px solid rgba(255, 255, 255, 0.3)',
+              background: 'var(--card-bg)',
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+              border: '1px solid var(--card-border)',
               borderRadius: '20px',
               padding: '64px',
               textAlign: 'center' as const,
-              boxShadow: '0 8px 32px rgba(31, 38, 135, 0.1)'
+              boxShadow: 'var(--card-shadow)'
             }}
           >
             <div className="flex flex-col items-center space-y-6">

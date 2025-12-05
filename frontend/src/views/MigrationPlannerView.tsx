@@ -145,8 +145,8 @@ const MigrationPlannerView: React.FC = () => {
       .acrylic-dropdown {
         border-radius: 14px !important;
         background: transparent !important;
-        backdrop-filter: blur(18px) saturate(180%) !important;
-        -webkit-backdrop-filter: blur(18px) saturate(180%) !important;
+        backdrop-filter: blur(18px) !important;
+        -webkit-backdrop-filter: blur(18px) !important;
         box-shadow: none !important;
         color: var(--color-neutral-foreground) !important;
         border: 1.5px solid var(--fluent-color-neutral-stroke-2) !important;
@@ -207,7 +207,7 @@ const MigrationPlannerView: React.FC = () => {
         background: isSelected ? 
           'radial-gradient(circle, rgba(168, 85, 247, 0.8) 0%, rgba(236, 72, 153, 0.7) 100%)' : 
           'rgba(255, 255, 255, 0.15)',
-        backdropFilter: isSelected ? 'blur(10px) saturate(180%)' : 'blur(5px)',
+        backdropFilter: isSelected ? 'blur(10px)' : 'blur(5px)',
         boxShadow: isSelected ? 
           '0 4px 15px rgba(236, 72, 153, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.3)' : 
           '0 2px 8px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.4)',
@@ -252,7 +252,7 @@ const MigrationPlannerView: React.FC = () => {
         background: isSelected ? 
           'radial-gradient(circle, rgba(168, 85, 247, 0.8) 0%, rgba(236, 72, 153, 0.7) 100%)' : 
           'rgba(255, 255, 255, 0.15)',
-        backdropFilter: isSelected ? 'blur(10px) saturate(180%)' : 'blur(5px)',
+        backdropFilter: isSelected ? 'blur(10px)' : 'blur(5px)',
         boxShadow: isSelected ? 
           '0 4px 15px rgba(236, 72, 153, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.3)' : 
           '0 2px 8px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.4)',
@@ -706,8 +706,8 @@ const MigrationPlannerView: React.FC = () => {
                 key={index}
                 style={{
                   background: 'rgba(255, 255, 255, 0.7)',
-                  backdropFilter: 'blur(20px) saturate(180%)',
-                  WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                  backdropFilter: 'blur(20px)',
+                  WebkitBackdropFilter: 'blur(20px)',
                   border: '1px solid rgba(139, 92, 246, 0.2)',
                   borderRadius: '16px',
                   padding: '24px',
@@ -746,8 +746,8 @@ const MigrationPlannerView: React.FC = () => {
             {/* Wizard Progress Header */}
             <div style={{ 
               background: 'rgba(255, 255, 255, 0.7)',
-              backdropFilter: 'blur(20px) saturate(180%)',
-              WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
               border: '1px solid rgba(139, 92, 246, 0.2)',
               borderRadius: '16px',
               marginBottom: '24px',
@@ -786,8 +786,8 @@ const MigrationPlannerView: React.FC = () => {
             {/* Main Content */}
             <div style={{ 
               background: 'rgba(255, 255, 255, 0.5)',
-              backdropFilter: 'blur(16px) saturate(150%)',
-              WebkitBackdropFilter: 'blur(16px) saturate(150%)',
+              backdropFilter: 'blur(16px)',
+              WebkitBackdropFilter: 'blur(16px)',
               border: '1px solid rgba(139, 92, 246, 0.1)',
               borderRadius: '16px',
               overflow: 'hidden',
@@ -810,8 +810,8 @@ const MigrationPlannerView: React.FC = () => {
                 justifyContent: 'space-between', 
                 alignItems: 'center', 
                 background: 'rgba(255, 255, 255, 0.9)',
-                backdropFilter: 'blur(20px) saturate(180%)',
-                WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
                 borderTop: '1px solid rgba(139, 92, 246, 0.1)',
                 zIndex: 10
               }}>

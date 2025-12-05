@@ -93,8 +93,8 @@ const LandingView: React.FC = () => {
         {/* Hero Section */}
         <div style={{
           background: 'var(--card-bg)',
-          backdropFilter: 'blur(30px) saturate(140%)',
-          WebkitBackdropFilter: 'blur(30px) saturate(140%)',
+          backdropFilter: 'blur(30px)',
+          WebkitBackdropFilter: 'blur(30px)',
           border: '1px solid var(--card-border)',
           boxShadow: 'var(--card-shadow)',
           borderRadius: '20px',

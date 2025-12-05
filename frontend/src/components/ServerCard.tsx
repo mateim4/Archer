@@ -181,7 +181,7 @@ const ServerCard: React.FC<ServerCardProps> = ({
         background: isSelected 
           ? 'rgba(139, 92, 246, 0.05)' 
           : 'rgba(255, 255, 255, 0.9)',
-        backdropFilter: 'blur(18px) saturate(180%)',
+        backdropFilter: 'blur(18px)',
         position: 'relative',
         minHeight: '240px',
         display: 'flex',

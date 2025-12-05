@@ -69,15 +69,15 @@ export const purplePalette = {
 // ============================================================================
 
 const glassEffects = {
-  // Backdrop Filters
-  blurLight: 'blur(10px) saturate(120%)',
-  blurMedium: 'blur(20px) saturate(150%)',
-  blurHeavy: 'blur(40px) saturate(180%)',
-  blurExtreme: 'blur(60px) saturate(200%)',
+  // Backdrop Filters - Standard blur without saturation to avoid distorting background colors
+  blurLight: 'blur(10px)',
+  blurMedium: 'blur(20px)',
+  blurHeavy: 'blur(40px)',
+  blurExtreme: 'blur(60px)',
 
   // Modal/Dialog Backdrops
-  modalBackdrop: 'blur(12px) saturate(120%)',
-  modalSurface: 'blur(40px) saturate(180%)',
+  modalBackdrop: 'blur(12px)',
+  modalSurface: 'blur(40px)',
 
   // Background Colors (with transparency for glass effect)
   backgroundLight: 'rgba(255, 255, 255, 0.7)',

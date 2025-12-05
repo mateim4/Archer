@@ -19,8 +19,8 @@ const NetworkComponentGuide: React.FC = () => {
       key={iconKey || icon.name}
       style={{
         background: 'rgba(255, 255, 255, 0.9)',
-        backdropFilter: 'blur(16px) saturate(150%)',
-        WebkitBackdropFilter: 'blur(16px) saturate(150%)',
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
         border: `2px solid ${icon.borderColor || icon.color}`,
         borderRadius: '12px',
         padding: '16px',
@@ -312,8 +312,8 @@ const NetworkComponentGuide: React.FC = () => {
   return (
     <div style={{
       background: 'rgba(255, 255, 255, 0.7)',
-      backdropFilter: 'blur(20px) saturate(180%)',
-      WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+      backdropFilter: 'blur(20px)',
+      WebkitBackdropFilter: 'blur(20px)',
       border: '1px solid rgba(139, 92, 246, 0.2)',
       borderRadius: '16px',
       padding: '24px',

@@ -26,8 +26,8 @@ const HeaderSettings: React.FC<HeaderSettingsProps> = ({ className, isDark = fal
         borderRadius: tokens.xLarge,
         border: '1px solid var(--card-border)',
         background: 'var(--card-bg)',
-        backdropFilter: 'blur(20px) saturate(180%)',
-        WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
         color: isActive 
           ? 'var(--brand-primary)' 
           : 'var(--text-primary)',

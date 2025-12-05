@@ -16,7 +16,7 @@ const GLASS_STYLES = {
   none: {},
   light: {
     background: 'var(--glass-bg)',
-    backdropFilter: 'var(--lcm-backdrop-filter, blur(20px) saturate(150%))',
+    backdropFilter: 'var(--lcm-backdrop-filter, blur(20px))',
     borderRadius: '12px',
     padding: '12px 16px',
     border: '1px solid var(--glass-border)',
@@ -24,7 +24,7 @@ const GLASS_STYLES = {
   },
   medium: {
     background: 'var(--glass-bg)',
-    backdropFilter: 'var(--lcm-backdrop-filter, blur(20px) saturate(150%))',
+    backdropFilter: 'var(--lcm-backdrop-filter, blur(20px))',
     borderRadius: '12px',
     padding: '12px 16px',
     border: '1px solid var(--glass-border)',

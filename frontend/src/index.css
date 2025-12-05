@@ -87,7 +87,7 @@
        SIDEBAR TOKENS (Light Mode)
        ======================================================================== */
     --lcm-bg-sidebar: rgba(255, 255, 255, 0.82);
-    --lcm-backdrop-filter-sidebar: blur(30px) saturate(140%);
+    --lcm-backdrop-filter-sidebar: blur(30px);
     --lcm-primary-border: rgba(139, 92, 246, 0.15);
     --lcm-shadow-sidebar: 0 0 1px 0 rgba(0, 0, 0, 0.08), 2px 0 8px 0 rgba(0, 0, 0, 0.04);
     --lcm-sidebar-item-hover: rgba(139, 92, 246, 0.08);
@@ -265,7 +265,7 @@
        SIDEBAR TOKENS (Dark Mode) - Obsidian
        ======================================================================== */
     --lcm-bg-sidebar: rgba(23, 23, 23, 0.92);
-    --lcm-backdrop-filter-sidebar: blur(30px) saturate(120%);
+    --lcm-backdrop-filter-sidebar: blur(30px);
     --lcm-primary-border: rgba(255, 255, 255, 0.06);
     --lcm-shadow-sidebar: 0 0 1px 0 rgba(0, 0, 0, 0.5), 2px 0 12px 0 rgba(0, 0, 0, 0.4);
     --lcm-sidebar-item-hover: rgba(255, 255, 255, 0.06);

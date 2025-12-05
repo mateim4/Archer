@@ -139,8 +139,8 @@ const useStyles = makeStyles({
     margin: '20px',
     borderRadius: '20px',
     background: 'rgba(255, 255, 255, 0.15)',
-    backdropFilter: 'blur(20px) saturate(180%)',
-    WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+    backdropFilter: 'blur(20px)',
+    WebkitBackdropFilter: 'blur(20px)',
     border: '1px solid rgba(255, 255, 255, 0.25)',
     boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
     fontFamily: "'Oxanium', system-ui, sans-serif"

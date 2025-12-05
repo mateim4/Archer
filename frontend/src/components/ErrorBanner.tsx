@@ -48,8 +48,8 @@ const ErrorBanner: React.FC<ErrorBannerProps> = ({
         className="flex items-center p-4 rounded-lg border shadow-lg"
         style={{
           backgroundColor: typeStyles.backgroundColor,
-          backdropFilter: 'blur(20px) saturate(120%)',
-          WebkitBackdropFilter: 'blur(20px) saturate(120%)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
           borderColor: typeStyles.borderColor,
           borderRadius: 'var(--border-radius-lg)',
           boxShadow: 'inset 0 1px 0 0 rgba(255, 255, 255, 0.1), 0 8px 32px rgba(0, 0, 0, 0.1)'

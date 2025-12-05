@@ -232,8 +232,8 @@ export const PurpleGlassDrawer: React.FC<PurpleGlassDrawerProps> = ({
           width: drawerWidth,
           maxWidth: '100vw',
           background: 'var(--card-bg)',
-          backdropFilter: 'blur(40px) saturate(180%)',
-          WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+          backdropFilter: 'blur(40px)',
+          WebkitBackdropFilter: 'blur(40px)',
           borderLeft: position === 'right' 
             ? '1px solid var(--card-border)' 
             : 'none',

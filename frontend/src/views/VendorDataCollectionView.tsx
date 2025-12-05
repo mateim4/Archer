@@ -1829,7 +1829,7 @@ const VendorDataCollectionView: React.FC = () => {
                       borderRadius: '8px',
                       border: '1px solid rgba(0,0,0,0.1)',
                       background: basketSubTab === 'servers' ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(139, 92, 246, 0.15) 100%)' : 'transparent',
-                      backdropFilter: basketSubTab === 'servers' ? 'blur(20px) saturate(130%)' : 'none',
+                      backdropFilter: basketSubTab === 'servers' ? 'blur(20px)' : 'none',
                       color: basketSubTab === 'servers' ? 'var(--text-primary)' : 'var(--text-secondary)',
                       cursor: 'pointer'
                     }}
@@ -1843,7 +1843,7 @@ const VendorDataCollectionView: React.FC = () => {
                       borderRadius: '8px',
                       border: '1px solid rgba(0,0,0,0.1)',
                       background: basketSubTab === 'extensions' ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(139, 92, 246, 0.15) 100%)' : 'transparent',
-                      backdropFilter: basketSubTab === 'extensions' ? 'blur(20px) saturate(130%)' : 'none',
+                      backdropFilter: basketSubTab === 'extensions' ? 'blur(20px)' : 'none',
                       color: basketSubTab === 'extensions' ? 'var(--text-primary)' : 'var(--text-secondary)',
                       cursor: 'pointer'
                     }}
@@ -2174,7 +2174,7 @@ const VendorDataCollectionView: React.FC = () => {
         marginBottom: '24px',
         padding: '4px',
         background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.85) 0%, rgba(139, 92, 246, 0.12) 100%)',
-                    backdropFilter: 'blur(25px) saturate(140%)',
+                    backdropFilter: 'blur(25px)',
                     border: '1px solid rgba(255, 255, 255, 0.3)',
         borderRadius: '12px'
       }}>
@@ -2201,7 +2201,7 @@ const VendorDataCollectionView: React.FC = () => {
               cursor: 'pointer',
               transition: 'all 0.2s ease',
               background: activeTab === tab.id ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(139, 92, 246, 0.15) 100%)' : 'transparent',
-              backdropFilter: activeTab === tab.id ? 'blur(20px) saturate(130%)' : 'none',
+              backdropFilter: activeTab === tab.id ? 'blur(20px)' : 'none',
               color: activeTab === tab.id ? 'var(--text-primary)' : 'var(--text-secondary)',
               boxShadow: activeTab === tab.id ? '0 2px 4px rgba(0, 0, 0, 0.1)' : 'none'
             }}

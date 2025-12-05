@@ -35,12 +35,12 @@ const ConsistentCard: React.FC<ConsistentCardProps> = ({
   };
 
   const baseStyle: React.CSSProperties = {
-    background: 'rgba(255, 255, 255, 0.9)',
-    backdropFilter: 'blur(20px) saturate(150%)',
-    WebkitBackdropFilter: 'blur(20px) saturate(150%)',
-    border: '1px solid rgba(255, 255, 255, 0.3)',
+    background: 'var(--card-bg)',
+    backdropFilter: 'blur(20px)',
+    WebkitBackdropFilter: 'blur(20px)',
+    border: '1px solid var(--card-border)',
     borderRadius: '16px',
-    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.5)',
+    boxShadow: 'var(--card-shadow)',
     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
     overflow: allowOverflow ? 'visible' : 'hidden',
     cursor: onClick ? 'pointer' : 'default',
@@ -49,8 +49,8 @@ const ConsistentCard: React.FC<ConsistentCardProps> = ({
 
   const hoverStyle: React.CSSProperties = hover ? {
     transform: 'translateY(-2px)',
-    boxShadow: '0 16px 48px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.6)',
-    border: '1px solid rgba(255, 255, 255, 0.4)'
+    boxShadow: 'var(--card-shadow-hover)',
+    border: '1px solid var(--card-border-hover)'
   } : {};
 
   return (
