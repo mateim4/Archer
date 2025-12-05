@@ -497,6 +497,322 @@
 /* Staggered animation delays for lists */
 .stagger-1 { animation-delay: 50ms; }
 .stagger-2 { animation-delay: 100ms; }
+/* ========================================================================
+   STANDARDIZED BUTTON CLASSES
+   Use these classes for all buttons to ensure consistency.
+   Priority: Use PurpleGlassButton component > CSS classes > inline styles
+   ======================================================================== */
+
+/* Base button reset and shared styles */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 16px;
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.4;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  user-select: none;
+  text-decoration: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(1px) scale(0.98);
+}
+
+/* Size variants */
+.btn-sm {
+  padding: 4px 12px;
+  font-size: 12px;
+  min-height: 28px;
+  border-radius: 6px;
+}
+
+.btn-md {
+  padding: 8px 16px;
+  font-size: 14px;
+  min-height: 36px;
+}
+
+.btn-lg {
+  padding: 12px 24px;
+  font-size: 16px;
+  min-height: 44px;
+  border-radius: 10px;
+}
+
+/* PRIMARY - Purple gradient with glow */
+.btn-primary {
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+  border-color: var(--btn-primary-border);
+  box-shadow: var(--btn-primary-shadow);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--btn-primary-bg-hover);
+  box-shadow: var(--btn-primary-shadow-hover);
+  transform: translateY(-2px);
+}
+
+/* SECONDARY - Subtle purple tint */
+.btn-secondary {
+  background: var(--btn-secondary-bg);
+  color: var(--btn-secondary-text);
+  border-color: var(--btn-secondary-border);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: var(--btn-secondary-bg-hover);
+  transform: translateY(-1px);
+}
+
+/* GHOST - Transparent with hover fill */
+.btn-ghost {
+  background: var(--btn-ghost-bg);
+  color: var(--btn-ghost-text);
+  border-color: transparent;
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background: var(--btn-ghost-bg-hover);
+  color: var(--btn-ghost-text-hover);
+}
+
+/* OUTLINE - Border only */
+.btn-outline {
+  background: transparent;
+  color: var(--btn-outline-text);
+  border-color: var(--btn-outline-border);
+}
+
+.btn-outline:hover:not(:disabled) {
+  background: var(--btn-secondary-bg);
+}
+
+/* DANGER - Red for destructive actions */
+.btn-danger {
+  background: var(--status-critical);
+  color: white;
+  border-color: var(--status-critical);
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: #dc2626;
+  border-color: #dc2626;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+/* SUCCESS - Green for confirmations */
+.btn-success {
+  background: var(--status-success);
+  color: white;
+  border-color: var(--status-success);
+}
+
+.btn-success:hover:not(:disabled) {
+  background: #16a34a;
+  border-color: #16a34a;
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+/* LINK - Text-only button */
+.btn-link {
+  background: transparent;
+  color: var(--btn-outline-text);
+  border: none;
+  padding: 4px 8px;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.btn-link:hover:not(:disabled) {
+  color: var(--primary);
+}
+
+/* Icon-only button (square) */
+.btn-icon {
+  padding: 8px;
+  min-width: 36px;
+  width: 36px;
+  height: 36px;
+}
+
+.btn-icon.btn-sm {
+  padding: 4px;
+  min-width: 28px;
+  width: 28px;
+  height: 28px;
+}
+
+.btn-icon.btn-lg {
+  padding: 10px;
+  min-width: 44px;
+  width: 44px;
+  height: 44px;
+}
+
+/* Full width button */
+.btn-block {
+  width: 100%;
+}
+
+/* Glass effect modifier */
+.btn-glass {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Tab-style button (for tab bars) */
+.btn-tab {
+  background: transparent;
+  color: var(--tab-text);
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 8px 8px 0 0;
+  padding: 12px 20px;
+  font-weight: 500;
+}
+
+.btn-tab:hover:not(:disabled):not(.btn-tab-active) {
+  background: var(--tab-bg);
+  color: var(--tab-text-active);
+}
+
+.btn-tab-active,
+.btn-tab.active {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(139, 92, 246, 0.05) 100%);
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+  font-weight: 600;
+}
+
+/* Pill/chip style button */
+.btn-pill {
+  border-radius: 9999px;
+  padding: 6px 14px;
+}
+
+/* Loading state */
+.btn-loading {
+  position: relative;
+  color: transparent !important;
+  pointer-events: none;
+}
+
+.btn-loading::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+/* Button with badge/count */
+.btn-badge {
+  position: relative;
+}
+
+.btn-badge::after {
+  content: attr(data-count);
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  background: var(--status-critical);
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Filter/Toggle button */
+.btn-filter {
+  background: var(--tab-bg);
+  color: var(--text-secondary);
+  border: 1px solid var(--input-border);
+  padding: 8px 14px;
+}
+
+.btn-filter:hover:not(:disabled) {
+  border-color: var(--input-border-focus);
+}
+
+.btn-filter.active,
+.btn-filter-active {
+  background: var(--btn-secondary-bg);
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+/* Clear/dismiss button (minimal) */
+.btn-clear {
+  background: none;
+  border: none;
+  padding: 4px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.15s ease;
+}
+
+.btn-clear:hover {
+  opacity: 1;
+  color: var(--text-primary);
+}
+
+/* Dropdown trigger button */
+.btn-dropdown {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-primary);
+  padding: 8px 12px;
+  border-radius: 9999px;
+}
+
+.btn-dropdown:hover:not(:disabled) {
+  border-color: var(--input-border-focus);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+/* ========================================================================
+   STAGGERED ANIMATIONS
+   ======================================================================== */
+
+.stagger-1 { animation-delay: 50ms; }
+.stagger-2 { animation-delay: 100ms; }
 .stagger-3 { animation-delay: 150ms; }
 .stagger-4 { animation-delay: 200ms; }
 .stagger-5 { animation-delay: 250ms; }

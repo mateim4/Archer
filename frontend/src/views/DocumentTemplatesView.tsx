@@ -466,31 +466,7 @@ const DocumentTemplatesView: React.FC = () => {
                 width="100%"
               />
             </div>
-            <button
-              style={{
-                background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-                color: 'white',
-                border: 'none',
-                padding: '10px 20px',
-                borderRadius: '8px',
-                fontSize: '14px',
-                fontWeight: '600',
-                fontFamily: DesignTokens.typography.fontFamily,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                transition: 'all 0.2s ease'
-              }}
-              onMouseOver={(e) => {
-                e.currentTarget.style.transform = 'translateY(-2px)';
-                e.currentTarget.style.boxShadow = '0 4px 12px rgba(99, 102, 241, 0.4)';
-              }}
-              onMouseOut={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = 'none';
-              }}
-            >
+            <button className="btn btn-primary">
               <ArrowUploadRegular style={{ marginRight: '8px' }} />Upload Template
             </button>
           </div>
@@ -596,47 +572,20 @@ const DocumentTemplatesView: React.FC = () => {
             <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
               <button
                 onClick={() => handlePreviewTemplate(template)}
-                style={{
-                  padding: '6px 12px',
-                  border: '1px solid rgba(99, 102, 241, 0.3)',
-                  background: 'transparent',
-                  color: '#6366f1',
-                  borderRadius: '6px',
-                  fontSize: '12px',
-                  cursor: 'pointer',
-                  fontFamily: DesignTokens.typography.fontFamily
-                }}
+                className="btn btn-outline btn-sm"
                 title="Preview Template"
               >
                 <EyeRegular style={{ marginRight: '4px' }} />Preview
               </button>
               <button
                 onClick={() => handleEditTemplate(template)}
-                style={{
-                  padding: '6px 12px',
-                  border: '1px solid rgba(99, 102, 241, 0.3)',
-                  background: 'transparent',
-                  color: '#6366f1',
-                  borderRadius: '6px',
-                  fontSize: '12px',
-                  cursor: 'pointer',
-                  fontFamily: DesignTokens.typography.fontFamily
-                }}
+                className="btn btn-outline btn-sm"
                 title="Edit Template"
               >
                 <EditRegular style={{ marginRight: '4px' }} />Edit
               </button>
               <button
-                style={{
-                  padding: '6px 12px',
-                  border: '1px solid rgba(16, 185, 129, 0.3)',
-                  background: 'transparent',
-                  color: '#10b981',
-                  borderRadius: '6px',
-                  fontSize: '12px',
-                  cursor: 'pointer',
-                  fontFamily: DesignTokens.typography.fontFamily
-                }}
+                className="btn btn-success btn-sm"
                 title="Download"
               >
                 <ArrowDownloadRegular style={{ marginRight: '4px' }} />Download

@@ -483,28 +483,8 @@ export default function ProjectsView() {
                       >
                         <button
                           onClick={(e) => handleMenuToggle(extractProjectId(project.id), e)}
-                          style={{
-                            width: '36px',
-                            height: '36px',
-                            borderRadius: '8px',
-                            border: '1px solid var(--card-border)',
-                            background: 'var(--btn-ghost-bg)',
-                            color: 'var(--text-primary)',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            transition: 'all 0.2s ease',
-                            fontSize: '20px'
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.background = 'var(--btn-ghost-bg-hover)';
-                            e.currentTarget.style.borderColor = 'var(--card-border-hover)';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.background = 'var(--btn-ghost-bg)';
-                            e.currentTarget.style.borderColor = 'var(--card-border)';
-                          }}
+                          className="btn btn-icon btn-ghost"
+                          style={{ border: '1px solid var(--card-border)' }}
                         >
                           <MoreVerticalRegular />
                         </button>

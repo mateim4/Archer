@@ -350,20 +350,6 @@ const AssetDetailView: React.FC = () => {
     gap: '16px',
   };
 
-  const tabStyle = (isActive: boolean): React.CSSProperties => ({
-    padding: '12px 20px',
-    background: isActive 
-      ? 'var(--btn-secondary-bg)'
-      : 'transparent',
-    border: 'none',
-    borderBottom: isActive ? '2px solid #6B4CE6' : '2px solid transparent',
-    color: isActive ? '#6B4CE6' : 'var(--text-muted)',
-    fontSize: '14px',
-    fontWeight: isActive ? 600 : 500,
-    cursor: 'pointer',
-    transition: 'all 150ms ease',
-  });
-
   const metricCardStyle: React.CSSProperties = {
     padding: '20px',
     background: 'var(--card-bg)',
@@ -533,23 +519,43 @@ const AssetDetailView: React.FC = () => {
           display: 'flex', 
           borderBottom: '1px solid var(--divider-color)',
         }}>
-          <button style={tabStyle(activeTab === 'overview')} onClick={() => setActiveTab('overview')}>
+          <button 
+            className="btn-tab" 
+            data-active={activeTab === 'overview' || undefined}
+            onClick={() => setActiveTab('overview')}
+          >
             <InfoRegular style={{ marginRight: '8px' }} />
             Overview
           </button>
-          <button style={tabStyle(activeTab === 'metrics')} onClick={() => setActiveTab('metrics')}>
+          <button 
+            className="btn-tab" 
+            data-active={activeTab === 'metrics' || undefined}
+            onClick={() => setActiveTab('metrics')}
+          >
             <ChartMultipleRegular style={{ marginRight: '8px' }} />
             Metrics
           </button>
-          <button style={tabStyle(activeTab === 'dependencies')} onClick={() => setActiveTab('dependencies')}>
+          <button 
+            className="btn-tab" 
+            data-active={activeTab === 'dependencies' || undefined}
+            onClick={() => setActiveTab('dependencies')}
+          >
             <LinkRegular style={{ marginRight: '8px' }} />
             Dependencies ({(asset.dependencies?.upstream.length || 0) + (asset.dependencies?.downstream.length || 0)})
           </button>
-          <button style={tabStyle(activeTab === 'tickets')} onClick={() => setActiveTab('tickets')}>
+          <button 
+            className="btn-tab" 
+            data-active={activeTab === 'tickets' || undefined}
+            onClick={() => setActiveTab('tickets')}
+          >
             <DocumentRegular style={{ marginRight: '8px' }} />
             Tickets ({asset.relatedTickets?.length || 0})
           </button>
-          <button style={tabStyle(activeTab === 'history')} onClick={() => setActiveTab('history')}>
+          <button 
+            className="btn-tab" 
+            data-active={activeTab === 'history' || undefined}
+            onClick={() => setActiveTab('history')}
+          >
             <HistoryRegular style={{ marginRight: '8px' }} />
             History
           </button>

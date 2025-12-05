@@ -243,19 +243,8 @@ const ProjectCard: React.FC<{
             e.stopPropagation();
             onView(project);
           }}
-          style={{
-            background: 'linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%)',
-            borderRadius: '12px',
-            padding: '12px 16px',
-            color: 'white',
-            fontWeight: '600',
-            fontSize: '14px',
-            width: '100%',
-            transition: 'all 0.2s ease',
-            border: 'none',
-            cursor: 'pointer'
-          }}
-          className="hover:scale-105 hover:shadow-lg flex items-center justify-center space-x-2"
+          className="btn btn-primary btn-block"
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
         >
           <Eye className="w-4 h-4" />
           <span>Open Project</span>
@@ -399,18 +388,8 @@ const ProjectManagementView: React.FC = () => {
             </div>
             <button
               onClick={() => setIsCreateModalOpen(true)}
-              style={{
-                background: 'linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%)',
-                borderRadius: '16px',
-                padding: '16px 24px',
-                color: 'white',
-                fontWeight: '600',
-                fontSize: '16px',
-                border: 'none',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease'
-              }}
-              className="hover:scale-105 hover:shadow-xl flex items-center space-x-3"
+              className="btn btn-primary btn-lg"
+              style={{ display: 'flex', alignItems: 'center', gap: '12px' }}
             >
               <Plus className="w-5 h-5" />
               <span>New Project</span>
@@ -454,16 +433,8 @@ const ProjectManagementView: React.FC = () => {
             <div className="flex items-center space-x-3">
               <button
                 onClick={() => handleSort('name')}
-                style={{
-                  background: 'rgba(255, 255, 255, 0.8)',
-                  border: '1px solid rgba(255, 255, 255, 0.3)',
-                  borderRadius: '12px',
-                  padding: '10px 16px',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  backdropFilter: 'blur(10px)'
-                }}
-                className="hover:bg-white/90 transition-all flex items-center space-x-2"
+                className="btn btn-secondary btn-glass"
+                style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
               >
                 <span>Name</span>
                 <ArrowUpDown className="w-4 h-4" />
@@ -471,16 +442,8 @@ const ProjectManagementView: React.FC = () => {
 
               <button
                 onClick={() => handleSort('updated_at')}
-                style={{
-                  background: 'rgba(255, 255, 255, 0.8)',
-                  border: '1px solid rgba(255, 255, 255, 0.3)',
-                  borderRadius: '12px',
-                  padding: '10px 16px',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  backdropFilter: 'blur(10px)'
-                }}
-                className="hover:bg-white/90 transition-all flex items-center space-x-2"
+                className="btn btn-secondary btn-glass"
+                style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
               >
                 <span>Updated</span>
                 <ArrowUpDown className="w-4 h-4" />
@@ -553,17 +516,8 @@ const ProjectManagementView: React.FC = () => {
               {projects.length === 0 && (
                 <button
                   onClick={() => setIsCreateModalOpen(true)}
-                  style={{
-                    background: 'linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%)',
-                    borderRadius: '16px',
-                    padding: '16px 32px',
-                    color: 'white',
-                    fontWeight: '600',
-                    fontSize: '16px',
-                    border: 'none',
-                    cursor: 'pointer'
-                  }}
-                  className="hover:scale-105 hover:shadow-xl transition-all flex items-center space-x-3"
+                  className="btn btn-primary btn-lg"
+                  style={{ display: 'flex', alignItems: 'center', gap: '12px' }}
                 >
                   <Plus className="w-5 h-5" />
                   <span>Create Your First Project</span>

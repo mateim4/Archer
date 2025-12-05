@@ -721,34 +721,10 @@ const AlertCard: React.FC<{
               gap: '8px',
               marginTop: '12px',
             }}>
-              <button
-                onClick={onAcknowledge}
-                style={{
-                  padding: '6px 12px',
-                  fontSize: '12px',
-                  fontWeight: 500,
-                  borderRadius: '6px',
-                  border: 'none',
-                  background: 'var(--btn-secondary-bg)',
-                  color: 'var(--btn-secondary-text)',
-                  cursor: 'pointer',
-                }}
-              >
+              <button onClick={onAcknowledge} className="btn btn-sm btn-secondary">
                 Acknowledge
               </button>
-              <button
-                onClick={onCreateTicket}
-                style={{
-                  padding: '6px 12px',
-                  fontSize: '12px',
-                  fontWeight: 500,
-                  borderRadius: '6px',
-                  border: 'none',
-                  background: 'var(--brand-primary)',
-                  color: 'var(--text-on-primary)',
-                  cursor: 'pointer',
-                }}
-              >
+              <button onClick={onCreateTicket} className="btn btn-sm btn-primary">
                 Create Ticket
               </button>
             </div>
@@ -860,20 +836,8 @@ export const DashboardView: React.FC = () => {
           <button
             onClick={handleRefresh}
             disabled={isRefreshing}
-            style={{
-              padding: '8px 16px',
-              fontSize: '13px',
-              fontWeight: 500,
-              borderRadius: '8px',
-              border: 'none',
-              background: '#6B4CE6',
-              color: 'white',
-              cursor: isRefreshing ? 'not-allowed' : 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              opacity: isRefreshing ? 0.7 : 1,
-            }}
+            className={`btn btn-primary ${isRefreshing ? 'btn-loading' : ''}`}
+            style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
           >
             <ArrowSyncRegular style={{
               fontSize: '16px',
@@ -979,19 +943,7 @@ export const DashboardView: React.FC = () => {
             </div>
             <button
               onClick={() => navigate('/app/service-desk?assignee=me')}
-              style={{
-                padding: '6px 12px',
-                fontSize: '12px',
-                fontWeight: 500,
-                borderRadius: '6px',
-                border: 'none',
-                background: 'transparent',
-                color: 'var(--text-primary)',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px',
-              }}
+              className="btn btn-sm btn-ghost"
             >
               View All
               <ChevronRightRegular style={{ fontSize: '14px' }} />
@@ -1106,19 +1058,8 @@ export const DashboardView: React.FC = () => {
             </div>
             <button
               onClick={() => navigate('/app/monitoring')}
-              style={{
-                padding: '6px 12px',
-                fontSize: '12px',
-                fontWeight: 500,
-                borderRadius: '6px',
-                border: 'none',
-                background: 'transparent',
-                color: '#6B4CE6',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px',
-              }}
+              className="btn btn-sm btn-ghost"
+              style={{ color: 'var(--primary)' }}
             >
               View Monitoring
               <ChevronRightRegular style={{ fontSize: '14px' }} />

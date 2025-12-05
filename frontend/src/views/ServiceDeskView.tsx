@@ -322,44 +322,21 @@ const ServiceDeskView: React.FC = () => {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '12px 20px',
-                background: activeTab === tab.id 
-                  ? `linear-gradient(135deg, ${DesignTokens.colors.primary}15 0%, ${DesignTokens.colors.primary}08 100%)`
-                  : 'transparent',
-                border: 'none',
-                borderBottom: activeTab === tab.id 
-                  ? `2px solid ${DesignTokens.colors.primary}`
-                  : '2px solid transparent',
-                borderRadius: '8px 8px 0 0',
-                cursor: 'pointer',
-                color: activeTab === tab.id 
-                  ? DesignTokens.colors.primary 
-                  : 'var(--text-secondary)',
-                fontWeight: activeTab === tab.id 
-                  ? DesignTokens.typography.semibold 
-                  : DesignTokens.typography.medium,
-                fontSize: DesignTokens.typography.sm,
-                fontFamily: DesignTokens.typography.fontFamily,
-                transition: 'all 0.2s ease',
-              }}
+              className={`btn-tab ${activeTab === tab.id ? 'btn-tab-active' : ''}`}
             >
               {tab.icon}
               <span>{tab.label}</span>
               <span style={{
                 padding: '2px 8px',
-                borderRadius: DesignTokens.borderRadius.full,
+                borderRadius: '9999px',
                 background: activeTab === tab.id 
-                  ? `${DesignTokens.colors.primary}20`
+                  ? 'rgba(139, 92, 246, 0.15)'
                   : 'var(--tab-bg)',
-                fontSize: DesignTokens.typography.xs,
+                fontSize: '12px',
                 color: activeTab === tab.id 
-                  ? DesignTokens.colors.primary 
+                  ? 'var(--primary)' 
                   : 'var(--text-primary)',
-                fontWeight: DesignTokens.typography.medium,
+                fontWeight: 500,
               }}>
                 {ticketCounts[tab.id as keyof typeof ticketCounts]}
               </span>
@@ -423,14 +400,8 @@ const ServiceDeskView: React.FC = () => {
                 {advancedFilters.priority.length + advancedFilters.slaStatus.length + (advancedFilters.dateRange !== 'all' ? 1 : 0)} filters active
                 <button
                   onClick={() => setAdvancedFilters({ priority: [], assignee: '', dateRange: 'all', slaStatus: [] })}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    padding: '2px',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    color: DesignTokens.colors.primary,
-                  }}
+                  className="btn-clear"
+                  style={{ color: 'var(--primary)' }}
                 >
                   <DismissRegular style={{ fontSize: '12px' }} />
                 </button>
