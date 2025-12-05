@@ -26,8 +26,6 @@ import {
   DismissRegular,
   ChevronDownRegular,
   ChevronRightRegular,
-  DataAreaRegular,
-  DataAreaFilled,
   PlugConnectedRegular,
   PlugConnectedFilled,
 } from '@fluentui/react-icons';
@@ -106,16 +104,7 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
       title: 'Monitoring', 
       icon: <DiagramRegular />, 
       iconFilled: <DiagramFilled />, 
-      path: '/app/monitoring',
-      subItems: [
-        {
-          id: 'capacity-visualizer',
-          title: 'Capacity Visualizer',
-          icon: <DataAreaRegular />,
-          iconFilled: <DataAreaFilled />,
-          path: '/app/capacity-visualizer'
-        }
-      ]
+      path: '/app/monitoring'
     },
     { 
       id: 'guides', 

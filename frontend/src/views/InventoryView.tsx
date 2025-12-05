@@ -114,7 +114,7 @@ const InventoryView: React.FC = () => {
                     <div 
                       className="p-2 rounded-md"
                       style={{ 
-                        background: 'rgba(255,255,255,0.05)', 
+                        background: 'var(--btn-secondary-bg)', 
                         color: getStatusColor(asset.status || 'HEALTHY') 
                       }}
                     >
@@ -123,18 +123,18 @@ const InventoryView: React.FC = () => {
                     <div className="flex-1 min-w-0">
                       <h3 
                         className="font-medium truncate"
-                        style={{ color: 'var(--colorNeutralForeground1, #ffffff)' }}
+                        style={{ color: 'var(--text-primary)' }}
                       >
                         {asset.name}
                       </h3>
                       <p 
                         className="text-xs"
-                        style={{ color: 'var(--colorNeutralForeground3, rgba(255,255,255,0.4))' }}
+                        style={{ color: 'var(--text-muted)' }}
                       >
                         {asset.asset_type} • {asset.external_id || 'No ID'}
                       </p>
                     </div>
-                    <ChevronRightRegular style={{ color: 'var(--colorNeutralForeground3, rgba(255,255,255,0.3))' }} />
+                    <ChevronRightRegular style={{ color: 'var(--text-muted)' }} />
                   </div>
                 </PurpleGlassCard>
               ))}
@@ -152,7 +152,7 @@ const InventoryView: React.FC = () => {
                       <div 
                         className="p-3 rounded-xl text-2xl"
                         style={{ 
-                          background: 'rgba(255,255,255,0.1)', 
+                          background: 'var(--btn-secondary-bg)', 
                           color: getStatusColor(selectedAsset.status || 'HEALTHY') 
                         }}
                       >
@@ -161,18 +161,18 @@ const InventoryView: React.FC = () => {
                       <div>
                         <h2 
                           className="text-2xl font-bold"
-                          style={{ color: 'var(--colorNeutralForeground1, #ffffff)' }}
+                          style={{ color: 'var(--text-primary)' }}
                         >
                           {selectedAsset.name}
                         </h2>
                         <div 
                           className="flex items-center gap-2 text-sm mt-1"
-                          style={{ color: 'var(--colorNeutralForeground2, rgba(255,255,255,0.6))' }}
+                          style={{ color: 'var(--text-secondary)' }}
                         >
                           <span 
                             className="px-2 py-0.5 rounded-full text-xs font-medium"
                             style={{ 
-                              background: 'rgba(255,255,255,0.1)', 
+                              background: 'var(--btn-secondary-bg)', 
                               color: getStatusColor(selectedAsset.status || 'HEALTHY') 
                             }}
                           >
@@ -248,17 +248,17 @@ const InventoryView: React.FC = () => {
 const StatBox: React.FC<{ label: string; value: string; icon: React.ReactNode }> = ({ label, value, icon }) => (
   <PurpleGlassCard glass variant="subtle" className="p-3">
     <div className="flex items-center gap-3">
-      <div style={{ color: 'var(--colorNeutralForeground3, rgba(255,255,255,0.4))' }}>{icon}</div>
+      <div style={{ color: 'var(--text-muted)' }}>{icon}</div>
       <div>
         <div 
           className="text-xs uppercase tracking-wider"
-          style={{ color: 'var(--colorNeutralForeground3, rgba(255,255,255,0.4))' }}
+          style={{ color: 'var(--text-muted)' }}
         >
           {label}
         </div>
         <div 
           className="font-bold text-lg"
-          style={{ color: 'var(--colorNeutralForeground1, #ffffff)' }}
+          style={{ color: 'var(--text-primary)' }}
         >
           {value}
         </div>
@@ -271,25 +271,25 @@ const RelationshipItem: React.FC<{ type: string; name: string; icon: React.React
   <div 
     className="flex items-center gap-3 p-2 rounded transition-colors cursor-pointer"
     style={{ background: 'transparent' }}
-    onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+    onMouseEnter={(e) => e.currentTarget.style.background = 'var(--card-bg-hover)'}
     onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
   >
-    <div style={{ color: 'var(--colorNeutralForeground2, rgba(255,255,255,0.6))' }}>{icon}</div>
+    <div style={{ color: 'var(--text-secondary)' }}>{icon}</div>
     <div className="flex-1">
       <div 
         className="font-medium"
-        style={{ color: 'var(--colorNeutralForeground1, #ffffff)' }}
+        style={{ color: 'var(--text-primary)' }}
       >
         {name}
       </div>
       <div 
         className="text-xs"
-        style={{ color: 'var(--colorNeutralForeground3, rgba(255,255,255,0.4))' }}
+        style={{ color: 'var(--text-muted)' }}
       >
         {type}
       </div>
     </div>
-    <ChevronRightRegular style={{ color: 'var(--colorNeutralForeground3, rgba(255,255,255,0.2))' }} />
+    <ChevronRightRegular style={{ color: 'var(--text-muted)' }} />
   </div>
 );
 

@@ -300,7 +300,11 @@ const createMockData = (): ClusterData[] => {
   return clusters;
 };
 
-export const CapacityVisualizerView: React.FC = () => {
+interface CapacityVisualizerViewProps {
+  embedded?: boolean;
+}
+
+export const CapacityVisualizerView: React.FC<CapacityVisualizerViewProps> = ({ embedded = false }) => {
   const styles = useStyles();
 
   // Load persisted state from localStorage or use defaults
@@ -713,17 +717,24 @@ export const CapacityVisualizerView: React.FC = () => {
   }, []);
 
   return (
-    <div className={styles.container} data-testid="capacity-visualizer" aria-label="Capacity Visualizer">
+    <div 
+      className={styles.container} 
+      data-testid="capacity-visualizer" 
+      aria-label="Capacity Visualizer"
+      style={embedded ? { padding: '24px', minHeight: '100%' } : undefined}
+    >
       <h1 style={{position:'absolute', width:0, height:0, overflow:'hidden', clip:'rect(0 0 0 0)'}}>Capacity Visualizer</h1>
-      {/* Header */}
-      <div className={styles.header}>
-        <Title2 style={DesignTokens.components.standardTitle}>
-          Interactive Capacity Visualizer
-        </Title2>
-        <Text style={DesignTokens.components.standardSubtitle}>
-          Simulate VM workload migrations and visualize capacity utilization in real-time
-        </Text>
-      </div>
+      {/* Header - hide when embedded since MonitoringView has its own header */}
+      {!embedded && (
+        <div className={styles.header}>
+          <Title2 style={DesignTokens.components.standardTitle}>
+            Interactive Capacity Visualizer
+          </Title2>
+          <Text style={DesignTokens.components.standardSubtitle}>
+            Simulate VM workload migrations and visualize capacity utilization in real-time
+          </Text>
+        </div>
+      )}
 
       {/* Canvas Section - takes full width below controls */}
       <div className={styles.canvasSection}>
@@ -789,3 +800,5 @@ export const CapacityVisualizerView: React.FC = () => {
     </div>
   );
 };
+
+export default CapacityVisualizerView;

@@ -354,11 +354,11 @@ const ServiceDeskView: React.FC = () => {
                 borderRadius: DesignTokens.borderRadius.full,
                 background: activeTab === tab.id 
                   ? `${DesignTokens.colors.primary}20`
-                  : DesignTokens.colors.gray100,
+                  : 'var(--tab-bg)',
                 fontSize: DesignTokens.typography.xs,
                 color: activeTab === tab.id 
                   ? DesignTokens.colors.primary 
-                  : DesignTokens.colors.textMuted,
+                  : 'var(--text-primary)',
                 fontWeight: DesignTokens.typography.medium,
               }}>
                 {ticketCounts[tab.id as keyof typeof ticketCounts]}

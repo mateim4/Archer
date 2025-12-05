@@ -25,7 +25,8 @@ import {
   DataPieRegular,
   OrganizationRegular,
   InfoRegular,
-  PulseRegular
+  PulseRegular,
+  DataAreaRegular
 } from '@fluentui/react-icons';
 import { 
   LineChart, 
@@ -45,8 +46,9 @@ import { MonitoringAlert, getMockAlerts } from '../utils/mockMonitoringData';
 import { InfraVisualizerCanvas } from '@/components/infra-visualizer';
 import { useInfraVisualizerStore } from '@/stores/useInfraVisualizerStore';
 import { DesignTokens } from '../styles/designSystem';
+import CapacityVisualizerView from './CapacityVisualizerView';
 
-type MonitoringTab = 'metrics' | 'topology';
+type MonitoringTab = 'metrics' | 'topology' | 'capacity';
 
 const MonitoringView: React.FC = () => {
   const [assets, setAssets] = useState<Asset[]>([]);
@@ -227,6 +229,12 @@ const MonitoringView: React.FC = () => {
             onClick={() => setActiveTab('topology')}
             icon={<OrganizationRegular />}
             label="Infrastructure Topology"
+          />
+          <TabButton 
+            isActive={activeTab === 'capacity'} 
+            onClick={() => setActiveTab('capacity')}
+            icon={<DataAreaRegular />}
+            label="Capacity Visualizer"
           />
         </div>
 
@@ -434,7 +442,7 @@ const MonitoringView: React.FC = () => {
               </div>
             </PurpleGlassCard>
           </>
-        ) : (
+        ) : activeTab === 'topology' ? (
           /* Topology Tab Content */
           <div className="flex-1 flex flex-col gap-4 min-h-0">
             {/* Topology View with Infrastructure Visualizer */}
@@ -489,6 +497,11 @@ const MonitoringView: React.FC = () => {
                 color={purplePalette.warning}
               />
             </div>
+          </div>
+        ) : (
+          /* Capacity Visualizer Tab Content */
+          <div className="flex-1 min-h-0 -mx-6 -mb-6">
+            <CapacityVisualizerView embedded />
           </div>
         )}
       </div>
