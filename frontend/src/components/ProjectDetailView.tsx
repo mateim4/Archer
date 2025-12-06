@@ -195,12 +195,12 @@ const WorkflowKanban: React.FC<{ workflow: Workflow }> = ({ workflow }) => {
       <div className="grid grid-cols-4 gap-4">
         {statuses.map(status => (
           <div key={status}>
-            <h4 className="font-medium text-gray-600 mb-2">{status.replace(/([A-Z])/g, ' $1').trim()}</h4>
-            <div className="bg-gray-100 p-2 rounded-lg min-h-100">
+            <h4 style={{ fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '8px' }}>{status.replace(/([A-Z])/g, ' $1').trim()}</h4>
+            <div style={{ background: 'var(--card-bg)', padding: '8px', borderRadius: '8px', minHeight: '100px', border: '1px solid var(--card-border)' }}>
               {workflow.stages
                 .filter((stage: Stage) => stage.status === status)
                 .map((stage: Stage) => (
-                  <div key={stage.id} className="bg-white p-2 rounded shadow-sm mb-2">
+                  <div key={stage.id} style={{ background: 'var(--glass-bg)', padding: '8px', borderRadius: '4px', marginBottom: '8px', boxShadow: 'var(--card-shadow)' }}>
                     {stage.name}
                   </div>
                 ))}
@@ -382,7 +382,7 @@ const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({ projectId, onBack
         </div>
         <div className="lcm-card p-6">
           <h2 className="text-xl font-semibold mb-2">Unable to load project</h2>
-          <p className="text-gray-600">{loadError || 'Unknown error'}</p>
+          <p style={{ color: 'var(--text-secondary)' }}>{loadError || 'Unknown error'}</p>
         </div>
       </div>
     );
@@ -405,7 +405,7 @@ const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({ projectId, onBack
       <div className="p-6" data-testid="project-detail-view">
         <div className="mb-6" data-testid="project-metadata">
           <h1 className="text-3xl font-bold mb-2">{project.name}</h1>
-          <p className="text-gray-600 mb-4">{project.description}</p>
+          <p style={{ color: 'var(--text-secondary)', marginBottom: '16px' }}>{project.description}</p>
           
           {/* Project Timeline Section */}
           <div className="mb-8" data-testid="project-timeline">
@@ -439,35 +439,42 @@ const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({ projectId, onBack
             </div>
             <div className="bg-gray-50 p-4 rounded-lg">
               <div className="flex items-center space-x-4 mb-4" data-testid="timeline-progress">
-                <div className="w-full bg-gray-200 rounded-full h-2">
+                <div style={{ width: '100%', background: 'var(--card-border)', borderRadius: '9999px', height: '8px' }}>
                   <div className="bg-blue-600 h-2 rounded-full" style={{ width: '45%' }}></div>
                 </div>
-                <span className="text-sm text-gray-600">45% Complete</span>
+                <span style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>45% Complete</span>
               </div>
               
               {/* Timeline Points */}
               <div className="space-y-2">
                 {activities.length === 0 ? (
-                  <div className="text-sm text-gray-600">No activities yet.</div>
+                  <div style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>No activities yet.</div>
                 ) : (
                   activities.map((act) => (
-                    <div key={act.id} className="flex items-center justify-between p-2 bg-white rounded border">
+                    <div key={act.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px', background: 'var(--card-bg)', borderRadius: '4px', border: '1px solid var(--card-border)' }}>
                       <div className="flex items-center gap-2">
                         <ActivityStatusBadge status={act.status} />
                         <span className="text-sm font-medium">{act.name || 'Untitled Activity'}</span>
                         {act.start_date && (
-                          <span className="text-xs text-gray-500">{new Date(act.start_date).toLocaleDateString()}</span>
+                          <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{new Date(act.start_date).toLocaleDateString()}</span>
                         )}
                         {act.end_date && (
-                          <span className="text-xs text-gray-400">→ {new Date(act.end_date).toLocaleDateString()}</span>
+                          <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>→ {new Date(act.end_date).toLocaleDateString()}</span>
                         )}
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className="text-xs text-gray-600">
+                        <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
                           {act.assignee_id ? `Assignee: ${act.assignee_id}` : 'Unassigned'}
                         </span>
                         <select
-                          className="border rounded text-xs px-2 py-1"
+                          style={{ 
+                            border: '1px solid var(--card-border)', 
+                            borderRadius: '4px', 
+                            fontSize: '12px', 
+                            padding: '4px 8px',
+                            background: 'var(--card-bg)',
+                            color: 'var(--text-primary)'
+                          }}
                           value={act.status || 'pending'}
                           onChange={async (e) => {
                             const newStatus = e.target.value;
@@ -503,7 +510,7 @@ const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({ projectId, onBack
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="lcm-card p-4">
                 <h3 className="font-medium mb-2">Design Documents</h3>
-                <ul className="text-sm text-gray-600 space-y-1">
+                <ul style={{ fontSize: '14px', color: 'var(--text-secondary)' }} className="space-y-1">
                   <li>• Network Topology Diagram</li>
                   <li>• System Architecture Design</li>
                   <li>• Security Implementation Plan</li>
@@ -512,7 +519,7 @@ const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({ projectId, onBack
               </div>
               <div className="lcm-card p-4">
                 <h3 className="font-medium mb-2">Bill of Materials</h3>
-                <ul className="text-sm text-gray-600 space-y-1">
+                <ul style={{ fontSize: '14px', color: 'var(--text-secondary)' }} className="space-y-1">
                   <li>• Server specifications (Dell R750)</li>
                   <li>• Network equipment (HPE switches)</li>
                   <li>• Storage arrays (Pure Storage)</li>
@@ -521,7 +528,7 @@ const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({ projectId, onBack
               </div>
               <div className="lcm-card p-4">
                 <h3 className="font-medium mb-2">Sizing Results</h3>
-                <ul className="text-sm text-gray-600 space-y-1">
+                <ul style={{ fontSize: '14px', color: 'var(--text-secondary)' }} className="space-y-1">
                   <li>• Compute capacity analysis</li>
                   <li>• Storage sizing calculations</li>
                   <li>• Network bandwidth requirements</li>
@@ -543,7 +550,7 @@ const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({ projectId, onBack
               )}
               <div className="space-y-3" data-testid="server-availability">
                 {/* Create Allocation mini-form */}
-                <div className="flex flex-wrap gap-2 p-2 bg-white rounded border">
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', padding: '8px', background: 'var(--card-bg)', borderRadius: '4px', border: '1px solid var(--card-border)' }}>
                   <input
                     className="lcm-input border rounded px-2 py-1 text-sm"
                     placeholder="Server ID (e.g. hardware_pool:server_01)"
@@ -574,12 +581,12 @@ const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({ projectId, onBack
                   <div className="text-sm text-red-600 p-2">{allocError}</div>
                 )}
                 {allocations.length === 0 ? (
-                  <div className="text-sm text-gray-600">No hardware allocations.</div>
+                  <div style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>No hardware allocations.</div>
                 ) : (
                   allocations.map((al) => (
-                    <div key={al.id} className="flex justify-between items-center p-2 bg-white rounded border">
+                    <div key={al.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px', background: 'var(--card-bg)', borderRadius: '4px', border: '1px solid var(--card-border)' }}>
                       <span className="font-medium">{al.server_id}</span>
-                      <div className="text-sm text-gray-600">
+                      <div style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
                         <span className="mr-4">Start: {al.allocation_start ? new Date(al.allocation_start).toLocaleString() : 'N/A'}</span>
                         <span>End: {al.allocation_end ? new Date(al.allocation_end).toLocaleString() : 'Open'}</span>
                       </div>
@@ -598,7 +605,7 @@ const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({ projectId, onBack
             <h2 className="text-xl font-semibold mb-4">Assigned Users</h2>
             <div className="flex flex-wrap gap-3">
               {users.length === 0 ? (
-                <span className="text-sm text-gray-600">No users.</span>
+                <span style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>No users.</span>
               ) : (
                 users.map((u) => (
                   <div key={u.id} className="flex items-center space-x-2">
@@ -629,7 +636,7 @@ const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({ projectId, onBack
 
           {/* Custom Step Form */}
           {showStepForm && (
-            <div className="mb-4 p-4 border rounded bg-gray-50 step-form">
+            <div style={{ marginBottom: '16px', padding: '16px', border: '1px solid var(--card-border)', borderRadius: '4px', background: 'var(--card-bg)' }} className="step-form">
               <div className="space-y-3">
                 <input
                   type="text"
@@ -637,7 +644,7 @@ const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({ projectId, onBack
                   value={newStepName}
                   onChange={(e) => setNewStepName(e.target.value)}
                   placeholder="Enter step name..."
-                  className="w-full p-2 border rounded"
+                  style={{ width: '100%', padding: '8px', border: '1px solid var(--card-border)', borderRadius: '4px', background: 'var(--card-bg)', color: 'var(--text-primary)' }}
                 />
                 <div className="flex space-x-2">
                   <button
@@ -648,7 +655,7 @@ const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({ projectId, onBack
                   </button>
                   <button
                     onClick={() => setShowStepForm(false)}
-                    className="px-4 py-2 bg-gray-300 text-sm rounded"
+                    style={{ padding: '8px 16px', background: 'var(--card-bg)', border: '1px solid var(--card-border)', fontSize: '14px', borderRadius: '4px', color: 'var(--text-primary)' }}
                   >
                     Cancel
                   </button>
@@ -658,7 +665,7 @@ const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({ projectId, onBack
           )}
 
           <div className="lcm-card p-4">
-            <p className="text-sm text-gray-600">Workflows UI will appear here once defined for this project.</p>
+            <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>Workflows UI will appear here once defined for this project.</p>
           </div>
         </div>
       </div>

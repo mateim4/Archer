@@ -818,21 +818,22 @@ select:focus-visible,
 }
 
 .fluent2-badge-success {
-  background: rgba(16, 124, 16, 0.1);
-  color: #107C10;
-  border: 1px solid rgba(16, 124, 16, 0.2);
+  background: var(--badge-green-bg);
+  color: var(--badge-green-text);
+  border: 1px solid var(--badge-green-text);
 }
 
 .fluent2-badge-warning {
-  background: rgba(255, 192, 0, 0.1);
-  color: #F7630C;
-  border: 1px solid rgba(255, 192, 0, 0.2);
+  background: var(--badge-warning-bg);
+  color: var(--badge-warning-text);
+  border: 1px solid var(--badge-warning-text);
 }
 
 .fluent2-badge-danger {
-  background: rgba(196, 43, 28, 0.1);
-  color: #C42B1C;
-  border: 1px solid rgba(196, 43, 28, 0.2);
+  background: var(--badge-red-bg);
+  color: var(--badge-red-text);
+  border: 1px solid var(--badge-red-text);
+  border-opacity: 0.2;
 }
 
 /* ===================

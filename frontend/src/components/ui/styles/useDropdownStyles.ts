@@ -73,21 +73,21 @@ export const useDropdownStyles = makeStyles({
     fontFamily: designTokens.fontFamilyBody,
     fontSize: designTokens.fontSizeBase300,
     fontWeight: designTokens.fontWeightMedium,
-    color: dropdownTokens.triggerTextColor,
-    background: dropdownTokens.triggerBackground,
+    color: 'var(--text-primary)',
+    background: 'var(--card-bg)',
     backdropFilter: designTokens.blurMedium,
     WebkitBackdropFilter: designTokens.blurMedium,
-    ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', dropdownTokens.triggerBorder),
+    ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', 'var(--card-border)'),
     borderRadius: designTokens.xxxLarge,
     cursor: 'pointer',
-    transitionProperty: 'border-color, background-color',
+    transitionProperty: 'border-color, background-color, color',
     transitionDuration: designTokens.durationNormal,
     transitionTimingFunction: designTokens.curveEasyEase,
     boxShadow: dropdownTokens.triggerBoxShadow,
 
     ':hover': {
-      background: dropdownTokens.triggerBackgroundHover,
-      ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', dropdownTokens.triggerBorderHover),
+      background: 'var(--card-bg-hover, var(--card-bg))',
+      ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', 'var(--brand-primary)'),
       boxShadow: dropdownTokens.triggerBoxShadowHover,
     },
 
@@ -104,26 +104,26 @@ export const useDropdownStyles = makeStyles({
     borderBottomRightRadius: '0',
   },
 
-  // Glass variants for trigger
+  // Glass variants for trigger - using CSS variables for dark mode support
   triggerGlassLight: {
-    backgroundColor: designTokens.colorGlassBackground,
+    backgroundColor: 'var(--glass-bg)',
     backdropFilter: designTokens.blurLight,
     WebkitBackdropFilter: designTokens.blurLight,
-    ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', dropdownTokens.triggerBorder),
+    ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', 'var(--card-border)'),
   },
 
   triggerGlassMedium: {
-    backgroundColor: designTokens.colorGlassPurpleLight,
+    backgroundColor: 'var(--glass-bg)',
     backdropFilter: designTokens.blurMedium,
     WebkitBackdropFilter: designTokens.blurMedium,
-    ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', dropdownTokens.triggerBorder),
+    ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', 'var(--card-border)'),
   },
 
   triggerGlassHeavy: {
-    backgroundColor: designTokens.colorGlassPurpleMedium,
+    backgroundColor: 'var(--glass-bg)',
     backdropFilter: designTokens.blurHeavy,
     WebkitBackdropFilter: designTokens.blurHeavy,
-    ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', dropdownTokens.triggerBorder),
+    ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', 'var(--card-border)'),
   },
 
   // Validation states for trigger
@@ -207,7 +207,7 @@ export const useDropdownStyles = makeStyles({
     ...shorthands.gap(designTokens.xs),
     ...shorthands.padding(designTokens.xxs, designTokens.s),
     backgroundColor: dropdownTokens.tagBackground,
-    color: dropdownTokens.tagColor,
+    color: 'var(--brand-primary)',
     borderRadius: designTokens.xLarge,
     fontSize: designTokens.fontSizeBase200,
     fontWeight: designTokens.fontWeightSemibold,
@@ -238,12 +238,12 @@ export const useDropdownStyles = makeStyles({
     maxWidth: dropdownTokens.menuMaxWidth,
     maxHeight: dropdownTokens.menuMaxHeight,
     overflowY: 'auto',
-    background: dropdownTokens.menuBackground,
+    background: 'var(--card-bg)',
     backdropFilter: dropdownTokens.menuBackdrop,
     WebkitBackdropFilter: dropdownTokens.menuBackdrop,
-    ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', dropdownTokens.menuBorder),
+    ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', 'var(--card-border)'),
     borderRadius: `0 0 ${designTokens.xxxLarge} ${designTokens.xxxLarge}`,
-    boxShadow: dropdownTokens.menuBoxShadow,
+    boxShadow: 'var(--card-shadow)',
     ...shorthands.padding(designTokens.xs, 0),
     marginTop: designTokens.xxs,
     animationName: 'dropdownFadeIn',
@@ -259,10 +259,10 @@ export const useDropdownStyles = makeStyles({
   },
 
   menuGlass: {
-    backgroundColor: dropdownTokens.menuBackground,
+    backgroundColor: 'var(--glass-bg)',
     backdropFilter: designTokens.blurMedium,
     WebkitBackdropFilter: designTokens.blurMedium,
-    ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', 'rgba(255, 255, 255, 0.3)'),
+    ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', 'var(--card-border)'),
   },
 
   // ============================================================================
@@ -288,18 +288,18 @@ export const useDropdownStyles = makeStyles({
   textIndent: dropdownTokens.searchPaddingHorizontalPx,
     fontFamily: designTokens.fontFamilyBody,
     fontSize: designTokens.fontSizeBase300,
-    color: designTokens.colorNeutralForeground1,
-    background: dropdownTokens.searchBackground,
-    ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', dropdownTokens.searchBorder),
+    color: 'var(--text-primary)',
+    background: 'var(--card-bg)',
+    ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', 'var(--card-border)'),
     borderRadius: `0 0 ${designTokens.xLarge} ${designTokens.xLarge}`,
     ...shorthands.outline('none'),
     outlineOffset: 0,
     '::placeholder': {
-      color: dropdownTokens.searchPlaceholderColor,
+      color: 'var(--text-muted)',
     },
     ':focus': {
       // Neutral focus to avoid red underline; keep subtle brand-neutral border
-      ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', dropdownTokens.searchBorder),
+      ...shorthands.border(fluentTokens.strokeWidthThin, 'solid', 'var(--card-border)'),
       boxShadow: 'none',
       outline: 'none',
     },
@@ -316,7 +316,7 @@ export const useDropdownStyles = makeStyles({
     ...shorthands.padding(designTokens.s, dropdownTokens.optionPaddingHorizontal),
     fontFamily: designTokens.fontFamilyPrimary,
     fontSize: designTokens.fontSizeBase300,
-    color: dropdownTokens.optionTextColor,
+    color: 'var(--text-primary)',
     backgroundColor: 'transparent',
     cursor: 'pointer',
     ...shorthands.border('none'),
@@ -324,23 +324,24 @@ export const useDropdownStyles = makeStyles({
     ...shorthands.transition('all', designTokens.durationFast, designTokens.curveEasyEase),
 
     ':hover': {
-      background: dropdownTokens.optionHoverBackground,
-      color: dropdownTokens.optionHoverTextColor,
+      background: 'var(--brand-primary)',
+      color: '#ffffff',
     },
 
     ':focus-visible': {
-      background: dropdownTokens.optionActiveBackground,
+      background: 'var(--brand-primary)',
       ...shorthands.outline(fluentTokens.strokeWidthThick, 'solid', designTokens.colorBrandPrimary),
       outlineOffset: '-2px',
     },
   },
 
   menuItemSelected: {
-    background: dropdownTokens.optionSelectedBackground,
-    color: dropdownTokens.optionSelectedColor,
+    background: 'rgba(139, 92, 246, 0.15)',
+    color: 'var(--brand-primary)',
 
     ':hover': {
-      background: dropdownTokens.optionSelectedBackground,
+      background: 'var(--brand-primary)',
+      color: '#ffffff',
     },
   },
 
