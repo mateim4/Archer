@@ -2328,7 +2328,7 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
             <span style={{
               fontSize: '12px',
               fontWeight: 500,
-              color: '#1a202c',
+              color: 'var(--text-primary)',
               fontFamily: tokens.fontFamilyBody
             }}>
               Advanced Visualizer
@@ -2468,7 +2468,7 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
             <span style={{
               fontSize: '12px',
               fontWeight: 500,
-              color: '#1a202c',
+              color: 'var(--text-primary)',
               fontFamily: tokens.fontFamilyBody
             }}>
               Visualization Mode
@@ -2481,9 +2481,9 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
                 fontSize: '12px',
                 padding: '4px 8px',
                 borderRadius: '6px',
-                border: '1px solid rgba(139, 92, 246, 0.2)',
-                background: 'rgba(255, 255, 255, 0.9)',
-                color: '#1a202c',
+                border: '1px solid var(--card-border, rgba(139, 92, 246, 0.2))',
+                background: 'var(--card-bg, rgba(255, 255, 255, 0.9))',
+                color: 'var(--text-primary)',
                 cursor: 'pointer',
                 outline: 'none',
                 transition: 'all 0.2s'
@@ -2506,7 +2506,7 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
             <span style={{
               fontSize: '12px',
               fontWeight: 500,
-              color: '#1a202c',
+              color: 'var(--text-primary)',
               fontFamily: tokens.fontFamilyBody
             }}>
               OC Ratios
@@ -2537,10 +2537,10 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
                     padding: '4px 8px',
                     fontSize: '13px',
                     fontWeight: 600,
-                    color: '#8b5cf6',
-                    border: '1px solid rgba(139, 92, 246, 0.3)',
+                    color: 'var(--brand-primary)',
+                    border: '1px solid var(--card-border, rgba(139, 92, 246, 0.3))',
                     borderRadius: '4px',
-                    background: 'rgba(255, 255, 255, 0.9)',
+                    background: 'var(--card-bg, rgba(255, 255, 255, 0.9))',
                     textAlign: 'center',
                     fontFamily: tokens.fontFamilyBody
                   }}
@@ -2569,10 +2569,10 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
                     padding: '4px 8px',
                     fontSize: '13px',
                     fontWeight: 600,
-                    color: '#8b5cf6',
-                    border: '1px solid rgba(139, 92, 246, 0.3)',
+                    color: 'var(--brand-primary)',
+                    border: '1px solid var(--card-border, rgba(139, 92, 246, 0.3))',
                     borderRadius: '4px',
-                    background: 'rgba(255, 255, 255, 0.9)',
+                    background: 'var(--card-bg, rgba(255, 255, 255, 0.9))',
                     textAlign: 'center',
                     fontFamily: tokens.fontFamilyBody
                   }}
@@ -2601,10 +2601,10 @@ export const CapacityCanvas: React.FC<CapacityCanvasProps> = ({
                     padding: '4px 8px',
                     fontSize: '13px',
                     fontWeight: 600,
-                    color: '#8b5cf6',
-                    border: '1px solid rgba(139, 92, 246, 0.3)',
+                    color: 'var(--brand-primary)',
+                    border: '1px solid var(--card-border, rgba(139, 92, 246, 0.3))',
                     borderRadius: '4px',
-                    background: 'rgba(255, 255, 255, 0.9)',
+                    background: 'var(--card-bg, rgba(255, 255, 255, 0.9))',
                     textAlign: 'center',
                     fontFamily: tokens.fontFamilyBody
                   }}
