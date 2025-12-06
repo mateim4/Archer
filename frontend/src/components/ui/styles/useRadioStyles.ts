@@ -31,12 +31,12 @@ export const useRadioStyles = makeStyles({
     fontFamily: fluentTokens.fontFamilyBase,
     fontSize: fluentTokens.fontSizeBase300,
     fontWeight: fluentTokens.fontWeightSemibold,
-    color: fluentTokens.colorNeutralForeground1,
+    color: 'var(--text-primary)',
     marginBottom: fluentTokens.spacingVerticalXS,
   },
 
   groupLabelRequired: {
-    color: fluentTokens.colorPaletteRedForeground1,
+    color: 'var(--badge-red-text)',
   },
 
   // ============================================================================
@@ -218,7 +218,7 @@ export const useRadioStyles = makeStyles({
     fontFamily: fluentTokens.fontFamilyBase,
     fontSize: fluentTokens.fontSizeBase300,
     fontWeight: fluentTokens.fontWeightRegular,
-    color: fluentTokens.colorNeutralForeground1,
+    color: 'var(--text-primary)',
     cursor: 'pointer',
     userSelect: 'none',
   },
@@ -238,30 +238,30 @@ export const useRadioStyles = makeStyles({
     alignItems: 'center',
     textAlign: 'center',
     padding: designTokens.components.selectionCard.containerPadding,
-    backgroundColor: designTokens.components.selectionCard.containerBackground,
+    backgroundColor: 'var(--card-bg)',
     backdropFilter: designTokens.blurMedium,
     WebkitBackdropFilter: designTokens.blurMedium,
-    ...shorthands.border('1px', 'solid', designTokens.components.selectionCard.containerBorder),
+    ...shorthands.border('1px', 'solid', 'var(--card-border)'),
     borderRadius: designTokens.components.selectionCard.containerBorderRadius,
     cursor: 'pointer',
     transitionProperty: 'transform, border-color, background-color, box-shadow',
     transitionDuration: designTokens.components.selectionCard.transitionDuration,
     transitionTimingFunction: designTokens.components.selectionCard.transitionTimingFunction,
-    boxShadow: designTokens.components.selectionCard.containerBoxShadow,
+    boxShadow: 'var(--card-shadow)',
 
     ':hover': {
       transform: designTokens.components.selectionCard.containerTransform,
-      ...shorthands.border('1px', 'solid', designTokens.components.selectionCard.containerBorderHover),
-      backgroundColor: designTokens.components.selectionCard.containerBackgroundHover,
+      ...shorthands.border('1px', 'solid', 'var(--brand-primary)'),
+      backgroundColor: 'var(--card-bg-hover, var(--card-bg))',
       boxShadow: designTokens.components.selectionCard.containerBoxShadowHover,
     },
   },
 
   cardContainerGlass: {
-    backgroundColor: designTokens.colorGlassPurpleLight,
+    backgroundColor: 'var(--glass-bg)',
     backdropFilter: designTokens.blurMedium,
     WebkitBackdropFilter: designTokens.blurMedium,
-    ...shorthands.border('1px', 'solid', 'rgba(255, 255, 255, 0.28)'),
+    ...shorthands.border('1px', 'solid', 'var(--card-border)'),
   },
 
   cardContainerChecked: {
@@ -301,9 +301,9 @@ export const useRadioStyles = makeStyles({
     margin: `0 auto ${designTokens.s}`,
     borderRadius: '50%',
     background: designTokens.components.selectionCard.iconWrapperBackground,
-    border: designTokens.components.selectionCard.iconWrapperBorder,
+    border: '2px solid var(--card-border)',
     boxShadow: designTokens.components.selectionCard.iconWrapperBoxShadow,
-    color: designTokens.components.selectionCard.iconColor,
+    color: 'var(--brand-primary)',
     fontSize: designTokens.components.selectionCard.iconSize,
     transitionProperty: 'transform, color, box-shadow, background-color, border',
     transitionDuration: designTokens.components.selectionCard.transitionDuration,
@@ -327,7 +327,7 @@ export const useRadioStyles = makeStyles({
     fontFamily: designTokens.fontFamilyPrimary,
     fontSize: designTokens.components.selectionCard.titleFontSize,
     fontWeight: designTokens.components.selectionCard.titleFontWeight,
-    color: designTokens.components.selectionCard.titleColor,
+    color: 'var(--text-primary)',
     marginBottom: designTokens.xs,
     transitionProperty: 'color',
     transitionDuration: designTokens.components.selectionCard.transitionDuration,
@@ -335,13 +335,13 @@ export const useRadioStyles = makeStyles({
   },
 
   cardTitleChecked: {
-    color: designTokens.components.selectionCard.titleColorChecked,
+    color: '#ffffff',
   },
 
   cardDescription: {
     fontFamily: designTokens.fontFamilyPrimary,
     fontSize: designTokens.components.selectionCard.descriptionFontSize,
-    color: designTokens.components.selectionCard.descriptionColor,
+    color: 'var(--text-secondary)',
     lineHeight: designTokens.components.selectionCard.descriptionLineHeight,
     transitionProperty: 'color',
     transitionDuration: designTokens.components.selectionCard.transitionDuration,
@@ -349,7 +349,7 @@ export const useRadioStyles = makeStyles({
   },
 
   cardDescriptionChecked: {
-    color: designTokens.components.selectionCard.descriptionColorChecked,
+    color: 'rgba(255, 255, 255, 0.9)',
   },
 
   // ============================================================================
@@ -362,26 +362,26 @@ export const useRadioStyles = makeStyles({
   },
 
   helperTextDefault: {
-    color: fluentTokens.colorNeutralForeground3,
+    color: 'var(--text-muted)',
   },
 
   helperTextError: {
-    color: fluentTokens.colorPaletteRedForeground1,
+    color: 'var(--badge-red-text)',
   },
 
   helperTextWarning: {
-    color: fluentTokens.colorPaletteYellowForeground1,
+    color: 'var(--badge-warning-text)',
   },
 
   helperTextSuccess: {
-    color: fluentTokens.colorPaletteGreenForeground1,
+    color: 'var(--badge-green-text)',
   },
 
   // Group helper text
   groupHelperText: {
     fontFamily: fluentTokens.fontFamilyBase,
     fontSize: fluentTokens.fontSizeBase200,
-    color: fluentTokens.colorNeutralForeground3,
+    color: 'var(--text-muted)',
     marginTop: fluentTokens.spacingVerticalXXS,
   },
 });

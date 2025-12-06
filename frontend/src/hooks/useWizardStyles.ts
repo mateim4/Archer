@@ -312,14 +312,14 @@ export const useWizardProgressStyles = makeStyles({
     alignItems: 'center',
     justifyContent: 'center',
     // Transparent background with frosted glass for incomplete/unfinished steps
-    backgroundColor: 'transparent',
+    backgroundColor: 'var(--glass-bg)',
     backdropFilter: 'blur(12px) saturate(150%)',
     WebkitBackdropFilter: 'blur(12px) saturate(150%)',
     ...shorthands.border('2px', 'solid', 'rgba(139, 92, 246, 0.3)'),
     fontSize: tokens.fontSizeBase300,
     fontWeight: tokens.fontWeightSemibold,
     // 100% opacity for text/icon
-    color: tokens.colorNeutralForeground2,
+    color: 'var(--text-secondary)',
     opacity: 1,
     transitionProperty: 'all',
     transitionDuration: tokens.durationFast,
@@ -389,7 +389,7 @@ export const useWizardProgressStyles = makeStyles({
   stepLabel: {
     fontSize: tokens.fontSizeBase200,
     fontWeight: tokens.fontWeightMedium,
-    color: tokens.colorNeutralForeground2,
+    color: 'var(--text-secondary)',
     textAlign: 'center',
     maxWidth: '100px',
     
@@ -400,7 +400,7 @@ export const useWizardProgressStyles = makeStyles({
   },
   
   stepLabelActive: {
-    color: tokens.colorBrandPrimary,
+    color: 'var(--brand-primary)',
     fontWeight: tokens.fontWeightSemibold,
   },
 });

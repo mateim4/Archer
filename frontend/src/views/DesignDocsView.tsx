@@ -139,11 +139,11 @@ const DesignDocsView: React.FC = () => {
 
   const getDocTypeColor = (type: string) => {
     switch (type) {
-      case 'HLD': return 'border border-blue-500/30 text-blue-800';
-      case 'LLD': return 'border border-green-500/30 text-green-800';
-      case 'Architecture': return 'border border-purple-500/30 text-purple-800';
-      case 'Requirements': return 'border border-orange-500/30 text-orange-800';
-      default: return 'border border-gray-500/30 text-gray-800';
+      case 'HLD': return 'border border-blue-500/30 text-blue-400';
+      case 'LLD': return 'border border-green-500/30 text-green-400';
+      case 'Architecture': return 'border border-purple-500/30 text-purple-400';
+      case 'Requirements': return 'border border-orange-500/30 text-orange-400';
+      default: return 'border border-[var(--card-border)]';
     }
   };
 
@@ -257,7 +257,7 @@ const DesignDocsView: React.FC = () => {
               </span>
             </div>
             
-            <div className="text-sm text-gray-600 mb-4">
+            <div style={{ color: 'var(--text-secondary)', fontSize: '14px' }} className="mb-4">
               <p className="line-clamp-3">
                 {doc.content ? 
                   doc.content.substring(0, 150) + (doc.content.length > 150 ? '...' : '') :
@@ -266,8 +266,8 @@ const DesignDocsView: React.FC = () => {
               </p>
             </div>
 
-            <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-              <div className="text-xs text-gray-500">
+            <div className="flex items-center justify-between pt-4" style={{ borderTop: '1px solid var(--card-border)' }}>
+              <div style={{ color: 'var(--text-muted)', fontSize: '12px' }}>
                 {doc.content.length} characters
               </div>
               <div className="flex gap-1">

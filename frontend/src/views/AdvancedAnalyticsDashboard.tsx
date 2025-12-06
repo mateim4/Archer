@@ -314,7 +314,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
           <div className="text-center p-8">
             <AlertTriangle size={48} className="mx-auto mb-4 text-orange-500" />
             <h3 className="text-lg font-semibold mb-2">Error Loading Dashboard</h3>
-            <p className="text-gray-600 mb-4">{error}</p>
+            <p style={{ color: 'var(--text-secondary)' }} className="mb-4">{error}</p>
             <PurpleGlassButton 
               variant="primary" 
               size="medium"
@@ -336,7 +336,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
       case 'good': return <CheckCircle className="text-blue-500" size={16} />;
       case 'warning': return <AlertTriangle className="text-orange-500" size={16} />;
       case 'critical': return <AlertTriangle className="text-red-500" size={16} />;
-      default: return <Activity className="text-gray-500" size={16} />;
+      default: return <Activity style={{ color: 'var(--text-muted)' }} size={16} />;
     }
   };
 
@@ -346,7 +346,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
     } else if (trend === 'down') {
       return <TrendingUp className={`transform rotate-180 ${change < 0 ? 'text-red-500' : 'text-green-500'}`} size={16} />;
     }
-    return <div className="w-4 h-4 bg-gray-300 rounded-full" />;
+    return <div className="w-4 h-4 rounded-full" style={{ backgroundColor: 'var(--text-muted)' }} />;
   };
 
   const getSeverityColor = (severity: string) => {
@@ -355,8 +355,8 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
       case 'high': return 'border-orange-500 bg-orange-50';
       case 'medium': return 'border-yellow-500 bg-yellow-50';
       case 'low': return 'border-blue-500 bg-blue-50';
-      case 'info': return 'border-gray-500 bg-gray-50';
-      default: return 'border-gray-300 bg-gray-50';
+      case 'info': return 'border-[var(--card-border)]';
+      default: return 'border-[var(--card-border)]';
     }
   };
 
@@ -451,7 +451,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-2xl font-bold mb-2">Advanced Analytics Dashboard</h1>
-            <p className="text-gray-600">Real-time insights and system analytics</p>
+            <p style={{ color: 'var(--text-secondary)' }}>Real-time insights and system analytics</p>
           </div>
           <div className="flex items-center gap-4">
             <PurpleGlassDropdown
@@ -621,13 +621,13 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                           alert.severity === 'high' ? 'bg-orange-200 text-orange-800' :
                           alert.severity === 'medium' ? 'bg-yellow-200 text-yellow-800' :
                           alert.severity === 'low' ? 'bg-blue-200 text-blue-800' :
-                          'bg-gray-200 text-gray-800'
-                        }`}>
+                          'bg-[var(--glass-bg)]'
+                        }`} style={{ color: alert.severity ? undefined : 'var(--text-primary)' }}>
                           {alert.severity}
                         </span>
                       </div>
-                      <p className="text-gray-600 text-sm mb-2">{alert.description}</p>
-                      <div className="flex items-center gap-4 text-xs text-gray-500">
+                      <p style={{ color: 'var(--text-secondary)' }} className="text-sm mb-2">{alert.description}</p>
+                      <div className="flex items-center gap-4 text-xs" style={{ color: 'var(--text-muted)' }}>
                         <span>Source: {alert.source}</span>
                         <span>Time: {new Date(alert.created_at).toLocaleTimeString()}</span>
                         {alert.action_required && (

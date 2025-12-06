@@ -84,7 +84,7 @@ const SelectableTableRow = ({
   style?: React.CSSProperties;
 }) => (
   <tr
-    className={`border-t hover:border border-gray-500/20 cursor-pointer select-none ${
+    className={`border-t cursor-pointer select-none ${
       isSelected ? 'border border-blue-500/20 border-blue-200' : ''
     } ${className}`}
     style={{
@@ -165,7 +165,7 @@ const ResizableTableHeader = ({
 
   return (
     <th
-      className="px-4 py-3 text-left cursor-pointer hover:border border-gray-500/20 relative select-none"
+      className="px-4 py-3 text-left cursor-pointer relative select-none"
       onClick={() => onSort(column)}
       style={{
         color: 'var(--color-neutral-foreground)',
@@ -863,7 +863,7 @@ const DashboardView: React.FC = () => {
                 <div className="w-32 text-sm" style={{ color: 'var(--color-neutral-foreground)' }}>
                   {cluster.name}
                 </div>
-                <div className="flex-1 border border-gray-500/30 rounded-full h-3 relative">
+                <div className="flex-1 rounded-full h-3 relative" style={{ border: '1px solid var(--card-border)' }}>
                   <div 
                     className={`h-full rounded-full transition-all duration-500 ${
                       cluster.utilization > 85 ? 'border-2 border-red-500 bg-transparent' :
@@ -971,10 +971,11 @@ const DashboardView: React.FC = () => {
                 </span>
                 <button
                   onClick={vmSelection.clearSelection}
-                  className="text-xs px-2 py-1 rounded border border-gray-300 hover:border border-gray-500/20"
+                  className="text-xs px-2 py-1 rounded"
                   style={{
                     color: 'var(--color-neutral-foreground-secondary)',
-                    fontSize: 'var(--font-size-caption)'
+                    fontSize: 'var(--font-size-caption)',
+                    border: '1px solid var(--card-border)'
                   }}
                 >
                   Clear
@@ -985,9 +986,9 @@ const DashboardView: React.FC = () => {
         </div>
 
         {/* Table */}
-        <div className="border border-gray-500/20 rounded-lg border border-gray-200 overflow-hidden" style={{
+        <div className="rounded-lg overflow-hidden" style={{
           backgroundColor: 'var(--color-neutral-background1)',
-          borderColor: 'var(--color-neutral-stroke-secondary)',
+          border: '1px solid var(--card-border)',
           borderRadius: 'var(--border-radius-lg)'
         }}>
           <div className="overflow-x-auto">
@@ -1256,10 +1257,11 @@ const DashboardView: React.FC = () => {
                 </span>
                 <button
                   onClick={hostSelection.clearSelection}
-                  className="text-xs px-2 py-1 rounded border border-gray-300 hover:border border-gray-500/20"
+                  className="text-xs px-2 py-1 rounded"
                   style={{
                     color: 'var(--color-neutral-foreground-secondary)',
-                    fontSize: 'var(--font-size-caption)'
+                    fontSize: 'var(--font-size-caption)',
+                    border: '1px solid var(--card-border)'
                   }}
                 >
                   Clear
@@ -1270,9 +1272,9 @@ const DashboardView: React.FC = () => {
         </div>
 
         {/* Table */}
-        <div className="border border-gray-500/20 rounded-lg border border-gray-200 overflow-hidden" style={{
+        <div className="rounded-lg overflow-hidden" style={{
           backgroundColor: 'var(--color-neutral-background1)',
-          borderColor: 'var(--color-neutral-stroke-secondary)',
+          border: '1px solid var(--card-border)',
           borderRadius: 'var(--border-radius-lg)'
         }}>
           <div className="overflow-x-auto">

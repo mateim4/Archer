@@ -310,7 +310,7 @@ const GanttChart: React.FC<GanttChartProps> = ({
         height: '48px', 
         borderBottom: '1px solid var(--lcm-primary-border)',
         position: 'relative',
-        background: 'rgba(248, 250, 252, 0.8)'
+        background: 'var(--glass-bg)'
       }}>
         {generateTimeMarkers(timelineData.projectStart, timelineData.projectEnd).map((marker, index) => (
           <div
