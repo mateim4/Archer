@@ -475,12 +475,15 @@ const ServiceDeskView: React.FC = () => {
         </div>
 
         {/* Ticket Type Tabs */}
-        <div style={{ 
-          display: 'flex', 
-          gap: '4px',
-          borderBottom: `1px solid ${DesignTokens.colors.gray200}`,
-          marginBottom: '-8px'
-        }}>
+        <div 
+          className="purple-glass-card static"
+          style={{ 
+            display: 'flex', 
+            gap: '4px',
+            padding: '8px',
+            marginBottom: '-8px'
+          }}
+        >
           {TICKET_TYPE_TABS.map(tab => (
             <button
               key={tab.id}
@@ -797,13 +800,13 @@ const ServiceDeskView: React.FC = () => {
 // --- Sub-Components ---
 
 const KPICard: React.FC<{ title: string; value: string | number; trend: string; trendType: 'positive' | 'negative' | 'neutral'; icon?: React.ReactNode }> = ({ title, value, trend, trendType, icon }) => (
-  <div style={{ 
-    padding: DesignTokens.spacing.lg, 
-    transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-    border: '1px solid var(--card-border)',
-    borderRadius: DesignTokens.borderRadius.lg,
-    background: 'transparent',
-  }}>
+  <div 
+    className="purple-glass-card static"
+    style={{ 
+      padding: DesignTokens.spacing.lg, 
+      transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+    }}
+  >
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
       <span style={{ color: 'var(--text-secondary)', fontSize: DesignTokens.typography.sm, fontWeight: DesignTokens.typography.medium }}>{title}</span>
       {icon && <span style={{ color: 'var(--text-muted)' }}>{icon}</span>}
