@@ -412,6 +412,76 @@ export default function TasksView() {
           </PrimaryButton>
         </div>
 
+        {/* Statistics Cards Row */}
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: `repeat(${stats.overdue > 0 ? 4 : 3}, 1fr)`,
+          gap: DesignTokens.spacing.md,
+          marginBottom: DesignTokens.spacing.lg
+        }}>
+          <div className="purple-glass-card static" style={{ padding: DesignTokens.spacing.md }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <span style={{ color: 'var(--text-secondary)', fontSize: DesignTokens.typography.sm, fontWeight: DesignTokens.typography.medium }}>In Progress</span>
+              <ArrowSyncRegular style={{ color: TASK_STATUS_COLORS.in_progress, fontSize: '18px' }} />
+            </div>
+            <div style={{
+              fontSize: DesignTokens.typography.xxl,
+              fontWeight: DesignTokens.typography.bold,
+              color: TASK_STATUS_COLORS.in_progress,
+              marginTop: '4px'
+            }}>
+              {stats.inProgress}
+            </div>
+          </div>
+          
+          <div className="purple-glass-card static" style={{ padding: DesignTokens.spacing.md }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <span style={{ color: 'var(--text-secondary)', fontSize: DesignTokens.typography.sm, fontWeight: DesignTokens.typography.medium }}>Pending</span>
+              <WarningRegular style={{ color: TASK_STATUS_COLORS.pending, fontSize: '18px' }} />
+            </div>
+            <div style={{
+              fontSize: DesignTokens.typography.xxl,
+              fontWeight: DesignTokens.typography.bold,
+              color: TASK_STATUS_COLORS.pending,
+              marginTop: '4px'
+            }}>
+              {stats.pending}
+            </div>
+          </div>
+          
+          {stats.overdue > 0 && (
+            <div className="purple-glass-card static" style={{ padding: DesignTokens.spacing.md }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <span style={{ color: DesignTokens.colors.error, fontSize: DesignTokens.typography.sm, fontWeight: DesignTokens.typography.medium }}>Overdue</span>
+                <ErrorCircleRegular style={{ color: DesignTokens.colors.error, fontSize: '18px' }} />
+              </div>
+              <div style={{
+                fontSize: DesignTokens.typography.xxl,
+                fontWeight: DesignTokens.typography.bold,
+                color: DesignTokens.colors.error,
+                marginTop: '4px'
+              }}>
+                {stats.overdue}
+              </div>
+            </div>
+          )}
+          
+          <div className="purple-glass-card static" style={{ padding: DesignTokens.spacing.md }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <span style={{ color: 'var(--text-secondary)', fontSize: DesignTokens.typography.sm, fontWeight: DesignTokens.typography.medium }}>Completed</span>
+              <CheckmarkCircleRegular style={{ color: TASK_STATUS_COLORS.completed, fontSize: '18px' }} />
+            </div>
+            <div style={{
+              fontSize: DesignTokens.typography.xxl,
+              fontWeight: DesignTokens.typography.bold,
+              color: TASK_STATUS_COLORS.completed,
+              marginTop: '4px'
+            }}>
+              {stats.completed}
+            </div>
+          </div>
+        </div>
+
         {/* Search and Filters Row */}
         <div style={{ 
           display: 'flex', 
@@ -420,96 +490,13 @@ export default function TasksView() {
           flexWrap: 'wrap'
         }}>
           {/* Search on the left */}
-          <div style={{ minWidth: '250px', maxWidth: '400px' }}>
+          <div style={{ flex: 1, minWidth: '250px', maxWidth: '400px' }}>
             <GlassmorphicSearchBar
               value={searchTerm}
               onChange={(value) => setSearchTerm(value)}
               placeholder="Search tasks..."
               width="100%"
             />
-          </div>
-          
-          {/* Statistics in center-ish area */}
-          <div style={{
-            display: 'flex',
-            gap: '24px',
-            alignItems: 'center',
-            flex: 1,
-            justifyContent: 'center'
-          }}>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{
-                fontSize: DesignTokens.typography.xxl,
-                fontWeight: DesignTokens.typography.bold,
-                color: TASK_STATUS_COLORS.in_progress,
-                lineHeight: '1'
-              }}>
-                {stats.inProgress}
-              </div>
-              <div style={{
-                fontSize: DesignTokens.typography.xs,
-                color: 'var(--text-secondary)',
-                textTransform: 'uppercase'
-              }}>
-                In Progress
-              </div>
-            </div>
-            
-            <div style={{ textAlign: 'center' }}>
-              <div style={{
-                fontSize: DesignTokens.typography.xxl,
-                fontWeight: DesignTokens.typography.bold,
-                color: TASK_STATUS_COLORS.pending,
-                lineHeight: '1'
-              }}>
-                {stats.pending}
-              </div>
-              <div style={{
-                fontSize: DesignTokens.typography.xs,
-                color: 'var(--text-secondary)',
-                textTransform: 'uppercase'
-              }}>
-                Pending
-              </div>
-            </div>
-            
-            {stats.overdue > 0 && (
-              <div style={{ textAlign: 'center' }}>
-                <div style={{
-                  fontSize: DesignTokens.typography.xxl,
-                  fontWeight: DesignTokens.typography.bold,
-                  color: DesignTokens.colors.error,
-                  lineHeight: '1'
-                }}>
-                  {stats.overdue}
-                </div>
-                <div style={{
-                  fontSize: DesignTokens.typography.xs,
-                  color: DesignTokens.colors.error,
-                  textTransform: 'uppercase'
-                }}>
-                  Overdue
-                </div>
-              </div>
-            )}
-            
-            <div style={{ textAlign: 'center' }}>
-              <div style={{
-                fontSize: DesignTokens.typography.xxl,
-                fontWeight: DesignTokens.typography.bold,
-                color: TASK_STATUS_COLORS.completed,
-                lineHeight: '1'
-              }}>
-                {stats.completed}
-              </div>
-              <div style={{
-                fontSize: DesignTokens.typography.xs,
-                color: 'var(--text-secondary)',
-                textTransform: 'uppercase'
-              }}>
-                Completed
-              </div>
-            </div>
           </div>
           
           {/* Filters on the right */}
