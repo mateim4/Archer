@@ -71,6 +71,160 @@ const SAVED_VIEWS = [
   { id: 'created_today', label: 'Created Today', icon: <CalendarTodayRegular />, filters: { createdDate: 'today' } },
 ];
 
+// Comprehensive mock ticket data for development and demo
+const MOCK_TICKETS: ExtendedTicket[] = [
+  {
+    id: 'INC-001',
+    title: 'Production cluster NX-01 experiencing high CPU utilization',
+    description: 'Multiple nodes in the NX-01 cluster are showing CPU utilization above 90%. User-facing services may be impacted.',
+    priority: 'P1',
+    status: 'IN_PROGRESS',
+    ticket_type: 'Incident',
+    created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
+    assignee: 'John Smith',
+    slaStatus: 'at_risk',
+    slaTimeRemaining: '45m left',
+    linkedCi: { id: 'nx-01', name: 'NX-Cluster-01', type: 'CLUSTER', status: 'critical' }
+  },
+  {
+    id: 'INC-002',
+    title: 'Email service intermittent connectivity issues',
+    description: 'Users reporting intermittent failures when sending emails. Exchange server showing connection timeouts.',
+    priority: 'P2',
+    status: 'NEW',
+    ticket_type: 'Incident',
+    created_at: new Date(Date.now() - 30 * 60 * 1000).toISOString(), // 30 minutes ago
+    assignee: undefined,
+    slaStatus: 'on_track',
+    slaTimeRemaining: '3h 30m left',
+    linkedCi: { id: 'exch-01', name: 'EXCH-SERVER-01', type: 'HOST', status: 'warning' }
+  },
+  {
+    id: 'INC-003',
+    title: 'VPN connection drops for remote users',
+    description: 'Multiple remote users experiencing VPN disconnections every 15-20 minutes.',
+    priority: 'P2',
+    status: 'IN_PROGRESS',
+    ticket_type: 'Incident',
+    created_at: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(), // 4 hours ago
+    assignee: 'Sarah Johnson',
+    slaStatus: 'breached',
+    slaTimeRemaining: '2h overdue',
+    linkedCi: { id: 'vpn-gw-01', name: 'VPN-GATEWAY-01', type: 'HOST', status: 'critical' }
+  },
+  {
+    id: 'SR-001',
+    title: 'New laptop setup request for Marketing team',
+    description: 'Request for 5 new Dell laptops for Marketing department new hires starting next month.',
+    priority: 'P3',
+    status: 'NEW',
+    ticket_type: 'Service Request',
+    created_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
+    assignee: 'Tech Support',
+    slaStatus: 'on_track',
+    slaTimeRemaining: '2d 4h left'
+  },
+  {
+    id: 'SR-002',
+    title: 'Software installation - Adobe Creative Suite',
+    description: 'Install Adobe Creative Suite on workstation DESK-MKT-003 for design team member.',
+    priority: 'P4',
+    status: 'IN_PROGRESS',
+    ticket_type: 'Service Request',
+    created_at: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(), // 3 hours ago
+    assignee: 'Mike Wilson',
+    slaStatus: 'on_track',
+    slaTimeRemaining: '5h left'
+  },
+  {
+    id: 'PRB-001',
+    title: 'Recurring memory leaks in application server',
+    description: 'App server APP-PROD-01 requires weekly restarts due to memory consumption. Root cause investigation needed.',
+    priority: 'P2',
+    status: 'IN_PROGRESS',
+    ticket_type: 'Problem',
+    created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 1 week ago
+    assignee: 'DevOps Team',
+    slaStatus: 'on_track',
+    slaTimeRemaining: '5d left',
+    linkedCi: { id: 'app-prod-01', name: 'APP-PROD-01', type: 'HOST', status: 'warning' }
+  },
+  {
+    id: 'PRB-002',
+    title: 'Network latency spikes during peak hours',
+    description: 'Investigating cause of network latency increases (>200ms) during 9AM-11AM business hours.',
+    priority: 'P3',
+    status: 'NEW',
+    ticket_type: 'Problem',
+    created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days ago
+    assignee: undefined,
+    slaStatus: 'on_track',
+    slaTimeRemaining: '8d left',
+    linkedCi: { id: 'core-sw-01', name: 'CORE-SWITCH-01', type: 'SWITCH', status: 'healthy' }
+  },
+  {
+    id: 'CHG-001',
+    title: 'Scheduled maintenance - Database cluster upgrade',
+    description: 'Upgrade PostgreSQL cluster from 14.x to 16.x. Planned downtime: 2 hours.',
+    priority: 'P2',
+    status: 'NEW',
+    ticket_type: 'Change',
+    created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 days ago
+    assignee: 'DBA Team',
+    slaStatus: 'on_track',
+    slaTimeRemaining: 'Scheduled for Sunday'
+  },
+  {
+    id: 'CHG-002',
+    title: 'Firewall rule update for new SaaS integration',
+    description: 'Add outbound rules for Salesforce API integration on production firewall.',
+    priority: 'P3',
+    status: 'RESOLVED',
+    ticket_type: 'Change',
+    created_at: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(), // 10 days ago
+    assignee: 'Network Team',
+    slaStatus: 'on_track',
+    slaTimeRemaining: 'Completed'
+  },
+  {
+    id: 'INC-004',
+    title: 'Printer offline in Building B - Floor 3',
+    description: 'Network printer HP-PRN-B3-01 showing offline status. Users cannot print documents.',
+    priority: 'P3',
+    status: 'NEW',
+    ticket_type: 'Incident',
+    created_at: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(), // 1 hour ago
+    assignee: undefined,
+    slaStatus: 'on_track',
+    slaTimeRemaining: '7h left'
+  },
+  {
+    id: 'SR-003',
+    title: 'Password reset for executive account',
+    description: 'CFO forgot password and needs immediate reset for board meeting presentation access.',
+    priority: 'P1',
+    status: 'RESOLVED',
+    ticket_type: 'Service Request',
+    created_at: new Date(Date.now() - 45 * 60 * 1000).toISOString(), // 45 minutes ago
+    assignee: 'Help Desk',
+    slaStatus: 'on_track',
+    slaTimeRemaining: 'Completed in 15m'
+  },
+  {
+    id: 'INC-005',
+    title: 'Storage array warning - low disk space',
+    description: 'SAN array SAN-PROD-01 showing 85% capacity. Threshold alert triggered.',
+    priority: 'P2',
+    status: 'IN_PROGRESS',
+    ticket_type: 'Incident',
+    created_at: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(), // 6 hours ago
+    assignee: 'Storage Admin',
+    slaStatus: 'at_risk',
+    slaTimeRemaining: '1h 15m left',
+    linkedCi: { id: 'san-prod-01', name: 'SAN-PROD-01', type: 'HOST', status: 'warning' }
+  },
+];
+
 const ServiceDeskView: React.FC = () => {
   const navigate = useNavigate();
   const [viewMode, setViewMode] = useState<'list' | 'kanban'>('list');
@@ -105,7 +259,7 @@ const ServiceDeskView: React.FC = () => {
     await withLoading(async () => {
       try {
         const data = await apiClient.getTickets();
-        // Mocking some extended data for the "ServiceNow Killer" feel
+        // Extend API data with additional UI properties
         const extendedData = data.map((t, i) => ({
           ...t,
           ticket_type: t.ticket_type.toString(),
@@ -113,9 +267,18 @@ const ServiceDeskView: React.FC = () => {
           slaTimeRemaining: i % 5 === 0 ? '2h overdue' : i % 3 === 0 ? '45m left' : '3h 30m left',
           linkedCi: i % 2 === 0 ? { id: 'nx-cluster-01', name: 'NX-Cluster-01', type: 'CLUSTER' as const, status: 'critical' as const } : undefined
         })) as ExtendedTicket[];
-        setTickets(extendedData);
+        
+        // If API returns data, use it; otherwise fall back to mock data
+        if (extendedData.length > 0) {
+          setTickets(extendedData);
+        } else {
+          console.log('No tickets from API, using mock data');
+          setTickets(MOCK_TICKETS);
+        }
       } catch (error) {
-        console.error('Failed to load tickets:', error);
+        console.error('Failed to load tickets from API, using mock data:', error);
+        // Use mock data when API fails
+        setTickets(MOCK_TICKETS);
       }
     });
   };
@@ -346,7 +509,7 @@ const ServiceDeskView: React.FC = () => {
 
         {/* Filters Toolbar with Saved Views */}
         <PurpleGlassCard glass style={{ padding: DesignTokens.spacing.md }}>
-          <div style={{ display: 'flex', gap: DesignTokens.spacing.lg, alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: DesignTokens.spacing.lg, alignItems: 'center', flexWrap: 'wrap' }}>
             {/* Saved Views Dropdown */}
             <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <BookmarkRegular style={{ color: 'var(--text-secondary)' }} />
@@ -360,7 +523,7 @@ const ServiceDeskView: React.FC = () => {
             
             <div style={{ width: '1px', height: '24px', background: DesignTokens.colors.gray200 }} />
             
-            <div style={{ flex: 1, maxWidth: '400px' }}>
+            <div style={{ flex: '1 1 300px', maxWidth: '400px', minWidth: '200px' }}>
               <PurpleGlassInput 
                 value={filter}
                 onChange={(e) => setFilter(e.target.value)}
@@ -369,7 +532,7 @@ const ServiceDeskView: React.FC = () => {
                 glass="none"
               />
             </div>
-            <div style={{ width: '180px' }}>
+            <div style={{ width: '180px', flexShrink: 0 }}>
               <PurpleGlassDropdown
                 options={[
                   { value: 'All', label: 'All Statuses' },
@@ -382,7 +545,6 @@ const ServiceDeskView: React.FC = () => {
                 glass="none"
               />
             </div>
-            <div style={{ flex: 1 }} />
             
             {/* Active Filters Badge */}
             {(advancedFilters.priority.length > 0 || advancedFilters.slaStatus.length > 0 || advancedFilters.dateRange !== 'all') && (
@@ -392,8 +554,8 @@ const ServiceDeskView: React.FC = () => {
                 gap: '6px',
                 padding: '4px 12px',
                 borderRadius: DesignTokens.borderRadius.full,
-                background: `${DesignTokens.colors.primary}15`,
-                color: DesignTokens.colors.primary,
+                background: 'var(--status-info-bg)',
+                color: 'var(--text-primary)',
                 fontSize: DesignTokens.typography.xs,
                 fontWeight: DesignTokens.typography.medium,
               }}>
@@ -401,12 +563,15 @@ const ServiceDeskView: React.FC = () => {
                 <button
                   onClick={() => setAdvancedFilters({ priority: [], assignee: '', dateRange: 'all', slaStatus: [] })}
                   className="btn-clear"
-                  style={{ color: 'var(--primary)' }}
+                  style={{ color: 'var(--text-secondary)' }}
                 >
                   <DismissRegular style={{ fontSize: '12px' }} />
                 </button>
               </span>
             )}
+            
+            {/* Spacer pushes buttons to the right */}
+            <div style={{ flex: 1 }} />
             
             <PurpleGlassButton 
               variant={showAdvancedFilters ? 'primary' : 'ghost'} 

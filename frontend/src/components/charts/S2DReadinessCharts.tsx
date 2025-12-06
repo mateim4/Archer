@@ -23,12 +23,12 @@ import {
 
 const useS2DChartStyles = makeStyles({
   chartContainer: {
-    background: 'rgba(255, 255, 255, 0.95)',
-    border: `1px solid ${tokens.colorNeutralStroke2}`,
+    background: 'var(--card-bg, rgba(255, 255, 255, 0.95))',
+    border: `1px solid var(--card-border, ${tokens.colorNeutralStroke2})`,
     borderRadius: tokens.borderRadiusMedium,
     padding: tokens.spacingVerticalL,
     backdropFilter: 'blur(10px)',
-    boxShadow: tokens.shadow4,
+    boxShadow: 'var(--card-shadow)',
   },
   chartHeader: {
     display: 'flex',

@@ -1073,7 +1073,7 @@ const GuidesView: React.FC = () => {
           <div style={{
             fontSize: '64px',
             marginBottom: '16px',
-            color: '#64748b'
+            color: 'var(--text-muted)'
           }}>
             <BookRegular />
           </div>
@@ -1089,7 +1089,7 @@ const GuidesView: React.FC = () => {
           </h3>
           <p style={{
             fontSize: '16px',
-            color: '#64748b',
+            color: 'var(--text-muted)',
             marginBottom: '32px',
             maxWidth: '500px',
             marginLeft: 'auto',
@@ -1102,7 +1102,7 @@ const GuidesView: React.FC = () => {
           <button
             style={{
               background: 'transparent',
-              color: '#8b5cf6',
+              color: 'var(--brand-primary)',
               border: '2px solid rgba(139, 92, 246, 0.3)',
               padding: '12px 24px',
               borderRadius: '8px',
@@ -1174,7 +1174,7 @@ const GuidesView: React.FC = () => {
                   </h3>
                   <p style={{
                     fontSize: '14px',
-                    color: '#64748b',
+                    color: 'var(--text-muted)',
                     fontFamily: tokens.fontFamilyBody,
                     lineHeight: '1.5',
                     margin: 0
@@ -1195,8 +1195,8 @@ const GuidesView: React.FC = () => {
                   fontSize: '12px',
                   padding: '4px 8px',
                   borderRadius: '12px',
-                  background: 'rgba(99, 102, 241, 0.1)',
-                  color: '#4f46e5',
+                  background: 'var(--badge-purple-bg, rgba(99, 102, 241, 0.1))',
+                  color: 'var(--badge-purple-text, #4f46e5)',
                   fontFamily: tokens.fontFamilyBody,
                   textTransform: 'capitalize'
                 }}>
@@ -1206,8 +1206,8 @@ const GuidesView: React.FC = () => {
                   fontSize: '12px',
                   padding: '4px 8px',
                   borderRadius: '12px',
-                  background: 'rgba(16, 185, 129, 0.1)',
-                  color: '#047857',
+                  background: 'var(--badge-green-bg, rgba(16, 185, 129, 0.1))',
+                  color: 'var(--badge-green-text, #047857)',
                   fontFamily: tokens.fontFamilyBody,
                   textTransform: 'capitalize'
                 }}>
@@ -1218,7 +1218,7 @@ const GuidesView: React.FC = () => {
                     fontSize: '12px',
                     padding: '4px 8px',
                     borderRadius: '12px',
-                    background: 'rgba(107, 114, 128, 0.1)',
+                    background: 'var(--badge-gray-bg, rgba(107, 114, 128, 0.1))',
                     color: 'var(--text-primary)',
                     fontFamily: tokens.fontFamilyBody,
                     display: 'flex',

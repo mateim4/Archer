@@ -1,6 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 @layer base {
   :root {
@@ -139,7 +137,7 @@
        ======================================================================== */
     --tab-bg: rgba(0, 0, 0, 0.04);
     --tab-bg-active: rgba(255, 255, 255, 0.9);
-    --tab-text: #71717a;
+    --tab-text: #52525b;
     --tab-text-active: #18181b;
     --tab-border: rgba(0, 0, 0, 0.08);
     --tab-shadow-active: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -159,14 +157,34 @@
     --status-neutral-bg: rgba(113, 113, 122, 0.12);
 
     /* ========================================================================
-       CARD TOKENS (Light Mode)
+       CARD TOKENS (Light Mode) - Frosted glass edge aesthetic
        ======================================================================== */
     --card-bg: rgba(255, 255, 255, 0.7);
     --card-bg-hover: rgba(255, 255, 255, 0.85);
-    --card-border: rgba(139, 92, 246, 0.15);
-    --card-border-hover: rgba(139, 92, 246, 0.25);
-    --card-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-    --card-shadow-hover: 0 8px 25px rgba(107, 76, 230, 0.15);
+    --card-border: rgba(255, 255, 255, 0.6);
+    --card-border-hover: rgba(255, 255, 255, 0.8);
+    --card-shadow: 0 4px 16px rgba(0, 0, 0, 0.06), inset 0 0.5px 0 rgba(255, 255, 255, 0.8);
+    --card-shadow-hover: 0 8px 25px rgba(0, 0, 0, 0.1), inset 0 0.5px 0 rgba(255, 255, 255, 0.9);
+
+    /* ========================================================================
+       MODAL TOKENS (Light Mode) - Glassmorphism dialogs
+       ======================================================================== */
+    --modal-bg: rgba(255, 255, 255, 0.95);
+    --modal-border: rgba(0, 0, 0, 0.08);
+    --modal-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    --modal-backdrop: rgba(0, 0, 0, 0.5);
+
+    /* ========================================================================
+       BADGE/PILL TOKENS (Light Mode) - Tags and status indicators
+       ======================================================================== */
+    --badge-purple-bg: rgba(139, 92, 246, 0.12);
+    --badge-purple-text: #7c3aed;
+    --badge-green-bg: rgba(34, 197, 94, 0.12);
+    --badge-green-text: #059669;
+    --badge-gray-bg: rgba(113, 113, 122, 0.12);
+    --badge-gray-text: #52525b;
+    --badge-blue-bg: rgba(59, 130, 246, 0.12);
+    --badge-blue-text: #2563eb;
 
     /* ========================================================================
        NOTICE/BANNER TOKENS (Light Mode)
@@ -318,7 +336,7 @@
        ======================================================================== */
     --tab-bg: rgba(255, 255, 255, 0.04);
     --tab-bg-active: rgba(255, 255, 255, 0.10);
-    --tab-text: #a1a1aa;
+    --tab-text: #d4d4d8;
     --tab-text-active: #fafafa;
     --tab-border: rgba(255, 255, 255, 0.06);
     --tab-shadow-active: 0 1px 3px rgba(0, 0, 0, 0.3);
@@ -338,14 +356,34 @@
     --status-neutral-bg: rgba(161, 161, 170, 0.18);
 
     /* ========================================================================
-       CARD TOKENS (Dark Mode)
+       CARD TOKENS (Dark Mode) - Frosted glass edge aesthetic
        ======================================================================== */
     --card-bg: rgba(30, 30, 30, 0.6);
     --card-bg-hover: rgba(40, 40, 40, 0.7);
-    --card-border: rgba(255, 255, 255, 0.08);
-    --card-border-hover: rgba(139, 92, 246, 0.25);
-    --card-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-    --card-shadow-hover: 0 8px 25px rgba(107, 76, 230, 0.2);
+    --card-border: rgba(255, 255, 255, 0.1);
+    --card-border-hover: rgba(255, 255, 255, 0.18);
+    --card-shadow: 0 4px 16px rgba(0, 0, 0, 0.2), inset 0 0.5px 0 rgba(255, 255, 255, 0.1);
+    --card-shadow-hover: 0 8px 25px rgba(0, 0, 0, 0.3), inset 0 0.5px 0 rgba(255, 255, 255, 0.15);
+
+    /* ========================================================================
+       MODAL TOKENS (Dark Mode) - Glassmorphism dialogs
+       ======================================================================== */
+    --modal-bg: rgba(30, 30, 30, 0.95);
+    --modal-border: rgba(255, 255, 255, 0.1);
+    --modal-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    --modal-backdrop: rgba(0, 0, 0, 0.7);
+
+    /* ========================================================================
+       BADGE/PILL TOKENS (Dark Mode) - Tags and status indicators
+       ======================================================================== */
+    --badge-purple-bg: rgba(139, 92, 246, 0.2);
+    --badge-purple-text: #c4b5fd;
+    --badge-green-bg: rgba(74, 222, 128, 0.2);
+    --badge-green-text: #4ade80;
+    --badge-gray-bg: rgba(161, 161, 170, 0.2);
+    --badge-gray-text: #a1a1aa;
+    --badge-blue-bg: rgba(96, 165, 250, 0.2);
+    --badge-blue-text: #60a5fa;
 
     /* ========================================================================
        NOTICE/BANNER TOKENS (Dark Mode) - Light blue on dark for readability
@@ -376,7 +414,8 @@
     box-sizing: border-box;
   }
   body {
-    @apply bg-background text-foreground;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
   }
 }
 
@@ -519,7 +558,7 @@
   justify-content: center;
   gap: 8px;
   padding: 8px 16px;
-  font-family: 'Nasalization', 'Jura', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: 'Poppins', 'Montserrat', system-ui, -apple-system, sans-serif;
   font-weight: 600;
   font-size: 14px;
   line-height: 1.4;
@@ -707,6 +746,11 @@
   border-radius: 8px 8px 0 0;
   padding: 12px 20px;
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--lcm-font-family-body, Poppins, sans-serif);
+  transition: all 0.2s ease;
 }
 
 .btn-tab:hover:not(:disabled):not(.btn-tab-active) {

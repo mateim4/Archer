@@ -1,25 +1,34 @@
 import * as React from 'react';
 import { Button, ButtonProps } from '@fluentui/react-components';
 
-export const PrimaryButton: React.FC<ButtonProps> = ({ style, appearance = 'primary', ...props }) => {
+// Size configurations for consistent touch targets
+const SIZE_STYLES = {
+  small: { minHeight: '32px', padding: '4px 12px', fontSize: '13px' },
+  medium: { minHeight: '36px', padding: '6px 16px', fontSize: '14px' },
+  large: { minHeight: '44px', padding: '10px 20px', fontSize: '15px' },
+};
+
+export const PrimaryButton: React.FC<ButtonProps> = ({ style, appearance = 'primary', size = 'medium', ...props }) => {
   const [isHovered, setIsHovered] = React.useState(false);
   const [isPressed, setIsPressed] = React.useState(false);
+  const sizeStyle = SIZE_STYLES[size as keyof typeof SIZE_STYLES] || SIZE_STYLES.medium;
   
   return (
     <Button
       appearance={appearance}
+      size={size}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => { setIsHovered(false); setIsPressed(false); }}
       onMouseDown={() => setIsPressed(true)}
       onMouseUp={() => setIsPressed(false)}
       style={{
         background: isPressed 
-          ? 'radial-gradient(circle at center, rgba(124, 58, 237, 1) 0%, rgba(67, 56, 202, 0.95) 100%)'
+          ? 'linear-gradient(135deg, rgba(124, 58, 237, 0.95) 0%, rgba(139, 92, 246, 0.9) 50%, rgba(99, 102, 241, 0.85) 100%)'
           : isHovered 
-            ? 'radial-gradient(circle at center, rgba(139, 92, 246, 1) 0%, rgba(79, 70, 229, 0.86) 100%)'
-            : 'radial-gradient(circle at center, rgba(139, 92, 246, 0.95) 0%, rgba(99, 102, 241, 0.78) 100%)',
-        border: '1px solid rgba(255, 255, 255, 0.32)',
-        fontFamily: '"Nasalization", "Jura", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+            ? 'linear-gradient(135deg, rgba(139, 92, 246, 0.95) 0%, rgba(124, 58, 237, 0.9) 50%, rgba(99, 102, 241, 0.85) 100%)'
+            : 'linear-gradient(135deg, rgba(139, 92, 246, 0.9) 0%, rgba(124, 58, 237, 0.85) 50%, rgba(99, 102, 241, 0.8) 100%)',
+        border: '1px solid rgba(255, 255, 255, 0.25)',
+        fontFamily: '"Poppins", "Montserrat", system-ui, -apple-system, sans-serif',
         fontWeight: 600,
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
@@ -32,6 +41,7 @@ export const PrimaryButton: React.FC<ButtonProps> = ({ style, appearance = 'prim
             ? 'translateY(-3px) scale(1.02)' 
             : 'translateY(0) scale(1)',
         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+        ...sizeStyle,
         ...style,
       }}
       {...props}

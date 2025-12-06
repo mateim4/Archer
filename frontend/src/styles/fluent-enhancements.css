@@ -647,7 +647,7 @@ input[type="number"] {
   -webkit-backdrop-filter: blur(60px) brightness(115%) contrast(105%);
   border-radius: 32px;
   border: 1px solid rgba(255, 255, 255, 0.3);
-  padding: 4px;
+  padding: 6px;  /* Equal padding all around for symmetric spacing */
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
   max-width: 440px;
@@ -685,7 +685,7 @@ input[type="number"] {
   font-size: 20px;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   flex-shrink: 0;
-  margin-right: 12px;
+  margin-right: 10px;  /* Reduced to balance with equal wrapper padding */
   box-shadow: 
     0 6px 24px rgba(139, 92, 246, 0.15),
     0 2px 8px rgba(0, 0, 0, 0.1),
@@ -743,9 +743,9 @@ input[type="number"] {
   font-family: var(--fluent-font-family-base);
   color: var(--input-text, #0f172a);
   font-weight: 500;
-  height: 52px;
+  height: 48px;  /* Match icon height for vertical centering */
   line-height: 1.5;
-  padding: 0 20px 0 0;
+  padding: 0 16px 0 0;  /* Right padding for text spacing */
   min-width: 0;
 }
 

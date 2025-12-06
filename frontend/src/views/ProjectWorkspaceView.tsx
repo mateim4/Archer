@@ -595,7 +595,7 @@ const ProjectWorkspaceView: React.FC = () => {
         {/* Breadcrumb Navigation */}
         <PurpleGlassBreadcrumb
           items={[
-            { label: 'Home', path: '/', icon: <HomeRegular /> },
+            { label: 'Home', path: '/app/dashboard', icon: <HomeRegular /> },
             { label: 'Projects', path: '/app/projects', icon: <FolderRegular /> },
             { label: project?.name || 'Project' }, // Current - no path
           ]}

@@ -749,15 +749,19 @@ export const DashboardView: React.FC = () => {
 
   return (
     <div data-testid="dashboard-view" style={{ maxWidth: '1400px', margin: '0 auto' }}>
-      {/* Page Header - wrapped in card */}
+      {/* Page Header + Stats - Merged into single card */}
       <div className="purple-glass-card static" style={{
-        padding: '20px 24px',
+        padding: '24px',
         marginBottom: '24px',
       }}>
+        {/* Header Section */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
+          marginBottom: '24px',
+          paddingBottom: '20px',
+          borderBottom: '1px solid var(--divider-color-subtle)',
         }}>
           <div>
           <h1 style={{
@@ -825,13 +829,8 @@ export const DashboardView: React.FC = () => {
           </button>
         </div>
         </div>
-      </div>
 
-      {/* Stat Cards Row - wrapped in card */}
-      <div className="purple-glass-card static" style={{
-        padding: '20px 24px',
-        marginBottom: '24px',
-      }}>
+        {/* Stat Cards Grid */}
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))',

@@ -19,7 +19,8 @@
   
   /* Font Families (Jura with no Roboto in fallback) */
   --font-family-body: "Jura", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-family-heading: "Nasalization", "Jura", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-family-heading: "Poppins", "Jura", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-family-sidebar: "Nasalization", "Jura", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-family-monospace: "Fira Code", "Consolas", "Monaco", monospace;
   
   /* Font Sizes (Fluent Type Ramp) */

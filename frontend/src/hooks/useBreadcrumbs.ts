@@ -21,8 +21,8 @@ export const useBreadcrumbs = (): BreadcrumbItem[] => {
     // Always start with home
     breadcrumbs.push({
       label: 'Home',
-      path: '/app/projects',
-      isCurrentPage: location.pathname === '/app/projects'
+      path: '/app/dashboard',
+      isCurrentPage: location.pathname === '/app/dashboard'
     });
 
     let currentPath = '';

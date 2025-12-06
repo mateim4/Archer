@@ -111,8 +111,8 @@ const useStyles = makeStyles({
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: '8px 12px',
-    background: 'rgba(255, 255, 255, 0.7)',
-    border: `1px solid ${DesignTokens.colors.gray300}`,
+    background: 'var(--card-bg, rgba(255, 255, 255, 0.7))',
+    border: `1px solid var(--card-border, ${DesignTokens.colors.gray300})`,
     borderRadius: DesignTokens.borderRadius.sm,
     fontSize: '14px'
   }

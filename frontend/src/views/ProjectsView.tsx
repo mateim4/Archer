@@ -266,8 +266,14 @@ export default function ProjectsView() {
 
   if (loading) {
     return (
-      <div style={DesignTokens.components.pageContainer}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: DesignTokens.spacing.xl }}>
+      <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+        {/* Loading skeleton header */}
+        <div className="purple-glass-card static" style={{ padding: '20px 24px', marginBottom: '24px' }}>
+          <PurpleGlassSkeleton variant="text" width="200px" height="32px" />
+          <PurpleGlassSkeleton variant="text" width="300px" height="16px" style={{ marginTop: '8px' }} />
+        </div>
+        {/* Loading skeleton cards */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '24px' }}>
           <PurpleGlassSkeleton variant="card" count={6} />
         </div>
       </div>
@@ -275,113 +281,134 @@ export default function ProjectsView() {
   }
 
   return (
-    <div role="region" aria-label="Projects" data-testid="projects-view" style={{...DesignTokens.components.pageContainer, overflow: 'visible'}}>
+    <div role="region" aria-label="Projects" data-testid="projects-view" style={{ maxWidth: '1400px', margin: '0 auto' }}>
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
       
       <h1 style={{position:'absolute',width:0,height:0,overflow:'hidden',clip:'rect(0 0 0 0)'}}>Projects</h1>
-      {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: DesignTokens.spacing.lg, borderBottom: `2px solid ${DesignTokens.colors.primary}20`, paddingBottom: DesignTokens.spacing.lg }}>
-        <h2 style={{ fontSize: DesignTokens.typography.xxxl, fontWeight: DesignTokens.typography.semibold, color: 'var(--text-primary)', margin: '0', fontFamily: DesignTokens.typography.fontFamily, display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <FolderRegular style={{ fontSize: '32px', color: 'var(--icon-default)' }} />
-          Projects
-        </h2>
-        <PrimaryButton
-          data-testid="create-project-button"
-          size="large"
-          icon={<AddRegular />}
-          onClick={() => setShowCreateDialog(true)}
-        >
-          Add New Project
-        </PrimaryButton>
+      
+      {/* Unified Header Card - Title, Search, and Stats */}
+      <div className="purple-glass-card static" style={{ padding: '24px', marginBottom: '24px' }}>
+        {/* Title Row */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', paddingBottom: '20px', borderBottom: '1px solid var(--divider-color)' }}>
+          <div>
+            <h2 style={{ 
+              margin: 0,
+              fontSize: 'var(--lcm-font-size-xxxl, 32px)', 
+              fontWeight: 600, 
+              color: 'var(--text-primary)', 
+              fontFamily: 'var(--lcm-font-family-heading, Poppins, sans-serif)', 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '12px' 
+            }}>
+              <FolderRegular style={{ fontSize: '32px', color: 'var(--icon-default)' }} />
+              Projects
+            </h2>
+            <p style={{
+              margin: '8px 0 0 0',
+              fontSize: '16px',
+              color: 'var(--text-secondary)',
+              fontFamily: 'var(--lcm-font-family-body, Poppins, sans-serif)',
+            }}>
+              Manage your infrastructure projects and workflows.
+            </p>
+          </div>
+          <PrimaryButton
+            data-testid="create-project-button"
+            size="large"
+            icon={<AddRegular />}
+            onClick={() => setShowCreateDialog(true)}
+          >
+            Add New Project
+          </PrimaryButton>
+        </div>
+
+        {/* Search and Statistics Row */}
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: '24px',
+          flexWrap: 'wrap',
+          justifyContent: 'space-between'
+        }}>
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '16px',
+            flex: 1,
+            minWidth: '300px'
+          }}>
+            <div style={{ flex: 1, maxWidth: '440px' }}>
+              <GlassmorphicSearchBar
+                value={searchTerm}
+                onChange={(value) => setSearchTerm(value)}
+                placeholder="Search projects..."
+                width="100%"
+              />
+            </div>
+          </div>
+
+          {/* Summary Statistics - Inline */}
+          {projects.length > 0 && (
+            <div style={{
+              display: 'flex',
+              gap: '32px',
+              alignItems: 'center'
+            }}>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{
+                  fontSize: DesignTokens.typography.xxl,
+                  fontWeight: DesignTokens.typography.bold,
+                  color: 'var(--stat-primary)',
+                  fontFamily: DesignTokens.typography.fontFamily,
+                  margin: 0,
+                  lineHeight: '1'
+                }}>
+                  {projects.filter(p => p.name).length}
+                </div>
+                <div style={{
+                  fontSize: DesignTokens.typography.xs,
+                  color: 'var(--text-primary)',
+                  fontWeight: DesignTokens.typography.medium,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                  marginTop: '4px',
+                  whiteSpace: 'nowrap'
+                }}>
+                  Active Projects
+                </div>
+              </div>
+              
+              <div style={{ textAlign: 'center' }}>
+                <div style={{
+                  fontSize: DesignTokens.typography.xxl,
+                  fontWeight: DesignTokens.typography.bold,
+                  color: 'var(--stat-secondary)',
+                  fontFamily: DesignTokens.typography.fontFamily,
+                  margin: 0,
+                  lineHeight: '1'
+                }}>
+                  {projects.length}
+                </div>
+                <div style={{
+                  fontSize: DesignTokens.typography.xs,
+                  color: 'var(--text-primary)',
+                  fontWeight: DesignTokens.typography.medium,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                  marginTop: '4px',
+                  whiteSpace: 'nowrap'
+                }}>
+                  Total Projects
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Migration Notice - After the title header */}
       <MigrationNotice storageKey="migration-notice-projects-dismissed" />
-
-      {/* Search Bar and Toolbar with Statistics */}
-      <div style={{ 
-        marginBottom: '24px',
-        display: 'flex', 
-        alignItems: 'center', 
-        gap: '24px',
-        flexWrap: 'wrap',
-        justifyContent: 'space-between'
-      }}>
-        <div style={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          gap: '16px',
-          flex: 1,
-          minWidth: '300px'
-        }}>
-          <div style={{ flex: 1, maxWidth: '440px' }}>
-            <GlassmorphicSearchBar
-              value={searchTerm}
-              onChange={(value) => setSearchTerm(value)}
-              placeholder="Search projects..."
-              width="100%"
-            />
-          </div>
-          
-        </div>
-
-        {/* Summary Statistics - Inline */}
-        {projects.length > 0 && (
-          <div style={{
-            display: 'flex',
-            gap: '32px',
-            alignItems: 'center'
-          }}>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{
-                fontSize: DesignTokens.typography.xxl,
-                fontWeight: DesignTokens.typography.bold,
-                color: 'var(--stat-primary)',
-                fontFamily: DesignTokens.typography.fontFamily,
-                margin: 0,
-                lineHeight: '1'
-              }}>
-                {projects.filter(p => p.name).length}
-              </div>
-              <div style={{
-                fontSize: DesignTokens.typography.xs,
-                color: 'var(--text-primary)',
-                fontWeight: DesignTokens.typography.medium,
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px',
-                marginTop: '4px',
-                whiteSpace: 'nowrap'
-              }}>
-                Active Projects
-              </div>
-            </div>
-            
-            <div style={{ textAlign: 'center' }}>
-              <div style={{
-                fontSize: DesignTokens.typography.xxl,
-                fontWeight: DesignTokens.typography.bold,
-                color: 'var(--stat-secondary)',
-                fontFamily: DesignTokens.typography.fontFamily,
-                margin: 0,
-                lineHeight: '1'
-              }}>
-                {projects.length}
-              </div>
-              <div style={{
-                fontSize: DesignTokens.typography.xs,
-                color: 'var(--text-primary)',
-                fontWeight: DesignTokens.typography.medium,
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px',
-                marginTop: '4px',
-                whiteSpace: 'nowrap'
-              }}>
-                Total Projects
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
 
       {/* Content */}
       <div style={{ marginBottom: '80px', overflow: 'visible' }}>
@@ -393,21 +420,12 @@ export default function ProjectsView() {
               <h3 style={{ fontSize: DesignTokens.typography.xxl, fontWeight: DesignTokens.typography.semibold, color: 'var(--text-primary)', marginBottom: DesignTokens.spacing.md, fontFamily: DesignTokens.typography.fontFamily }}>
                 {searchTerm ? 'No projects match your search' : 'No projects yet'}
               </h3>
-              <p style={{ fontSize: DesignTokens.typography.base, color: 'var(--text-secondary)', marginBottom: DesignTokens.spacing.xxl, maxWidth: '500px', marginLeft: 'auto', marginRight: 'auto', lineHeight: '1.6' }}>
+              <p style={{ fontSize: DesignTokens.typography.base, color: 'var(--text-secondary)', maxWidth: '500px', marginLeft: 'auto', marginRight: 'auto', lineHeight: '1.6', margin: 0 }}>
                 {searchTerm
                   ? 'Try adjusting your search terms or create a new project.'
-                  : 'Create your first project to start organizing your infrastructure deployments, configurations, and automation workflows.'
+                  : 'Use the "Add new Project" button above to start organizing your infrastructure deployments, configurations, and automation workflows.'
                 }
               </p>
-              {!searchTerm && (
-                <PrimaryButton
-                  size="medium"
-                  icon={<AddRegular />}
-                  onClick={() => setShowCreateDialog(true)}
-                >
-                  Create your first project
-                </PrimaryButton>
-              )}
             </PurpleGlassCard>
           ) : (
             <div style={{
@@ -505,37 +523,7 @@ export default function ProjectsView() {
                             padding: '8px',
                             minWidth: '180px'
                           }}>
-                          <div
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '12px',
-                              padding: '12px 16px',
-                              borderRadius: '8px',
-                              cursor: 'pointer',
-                              transition: 'all 0.2s ease',
-                              fontFamily: DesignTokens.typography.fontFamily,
-                              fontSize: '14px',
-                              color: 'var(--text-primary)',
-                              fontWeight: '500'
-                            }}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDeleteProject(extractProjectId(project.id));
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
-                              e.currentTarget.style.color = DesignTokens.colors.error;
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.background = 'transparent';
-                              e.currentTarget.style.color = 'var(--text-primary)';
-                            }}
-                          >
-                            <DeleteRegular style={{ fontSize: '16px' }} />
-                            <span>Delete Project</span>
-                          </div>
-
+                          {/* Mark Complete - First */}
                           <div
                             style={{
                               display: 'flex',
@@ -567,6 +555,7 @@ export default function ProjectsView() {
                             <span>Mark Complete</span>
                           </div>
 
+                          {/* Edit Users - Second */}
                           <div
                             style={{
                               display: 'flex',
@@ -597,6 +586,36 @@ export default function ProjectsView() {
                             <PeopleRegular style={{ fontSize: '16px' }} />
                             <span>Edit Users</span>
                           </div>
+
+                          {/* Delete - Last (destructive) */}
+                          <div
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '12px',
+                              padding: '12px 16px',
+                              borderRadius: '8px',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s ease',
+                              fontFamily: DesignTokens.typography.fontFamily,
+                              fontSize: '14px',
+                              color: DesignTokens.colors.error,
+                              fontWeight: '500'
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteProject(extractProjectId(project.id));
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background = 'transparent';
+                            }}
+                          >
+                            <DeleteRegular style={{ fontSize: '16px' }} />
+                            <span>Delete Project</span>
+                          </div>
                         </div>
                       )}
                     </div>
@@ -626,7 +645,7 @@ export default function ProjectsView() {
                       borderTop: `1px solid var(--divider-color)`,
                       marginTop: 'auto'
                     }}>
-                      {/* Left side - Owner and Status */}
+                      {/* Left side - Dates */}
                       <div style={{
                         display: 'flex',
                         flexDirection: 'column',
@@ -653,12 +672,23 @@ export default function ProjectsView() {
                           color: 'var(--text-muted)',
                           fontSize: '11px'
                         }}>
-                          <PersonRegular style={{ fontSize: '12px' }} />
-                          <span>{project.owner_id ? project.owner_id.replace('user:', '').split('@')[0] : 'Unknown'}</span>
+                          <div style={{
+                            width: '18px',
+                            height: '18px',
+                            borderRadius: '4px',
+                            background: 'rgba(139, 92, 246, 0.1)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            flexShrink: 0
+                          }}>
+                            <CalendarRegular style={{ fontSize: '11px', color: DesignTokens.colors.primary }} />
+                          </div>
+                          <span>{project.created_at ? formatDate(project.created_at) : 'Unknown'}</span>
                         </div>
                       </div>
                       
-                      {/* Right side - Dates */}
+                      {/* Right side - Author and Updated */}
                       <div style={{
                         display: 'flex',
                         flexDirection: 'column',
@@ -675,8 +705,8 @@ export default function ProjectsView() {
                           alignItems: 'center', 
                           gap: '4px' 
                         }}>
-                          <CalendarRegular style={{ fontSize: '11px' }} />
-                          <span>{project.created_at ? formatDate(project.created_at) : 'Unknown'}</span>
+                          <PersonRegular style={{ fontSize: '11px' }} />
+                          <span>{project.owner_id ? project.owner_id.replace('user:', '').split('@')[0] : 'Unknown'}</span>
                         </div>
                       </div>
                     </div>

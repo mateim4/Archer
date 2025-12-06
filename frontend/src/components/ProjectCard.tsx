@@ -112,8 +112,8 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         padding: '24px',
         cursor: 'pointer',
         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-        border: '1px solid rgba(139, 92, 246, 0.2)',
-        background: 'rgba(255, 255, 255, 0.9)',
+        border: '1px solid var(--card-border, rgba(139, 92, 246, 0.2))',
+        background: 'var(--card-bg, rgba(255, 255, 255, 0.9))',
         backdropFilter: 'blur(18px)',
         position: 'relative',
         overflow: 'hidden',
@@ -125,12 +125,12 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
       onMouseEnter={(e) => {
         e.currentTarget.style.transform = 'translateY(-4px)';
         e.currentTarget.style.boxShadow = '0 12px 48px rgba(139, 92, 246, 0.25)';
-        e.currentTarget.style.borderColor = 'rgba(139, 92, 246, 0.4)';
+        e.currentTarget.style.borderColor = 'var(--card-border-hover, rgba(139, 92, 246, 0.4))';
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.transform = 'translateY(0)';
         e.currentTarget.style.boxShadow = 'none';
-        e.currentTarget.style.borderColor = 'rgba(139, 92, 246, 0.2)';
+        e.currentTarget.style.borderColor = 'var(--card-border, rgba(139, 92, 246, 0.2))';
       }}
     >
       {/* Priority Indicator */}

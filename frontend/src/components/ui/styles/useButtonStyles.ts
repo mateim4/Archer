@@ -21,7 +21,7 @@ export const useButtonStyles = makeStyles({
     alignItems: 'center',
     justifyContent: 'center',
     ...shorthands.gap(tokens.s),
-    fontFamily: '"Nasalization", "Jura", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+    fontFamily: '"Poppins", "Montserrat", system-ui, -apple-system, sans-serif',
     fontWeight: tokens.fontWeightSemibold,
     ...shorthands.borderRadius(tokens.medium),
     ...shorthands.border('1px', 'solid', 'transparent'),

@@ -19,7 +19,7 @@ export const useCardStyles = makeStyles({
     position: 'relative',
     display: 'flex',
     flexDirection: 'column',
-    backgroundColor: fluentTokens.colorNeutralBackground1,
+    // NOTE: No background set here - variants control background for glass vs solid
     ...shorthands.borderRadius(tokens.large),
     ...shorthands.border('1px', 'solid', fluentTokens.colorNeutralStroke2),
     ...shorthands.padding(tokens.l),

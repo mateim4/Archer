@@ -164,28 +164,39 @@ export const PurpleGlassCard = forwardRef<HTMLDivElement, PurpleGlassCardProps>(
 
     // Build card class names
     const getCardClasses = () => {
-      const classes = [styles.card];
+      // Start with pure CSS glass class when glass=true for consistent styling
+      // This ensures we use the same styling as Dashboard's purple-glass-card
+      const classes: string[] = glass ? ['purple-glass-card'] : [styles.card];
 
-      // Variant (with glass support)
-      if (effectiveVariant === 'default') {
-        classes.push(glass ? styles.defaultGlass : styles.default);
-      } else if (effectiveVariant === 'interactive') {
-        classes.push(glass ? styles.interactiveGlass : styles.interactive);
-      } else if (effectiveVariant === 'elevated') {
-        classes.push(glass ? styles.elevatedGlass : styles.elevated);
-      } else if (effectiveVariant === 'outlined') {
-        classes.push(glass ? styles.outlinedGlass : styles.outlined);
-      } else if (effectiveVariant === 'subtle') {
-        classes.push(styles.subtle);
+      // Only add Fluent variant styles for non-glass mode
+      if (!glass) {
+        if (effectiveVariant === 'default') {
+          classes.push(styles.default);
+        } else if (effectiveVariant === 'interactive') {
+          classes.push(styles.interactive);
+        } else if (effectiveVariant === 'elevated') {
+          classes.push(styles.elevated);
+        } else if (effectiveVariant === 'outlined') {
+          classes.push(styles.outlined);
+        } else if (effectiveVariant === 'subtle') {
+          classes.push(styles.subtle);
+        }
       }
 
-      // Padding
-      if (padding === 'none') classes.push(styles.paddingNone);
-      else if (padding === 'small') classes.push(styles.paddingSmall);
-      else if (padding === 'medium') classes.push(styles.paddingMedium);
-      else if (padding === 'large') classes.push(styles.paddingLarge);
+      // Padding - use CSS classes for glass mode, Fluent styles for non-glass
+      if (glass) {
+        if (padding === 'none') classes.push('card-padding-none');
+        else if (padding === 'small') classes.push('card-padding-sm');
+        else if (padding === 'medium') classes.push('card-padding-md');
+        else if (padding === 'large') classes.push('card-padding-lg');
+      } else {
+        if (padding === 'none') classes.push(styles.paddingNone);
+        else if (padding === 'small') classes.push(styles.paddingSmall);
+        else if (padding === 'medium') classes.push(styles.paddingMedium);
+        else if (padding === 'large') classes.push(styles.paddingLarge);
+      }
 
-      // States
+      // States - these work with both glass and non-glass
       if (selected) classes.push(styles.selected);
       if (loading) classes.push(styles.loading);
       if (disabled) classes.push(styles.disabled);
@@ -193,6 +204,9 @@ export const PurpleGlassCard = forwardRef<HTMLDivElement, PurpleGlassCardProps>(
       // Layout
       if (fullWidth) classes.push(styles.fullWidth);
       if (horizontal) classes.push(styles.horizontal);
+
+      // Static (no hover effects) for glass cards
+      if (glass && !onClick) classes.push('static');
 
       // Custom class
       if (className) classes.push(className);
@@ -235,6 +249,8 @@ export const PurpleGlassCard = forwardRef<HTMLDivElement, PurpleGlassCardProps>(
       return <div className={styles.footer}>{footer}</div>;
     };
 
+    // For glass mode, render children directly (like Dashboard's purple-glass-card divs)
+    // For non-glass mode, use the structured body wrapper
     return (
       <div
         ref={ref}
@@ -246,9 +262,17 @@ export const PurpleGlassCard = forwardRef<HTMLDivElement, PurpleGlassCardProps>(
         aria-disabled={disabled || loading}
         {...divProps}
       >
-        {renderHeader()}
-        {children && <div className={styles.body}>{children}</div>}
-        {renderFooter()}
+        {glass ? (
+          // Glass mode: render children directly, no wrapper divs
+          children
+        ) : (
+          // Non-glass mode: use structured layout with header/body/footer
+          <>
+            {renderHeader()}
+            {children && <div className={styles.body}>{children}</div>}
+            {renderFooter()}
+          </>
+        )}
       </div>
     );
   }

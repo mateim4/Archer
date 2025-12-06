@@ -366,8 +366,8 @@ export default function TasksView() {
 
   if (loading && tasks.length === 0) {
     return (
-      <div style={DesignTokens.components.pageContainer}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: DesignTokens.spacing.xl }}>
+      <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+        <div className="purple-glass-card static" style={{ padding: DesignTokens.spacing.xl, marginBottom: DesignTokens.spacing.xl }}>
           <PurpleGlassSkeleton variant="card" count={6} />
         </div>
       </div>
@@ -375,176 +375,179 @@ export default function TasksView() {
   }
 
   return (
-    <div role="region" aria-label="Tasks" data-testid="tasks-view" style={{...DesignTokens.components.pageContainer, overflow: 'visible'}}>
+    <div role="region" aria-label="Tasks" data-testid="tasks-view" style={{ maxWidth: '1400px', margin: '0 auto', overflow: 'visible' }}>
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
       <h1 style={{position:'absolute',width:'1px',height:'1px',overflow:'hidden',clipPath:'inset(50%)',whiteSpace:'nowrap'}}>Tasks</h1>
       
-      {/* Header */}
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
-        marginBottom: DesignTokens.spacing.xl, 
-        borderBottom: `2px solid ${DesignTokens.colors.primary}20`, 
-        paddingBottom: DesignTokens.spacing.lg 
-      }}>
-        <h2 style={{ 
-          fontSize: DesignTokens.typography.xxxl, 
-          fontWeight: DesignTokens.typography.semibold, 
-          color: 'var(--text-primary)', 
-          margin: '0', 
-          fontFamily: DesignTokens.typography.fontFamily, 
+      {/* Header Card */}
+      <div className="purple-glass-card static" style={{ padding: DesignTokens.spacing.xl, marginBottom: DesignTokens.spacing.xl }}>
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center', 
+          marginBottom: DesignTokens.spacing.lg, 
+          borderBottom: `2px solid ${DesignTokens.colors.primary}20`, 
+          paddingBottom: DesignTokens.spacing.lg 
+        }}>
+          <h2 style={{ 
+            fontSize: DesignTokens.typography.xxxl, 
+            fontWeight: DesignTokens.typography.semibold, 
+            color: 'var(--text-primary)', 
+            margin: '0', 
+            fontFamily: DesignTokens.typography.fontFamily, 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '12px' 
+          }}>
+            <TaskListSquareLtrRegular style={{ fontSize: '32px', color: 'var(--icon-default)' }} />
+            Tasks
+          </h2>
+          <PrimaryButton
+            data-testid="create-task-button"
+            size="large"
+            icon={<AddRegular />}
+            onClick={() => setShowCreateDialog(true)}
+          >
+            New Task
+          </PrimaryButton>
+        </div>
+
+        {/* Search and Filters Row */}
+        <div style={{ 
           display: 'flex', 
           alignItems: 'center', 
-          gap: '12px' 
+          gap: '16px',
+          flexWrap: 'wrap'
         }}>
-          <TaskListSquareLtrRegular style={{ fontSize: '32px', color: 'var(--icon-default)' }} />
-          Tasks
-        </h2>
-        <PrimaryButton
-          data-testid="create-task-button"
-          size="large"
-          icon={<AddRegular />}
-          onClick={() => setShowCreateDialog(true)}
-        >
-          New Task
-        </PrimaryButton>
-      </div>
-
-      {/* Search and Filters */}
-      <div style={{ 
-        marginBottom: '24px',
-        display: 'flex', 
-        alignItems: 'center', 
-        gap: '16px',
-        flexWrap: 'wrap'
-      }}>
-        <div style={{ flex: 1, minWidth: '250px', maxWidth: '400px' }}>
-          <GlassmorphicSearchBar
-            value={searchTerm}
-            onChange={(value) => setSearchTerm(value)}
-            placeholder="Search tasks..."
-            width="100%"
-          />
-        </div>
-        
-        {/* Filters */}
-        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-          <div style={{ minWidth: '140px' }}>
-            <PurpleGlassDropdown
-              options={[
-                { value: 'all', label: 'All Status' },
-                ...Object.entries(TASK_STATUS_LABELS).map(([value, label]) => ({ value, label }))
-              ]}
-              value={statusFilter}
-              onChange={(value) => setStatusFilter(value as TaskStatus | 'all')}
-              glass="light"
+          {/* Search on the left */}
+          <div style={{ minWidth: '250px', maxWidth: '400px' }}>
+            <GlassmorphicSearchBar
+              value={searchTerm}
+              onChange={(value) => setSearchTerm(value)}
+              placeholder="Search tasks..."
+              width="100%"
             />
           </div>
           
-          <div style={{ minWidth: '140px' }}>
-            <PurpleGlassDropdown
-              options={[
-                { value: 'all', label: 'All Priority' },
-                ...Object.entries(TASK_PRIORITY_LABELS).map(([value, label]) => ({ value, label }))
-              ]}
-              value={priorityFilter}
-              onChange={(value) => setPriorityFilter(value as TaskPriority | 'all')}
-              glass="light"
-            />
-          </div>
-          
-          <div style={{ minWidth: '160px' }}>
-            <PurpleGlassDropdown
-              options={[
-                { value: 'all', label: 'All Categories' },
-                ...Object.entries(TASK_CATEGORY_LABELS).map(([value, label]) => ({ value, label }))
-              ]}
-              value={categoryFilter}
-              onChange={(value) => setCategoryFilter(value as TaskCategory | 'all')}
-              glass="light"
-            />
-          </div>
-        </div>
-
-        {/* Statistics */}
-        <div style={{
-          display: 'flex',
-          gap: '24px',
-          alignItems: 'center',
-          marginLeft: 'auto'
-        }}>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{
-              fontSize: DesignTokens.typography.xxl,
-              fontWeight: DesignTokens.typography.bold,
-              color: TASK_STATUS_COLORS.in_progress,
-              lineHeight: '1'
-            }}>
-              {stats.inProgress}
-            </div>
-            <div style={{
-              fontSize: DesignTokens.typography.xs,
-              color: 'var(--text-secondary)',
-              textTransform: 'uppercase'
-            }}>
-              In Progress
-            </div>
-          </div>
-          
-          <div style={{ textAlign: 'center' }}>
-            <div style={{
-              fontSize: DesignTokens.typography.xxl,
-              fontWeight: DesignTokens.typography.bold,
-              color: TASK_STATUS_COLORS.pending,
-              lineHeight: '1'
-            }}>
-              {stats.pending}
-            </div>
-            <div style={{
-              fontSize: DesignTokens.typography.xs,
-              color: 'var(--text-secondary)',
-              textTransform: 'uppercase'
-            }}>
-              Pending
-            </div>
-          </div>
-          
-          {stats.overdue > 0 && (
+          {/* Statistics in center-ish area */}
+          <div style={{
+            display: 'flex',
+            gap: '24px',
+            alignItems: 'center',
+            flex: 1,
+            justifyContent: 'center'
+          }}>
             <div style={{ textAlign: 'center' }}>
               <div style={{
                 fontSize: DesignTokens.typography.xxl,
                 fontWeight: DesignTokens.typography.bold,
-                color: DesignTokens.colors.error,
+                color: TASK_STATUS_COLORS.in_progress,
                 lineHeight: '1'
               }}>
-                {stats.overdue}
+                {stats.inProgress}
               </div>
               <div style={{
                 fontSize: DesignTokens.typography.xs,
-                color: DesignTokens.colors.error,
+                color: 'var(--text-secondary)',
                 textTransform: 'uppercase'
               }}>
-                Overdue
+                In Progress
               </div>
             </div>
-          )}
-          
-          <div style={{ textAlign: 'center' }}>
-            <div style={{
-              fontSize: DesignTokens.typography.xxl,
-              fontWeight: DesignTokens.typography.bold,
-              color: TASK_STATUS_COLORS.completed,
-              lineHeight: '1'
-            }}>
-              {stats.completed}
+            
+            <div style={{ textAlign: 'center' }}>
+              <div style={{
+                fontSize: DesignTokens.typography.xxl,
+                fontWeight: DesignTokens.typography.bold,
+                color: TASK_STATUS_COLORS.pending,
+                lineHeight: '1'
+              }}>
+                {stats.pending}
+              </div>
+              <div style={{
+                fontSize: DesignTokens.typography.xs,
+                color: 'var(--text-secondary)',
+                textTransform: 'uppercase'
+              }}>
+                Pending
+              </div>
             </div>
-            <div style={{
-              fontSize: DesignTokens.typography.xs,
-              color: 'var(--text-secondary)',
-              textTransform: 'uppercase'
-            }}>
-              Completed
+            
+            {stats.overdue > 0 && (
+              <div style={{ textAlign: 'center' }}>
+                <div style={{
+                  fontSize: DesignTokens.typography.xxl,
+                  fontWeight: DesignTokens.typography.bold,
+                  color: DesignTokens.colors.error,
+                  lineHeight: '1'
+                }}>
+                  {stats.overdue}
+                </div>
+                <div style={{
+                  fontSize: DesignTokens.typography.xs,
+                  color: DesignTokens.colors.error,
+                  textTransform: 'uppercase'
+                }}>
+                  Overdue
+                </div>
+              </div>
+            )}
+            
+            <div style={{ textAlign: 'center' }}>
+              <div style={{
+                fontSize: DesignTokens.typography.xxl,
+                fontWeight: DesignTokens.typography.bold,
+                color: TASK_STATUS_COLORS.completed,
+                lineHeight: '1'
+              }}>
+                {stats.completed}
+              </div>
+              <div style={{
+                fontSize: DesignTokens.typography.xs,
+                color: 'var(--text-secondary)',
+                textTransform: 'uppercase'
+              }}>
+                Completed
+              </div>
+            </div>
+          </div>
+          
+          {/* Filters on the right */}
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+            <div style={{ minWidth: '140px' }}>
+              <PurpleGlassDropdown
+                options={[
+                  { value: 'all', label: 'All Status' },
+                  ...Object.entries(TASK_STATUS_LABELS).map(([value, label]) => ({ value, label }))
+                ]}
+                value={statusFilter}
+                onChange={(value) => setStatusFilter(value as TaskStatus | 'all')}
+                glass="light"
+              />
+            </div>
+            
+            <div style={{ minWidth: '140px' }}>
+              <PurpleGlassDropdown
+                options={[
+                  { value: 'all', label: 'All Priority' },
+                  ...Object.entries(TASK_PRIORITY_LABELS).map(([value, label]) => ({ value, label }))
+                ]}
+                value={priorityFilter}
+                onChange={(value) => setPriorityFilter(value as TaskPriority | 'all')}
+                glass="light"
+              />
+            </div>
+            
+            <div style={{ minWidth: '160px' }}>
+              <PurpleGlassDropdown
+                options={[
+                  { value: 'all', label: 'All Categories' },
+                  ...Object.entries(TASK_CATEGORY_LABELS).map(([value, label]) => ({ value, label }))
+                ]}
+                value={categoryFilter}
+                onChange={(value) => setCategoryFilter(value as TaskCategory | 'all')}
+                glass="light"
+              />
             </div>
           </div>
         </div>
@@ -770,46 +773,49 @@ export default function TasksView() {
                       {getCategoryIcon(task.category)}
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <h3 style={{
-                        margin: 0,
-                        fontSize: DesignTokens.typography.base,
-                        fontWeight: DesignTokens.typography.semibold,
-                        color: 'var(--text-primary)',
-                        lineHeight: '1.3',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                        paddingRight: '40px'
-                      }}>
-                        {task.title}
-                      </h3>
                       <div style={{
                         display: 'flex',
+                        alignItems: 'center',
                         gap: '8px',
-                        marginTop: '6px',
-                        flexWrap: 'wrap'
+                        marginBottom: '4px'
                       }}>
+                        <h3 style={{
+                          margin: 0,
+                          fontSize: DesignTokens.typography.base,
+                          fontWeight: DesignTokens.typography.semibold,
+                          color: 'var(--text-primary)',
+                          lineHeight: '1.3',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                          flex: 1,
+                          paddingRight: '40px'
+                        }}>
+                          {task.title}
+                        </h3>
                         <span style={{
                           background: `${TASK_STATUS_COLORS[task.status]}20`,
                           color: TASK_STATUS_COLORS[task.status],
                           padding: '2px 8px',
                           borderRadius: '4px',
                           fontSize: '11px',
-                          fontWeight: '600'
+                          fontWeight: '600',
+                          flexShrink: 0
                         }}>
                           {TASK_STATUS_LABELS[task.status]}
                         </span>
-                        <span style={{
-                          background: `${TASK_CATEGORY_COLORS[task.category]}15`,
-                          color: TASK_CATEGORY_COLORS[task.category],
-                          padding: '2px 8px',
-                          borderRadius: '4px',
-                          fontSize: '11px',
-                          fontWeight: '500'
-                        }}>
-                          {TASK_CATEGORY_LABELS[task.category]}
-                        </span>
                       </div>
+                      <span style={{
+                        background: `${TASK_CATEGORY_COLORS[task.category]}15`,
+                        color: TASK_CATEGORY_COLORS[task.category],
+                        padding: '2px 8px',
+                        borderRadius: '4px',
+                        fontSize: '11px',
+                        fontWeight: '500',
+                        display: 'inline-block'
+                      }}>
+                        {TASK_CATEGORY_LABELS[task.category]}
+                      </span>
                     </div>
                   </div>
 
@@ -833,21 +839,39 @@ export default function TasksView() {
                   {task.tags && task.tags.length > 0 && (
                     <div style={{
                       display: 'flex',
-                      gap: '6px',
+                      gap: '8px',
                       flexWrap: 'wrap',
                       marginBottom: DesignTokens.spacing.md
                     }}>
                       {task.tags.slice(0, 3).map((tag, index) => (
-                        <span key={index} style={{
-                          background: 'var(--btn-secondary-bg)',
-                          color: DesignTokens.colors.primary,
-                          padding: '2px 8px',
-                          borderRadius: '4px',
-                          fontSize: '11px',
-                          fontWeight: '500'
-                        }}>
-                          #{tag}
-                        </span>
+                        <button
+                          key={index}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSearchTerm(tag);
+                          }}
+                          style={{
+                            background: 'var(--btn-secondary-bg)',
+                            color: DesignTokens.colors.primary,
+                            padding: '4px 10px',
+                            borderRadius: '6px',
+                            fontSize: '11px',
+                            fontWeight: '500',
+                            border: '1px solid transparent',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = 'rgba(139, 92, 246, 0.15)';
+                            e.currentTarget.style.borderColor = DesignTokens.colors.primary;
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = 'var(--btn-secondary-bg)';
+                            e.currentTarget.style.borderColor = 'transparent';
+                          }}
+                        >
+                          {tag}
+                        </button>
                       ))}
                       {task.tags.length > 3 && (
                         <span style={{

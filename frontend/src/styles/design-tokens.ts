@@ -120,7 +120,8 @@ const spacing = {
 const typography = {
   // Font Families (Jura with no Roboto in fallback)
   fontFamilyBody: '"Jura", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-  fontFamilyHeading: '"Nasalization", "Jura", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+  fontFamilyHeading: '"Poppins", "Jura", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+  fontFamilySidebar: '"Nasalization", "Jura", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
   fontFamilyMonospace: '"Fira Code", "Consolas", "Monaco", monospace',
   
   // Legacy alias for backward compatibility

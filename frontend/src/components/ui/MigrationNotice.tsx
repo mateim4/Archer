@@ -9,12 +9,8 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
-  InfoRegular,
   DismissRegular,
-  FolderRegular,
-  ArrowRightRegular,
 } from '@fluentui/react-icons';
 
 /**
@@ -56,7 +52,6 @@ export const MigrationNotice: React.FC<MigrationNoticeProps> = ({
   className = '',
   style,
 }) => {
-  const navigate = useNavigate();
   const [isDismissed, setIsDismissed] = useState(() => {
     // Check localStorage on initial render
     try {
@@ -83,14 +78,6 @@ export const MigrationNotice: React.FC<MigrationNoticeProps> = ({
     onDismiss?.();
   };
 
-  const handleCreateProject = () => {
-    navigate('/app/projects?action=create');
-  };
-
-  const handleLearnMore = () => {
-    navigate('/app/guides');
-  };
-
   // Don't render if dismissed
   if (isDismissed) return null;
 
@@ -113,22 +100,6 @@ export const MigrationNotice: React.FC<MigrationNoticeProps> = ({
       }}
     >
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
-        {/* Info Icon */}
-        <div
-          style={{
-            width: '40px',
-            height: '40px',
-            borderRadius: '10px',
-            background: `linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.05))`,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0,
-          }}
-        >
-          <InfoRegular style={{ fontSize: '20px', color: NOTICE_COLORS.primary }} />
-        </div>
-
         {/* Content */}
         <div style={{ flex: 1 }}>
           <h3
@@ -148,7 +119,7 @@ export const MigrationNotice: React.FC<MigrationNoticeProps> = ({
           </h3>
           <p
             style={{
-              margin: '0 0 16px 0',
+              margin: 0,
               fontSize: '14px',
               color: 'var(--notice-text-color)',
               lineHeight: 1.6,
@@ -157,74 +128,8 @@ export const MigrationNotice: React.FC<MigrationNoticeProps> = ({
             }}
           >
             Migration Planner and Lifecycle Planner are now integrated into the project timeline workflow.
-            Create a new project to access these tools as part of your infrastructure planning activities.
+            Click "Add new Project" above to access these tools as part of your infrastructure planning activities.
           </p>
-
-          {/* Action Buttons */}
-          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-            {/* Primary Action */}
-            <button
-              onClick={handleCreateProject}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '10px 18px',
-                background: `linear-gradient(135deg, ${NOTICE_COLORS.primary}, ${NOTICE_COLORS.primaryDark})`,
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '13px',
-                fontWeight: '600',
-                fontFamily: "'Poppins', 'Montserrat', sans-serif",
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                boxShadow: `0 2px 8px rgba(59, 130, 246, 0.3)`,
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-1px)';
-                e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.4)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 2px 8px rgba(59, 130, 246, 0.3)';
-              }}
-            >
-              <FolderRegular style={{ fontSize: '16px' }} />
-              Create Your First Project
-              <ArrowRightRegular style={{ fontSize: '14px' }} />
-            </button>
-
-            {/* Secondary Action */}
-            <button
-              onClick={handleLearnMore}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '10px 18px',
-                background: 'var(--btn-ghost-bg)',
-                color: 'var(--text-primary)',
-                border: `1px solid var(--card-border)`,
-                borderRadius: '8px',
-                fontSize: '13px',
-                fontWeight: '600',
-                fontFamily: "'Poppins', 'Montserrat', sans-serif",
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'var(--btn-ghost-bg-hover)';
-                e.currentTarget.style.borderColor = 'var(--card-border-hover)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'var(--btn-ghost-bg)';
-                e.currentTarget.style.borderColor = 'var(--card-border)';
-              }}
-            >
-              Learn More
-            </button>
-          </div>
         </div>
 
         {/* Dismiss Button */}

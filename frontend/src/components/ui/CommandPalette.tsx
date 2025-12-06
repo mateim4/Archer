@@ -418,7 +418,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         style={{
           position: 'fixed',
           inset: 0,
-          background: 'rgba(0, 0, 0, 0.5)',
+          background: 'var(--modal-backdrop, rgba(0, 0, 0, 0.5))',
           backdropFilter: 'blur(4px)',
           zIndex: 9998,
         }}
@@ -436,10 +436,10 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
           transform: 'translateX(-50%)',
           width: '100%',
           maxWidth: '640px',
-          background: 'rgba(255, 255, 255, 0.95)',
+          background: 'var(--modal-bg, rgba(255, 255, 255, 0.95))',
           backdropFilter: 'blur(40px)',
           borderRadius: '16px',
-          boxShadow: '0 24px 48px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.3)',
+          boxShadow: '0 24px 48px rgba(0, 0, 0, 0.2), 0 0 0 1px var(--modal-border, rgba(255, 255, 255, 0.3))',
           overflow: 'hidden',
           zIndex: 9999,
         }}
@@ -448,12 +448,12 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         {/* Search Input */}
         <div style={{
           padding: '16px',
-          borderBottom: '1px solid rgba(0, 0, 0, 0.08)',
+          borderBottom: '1px solid var(--divider-color-subtle, rgba(0, 0, 0, 0.08))',
           display: 'flex',
           alignItems: 'center',
           gap: '12px',
         }}>
-          <SearchRegular style={{ color: tokens.colorNeutralForeground3, fontSize: '20px' }} />
+          <SearchRegular style={{ color: 'var(--text-secondary)', fontSize: '20px' }} />
           <input
             ref={inputRef}
             type="text"
@@ -468,7 +468,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
               background: 'transparent',
               fontSize: '16px',
               fontFamily: "'Poppins', sans-serif",
-              color: tokens.colorNeutralForeground1,
+              color: 'var(--text-primary)',
             }}
           />
           <div style={{
@@ -476,10 +476,10 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
             alignItems: 'center',
             gap: '4px',
             padding: '4px 8px',
-            background: 'rgba(0, 0, 0, 0.05)',
+            background: 'var(--btn-secondary-bg, rgba(0, 0, 0, 0.05))',
             borderRadius: '6px',
             fontSize: '11px',
-            color: tokens.colorNeutralForeground3,
+            color: 'var(--text-secondary)',
           }}>
             <KeyboardRegular style={{ fontSize: '12px' }} />
             <span>ESC</span>
@@ -496,7 +496,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
             <div style={{
               padding: '24px',
               textAlign: 'center',
-              color: tokens.colorNeutralForeground3,
+              color: 'var(--text-secondary)',
             }}>
               Searching...
             </div>
@@ -506,7 +506,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
             <div style={{
               padding: '24px',
               textAlign: 'center',
-              color: tokens.colorNeutralForeground3,
+              color: 'var(--text-secondary)',
             }}>
               No results found for "{query}"
             </div>
@@ -537,13 +537,13 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                 borderRadius: '8px',
                 background: index === selectedIndex 
                   ? 'rgba(139, 92, 246, 0.15)' 
-                  : 'rgba(0, 0, 0, 0.05)',
+                  : 'var(--btn-secondary-bg, rgba(0, 0, 0, 0.05))',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 color: index === selectedIndex 
                   ? '#8b5cf6' 
-                  : tokens.colorNeutralForeground2,
+                  : 'var(--text-secondary)',
                 flexShrink: 0,
               }}>
                 {result.icon || getTypeIcon(result.type)}
@@ -553,7 +553,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{
                   fontWeight: 500,
-                  color: tokens.colorNeutralForeground1,
+                  color: 'var(--text-primary)',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
                   whiteSpace: 'nowrap',
@@ -563,7 +563,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                 {result.subtitle && (
                   <div style={{
                     fontSize: '12px',
-                    color: tokens.colorNeutralForeground3,
+                    color: 'var(--text-secondary)',
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
                     whiteSpace: 'nowrap',
@@ -581,8 +581,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                 letterSpacing: '0.05em',
                 padding: '2px 6px',
                 borderRadius: '4px',
-                background: 'rgba(0, 0, 0, 0.05)',
-                color: tokens.colorNeutralForeground3,
+                background: 'var(--btn-secondary-bg, rgba(0, 0, 0, 0.05))',
+                color: 'var(--text-secondary)',
                 flexShrink: 0,
               }}>
                 {getTypeLabel(result.type)}
@@ -592,7 +592,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
               <ChevronRightRegular style={{
                 color: index === selectedIndex 
                   ? '#8b5cf6' 
-                  : tokens.colorNeutralForeground4,
+                  : 'var(--text-muted)',
                 flexShrink: 0,
               }} />
             </div>
@@ -602,12 +602,12 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         {/* Footer */}
         <div style={{
           padding: '12px 16px',
-          borderTop: '1px solid rgba(0, 0, 0, 0.08)',
+          borderTop: '1px solid var(--divider-color-subtle, rgba(0, 0, 0, 0.08))',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           fontSize: '11px',
-          color: tokens.colorNeutralForeground3,
+          color: 'var(--text-secondary)',
         }}>
           <div style={{ display: 'flex', gap: '16px' }}>
             <span>↑↓ Navigate</span>

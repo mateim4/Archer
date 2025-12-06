@@ -136,7 +136,7 @@ const LandingView: React.FC = () => {
                 fontWeight: '800',
                 color: 'var(--text-primary)',
                 margin: 0,
-                fontFamily: '"Nasalization", "Jura", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+                fontFamily: '"Poppins", "Jura", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
                 lineHeight: '1.1',
                 letterSpacing: '-0.02em'
               }}>
@@ -198,7 +198,7 @@ const LandingView: React.FC = () => {
                 fontWeight: '600',
                 cursor: 'pointer',
                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                fontFamily: '"Nasalization", "Jura", sans-serif',
+                fontFamily: '"Poppins", "Jura", sans-serif',
                 minWidth: '160px',
                 boxShadow: '0 4px 15px rgba(139, 92, 246, 0.35)'
               }}
@@ -236,7 +236,7 @@ const LandingView: React.FC = () => {
                 fontWeight: '600',
                 cursor: 'pointer',
                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                fontFamily: '"Nasalization", "Jura", sans-serif',
+                fontFamily: '"Poppins", "Jura", sans-serif',
                 minWidth: '160px'
               }}
               onMouseOver={(e) => {

@@ -761,12 +761,12 @@ const GanttChart: React.FC<GanttChartProps> = ({
           right: '16px',
           top: '120px',
           width: '320px',
-          background: 'rgba(255, 255, 255, 0.98)',
+          background: 'var(--modal-bg, rgba(255, 255, 255, 0.98))',
           backdropFilter: 'blur(20px)',
-          border: '1px solid rgba(139, 92, 246, 0.3)',
+          border: '1px solid var(--card-border, rgba(139, 92, 246, 0.3))',
           borderRadius: '12px',
           padding: '24px',
-          boxShadow: '0 16px 64px rgba(0, 0, 0, 0.15)',
+          boxShadow: 'var(--card-shadow, 0 16px 64px rgba(0, 0, 0, 0.15))',
           zIndex: 20
         }}>
           {(() => {

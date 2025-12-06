@@ -186,7 +186,7 @@ export const CreateIncidentModal: React.FC<CreateIncidentModalProps> = ({
         style={{
           position: 'fixed',
           inset: 0,
-          background: 'rgba(0, 0, 0, 0.5)',
+          background: 'var(--modal-backdrop, rgba(0, 0, 0, 0.5))',
           backdropFilter: 'blur(4px)',
           zIndex: 9998,
         }}
@@ -202,10 +202,10 @@ export const CreateIncidentModal: React.FC<CreateIncidentModalProps> = ({
           transform: 'translate(-50%, -50%)',
           width: '100%',
           maxWidth: '560px',
-          background: 'rgba(255, 255, 255, 0.95)',
+          background: 'var(--modal-bg, rgba(255, 255, 255, 0.95))',
           backdropFilter: 'blur(40px)',
           borderRadius: '16px',
-          boxShadow: '0 24px 48px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.3)',
+          boxShadow: 'var(--modal-shadow, 0 24px 48px rgba(0, 0, 0, 0.2)), 0 0 0 1px var(--modal-border, rgba(255, 255, 255, 0.3))',
           overflow: 'hidden',
           zIndex: 9999,
         }}
@@ -213,7 +213,7 @@ export const CreateIncidentModal: React.FC<CreateIncidentModalProps> = ({
         {/* Header */}
         <div style={{
           padding: '20px 24px',
-          borderBottom: '1px solid rgba(0, 0, 0, 0.08)',
+          borderBottom: '1px solid var(--divider-color-subtle, rgba(0, 0, 0, 0.08))',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -236,7 +236,7 @@ export const CreateIncidentModal: React.FC<CreateIncidentModalProps> = ({
                 margin: 0,
                 fontSize: '18px',
                 fontWeight: 600,
-                color: tokens.colorNeutralForeground1,
+                color: 'var(--text-primary)',
               }}>
                 {alertContext ? 'Create Incident from Alert' : 'Create New Ticket'}
               </h2>
@@ -244,7 +244,7 @@ export const CreateIncidentModal: React.FC<CreateIncidentModalProps> = ({
                 <p style={{
                   margin: '2px 0 0 0',
                   fontSize: '12px',
-                  color: tokens.colorNeutralForeground3,
+                  color: 'var(--text-muted)',
                 }}>
                   Pre-filled from alert • SLA timer will start on creation
                 </p>
@@ -259,16 +259,16 @@ export const CreateIncidentModal: React.FC<CreateIncidentModalProps> = ({
               padding: '8px',
               cursor: 'pointer',
               borderRadius: '8px',
-              color: tokens.colorNeutralForeground3,
+              color: 'var(--text-muted)',
               transition: 'all 0.15s ease',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(0, 0, 0, 0.05)';
-              e.currentTarget.style.color = tokens.colorNeutralForeground1;
+              e.currentTarget.style.background = 'var(--btn-ghost-bg-hover, rgba(0, 0, 0, 0.05))';
+              e.currentTarget.style.color = 'var(--text-primary)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = 'none';
-              e.currentTarget.style.color = tokens.colorNeutralForeground3;
+              e.currentTarget.style.color = 'var(--text-muted)';
             }}
           >
             <DismissRegular style={{ fontSize: '20px' }} />
@@ -289,7 +289,7 @@ export const CreateIncidentModal: React.FC<CreateIncidentModalProps> = ({
               gap: '12px',
             }}>
               <ServerRegular style={{ color: '#8b5cf6', fontSize: '16px' }} />
-              <span style={{ fontSize: '13px', color: tokens.colorNeutralForeground2 }}>
+              <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
                 Linked to:
               </span>
               <LinkedAssetBadge
@@ -367,12 +367,12 @@ export const CreateIncidentModal: React.FC<CreateIncidentModalProps> = ({
         {/* Footer */}
         <div style={{
           padding: '16px 24px',
-          borderTop: '1px solid rgba(0, 0, 0, 0.08)',
+          borderTop: '1px solid var(--divider-color-subtle, rgba(0, 0, 0, 0.08))',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
         }}>
-          <div style={{ fontSize: '12px', color: tokens.colorNeutralForeground3 }}>
+          <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
             {alertContext && (
               <span>Alert will be marked as "Incident Created"</span>
             )}

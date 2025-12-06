@@ -4,6 +4,7 @@ import {
   Eye, Settings, MoreVertical, Search, Filter, ArrowUpDown, Clock, Building,
   Target, Users, TrendingUp, Activity
 } from 'lucide-react';
+import { PurpleGlassCard } from '../components/ui';
 import { apiClient, Project, CreateProjectRequest } from '../utils/apiClient';
 
 interface ProjectWithActions extends Project {
@@ -51,19 +52,10 @@ const ProjectStats: React.FC<{ projects: Project[] }> = ({ projects }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
       {stats.map((stat, index) => (
-        <div
+        <PurpleGlassCard
           key={index}
-          style={{
-            background: 'var(--card-bg)',
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
-            border: '1px solid var(--card-border)',
-            borderRadius: '16px',
-            padding: '24px',
-            transition: 'all 0.3s ease',
-            boxShadow: 'var(--card-shadow)'
-          }}
-          className="group hover:scale-105 cursor-pointer"
+          padding="large"
+          className="group h-full transition-transform hover:scale-[1.02]"
         >
           <div className="flex items-center justify-between mb-4">
             <div className={`p-3 rounded-xl ${stat.color} text-white`}>
@@ -79,7 +71,7 @@ const ProjectStats: React.FC<{ projects: Project[] }> = ({ projects }) => {
           <div className="text-sm font-medium text-gray-600">
             {stat.label}
           </div>
-        </div>
+        </PurpleGlassCard>
       ))}
     </div>
   );
@@ -108,11 +100,7 @@ const ProjectCard: React.FC<{
   };
 
   return (
-    <div
-      className="purple-glass-card"
-      style={{ padding: '24px' }}
-      onClick={() => onView(project)}
-    >
+    <PurpleGlassCard padding="large" className="group" onClick={() => onView(project)}>
       {/* Project Header */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center space-x-3">
@@ -235,7 +223,7 @@ const ProjectCard: React.FC<{
           <span>Open Project</span>
         </button>
       </div>
-    </div>
+    </PurpleGlassCard>
   );
 };
 
@@ -347,28 +335,38 @@ const ProjectManagementView: React.FC = () => {
   };
 
   return (
-    <div>
-      <div className="lcm-page-container">
-        {/* Enhanced Header Section */}
-        <div
-          style={{
-            background: 'var(--card-bg)',
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
-            border: '1px solid var(--card-border)',
-            borderRadius: '20px',
-            padding: '32px',
-            marginBottom: '32px',
-            boxShadow: 'var(--card-shadow)'
-          }}
-        >
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+    <div data-testid="projects-view" style={{ maxWidth: '1400px', margin: '0 auto' }}>
+        {/* Enhanced Header Section - using raw div like Dashboard */}
+        <div className="purple-glass-card static" style={{ 
+          padding: '20px 24px',
+          marginBottom: '24px',
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}>
             <div>
-              <h1 className="text-4xl font-bold text-gray-900 mb-3 bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                Project Management
+              <h1 style={{
+                margin: 0,
+                fontSize: 'var(--lcm-font-size-xxxl, 32px)',
+                fontWeight: 600,
+                color: 'var(--text-primary)',
+                fontFamily: 'var(--lcm-font-family-heading, Poppins, sans-serif)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px'
+              }}>
+                <FolderOpen style={{ fontSize: '32px', color: 'var(--icon-default)' }} />
+                Projects
               </h1>
-              <p className="text-lg text-gray-600 font-medium">
-                Orchestrate your infrastructure projects with enterprise-grade precision
+              <p style={{
+                margin: '8px 0 0 0',
+                fontSize: '16px',
+                color: 'var(--text-secondary)',
+                fontFamily: 'var(--lcm-font-family-body, Poppins, sans-serif)',
+              }}>
+                Manage your infrastructure projects and workflows.
               </p>
             </div>
             <button
@@ -377,7 +375,7 @@ const ProjectManagementView: React.FC = () => {
               style={{ display: 'flex', alignItems: 'center', gap: '12px' }}
             >
               <Plus className="w-5 h-5" />
-              <span>New Project</span>
+              <span>Add New Project</span>
             </button>
           </div>
         </div>
@@ -386,18 +384,7 @@ const ProjectManagementView: React.FC = () => {
         <ProjectStats projects={projects} />
 
         {/* Search and Controls */}
-        <div
-          style={{
-            background: 'var(--card-bg)',
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
-            border: '1px solid var(--card-border)',
-            borderRadius: '16px',
-            padding: '24px',
-            marginBottom: '24px',
-            boxShadow: 'var(--card-shadow)'
-          }}
-        >
+        <PurpleGlassCard glass padding="large" className="static">
           <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
             {/* Search */}
             <div className="relative flex-1 max-w-md">
@@ -452,7 +439,7 @@ const ProjectManagementView: React.FC = () => {
               </div>
             </div>
           </div>
-        </div>
+        </PurpleGlassCard>
 
         {/* Projects Display */}
         {isLoading ? (
@@ -460,7 +447,7 @@ const ProjectManagementView: React.FC = () => {
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
           </div>
         ) : filteredProjects.length === 0 ? (
-          <div className="purple-glass-card static" style={{ padding: '64px', textAlign: 'center' as const }}>
+          <PurpleGlassCard glass padding="large" className="static" style={{ textAlign: 'center' }}>
             <div className="flex flex-col items-center space-y-6">
               <div className="p-6 rounded-full bg-gradient-to-br from-purple-100 to-indigo-100">
                 <FolderPlus className="w-12 h-12 text-purple-500" />
@@ -486,7 +473,7 @@ const ProjectManagementView: React.FC = () => {
                 </button>
               )}
             </div>
-          </div>
+          </PurpleGlassCard>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredProjects.map((project) => (
@@ -500,7 +487,6 @@ const ProjectManagementView: React.FC = () => {
             ))}
           </div>
         )}
-      </div>
     </div>
   );
 };

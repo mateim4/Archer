@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronRightRegular, HomeRegular } from '@fluentui/react-icons';
+import { ChevronRightRegular } from '@fluentui/react-icons';
 import { useBreadcrumbs } from '@/hooks/useBreadcrumbs';
 
 export interface BreadcrumbNavigationProps {
@@ -19,16 +19,14 @@ const GLASS_STYLES = {
     backdropFilter: 'var(--lcm-backdrop-filter, blur(20px))',
     borderRadius: '12px',
     padding: '12px 16px',
-    border: '1px solid var(--glass-border)',
-    boxShadow: 'var(--glass-shadow)'
+    border: '1px solid var(--glass-border)'
   },
   medium: {
     background: 'var(--glass-bg)',
     backdropFilter: 'var(--lcm-backdrop-filter, blur(20px))',
     borderRadius: '12px',
     padding: '12px 16px',
-    border: '1px solid var(--glass-border)',
-    boxShadow: 'var(--glass-shadow)'
+    border: '1px solid var(--glass-border)'
   }
 };
 
@@ -97,7 +95,9 @@ export const BreadcrumbNavigation: React.FC<BreadcrumbNavigationProps> = ({
                     fontSize: '14px',
                     fontWeight: 600,
                     color: 'var(--brand-primary)',
-                    fontFamily: 'inherit'
+                    fontFamily: 'inherit',
+                    whiteSpace: 'nowrap',
+                    overflow: 'visible'
                   }}
                 >
                   {crumb.label}
@@ -130,7 +130,6 @@ export const BreadcrumbNavigation: React.FC<BreadcrumbNavigationProps> = ({
                     e.currentTarget.style.color = 'var(--text-secondary)';
                   }}
                 >
-                  {isFirst && <HomeRegular style={{ fontSize: '16px' }} />}
                   <span>{crumb.label}</span>
                 </button>
               )}
