@@ -995,10 +995,10 @@ export const DashboardView: React.FC = () => {
                 <span style={{
                   fontSize: '12px',
                   fontWeight: 600,
-                  padding: '2px 8px',
+                  padding: '4px 10px',
                   borderRadius: '10px',
-                  background: 'rgba(239, 68, 68, 0.15)',
-                  color: '#ef4444',
+                  background: '#ef4444',
+                  color: 'white',
                 }}>
                   {MOCK_ALERTS.filter(a => !a.acknowledged).length} active
                 </span>
