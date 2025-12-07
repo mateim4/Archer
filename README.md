@@ -1,29 +1,33 @@
-# LCM Designer
+# Archer ITSM
 
-A comprehensive lifecycle management and infrastructure planning tool built with Tauri, React, and TypeScript.
+A comprehensive IT Service Management (ITSM) and Infrastructure Lifecycle Management platform built with React, TypeScript, Rust, and SurrealDB. Archer combines Project Portfolio Management (PPM), Hardware Lifecycle Management (LCM), and ITSM capabilities into a unified "ITIL Swiss Knife" platform.
+
+## 🎯 Vision
+
+Transform infrastructure management from passive record-keeping to an active, intelligent operations platform with:
+- **Unified IT Operations** - Merging PPM, ITSM, and ITAM in one platform
+- **Activity-Driven Workflows** - Projects contain activities with cluster migration strategies
+- **Modern UI/UX** - Purple Glass design system with Fluent UI 2 foundations
+- **Nutanix-First Focus** - Deep understanding of HCI concepts while supporting generic hardware
 
 ## 🚀 Quick Start
 
-New to the project? Start here:
-
 **📋 [Developer Onboarding Guide](docs/development/onboarding.md)** - Complete setup in 5 minutes
 
-**📖 [API Documentation](docs/api/openapi.yml)** - Comprehensive API reference
+**📖 [Component Library Guide](COMPONENT_LIBRARY_GUIDE.md)** - Purple Glass UI components
 
 **🏗️ [Architecture Overview](docs/development/architecture.md)** - System design and patterns
 
-**✅ Project Status**: Development environment stabilized, comprehensive documentation added, ready for active development!
-
 ### Quick Setup Commands
 ```bash
-# Automated setup (recommended)
-npm run setup
+# Frontend development (recommended)
+cd frontend
+npm install
+npm run dev          # Starts on http://localhost:1420
 
-# Manual setup
-git clone https://github.com/mateim4/LCMDesigner.git
-cd LCMDesigner
+# Full stack with backend
 npm run install-all
-npm start  # Starts both frontend and backend
+npm start            # Starts frontend + Rust backend
 ```
 
 **Access Points:**
@@ -31,314 +35,246 @@ npm start  # Starts both frontend and backend
 - Backend API: http://localhost:3001
 - Health Check: http://localhost:3001/health
 
-## Features
+## ✨ Current Features (December 2025)
 
-- **Dashboard**: Upload and analyze VMware RVTools exports
-- **Network Visualizer**: Generate network topology diagrams from infrastructure data
-- **Migration Planner**: Plan and visualize infrastructure migrations
-- **Lifecycle Planner**: Track hardware lifecycle and replacement schedules
-- **Hardware Basket Management**: Parse and manage vendor hardware catalogs (Dell, Lenovo)
-  - ✅ Intelligent Excel parsing with dynamic header detection
-  - ✅ Robust server model recognition (auto-detects new patterns)
-  - ✅ Database storage with SurrealDB backend
-  - ✅ Real-time model display and filtering
-- **Vendor Data Collection**: Integrate with vendor APIs for hardware information
-- **Settings**: Configure application preferences and data sources
+### 🎨 UI/UX System
+- **Purple Glass Design System** - Production-ready component library with glassmorphism aesthetic
+- **8 Core Components** - Button, Input, Textarea, Dropdown, Checkbox, Radio, Switch, Card
+- **Dark/Light Mode** - Full theme support with CSS variables (`--text-primary`, `--glass-bg`, etc.)
+- **Fluent UI 2 Tokens** - 100% token-based styling, zero hardcoded values
+- **Responsive Design** - Mobile-first with breakpoints at 640/768/1024/1280/1536px
 
-## Recent Updates
+### 📁 Project Management
+- **Projects View** - Card/List view with search, filtering, and sorting
+- **Project Workspace** - Unified view with Timeline, Overview, Capacity, and Infrastructure tabs
+- **Activity Management** - Create, edit, delete activities with status tracking
+- **Gantt Chart Timeline** - Visual timeline with drag-and-drop activity scheduling
+- **Cluster Strategy Manager** - Configure migration strategies per activity
 
-### Comprehensive Testing Infrastructure (October 2025) 🎉
-- **✅ Unit Tests**: 115 tests covering capacity calculations, HLD validation, Mermaid diagram generation
-- **✅ Integration Tests**: 28 tests for wizard state persistence and network discovery
-- **✅ E2E Tests**: 17 Playwright scenarios covering complete wizard flows, error handling, state recovery
-- **✅ Performance Tests**: K6 load tests for auto-save and network discovery (825 lines)
-- **✅ Benchmarks**: 16 Vitest benchmarks for capacity calculations with 4 topology sizes
-- **📊 Total Coverage**: 178+ tests across 4 frameworks (Vitest, Playwright, K6, React Testing Library)
+### 🎫 Service Desk (ITSM)
+- **Ticket System** - Incidents, Problems, Changes, Service Requests
+- **Kanban/List Views** - Multiple view modes for ticket management
+- **Priority Levels** - P1-P4 with visual indicators
+- **Status Workflow** - New → In Progress → Resolved → Closed
+- **Backend API** - Full CRUD operations with SurrealDB
 
-### Hardware Basket Module (August 2025)
-- **✅ Dynamic Dell Parsing**: Intelligent detection of all server models (18+ models including DHC series)
-- **✅ Robust Pattern Recognition**: Future-proof parsing that auto-detects new server prefixes
-- **✅ Database Integration**: Full SurrealDB backend with proper Thing object handling
-- **✅ Frontend Display**: Real-time basket selection and model table display
-- **🔧 In Progress**: Server configuration details (CPU, Memory, Storage) and Lenovo basket isolation
+### 📊 Inventory & CMDB
+- **Asset Management** - Hardware inventory with detailed specs
+- **Hardware Baskets** - Parse and manage vendor catalogs (Dell, Lenovo)
+- **Hardware Pool** - Track available hardware for migrations
+- **RVTools Import** - Parse VMware exports for migration planning
 
-### Architecture Improvements
-- **✅ Rust Backend**: High-performance parsing engine with comprehensive logging
-- **✅ Database Schema**: Proper relationships between baskets, models, and configurations
-- **✅ API Endpoints**: RESTful endpoints for basket management and model retrieval
+### 📈 Monitoring & Analytics
+- **Dashboard View** - Stats cards, activity timeline, critical alerts
+- **Capacity Visualizer** - Resource utilization and planning
+- **Infrastructure Visualizer** - Hardware pool and migration topology views
 
-## Architecture
+### 🔧 Additional Tools
+- **Document Templates** - Generate standardized documentation
+- **Guides View** - Built-in help and tutorials
+- **Settings** - Theme, preferences, and configuration
 
-- **Frontend**: React + TypeScript + Vite (v5.4.19 - stable)
-- **Primary Backend**: Rust (Axum + SurrealDB) for hardware parsing and data management
-  - High-performance Excel parsing with `calamine` crate
-  - Dynamic header detection and intelligent pattern recognition
-  - Comprehensive logging and error handling
-  - RESTful API with proper error responses
-- **Legacy Backend**: Express.js server for secure file processing  
-- **Legacy Server**: ExcelJS-based processing (security hardened)
-- **Database**: SurrealDB with Thing objects for proper relationships
-- **Desktop App**: Tauri (Rust) for native desktop functionality
-- **UI Framework**: Custom Fluent UI-inspired design system with Tailwind CSS v3
-
-## Development Setup
-
-### Automated Setup (Recommended)
-
-```bash
-git clone https://github.com/mateim4/LCMDesigner.git
-cd LCMDesigner
-
-# Frontend development server (recommended for UI work)
-cd frontend
-npm install
-npm run dev          # Starts on http://localhost:1420
-
-# Or full stack setup
-cd ..
-./scripts/setup-dependencies.sh
-npm install
-npm run dev
-```
-
-### Docker Setup
-
-```bash
-git clone https://github.com/mateim4/LCMDesigner.git
-cd LCMDesigner
-docker-compose up --build
-```
-
-### Manual Setup
-
-See [DEPENDENCIES.md](DEPENDENCIES.md) for detailed system requirements and [QUICK_START.md](QUICK_START.md) for step-by-step instructions.
-
-## Documentation
-
-### 📚 Developer Documentation
-- **[Developer Onboarding](docs/development/onboarding.md)** - Complete setup guide for new developers
-- **[Architecture Overview](docs/development/architecture.md)** - System design, patterns, and technology stack
-- **[Component Documentation](docs/development/components.md)** - React component library with examples
-- **[Troubleshooting Guide](docs/development/troubleshooting.md)** - Solutions for common development issues
-
-### 🔌 API Documentation
-- **[OpenAPI Specification](docs/api/openapi.yml)** - Complete REST API documentation
-- **[Authentication Guide](docs/api/authentication.md)** - Security implementation and best practices
-
-### 🎨 Design Documentation
-- **[Design System](docs/design/)** - UI components and styling guidelines
-- **[Quick Start Guide](docs/design/QUICK_START.md)** - Fast setup for contributors
-
-### 🧪 Testing Documentation
-- **[Testing Strategy](docs/testing/)** - Unit, integration, and E2E testing approaches
-
-## Scripts
-
-```bash
-# Development
-npm run dev               # Start frontend dev server (port 1420)
-npm run dev:backend       # Start Rust backend with hot reload
-npm run dev:full          # Start both frontend and backend together
-npm start                 # Start both frontend and backend (concurrently)
-
-# Building
-npm run build             # Build frontend for production
-npm run build:backend     # Build Rust backend for production
-npm run build:all         # Build both frontend and backend
-
-# Testing
-npm run test              # Run frontend tests
-npm run test:rust         # Run Rust backend tests
-npm run test:e2e          # Run Playwright E2E tests
-npm run test:all          # Run all tests
-
-# Development Tools
-npm run setup             # Automated environment setup
-npm run install-all       # Install all dependencies (frontend + backend)
-npm run clean             # Clean build artifacts
-npm run lint              # Run ESLint
-npm run lint:fix          # Fix ESLint issues automatically
-npm run type-check        # Run TypeScript type checking
-npm run format            # Format code with Prettier
-
-# Documentation
-npm run docs:api          # Serve API documentation (when available)
-npm run docs:components   # Start Storybook for component docs (when available)
-```
-
-## Project Structure
+## 🏗️ Architecture
 
 ```
-LCMDesigner/
+┌─────────────────────────────────────────────────────────────┐
+│                     Frontend (React + TypeScript)            │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │
+│  │ Purple Glass│  │   Fluent    │  │   Design Tokens     │  │
+│  │ Components  │  │   UI 2      │  │   (CSS Variables)   │  │
+│  └─────────────┘  └─────────────┘  └─────────────────────┘  │
+├─────────────────────────────────────────────────────────────┤
+│                     Backend (Rust + Axum)                    │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │
+│  │  Tickets    │  │  Projects   │  │  Hardware Baskets   │  │
+│  │  API        │  │  API        │  │  Parser             │  │
+│  └─────────────┘  └─────────────┘  └─────────────────────┘  │
+├─────────────────────────────────────────────────────────────┤
+│                     Database (SurrealDB)                     │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │
+│  │  Tickets    │  │  Projects   │  │  Hardware Lots      │  │
+│  │  (ITSM)     │  │  Activities │  │  Components         │  │
+│  └─────────────┘  └─────────────┘  └─────────────────────┘  │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Technology Stack
+- **Frontend**: React 18 + TypeScript + Vite 5.4
+- **UI Framework**: Purple Glass Components + Fluent UI 2
+- **Backend**: Rust (Axum) for high-performance APIs
+- **Database**: SurrealDB with graph relationships
+- **Desktop**: Tauri for native app packaging
+- **Styling**: Tailwind CSS v3 + CSS Variables
+
+## 📁 Project Structure
+
+```
+Archer/
 ├── frontend/                    # React + TypeScript frontend
-│   ├── src/                    # Source code
+│   ├── src/
 │   │   ├── components/         # Reusable UI components
-│   │   ├── views/             # Main application views
-│   │   │   └── VendorDataCollectionView.tsx  # Hardware basket management
-│   │   ├── store/             # State management (Zustand)
-│   │   ├── utils/             # Utility functions
-│   │   └── types/             # TypeScript definitions
-│   ├── public/                # Static assets
-│   └── package.json           # Frontend dependencies
-├── backend/                   # Rust backend (PRIMARY)
+│   │   │   ├── ui/            # Purple Glass component library
+│   │   │   ├── Activity/      # Activity wizard components
+│   │   │   └── ClusterStrategy/ # Migration strategy components
+│   │   ├── views/             # Main application views (50+ views)
+│   │   ├── styles/            # Design tokens and CSS
+│   │   └── hooks/             # Custom React hooks
+├── backend/                    # Rust backend (Axum + SurrealDB)
 │   ├── src/
 │   │   ├── api/              # REST API endpoints
-│   │   │   └── hardware_baskets.rs  # Basket management API
-│   │   ├── database.rs       # SurrealDB connection
-│   │   └── main.rs          # Server entry point
-│   └── Cargo.toml           # Rust dependencies
-├── core-engine/              # Hardware parsing engine
-│   ├── src/
-│   │   ├── hardware_parser/  # Excel parsing logic
-│   │   │   ├── basket_parser_new.rs  # Robust parsing engine
-│   │   │   └── spec_parser.rs        # Hardware spec extraction
-│   │   ├── models/          # Data structures
-│   │   │   └── hardware_basket.rs   # Core data models
-│   │   └── vendor_data/     # Vendor-specific logic
-│   └── Cargo.toml          # Engine dependencies
-├── legacy-server/           # Express.js API (legacy)
-│   ├── server.js           # ExcelJS-based processing
-│   └── uploads/            # File upload directory
-├── src-tauri/              # Tauri desktop app
-│   ├── src/                # Rust desktop code
-│   └── Cargo.toml         # Tauri dependencies
-├── docs/                   # Documentation
-│   ├── development/       # Development guides
-│   ├── design/           # UI/UX documentation
-│   └── testing/          # Testing documentation
-├── scripts/               # Setup utilities
-├── tests/                # Playwright E2E tests
-└── .github/              # GitHub templates
-    └── ISSUE_TEMPLATE/   # Issue templates
+│   │   │   ├── tickets.rs    # ITSM ticket management
+│   │   │   └── hardware_baskets.rs
+│   │   ├── models/           # Data models
+│   │   │   └── ticket.rs     # Ticket entity
+│   │   └── database.rs       # SurrealDB connection
+├── core-engine/               # Hardware parsing engine
+├── product_docs/              # Product documentation
+├── docs/                      # Developer documentation
+└── .github/                   # GitHub workflows and templates
+    └── instructions/          # AI agent instructions
 ```
 
-## System Requirements
+## 🎨 Design System
 
-### Development Dependencies
+### Purple Glass Components
+All form components use the Purple Glass design system:
 
-- **Node.js** (v16 or higher)
-- **Rust** (latest stable)
-- **JavaScriptCore GTK 4.0** (Linux only)
-- **WebKit2GTK** (Linux only)
-- **GTK 4** (Linux only)
+```tsx
+import { 
+  PurpleGlassButton, 
+  PurpleGlassInput, 
+  PurpleGlassDropdown,
+  PurpleGlassCard 
+} from '@/components/ui';
 
-### Supported Platforms
+// Primary action button with glass effect
+<PurpleGlassButton variant="primary" glass>
+  Create Project
+</PurpleGlassButton>
 
-- **Linux**: Ubuntu 20.04+, Fedora 35+, Arch Linux
-- **macOS**: 10.15+ (Catalina)
-- **Windows**: 10+ (with WSL for development)
+// Themed input with dark mode support
+<PurpleGlassInput 
+  label="Project Name"
+  placeholder="Enter project name..."
+/>
+```
 
-## File Format Support
+### CSS Variables (Theme-Aware)
+```css
+/* Light Mode */
+--text-primary: #18181b;
+--text-secondary: #3f3f46;
+--glass-bg: rgba(255, 255, 255, 0.82);
+--glass-border: rgba(139, 92, 246, 0.15);
 
-### Input Formats
+/* Dark Mode */
+--text-primary: #fafafa;
+--text-secondary: #d4d4d8;
+--glass-bg: rgba(23, 23, 23, 0.92);
+--glass-border: rgba(255, 255, 255, 0.08);
+```
 
-- **Excel (.xlsx)**: VMware RVTools exports, hardware inventories
-- **CSV**: Network configurations, device lists
-- **JSON**: Custom data formats
-- **XML**: Configuration exports
+## 📋 Recent Updates (December 2025)
 
-### Processing Capabilities
+### UI/UX Improvements
+- ✅ Removed duplicate breadcrumb navigation
+- ✅ Fixed dark mode styling across all project pages
+- ✅ Replaced hardcoded colors with CSS variables
+- ✅ Unified glassmorphic card styling
+- ✅ Activity-driven project workflow implementation
 
-- **Server-side Excel processing**: Secure ExcelJS-based conversion and parsing
-- **Client-side CSV processing**: Web-based parsing for smaller files  
-- **Real-time file validation**: Type checking and format verification
-- **Vendor detection**: Automatic identification of file sources
-- **Security hardened**: All vulnerabilities resolved, sandboxed processing
+### Component Library
+- ✅ PurpleGlassDropdown with full accessibility
+- ✅ ActivityWizardModal for creating activities
+- ✅ ClusterStrategyModal for migration planning
+- ✅ ViewToggleSlider for timeline/list switching
+- ✅ GanttChart with drag-and-drop support
 
-## Contributing
+### Backend Services
+- ✅ Ticket CRUD API (Rust + Axum)
+- ✅ Project/Activity management
+- ✅ Hardware basket parsing (Dell, Lenovo)
+- ✅ SurrealDB integration with Thing objects
 
-1. **Fork the repository**
-2. **Follow the Quick Start guide** to set up your development environment
-3. **Create a feature branch**: `git checkout -b feature/amazing-feature`
-4. **Make your changes** and add tests if applicable
-5. **Commit your changes**: `git commit -m 'Add amazing feature'`
-6. **Push to the branch**: `git push origin feature/amazing-feature`
-7. **Open a Pull Request**
+---
 
-### Development Guidelines
+## 🧪 Testing
 
-- Use TypeScript for all new code
-- Follow the existing code style and conventions
-- Add JSDoc comments for public APIs
-- Update documentation for new features
-- Test your changes on multiple platforms if possible
-- Use GitHub issue templates for bugs, features, and UI/UX improvements
+```bash
+# Run all frontend tests
+cd frontend && npm test
 
-### Project Status
+# Run Rust backend tests
+cargo test --workspace
 
-✅ **Security**: All major vulnerabilities resolved  
-✅ **Development Environment**: Stable and running (port 1420)  
-✅ **Dependencies**: Clean and up-to-date  
-✅ **Documentation**: Comprehensive guides and templates  
-✅ **GitHub Integration**: Issue templates and workflows ready
+# Run E2E tests with Playwright
+npm run test:e2e
+```
 
-## Troubleshooting
+---
 
-### Common Issues
+## 📖 Documentation
 
-1. **JavaScriptCore GTK not found**: See [DEPENDENCIES.md](DEPENDENCIES.md) for installation instructions
-2. **Build failures**: Try `npm run clean && npm install && cargo clean`
-3. **Port conflicts**: Frontend runs on port 1420, backend on 3001
-4. **Vite errors**: Run `cd frontend && rm -rf node_modules && npm install`
+| Document | Description |
+|----------|-------------|
+| [QUICK_START.md](QUICK_START.md) | Development environment setup |
+| [DEPENDENCIES.md](DEPENDENCIES.md) | Required dependencies |
+| [COMPONENT_LIBRARY_GUIDE.md](COMPONENT_LIBRARY_GUIDE.md) | Purple Glass component API |
+| [DESIGN_TOKEN_DOCUMENTATION.md](DESIGN_TOKEN_DOCUMENTATION.md) | Design system tokens |
+| [product_docs/](product_docs/) | Product requirements & vision |
 
-### Recent Fixes
+---
 
-✅ **Security vulnerabilities resolved** (ExcelJS migration, dependency updates)  
-✅ **Vite module resolution fixed** (Tailwind CSS compatibility)  
-✅ **Development environment stabilized** (working on port 1420)
+## 🗺️ Roadmap
 
-### Getting Help
-
-- **Documentation**: Check [QUICK_START.md](QUICK_START.md) and [DEPENDENCIES.md](DEPENDENCIES.md)
-- **Issues**: Search existing GitHub issues or create a new one
-- **Community**: Join our development discussions (if available)
-
-## Security
-
-- All file processing is sandboxed and security hardened
-- ExcelJS replaces vulnerable xlsx library (2024 security update)
-- No sensitive data is stored permanently
-- Server endpoints are CORS-protected  
-- Input validation on all file uploads
-- Regular dependency audits and updates
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Acknowledgments
-
-- **Tauri**: For the excellent desktop app framework
-- **React**: For the robust frontend framework
-- **Fluent UI**: For design inspiration
-- **WebKit**: For the JavaScript engine integration
-- **Contributors**: All the developers who have contributed to this project
-
-## Roadmap
-
-### Immediate (Next Sprint)
-- [x] Comprehensive testing infrastructure (143 unit/integration tests, 17 E2E scenarios, performance benchmarks)
-- [ ] Fix backend Rust compilation issues (blocking migration API)
-- [ ] Modular HLD generation system for Hyper-V clusters
-- [ ] Backend integration for wizard state persistence
+### In Progress
+- [ ] Ticketing system with GitHub/Jira integration
+- [ ] Fix backend Rust compilation issues
+- [ ] RVTools frontend UI completion
 
 ### Short Term
-- [ ] Variable-driven HLD templates with customizable sections
+- [ ] Hardware basket → project workflow integration
 - [ ] Enhanced network topology visualization
-- [ ] Hardware basket integration with project workflows
-- [ ] RVTools frontend UI completion (currently 20% done)
+- [ ] HLD generation for Hyper-V clusters
 
-### Medium Term
-- [ ] Additional vendor API integrations
-- [ ] Advanced migration planning tools with Gantt charts
-- [ ] Performance optimization based on benchmark results
-
-### Long Term  
+### Long Term
 - [ ] Cloud platform support
 - [ ] Mobile companion app
 - [ ] Enterprise SSO integration
 
 ---
 
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Follow the [design system guidelines](.github/instructions/)
+4. Commit your changes with descriptive messages
+5. Push and open a Pull Request
+
+### Development Guidelines
+- Use TypeScript for all new code
+- Follow Fluent UI 2 design patterns
+- Use Purple Glass components for forms/inputs
+- Apply CSS variables for all colors/spacing
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 🙏 Acknowledgments
+
+- **Tauri** - Desktop app framework
+- **Fluent UI 2** - Design system foundation
+- **React** - Frontend framework
+- **SurrealDB** - Database engine
+- **Axum** - Rust web framework
+
+---
+
 **🔗 Quick Links**  
-📋 [Quick Start Guide](QUICK_START.md) | 🔧 [Dependencies](DEPENDENCIES.md) | 📝 [GitHub Issues](https://github.com/mateim4/LCMDesigner/issues)
+📋 [Quick Start](QUICK_START.md) | 🔧 [Dependencies](DEPENDENCIES.md) | 🎨 [Components](COMPONENT_LIBRARY_GUIDE.md) | 📝 [Issues](https://github.com/mateim4/Archer/issues)
