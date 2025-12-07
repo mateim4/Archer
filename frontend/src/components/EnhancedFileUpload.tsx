@@ -181,8 +181,8 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
     <div
       className={`relative border-2 border-dashed rounded-lg text-center transition-colors ${
         dragActive
-          ? 'border-purple-400 bg-purple-50'
-          : 'border-gray-300 hover:border-purple-400'
+          ? 'border-purple-400'
+          : 'hover:border-purple-400'
       } ${processing ? 'pointer-events-none opacity-75' : 'cursor-pointer'}`}
       style={{
         width: '100%',
@@ -196,9 +196,9 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
         alignItems: 'center',
         background: dragActive 
           ? 'linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%)'
-          : 'rgba(255, 255, 255, 0.1)',
+          : 'var(--glass-bg)',
         backdropFilter: 'blur(10px)',
-        borderColor: dragActive ? 'rgba(168, 85, 247, 0.5)' : 'rgba(156, 163, 175, 0.5)',
+        borderColor: dragActive ? 'rgba(168, 85, 247, 0.5)' : 'var(--card-border)',
       }}
       onClick={!processing ? handleFileSelect : undefined}
       onDragEnter={isWebEnvironment ? handleDrag : undefined}
@@ -209,15 +209,16 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
       {processing ? (
         <div className="flex flex-col items-center space-y-1">
           <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-purple-500"></div>
-          <p className="text-xs text-gray-600">{getProcessingMessage()}</p>
+          <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>{getProcessingMessage()}</p>
         </div>
       ) : (
         <div className="flex flex-col items-center space-y-1">
           <svg
-            className="w-6 h-6 text-gray-400"
+            className="w-6 h-6"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
+            style={{ color: 'var(--text-muted)' }}
           >
             <path
               strokeLinecap="round"
@@ -227,12 +228,12 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
             />
           </svg>
           <div className="flex flex-col items-center">
-            <p className="text-xs font-medium text-gray-700 mb-0.5">
+            <p className="text-xs font-medium mb-0.5" style={{ color: 'var(--text-primary)' }}>
               {isWebEnvironment && dragActive ? 'Drop file here' : 'Click to upload file'}
             </p>
-            <p className="text-xs text-gray-500 mb-0.5">{getUploadMessage()}</p>
+            <p className="text-xs mb-0.5" style={{ color: 'var(--text-secondary)' }}>{getUploadMessage()}</p>
             {isWebEnvironment && (
-              <p className="text-xs text-gray-400">
+              <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
                 Or drag and drop files here
               </p>
             )}
@@ -242,7 +243,7 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
               </p>
             )}
           </div>
-          <div className="text-xs text-gray-400">
+          <div className="text-xs" style={{ color: 'var(--text-muted)' }}>
             {acceptedTypes.join(', ')}
           </div>
         </div>

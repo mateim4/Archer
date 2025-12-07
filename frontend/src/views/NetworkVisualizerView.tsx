@@ -323,14 +323,14 @@ const NetworkVisualizerView = () => {
           const element = document.getElementById('mermaid-diagram');
           if (element) {
             const safeHTML = DOMPurify.sanitize(`
-              <div class="border border-gray-200 rounded-lg p-6 text-center">
-                <div class="text-gray-400 mb-2">
+              <div class="border rounded-lg p-6 text-center" style="border-color: var(--card-border);">
+                <div class="mb-2" style="color: var(--text-muted);">
                   <svg class="w-8 h-8 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                   </svg>
                 </div>
-                <p class="font-medium text-gray-600 mb-1">No diagram data available</p>
-                <p class="text-sm text-gray-500">Upload an RVTools file or configure your infrastructure to generate network diagrams</p>
+                <p class="font-medium mb-1" style="color: var(--text-secondary);">No diagram data available</p>
+                <p class="text-sm" style="color: var(--text-muted);">Upload an RVTools file or configure your infrastructure to generate network diagrams</p>
               </div>
             `);
             element.innerHTML = safeHTML;

@@ -202,8 +202,8 @@ export const MigrationProjects: React.FC<MigrationProjectsProps> = ({ className 
     <div className={`migration-projects p-6 ${className}`}>
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Migration Projects</h1>
-          <p className="text-gray-600">Manage your VMware to Hyper-V/Azure Local migration projects</p>
+          <h1 className="text-3xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Migration Projects</h1>
+          <p style={{ color: 'var(--text-secondary)' }}>Manage your VMware to Hyper-V/Azure Local migration projects</p>
         </div>
         
         <Button 
@@ -216,7 +216,7 @@ export const MigrationProjects: React.FC<MigrationProjectsProps> = ({ className 
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
+      <div className="flex flex-wrap gap-4 mb-6 p-4 rounded-lg" style={{ backgroundColor: 'var(--glass-bg)' }}>
         <div className="flex-1 min-w-64">
           <PurpleGlassInput
             label="Search"
@@ -289,7 +289,7 @@ export const MigrationProjects: React.FC<MigrationProjectsProps> = ({ className 
               </CardHeader>
               
               <div className="px-4 pb-4">
-                <p className="text-gray-600 text-sm mb-4 line-clamp-2">{project.description}</p>
+                <p className="text-sm mb-4 line-clamp-2" style={{ color: 'var(--text-secondary)' }}>{project.description}</p>
                 
                 {/* Progress */}
                 <div className="mb-4">
@@ -303,7 +303,7 @@ export const MigrationProjects: React.FC<MigrationProjectsProps> = ({ className 
                 {/* Stats */}
                 <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
                   <div>
-                    <div className="flex items-center gap-1 text-gray-500 mb-1">
+                    <div className="flex items-center gap-1 mb-1" style={{ color: 'var(--text-muted)' }}>
                       <CheckmarkCircle24Regular className="w-3 h-3" />
                       <span>Tasks</span>
                     </div>
@@ -313,7 +313,7 @@ export const MigrationProjects: React.FC<MigrationProjectsProps> = ({ className 
                   </div>
                   
                   <div>
-                    <div className="flex items-center gap-1 text-gray-500 mb-1">
+                    <div className="flex items-center gap-1 mb-1" style={{ color: 'var(--text-muted)' }}>
                       <Calendar24Regular className="w-3 h-3" />
                       <span>End Date</span>
                     </div>
@@ -325,7 +325,7 @@ export const MigrationProjects: React.FC<MigrationProjectsProps> = ({ className 
 
                 {/* Team */}
                 <div className="mb-4">
-                  <div className="flex items-center gap-1 text-gray-500 mb-2 text-sm">
+                  <div className="flex items-center gap-1 mb-2 text-sm" style={{ color: 'var(--text-muted)' }}>
                     <People24Regular className="w-3 h-3" />
                     <span>Team</span>
                   </div>
@@ -339,7 +339,7 @@ export const MigrationProjects: React.FC<MigrationProjectsProps> = ({ className 
                       />
                     ))}
                     {project.teamMembers.length > 3 && (
-                      <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-xs font-medium border-2 border-white">
+                      <div className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium border-2" style={{ backgroundColor: 'var(--glass-bg-hover)', borderColor: 'var(--card-bg)' }}>
                         +{project.teamMembers.length - 3}
                       </div>
                     )}
@@ -388,8 +388,8 @@ export const MigrationProjects: React.FC<MigrationProjectsProps> = ({ className 
                       </div>
                     </CardHeader>
                     <div className="px-4 pb-4">
-                      <p className="text-gray-600 mb-4">{template.description}</p>
-                      <div className="flex justify-between text-sm text-gray-500">
+                      <p className="mb-4" style={{ color: 'var(--text-secondary)' }}>{template.description}</p>
+                      <div className="flex justify-between text-sm" style={{ color: 'var(--text-muted)' }}>
                         <span>{template.tasks.length} tasks</span>
                         <span>{template.estimatedDuration} days</span>
                       </div>
@@ -412,11 +412,11 @@ export const MigrationProjects: React.FC<MigrationProjectsProps> = ({ className 
 
       {filteredProjects.length === 0 && (
         <div className="text-center py-12">
-          <div className="text-gray-400 mb-4">
+          <div className="mb-4" style={{ color: 'var(--text-muted)' }}>
             <Settings24Regular className="w-16 h-16 mx-auto" />
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No projects found</h3>
-          <p className="text-gray-500 mb-4">
+          <h3 className="text-lg font-medium mb-2" style={{ color: 'var(--text-primary)' }}>No projects found</h3>
+          <p className="mb-4" style={{ color: 'var(--text-muted)' }}>
             {searchTerm || filterStatus !== 'all' || filterType !== 'all'
               ? 'Try adjusting your filters or search term.'
               : 'Get started by creating your first migration project.'}

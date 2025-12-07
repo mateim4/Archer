@@ -311,7 +311,10 @@ const ProjectManagementView: React.FC = () => {
                     handleEditProject(project);
                     setIsOpen(false);
                   }}
-                  className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center space-x-2"
+                  className="w-full text-left px-4 py-2 text-sm flex items-center space-x-2"
+                  style={{ color: 'var(--text-primary)' }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--glass-bg-hover)'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                 >
                   <Edit3 className="w-4 h-4" />
                   <span>Edit Project</span>
@@ -322,7 +325,10 @@ const ProjectManagementView: React.FC = () => {
                     handleDeleteProject(project);
                     setIsOpen(false);
                   }}
-                  className="w-full text-left px-4 py-2 text-sm hover:bg-red-50 text-red-600 flex items-center space-x-2"
+                  className="w-full text-left px-4 py-2 text-sm flex items-center space-x-2"
+                  style={{ color: 'var(--status-critical)' }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.1)'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                 >
                   <Trash2 className="w-4 h-4" />
                   <span>Delete Project</span>
@@ -335,7 +341,10 @@ const ProjectManagementView: React.FC = () => {
                     showToast('Project ID copied to clipboard', 'success');
                     setIsOpen(false);
                   }}
-                  className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center space-x-2"
+                  className="w-full text-left px-4 py-2 text-sm flex items-center space-x-2"
+                  style={{ color: 'var(--text-primary)' }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--glass-bg-hover)'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                 >
                   <Settings className="w-4 h-4" />
                   <span>Copy Project ID</span>
@@ -393,15 +402,15 @@ const ProjectManagementView: React.FC = () => {
               <FolderOpen className="w-6 h-6 text-white" />
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-gray-900 text-lg truncate group-hover:text-purple-700 transition-colors">
+              <h3 className="font-semibold text-lg truncate group-hover:text-purple-700 transition-colors" style={{ color: 'var(--text-primary)' }}>
                 {project.name}
               </h3>
-              <p className="text-sm text-gray-500">Project #{project.id}</p>
+              <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Project #{project.id}</p>
             </div>
           </div>
           
           {/* Project Description */}
-          <p className="text-gray-600 mb-6 flex-grow line-clamp-3 leading-relaxed">
+          <p className="mb-6 flex-grow line-clamp-3 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
             {project.description}
           </p>
           
@@ -415,7 +424,7 @@ const ProjectManagementView: React.FC = () => {
             />
             
             {/* Metadata */}
-            <div className="flex items-center justify-between text-sm text-gray-500">
+            <div className="flex items-center justify-between text-sm" style={{ color: 'var(--text-muted)' }}>
               <div className="flex items-center space-x-1">
                 <Calendar className="w-4 h-4" />
                 <span>Updated {formatDate(project.updated_at)}</span>
@@ -473,10 +482,10 @@ const ProjectManagementView: React.FC = () => {
               <FolderOpen className="w-5 h-5 text-white" />
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-gray-900 truncate group-hover:text-purple-700">
+              <h3 className="font-semibold truncate group-hover:text-purple-700" style={{ color: 'var(--text-primary)' }}>
                 {project.name}
               </h3>
-              <p className="text-gray-600 text-sm truncate">{project.description}</p>
+              <p className="text-sm truncate" style={{ color: 'var(--text-secondary)' }}>{project.description}</p>
             </div>
           </div>
           
@@ -488,7 +497,7 @@ const ProjectManagementView: React.FC = () => {
                 showPercentage={false}
               />
             </div>
-            <div className="text-right text-sm text-gray-500 min-w-0">
+            <div className="text-right text-sm min-w-0" style={{ color: 'var(--text-muted)' }}>
               <div className="flex items-center space-x-1">
                 <Calendar className="w-4 h-4" />
                 <span className="hidden sm:inline">{formatDate(project.updated_at)}</span>
@@ -536,8 +545,8 @@ const ProjectManagementView: React.FC = () => {
         <div className="lcm-page-header">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Project Management</h1>
-              <p className="text-gray-600 mt-1 text-lg">
+              <h1 className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>Project Management</h1>
+              <p className="mt-1 text-lg" style={{ color: 'var(--text-secondary)' }}>
                 Create, manage, and organize your infrastructure projects
               </p>
             </div>
@@ -546,7 +555,8 @@ const ProjectManagementView: React.FC = () => {
                 <EnhancedButton
                   onClick={handleBulkDelete}
                   variant="secondary"
-                  className="flex items-center space-x-2 text-red-600 border-red-300 hover:bg-red-50"
+                  className="flex items-center space-x-2"
+                  style={{ color: 'var(--status-critical)', borderColor: 'var(--status-critical)' }}
                 >
                   <Trash2 className="w-4 h-4" />
                   <span>Delete ({selectedProjects.size})</span>
@@ -623,9 +633,9 @@ const ProjectManagementView: React.FC = () => {
         <div className="space-y-6">
           {filteredProjects.length === 0 ? (
             <div className="text-center py-12">
-              <FolderOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-xl font-medium text-gray-900 mb-2">No projects found</h3>
-              <p className="text-gray-500 mb-6">
+              <FolderOpen className="w-16 h-16 mx-auto mb-4" style={{ color: 'var(--text-muted)' }} />
+              <h3 className="text-xl font-medium mb-2" style={{ color: 'var(--text-primary)' }}>No projects found</h3>
+              <p className="mb-6" style={{ color: 'var(--text-muted)' }}>
                 {projects.length === 0 
                   ? "Get started by creating your first project"
                   : "Try adjusting your search criteria"
@@ -805,7 +815,7 @@ const ProjectManagementView: React.FC = () => {
         size="sm"
       >
         <div className="space-y-4">
-          <p className="text-gray-600">
+          <p style={{ color: 'var(--text-secondary)' }}>
             Are you sure you want to delete "{currentProject?.name}"? This action cannot be undone.
           </p>
           

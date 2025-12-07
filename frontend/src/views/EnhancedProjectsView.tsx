@@ -129,13 +129,13 @@ const EnhancedProjectsView: React.FC = () => {
                 <FolderOpen className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h3 className="font-semibold text-gray-900 text-lg">{project.name}</h3>
-                <p className="text-sm text-gray-500">ID: {project.id}</p>
+                <h3 className="font-semibold text-lg" style={{ color: 'var(--text-primary)' }}>{project.name}</h3>
+                <p className="text-sm" style={{ color: 'var(--text-muted)' }}>ID: {project.id}</p>
               </div>
             </div>
           </div>
           
-          <p className="text-gray-600 mb-4 flex-grow line-clamp-3">
+          <p className="mb-4 flex-grow line-clamp-3" style={{ color: 'var(--text-secondary)' }}>
             {project.description}
           </p>
           
@@ -147,7 +147,7 @@ const EnhancedProjectsView: React.FC = () => {
               showPercentage
             />
             
-            <div className="flex items-center justify-between text-sm text-gray-500">
+            <div className="flex items-center justify-between text-sm" style={{ color: 'var(--text-muted)' }}>
               <div className="flex items-center space-x-1">
                 <Calendar className="w-4 h-4" />
                 <span>{formatDate(project.created_at)}</span>
@@ -175,8 +175,8 @@ const EnhancedProjectsView: React.FC = () => {
               <FolderOpen className="w-5 h-5 text-white" />
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-gray-900 truncate">{project.name}</h3>
-              <p className="text-gray-600 text-sm truncate">{project.description}</p>
+              <h3 className="font-semibold truncate" style={{ color: 'var(--text-primary)' }}>{project.name}</h3>
+              <p className="text-sm truncate" style={{ color: 'var(--text-secondary)' }}>{project.description}</p>
             </div>
           </div>
           
@@ -188,7 +188,7 @@ const EnhancedProjectsView: React.FC = () => {
                 showPercentage={false}
               />
             </div>
-            <div className="text-right text-sm text-gray-500 min-w-0">
+            <div className="text-right text-sm min-w-0" style={{ color: 'var(--text-muted)' }}>
               <div className="flex items-center space-x-1">
                 <Calendar className="w-4 h-4" />
                 <span className="hidden sm:inline">{formatDate(project.created_at)}</span>
@@ -222,8 +222,8 @@ const EnhancedProjectsView: React.FC = () => {
         <div className="lcm-page-header">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Projects</h1>
-              <p className="text-gray-600 mt-1">
+              <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Projects</h1>
+              <p className="mt-1" style={{ color: 'var(--text-secondary)' }}>
                 Manage and organize your infrastructure projects
               </p>
             </div>
@@ -276,9 +276,9 @@ const EnhancedProjectsView: React.FC = () => {
         <div className="space-y-6">
           {filteredProjects.length === 0 ? (
             <EnhancedCard className="text-center py-12">
-              <FolderOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No projects found</h3>
-              <p className="text-gray-500 mb-6">
+              <FolderOpen className="w-16 h-16 mx-auto mb-4" style={{ color: 'var(--text-muted)' }} />
+              <h3 className="text-lg font-medium mb-2" style={{ color: 'var(--text-primary)' }}>No projects found</h3>
+              <p className="mb-6" style={{ color: 'var(--text-muted)' }}>
                 {projects.length === 0 
                   ? "Get started by creating your first project"
                   : "Try adjusting your search criteria"

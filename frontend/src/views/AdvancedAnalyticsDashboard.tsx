@@ -350,13 +350,25 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
   };
 
   const getSeverityColor = (severity: string) => {
+    // Use rgba with opacity for dark mode compatibility
     switch (severity) {
-      case 'critical': return 'border-red-500 bg-red-50';
-      case 'high': return 'border-orange-500 bg-orange-50';
-      case 'medium': return 'border-yellow-500 bg-yellow-50';
-      case 'low': return 'border-blue-500 bg-blue-50';
+      case 'critical': return 'border-red-500';
+      case 'high': return 'border-orange-500';
+      case 'medium': return 'border-yellow-500';
+      case 'low': return 'border-blue-500';
       case 'info': return 'border-[var(--card-border)]';
       default: return 'border-[var(--card-border)]';
+    }
+  };
+  
+  const getSeverityBgStyle = (severity: string) => {
+    // Return inline style with rgba for dark mode compatibility
+    switch (severity) {
+      case 'critical': return { backgroundColor: 'rgba(239, 68, 68, 0.15)' };
+      case 'high': return { backgroundColor: 'rgba(249, 115, 22, 0.15)' };
+      case 'medium': return { backgroundColor: 'rgba(234, 179, 8, 0.15)' };
+      case 'low': return { backgroundColor: 'rgba(59, 130, 246, 0.15)' };
+      default: return { backgroundColor: 'var(--glass-bg)' };
     }
   };
 
@@ -605,24 +617,27 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
             <div className="flex items-center gap-2 mb-4">
               <AlertTriangle size={20} className="text-orange-500" />
               <h3 className="font-semibold">Active Alerts</h3>
-              <span className="ml-auto bg-orange-100 text-orange-800 px-2 py-1 rounded-full text-xs font-medium">
+              <span className="ml-auto px-2 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: 'rgba(249, 115, 22, 0.2)', color: 'rgb(249, 115, 22)' }}>
                 {dashboardData.alerts.length}
               </span>
             </div>
             <div className="space-y-3">
               {dashboardData.alerts.map((alert) => (
-                <div key={alert.alert_id} className={`p-4 rounded-lg border-l-4 ${getSeverityColor(alert.severity)}`}>
+                <div key={alert.alert_id} className={`p-4 rounded-lg border-l-4 ${getSeverityColor(alert.severity)}`} style={getSeverityBgStyle(alert.severity)}>
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         <span className="font-medium">{alert.title}</span>
-                        <span className={`px-2 py-1 rounded text-xs font-medium uppercase ${
-                          alert.severity === 'critical' ? 'bg-red-200 text-red-800' :
-                          alert.severity === 'high' ? 'bg-orange-200 text-orange-800' :
-                          alert.severity === 'medium' ? 'bg-yellow-200 text-yellow-800' :
-                          alert.severity === 'low' ? 'bg-blue-200 text-blue-800' :
-                          'bg-[var(--glass-bg)]'
-                        }`} style={{ color: alert.severity ? undefined : 'var(--text-primary)' }}>
+                        <span className="px-2 py-1 rounded text-xs font-medium uppercase" style={{
+                          backgroundColor: alert.severity === 'critical' ? 'rgba(239, 68, 68, 0.25)' :
+                            alert.severity === 'high' ? 'rgba(249, 115, 22, 0.25)' :
+                            alert.severity === 'medium' ? 'rgba(234, 179, 8, 0.25)' :
+                            alert.severity === 'low' ? 'rgba(59, 130, 246, 0.25)' : 'var(--glass-bg)',
+                          color: alert.severity === 'critical' ? 'var(--status-critical)' :
+                            alert.severity === 'high' ? 'rgb(249, 115, 22)' :
+                            alert.severity === 'medium' ? 'var(--status-warning)' :
+                            alert.severity === 'low' ? 'rgb(59, 130, 246)' : 'var(--text-primary)'
+                        }}>
                           {alert.severity}
                         </span>
                       </div>

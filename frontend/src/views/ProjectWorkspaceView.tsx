@@ -549,8 +549,8 @@ const ProjectWorkspaceView: React.FC = () => {
       <div className="lcm-page-container">
         <EnhancedCard className="text-center py-12">
           <ErrorCircleRegular className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Project Not Found</h2>
-          <p className="text-gray-600 mb-6">The requested project could not be found.</p>
+          <h2 className="text-xl font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Project Not Found</h2>
+          <p className="mb-6" style={{ color: 'var(--text-secondary)' }}>The requested project could not be found.</p>
           <EnhancedButton onClick={() => navigate('/app/projects')} variant="primary">
             Back to Projects
           </EnhancedButton>
@@ -623,7 +623,7 @@ const ProjectWorkspaceView: React.FC = () => {
                   margin: 0
                 }}>{project.name}</h1>
               </div>
-              <p className="text-gray-600 text-base">{project.description}</p>
+              <p className="text-base" style={{ color: 'var(--text-secondary)' }}>{project.description}</p>
             </div>
             
             {/* Phase 7: Removed Migration Hub button - use activity-driven workflow instead */}
@@ -865,10 +865,10 @@ const ProjectWorkspaceView: React.FC = () => {
                           }}
                         />
                       ) : (
-                        <div className="text-center py-16 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 h-full flex flex-col items-center justify-center">
-                          <ChartMultipleRegular className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                          <h3 className="text-lg font-semibold text-gray-900 mb-2">No Activities to Display</h3>
-                          <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                        <div className="text-center py-16 rounded-lg border-2 border-dashed h-full flex flex-col items-center justify-center" style={{ backgroundColor: 'var(--glass-bg)', borderColor: 'var(--card-border)' }}>
+                          <ChartMultipleRegular className="w-16 h-16 mx-auto mb-4" style={{ color: 'var(--text-muted)' }} />
+                          <h3 className="text-lg font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>No Activities to Display</h3>
+                          <p className="mb-6 max-w-md mx-auto" style={{ color: 'var(--text-secondary)' }}>
                             {hasActiveFilters 
                               ? 'No activities match your current filters. Try adjusting or clearing the filters above.'
                               : 'Create your first activity to start building your project timeline.'}
@@ -905,10 +905,10 @@ const ProjectWorkspaceView: React.FC = () => {
                   {/* Scrollable list area */}
                   <div className="flex-1 overflow-auto p-4 space-y-4">
                     {filteredAndSortedActivities.length === 0 ? (
-                      <div className="text-center py-16 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 h-full flex flex-col items-center justify-center">
-                        <CalendarLtrRegular className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2">No Activities Found</h3>
-                        <p className="text-gray-600 mb-6">
+                      <div className="text-center py-16 rounded-lg border-2 border-dashed h-full flex flex-col items-center justify-center" style={{ backgroundColor: 'var(--glass-bg)', borderColor: 'var(--card-border)' }}>
+                        <CalendarLtrRegular className="w-16 h-16 mx-auto mb-4" style={{ color: 'var(--text-muted)' }} />
+                        <h3 className="text-lg font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>No Activities Found</h3>
+                        <p className="mb-6" style={{ color: 'var(--text-secondary)' }}>
                           {hasActiveFilters 
                             ? 'No activities match your current filters. Try adjusting or clearing them.'
                             : 'Get started by creating your first activity.'}
@@ -979,7 +979,7 @@ const ProjectWorkspaceView: React.FC = () => {
                                   
                                   {/* Completion status */}
                                   {activity.migration_metadata.clusters_completed > 0 && (
-                                    <span className="px-2 py-1 text-xs font-semibold bg-green-50 text-green-700 rounded">
+                                    <span className="px-2 py-1 text-xs font-semibold rounded" style={{ backgroundColor: 'rgba(34, 197, 94, 0.15)', color: 'var(--status-success)' }}>
                                       {activity.migration_metadata.clusters_completed}/{activity.migration_metadata.total_clusters} Complete
                                     </span>
                                   )}

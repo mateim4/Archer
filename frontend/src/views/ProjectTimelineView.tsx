@@ -235,8 +235,8 @@ const ProjectTimelineView: React.FC = () => {
     return (
       <div className="lcm-page-container">
         <EnhancedCard className="text-center py-12">
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Project Not Found</h2>
-          <p className="text-gray-600 mb-6">The requested project timeline could not be loaded.</p>
+          <h2 className="text-xl font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Project Not Found</h2>
+          <p className="mb-6" style={{ color: 'var(--text-secondary)' }}>The requested project timeline could not be loaded.</p>
           <EnhancedButton onClick={() => navigate('/projects')} variant="primary">
             Back to Projects
           </EnhancedButton>
@@ -326,7 +326,7 @@ const ProjectTimelineView: React.FC = () => {
         <EnhancedCard>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center space-x-4">
-              <div className="text-sm font-medium text-gray-700">View Options:</div>
+              <div className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>View Options:</div>
               
               <label className="flex items-center space-x-2">
                 <input
@@ -335,7 +335,7 @@ const ProjectTimelineView: React.FC = () => {
                   onChange={(e) => setViewOptions(prev => ({ ...prev, showDependencies: e.target.checked }))}
                   className="w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
                 />
-                <span className="text-sm text-gray-600">Dependencies</span>
+                <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>Dependencies</span>
               </label>
               
               <label className="flex items-center space-x-2">
@@ -345,7 +345,7 @@ const ProjectTimelineView: React.FC = () => {
                   onChange={(e) => setViewOptions(prev => ({ ...prev, showProgress: e.target.checked }))}
                   className="w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
                 />
-                <span className="text-sm text-gray-600">Progress</span>
+                <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>Progress</span>
               </label>
               
               <label className="flex items-center space-x-2">
@@ -355,12 +355,12 @@ const ProjectTimelineView: React.FC = () => {
                   onChange={(e) => setViewOptions(prev => ({ ...prev, showAssignees: e.target.checked }))}
                   className="w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
                 />
-                <span className="text-sm text-gray-600">Assignees</span>
+                <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>Assignees</span>
               </label>
             </div>
             
             <div className="flex items-center space-x-3">
-              <div className="text-sm font-medium text-gray-700">Time Scale:</div>
+              <div className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>Time Scale:</div>
               <PurpleGlassDropdown
                 options={[
                   { value: 'days', label: 'Days' },
@@ -378,9 +378,9 @@ const ProjectTimelineView: React.FC = () => {
 
       {/* Gantt Chart */}
       <EnhancedCard className="overflow-hidden">
-        <div className="p-6 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">Project Timeline</h2>
-          <p className="text-gray-600 mt-1">
+        <div className="p-6 border-b" style={{ borderColor: 'var(--card-border)' }}>
+          <h2 className="text-xl font-semibold" style={{ color: 'var(--text-primary)' }}>Project Timeline</h2>
+          <p className="mt-1" style={{ color: 'var(--text-secondary)' }}>
             Interactive timeline showing all project activities, dependencies, and progress
           </p>
         </div>
@@ -399,11 +399,11 @@ const ProjectTimelineView: React.FC = () => {
       {/* Timeline Legend */}
       <div className="mt-6">
         <EnhancedCard>
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Timeline Legend</h3>
+          <h3 className="text-lg font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>Timeline Legend</h3>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div>
-              <h4 className="font-medium text-gray-700 mb-2">Activity Types</h4>
+              <h4 className="font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Activity Types</h4>
               <div className="space-y-2 text-sm">
                 <div className="flex items-center space-x-2">
                   <div className="w-4 h-4 bg-blue-500 rounded"></div>
@@ -429,7 +429,7 @@ const ProjectTimelineView: React.FC = () => {
             </div>
             
             <div>
-              <h4 className="font-medium text-gray-700 mb-2">Status Indicators</h4>
+              <h4 className="font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Status Indicators</h4>
               <div className="space-y-2 text-sm">
                 <div className="flex items-center space-x-2">
                   <div className="w-4 h-4 bg-green-600 rounded-full"></div>
@@ -440,7 +440,7 @@ const ProjectTimelineView: React.FC = () => {
                   <span>In Progress</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <div className="w-4 h-4 bg-gray-400 rounded-full"></div>
+                  <div className="w-4 h-4 rounded-full" style={{ backgroundColor: 'var(--text-muted)' }}></div>
                   <span>Pending</span>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -451,8 +451,8 @@ const ProjectTimelineView: React.FC = () => {
             </div>
             
             <div>
-              <h4 className="font-medium text-gray-700 mb-2">Timeline Features</h4>
-              <div className="space-y-2 text-sm text-gray-600">
+              <h4 className="font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Timeline Features</h4>
+              <div className="space-y-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
                 <div>• Click activities to view details</div>
                 <div>• Curved lines show dependencies</div>
                 <div>• Progress bars show completion</div>

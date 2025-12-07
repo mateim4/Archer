@@ -437,7 +437,7 @@ const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({ projectId, onBack
                 {creating ? 'Adding…' : 'Add Activity'}
               </button>
             </div>
-            <div className="bg-gray-50 p-4 rounded-lg">
+            <div className="p-4 rounded-lg" style={{ backgroundColor: 'var(--glass-bg)' }}>
               <div className="flex items-center space-x-4 mb-4" data-testid="timeline-progress">
                 <div style={{ width: '100%', background: 'var(--card-border)', borderRadius: '9999px', height: '8px' }}>
                   <div className="bg-blue-600 h-2 rounded-full" style={{ width: '45%' }}></div>
@@ -541,7 +541,7 @@ const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({ projectId, onBack
           {/* Hardware Allocation Section */}
           <div className="mb-8" data-testid="hardware-allocation">
             <h2 className="text-xl font-semibold mb-4">Hardware Allocation Timeline</h2>
-            <div className="bg-gray-50 p-4 rounded-lg">
+            <div className="p-4 rounded-lg" style={{ backgroundColor: 'var(--glass-bg)' }}>
               {/* Mini SVG Timeline */}
               {tracks.length > 0 && (
                 <div className="mb-4">

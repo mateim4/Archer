@@ -250,31 +250,31 @@ const ClusterSizingView: React.FC = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="text-center p-4 rounded-lg border border-purple-500/20">
                     <div className="text-2xl font-bold text-purple-600">{sizingResult.requiredHosts}</div>
-                    <div className="text-sm text-gray-600">Required Hosts</div>
+                    <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>Required Hosts</div>
                   </div>
                   <div className="text-center p-4 rounded-lg border border-purple-500/20">
                     <div className="text-2xl font-bold text-purple-600">{sizingResult.utilizationPercentage.toFixed(1)}%</div>
-                    <div className="text-sm text-gray-600">Utilization</div>
+                    <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>Utilization</div>
                   </div>
                 </div>
 
                 <div className="mt-4 space-y-3">
                   <div className="flex justify-between items-center">
-                    <span className="flex items-center text-sm text-gray-600">
+                    <span className="flex items-center text-sm" style={{ color: 'var(--text-secondary)' }}>
                       <Cpu className="w-4 h-4 mr-2" />
                       Total CPU Cores
                     </span>
                     <span className="font-medium">{sizingResult.totalCpu}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="flex items-center text-sm text-gray-600">
+                    <span className="flex items-center text-sm" style={{ color: 'var(--text-secondary)' }}>
                       <HardDrive className="w-4 h-4 mr-2" />
                       Total Memory
                     </span>
                     <span className="font-medium">{sizingResult.totalMemory} GB</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="flex items-center text-sm text-gray-600">
+                    <span className="flex items-center text-sm" style={{ color: 'var(--text-secondary)' }}>
                       <HardDrive className="w-4 h-4 mr-2" />
                       Total Storage
                     </span>
@@ -302,13 +302,13 @@ const ClusterSizingView: React.FC = () => {
                           {getWorkloadIcon(clusterSpec.workloadType)}
                         </div>
                         <div>
-                          <div className="font-medium text-gray-900">{hardware.name}</div>
-                          <div className="text-sm text-gray-600">{hardware.vendor} {hardware.model}</div>
+                          <div className="font-medium" style={{ color: 'var(--text-primary)' }}>{hardware.name}</div>
+                          <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>{hardware.vendor} {hardware.model}</div>
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="text-sm font-medium text-gray-900">Host {index + 1}</div>
-                        <div className="text-xs text-gray-600">{hardware.specs.cpu} | {hardware.specs.memory}</div>
+                        <div className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>Host {index + 1}</div>
+                        <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>{hardware.specs.cpu} | {hardware.specs.memory}</div></div>
                       </div>
                     </div>
                   ))}

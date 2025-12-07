@@ -151,7 +151,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
       
       {/* Context Menu */}
       <div
-        className="fixed bg-white border border-gray-200 rounded-lg shadow-lg py-2 min-w-[180px]"
+        className="fixed purple-glass-card rounded-lg shadow-lg py-2 min-w-[180px]"
         style={{
           left: position.x,
           top: position.y,
@@ -168,13 +168,21 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
             disabled={item.disabled}
             className={`
               w-full flex items-center gap-3 px-4 py-2 text-left text-sm
-              hover:bg-gray-100 transition-colors
+              transition-colors
               ${item.disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-              ${index > 0 ? 'border-t border-gray-100' : ''}
             `}
+            style={{
+              borderTop: index > 0 ? '1px solid var(--card-border)' : 'none'
+            }}
+            onMouseEnter={(e) => {
+              if (!item.disabled) e.currentTarget.style.background = 'var(--glass-bg-hover)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'transparent';
+            }}
           >
-            <span className="text-gray-500">{item.icon}</span>
-            <span className="text-gray-700">{item.label}</span>
+            <span style={{ color: 'var(--text-muted)' }}>{item.icon}</span>
+            <span style={{ color: 'var(--text-primary)' }}>{item.label}</span>
           </button>
         ))}
       </div>

@@ -61,14 +61,14 @@ const ProjectStats: React.FC<{ projects: Project[] }> = ({ projects }) => {
             <div className={`p-3 rounded-xl ${stat.color} text-white`}>
               {stat.icon}
             </div>
-            <div className="text-sm font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full">
+            <div className="text-sm font-medium px-2 py-1 rounded-full" style={{ backgroundColor: 'rgba(34, 197, 94, 0.15)', color: 'var(--status-success)' }}>
               {stat.change}
             </div>
           </div>
-          <div className="text-2xl font-bold text-gray-900 mb-1">
+          <div className="text-2xl font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
             {stat.value}
           </div>
-          <div className="text-sm font-medium text-gray-600">
+          <div className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
             {stat.label}
           </div>
         </PurpleGlassCard>
@@ -108,10 +108,10 @@ const ProjectCard: React.FC<{
             <Building className="w-6 h-6" />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-gray-900 group-hover:text-purple-700 transition-colors">
+            <h3 className="text-lg font-bold group-hover:text-purple-700 transition-colors" style={{ color: 'var(--text-primary)' }}>
               {project.name}
             </h3>
-            <p className="text-sm text-gray-500 font-medium">
+            <p className="text-sm font-medium" style={{ color: 'var(--text-muted)' }}>
               Project #{project.id.slice(-8)}
             </p>
           </div>
@@ -126,7 +126,7 @@ const ProjectCard: React.FC<{
             }}
             className="p-2 rounded-lg bg-white/50 hover:bg-white/80 transition-all duration-200 backdrop-blur-sm"
           >
-            <MoreVertical className="w-4 h-4 text-gray-600" />
+            <MoreVertical className="w-4 h-4" style={{ color: 'var(--text-secondary)' }} />
           </button>
 
           {isMenuOpen && (
@@ -179,17 +179,17 @@ const ProjectCard: React.FC<{
       </div>
 
       {/* Project Description */}
-      <p className="text-gray-700 mb-6 line-clamp-3 leading-relaxed">
+      <p className="mb-6 line-clamp-3 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
         {project.description}
       </p>
 
       {/* Progress Bar */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium text-gray-700">Progress</span>
-          <span className="text-sm font-bold text-gray-900">{getProgress()}%</span>
+          <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Progress</span>
+          <span className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>{getProgress()}%</span>
         </div>
-        <div className="w-full bg-gray-200 rounded-full h-2">
+        <div className="w-full rounded-full h-2" style={{ backgroundColor: 'var(--glass-bg-hover)' }}>
           <div 
             className="bg-gradient-to-r from-purple-500 to-indigo-600 h-2 rounded-full transition-all duration-300"
             style={{ width: `${getProgress()}%` }}
@@ -200,11 +200,11 @@ const ProjectCard: React.FC<{
       {/* Project Metadata */}
       <div className="space-y-3">
         <div className="flex items-center justify-between text-sm">
-          <div className="flex items-center space-x-2 text-gray-600">
+          <div className="flex items-center space-x-2" style={{ color: 'var(--text-secondary)' }}>
             <Calendar className="w-4 h-4" />
             <span>Updated {formatDate(project.updated_at)}</span>
           </div>
-          <div className="flex items-center space-x-2 text-gray-600">
+          <div className="flex items-center space-x-2" style={{ color: 'var(--text-secondary)' }}>
             <User className="w-4 h-4" />
             <span>{project.owner_id ? project.owner_id.replace('user:', '') : 'Unknown'}</span>
           </div>
@@ -388,7 +388,7 @@ const ProjectManagementView: React.FC = () => {
           <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
             {/* Search */}
             <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5" style={{ color: 'var(--text-muted)' }} />
               <input
                 type="text"
                 placeholder="Search projects..."
@@ -453,10 +453,10 @@ const ProjectManagementView: React.FC = () => {
                 <FolderPlus className="w-12 h-12 text-purple-500" />
               </div>
               <div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                <h3 className="text-2xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
                   {projects.length === 0 ? 'Start Your First Project' : 'No Matching Projects'}
                 </h3>
-                <p className="text-gray-600 max-w-md mx-auto">
+                <p className="max-w-md mx-auto" style={{ color: 'var(--text-secondary)' }}>
                   {projects.length === 0
                     ? 'Begin your infrastructure journey by creating your first project and defining your goals.'
                     : 'Try adjusting your search terms or create a new project to get started.'}

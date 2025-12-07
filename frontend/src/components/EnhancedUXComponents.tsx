@@ -166,10 +166,11 @@ export const EnhancedFormField: React.FC<EnhancedFormFieldProps> = ({
     <div className="form-field">
       <label
         htmlFor={fieldId}
-        className="block text-sm font-medium text-gray-700 mb-2"
+        className="block text-sm font-medium mb-2"
+        style={{ color: 'var(--text-primary)' }}
       >
         {label}
-        {required && <span className="text-red-500 ml-1">*</span>}
+        {required && <span style={{ color: 'var(--status-critical)' }} className="ml-1">*</span>}
       </label>
       <input
         id={fieldId}
@@ -183,12 +184,13 @@ export const EnhancedFormField: React.FC<EnhancedFormFieldProps> = ({
         aria-describedby={error ? errorId : undefined}
         className={`
           w-full px-4 py-3 rounded-lg
-          bg-white/50 backdrop-blur-sm
+          backdrop-blur-sm
           border-2 transition-all duration-300
           focus:outline-none focus:ring-0
           ${error && touched ? 'error' : ''}
           ${!error && touched && value ? 'success' : ''}
         `}
+        style={{ backgroundColor: 'var(--glass-bg)', color: 'var(--text-primary)' }}
       />
       {error && touched && (
         <div
@@ -244,14 +246,15 @@ export function EnhancedSearch<T>({
           placeholder={placeholder}
           className="
             w-full px-4 py-3 pl-10 rounded-lg
-            bg-white/50 backdrop-blur-sm
+            backdrop-blur-sm
             border-2 border-purple-200
             focus:border-purple-500 focus:outline-none
             transition-all duration-300
           "
+          style={{ backgroundColor: 'var(--glass-bg)', color: 'var(--text-primary)' }}
         />
         <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
-          <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: 'var(--text-muted)' }}>
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
         </div>
@@ -337,7 +340,7 @@ export const EnhancedModal: React.FC<EnhancedModalProps> = ({
       >
         <div className="flex items-center justify-between mb-6" style={{ flexShrink: 0 }}>
           {title && (
-            <h2 id={titleId} className="text-xl font-semibold text-gray-900" style={{ fontFamily: "'Oxanium', sans-serif" }}>
+            <h2 id={titleId} className="text-xl font-semibold" style={{ fontFamily: "'Oxanium', sans-serif", color: 'var(--text-primary)' }}>
               {title}
             </h2>
           )}
@@ -413,15 +416,15 @@ export const EnhancedProgressBar: React.FC<ProgressBarProps> = ({
     <div className="w-full">
       {label && (
         <div className="flex justify-between items-center mb-2">
-          <label htmlFor={progressId} className="text-sm font-medium text-gray-700">
+          <label htmlFor={progressId} className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
             {label}
           </label>
           {showPercentage && (
-            <span className="text-sm text-gray-500">{Math.round(percentage)}%</span>
+            <span className="text-sm" style={{ color: 'var(--text-muted)' }}>{Math.round(percentage)}%</span>
           )}
         </div>
       )}
-      <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+      <div className="w-full rounded-full h-3 overflow-hidden" style={{ backgroundColor: 'var(--glass-bg-hover)' }}>
         <div
           id={progressId}
           className={`h-full bg-gradient-to-r ${colorClasses[color]} transition-all duration-500 ease-out rounded-full`}
