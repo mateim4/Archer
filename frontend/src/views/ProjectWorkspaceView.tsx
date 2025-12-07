@@ -602,7 +602,14 @@ const ProjectWorkspaceView: React.FC = () => {
         />
 
         {/* Project Header Section */}
-        <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border-b border-purple-200 pb-4 mb-6">
+        <div style={{
+          background: 'var(--glass-bg)',
+          backdropFilter: 'blur(20px)',
+          borderBottom: '1px solid var(--glass-border)',
+          borderRadius: '12px',
+          padding: '16px 20px',
+          marginBottom: '24px'
+        }}>
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-3">
@@ -610,7 +617,7 @@ const ProjectWorkspaceView: React.FC = () => {
                   display: 'flex', 
                   alignItems: 'center', 
                   justifyContent: 'center',
-                  color: 'var(--icon-default)',
+                  color: 'var(--brand-primary)',
                   fontSize: '32px'
                 }}>
                   <FolderRegular />
@@ -661,7 +668,7 @@ const ProjectWorkspaceView: React.FC = () => {
           {activeTab === 'timeline' && (
             <div className="space-y-4" style={{ display: 'block' }}>
               {/* Search, Filter & Stats Row */}
-              <div className="pb-3 border-b border-gray-200">
+              <div style={{ paddingBottom: '12px', borderBottom: '1px solid var(--glass-border)' }}>
                 <div className="flex gap-4 items-start">
                   {/* Left side: Search and Filters */}
                   <div className="flex-1 space-y-3">
@@ -678,7 +685,7 @@ const ProjectWorkspaceView: React.FC = () => {
                     <div className="flex flex-wrap items-center gap-3">
                       {/* Status Filter */}
                       <div className="flex items-center gap-2">
-                        <label className="text-xs font-semibold whitespace-nowrap" style={{ fontFamily: tokens.fontFamilyBody, color: colors.gray900 }}>
+                        <label className="text-xs font-semibold whitespace-nowrap" style={{ fontFamily: tokens.fontFamilyBody, color: 'var(--text-secondary)' }}>
                           Status:
                         </label>
                         <select
@@ -697,7 +704,7 @@ const ProjectWorkspaceView: React.FC = () => {
 
                   {/* Assignee Filter */}
                   <div className="flex items-center gap-2">
-                    <label className="text-xs font-semibold whitespace-nowrap" style={{ fontFamily: tokens.fontFamilyBody, color: colors.gray900 }}>
+                    <label className="text-xs font-semibold whitespace-nowrap" style={{ fontFamily: tokens.fontFamilyBody, color: 'var(--text-secondary)' }}>
                       Assignee:
                     </label>
                     <select
@@ -717,7 +724,7 @@ const ProjectWorkspaceView: React.FC = () => {
 
                   {/* Sort By */}
                   <div className="flex items-center gap-2">
-                    <label className="text-xs font-semibold whitespace-nowrap" style={{ fontFamily: tokens.fontFamilyBody, color: colors.gray900 }}>
+                    <label className="text-xs font-semibold whitespace-nowrap" style={{ fontFamily: tokens.fontFamilyBody, color: 'var(--text-secondary)' }}>
                       Sort:
                     </label>
                     <select
@@ -824,9 +831,9 @@ const ProjectWorkspaceView: React.FC = () => {
               {timelineView === 'timeline' && (
                 <>
                   {/* Shared container for Timeline and List - responsive height */}
-                  <div className="border border-gray-200 rounded-lg overflow-hidden bg-white flex flex-col" style={{ minHeight: '520px', maxHeight: '800px' }}>
+                  <div style={{ border: '1px solid var(--glass-border)', borderRadius: '8px', overflow: 'hidden', background: 'var(--glass-bg)', display: 'flex', flexDirection: 'column', minHeight: '520px', maxHeight: '800px' }}>
                     {/* Top controls: Slider + Add Activity (moved from footer) */}
-                    <div className="flex items-center gap-4 p-4 border-b bg-white">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '16px', borderBottom: '1px solid var(--glass-border)', background: 'var(--glass-bg)' }}>
                       <ViewToggleSlider value={timelineView} onChange={setTimelineView} />
                       <div className="flex-1" />
                       <PurpleGlassButton
@@ -887,9 +894,9 @@ const ProjectWorkspaceView: React.FC = () => {
 
               {/* List View */}
               {timelineView === 'list' && (
-                <div className="border border-gray-200 rounded-lg overflow-hidden bg-white flex flex-col" style={{ minHeight: '520px', maxHeight: '800px' }}>
+                <div style={{ border: '1px solid var(--glass-border)', borderRadius: '8px', overflow: 'hidden', background: 'var(--glass-bg)', display: 'flex', flexDirection: 'column', minHeight: '520px', maxHeight: '800px' }}>
                   {/* Top controls: Slider + Add Activity (moved from footer) */}
-                  <div className="flex items-center gap-4 p-4 border-b bg-white">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '16px', borderBottom: '1px solid var(--glass-border)', background: 'var(--glass-bg)' }}>
                     <ViewToggleSlider value={timelineView} onChange={setTimelineView} />
                     <div className="flex-1" />
                     <PurpleGlassButton
@@ -918,32 +925,52 @@ const ProjectWorkspaceView: React.FC = () => {
                             Clear Filters
                           </EnhancedButton>
                         ) : (
-                          <p className="text-sm text-gray-600">Get started by creating your first activity using the button below.</p>
+                          <p style={{ fontSize: '14px', color: 'var(--text-muted)' }}>Get started by creating your first activity using the button below.</p>
                         )}
                       </div>
                     ) : (
                       filteredAndSortedActivities.map(activity => (
                         <div 
-                          key={activity.id} 
-                          className="p-4 border border-gray-200 rounded-lg hover:border-purple-300 transition-all bg-white"
+                          key={activity.id}
                           style={{
+                            padding: '16px',
+                            border: '1px solid var(--glass-border)',
+                            borderRadius: '8px',
+                            background: 'var(--card-bg)',
                             backdropFilter: 'blur(10px)',
-                            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)'
+                            boxShadow: 'var(--card-shadow)',
+                            transition: 'all 0.2s ease'
                           }}
+                          onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--brand-primary)'; }}
+                          onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--glass-border)'; }}
                         >
                           {/* Activity Header - Title, Status, and Action Buttons */}
                           <div className="flex items-center justify-between mb-4">
                             <div className="flex items-center gap-4">
                               <h3 style={DesignTokens.components.standardCardTitle}>{activity.name}</h3>
-                              <span className={`px-3 py-1 text-xs font-medium rounded-full ${
-                                activity.status === 'completed' ? 'bg-green-100 text-green-700' :
-                                activity.status === 'in_progress' ? 'bg-orange-100 text-orange-700' :
-                                activity.status === 'blocked' ? 'bg-red-100 text-red-700' :
-                                'bg-gray-100 text-gray-700'
-                              }`}>
+                              <span style={{
+                                padding: '4px 12px',
+                                fontSize: '12px',
+                                fontWeight: 500,
+                                borderRadius: '9999px',
+                                background: activity.status === 'completed' ? 'var(--status-success-bg)' :
+                                           activity.status === 'in_progress' ? 'var(--status-warning-bg)' :
+                                           activity.status === 'blocked' ? 'var(--status-critical-bg)' :
+                                           'var(--status-neutral-bg)',
+                                color: activity.status === 'completed' ? 'var(--status-success)' :
+                                       activity.status === 'in_progress' ? 'var(--status-warning)' :
+                                       activity.status === 'blocked' ? 'var(--status-critical)' :
+                                       'var(--status-neutral)'
+                              }}>
                                 {activity.status.replace('_', ' ').toUpperCase()}
                               </span>
-                              <span className="px-2 py-1 text-xs text-gray-600 bg-gray-100 rounded">
+                              <span style={{
+                                padding: '4px 8px',
+                                fontSize: '12px',
+                                background: 'var(--status-neutral-bg)',
+                                color: 'var(--text-secondary)',
+                                borderRadius: '4px'
+                              }}>
                                 {activity.type.replace('_', ' ')}
                               </span>
                               
@@ -951,7 +978,17 @@ const ProjectWorkspaceView: React.FC = () => {
                               {activity.type === 'migration' && activity.migration_metadata && (
                                 <>
                                   {/* Cluster count badge */}
-                                  <span className="px-2 py-1 text-xs font-semibold bg-purple-100 text-purple-700 rounded flex items-center gap-1">
+                                  <span style={{
+                                    padding: '4px 8px',
+                                    fontSize: '12px',
+                                    fontWeight: 600,
+                                    background: 'var(--badge-purple-bg)',
+                                    color: 'var(--badge-purple-text)',
+                                    borderRadius: '4px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '4px'
+                                  }}>
                                     <ServerRegular style={{ fontSize: '12px' }} />
                                     {activity.migration_metadata.total_clusters} Clusters
                                   </span>
@@ -1027,37 +1064,48 @@ const ProjectWorkspaceView: React.FC = () => {
                           {/* Activity Details Grid */}
                           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                             <div>
-                              <span className="text-gray-600 font-medium block mb-1">Assignees</span>
+                              <span style={{ color: 'var(--text-muted)', fontWeight: 500, display: 'block', marginBottom: '4px' }}>Assignees</span>
                               <div className="flex flex-wrap gap-1">
                                 {(activity.assignees && activity.assignees.length > 0 ? activity.assignees : [activity.assignee]).map((assignee, idx) => (
-                                  <span key={idx} className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                  <span key={idx} style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    padding: '2px 8px',
+                                    borderRadius: '9999px',
+                                    fontSize: '12px',
+                                    fontWeight: 500,
+                                    background: 'var(--badge-purple-bg)',
+                                    color: 'var(--badge-purple-text)'
+                                  }}>
                                     {assignee.split('@')[0]}
                                   </span>
                                 ))}
                               </div>
                             </div>
                             <div>
-                              <span className="text-gray-600 font-medium">Start Date</span>
-                              <p className="text-gray-900 mt-1">{activity.start_date.toLocaleDateString()}</p>
+                              <span style={{ color: 'var(--text-muted)', fontWeight: 500 }}>Start Date</span>
+                              <p style={{ color: 'var(--text-primary)', marginTop: '4px' }}>{activity.start_date.toLocaleDateString()}</p>
                             </div>
                             <div>
-                              <span className="text-gray-600 font-medium">End Date</span>
-                              <p className="text-gray-900 mt-1">{activity.end_date.toLocaleDateString()}</p>
+                              <span style={{ color: 'var(--text-muted)', fontWeight: 500 }}>End Date</span>
+                              <p style={{ color: 'var(--text-primary)', marginTop: '4px' }}>{activity.end_date.toLocaleDateString()}</p>
                             </div>
                             <div>
-                              <span className="text-gray-600 font-medium">Progress</span>
+                              <span style={{ color: 'var(--text-muted)', fontWeight: 500 }}>Progress</span>
                               <div className="mt-1">
                                 <div className="flex items-center gap-2">
-                                  <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                                  <div style={{ flex: 1, height: '8px', background: 'var(--status-neutral-bg)', borderRadius: '9999px', overflow: 'hidden' }}>
                                     <div 
-                                      className="h-full rounded-full transition-all"
                                       style={{ 
+                                        height: '100%',
+                                        borderRadius: '9999px',
+                                        transition: 'width 0.3s ease',
                                         width: `${activity.progress}%`,
                                         background: `linear-gradient(135deg, ${getStatusColor(activity.status)}, ${getStatusColor(activity.status)}dd)`
                                       }}
                                     />
                                   </div>
-                                  <span className="text-xs font-medium text-gray-700">{activity.progress}%</span>
+                                  <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--text-secondary)' }}>{activity.progress}%</span>
                                 </div>
                               </div>
                             </div>
@@ -1065,9 +1113,9 @@ const ProjectWorkspaceView: React.FC = () => {
 
                           {/* Dependencies if any */}
                           {activity.dependencies && activity.dependencies.length > 0 && (
-                            <div className="mt-3 pt-3 border-t border-gray-200">
-                              <span className="text-xs text-gray-600 font-medium">Dependencies: </span>
-                              <span className="text-xs text-gray-900">
+                            <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid var(--glass-border)' }}>
+                              <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 500 }}>Dependencies: </span>
+                              <span style={{ fontSize: '12px', color: 'var(--text-primary)' }}>
                                 {activity.dependencies.map(depId => {
                                   const dep = activities.find(a => a.id === depId);
                                   return dep?.name || depId;
@@ -1086,7 +1134,7 @@ const ProjectWorkspaceView: React.FC = () => {
           
           {activeTab === 'overview' && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6" style={{ display: 'grid' }}>
-              <div className="p-6 bg-white border border-gray-200 rounded-lg">
+              <div style={{ padding: '24px', background: 'var(--card-bg)', border: '1px solid var(--glass-border)', borderRadius: '8px' }}>
                 <div className="flex items-center gap-3 mb-4">
                   <div style={DesignTokens.components.standardCardIcon}>
                     <InfoRegular style={{ fontSize: '20px' }} />
@@ -1095,25 +1143,25 @@ const ProjectWorkspaceView: React.FC = () => {
                 </div>
                 <div className="space-y-3">
                 <div>
-                  <span className="text-sm text-gray-500">Project ID:</span>
-                  <span className="ml-2 text-sm text-gray-900">{project.id}</span>
+                  <span style={{ fontSize: '14px', color: 'var(--text-muted)' }}>Project ID:</span>
+                  <span style={{ fontSize: '14px', color: 'var(--text-primary)', marginLeft: '8px' }}>{project.id}</span>
                 </div>
                 <div>
-                  <span className="text-sm text-gray-500">Owner:</span>
-                  <span className="ml-2 text-sm text-gray-900">{project.owner_id.replace('user:', '')}</span>
+                  <span style={{ fontSize: '14px', color: 'var(--text-muted)' }}>Owner:</span>
+                  <span style={{ fontSize: '14px', color: 'var(--text-primary)', marginLeft: '8px' }}>{project.owner_id.replace('user:', '')}</span>
                 </div>
                 <div>
-                  <span className="text-sm text-gray-500">Created:</span>
-                  <span className="ml-2 text-sm text-gray-900">{new Date(project.created_at).toLocaleString()}</span>
+                  <span style={{ fontSize: '14px', color: 'var(--text-muted)' }}>Created:</span>
+                  <span style={{ fontSize: '14px', color: 'var(--text-primary)', marginLeft: '8px' }}>{new Date(project.created_at).toLocaleString()}</span>
                 </div>
                 <div>
-                  <span className="text-sm text-gray-500">Last Updated:</span>
-                  <span className="ml-2 text-sm text-gray-900">{new Date(project.updated_at).toLocaleString()}</span>
+                  <span style={{ fontSize: '14px', color: 'var(--text-muted)' }}>Last Updated:</span>
+                  <span style={{ fontSize: '14px', color: 'var(--text-primary)', marginLeft: '8px' }}>{new Date(project.updated_at).toLocaleString()}</span>
                 </div>
               </div>
               </div>
               
-              <div className="p-6 bg-white border border-gray-200 rounded-lg">
+              <div style={{ padding: '24px', background: 'var(--card-bg)', border: '1px solid var(--glass-border)', borderRadius: '8px' }}>
                 <div className="flex items-center gap-3 mb-4">
                   <div style={DesignTokens.components.standardCardIcon}>
                     <ChartMultipleRegular style={{ fontSize: '20px' }} />
@@ -1122,26 +1170,26 @@ const ProjectWorkspaceView: React.FC = () => {
                 </div>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Migration Activities</span>
-                    <span className="text-sm font-medium text-gray-900">
+                    <span style={{ fontSize: '14px', color: 'var(--text-muted)' }}>Migration Activities</span>
+                    <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)' }}>
                       {activities.filter(a => a.type === 'migration').length}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Hardware Customization</span>
-                  <span className="text-sm font-medium text-gray-900">
+                    <span style={{ fontSize: '14px', color: 'var(--text-muted)' }}>Hardware Customization</span>
+                  <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)' }}>
                     {activities.filter(a => a.type === 'hardware_customization').length}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Commissioning</span>
-                  <span className="text-sm font-medium text-gray-900">
+                  <span style={{ fontSize: '14px', color: 'var(--text-muted)' }}>Commissioning</span>
+                  <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)' }}>
                     {activities.filter(a => a.type === 'commissioning').length}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Decommissioning</span>
-                  <span className="text-sm font-medium text-gray-900">
+                  <span style={{ fontSize: '14px', color: 'var(--text-muted)' }}>Decommissioning</span>
+                  <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)' }}>
                     {activities.filter(a => a.type === 'decommission').length}
                   </span>
                 </div>
@@ -1165,7 +1213,7 @@ const ProjectWorkspaceView: React.FC = () => {
                   a.migration_metadata?.hardware_source === 'mixed').length;
 
                 return migrationActivities.length > 0 ? (
-                  <div className="p-6 bg-white border border-gray-200 rounded-lg lg:col-span-2">
+                  <div style={{ padding: '24px', background: 'var(--card-bg)', border: '1px solid var(--glass-border)', borderRadius: '8px', gridColumn: '1 / -1' }}>
                     <div className="flex items-center gap-3 mb-4">
                       <div style={{
                         ...DesignTokens.components.standardCardIcon,
@@ -1179,10 +1227,10 @@ const ProjectWorkspaceView: React.FC = () => {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                       {/* Total Clusters */}
                       <div>
-                        <div className="text-sm text-gray-500 mb-2">Total Clusters</div>
-                        <div className="text-3xl font-bold text-gray-900">{totalClusters}</div>
+                        <div style={{ fontSize: '14px', color: 'var(--text-muted)', marginBottom: '8px' }}>Total Clusters</div>
+                        <div style={{ fontSize: '30px', fontWeight: 700, color: 'var(--text-primary)' }}>{totalClusters}</div>
                         {completedClusters > 0 && (
-                          <div className="text-xs text-green-600 mt-1">
+                          <div style={{ fontSize: '12px', color: 'var(--status-success)', marginTop: '4px' }}>
                             {completedClusters} completed ({Math.round(completedClusters / totalClusters * 100)}%)
                           </div>
                         )}
@@ -1190,32 +1238,32 @@ const ProjectWorkspaceView: React.FC = () => {
 
                       {/* Hardware Sources */}
                       <div>
-                        <div className="text-sm text-gray-500 mb-2">Domino Reuse</div>
+                        <div style={{ fontSize: '14px', color: 'var(--text-muted)', marginBottom: '8px' }}>Domino Reuse</div>
                         <div className="flex items-baseline gap-2">
-                          <div className="text-2xl font-bold" style={{ color: DesignTokens.colorVariants.red.base }}>
+                          <div style={{ fontSize: '24px', fontWeight: 700, color: DesignTokens.colorVariants.red.base }}>
                             {dominoCount}
                           </div>
-                          <span className="text-xs text-gray-500">activities</span>
+                          <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>activities</span>
                         </div>
                       </div>
 
                       <div>
-                        <div className="text-sm text-gray-500 mb-2">Hardware Pool</div>
+                        <div style={{ fontSize: '14px', color: 'var(--text-muted)', marginBottom: '8px' }}>Hardware Pool</div>
                         <div className="flex items-baseline gap-2">
-                          <div className="text-2xl font-bold" style={{ color: DesignTokens.colors.info }}>
+                          <div style={{ fontSize: '24px', fontWeight: 700, color: DesignTokens.colors.info }}>
                             {poolCount}
                           </div>
-                          <span className="text-xs text-gray-500">activities</span>
+                          <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>activities</span>
                         </div>
                       </div>
 
                       <div>
-                        <div className="text-sm text-gray-500 mb-2">New Hardware</div>
+                        <div style={{ fontSize: '14px', color: 'var(--text-muted)', marginBottom: '8px' }}>New Hardware</div>
                         <div className="flex items-baseline gap-2">
-                          <div className="text-2xl font-bold" style={{ color: DesignTokens.colors.success }}>
+                          <div style={{ fontSize: '24px', fontWeight: 700, color: DesignTokens.colors.success }}>
                             {newCount}
                           </div>
-                          <span className="text-xs text-gray-500">activities</span>
+                          <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>activities</span>
                         </div>
                       </div>
                     </div>
@@ -1224,15 +1272,17 @@ const ProjectWorkspaceView: React.FC = () => {
                     {totalClusters > 0 && (
                       <div className="mt-6">
                         <div className="flex justify-between text-sm mb-2">
-                          <span className="text-gray-600 font-medium">Overall Migration Progress</span>
-                          <span className="text-gray-900 font-semibold">
+                          <span style={{ color: 'var(--text-muted)', fontWeight: 500 }}>Overall Migration Progress</span>
+                          <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>
                             {Math.round(completedClusters / totalClusters * 100)}%
                           </span>
                         </div>
-                        <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
+                        <div style={{ height: '12px', background: 'var(--status-neutral-bg)', borderRadius: '9999px', overflow: 'hidden' }}>
                           <div
-                            className="h-full rounded-full transition-all"
                             style={{
+                              height: '100%',
+                              borderRadius: '9999px',
+                              transition: 'width 0.3s ease',
                               width: `${(completedClusters / totalClusters) * 100}%`,
                               background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)'
                             }}
@@ -1247,8 +1297,8 @@ const ProjectWorkspaceView: React.FC = () => {
           )}
 
           {activeTab === 'capacity' && (
-            <div className="rounded-lg border border-gray-200" style={{ display: 'block', overflow: 'auto', maxHeight: '800px' }}>
-              <div className="bg-white">
+            <div style={{ borderRadius: '8px', border: '1px solid var(--glass-border)', display: 'block', overflow: 'auto', maxHeight: '800px' }}>
+              <div style={{ background: 'var(--glass-bg)' }}>
                 <CapacityVisualizerView />
               </div>
             </div>
@@ -1257,7 +1307,7 @@ const ProjectWorkspaceView: React.FC = () => {
           {activeTab === 'infrastructure' && (
             <div className="space-y-6" style={{ display: 'block' }}>
               {/* Infrastructure Visualization Card */}
-              <div className="p-6 bg-white border border-gray-200 rounded-lg">
+              <div style={{ padding: '24px', background: 'var(--card-bg)', border: '1px solid var(--glass-border)', borderRadius: '8px' }}>
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
                     <div style={DesignTokens.components.standardCardIcon}>
@@ -1277,18 +1327,18 @@ const ProjectWorkspaceView: React.FC = () => {
                 </div>
                 
                 <div className="space-y-4">
-                  <p className="text-sm text-gray-600">
+                  <p style={{ fontSize: '14px', color: 'var(--text-muted)' }}>
                     Visualize your project's infrastructure including hardware pools, RVTools imports, and migration targets.
                   </p>
                   
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {/* Hardware Pool Card */}
-                    <div className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
+                    <div style={{ padding: '16px', background: 'var(--status-info-bg)', border: '1px solid var(--glass-border)', borderRadius: '8px' }}>
                       <div className="flex items-center gap-2 mb-2">
-                        <ServerRegular className="w-5 h-5 text-blue-600" />
-                        <h4 className="font-semibold text-sm text-gray-900">Hardware Pool</h4>
+                        <ServerRegular style={{ width: '20px', height: '20px', color: 'var(--status-info)' }} />
+                        <h4 style={{ fontWeight: 600, fontSize: '14px', color: 'var(--text-primary)' }}>Hardware Pool</h4>
                       </div>
-                      <p className="text-xs text-gray-600 mb-3">
+                      <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '12px' }}>
                         View all available hardware assets in the pool
                       </p>
                       <PurpleGlassButton
@@ -1301,12 +1351,12 @@ const ProjectWorkspaceView: React.FC = () => {
                     </div>
 
                     {/* RVTools Import Card */}
-                    <div className="p-4 bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200 rounded-lg">
+                    <div style={{ padding: '16px', background: 'var(--badge-purple-bg)', border: '1px solid var(--glass-border)', borderRadius: '8px' }}>
                       <div className="flex items-center gap-2 mb-2">
-                        <DocumentRegular className="w-5 h-5 text-purple-600" />
-                        <h4 className="font-semibold text-sm text-gray-900">RVTools Data</h4>
+                        <DocumentRegular style={{ width: '20px', height: '20px', color: 'var(--brand-primary)' }} />
+                        <h4 style={{ fontWeight: 600, fontSize: '14px', color: 'var(--text-primary)' }}>RVTools Data</h4>
                       </div>
-                      <p className="text-xs text-gray-600 mb-3">
+                      <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '12px' }}>
                         Visualize imported VMware infrastructure
                       </p>
                       <PurpleGlassButton
@@ -1319,12 +1369,12 @@ const ProjectWorkspaceView: React.FC = () => {
                     </div>
 
                     {/* Migration Topology Card */}
-                    <div className="p-4 bg-gradient-to-br from-green-50 to-teal-50 border border-green-200 rounded-lg">
+                    <div style={{ padding: '16px', background: 'var(--status-success-bg)', border: '1px solid var(--glass-border)', borderRadius: '8px' }}>
                       <div className="flex items-center gap-2 mb-2">
-                        <ArrowTrendingRegular className="w-5 h-5 text-green-600" />
-                        <h4 className="font-semibold text-sm text-gray-900">Migration Topology</h4>
+                        <ArrowTrendingRegular style={{ width: '20px', height: '20px', color: 'var(--status-success)' }} />
+                        <h4 style={{ fontWeight: 600, fontSize: '14px', color: 'var(--text-primary)' }}>Migration Topology</h4>
                       </div>
-                      <p className="text-xs text-gray-600 mb-3">
+                      <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '12px' }}>
                         View source and target infrastructure side-by-side
                       </p>
                       <PurpleGlassButton
@@ -1341,7 +1391,7 @@ const ProjectWorkspaceView: React.FC = () => {
 
               {/* Quick Stats Card */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="p-6 bg-white border border-gray-200 rounded-lg">
+                <div style={{ padding: '24px', background: 'var(--card-bg)', border: '1px solid var(--glass-border)', borderRadius: '8px' }}>
                   <div className="flex items-center gap-3 mb-4">
                     <div style={DesignTokens.components.standardCardIcon}>
                       <ServerRegular style={{ fontSize: '20px' }} />
@@ -1350,21 +1400,21 @@ const ProjectWorkspaceView: React.FC = () => {
                   </div>
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">Total Servers</span>
-                      <span className="text-sm font-medium text-gray-900">--</span>
+                      <span style={{ fontSize: '14px', color: 'var(--text-muted)' }}>Total Servers</span>
+                      <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)' }}>--</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">Total CPU Cores</span>
-                      <span className="text-sm font-medium text-gray-900">--</span>
+                      <span style={{ fontSize: '14px', color: 'var(--text-muted)' }}>Total CPU Cores</span>
+                      <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)' }}>--</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">Total Memory (GB)</span>
-                      <span className="text-sm font-medium text-gray-900">--</span>
+                      <span style={{ fontSize: '14px', color: 'var(--text-muted)' }}>Total Memory (GB)</span>
+                      <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)' }}>--</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="p-6 bg-white border border-gray-200 rounded-lg">
+                <div style={{ padding: '24px', background: 'var(--card-bg)', border: '1px solid var(--glass-border)', borderRadius: '8px' }}>
                   <div className="flex items-center gap-3 mb-4">
                     <div style={DesignTokens.components.standardCardIcon}>
                       <ChartMultipleRegular style={{ fontSize: '20px' }} />
@@ -1373,16 +1423,16 @@ const ProjectWorkspaceView: React.FC = () => {
                   </div>
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">Datacenters</span>
-                      <span className="text-sm font-medium text-gray-900">--</span>
+                      <span style={{ fontSize: '14px', color: 'var(--text-muted)' }}>Datacenters</span>
+                      <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)' }}>--</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">Clusters</span>
-                      <span className="text-sm font-medium text-gray-900">--</span>
+                      <span style={{ fontSize: '14px', color: 'var(--text-muted)' }}>Clusters</span>
+                      <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)' }}>--</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">Hosts</span>
-                      <span className="text-sm font-medium text-gray-900">--</span>
+                      <span style={{ fontSize: '14px', color: 'var(--text-muted)' }}>Hosts</span>
+                      <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)' }}>--</span>
                     </div>
                   </div>
                 </div>

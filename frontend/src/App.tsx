@@ -185,8 +185,8 @@ function AppContent() {
                   overflowX: 'hidden',
                   minHeight: 'calc(100vh - 60px)'
                 }}>
-                  {/* Breadcrumb Navigation */}
-                  <BreadcrumbNavigation glass="light" style={{ marginBottom: '24px' }} />
+                  {/* Note: Breadcrumb navigation is now rendered by individual views 
+                      using PurpleGlassBreadcrumb to avoid duplication */}
                   
                   {/* Single Card Container for All Content */}
                   <div style={{
