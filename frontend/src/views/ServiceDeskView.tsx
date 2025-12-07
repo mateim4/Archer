@@ -467,11 +467,39 @@ const ServiceDeskView: React.FC = () => {
         </div>
 
         {/* KPI Cards (ServiceNow Killer Feature) */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: DesignTokens.spacing.lg }}>
-          <KPICard title="Open Incidents" value={tickets.filter(t => t.status !== 'RESOLVED').length} trend="+2" trendType="negative" />
-          <KPICard title="SLA Breaches" value={tickets.filter(t => t.slaStatus === 'breached').length} trend="-1" trendType="positive" />
-          <KPICard title="Critical Assets" value={3} trend="0" trendType="neutral" icon={<DesktopRegular />} />
-          <KPICard title="Avg Resolution" value="4.2h" trend="-15m" trendType="positive" icon={<ClockRegular />} />
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
+          <KPICard 
+            title="Open Incidents" 
+            value={tickets.filter(t => t.status !== 'RESOLVED').length} 
+            trend="+2 vs last period" 
+            trendType="negative" 
+            icon={<TicketDiagonalRegular />}
+            color="#6B4CE6"
+          />
+          <KPICard 
+            title="SLA Breaches" 
+            value={tickets.filter(t => t.slaStatus === 'breached').length} 
+            trend="-1 vs last period" 
+            trendType="positive" 
+            icon={<AlertRegular />}
+            color="#ef4444"
+          />
+          <KPICard 
+            title="Critical Assets" 
+            value={3} 
+            trend="0 unchanged" 
+            trendType="neutral" 
+            icon={<DesktopRegular />}
+            color="#f59e0b"
+          />
+          <KPICard 
+            title="Avg Resolution" 
+            value="4.2h" 
+            trend="-15m improved" 
+            trendType="positive" 
+            icon={<ClockRegular />}
+            color="#10b981"
+          />
         </div>
 
         {/* Ticket Type Tabs */}
@@ -799,29 +827,79 @@ const ServiceDeskView: React.FC = () => {
 
 // --- Sub-Components ---
 
-const KPICard: React.FC<{ title: string; value: string | number; trend: string; trendType: 'positive' | 'negative' | 'neutral'; icon?: React.ReactNode }> = ({ title, value, trend, trendType, icon }) => (
+const KPICard: React.FC<{ 
+  title: string; 
+  value: string | number; 
+  trend: string; 
+  trendType: 'positive' | 'negative' | 'neutral'; 
+  icon?: React.ReactNode;
+  color?: string;
+}> = ({ title, value, trend, trendType, icon, color = 'var(--brand-primary)' }) => (
   <div 
-    className="purple-glass-card static"
+    className="purple-glass-card"
     style={{ 
-      padding: DesignTokens.spacing.lg, 
-      transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+      padding: '24px',
+      position: 'relative',
+      overflow: 'hidden',
     }}
   >
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-      <span style={{ color: 'var(--text-secondary)', fontSize: DesignTokens.typography.sm, fontWeight: DesignTokens.typography.medium }}>{title}</span>
-      {icon && <span style={{ color: 'var(--text-muted)' }}>{icon}</span>}
-    </div>
-    <div style={{ display: 'flex', alignItems: 'flex-end', gap: '8px' }}>
-      <span style={{ color: 'var(--text-primary)', fontSize: DesignTokens.typography.xxl, fontWeight: DesignTokens.typography.bold }}>{value}</span>
-      <span 
-        style={{ 
-          fontSize: DesignTokens.typography.xs,
-          marginBottom: '4px',
-          color: trendType === 'positive' ? DesignTokens.colors.success : 
-                 trendType === 'negative' ? DesignTokens.colors.error : 
-                 'var(--text-muted)'
-        }}
-      >
+    {/* Icon */}
+    {icon && (
+      <div style={{
+        position: 'absolute',
+        top: '16px',
+        right: '16px',
+        width: '40px',
+        height: '40px',
+        borderRadius: 'var(--radius-md)',
+        background: `${color}15`,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: color,
+        fontSize: '20px',
+      }}>
+        {icon}
+      </div>
+    )}
+
+    {/* Title */}
+    <p style={{
+      margin: 0,
+      fontSize: '13px',
+      fontWeight: 500,
+      color: 'var(--text-muted)',
+      textTransform: 'uppercase',
+      letterSpacing: '0.05em',
+    }}>
+      {title}
+    </p>
+
+    {/* Value */}
+    <p style={{
+      margin: '8px 0 0 0',
+      fontSize: '32px',
+      fontWeight: 700,
+      color: 'var(--text-primary)',
+      fontFamily: 'var(--lcm-font-family-heading, Poppins, sans-serif)',
+    }}>
+      {value}
+    </p>
+
+    {/* Trend */}
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: '4px',
+      marginTop: '8px',
+    }}>
+      <span style={{
+        fontSize: '13px',
+        fontWeight: 500,
+        color: trendType === 'positive' ? 'var(--status-success)' : 
+               trendType === 'negative' ? 'var(--status-critical)' : 
+               'var(--text-muted)',
+      }}>
         {trend}
       </span>
     </div>
