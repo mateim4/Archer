@@ -1193,10 +1193,11 @@ const GuidesView: React.FC = () => {
               }}>
                 <span style={{
                   fontSize: '12px',
-                  padding: '4px 8px',
-                  borderRadius: '12px',
-                  background: 'var(--badge-purple-bg, rgba(99, 102, 241, 0.1))',
-                  color: 'var(--badge-purple-text, #4f46e5)',
+                  padding: '4px 12px',
+                  borderRadius: '16px',
+                  background: 'var(--glass-bg)',
+                  border: '1px solid var(--card-border)',
+                  color: 'var(--text-secondary)',
                   fontFamily: tokens.fontFamilyBody,
                   textTransform: 'capitalize'
                 }}>
@@ -1204,10 +1205,11 @@ const GuidesView: React.FC = () => {
                 </span>
                 <span style={{
                   fontSize: '12px',
-                  padding: '4px 8px',
-                  borderRadius: '12px',
-                  background: 'var(--badge-green-bg, rgba(16, 185, 129, 0.1))',
-                  color: 'var(--badge-green-text, #047857)',
+                  padding: '4px 12px',
+                  borderRadius: '16px',
+                  background: 'rgba(16, 185, 129, 0.15)',
+                  border: '1px solid rgba(16, 185, 129, 0.3)',
+                  color: '#10b981',
                   fontFamily: tokens.fontFamilyBody,
                   textTransform: 'capitalize'
                 }}>
@@ -1216,10 +1218,11 @@ const GuidesView: React.FC = () => {
                 {guide.duration && (
                   <span style={{
                     fontSize: '12px',
-                    padding: '4px 8px',
-                    borderRadius: '12px',
-                    background: 'var(--badge-gray-bg, rgba(107, 114, 128, 0.1))',
-                    color: 'var(--text-primary)',
+                    padding: '4px 12px',
+                    borderRadius: '16px',
+                    background: 'var(--glass-bg)',
+                    border: '1px solid var(--card-border)',
+                    color: 'var(--text-secondary)',
                     fontFamily: tokens.fontFamilyBody,
                     display: 'flex',
                     alignItems: 'center',

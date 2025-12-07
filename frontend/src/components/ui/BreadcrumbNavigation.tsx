@@ -94,7 +94,7 @@ export const BreadcrumbNavigation: React.FC<BreadcrumbNavigationProps> = ({
                   style={{
                     fontSize: '14px',
                     fontWeight: 600,
-                    color: 'var(--brand-primary)',
+                    color: 'var(--text-primary)',
                     fontFamily: 'inherit',
                     whiteSpace: 'nowrap',
                     overflow: 'visible'

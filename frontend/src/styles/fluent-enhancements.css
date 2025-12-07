@@ -784,22 +784,22 @@ input[type="number"] {
 .dark .glassmorphic-search-wrapper {
   backdrop-filter: blur(60px) brightness(90%) contrast(100%);
   -webkit-backdrop-filter: blur(60px) brightness(90%) contrast(100%);
-  border-color: rgba(255, 255, 255, 0.1);
-  background: rgba(30, 30, 30, 0.4);
+  border-color: rgba(255, 255, 255, 0.15);
+  background: var(--glass-bg);
 }
 
 .dark .glassmorphic-search-wrapper:hover {
   backdrop-filter: blur(70px) brightness(92%) contrast(102%);
   -webkit-backdrop-filter: blur(70px) brightness(92%) contrast(102%);
-  border-color: rgba(255, 255, 255, 0.15);
-  background: rgba(40, 40, 40, 0.5);
+  border-color: rgba(255, 255, 255, 0.2);
+  background: var(--glass-bg-hover);
 }
 
 .dark .glassmorphic-search-wrapper:focus-within {
   backdrop-filter: blur(80px) brightness(95%) contrast(105%);
   -webkit-backdrop-filter: blur(80px) brightness(95%) contrast(105%);
-  border-color: rgba(139, 92, 246, 0.4);
-  background: rgba(40, 40, 40, 0.6);
+  border-color: rgba(139, 92, 246, 0.5);
+  background: var(--glass-bg-hover);
 }
 
 .dark .glassmorphic-search-icon {
