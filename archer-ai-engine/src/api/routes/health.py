@@ -3,7 +3,7 @@ Health check endpoints for monitoring and readiness probes.
 """
 
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, Any
 
 from fastapi import APIRouter, HTTPException, status
@@ -49,7 +49,7 @@ async def health_check() -> HealthResponse:
     return HealthResponse(
         status="healthy",
         version=settings.ai_sidecar_version,
-        timestamp=datetime.utcnow()
+        timestamp=datetime.now(timezone.utc)
     )
 
 
@@ -64,7 +64,7 @@ async def liveness_probe() -> HealthResponse:
     return HealthResponse(
         status="alive",
         version=settings.ai_sidecar_version,
-        timestamp=datetime.utcnow()
+        timestamp=datetime.now(timezone.utc)
     )
 
 
@@ -116,7 +116,7 @@ async def readiness_probe() -> ReadinessResponse:
     response = ReadinessResponse(
         status=response_status,
         checks=checks,
-        timestamp=datetime.utcnow()
+        timestamp=datetime.now(timezone.utc)
     )
     
     # Return 503 if not ready
