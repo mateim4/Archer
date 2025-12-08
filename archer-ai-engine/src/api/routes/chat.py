@@ -1,13 +1,13 @@
 """Chat completion endpoints."""
 
-from typing import AsyncIterator
+from collections.abc import AsyncIterator
 
 import structlog
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 
 from ...core.exceptions import LLMError
-from ...llm_gateway.types import ChatRequest, ChatResponse, StreamChunk
+from ...llm_gateway.types import ChatRequest, ChatResponse
 from ..dependencies import LLMRouterDep
 
 router = APIRouter()
@@ -72,7 +72,7 @@ async def chat_completion(
 
     except LLMError as e:
         logger.error("chat_llm_error", error=str(e), error_type=type(e).__name__)
-        raise HTTPException(status_code=503, detail=str(e))
+        raise HTTPException(status_code=503, detail=str(e)) from e
     except Exception as e:
         logger.error("chat_unexpected_error", error=str(e))
-        raise HTTPException(status_code=500, detail="Internal server error")
+        raise HTTPException(status_code=500, detail="Internal server error") from e

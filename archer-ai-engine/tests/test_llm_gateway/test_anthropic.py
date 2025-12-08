@@ -1,7 +1,8 @@
 """Tests for Anthropic adapter (mocked)."""
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock
+
+import pytest
 
 from src.config import Settings
 from src.llm_gateway.anthropic_adapter import AnthropicAdapter
@@ -71,8 +72,8 @@ async def test_anthropic_chat(anthropic_adapter: AnthropicAdapter):
     assert response.provider == "anthropic"
     assert response.model == "claude-3-5-sonnet-20241022"
     assert response.finish_reason == "end_turn"
-    assert response.usage.input_tokens == 10
-    assert response.usage.output_tokens == 12
+    assert response.usage.prompt_tokens == 10
+    assert response.usage.completion_tokens == 12
 
 
 def test_prepare_messages_with_system(anthropic_adapter: AnthropicAdapter):

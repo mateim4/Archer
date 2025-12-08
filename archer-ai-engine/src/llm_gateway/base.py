@@ -1,7 +1,7 @@
 """Base abstract class for LLM adapters."""
 
 from abc import ABC, abstractmethod
-from typing import AsyncIterator
+from collections.abc import AsyncIterator
 
 from .types import ChatMessage, ChatResponse, ModelInfo, ProviderStatus, StreamChunk
 

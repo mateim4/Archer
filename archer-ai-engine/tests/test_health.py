@@ -1,6 +1,5 @@
 """Tests for health endpoints."""
 
-import pytest
 from fastapi.testclient import TestClient
 
 
@@ -21,8 +20,7 @@ def test_liveness_endpoint(client: TestClient):
     assert data["status"] == "alive"
 
 
-@pytest.mark.asyncio
-async def test_readiness_endpoint(client: TestClient):
+def test_readiness_endpoint(client: TestClient):
     """Test readiness probe."""
     response = client.get("/health/ready")
     assert response.status_code == 200
@@ -32,8 +30,7 @@ async def test_readiness_endpoint(client: TestClient):
     assert "default_provider" in data
 
 
-@pytest.mark.asyncio
-async def test_providers_health_endpoint(client: TestClient):
+def test_providers_health_endpoint(client: TestClient):
     """Test providers health endpoint."""
     response = client.get("/health/providers")
     assert response.status_code == 200

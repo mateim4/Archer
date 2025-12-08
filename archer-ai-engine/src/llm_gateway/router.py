@@ -1,6 +1,5 @@
 """LLM Router - Factory and router for LLM adapters."""
 
-from typing import Type
 
 import structlog
 
@@ -22,7 +21,7 @@ class LLMRouter:
     for the rest of the application to interact with LLMs.
     """
 
-    _adapters: dict[str, Type[BaseLLMAdapter]] = {
+    _adapters: dict[str, type[BaseLLMAdapter]] = {
         "openai": OpenAIAdapter,
         "anthropic": AnthropicAdapter,
         "ollama": OllamaAdapter,

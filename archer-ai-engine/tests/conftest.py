@@ -3,7 +3,8 @@
 import pytest
 from fastapi.testclient import TestClient
 
-from src.config import Settings, get_settings
+from src.config import Settings
+from src.llm_gateway.router import LLMRouter
 from src.main import create_app
 
 
@@ -26,10 +27,17 @@ def app(test_settings: Settings, monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr("src.config.get_settings", lambda: test_settings)
 
     # Create app
-    return create_app()
+    test_app = create_app()
+
+    # Initialize app state with LLM router (normally done in lifespan)
+    test_app.state.llm_router = LLMRouter(test_settings)
+
+    return test_app
 
 
 @pytest.fixture
 def client(app):
     """Create test client."""
-    return TestClient(app)
+    # Use TestClient without triggering lifespan events
+    with TestClient(app, raise_server_exceptions=False) as test_client:
+        yield test_client

@@ -1,8 +1,7 @@
 """Type definitions for LLM Gateway."""
 
-from datetime import datetime
+from datetime import UTC, datetime
 from enum import Enum
-from typing import AsyncIterator
 
 from pydantic import BaseModel, Field
 
@@ -50,7 +49,7 @@ class ChatResponse(BaseModel):
     provider: str
     finish_reason: str | None = None
     usage: TokenUsage | None = None
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 class StreamChunk(BaseModel):

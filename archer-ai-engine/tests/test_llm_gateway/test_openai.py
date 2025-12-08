@@ -1,7 +1,8 @@
 """Tests for OpenAI adapter (mocked)."""
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock
+
+import pytest
 
 from src.config import Settings
 from src.llm_gateway.openai_adapter import OpenAIAdapter

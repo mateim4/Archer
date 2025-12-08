@@ -1,10 +1,11 @@
 """Anthropic Claude LLM adapter implementation."""
 
 import time
-from typing import Any, AsyncIterator
+from collections.abc import AsyncIterator
+from typing import Any
 
 import structlog
-from anthropic import AsyncAnthropic, AnthropicError
+from anthropic import AnthropicError, AsyncAnthropic
 
 from ..config import Settings
 from ..core.exceptions import (
@@ -15,7 +16,15 @@ from ..core.exceptions import (
     LLMTimeoutError,
 )
 from .base import BaseLLMAdapter
-from .types import ChatMessage, ChatResponse, MessageRole, ModelInfo, ProviderStatus, StreamChunk, TokenUsage
+from .types import (
+    ChatMessage,
+    ChatResponse,
+    MessageRole,
+    ModelInfo,
+    ProviderStatus,
+    StreamChunk,
+    TokenUsage,
+)
 
 logger = structlog.get_logger()
 
@@ -193,7 +202,7 @@ class AnthropicAdapter(BaseLLMAdapter):
         start_time = time.time()
         try:
             # Send a minimal test request
-            response = await self.client.messages.create(
+            await self.client.messages.create(
                 model=self.default_model,
                 messages=[{"role": "user", "content": "Hi"}],
                 max_tokens=10,

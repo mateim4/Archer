@@ -5,7 +5,6 @@ import respx
 from httpx import Response
 
 from src.config import Settings
-from src.core.exceptions import LLMConnectionError
 from src.llm_gateway.ollama_adapter import OllamaAdapter
 from src.llm_gateway.types import ChatMessage, MessageRole
 

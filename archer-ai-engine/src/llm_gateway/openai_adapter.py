@@ -1,7 +1,8 @@
 """OpenAI LLM adapter implementation."""
 
 import time
-from typing import Any, AsyncIterator
+from collections.abc import AsyncIterator
+from typing import Any
 
 import structlog
 from openai import AsyncOpenAI, OpenAIError

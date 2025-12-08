@@ -1,10 +1,8 @@
 """Tests for chat endpoints."""
 
-import pytest
-from unittest.mock import AsyncMock, MagicMock
 from fastapi.testclient import TestClient
 
-from src.llm_gateway.types import ChatMessage, ChatResponse, MessageRole, TokenUsage
+from src.llm_gateway.types import ChatResponse, TokenUsage
 
 
 def test_chat_completion_endpoint_requires_messages(client: TestClient):
@@ -13,8 +11,7 @@ def test_chat_completion_endpoint_requires_messages(client: TestClient):
     assert response.status_code == 422  # Validation error
 
 
-@pytest.mark.asyncio
-async def test_chat_completion_non_streaming(client: TestClient, app, monkeypatch):
+def test_chat_completion_non_streaming(client: TestClient, app):
     """Test non-streaming chat completion."""
     # Mock the router's chat method
     mock_response = ChatResponse(

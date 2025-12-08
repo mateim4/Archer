@@ -23,6 +23,6 @@ async def list_provider_models(provider: str, llm_router: LLMRouterDep) -> list[
         models = await adapter.list_models()
         return models
     except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
+        raise HTTPException(status_code=404, detail=str(e)) from e
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to list models: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to list models: {str(e)}") from e
