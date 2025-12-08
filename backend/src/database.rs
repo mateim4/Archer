@@ -5,6 +5,7 @@ use surrealdb::Surreal;
 use tracing::{error, info, warn};
 
 pub mod migrations;
+pub mod ai_tables_migration;
 
 pub type Database = Surreal<Db>;
 pub type AppState = Arc<Database>;
@@ -119,6 +120,13 @@ async fn run_all_migrations(db: &Database) -> Result<(), DatabaseError> {
         warn!("Migration planning migrations failed: {}", e);
     } else {
         info!("✅ Migration planning migrations completed");
+    }
+
+    // AI tables migrations (new)
+    if let Err(e) = ai_tables_migration::AiTablesMigration::run_all(db).await {
+        warn!("AI tables migrations failed: {}", e);
+    } else {
+        info!("✅ AI tables migrations completed");
     }
 
     Ok(())

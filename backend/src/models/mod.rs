@@ -8,3 +8,9 @@ pub mod settings_models;
 pub mod workflow;
 pub mod ticket;
 
+// AI/RAG models
+pub mod document;
+pub mod ai_thought_log;
+pub mod agent_action;
+pub mod agent_role;
+
