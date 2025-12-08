@@ -8,31 +8,31 @@ import React from 'react';
 // ===================
 
 export const DESIGN_TOKENS = {
-  // Colors
+  // Colors - Theme-aware using CSS variables
   colors: {
-    primary: '#8b5cf6', // Purple primary
+    primary: '#8b5cf6', // Purple primary fallback
     primaryLight: 'rgba(139, 92, 246, 0.1)',
     primaryBorder: 'rgba(139, 92, 246, 0.2)',
     primaryHover: 'rgba(139, 92, 246, 0.4)',
     
     background: {
-      card: 'rgba(255, 255, 255, 0.85)',
-      cardHover: 'rgba(255, 255, 255, 0.95)',
-      input: 'rgba(255, 255, 255, 0.8)',
-      inputFocus: 'rgba(255, 255, 255, 0.95)',
-      dropdown: 'rgba(255, 255, 255, 0.65)',
+      card: 'var(--card-bg)',
+      cardHover: 'var(--card-bg-hover)',
+      input: 'var(--input-bg)',
+      inputFocus: 'var(--card-bg-hover)', // Slightly different from input for visual distinction
+      dropdown: 'var(--card-bg)',
     },
     
     text: {
-      primary: '#1a202c',
-      secondary: 'var(--text-primary)',
-      muted: '#64748b',
+      primary: 'var(--text-primary)',
+      secondary: 'var(--text-secondary)',
+      muted: 'var(--text-muted)',
     }
   },
 
-  // Typography
+  // Typography - Poppins primary per design system
   typography: {
-    fontFamily: 'Oxanium, -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", system-ui, ui-sans-serif, Helvetica, Arial, sans-serif',
+    fontFamily: "'Poppins', 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI Variable', 'Segoe UI', system-ui, ui-sans-serif, Helvetica, Arial, sans-serif",
     fontSize: {
       xs: '12px',
       sm: '14px',
@@ -66,54 +66,54 @@ export const DESIGN_TOKENS = {
     xl: '16px',
   },
 
-  // Shadows
+  // Shadows - Theme-aware using CSS variables
   shadows: {
-    card: '0 4px 24px 0 rgba(168,85,247,0.07), 0 1.5px 4px 0 rgba(0,0,0,0.04)',
-    cardHover: '0 8px 32px 0 rgba(168,85,247,0.12), 0 2px 8px 0 rgba(0,0,0,0.08)',
-    dropdown: '0 4px 24px 0 rgba(168,85,247,0.07), 0 1.5px 4px 0 rgba(0,0,0,0.04)',
+    card: 'var(--card-shadow)',
+    cardHover: 'var(--card-shadow-hover)',
+    dropdown: 'var(--card-shadow)',
   },
 
   // Backdrop Filter
   backdropFilter: {
-    standard: 'blur(18px)',
+    standard: 'blur(20px)',
     intense: 'blur(30px)',
   },
 
-  // Glass-Edge Components
+  // Glass-Edge Components - Theme-aware using CSS variables
   components: {
     standardCard: {
-      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.5))',
-      backdropFilter: 'blur(60px) brightness(135%) contrast(105%)',
-      WebkitBackdropFilter: 'blur(60px) brightness(135%) contrast(105%)',
-      border: '1px solid rgba(255, 255, 255, 0.4)',
-      borderRadius: '20px',
+      background: 'var(--card-bg)',
+      backdropFilter: 'blur(20px)',
+      WebkitBackdropFilter: 'blur(20px)',
+      border: '1px solid var(--card-border)',
+      borderRadius: 'var(--radius-card, 16px)',
       padding: '24px',
-      transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+      transition: 'all 0.2s ease',
       overflow: 'hidden',
       cursor: 'pointer',
-      boxShadow: 'inset 0 0 15px rgba(255, 255, 255, 0.15), 0 0 30px rgba(255, 255, 255, 0.08)',
+      boxShadow: 'var(--card-shadow)',
     },
 
     standardCardHover: {
-      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.6))',
-      backdropFilter: 'blur(70px) brightness(140%) contrast(110%)',
-      WebkitBackdropFilter: 'blur(70px) brightness(140%) contrast(110%)',
-      border: '1px solid rgba(255, 255, 255, 0.6)',
-      transform: 'translateY(-8px) scale(1.02)',
-      boxShadow: 'inset 0 0 25px rgba(255, 255, 255, 0.2), 0 0 50px rgba(255, 255, 255, 0.12), 0 20px 40px rgba(0, 0, 0, 0.1)',
+      background: 'var(--card-bg-hover)',
+      backdropFilter: 'blur(20px)',
+      WebkitBackdropFilter: 'blur(20px)',
+      borderColor: 'var(--card-border-hover)',
+      transform: 'translateY(-2px)',
+      boxShadow: 'var(--card-shadow-hover)',
     },
 
     standardContentCard: {
-      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.40), rgba(255, 255, 255, 0.40))',
-      backdropFilter: 'blur(30px) brightness(145%) contrast(85%)',
-      WebkitBackdropFilter: 'blur(30px) brightness(145%) contrast(85%)',
-      border: '1px solid rgba(255, 255, 255, 0.3)',
-      borderRadius: '20px',
+      background: 'var(--card-bg)',
+      backdropFilter: 'blur(20px)',
+      WebkitBackdropFilter: 'blur(20px)',
+      border: '1px solid var(--card-border)',
+      borderRadius: 'var(--radius-card, 16px)',
       padding: '32px',
-      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+      transition: 'all 0.2s ease',
       overflow: 'hidden',
       cursor: 'default',
-      boxShadow: 'inset 0 0 20px rgba(255, 255, 255, 0.1), 0 0 40px rgba(255, 255, 255, 0.05)',
+      boxShadow: 'var(--card-shadow)',
     },
   }
 };
@@ -122,14 +122,14 @@ export const DESIGN_TOKENS = {
 // STANDARD COMPONENT STYLES
 // ===================
 
-// Standard Card Style
+// Standard Card Style - Theme-aware
 export const standardCardStyle = {
-  background: DESIGN_TOKENS.colors.background.card,
-  border: `1px solid ${DESIGN_TOKENS.colors.primaryBorder}`,
-  borderRadius: DESIGN_TOKENS.borderRadius.lg,
+  background: 'var(--card-bg)',
+  border: '1px solid var(--card-border)',
+  borderRadius: 'var(--radius-card, 16px)',
   backdropFilter: DESIGN_TOKENS.backdropFilter.standard,
   WebkitBackdropFilter: DESIGN_TOKENS.backdropFilter.standard,
-  boxShadow: DESIGN_TOKENS.shadows.card,
+  boxShadow: 'var(--card-shadow)',
   transition: 'all 0.2s ease',
 };
 
