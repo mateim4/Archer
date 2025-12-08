@@ -1,0 +1,42 @@
+[tool.poetry]
+name = "archer-ai-engine"
+version = "0.1.0"
+description = "AI Sidecar Service for Archer ITSM Platform"
+authors = ["Archer Team"]
+readme = "README.md"
+python = "^3.11"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = ">=0.109.0"
+uvicorn = {extras = ["standard"], version = ">=0.27.0"}
+pydantic = ">=2.6.0"
+pydantic-settings = ">=2.2.0"
+redis = ">=5.0.0"
+surrealdb = ">=0.3.0"
+httpx = ">=0.26.0"
+python-multipart = ">=0.0.9"
+
+[tool.poetry.group.dev.dependencies]
+pytest = ">=8.0.0"
+pytest-asyncio = ">=0.23.0"
+pytest-cov = ">=4.1.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+
+[tool.black]
+line-length = 100
+target-version = ['py311']
+
+[tool.isort]
+profile = "black"
+line_length = 100

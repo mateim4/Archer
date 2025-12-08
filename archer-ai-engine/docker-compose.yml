@@ -1,0 +1,80 @@
+version: '3.8'
+
+services:
+  # SurrealDB - shared with main application
+  surrealdb:
+    image: surrealdb/surrealdb:latest
+    container_name: archer-surrealdb
+    ports:
+      - "8000:8000"
+    command:
+      - start
+      - --log=info
+      - --user=root
+      - --pass=root
+      - memory
+    environment:
+      - RUST_LOG=info
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - archer-network
+
+  # Redis - for future job queue
+  redis:
+    image: redis:7-alpine
+    container_name: archer-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - archer-network
+
+  # AI Sidecar Service
+  ai-sidecar:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: archer-ai-sidecar
+    ports:
+      - "8001:8000"  # Map to 8001 to avoid conflict with SurrealDB
+    environment:
+      - AI_SIDECAR_HOST=0.0.0.0
+      - AI_SIDECAR_PORT=8000
+      - AI_SIDECAR_VERSION=0.1.0
+      - SURREALDB_URL=ws://surrealdb:8000/rpc
+      - SURREALDB_NS=archer
+      - SURREALDB_DB=main
+      - SURREALDB_USER=root
+      - SURREALDB_PASS=root
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=0
+      - RUST_BACKEND_URL=http://host.docker.internal:3001
+      - LOG_LEVEL=INFO
+    depends_on:
+      surrealdb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - archer-network
+    restart: unless-stopped
+
+networks:
+  archer-network:
+    name: archer-network
+    driver: bridge
