@@ -33,7 +33,9 @@ npm start            # Starts frontend + Rust backend
 **Access Points:**
 - Frontend: http://localhost:1420
 - Backend API: http://localhost:3001
-- Health Check: http://localhost:3001/health
+- Backend Health: http://localhost:3001/health
+- AI Engine: http://localhost:8000
+- AI Engine Docs: http://localhost:8000/docs
 
 ## ✨ Current Features (December 2025)
 
@@ -69,6 +71,13 @@ npm start            # Starts frontend + Rust backend
 - **Capacity Visualizer** - Resource utilization and planning
 - **Infrastructure Visualizer** - Hardware pool and migration topology views
 
+### 🤖 AI Engine (Phase 1 - NEW)
+- **LLM Gateway** - Pluggable interface for multiple AI providers
+- **Provider Support** - OpenAI (GPT-4o), Anthropic (Claude 3.5), Ollama (local)
+- **Health Checks** - Automatic provider health monitoring and fallback
+- **Structured Logging** - JSON-based logging for observability
+- **Docker Ready** - Containerized deployment with Redis support
+
 ### 🔧 Additional Tools
 - **Document Templates** - Generate standardized documentation
 - **Guides View** - Built-in help and tutorials
@@ -84,11 +93,16 @@ npm start            # Starts frontend + Rust backend
 │  │ Components  │  │   UI 2      │  │   (CSS Variables)   │  │
 │  └─────────────┘  └─────────────┘  └─────────────────────┘  │
 ├─────────────────────────────────────────────────────────────┤
-│                     Backend (Rust + Axum)                    │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │
-│  │  Tickets    │  │  Projects   │  │  Hardware Baskets   │  │
-│  │  API        │  │  API        │  │  Parser             │  │
-│  └─────────────┘  └─────────────┘  └─────────────────────┘  │
+│     Backend (Rust + Axum)     │    AI Engine (Python)       │
+│  ┌─────────────┐  ┌──────────┐ │  ┌─────────────────────┐  │
+│  │  Tickets    │  │ Projects │ │  │  LLM Gateway        │  │
+│  │  API        │  │   API    │ │  │  (OpenAI/Anthropic/ │  │
+│  └─────────────┘  └──────────┘ │  │   Ollama)           │  │
+│  ┌─────────────────────────────┤  └─────────────────────┘  │
+│  │  Hardware Baskets Parser    │  ┌─────────────────────┐  │
+│  └─────────────────────────────┤  │  AI Agents          │  │
+│                                 │  │  (Phase 2+)         │  │
+│                                 │  └─────────────────────┘  │
 ├─────────────────────────────────────────────────────────────┤
 │                     Database (SurrealDB)                     │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │

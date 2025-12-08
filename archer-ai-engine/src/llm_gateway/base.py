@@ -3,44 +3,42 @@
 from abc import ABC, abstractmethod
 from typing import AsyncIterator
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class ChatMessage(BaseModel):
     """Represents a chat message in a conversation."""
 
-    role: str = Field(..., description="Message role: system, user, or assistant")
-    content: str = Field(..., description="Message content")
-
-    class Config:
-        """Pydantic configuration."""
-
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "examples": [
                 {"role": "system", "content": "You are a helpful assistant."},
                 {"role": "user", "content": "What is the weather today?"},
                 {"role": "assistant", "content": "I don't have access to real-time weather data."},
             ]
         }
+    )
+
+    role: str = Field(..., description="Message role: system, user, or assistant")
+    content: str = Field(..., description="Message content")
 
 
 class LLMResponse(BaseModel):
     """Represents a response from an LLM."""
 
-    content: str = Field(..., description="Response content from the LLM")
-    model: str = Field(..., description="Model identifier used for generation")
-    tokens_used: int | None = Field(None, description="Total tokens used (if available)")
-
-    class Config:
-        """Pydantic configuration."""
-
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "content": "The capital of France is Paris.",
                 "model": "gpt-4o",
                 "tokens_used": 42,
             }
         }
+    )
+
+    content: str = Field(..., description="Response content from the LLM")
+    model: str = Field(..., description="Model identifier used for generation")
+    tokens_used: int | None = Field(None, description="Total tokens used (if available)")
 
 
 class BaseLLMAdapter(ABC):
