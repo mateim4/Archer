@@ -206,3 +206,93 @@ Frontend communicates with backends via:
 - Use proper database initialization in backend
 
 This architecture supports both rapid prototyping and production deployment while maintaining strict design consistency and type safety throughout the application.
+
+---
+
+## AI Engine Roadmap (December 2025)
+
+### Vision
+Transform Archer from a passive record-keeping ITSM platform to an **active, intelligent operations platform** with:
+- Unified AI across ITSM, CMDB, and Monitoring
+- Transparent, controllable AI with Chain of Thought visibility
+- Flexible deployment (local LLMs, cloud APIs, or hybrid)
+- Strict data sovereignty with tenant isolation
+
+### Target Architecture
+```
+┌────────────────────────────────────────────────────────────────┐
+│                       Frontend (React + TypeScript)             │
+│  ┌──────────────┐  ┌──────────────┐  ┌───────────────────────┐ │
+│  │ AI Chat      │  │ Ghost Text   │  │ Approval Workflow    │ │
+│  │ Interface    │  │ Suggestions  │  │ UI (Red Button)      │ │
+│  └──────────────┘  └──────────────┘  └───────────────────────┘ │
+├────────────────────────────────────────────────────────────────┤
+│                       Rust Core (Axum + SurrealDB)              │
+│  ┌──────────────┐  ┌──────────────┐  ┌───────────────────────┐ │
+│  │ Tickets      │  │ Projects     │  │ AI Orchestrator      │ │
+│  │ CMDB         │  │ Activities   │  │ (Routes to Agents)   │ │
+│  └──────────────┘  └──────────────┘  └───────────────────────┘ │
+├────────────────────────────────────────────────────────────────┤
+│                    Python AI Sidecar (FastAPI)                  │
+│  ┌──────────────┐  ┌──────────────┐  ┌───────────────────────┐ │
+│  │ Librarian    │  │ Ticket       │  │ Monitoring           │ │
+│  │ Agent (RAG)  │  │ Assistant    │  │ Analyst              │ │
+│  └──────────────┘  └──────────────┘  └───────────────────────┘ │
+│  ┌──────────────┐  ┌──────────────┐  ┌───────────────────────┐ │
+│  │ Operations   │  │ LLM Gateway  │  │ Context Manager      │ │
+│  │ Agent        │  │ (Router)     │  │ (RAG + Graph)        │ │
+│  └──────────────┘  └──────────────┘  └───────────────────────┘ │
+├────────────────────────────────────────────────────────────────┤
+│                    SurrealDB (Unified Data Store)               │
+│  ┌──────────────┐  ┌──────────────┐  ┌───────────────────────┐ │
+│  │ Core Data    │  │ Vector       │  │ AI Audit Log         │ │
+│  │ (Tickets,    │  │ Embeddings   │  │ (Chain of Thought)   │ │
+│  │  Assets)     │  │ (RAG)        │  │                      │ │
+│  └──────────────┘  └──────────────┘  └───────────────────────┘ │
+├────────────────────────────────────────────────────────────────┤
+│                    LLM Backend (Pluggable)                      │
+│  ┌──────────────┐  ┌──────────────┐  ┌───────────────────────┐ │
+│  │ Local:       │  │ Cloud APIs:  │  │ Hybrid:              │ │
+│  │ Ollama/vLLM  │  │ OpenAI/      │  │ Local for sensitive  │ │
+│  │ (Llama 3.x)  │  │ Anthropic    │  │ Cloud for complex    │ │
+│  └──────────────┘  └──────────────┘  └───────────────────────┘ │
+└────────────────────────────────────────────────────────────────┘
+```
+
+### AI Agents
+1. **Orchestrator** - Routes user intent to appropriate agents
+2. **Librarian Agent** - Manages RAG system, knowledge lifecycle, document ingestion
+3. **Ticket Assistant** - Intelligent triage, similar tickets, KB suggestions
+4. **Monitoring Analyst** - Anomaly detection, automated RCA, predictive alerts
+5. **Operations Agent** - Stage 3 autonomous actions with human-in-the-loop
+
+### Implementation Phases
+| Phase | Timeline | Deliverables |
+|-------|----------|--------------|
+| **Phase 1: Foundation** | Months 1-2 | SurrealDB vectors, RAG pipeline, Librarian Agent, basic knowledge Q&A |
+| **Phase 2: Brain** | Months 3-4 | LLM Gateway, Ticket Assistant, ghost text suggestions, context manager |
+| **Phase 3: Autonomous** | Months 5-6 | Operations Agent, vault integration, risk assessment, approval workflows |
+
+### Current vs Target Gap
+| Component | Current State | Target State |
+|-----------|---------------|--------------|
+| Backend | Rust + Axum | + Python AI sidecar |
+| Database | SurrealDB (relational) | + Vector embeddings |
+| Knowledge | Manual lookup | RAG with doc ingestion |
+| Tickets | Manual triage | AI-assisted triage + similar detection |
+| Monitoring | Basic alerts | Predictive + automated RCA |
+| Actions | Manual only | Human-in-the-loop autonomous |
+
+### Key Documentation
+Strategic and architectural docs are maintained in Obsidian and synced to `docs/architecture/`:
+- `01_Architecture/00_AI_Engine_Specification.md` - Core AI vision and agents
+- `01_Architecture/01_Comprehensive_Architecture.md` - Detailed system design
+- `02_Implementation/00_Coding_Implementation_Guide.md` - Phase-by-phase coding plan
+- `01_Architecture/03_Data_Model_SurrealDB.md` - AI-specific data schemas
+
+### Next Steps for AI Development
+1. **Immediate**: Set up Python AI sidecar project structure
+2. **Week 1-2**: Implement SurrealDB vector index configuration
+3. **Week 3-4**: Build RAG ingestion pipeline (file watcher + embeddings)
+4. **Week 5-6**: Create Librarian Agent with basic Q&A capability
+5. **Week 7-8**: Frontend AI chat interface integration

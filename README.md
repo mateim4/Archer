@@ -215,32 +215,62 @@ npm run test:e2e
 
 ## 📖 Documentation
 
+### Implementation Guides
 | Document | Description |
 |----------|-------------|
 | [QUICK_START.md](QUICK_START.md) | Development environment setup |
 | [DEPENDENCIES.md](DEPENDENCIES.md) | Required dependencies |
 | [COMPONENT_LIBRARY_GUIDE.md](COMPONENT_LIBRARY_GUIDE.md) | Purple Glass component API |
 | [DESIGN_TOKEN_DOCUMENTATION.md](DESIGN_TOKEN_DOCUMENTATION.md) | Design system tokens |
-| [product_docs/](product_docs/) | Product requirements & vision |
+
+### Architecture & Strategy (Obsidian Vault Sync)
+| Document | Description |
+|----------|-------------|
+| [AI Engine Specification](docs/architecture/01_Architecture/00_AI_Engine_Specification.md) | Core AI vision, agents, and principles |
+| [Comprehensive Architecture](docs/architecture/01_Architecture/01_Comprehensive_Architecture.md) | Detailed system design |
+| [RAG Architecture](docs/architecture/01_Architecture/02_RAG_Architecture.md) | Knowledge retrieval system |
+| [Implementation Guide](docs/architecture/02_Implementation/00_Coding_Implementation_Guide.md) | Phase-by-phase coding plan |
+| [UX Recommendations](docs/architecture/03_UX_and_Design/00_UX_and_IA_Recommendations.md) | UI/UX specifications |
+| [Competitive Analysis](docs/architecture/04_Competitive_Analysis/00_Competitive_Analysis_Matrix.md) | Market research |
+
+> 📝 **Documentation Protocol**: Strategic docs live in Obsidian vault and sync to `docs/architecture/`. See [Documentation Maintenance Instructions](.github/instructions/Documentation_Maintenance.instructions.md).
 
 ---
 
 ## 🗺️ Roadmap
 
+### 🤖 AI Engine (Primary Focus)
+The next major evolution of Archer is the AI Engine - transforming from passive record-keeping to an **active, intelligent operations platform**.
+
+| Phase | Timeline | Focus |
+|-------|----------|-------|
+| **Phase 1: Foundation** | Q1 2025 | RAG system, Librarian Agent, knowledge Q&A |
+| **Phase 2: Brain** | Q2 2025 | LLM Gateway, Ticket Assistant, ghost text suggestions |
+| **Phase 3: Autonomous** | Q3 2025 | Operations Agent, human-in-the-loop automation |
+
+**Key AI Agents:**
+- 🗄️ **Librarian** - Knowledge management, document ingestion, RAG search
+- 🎫 **Ticket Assistant** - Intelligent triage, similar tickets, KB suggestions
+- 📊 **Monitoring Analyst** - Anomaly detection, automated RCA, predictive alerts
+- ⚙️ **Operations Agent** - Autonomous infrastructure actions with approval workflows
+
+> 📖 Full AI architecture: [`docs/architecture/01_Architecture/`](docs/architecture/01_Architecture/)
+
 ### In Progress
-- [ ] Ticketing system with GitHub/Jira integration
+- [ ] Python AI sidecar project structure
+- [ ] SurrealDB vector index configuration
+- [ ] RAG ingestion pipeline
 - [ ] Fix backend Rust compilation issues
-- [ ] RVTools frontend UI completion
 
 ### Short Term
+- [ ] Librarian Agent with basic Q&A
+- [ ] Frontend AI chat interface
 - [ ] Hardware basket → project workflow integration
-- [ ] Enhanced network topology visualization
-- [ ] HLD generation for Hyper-V clusters
 
 ### Long Term
-- [ ] Cloud platform support
-- [ ] Mobile companion app
-- [ ] Enterprise SSO integration
+- [ ] Ticket Assistant integration
+- [ ] Monitoring Analyst with anomaly detection
+- [ ] Operations Agent with human-in-the-loop
 
 ---
 
