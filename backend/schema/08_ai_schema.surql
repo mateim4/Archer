@@ -32,7 +32,7 @@ DEFINE FIELD mime_type ON TABLE document TYPE string;       -- MIME type (text/p
 -- Content tracking
 DEFINE FIELD content_hash ON TABLE document TYPE string;    -- SHA-256 for change detection
 DEFINE FIELD file_size ON TABLE document TYPE int;          -- Size in bytes
-DEFINE FIELD last_indexed ON TABLE document TYPE datetime;  -- When last processed
+DEFINE FIELD last_indexed ON TABLE document TYPE option<datetime>;  -- When last processed (optional)
 
 -- Status and permissions
 DEFINE FIELD status ON TABLE document TYPE string;          -- "pending", "indexed", "failed"

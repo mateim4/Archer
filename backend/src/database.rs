@@ -257,7 +257,7 @@ async fn run_ai_schema_migrations(db: &Database) -> Result<(), DatabaseError> {
             DEFINE FIELD mime_type ON TABLE document TYPE string;
             DEFINE FIELD content_hash ON TABLE document TYPE string;
             DEFINE FIELD file_size ON TABLE document TYPE int;
-            DEFINE FIELD last_indexed ON TABLE document TYPE datetime;
+            DEFINE FIELD last_indexed ON TABLE document TYPE option<datetime>;
             DEFINE FIELD status ON TABLE document TYPE string;
             DEFINE FIELD permissions ON TABLE document TYPE array;
             DEFINE FIELD metadata ON TABLE document TYPE object;
