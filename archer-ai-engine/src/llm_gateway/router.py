@@ -6,12 +6,13 @@ from ..config import settings
 from ..utils.logging import get_logger
 from .anthropic_adapter import AnthropicAdapter
 from .base import BaseLLMAdapter
+from .gemini_adapter import GeminiAdapter
 from .ollama_adapter import OllamaAdapter
 from .openai_adapter import OpenAIAdapter
 
 logger = get_logger(__name__)
 
-LLMProviderType = Literal["ollama", "openai", "anthropic"]
+LLMProviderType = Literal["ollama", "openai", "anthropic", "gemini"]
 
 
 class LLMRouter:
@@ -53,6 +54,16 @@ class LLMRouter:
                 logger.info("anthropic_adapter_registered", model=settings.anthropic_model)
             except Exception as e:
                 logger.warning("anthropic_adapter_init_failed", error=str(e))
+
+        # Initialize Gemini adapter if API key is provided
+        if settings.gemini_api_key:
+            try:
+                self.adapters["gemini"] = GeminiAdapter(
+                    api_key=settings.gemini_api_key, model=settings.gemini_model
+                )
+                logger.info("gemini_adapter_registered", model=settings.gemini_model)
+            except Exception as e:
+                logger.warning("gemini_adapter_init_failed", error=str(e))
 
         if not self.adapters:
             logger.error("no_llm_adapters_initialized")

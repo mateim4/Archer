@@ -26,7 +26,7 @@ class Settings(BaseSettings):
 
     # LLM Provider Configuration
     llm_provider: str = Field(
-        default="ollama", description="LLM provider to use (ollama, openai, anthropic)"
+        default="ollama", description="LLM provider to use (ollama, openai, anthropic, gemini)"
     )
 
     # Ollama Configuration
@@ -43,6 +43,12 @@ class Settings(BaseSettings):
     anthropic_api_key: str | None = Field(default=None, description="Anthropic API key")
     anthropic_model: str = Field(
         default="claude-3-5-sonnet-20241022", description="Default Anthropic model"
+    )
+
+    # Google Gemini Configuration
+    gemini_api_key: str | None = Field(default=None, description="Google AI API key for Gemini")
+    gemini_model: str = Field(
+        default="gemini-1.5-pro", description="Default Gemini model"
     )
 
     # Redis Configuration
