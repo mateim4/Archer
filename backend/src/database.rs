@@ -121,6 +121,13 @@ async fn run_all_migrations(db: &Database) -> Result<(), DatabaseError> {
         info!("✅ Migration planning migrations completed");
     }
 
+    // AI schema migrations (RAG, vector search, audit logging)
+    if let Err(e) = run_ai_schema_migrations(db).await {
+        warn!("AI schema migrations failed: {}", e);
+    } else {
+        info!("✅ AI schema migrations completed");
+    }
+
     Ok(())
 }
 
@@ -216,6 +223,134 @@ async fn run_project_management_migrations(db: &Database) -> Result<(), Database
     db.query(project_schema)
         .await
         .map_err(|e| DatabaseError::MigrationFailed(format!("Project schema: {}", e)))?;
+
+    Ok(())
+}
+
+/// AI schema specific migrations (RAG, vector search, audit logging)
+async fn run_ai_schema_migrations(db: &Database) -> Result<(), DatabaseError> {
+    info!("Running AI schema migrations...");
+
+    // Load the AI schema file (relative to backend directory)
+    let schema_path = std::path::Path::new("schema/08_ai_schema.surql");
+    
+    if schema_path.exists() {
+        info!("Loading AI schema from file: {:?}", schema_path);
+        let schema_content = std::fs::read_to_string(schema_path)
+            .map_err(|e| DatabaseError::MigrationFailed(format!("Failed to read AI schema file: {}", e)))?;
+        
+        db.query(&schema_content)
+            .await
+            .map_err(|e| DatabaseError::MigrationFailed(format!("AI schema execution failed: {}", e)))?;
+        
+        info!("✅ AI schema loaded from file successfully");
+    } else {
+        warn!("AI schema file not found at {:?}, using inline definitions", schema_path);
+        
+        // Fallback: Define AI tables inline
+        let ai_schema = r#"
+            -- Document source tracking
+            DEFINE TABLE document SCHEMAFULL;
+            DEFINE FIELD source ON TABLE document TYPE string;
+            DEFINE FIELD path ON TABLE document TYPE string;
+            DEFINE FIELD filename ON TABLE document TYPE string;
+            DEFINE FIELD mime_type ON TABLE document TYPE string;
+            DEFINE FIELD content_hash ON TABLE document TYPE string;
+            DEFINE FIELD file_size ON TABLE document TYPE int;
+            DEFINE FIELD last_indexed ON TABLE document TYPE datetime;
+            DEFINE FIELD status ON TABLE document TYPE string;
+            DEFINE FIELD permissions ON TABLE document TYPE array;
+            DEFINE FIELD metadata ON TABLE document TYPE object;
+            DEFINE FIELD created_at ON TABLE document TYPE datetime DEFAULT time::now();
+            DEFINE FIELD updated_at ON TABLE document TYPE datetime DEFAULT time::now();
+            
+            DEFINE INDEX idx_document_hash ON TABLE document COLUMNS content_hash UNIQUE;
+            DEFINE INDEX idx_document_status ON TABLE document COLUMNS status;
+            DEFINE INDEX idx_document_source ON TABLE document COLUMNS source;
+            
+            -- Document chunks with embeddings
+            DEFINE TABLE chunk SCHEMAFULL;
+            DEFINE FIELD document ON TABLE chunk TYPE record<document>;
+            DEFINE FIELD content ON TABLE chunk TYPE string;
+            DEFINE FIELD embedding ON TABLE chunk TYPE array<float>;
+            DEFINE FIELD chunk_index ON TABLE chunk TYPE int;
+            DEFINE FIELD start_char ON TABLE chunk TYPE int;
+            DEFINE FIELD end_char ON TABLE chunk TYPE int;
+            DEFINE FIELD token_count ON TABLE chunk TYPE int;
+            DEFINE FIELD created_at ON TABLE chunk TYPE datetime DEFAULT time::now();
+            
+            DEFINE INDEX idx_chunk_embedding ON TABLE chunk COLUMNS embedding MTREE DIMENSION 1536;
+            DEFINE INDEX idx_chunk_document ON TABLE chunk COLUMNS document;
+            
+            -- AI thought log for transparency
+            DEFINE TABLE ai_thought_log SCHEMAFULL;
+            DEFINE FIELD session_id ON TABLE ai_thought_log TYPE string;
+            DEFINE FIELD agent ON TABLE ai_thought_log TYPE string;
+            DEFINE FIELD user ON TABLE ai_thought_log TYPE option<record<user>>;
+            DEFINE FIELD input ON TABLE ai_thought_log TYPE string;
+            DEFINE FIELD chain_of_thought ON TABLE ai_thought_log TYPE string;
+            DEFINE FIELD output ON TABLE ai_thought_log TYPE string;
+            DEFINE FIELD model ON TABLE ai_thought_log TYPE string;
+            DEFINE FIELD tokens_input ON TABLE ai_thought_log TYPE int;
+            DEFINE FIELD tokens_output ON TABLE ai_thought_log TYPE int;
+            DEFINE FIELD latency_ms ON TABLE ai_thought_log TYPE int;
+            DEFINE FIELD context_chunks ON TABLE ai_thought_log TYPE array;
+            DEFINE FIELD feedback ON TABLE ai_thought_log TYPE option<string>;
+            DEFINE FIELD created_at ON TABLE ai_thought_log TYPE datetime DEFAULT time::now();
+            
+            DEFINE INDEX idx_thought_session ON TABLE ai_thought_log COLUMNS session_id;
+            DEFINE INDEX idx_thought_agent ON TABLE ai_thought_log COLUMNS agent;
+            DEFINE INDEX idx_thought_user ON TABLE ai_thought_log COLUMNS user;
+            DEFINE INDEX idx_thought_created ON TABLE ai_thought_log COLUMNS created_at;
+            
+            -- Autonomous action tracking
+            DEFINE TABLE agent_action SCHEMAFULL;
+            DEFINE FIELD agent ON TABLE agent_action TYPE string;
+            DEFINE FIELD action_type ON TABLE agent_action TYPE string;
+            DEFINE FIELD target ON TABLE agent_action TYPE string;
+            DEFINE FIELD parameters ON TABLE agent_action TYPE object;
+            DEFINE FIELD risk_score ON TABLE agent_action TYPE int;
+            DEFINE FIELD risk_factors ON TABLE agent_action TYPE array;
+            DEFINE FIELD status ON TABLE agent_action TYPE string;
+            DEFINE FIELD requires_approval ON TABLE agent_action TYPE bool;
+            DEFINE FIELD approver ON TABLE agent_action TYPE option<record<user>>;
+            DEFINE FIELD approved_at ON TABLE agent_action TYPE option<datetime>;
+            DEFINE FIELD executed_at ON TABLE agent_action TYPE option<datetime>;
+            DEFINE FIELD result ON TABLE agent_action TYPE option<string>;
+            DEFINE FIELD error ON TABLE agent_action TYPE option<string>;
+            DEFINE FIELD related_ticket ON TABLE agent_action TYPE option<record<itsm_ticket>>;
+            DEFINE FIELD created_at ON TABLE agent_action TYPE datetime DEFAULT time::now();
+            
+            DEFINE INDEX idx_action_status ON TABLE agent_action COLUMNS status;
+            DEFINE INDEX idx_action_agent ON TABLE agent_action COLUMNS agent;
+            DEFINE INDEX idx_action_risk ON TABLE agent_action COLUMNS risk_score;
+            DEFINE INDEX idx_action_created ON TABLE agent_action COLUMNS created_at;
+            
+            -- Knowledge Base articles (optional)
+            DEFINE TABLE kb_article SCHEMAFULL;
+            DEFINE FIELD title ON TABLE kb_article TYPE string;
+            DEFINE FIELD content ON TABLE kb_article TYPE string;
+            DEFINE FIELD embedding ON TABLE kb_article TYPE array<float>;
+            DEFINE FIELD category ON TABLE kb_article TYPE string;
+            DEFINE FIELD tags ON TABLE kb_article TYPE array;
+            DEFINE FIELD author ON TABLE kb_article TYPE option<record<user>>;
+            DEFINE FIELD views ON TABLE kb_article TYPE int DEFAULT 0;
+            DEFINE FIELD helpful_count ON TABLE kb_article TYPE int DEFAULT 0;
+            DEFINE FIELD status ON TABLE kb_article TYPE string;
+            DEFINE FIELD created_at ON TABLE kb_article TYPE datetime DEFAULT time::now();
+            DEFINE FIELD updated_at ON TABLE kb_article TYPE datetime DEFAULT time::now();
+            
+            DEFINE INDEX idx_kb_embedding ON TABLE kb_article COLUMNS embedding MTREE DIMENSION 1536;
+            DEFINE INDEX idx_kb_category ON TABLE kb_article COLUMNS category;
+            DEFINE INDEX idx_kb_status ON TABLE kb_article COLUMNS status;
+        "#;
+        
+        db.query(ai_schema)
+            .await
+            .map_err(|e| DatabaseError::MigrationFailed(format!("AI schema (inline) execution failed: {}", e)))?;
+        
+        info!("✅ AI schema loaded inline successfully");
+    }
 
     Ok(())
 }
