@@ -33,7 +33,10 @@ npm start            # Starts frontend + Rust backend
 **Access Points:**
 - Frontend: http://localhost:1420
 - Backend API: http://localhost:3001
-- Health Check: http://localhost:3001/health
+- AI Sidecar: http://localhost:8000 (requires separate startup - see [archer-ai-engine/README.md](archer-ai-engine/README.md))
+- Health Checks: 
+  - Backend: http://localhost:3001/health
+  - AI Sidecar: http://localhost:8000/health
 
 ## ✨ Current Features (December 2025)
 
@@ -90,6 +93,12 @@ npm start            # Starts frontend + Rust backend
 │  │  API        │  │  API        │  │  Parser             │  │
 │  └─────────────┘  └─────────────┘  └─────────────────────┘  │
 ├─────────────────────────────────────────────────────────────┤
+│          🤖 AI Sidecar (Python + FastAPI) - NEW!            │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │
+│  │  AI Agents  │  │ LLM Gateway │  │  RAG System         │  │
+│  │ (Phase 2+)  │  │ (Phase 2+)  │  │  (Phase 2+)         │  │
+│  └─────────────┘  └─────────────┘  └─────────────────────┘  │
+├─────────────────────────────────────────────────────────────┤
 │                     Database (SurrealDB)                     │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │
 │  │  Tickets    │  │  Projects   │  │  Hardware Lots      │  │
@@ -102,6 +111,7 @@ npm start            # Starts frontend + Rust backend
 - **Frontend**: React 18 + TypeScript + Vite 5.4
 - **UI Framework**: Purple Glass Components + Fluent UI 2
 - **Backend**: Rust (Axum) for high-performance APIs
+- **AI Sidecar**: Python 3.11+ + FastAPI (Phase 1 complete)
 - **Database**: SurrealDB with graph relationships
 - **Desktop**: Tauri for native app packaging
 - **Styling**: Tailwind CSS v3 + CSS Variables
@@ -127,6 +137,14 @@ Archer/
 │   │   ├── models/           # Data models
 │   │   │   └── ticket.rs     # Ticket entity
 │   │   └── database.rs       # SurrealDB connection
+├── archer-ai-engine/          # Python AI Sidecar (NEW - Phase 1 complete)
+│   ├── src/
+│   │   ├── api/              # FastAPI application
+│   │   ├── agents/           # AI agents (placeholders)
+│   │   ├── llm_gateway/      # LLM integration (placeholders)
+│   │   ├── config/           # Settings management
+│   │   └── db/               # SurrealDB client
+│   └── tests/                # Unit tests
 ├── core-engine/               # Hardware parsing engine
 ├── product_docs/              # Product documentation
 ├── docs/                      # Developer documentation
@@ -257,7 +275,11 @@ The next major evolution of Archer is the AI Engine - transforming from passive 
 > 📖 Full AI architecture: [`docs/architecture/01_Architecture/`](docs/architecture/01_Architecture/)
 
 ### In Progress
-- [ ] Python AI sidecar project structure
+- [x] Python AI sidecar project structure ✅ **Phase 1 Complete**
+  - [x] FastAPI application with health checks
+  - [x] SurrealDB async client
+  - [x] Docker configuration
+  - [x] Unit test coverage (13 tests passing)
 - [ ] SurrealDB vector index configuration
 - [ ] RAG ingestion pipeline
 - [ ] Fix backend Rust compilation issues
