@@ -6,6 +6,7 @@ use axum::{
     Json, Router,
 };
 use chrono::Utc;
+use sha2::{Sha256, Digest};
 use std::sync::Arc;
 use surrealdb::sql::Thing;
 
@@ -49,7 +50,9 @@ async fn create_chunk(
         .previous_chunk_id
         .and_then(|id| thing(&id, "chunk").ok());
 
-    let content_hash = format!("{:x}", md5::compute(payload.content.as_bytes()));
+    let mut hasher = Sha256::new();
+    hasher.update(payload.content.as_bytes());
+    let content_hash = format!("{:x}", hasher.finalize());
 
     let chunk = Chunk {
         id: None,
@@ -111,7 +114,9 @@ async fn batch_create_chunks(
             .previous_chunk_id
             .and_then(|id| thing(&id, "chunk").ok());
 
-        let content_hash = format!("{:x}", md5::compute(chunk_req.content.as_bytes()));
+        let mut hasher = Sha256::new();
+        hasher.update(chunk_req.content.as_bytes());
+        let content_hash = format!("{:x}", hasher.finalize());
 
         let chunk = Chunk {
             id: None,
