@@ -81,6 +81,11 @@ The Archer AI Engine is a FastAPI-based microservice that:
    docker-compose down
    ```
 
+**Note for Linux Users**: The `host.docker.internal` hostname used for Ollama connectivity works on Docker Desktop (Mac/Windows) but not on Linux. For Linux:
+- Use `network_mode: host` in docker-compose.yml, or
+- Replace `host.docker.internal` with the actual container IP or host IP
+- See [Docker networking documentation](https://docs.docker.com/network/) for details
+
 ## 🔧 Configuration
 
 Configuration is managed via environment variables. Copy `.env.example` to `.env` and customize:

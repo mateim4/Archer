@@ -56,6 +56,8 @@ services:
       - SURREALDB_NS=archer
       - SURREALDB_DB=main
       - LLM_PROVIDER=ollama
+      # Note: host.docker.internal works on Docker Desktop (Mac/Windows)
+      # For Linux, use host network mode or container IP address
       - OLLAMA_HOST=http://host.docker.internal:11434
       - REDIS_HOST=redis
       - REDIS_PORT=6379
@@ -64,6 +66,8 @@ services:
       - surrealdb
       - redis
     restart: unless-stopped
+    # Uncomment for Linux hosts to access Ollama on host:
+    # network_mode: host
 
   # Redis for AI Engine job queue
   redis:

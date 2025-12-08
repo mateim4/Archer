@@ -193,7 +193,7 @@ class OllamaAdapter(BaseLLMAdapter):
         try:
             import asyncio
 
-            if self.client.is_closed is False:
+            if not self.client.is_closed:
                 asyncio.create_task(self.client.aclose())
         except Exception:
             pass
