@@ -8,6 +8,66 @@ This document defines how AI agents and developers must maintain Archer's docume
 
 ---
 
+## 🏛️ Architectural Principle: Core ITSM vs AI Module
+
+**CRITICAL:** Archer has a clear architectural separation:
+
+| Domain | Scope | Documentation Location |
+|--------|-------|------------------------|
+| **Core ITSM** | Service Desk, CMDB, Monitoring, Workflows, RBAC, KB, Catalog, Reports | `docs/specs/FULLSTACK_DEVELOPMENT_PLAN.md` |
+| **AI Module** | LLM Gateway, Agents, RAG, Suggestions, Autonomous Ops | `docs/architecture/01_Architecture/` |
+
+**Rule:** Core ITSM must work standalone. AI is an optional enhancement. Keep documentation for each domain clearly separated.
+
+---
+
+## 📋 Primary Documents (MUST MAINTAIN)
+
+These documents are the source of truth and must be kept current:
+
+| Document | Location | Purpose | Update Frequency |
+|----------|----------|---------|------------------|
+| **DELTA_TRACKING.md** | `docs/planning/` | Cross-session change log | **EVERY SESSION** |
+| **PRODUCT_ROADMAP.md** | `docs/planning/` | Strategic phases, milestones, priorities | Phase completions, major decisions |
+| **FULLSTACK_DEVELOPMENT_PLAN.md** | `docs/specs/` | Technical architecture, schemas, APIs | Architecture changes |
+| **CMO_FMO_GAP_ANALYSIS.md** | `docs/planning/` | Current vs target state | Feature completions |
+| **E2E_DEVELOPMENT_PLAN.md** | `docs/planning/` | Sprint-level implementation | Sprint completions |
+
+---
+
+## ⚠️ MANDATORY: Delta Tracking Protocol
+
+**ALL AI agents MUST follow this protocol for cross-session continuity:**
+
+### At Session Start
+1. **Read `docs/planning/DELTA_TRACKING.md` FIRST**
+2. Review "Current Session Changes" section
+3. Check "Critical Technical Notes" for known issues
+4. Understand recent changes from "Completed Changes Log"
+
+### During Session
+- Log significant changes in "Current Session Changes" section
+- Include: timestamp, files affected, description, rationale
+
+### At Session End
+1. Move entries to "Completed Changes Log" with full details
+2. Update "Project Status Summary" if milestones changed
+3. Clear "Current Session Changes" section
+
+### Change Entry Format
+```markdown
+### [YYYY-MM-DD HH:MM] - Brief Title
+**Type:** Feature | Bugfix | Documentation | Refactor | Architecture
+**Files Changed:**
+- path/to/file1.ext
+**Description:** What was changed and why
+**Impact:** What this affects
+```
+
+**Failure to maintain delta tracking breaks cross-session continuity and will cause work to be lost or duplicated.**
+
+---
+
 ## 📍 Documentation Sources (Single Source of Truth)
 
 ### Primary Source: Obsidian Vault
@@ -21,7 +81,7 @@ This is the **canonical source** for all strategic, architectural, and research 
 │   ├── 00_Executive_Summary.md
 │   ├── 01_AI_Roadmap_and_Business_Case.md
 │   └── 02_Feature_Prioritization_MoSCoW.md
-├── 01_Architecture/              # Technical architecture specs
+├── 01_Architecture/              # Technical architecture specs (AI-focused)
 │   ├── 00_AI_Engine_Specification.md
 │   ├── 01_Comprehensive_Architecture.md
 │   ├── 02_RAG_Architecture.md
@@ -47,7 +107,9 @@ These are **implementation-focused** docs that live in the repo:
 |----------|---------|----------------|
 | `README.md` | GitHub landing page, quick start | ← Derived from Obsidian |
 | `CLAUDE.md` | AI agent context file | ← Auto-generated |
-| `product_docs/` | Legacy product docs (being migrated) | → Moving to Obsidian |
+| `docs/planning/` | Roadmaps, gap analysis, dev plans | Primary location |
+| `docs/specs/` | Technical specs (Core ITSM focused) | Primary location |
+| `docs/research/` | Research prompts and outputs | Primary location |
 | `docs/` | Technical guides, API docs | Stays in repo |
 | `.github/instructions/` | AI agent behavior rules | Stays in repo |
 | `COMPONENT_LIBRARY_GUIDE.md` | UI component API | Stays in repo |

@@ -1,6 +1,66 @@
-# LCM Designer Documentation Index
+# Archer Documentation Index
 
-Welcome to the LCM Designer documentation! This index provides quick access to all available documentation.
+**Last Updated:** December 8, 2025  
+**Purpose:** Master index of all canonical documentation for the Archer ITSM platform
+
+---
+
+## 🎯 Quick Navigation
+
+| Need | Document |
+|------|----------|
+| **Project Overview** | [README.md](../README.md) |
+| **Quick Start** | [STARTUP.md](../STARTUP.md) |
+| **AI Agent Context** | [CLAUDE.md](../CLAUDE.md) |
+| **Current vs Target State** | [CMO_FMO_GAP_ANALYSIS.md](planning/CMO_FMO_GAP_ANALYSIS.md) |
+| **Development Roadmap** | [E2E_DEVELOPMENT_PLAN.md](planning/E2E_DEVELOPMENT_PLAN.md) |
+
+---
+
+## 📚 Canonical Documentation Map
+
+### Strategy & Planning
+*Business case, vision, and prioritization*
+
+| Document | Location | Description |
+|----------|----------|-------------|
+| Executive Summary | [`architecture/00_Strategy_and_Planning/00_Executive_Summary.md`](architecture/00_Strategy_and_Planning/00_Executive_Summary.md) | Vision, market positioning |
+| AI Roadmap & Business Case | [`architecture/00_Strategy_and_Planning/01_AI_Roadmap_and_Business_Case.md`](architecture/00_Strategy_and_Planning/01_AI_Roadmap_and_Business_Case.md) | AI phasing, ROI |
+| Feature Prioritization (MoSCoW) | [`architecture/00_Strategy_and_Planning/02_Feature_Prioritization_MoSCoW.md`](architecture/00_Strategy_and_Planning/02_Feature_Prioritization_MoSCoW.md) | Must/Should/Could/Won't |
+
+### Architecture (AI-Focused)
+| Document | Location | Description |
+|----------|----------|-------------|
+| Comprehensive Architecture | [`architecture/01_Architecture/01_Comprehensive_Architecture.md`](architecture/01_Architecture/01_Comprehensive_Architecture.md) | System overview |
+| RAG Architecture | [`architecture/01_Architecture/02_RAG_Architecture.md`](architecture/01_Architecture/02_RAG_Architecture.md) | Knowledge ingestion |
+| Data Model (AI) | [`architecture/01_Architecture/03_Data_Model_SurrealDB.md`](architecture/01_Architecture/03_Data_Model_SurrealDB.md) | AI database schemas |
+| AI Agent Specifications | [`architecture/01_Architecture/04_AI_Agent_Specifications.md`](architecture/01_Architecture/04_AI_Agent_Specifications.md) | System prompts |
+
+### Architecture (Core ITSM)
+| Document | Location | Description |
+|----------|----------|-------------|
+| **ITSM Platform Spec** | [`ITSM_PLATFORM_SPECIFICATION.md`](ITSM_PLATFORM_SPECIFICATION.md) | Service Desk, CMDB, Monitoring |
+| AI Integration Spec | [`architecture/AI_INTEGRATION_SPEC.md`](architecture/AI_INTEGRATION_SPEC.md) | AI in core UI |
+
+### Planning & Roadmap
+| Document | Location | Description |
+|----------|----------|-------------|
+| **CMO vs FMO Gap Analysis** | [`planning/CMO_FMO_GAP_ANALYSIS.md`](planning/CMO_FMO_GAP_ANALYSIS.md) | Current vs target state |
+| **E2E Development Plan** | [`planning/E2E_DEVELOPMENT_PLAN.md`](planning/E2E_DEVELOPMENT_PLAN.md) | 16-week roadmap |
+| Documentation Cleanup | [`planning/DOCUMENTATION_CLEANUP_PLAN.md`](planning/DOCUMENTATION_CLEANUP_PLAN.md) | Doc consolidation |
+
+### Research
+| Document | Location | Description |
+|----------|----------|-------------|
+| **Perplexity Research Prompt** | [`research/PERPLEXITY_CORE_ITSM_ARCHITECTURE_PROMPT.md`](research/PERPLEXITY_CORE_ITSM_ARCHITECTURE_PROMPT.md) | Core ITSM architecture research |
+
+### UX & Design
+| Document | Location | Description |
+|----------|----------|-------------|
+| UX Recommendations | [`architecture/03_UX_and_Design/00_UX_and_IA_Recommendations.md`](architecture/03_UX_and_Design/00_UX_and_IA_Recommendations.md) | Comprehensive UX spec |
+| Competitive Analysis | [`architecture/04_Competitive_Analysis/00_Competitive_Analysis_Matrix.md`](architecture/04_Competitive_Analysis/00_Competitive_Analysis_Matrix.md) | Market positioning |
+
+---
 
 ## 🚀 Getting Started
 
@@ -14,40 +74,29 @@ Welcome to the LCM Designer documentation! This index provides quick access to a
 - **[Component Documentation](development/components.md)** - React component library
 - **[Design System](design/)** - UI guidelines and styling
 
+---
+
 ## 📖 API Documentation
 
 ### REST API
-- **[OpenAPI Specification](api/openapi.yml)** - Complete API reference
 - **[Authentication Guide](api/authentication.md)** - Security implementation
 
-### Integration Examples
-```bash
-# View API documentation
-npm run docs:api
+### Ports & Services
+| Service | Port | Purpose |
+|---------|------|---------|
+| Frontend | 1420 | React + Vite |
+| Backend | 3001 | Rust + Axum |
+| AI Engine | 8000 | Python + FastAPI |
+| SurrealDB | 8001 | Database |
 
-# Test API endpoints
-curl http://localhost:3001/health
-curl http://localhost:3001/hardware-baskets
-```
-
-## 🏗️ Architecture Documentation
-
-### System Overview
-- **[Technology Stack](development/architecture.md#technology-stack)** - Frontend and backend technologies
-- **[Design Patterns](development/architecture.md#architectural-patterns)** - Code organization
-- **[Data Flow](development/architecture.md#system-integration)** - How data moves through the system
-
-### Performance
-- **[Frontend Optimization](development/architecture.md#performance-architecture)** - React best practices
-- **[Backend Optimization](development/architecture.md#backend-optimization)** - Rust performance patterns
+---
 
 ## 🎨 Component Library
 
-### Design System Components
-- **[CustomSlider](development/components.md#customslider)** - Rainbow track slider with glassmorphic thumb
-- **[CapacityVisualizerView](development/components.md#capacityvisualizerview)** - Interactive capacity planning
-- **[ConsistentCard](development/components.md#consistentcard)** - Glassmorphic card component
-- **[ConsistentButton](development/components.md#consistentbutton)** - Standardized button component
+### Design System
+- **[Component Library Guide](../COMPONENT_LIBRARY_GUIDE.md)** - Purple Glass components
+- **[Design Tokens](../DESIGN_TOKEN_DOCUMENTATION.md)** - CSS variables and tokens
+- **[Fluent UI 2 Integration](FLUENT2_DESIGN_SYSTEM.md)** - Microsoft design system
 
 ### Usage Guidelines
 ```tsx
