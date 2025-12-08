@@ -28,12 +28,20 @@ npm run dev          # Starts on http://localhost:1420
 # Full stack with backend
 npm run install-all
 npm start            # Starts frontend + Rust backend
+
+# AI Engine (optional)
+cd archer-ai-engine
+pip install -r requirements.txt
+uvicorn src.main:app --port 8000
 ```
 
 **Access Points:**
 - Frontend: http://localhost:1420
 - Backend API: http://localhost:3001
-- Health Check: http://localhost:3001/health
+- AI Engine: http://localhost:8000 (docs at /docs)
+- Health Checks: 
+  - Backend: http://localhost:3001/health
+  - AI Engine: http://localhost:8000/health
 
 ## ✨ Current Features (December 2025)
 
@@ -74,6 +82,14 @@ npm start            # Starts frontend + Rust backend
 - **Guides View** - Built-in help and tutorials
 - **Settings** - Theme, preferences, and configuration
 
+### 🤖 AI Engine (NEW - Phase 1)
+- **LLM Gateway** - Unified interface for OpenAI, Anthropic, and Ollama
+- **Pluggable Backends** - Switch between cloud APIs or local LLMs
+- **Production-Ready** - Type-safe, tested, containerized Python FastAPI service
+- **Future Agents** - Librarian (RAG), Ticket Assistant, Monitoring Analyst (Phase 2-3)
+
+**Get Started:** See [archer-ai-engine/README.md](archer-ai-engine/README.md)
+
 ## 🏗️ Architecture
 
 ```
@@ -84,11 +100,14 @@ npm start            # Starts frontend + Rust backend
 │  │ Components  │  │   UI 2      │  │   (CSS Variables)   │  │
 │  └─────────────┘  └─────────────┘  └─────────────────────┘  │
 ├─────────────────────────────────────────────────────────────┤
-│                     Backend (Rust + Axum)                    │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │
-│  │  Tickets    │  │  Projects   │  │  Hardware Baskets   │  │
-│  │  API        │  │  API        │  │  Parser             │  │
-│  └─────────────┘  └─────────────┘  └─────────────────────┘  │
+│                   Backend (Multi-Service)                    │
+│  ┌────────────────────────┐    ┌────────────────────────┐   │
+│  │ Rust Core (Port 3001)  │    │ AI Engine (Port 8000)  │   │
+│  │ ┌────────┐ ┌─────────┐ │    │ ┌─────────┐ ┌────────┐ │   │
+│  │ │Tickets │ │Projects │ │◄──►│ │LLM      │ │AI      │ │   │
+│  │ │API     │ │API      │ │    │ │Gateway  │ │Agents  │ │   │
+│  │ └────────┘ └─────────┘ │    │ └─────────┘ └────────┘ │   │
+│  └────────────────────────┘    └────────────────────────┘   │
 ├─────────────────────────────────────────────────────────────┤
 │                     Database (SurrealDB)                     │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │
@@ -101,8 +120,11 @@ npm start            # Starts frontend + Rust backend
 ### Technology Stack
 - **Frontend**: React 18 + TypeScript + Vite 5.4
 - **UI Framework**: Purple Glass Components + Fluent UI 2
-- **Backend**: Rust (Axum) for high-performance APIs
+- **Backend**: 
+  - Rust (Axum) for core ITSM/CMDB APIs (Port 3001)
+  - Python (FastAPI) for AI/LLM services (Port 8000)
 - **Database**: SurrealDB with graph relationships
+- **AI/LLM**: Pluggable gateway (Ollama, OpenAI, Anthropic)
 - **Desktop**: Tauri for native app packaging
 - **Styling**: Tailwind CSS v3 + CSS Variables
 
@@ -127,6 +149,19 @@ Archer/
 │   │   ├── models/           # Data models
 │   │   │   └── ticket.rs     # Ticket entity
 │   │   └── database.rs       # SurrealDB connection
+├── archer-ai-engine/           # Python AI microservice (FastAPI)
+│   ├── src/
+│   │   ├── api/              # REST API routes
+│   │   │   └── routes/       # Health, chat, models endpoints
+│   │   ├── llm_gateway/      # LLM provider adapters
+│   │   │   ├── ollama_adapter.py
+│   │   │   ├── openai_adapter.py
+│   │   │   ├── anthropic_adapter.py
+│   │   │   └── router.py     # LLM request router
+│   │   ├── agents/           # AI agents (future)
+│   │   └── core/             # Logging, exceptions
+│   ├── tests/                # Pytest test suite
+│   └── README.md             # AI Engine documentation
 ├── core-engine/               # Hardware parsing engine
 ├── product_docs/              # Product documentation
 ├── docs/                      # Developer documentation
