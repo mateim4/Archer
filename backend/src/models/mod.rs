@@ -1,4 +1,5 @@
 // Models are now defined in core-engine crate for consistency
+pub mod ai;
 pub mod hld;
 pub mod migration_models;
 pub mod migration_wizard_models;

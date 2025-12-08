@@ -1,3 +1,4 @@
+pub mod ai; // AI-related APIs
 pub mod capacity;
 pub mod cluster_strategy;
 pub mod destination_clusters;
@@ -57,7 +58,12 @@ pub fn api_router(state: AppState) -> Router {
         .nest("/assets", assets::create_assets_router(state.clone()))
         .nest("/monitoring", monitoring::routes(state.clone()))
         .nest("/integration", integration::create_integration_router(state.clone()))
-        .nest("/settings", settings::create_settings_router(state.clone()));
+        .nest("/settings", settings::create_settings_router(state.clone()))
+        // AI-related routes
+        .nest("/ai/documents", ai::create_documents_router(state.clone()))
+        .nest("/ai/chunks", ai::create_chunks_router(state.clone()))
+        .nest("/ai/thoughts", ai::create_thought_logs_router(state.clone()))
+        .nest("/ai/actions", ai::create_agent_actions_router(state.clone()));
 
     Router::new()
         .route("/health", get(health_check))

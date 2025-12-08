@@ -2,6 +2,291 @@ use crate::database::Database;
 use anyhow::Result;
 use serde_json::json;
 
+/// Database migrations for AI-related functionality
+pub struct AiMigrations;
+
+impl AiMigrations {
+    /// Run all AI migrations
+    pub async fn run_all(db: &Database) -> Result<()> {
+        Self::create_ai_tables(db).await?;
+        Self::create_ai_indexes(db).await?;
+        Self::seed_agent_roles(db).await?;
+        Ok(())
+    }
+
+    /// Create tables for AI functionality
+    async fn create_ai_tables(db: &Database) -> Result<()> {
+        // Document table for RAG system
+        db.query(
+            r#"
+            DEFINE TABLE document SCHEMAFULL;
+            DEFINE FIELD title ON document TYPE string;
+            DEFINE FIELD filename ON document TYPE option<string>;
+            DEFINE FIELD mime_type ON document TYPE option<string>;
+            DEFINE FIELD source_type ON document TYPE string;
+            DEFINE FIELD source_url ON document TYPE option<string>;
+            DEFINE FIELD source_id ON document TYPE option<string>;
+            DEFINE FIELD content_hash ON document TYPE string;
+            DEFINE FIELD version ON document TYPE option<string>;
+            DEFINE FIELD size_bytes ON document TYPE option<int>;
+            DEFINE FIELD page_count ON document TYPE option<int>;
+            DEFINE FIELD chunk_count ON document TYPE int DEFAULT 0;
+            DEFINE FIELD status ON document TYPE string;
+            DEFINE FIELD error_message ON document TYPE option<string>;
+            DEFINE FIELD sensitivity_level ON document TYPE string;
+            DEFINE FIELD tags ON document TYPE array DEFAULT [];
+            DEFINE FIELD source_created_at ON document TYPE option<datetime>;
+            DEFINE FIELD source_modified_at ON document TYPE option<datetime>;
+            DEFINE FIELD last_synced_at ON document TYPE option<datetime>;
+            DEFINE FIELD indexed_at ON document TYPE option<datetime>;
+            DEFINE FIELD created_by ON document TYPE string;
+            DEFINE FIELD created_at ON document TYPE datetime DEFAULT time::now();
+            DEFINE FIELD updated_at ON document TYPE datetime DEFAULT time::now();
+        "#,
+        )
+        .await?;
+
+        // Document chunk table with embeddings
+        db.query(
+            r#"
+            DEFINE TABLE document_chunk SCHEMAFULL;
+            DEFINE FIELD document_id ON document_chunk TYPE record(document);
+            DEFINE FIELD content ON document_chunk TYPE string;
+            DEFINE FIELD embedding ON document_chunk TYPE array<float>;
+            DEFINE FIELD embedding_model ON document_chunk TYPE string;
+            DEFINE FIELD embedding_dimension ON document_chunk TYPE int;
+            DEFINE FIELD token_count ON document_chunk TYPE int;
+            DEFINE FIELD start_char ON document_chunk TYPE int;
+            DEFINE FIELD end_char ON document_chunk TYPE int;
+            DEFINE FIELD page_number ON document_chunk TYPE option<int>;
+            DEFINE FIELD section_path ON document_chunk TYPE array DEFAULT [];
+            DEFINE FIELD content_hash ON document_chunk TYPE string;
+            DEFINE FIELD chunk_index ON document_chunk TYPE int;
+            DEFINE FIELD previous_chunk_id ON document_chunk TYPE option<record(document_chunk)>;
+            DEFINE FIELD next_chunk_id ON document_chunk TYPE option<record(document_chunk)>;
+            DEFINE FIELD created_at ON document_chunk TYPE datetime DEFAULT time::now();
+            DEFINE FIELD updated_at ON document_chunk TYPE datetime DEFAULT time::now();
+        "#,
+        )
+        .await?;
+
+        // AI thought log for chain of thought tracking
+        db.query(
+            r#"
+            DEFINE TABLE ai_thought_log SCHEMAFULL;
+            DEFINE FIELD trace_id ON ai_thought_log TYPE string;
+            DEFINE FIELD session_id ON ai_thought_log TYPE option<string>;
+            DEFINE FIELD agent_type ON ai_thought_log TYPE string;
+            DEFINE FIELD user_id ON ai_thought_log TYPE option<string>;
+            DEFINE FIELD input_text ON ai_thought_log TYPE string;
+            DEFINE FIELD input_context ON ai_thought_log TYPE option<string>;
+            DEFINE FIELD system_prompt ON ai_thought_log TYPE option<string>;
+            DEFINE FIELD raw_response ON ai_thought_log TYPE string;
+            DEFINE FIELD chain_of_thought ON ai_thought_log TYPE option<string>;
+            DEFINE FIELD final_output ON ai_thought_log TYPE string;
+            DEFINE FIELD risk_score ON ai_thought_log TYPE option<float>;
+            DEFINE FIELD confidence_score ON ai_thought_log TYPE option<float>;
+            DEFINE FIELD model ON ai_thought_log TYPE string;
+            DEFINE FIELD provider ON ai_thought_log TYPE string;
+            DEFINE FIELD prompt_tokens ON ai_thought_log TYPE option<int>;
+            DEFINE FIELD completion_tokens ON ai_thought_log TYPE option<int>;
+            DEFINE FIELD latency_ms ON ai_thought_log TYPE option<int>;
+            DEFINE FIELD user_feedback ON ai_thought_log TYPE option<string>;
+            DEFINE FIELD feedback_comment ON ai_thought_log TYPE option<string>;
+            DEFINE FIELD feedback_at ON ai_thought_log TYPE option<datetime>;
+            DEFINE FIELD related_ticket_id ON ai_thought_log TYPE option<record(ticket)>;
+            DEFINE FIELD related_asset_id ON ai_thought_log TYPE option<record(asset)>;
+            DEFINE FIELD related_document_ids ON ai_thought_log TYPE array DEFAULT [];
+            DEFINE FIELD created_at ON ai_thought_log TYPE datetime DEFAULT time::now();
+        "#,
+        )
+        .await?;
+
+        // Agent action for autonomous operations tracking
+        db.query(
+            r#"
+            DEFINE TABLE agent_action SCHEMAFULL;
+            DEFINE FIELD thought_log_id ON agent_action TYPE option<record(ai_thought_log)>;
+            DEFINE FIELD agent_type ON agent_action TYPE string;
+            DEFINE FIELD intent ON agent_action TYPE string;
+            DEFINE FIELD action_type ON agent_action TYPE string;
+            DEFINE FIELD target_asset_id ON agent_action TYPE option<record(asset)>;
+            DEFINE FIELD target_host ON agent_action TYPE option<string>;
+            DEFINE FIELD command ON agent_action TYPE string;
+            DEFINE FIELD command_args ON agent_action TYPE array DEFAULT [];
+            DEFINE FIELD working_directory ON agent_action TYPE option<string>;
+            DEFINE FIELD risk_score ON agent_action TYPE int;
+            DEFINE FIELD risk_level ON agent_action TYPE string;
+            DEFINE FIELD risk_explanation ON agent_action TYPE option<string>;
+            DEFINE FIELD status ON agent_action TYPE string;
+            DEFINE FIELD rollback_possible ON agent_action TYPE bool;
+            DEFINE FIELD rollback_command ON agent_action TYPE option<string>;
+            DEFINE FIELD requested_by ON agent_action TYPE option<string>;
+            DEFINE FIELD approved_by ON agent_action TYPE option<string>;
+            DEFINE FIELD approved_at ON agent_action TYPE option<datetime>;
+            DEFINE FIELD rejection_reason ON agent_action TYPE option<string>;
+            DEFINE FIELD execution_started_at ON agent_action TYPE option<datetime>;
+            DEFINE FIELD execution_completed_at ON agent_action TYPE option<datetime>;
+            DEFINE FIELD exit_code ON agent_action TYPE option<int>;
+            DEFINE FIELD stdout ON agent_action TYPE option<string>;
+            DEFINE FIELD stderr ON agent_action TYPE option<string>;
+            DEFINE FIELD error_message ON agent_action TYPE option<string>;
+            DEFINE FIELD related_ticket_id ON agent_action TYPE option<record(ticket)>;
+            DEFINE FIELD approval_deadline ON agent_action TYPE option<datetime>;
+            DEFINE FIELD created_at ON agent_action TYPE datetime DEFAULT time::now();
+            DEFINE FIELD updated_at ON agent_action TYPE datetime DEFAULT time::now();
+        "#,
+        )
+        .await?;
+
+        // Agent role for RBAC
+        db.query(
+            r#"
+            DEFINE TABLE agent_role SCHEMAFULL;
+            DEFINE FIELD name ON agent_role TYPE string;
+            DEFINE FIELD description ON agent_role TYPE string;
+            DEFINE FIELD max_sensitivity_level ON agent_role TYPE int;
+            DEFINE FIELD can_execute_actions ON agent_role TYPE bool;
+            DEFINE FIELD max_auto_approve_risk ON agent_role TYPE option<string>;
+            DEFINE FIELD allowed_action_types ON agent_role TYPE array DEFAULT [];
+            DEFINE FIELD blocked_action_types ON agent_role TYPE array DEFAULT [];
+            DEFINE FIELD allowed_document_ids ON agent_role TYPE array DEFAULT [];
+            DEFINE FIELD blocked_document_ids ON agent_role TYPE array DEFAULT [];
+            DEFINE FIELD is_active ON agent_role TYPE bool DEFAULT true;
+            DEFINE FIELD created_by ON agent_role TYPE string;
+            DEFINE FIELD created_at ON agent_role TYPE datetime DEFAULT time::now();
+            DEFINE FIELD updated_at ON agent_role TYPE datetime DEFAULT time::now();
+        "#,
+        )
+        .await?;
+
+        // Document permission table for role-document access control
+        db.query(
+            r#"
+            DEFINE TABLE document_permission SCHEMAFULL;
+            DEFINE FIELD role_id ON document_permission TYPE record(agent_role);
+            DEFINE FIELD document_id ON document_permission TYPE record(document);
+            DEFINE FIELD access_level ON document_permission TYPE string;
+            DEFINE FIELD granted_by ON document_permission TYPE string;
+            DEFINE FIELD granted_at ON document_permission TYPE datetime DEFAULT time::now();
+        "#,
+        )
+        .await?;
+
+        println!("✅ AI tables created successfully");
+        Ok(())
+    }
+
+    /// Create indexes for AI tables
+    async fn create_ai_indexes(db: &Database) -> Result<()> {
+        // Document indexes
+        db.query("DEFINE INDEX idx_document_status ON document FIELDS status;")
+            .await?;
+        db.query("DEFINE INDEX idx_document_source_type ON document FIELDS source_type;")
+            .await?;
+        db.query("DEFINE INDEX idx_document_content_hash ON document FIELDS content_hash;")
+            .await?;
+        db.query("DEFINE INDEX idx_document_created_by ON document FIELDS created_by;")
+            .await?;
+
+        // Document chunk indexes
+        db.query("DEFINE INDEX idx_chunk_document ON document_chunk FIELDS document_id;")
+            .await?;
+        db.query("DEFINE INDEX idx_chunk_index ON document_chunk FIELDS chunk_index;")
+            .await?;
+        
+        // Vector index for semantic search (384 dimensions for all-MiniLM-L6-v2 model)
+        db.query("DEFINE INDEX idx_chunk_embedding ON document_chunk FIELDS embedding MTREE DIMENSION 384 DIST COSINE;")
+            .await?;
+
+        // AI thought log indexes
+        db.query("DEFINE INDEX idx_thought_trace ON ai_thought_log FIELDS trace_id;")
+            .await?;
+        db.query("DEFINE INDEX idx_thought_session ON ai_thought_log FIELDS session_id;")
+            .await?;
+        db.query("DEFINE INDEX idx_thought_agent_type ON ai_thought_log FIELDS agent_type;")
+            .await?;
+        db.query("DEFINE INDEX idx_thought_user ON ai_thought_log FIELDS user_id;")
+            .await?;
+
+        // Agent action indexes
+        db.query("DEFINE INDEX idx_action_status ON agent_action FIELDS status;")
+            .await?;
+        db.query("DEFINE INDEX idx_action_agent_type ON agent_action FIELDS agent_type;")
+            .await?;
+        db.query("DEFINE INDEX idx_action_risk_level ON agent_action FIELDS risk_level;")
+            .await?;
+        db.query("DEFINE INDEX idx_action_requested_by ON agent_action FIELDS requested_by;")
+            .await?;
+
+        // Agent role indexes
+        db.query("DEFINE INDEX idx_role_name ON agent_role FIELDS name;")
+            .await?;
+        db.query("DEFINE INDEX idx_role_active ON agent_role FIELDS is_active;")
+            .await?;
+
+        println!("✅ AI indexes created successfully");
+        Ok(())
+    }
+
+    /// Seed default agent roles
+    async fn seed_agent_roles(db: &Database) -> Result<()> {
+        let roles = vec![
+            json!({
+                "name": "librarian",
+                "description": "Knowledge management agent - reads docs, no execution",
+                "max_sensitivity_level": 3,
+                "can_execute_actions": false,
+                "allowed_action_types": [],
+                "blocked_action_types": [],
+                "is_active": true,
+                "created_by": "system"
+            }),
+            json!({
+                "name": "ticket_assistant",
+                "description": "Ticket workflow assistant - reads docs, no execution",
+                "max_sensitivity_level": 2,
+                "can_execute_actions": false,
+                "allowed_action_types": [],
+                "blocked_action_types": [],
+                "is_active": true,
+                "created_by": "system"
+            }),
+            json!({
+                "name": "monitoring_analyst",
+                "description": "Monitoring and alerting analyst - reads all, no execution",
+                "max_sensitivity_level": 4,
+                "can_execute_actions": false,
+                "allowed_action_types": [],
+                "blocked_action_types": [],
+                "is_active": true,
+                "created_by": "system"
+            }),
+            json!({
+                "name": "operations_agent",
+                "description": "Infrastructure operations agent - full access with approval",
+                "max_sensitivity_level": 5,
+                "can_execute_actions": true,
+                "max_auto_approve_risk": "low",
+                "allowed_action_types": ["ssh_command", "powershell_command", "kubernetes_exec", "service_restart"],
+                "blocked_action_types": [],
+                "is_active": true,
+                "created_by": "system"
+            }),
+        ];
+
+        for role in roles {
+            let _: Vec<serde_json::Value> = db
+                .create("agent_role")
+                .content(role)
+                .await?;
+        }
+
+        println!("✅ Default agent roles seeded");
+        Ok(())
+    }
+}
+
 /// Database migrations for enhanced RVTools functionality
 pub struct EnhancedRvToolsMigrations;
 

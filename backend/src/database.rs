@@ -121,6 +121,13 @@ async fn run_all_migrations(db: &Database) -> Result<(), DatabaseError> {
         info!("✅ Migration planning migrations completed");
     }
 
+    // AI-related migrations
+    if let Err(e) = migrations::AiMigrations::run_all(db).await {
+        warn!("AI migrations failed: {}", e);
+    } else {
+        info!("✅ AI migrations completed");
+    }
+
     Ok(())
 }
 
