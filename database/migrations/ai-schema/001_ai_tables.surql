@@ -1,0 +1,296 @@
+-- =============================================
+-- Archer AI Engine - SurrealDB Schema Migration
+-- =============================================
+-- Version: 001
+-- Description: Core AI tables for RAG, agents, and audit logging
+-- Date: December 2025
+-- =============================================
+
+-- Enable vector search capabilities
+-- Note: Ensure SurrealDB is configured with vector support
+
+-- =============================================
+-- DOCUMENT TABLE
+-- Stores source documents for RAG system
+-- =============================================
+DEFINE TABLE document SCHEMAFULL;
+
+DEFINE FIELD source ON TABLE document TYPE string
+    ASSERT $value != NONE
+    COMMENT "Source system (confluence, github, local, web, etc.)";
+
+DEFINE FIELD path ON TABLE document TYPE string
+    ASSERT $value != NONE
+    COMMENT "Full path or URL to the document";
+
+DEFINE FIELD title ON TABLE document TYPE string
+    COMMENT "Document title";
+
+DEFINE FIELD content_hash ON TABLE document TYPE string
+    ASSERT $value != NONE
+    COMMENT "SHA-256 hash of document content for delta updates";
+
+DEFINE FIELD last_indexed ON TABLE document TYPE datetime DEFAULT time::now()
+    COMMENT "Timestamp of last indexing operation";
+
+DEFINE FIELD last_modified ON TABLE document TYPE datetime
+    COMMENT "Last modification time from source system";
+
+DEFINE FIELD size_bytes ON TABLE document TYPE int
+    COMMENT "Document size in bytes";
+
+DEFINE FIELD mime_type ON TABLE document TYPE string
+    COMMENT "MIME type of the document";
+
+DEFINE FIELD permissions ON TABLE document TYPE array
+    COMMENT "Access control list (user IDs or roles)";
+
+DEFINE FIELD sensitivity ON TABLE document TYPE string
+    DEFAULT "public"
+    COMMENT "Sensitivity level: public, internal, confidential, secret";
+
+DEFINE FIELD metadata ON TABLE document TYPE object
+    COMMENT "Additional metadata from source system";
+
+DEFINE FIELD status ON TABLE document TYPE string DEFAULT "active"
+    ASSERT $value IN ["active", "archived", "deleted"]
+    COMMENT "Document status";
+
+DEFINE FIELD created_at ON TABLE document TYPE datetime DEFAULT time::now();
+DEFINE FIELD updated_at ON TABLE document TYPE datetime DEFAULT time::now();
+
+-- Indexes for document table
+DEFINE INDEX idx_document_hash ON TABLE document COLUMNS content_hash UNIQUE;
+DEFINE INDEX idx_document_source ON TABLE document COLUMNS source, path;
+DEFINE INDEX idx_document_status ON TABLE document COLUMNS status;
+
+
+-- =============================================
+-- CHUNK TABLE
+-- Document chunks with vector embeddings for RAG
+-- =============================================
+DEFINE TABLE chunk SCHEMAFULL;
+
+DEFINE FIELD document ON TABLE chunk TYPE record(document)
+    ASSERT $value != NONE
+    COMMENT "Reference to parent document";
+
+DEFINE FIELD content ON TABLE chunk TYPE string
+    ASSERT $value != NONE
+    COMMENT "Text content of the chunk";
+
+DEFINE FIELD embedding ON TABLE chunk TYPE array<float>
+    COMMENT "Vector embedding (default dimension: 1536 for OpenAI, 384 for MiniLM)";
+
+DEFINE FIELD start_char ON TABLE chunk TYPE int
+    COMMENT "Start character position in original document";
+
+DEFINE FIELD end_char ON TABLE chunk TYPE int
+    COMMENT "End character position in original document";
+
+DEFINE FIELD token_count ON TABLE chunk TYPE int
+    COMMENT "Number of tokens in the chunk";
+
+DEFINE FIELD chunk_index ON TABLE chunk TYPE int
+    COMMENT "Sequential index of chunk within document";
+
+DEFINE FIELD metadata ON TABLE chunk TYPE object
+    COMMENT "Additional chunk metadata (headers, sections, etc.)";
+
+DEFINE FIELD created_at ON TABLE chunk TYPE datetime DEFAULT time::now();
+
+-- Vector index for semantic search (M-TREE)
+-- Dimension should match embedding model (1536 for OpenAI, 384 for all-MiniLM-L6-v2)
+DEFINE INDEX idx_embedding ON TABLE chunk COLUMNS embedding MTREE DIMENSION 1536 DIST COSINE;
+
+-- Regular indexes
+DEFINE INDEX idx_chunk_document ON TABLE chunk COLUMNS document;
+
+
+-- =============================================
+-- AI_THOUGHT_LOG TABLE
+-- Stores Chain of Thought for transparency and audit
+-- =============================================
+DEFINE TABLE ai_thought_log SCHEMAFULL;
+
+DEFINE FIELD agent ON TABLE ai_thought_log TYPE string
+    ASSERT $value != NONE
+    COMMENT "Name of the agent (orchestrator, librarian, ticket_assistant, etc.)";
+
+DEFINE FIELD user ON TABLE ai_thought_log TYPE option<record(user)>
+    COMMENT "User who triggered the AI operation";
+
+DEFINE FIELD session_id ON TABLE ai_thought_log TYPE string
+    COMMENT "Session identifier for conversation tracking";
+
+DEFINE FIELD input ON TABLE ai_thought_log TYPE string
+    ASSERT $value != NONE
+    COMMENT "User input or trigger that initiated the operation";
+
+DEFINE FIELD chain_of_thought ON TABLE ai_thought_log TYPE string
+    COMMENT "Step-by-step reasoning process of the AI";
+
+DEFINE FIELD output ON TABLE ai_thought_log TYPE string
+    COMMENT "Final output generated by the AI";
+
+DEFINE FIELD model ON TABLE ai_thought_log TYPE string
+    COMMENT "LLM model used (e.g., gpt-4, claude-3-opus, llama3.1)";
+
+DEFINE FIELD provider ON TABLE ai_thought_log TYPE string
+    COMMENT "LLM provider (openai, anthropic, ollama)";
+
+DEFINE FIELD tokens_used ON TABLE ai_thought_log TYPE int
+    COMMENT "Total tokens consumed (input + output)";
+
+DEFINE FIELD latency_ms ON TABLE ai_thought_log TYPE int
+    COMMENT "Processing time in milliseconds";
+
+DEFINE FIELD context_sources ON TABLE ai_thought_log TYPE array
+    COMMENT "List of document/chunk IDs used for context";
+
+DEFINE FIELD success ON TABLE ai_thought_log TYPE bool DEFAULT true
+    COMMENT "Whether the operation completed successfully";
+
+DEFINE FIELD error ON TABLE ai_thought_log TYPE option<string>
+    COMMENT "Error message if operation failed";
+
+DEFINE FIELD created_at ON TABLE ai_thought_log TYPE datetime DEFAULT time::now();
+
+-- Indexes for thought log
+DEFINE INDEX idx_thought_agent ON TABLE ai_thought_log COLUMNS agent;
+DEFINE INDEX idx_thought_user ON TABLE ai_thought_log COLUMNS user;
+DEFINE INDEX idx_thought_session ON TABLE ai_thought_log COLUMNS session_id;
+DEFINE INDEX idx_thought_created ON TABLE ai_thought_log COLUMNS created_at;
+
+
+-- =============================================
+-- AGENT_ACTION TABLE
+-- Tracks autonomous actions for approval workflow
+-- =============================================
+DEFINE TABLE agent_action SCHEMAFULL;
+
+DEFINE FIELD agent ON TABLE agent_action TYPE string
+    ASSERT $value != NONE
+    COMMENT "Name of the agent requesting the action";
+
+DEFINE FIELD action_type ON TABLE agent_action TYPE string
+    ASSERT $value != NONE
+    COMMENT "Type of action (restart_service, clear_logs, health_check, etc.)";
+
+DEFINE FIELD target ON TABLE agent_action TYPE string
+    ASSERT $value != NONE
+    COMMENT "Target resource (hostname, service name, etc.)";
+
+DEFINE FIELD parameters ON TABLE agent_action TYPE object
+    COMMENT "Action-specific parameters";
+
+DEFINE FIELD risk_score ON TABLE agent_action TYPE int
+    ASSERT $value >= 0 AND $value <= 100
+    COMMENT "Risk score (0-100) based on impact, reversibility, and criticality";
+
+DEFINE FIELD risk_factors ON TABLE agent_action TYPE object
+    COMMENT "Detailed risk assessment factors";
+
+DEFINE FIELD status ON TABLE agent_action TYPE string DEFAULT "pending"
+    ASSERT $value IN ["pending", "approved", "rejected", "executing", "completed", "failed", "cancelled"]
+    COMMENT "Current status of the action";
+
+DEFINE FIELD approver ON TABLE agent_action TYPE option<record(user)>
+    COMMENT "User who approved or rejected the action";
+
+DEFINE FIELD approval_required ON TABLE agent_action TYPE bool DEFAULT true
+    COMMENT "Whether this action requires human approval";
+
+DEFINE FIELD approved_at ON TABLE agent_action TYPE option<datetime>
+    COMMENT "Timestamp of approval/rejection";
+
+DEFINE FIELD executed_at ON TABLE agent_action TYPE option<datetime>
+    COMMENT "Timestamp when execution started";
+
+DEFINE FIELD completed_at ON TABLE agent_action TYPE option<datetime>
+    COMMENT "Timestamp when execution completed";
+
+DEFINE FIELD result ON TABLE agent_action TYPE option<string>
+    COMMENT "Execution result or error message";
+
+DEFINE FIELD output ON TABLE agent_action TYPE option<string>
+    COMMENT "Command output or logs from execution";
+
+DEFINE FIELD rollback_available ON TABLE agent_action TYPE bool DEFAULT false
+    COMMENT "Whether this action can be rolled back";
+
+DEFINE FIELD rollback_command ON TABLE agent_action TYPE option<string>
+    COMMENT "Command to rollback this action if needed";
+
+DEFINE FIELD created_at ON TABLE agent_action TYPE datetime DEFAULT time::now();
+DEFINE FIELD updated_at ON TABLE agent_action TYPE datetime DEFAULT time::now();
+
+-- Indexes for agent actions
+DEFINE INDEX idx_action_status ON TABLE agent_action COLUMNS status;
+DEFINE INDEX idx_action_agent ON TABLE agent_action COLUMNS agent;
+DEFINE INDEX idx_action_risk ON TABLE agent_action COLUMNS risk_score;
+DEFINE INDEX idx_action_created ON TABLE agent_action COLUMNS created_at;
+
+
+-- =============================================
+-- AGENT_ROLE TABLE
+-- Defines roles and permissions for AI agents
+-- =============================================
+DEFINE TABLE agent_role SCHEMAFULL;
+
+DEFINE FIELD name ON TABLE agent_role TYPE string
+    ASSERT $value != NONE
+    COMMENT "Role name (e.g., 'tier1_support', 'infrastructure_admin')";
+
+DEFINE FIELD description ON TABLE agent_role TYPE string
+    COMMENT "Human-readable description of the role";
+
+DEFINE FIELD allowed_actions ON TABLE agent_role TYPE array
+    COMMENT "List of action types this role can perform";
+
+DEFINE FIELD document_access_level ON TABLE agent_role TYPE string
+    DEFAULT "public"
+    ASSERT $value IN ["public", "internal", "confidential", "secret"]
+    COMMENT "Maximum document sensitivity this role can access";
+
+DEFINE FIELD max_risk_score ON TABLE agent_role TYPE int DEFAULT 30
+    ASSERT $value >= 0 AND $value <= 100
+    COMMENT "Maximum risk score this role can auto-approve";
+
+DEFINE FIELD created_at ON TABLE agent_role TYPE datetime DEFAULT time::now();
+DEFINE FIELD updated_at ON TABLE agent_role TYPE datetime DEFAULT time::now();
+
+-- Index for role lookup
+DEFINE INDEX idx_role_name ON TABLE agent_role COLUMNS name UNIQUE;
+
+
+-- =============================================
+-- Sample Data / Default Roles
+-- =============================================
+
+-- Create default agent roles
+INSERT INTO agent_role (name, description, allowed_actions, document_access_level, max_risk_score) VALUES
+    ('librarian', 'Knowledge base and document management', ['search', 'index', 'classify'], 'confidential', 10),
+    ('ticket_assistant', 'Ticket triage and suggestion', ['suggest', 'categorize', 'search'], 'internal', 20),
+    ('monitoring_analyst', 'Anomaly detection and alerting', ['analyze', 'alert', 'correlate'], 'internal', 30),
+    ('operations_agent', 'Infrastructure operations', ['restart', 'health_check', 'clear_logs'], 'confidential', 60);
+
+
+-- =============================================
+-- VERIFICATION QUERIES
+-- =============================================
+
+-- Count documents
+-- SELECT count() FROM document GROUP ALL;
+
+-- Test vector search (example with random vector)
+-- SELECT * FROM chunk WHERE embedding <|1536,COSINE|> [0.1, 0.2, ...] LIMIT 5;
+
+-- Get recent AI operations
+-- SELECT * FROM ai_thought_log ORDER BY created_at DESC LIMIT 10;
+
+-- Get pending actions requiring approval
+-- SELECT * FROM agent_action WHERE status = 'pending' AND approval_required = true;
+
+-- Get agent role permissions
+-- SELECT * FROM agent_role;

@@ -257,9 +257,9 @@ The next major evolution of Archer is the AI Engine - transforming from passive 
 > 📖 Full AI architecture: [`docs/architecture/01_Architecture/`](docs/architecture/01_Architecture/)
 
 ### In Progress
-- [ ] Python AI sidecar project structure
-- [ ] SurrealDB vector index configuration
-- [ ] RAG ingestion pipeline
+- [x] Python AI sidecar project structure ✅
+- [x] SurrealDB vector index configuration ✅
+- [ ] RAG ingestion pipeline (in development)
 - [ ] Fix backend Rust compilation issues
 
 ### Short Term

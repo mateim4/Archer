@@ -1,0 +1,56 @@
+# Prometheus configuration for Archer AI Engine monitoring
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'archer-ai'
+    environment: 'development'
+
+# Alertmanager configuration (optional)
+# alerting:
+#   alertmanagers:
+#     - static_configs:
+#         - targets: ['alertmanager:9093']
+
+# Scrape configurations
+scrape_configs:
+  # Archer AI Engine metrics
+  - job_name: 'archer-ai-engine'
+    static_configs:
+      - targets: ['ai-engine:9090']
+        labels:
+          service: 'ai-engine'
+          component: 'api'
+
+  # Celery worker metrics (if exposed)
+  - job_name: 'celery-worker'
+    static_configs:
+      - targets: ['celery-worker:9191']
+        labels:
+          service: 'celery'
+          component: 'worker'
+
+  # Redis metrics (via redis-exporter)
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+        labels:
+          service: 'redis'
+          component: 'cache'
+
+  # SurrealDB metrics (if available)
+  - job_name: 'surrealdb'
+    static_configs:
+      - targets: ['surrealdb:9000']
+        labels:
+          service: 'surrealdb'
+          component: 'database'
+
+  # Ollama metrics (if available)
+  - job_name: 'ollama'
+    static_configs:
+      - targets: ['ollama:11434']
+        labels:
+          service: 'ollama'
+          component: 'llm'
