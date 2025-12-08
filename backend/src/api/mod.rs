@@ -19,6 +19,12 @@ pub mod hld; // HLD generation API
 pub mod enhanced_rvtools; // TODO: Fix compilation errors
                           // pub mod migration; // TODO: Fix migration_models imports
 
+// AI/RAG API endpoints
+pub mod documents;
+pub mod chunks;
+pub mod ai_audit;
+pub mod agent_actions;
+
 use crate::database::AppState;
 use crate::database::Database;
 use crate::utils::api_response::{helpers, ApiResponse};
@@ -57,7 +63,12 @@ pub fn api_router(state: AppState) -> Router {
         .nest("/assets", assets::create_assets_router(state.clone()))
         .nest("/monitoring", monitoring::routes(state.clone()))
         .nest("/integration", integration::create_integration_router(state.clone()))
-        .nest("/settings", settings::create_settings_router(state.clone()));
+        .nest("/settings", settings::create_settings_router(state.clone()))
+        // AI/RAG endpoints
+        .nest("/documents", documents::create_documents_router(state.clone()))
+        .nest("/chunks", chunks::create_chunks_router(state.clone()))
+        .nest("/ai", ai_audit::create_ai_audit_router(state.clone()))
+        .nest("/ai/actions", agent_actions::create_agent_actions_router(state.clone()));
 
     Router::new()
         .route("/health", get(health_check))
