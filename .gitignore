@@ -1,5 +1,28 @@
 node_modules
 
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+.venv
+pip-log.txt
+pip-delete-this-directory.txt
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+.coverage.*
+*.cover
+*.egg-info/
+dist/
+build/
+
 # Environment variables - SECURITY: Never commit sensitive data
 .env
 .env.local

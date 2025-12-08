@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  ai-engine:
+    build: .
+    container_name: archer-ai-engine
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=false
+      - LOG_LEVEL=INFO
+      - LOG_FORMAT=json
+      - LLM_PROVIDER=ollama
+      - OLLAMA_HOST=http://ollama:11434
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - redis
+      - ollama
+    networks:
+      - archer-network
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: archer-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - archer-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: archer-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    networks:
+      - archer-network
+    restart: unless-stopped
+    # For GPU support, uncomment:
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+
+networks:
+  archer-network:
+    driver: bridge
+
+volumes:
+  redis-data:
+  ollama-data:
