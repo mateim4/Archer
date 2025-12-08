@@ -40,8 +40,8 @@ impl AiMigrations {
             DEFINE FIELD last_synced_at ON document TYPE option<datetime>;
             DEFINE FIELD indexed_at ON document TYPE option<datetime>;
             DEFINE FIELD created_by ON document TYPE string;
-            DEFINE FIELD created_at ON document TYPE datetime DEFAULT time::now();
-            DEFINE FIELD updated_at ON document TYPE datetime DEFAULT time::now();
+            DEFINE FIELD created_at ON document TYPE datetime;
+            DEFINE FIELD updated_at ON document TYPE datetime;
         "#,
         )
         .await?;
@@ -64,8 +64,8 @@ impl AiMigrations {
             DEFINE FIELD chunk_index ON document_chunk TYPE int;
             DEFINE FIELD previous_chunk_id ON document_chunk TYPE option<record(document_chunk)>;
             DEFINE FIELD next_chunk_id ON document_chunk TYPE option<record(document_chunk)>;
-            DEFINE FIELD created_at ON document_chunk TYPE datetime DEFAULT time::now();
-            DEFINE FIELD updated_at ON document_chunk TYPE datetime DEFAULT time::now();
+            DEFINE FIELD created_at ON document_chunk TYPE datetime;
+            DEFINE FIELD updated_at ON document_chunk TYPE datetime;
         "#,
         )
         .await?;
@@ -97,7 +97,7 @@ impl AiMigrations {
             DEFINE FIELD related_ticket_id ON ai_thought_log TYPE option<record(ticket)>;
             DEFINE FIELD related_asset_id ON ai_thought_log TYPE option<record(asset)>;
             DEFINE FIELD related_document_ids ON ai_thought_log TYPE array DEFAULT [];
-            DEFINE FIELD created_at ON ai_thought_log TYPE datetime DEFAULT time::now();
+            DEFINE FIELD created_at ON ai_thought_log TYPE datetime;
         "#,
         )
         .await?;
@@ -133,8 +133,8 @@ impl AiMigrations {
             DEFINE FIELD error_message ON agent_action TYPE option<string>;
             DEFINE FIELD related_ticket_id ON agent_action TYPE option<record(ticket)>;
             DEFINE FIELD approval_deadline ON agent_action TYPE option<datetime>;
-            DEFINE FIELD created_at ON agent_action TYPE datetime DEFAULT time::now();
-            DEFINE FIELD updated_at ON agent_action TYPE datetime DEFAULT time::now();
+            DEFINE FIELD created_at ON agent_action TYPE datetime;
+            DEFINE FIELD updated_at ON agent_action TYPE datetime;
         "#,
         )
         .await?;
@@ -154,8 +154,8 @@ impl AiMigrations {
             DEFINE FIELD blocked_document_ids ON agent_role TYPE array DEFAULT [];
             DEFINE FIELD is_active ON agent_role TYPE bool DEFAULT true;
             DEFINE FIELD created_by ON agent_role TYPE string;
-            DEFINE FIELD created_at ON agent_role TYPE datetime DEFAULT time::now();
-            DEFINE FIELD updated_at ON agent_role TYPE datetime DEFAULT time::now();
+            DEFINE FIELD created_at ON agent_role TYPE datetime;
+            DEFINE FIELD updated_at ON agent_role TYPE datetime;
         "#,
         )
         .await?;
@@ -168,7 +168,7 @@ impl AiMigrations {
             DEFINE FIELD document_id ON document_permission TYPE record(document);
             DEFINE FIELD access_level ON document_permission TYPE string;
             DEFINE FIELD granted_by ON document_permission TYPE string;
-            DEFINE FIELD granted_at ON document_permission TYPE datetime DEFAULT time::now();
+            DEFINE FIELD granted_at ON document_permission TYPE datetime;
         "#,
         )
         .await?;
@@ -231,55 +231,77 @@ impl AiMigrations {
 
     /// Seed default agent roles
     async fn seed_agent_roles(db: &Database) -> Result<()> {
-        let roles = vec![
-            json!({
-                "name": "librarian",
-                "description": "Knowledge management agent - reads docs, no execution",
-                "max_sensitivity_level": 3,
-                "can_execute_actions": false,
-                "allowed_action_types": [],
-                "blocked_action_types": [],
-                "is_active": true,
-                "created_by": "system"
-            }),
-            json!({
-                "name": "ticket_assistant",
-                "description": "Ticket workflow assistant - reads docs, no execution",
-                "max_sensitivity_level": 2,
-                "can_execute_actions": false,
-                "allowed_action_types": [],
-                "blocked_action_types": [],
-                "is_active": true,
-                "created_by": "system"
-            }),
-            json!({
-                "name": "monitoring_analyst",
-                "description": "Monitoring and alerting analyst - reads all, no execution",
-                "max_sensitivity_level": 4,
-                "can_execute_actions": false,
-                "allowed_action_types": [],
-                "blocked_action_types": [],
-                "is_active": true,
-                "created_by": "system"
-            }),
-            json!({
-                "name": "operations_agent",
-                "description": "Infrastructure operations agent - full access with approval",
-                "max_sensitivity_level": 5,
-                "can_execute_actions": true,
-                "max_auto_approve_risk": "low",
-                "allowed_action_types": ["ssh_command", "powershell_command", "kubernetes_exec", "service_restart"],
-                "blocked_action_types": [],
-                "is_active": true,
-                "created_by": "system"
-            }),
+        // Use INSERT queries instead of content() to let database handle datetime defaults
+        let role_queries = vec![
+            r#"
+            INSERT INTO agent_role {
+                name: 'librarian',
+                description: 'Knowledge management agent - reads docs, no execution',
+                max_sensitivity_level: 3,
+                can_execute_actions: false,
+                allowed_action_types: [],
+                blocked_action_types: [],
+                allowed_document_ids: [],
+                blocked_document_ids: [],
+                is_active: true,
+                created_by: 'system',
+                created_at: time::now(),
+                updated_at: time::now()
+            };
+            "#,
+            r#"
+            INSERT INTO agent_role {
+                name: 'ticket_assistant',
+                description: 'Ticket workflow assistant - reads docs, no execution',
+                max_sensitivity_level: 2,
+                can_execute_actions: false,
+                allowed_action_types: [],
+                blocked_action_types: [],
+                allowed_document_ids: [],
+                blocked_document_ids: [],
+                is_active: true,
+                created_by: 'system',
+                created_at: time::now(),
+                updated_at: time::now()
+            };
+            "#,
+            r#"
+            INSERT INTO agent_role {
+                name: 'monitoring_analyst',
+                description: 'Monitoring and alerting analyst - reads all, no execution',
+                max_sensitivity_level: 4,
+                can_execute_actions: false,
+                allowed_action_types: [],
+                blocked_action_types: [],
+                allowed_document_ids: [],
+                blocked_document_ids: [],
+                is_active: true,
+                created_by: 'system',
+                created_at: time::now(),
+                updated_at: time::now()
+            };
+            "#,
+            r#"
+            INSERT INTO agent_role {
+                name: 'operations_agent',
+                description: 'Infrastructure operations agent - full access with approval',
+                max_sensitivity_level: 5,
+                can_execute_actions: true,
+                max_auto_approve_risk: 'low',
+                allowed_action_types: ['ssh_command', 'powershell_command', 'kubernetes_exec', 'service_restart'],
+                blocked_action_types: [],
+                allowed_document_ids: [],
+                blocked_document_ids: [],
+                is_active: true,
+                created_by: 'system',
+                created_at: time::now(),
+                updated_at: time::now()
+            };
+            "#,
         ];
 
-        for role in roles {
-            let _: Vec<serde_json::Value> = db
-                .create("agent_role")
-                .content(role)
-                .await?;
+        for query in role_queries {
+            db.query(query).await?;
         }
 
         println!("✅ Default agent roles seeded");
