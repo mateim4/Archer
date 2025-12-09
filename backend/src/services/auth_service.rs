@@ -734,6 +734,96 @@ impl AuthService {
         // Check for exact match or manage permission
         Ok(permissions.contains(permission) || permissions.contains(&format!("{}:manage", permission.split(':').next().unwrap_or(""))))
     }
+
+    // ========================================================================
+    // PUBLIC REGISTRATION
+    // ========================================================================
+
+    /// Register a new user (public self-registration)
+    /// 
+    /// This allows users to create their own accounts. In production, you may want to:
+    /// - Require email verification
+    /// - Apply rate limiting
+    /// - Assign default roles based on tenant settings
+    /// - Send welcome email
+    pub async fn register_user(
+        &self,
+        email: String,
+        username: String,
+        password: String,
+        display_name: String,
+    ) -> Result<User, AuthError> {
+        // Validate password strength
+        self.validate_password(&password)?;
+
+        // Check if email already exists
+        if self.find_user_by_email(&email).await.is_ok() {
+            return Err(AuthError::EmailExists);
+        }
+
+        // Check if username already exists (by querying)
+        let username_check = format!(
+            r#"SELECT * FROM users WHERE username = '{}' LIMIT 1"#,
+            username.replace('\'', "''")
+        );
+        let mut result = self.db.query(&username_check).await
+            .map_err(|e| AuthError::DatabaseError(e.to_string()))?;
+        let existing: Vec<User> = result.take(0)
+            .map_err(|e| AuthError::DatabaseError(e.to_string()))?;
+        
+        if !existing.is_empty() {
+            return Err(AuthError::UsernameExists);
+        }
+
+        // Hash password
+        let password_hash = self.hash_password(&password)?;
+
+        // Create user with default viewer role
+        let viewer_role: Thing = "roles:viewer".parse()
+            .map_err(|_| AuthError::InternalError("Failed to parse viewer role".to_string()))?;
+
+        let mut user = User::new(email, username, password_hash, display_name);
+        user.roles = vec![viewer_role];
+        user.status = crate::models::auth::UserStatus::PendingVerification; // Require email verification
+
+        let created: Vec<User> = self
+            .db
+            .create("users")
+            .content(user)
+            .await
+            .map_err(|e| AuthError::DatabaseError(e.to_string()))?;
+
+        let user = created
+            .into_iter()
+            .next()
+            .ok_or(AuthError::InternalError("User registration returned no result".to_string()))?;
+
+        // Log registration
+        self.log_auth_event(
+            crate::models::auth::AuditEventType::Create,
+            user.id.clone(),
+            Some(&user.username),
+            true,
+            Some(serde_json::json!({"action": "user_registration"})),
+            None,
+            None,
+        )
+        .await;
+
+        Ok(user)
+    }
+
+    // ========================================================================
+    // TOKEN VERIFICATION
+    // ========================================================================
+
+    /// Verify and decode an access token
+    /// 
+    /// This is a public alias for validate_access_token that can be used
+    /// by other services that need to verify JWT tokens
+    pub fn verify_token(&self, token: &str) -> Result<JwtClaims, AuthError> {
+        self.validate_access_token(token)
+    }
 }
 
 #[cfg(test)]

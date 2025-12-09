@@ -2,13 +2,54 @@
 // Implements User, Role, Permission models for JWT-based auth
 
 use chrono::{DateTime, Utc};
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize};
 use surrealdb::sql::Thing;
 use std::collections::HashSet;
 
 // ============================================================================
 // USER MODELS
 // ============================================================================
+
+/// Custom deserializer for roles field that accepts both Vec<String> and Vec<Thing>
+fn deserialize_roles<'de, D>(deserializer: D) -> Result<Vec<Thing>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    use serde::de::Error;
+    
+    // Try to deserialize as Vec<serde_json::Value> first to inspect the data
+    let value: serde_json::Value = serde_json::Value::deserialize(deserializer)?;
+    
+    match value {
+        serde_json::Value::Array(arr) => {
+            let mut roles = Vec::new();
+            for item in arr {
+                match item {
+                    // If it's a string, convert it to a Thing reference (roles:role_name)
+                    serde_json::Value::String(s) => {
+                        let thing_str = if s.contains(':') {
+                            s.clone()
+                        } else {
+                            format!("roles:{}", s)
+                        };
+                        roles.push(thing_str.parse().map_err(|_| {
+                            Error::custom(format!("Failed to parse role string '{}' as Thing", thing_str))
+                        })?);
+                    }
+                    // If it's already an object (Thing), try to deserialize it
+                    _ => {
+                        let thing: Thing = serde_json::from_value(item).map_err(|e| {
+                            Error::custom(format!("Failed to deserialize role as Thing: {}", e))
+                        })?;
+                        roles.push(thing);
+                    }
+                }
+            }
+            Ok(roles)
+        }
+        _ => Err(Error::custom("Expected array for roles field")),
+    }
+}
 
 /// Core user entity for authentication
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -19,7 +60,8 @@ pub struct User {
     pub password_hash: String,
     pub display_name: String,
     pub status: UserStatus,
-    pub roles: Vec<Thing>,        // References to Role records
+    #[serde(deserialize_with = "deserialize_roles")]
+    pub roles: Vec<Thing>,        // References to Role records (accepts strings or Things)
     pub tenant_id: Option<Thing>, // Multi-tenant isolation
     pub last_login: Option<DateTime<Utc>>,
     pub failed_login_attempts: i32,
