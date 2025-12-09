@@ -31,6 +31,8 @@ import {
   ChevronRightRegular,
   PlugConnectedRegular,
   PlugConnectedFilled,
+  BookRegular,
+  BookFilled,
 } from '@fluentui/react-icons';
 
 interface NavigationSidebarProps {
@@ -109,6 +111,13 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
       icon: <ClipboardTaskRegular />, 
       iconFilled: <ClipboardTaskFilled />, 
       path: '/app/service-desk'
+    },
+    { 
+      id: 'knowledge-base', 
+      title: 'Knowledge Base', 
+      icon: <BookRegular />, 
+      iconFilled: <BookFilled />, 
+      path: '/app/knowledge-base'
     },
     { 
       id: 'inventory', 
