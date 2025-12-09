@@ -304,38 +304,109 @@ const ServiceDeskView: React.FC = () => {
   const loadTickets = async () => {
     await withLoading(async () => {
       try {
-        const data = await apiClient.getTickets();
-        // Extend API data with additional UI properties
-        const extendedData = data.map((t, i) => ({
-          ...t,
-          ticket_type: t.ticket_type.toString(),
-          slaStatus: i % 5 === 0 ? 'breached' : i % 3 === 0 ? 'at_risk' : 'on_track',
-          slaTimeRemaining: i % 5 === 0 ? '2h overdue' : i % 3 === 0 ? '45m left' : '3h 30m left',
-          linkedCi: i % 2 === 0 ? { id: 'nx-cluster-01', name: 'NX-Cluster-01', type: 'CLUSTER' as const, status: 'critical' as const } : undefined
-        })) as ExtendedTicket[];
+        // Attempt to fetch real tickets from API
+        const response = await apiClient.getTickets();
+        
+        // The API returns { data: Ticket[], count: number }
+        const rawTickets = Array.isArray(response) ? response : (response as any)?.data || [];
+        
+        // Transform API data to ExtendedTicket format with UI-specific fields
+        const extendedData = rawTickets.map((t: any) => {
+          // Calculate SLA status based on ticket data
+          let slaStatus: 'on_track' | 'at_risk' | 'breached' = 'on_track';
+          let slaTimeRemaining = 'No SLA';
+          
+          if (t.sla_breach_at) {
+            const breachTime = new Date(t.sla_breach_at);
+            const now = new Date();
+            const timeLeft = breachTime.getTime() - now.getTime();
+            
+            if (timeLeft < 0) {
+              slaStatus = 'breached';
+              const overdue = Math.abs(timeLeft);
+              const hours = Math.floor(overdue / (1000 * 60 * 60));
+              const minutes = Math.floor((overdue % (1000 * 60 * 60)) / (1000 * 60));
+              slaTimeRemaining = hours > 0 ? `${hours}h ${minutes}m overdue` : `${minutes}m overdue`;
+            } else if (timeLeft < 60 * 60 * 1000) { // Less than 1 hour
+              slaStatus = 'at_risk';
+              const minutes = Math.floor(timeLeft / (1000 * 60));
+              slaTimeRemaining = `${minutes}m left`;
+            } else {
+              slaStatus = 'on_track';
+              const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+              const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+              slaTimeRemaining = hours > 0 ? `${hours}h ${minutes}m left` : `${minutes}m left`;
+            }
+          }
+          
+          // Map ticket_type enum to display name
+          const typeDisplayNames: Record<string, string> = {
+            'INCIDENT': 'Incident',
+            'PROBLEM': 'Problem', 
+            'CHANGE': 'Change',
+            'SERVICE_REQUEST': 'Service Request',
+          };
+          
+          return {
+            ...t,
+            // Ensure ID is a string
+            id: typeof t.id === 'object' ? `${t.id.tb}:${t.id.id?.String || t.id.id}` : t.id?.toString() || '',
+            // Map to display-friendly ticket type
+            ticket_type: typeDisplayNames[t.ticket_type] || t.ticket_type,
+            // Preserve original type for filtering
+            type: t.ticket_type,
+            // Add SLA information
+            slaStatus,
+            slaTimeRemaining,
+            // Add linked CI if related_asset exists
+            linkedCi: t.related_asset ? {
+              id: t.related_asset,
+              name: t.related_asset,
+              status: 'healthy' as const
+            } : undefined,
+          };
+        }) as ExtendedTicket[];
         
         // If API returns data, use it; otherwise fall back to mock data
         if (extendedData.length > 0) {
+          console.log(`Loaded ${extendedData.length} tickets from API`);
           setTickets(extendedData);
         } else {
-          console.log('No tickets from API, using mock data');
+          console.log('No tickets from API, using mock data for demo');
           setTickets(MOCK_TICKETS);
         }
       } catch (error) {
         console.error('Failed to load tickets from API, using mock data:', error);
-        // Use mock data when API fails
+        // Use mock data when API fails - this ensures the UI is always usable
         setTickets(MOCK_TICKETS);
       }
     });
   };
 
   const handleCreateIncident = async (data: CreateIncidentData) => {
-    // In a real implementation, this would call the API
-    console.log('Creating incident:', data);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 500));
-    // Reload tickets after creation
-    await loadTickets();
+    try {
+      // Map CreateIncidentData to CreateTicketRequest
+      const ticketRequest = {
+        title: data.title,
+        description: data.description,
+        ticket_type: data.ticketType,
+        priority: data.priority,
+        assignee: data.assignee,
+        related_asset: data.relatedAssetId,
+        created_by: 'current_user', // TODO: Get from auth context
+      };
+      
+      console.log('Creating ticket:', ticketRequest);
+      await apiClient.createTicket(ticketRequest);
+      
+      // Reload tickets after creation to show the new ticket
+      await loadTickets();
+    } catch (error) {
+      console.error('Failed to create ticket:', error);
+      // Still reload to show mock data fallback if API fails
+      await loadTickets();
+      throw error; // Re-throw so the modal can show error state
+    }
   };
 
   const getPriorityColor = (priority: string) => {
