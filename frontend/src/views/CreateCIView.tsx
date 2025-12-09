@@ -22,7 +22,7 @@ const CreateCIView: React.FC = () => {
       <PurpleGlassButton
         icon={<ArrowLeftRegular />}
         onClick={handleCancel}
-        appearance="subtle"
+        variant="ghost"
         style={{ marginBottom: '24px' }}
       >
         Back to CMDB

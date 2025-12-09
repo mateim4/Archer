@@ -230,9 +230,13 @@ export const KBArticleEditorView: React.FC = () => {
   if (isLoading) {
     return (
       <div style={{ padding: tokens.spacingVerticalXXL }}>
-        <PurpleGlassSkeleton height="40px" style={{ marginBottom: tokens.spacingVerticalL, maxWidth: '200px' }} />
-        <PurpleGlassSkeleton height="60px" style={{ marginBottom: tokens.spacingVerticalM }} />
-        <PurpleGlassSkeleton height="400px" />
+        <div style={{ marginBottom: tokens.spacingVerticalL, maxWidth: '200px' }}>
+          <PurpleGlassSkeleton variant="text" height="40px" />
+        </div>
+        <div style={{ marginBottom: tokens.spacingVerticalM }}>
+          <PurpleGlassSkeleton variant="text" height="60px" />
+        </div>
+        <PurpleGlassSkeleton variant="card" height="400px" />
       </div>
     );
   }
@@ -263,7 +267,7 @@ export const KBArticleEditorView: React.FC = () => {
 
         <div style={{ display: 'flex', gap: tokens.spacingHorizontalS }}>
           <PurpleGlassButton
-            variant="subtle"
+            variant="ghost"
             icon={<DismissCircleRegular />}
             onClick={handleCancel}
             disabled={isSaving}
@@ -271,7 +275,7 @@ export const KBArticleEditorView: React.FC = () => {
             Cancel
           </PurpleGlassButton>
           <PurpleGlassButton
-            variant="outline"
+            variant="secondary"
             icon={<SaveRegular />}
             onClick={() => handleSaveDraft(false)}
             disabled={isSaving || !isDirty}
@@ -290,7 +294,7 @@ export const KBArticleEditorView: React.FC = () => {
       </div>
 
       {/* Form */}
-      <PurpleGlassCard glassVariant="light" style={{ marginBottom: tokens.spacingVerticalXL }}>
+      <PurpleGlassCard style={{ marginBottom: tokens.spacingVerticalXL }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: tokens.spacingVerticalL }}>
           {/* Title */}
           <div>
@@ -307,8 +311,7 @@ export const KBArticleEditorView: React.FC = () => {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Enter article title..."
-              glassVariant="light"
-              validationState={title.length > 0 && title.length < 10 ? 'error' : 'default'}
+              validationState={title.length > 0 && title.length < 10 ? 'error' : undefined}
             />
             <div style={{
               fontSize: tokens.fontSizeBase100,
@@ -335,7 +338,6 @@ export const KBArticleEditorView: React.FC = () => {
               onChange={(e) => setSummary(e.target.value)}
               placeholder="Brief summary of the article (shown in search results)..."
               rows={3}
-              glassVariant="light"
             />
           </div>
 
@@ -354,12 +356,11 @@ export const KBArticleEditorView: React.FC = () => {
               <PurpleGlassDropdown
                 placeholder="Select category"
                 value={categoryId}
-                onChange={(_, data) => setCategoryId(data.value)}
+                onChange={(value) => setCategoryId(value as string || '')}
                 options={[
-                  { key: '', text: 'No Category' },
-                  ...categories.map(cat => ({ key: cat.id, text: cat.name }))
+                  { value: '', label: 'No Category' },
+                  ...categories.map(cat => ({ value: cat.id, label: cat.name }))
                 ]}
-                glassVariant="light"
               />
             </div>
 
@@ -375,13 +376,12 @@ export const KBArticleEditorView: React.FC = () => {
               </label>
               <PurpleGlassDropdown
                 value={visibility}
-                onChange={(_, data) => setVisibility(data.value as KBArticleVisibility)}
+                onChange={(value) => setVisibility(value as KBArticleVisibility)}
                 options={[
-                  { key: 'PUBLIC', text: 'Public (Everyone)' },
-                  { key: 'INTERNAL', text: 'Internal (Authenticated Users)' },
-                  { key: 'RESTRICTED', text: 'Restricted (Specific Roles)' },
+                  { value: 'PUBLIC', label: 'Public (Everyone)' },
+                  { value: 'INTERNAL', label: 'Internal (Authenticated Users)' },
+                  { value: 'RESTRICTED', label: 'Restricted (Specific Roles)' },
                 ]}
-                glassVariant="light"
               />
             </div>
           </div>
@@ -401,7 +401,6 @@ export const KBArticleEditorView: React.FC = () => {
               value={tagsInput}
               onChange={(e) => handleTagsInputChange(e.target.value)}
               placeholder="Enter tags separated by commas (e.g., server, troubleshooting, vmware)"
-              glassVariant="light"
             />
             {tags.length > 0 && (
               <div style={{
@@ -475,7 +474,6 @@ export const KBArticleEditorView: React.FC = () => {
                   value={seoTitle}
                   onChange={(e) => setSeoTitle(e.target.value)}
                   placeholder="Custom SEO title (defaults to article title)"
-                  glassVariant="light"
                 />
               </div>
               <div>
@@ -492,7 +490,6 @@ export const KBArticleEditorView: React.FC = () => {
                   onChange={(e) => setSeoDescription(e.target.value)}
                   placeholder="Custom SEO description (defaults to summary)"
                   rows={2}
-                  glassVariant="light"
                 />
               </div>
             </div>
@@ -501,7 +498,7 @@ export const KBArticleEditorView: React.FC = () => {
       </PurpleGlassCard>
 
       {/* Help Card */}
-      <PurpleGlassCard glassVariant="light">
+      <PurpleGlassCard>
         <h3 style={{
           fontSize: tokens.fontSizeBase400,
           fontWeight: tokens.fontWeightSemibold,

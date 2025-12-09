@@ -270,7 +270,9 @@ export default function ProjectsView() {
         {/* Loading skeleton header */}
         <div className="purple-glass-card static" style={{ padding: '20px 24px', marginBottom: '24px' }}>
           <PurpleGlassSkeleton variant="text" width="200px" height="32px" />
-          <PurpleGlassSkeleton variant="text" width="300px" height="16px" style={{ marginTop: '8px' }} />
+          <div style={{ marginTop: '8px' }}>
+            <PurpleGlassSkeleton variant="text" width="300px" height="16px" />
+          </div>
         </div>
         {/* Loading skeleton cards */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '24px' }}>

@@ -80,7 +80,7 @@ const CIDetailView: React.FC = () => {
   if (loading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', padding: '60px' }}>
-        <PurpleGlassSpinner size="large" label="Loading CI details..." />
+        <PurpleGlassSpinner size="large" />
       </div>
     );
   }
@@ -107,7 +107,7 @@ const CIDetailView: React.FC = () => {
         <PurpleGlassButton
           icon={<ArrowLeftRegular />}
           onClick={handleBack}
-          appearance="subtle"
+          variant="ghost"
           style={{ marginBottom: '16px' }}
         >
           Back to CMDB
@@ -146,7 +146,7 @@ const CIDetailView: React.FC = () => {
             <PurpleGlassButton
               icon={<DeleteRegular />}
               onClick={handleDelete}
-              appearance="secondary"
+              variant="secondary"
             >
               Delete
             </PurpleGlassButton>

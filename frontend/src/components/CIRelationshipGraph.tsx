@@ -54,7 +54,7 @@ const CIRelationshipGraph: React.FC<CIRelationshipGraphProps> = ({ ciId, onRefre
   if (loading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
-        <PurpleGlassSpinner label="Loading relationship graph..." />
+        <PurpleGlassSpinner />
       </div>
     );
   }

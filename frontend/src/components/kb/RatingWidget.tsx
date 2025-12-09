@@ -76,7 +76,7 @@ export const RatingWidget: React.FC<RatingWidgetProps> = ({
   const helpfulPercentage = totalVotes > 0 ? Math.round((helpfulCount / totalVotes) * 100) : 0;
 
   return (
-    <PurpleGlassCard glassVariant="light" style={{ padding: tokens.spacingVerticalL }}>
+    <PurpleGlassCard style={{ padding: tokens.spacingVerticalL }}>
       <div style={{
         fontSize: tokens.fontSizeBase400,
         fontWeight: tokens.fontWeightSemibold,
@@ -89,7 +89,7 @@ export const RatingWidget: React.FC<RatingWidgetProps> = ({
       {/* Rating Buttons */}
       <div style={{ display: 'flex', gap: tokens.spacingHorizontalM, alignItems: 'center', marginBottom: tokens.spacingVerticalM }}>
         <PurpleGlassButton
-          variant={selectedRating === true ? 'primary' : 'outline'}
+          variant={selectedRating === true ? 'primary' : 'ghost'}
           onClick={() => handleRatingClick(true)}
           disabled={isSubmitting}
           icon={selectedRating === true ? <ThumbLikeFilled /> : <ThumbLikeRegular />}
@@ -98,7 +98,7 @@ export const RatingWidget: React.FC<RatingWidgetProps> = ({
         </PurpleGlassButton>
         
         <PurpleGlassButton
-          variant={selectedRating === false ? 'danger' : 'outline'}
+          variant={selectedRating === false ? 'danger' : 'ghost'}
           onClick={() => handleRatingClick(false)}
           disabled={isSubmitting}
           icon={selectedRating === false ? <ThumbDislikeFilled /> : <ThumbDislikeRegular />}
@@ -125,12 +125,10 @@ export const RatingWidget: React.FC<RatingWidgetProps> = ({
             onChange={(e) => setFeedback(e.target.value)}
             placeholder="Tell us how we can improve this article... (optional)"
             rows={3}
-            glassVariant="light"
-            style={{ marginBottom: tokens.spacingVerticalS }}
           />
-          <div style={{ display: 'flex', gap: tokens.spacingHorizontalS, justifyContent: 'flex-end' }}>
+          <div style={{ display: 'flex', gap: tokens.spacingHorizontalS, justifyContent: 'flex-end', marginTop: tokens.spacingVerticalS }}>
             <PurpleGlassButton
-              variant="subtle"
+              variant="ghost"
               onClick={() => {
                 setShowFeedback(false);
                 setFeedback('');

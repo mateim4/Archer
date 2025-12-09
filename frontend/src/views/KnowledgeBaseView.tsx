@@ -141,7 +141,7 @@ export const KnowledgeBaseView: React.FC = () => {
       case 'DRAFT':
         return tokens.colorPaletteYellowBackground3;
       case 'PENDING_REVIEW':
-        return tokens.colorPaletteBlueBackground3;
+        return tokens.colorPaletteBlueBackground2;
       case 'ARCHIVED':
         return tokens.colorNeutralBackground4;
       default:
@@ -152,8 +152,7 @@ export const KnowledgeBaseView: React.FC = () => {
   const renderArticleCard = (article: KBArticle) => (
     <PurpleGlassCard
       key={article.id}
-      glassVariant="light"
-      hoverable
+      variant="interactive"
       onClick={() => handleArticleClick(article)}
       style={{
         cursor: 'pointer',
@@ -273,8 +272,7 @@ export const KnowledgeBaseView: React.FC = () => {
   const renderArticleList = (article: KBArticle) => (
     <PurpleGlassCard
       key={article.id}
-      glassVariant="light"
-      hoverable
+      variant="interactive"
       onClick={() => handleArticleClick(article)}
       style={{
         cursor: 'pointer',
@@ -432,59 +430,59 @@ export const KnowledgeBaseView: React.FC = () => {
           <PurpleGlassDropdown
             placeholder="All Categories"
             value={selectedCategory || ''}
-            onChange={(_, data) => {
-              setSelectedCategory(data.value || null);
+            onChange={(value) => {
+              const v = typeof value === 'string' ? value : '';
+              setSelectedCategory(v || null);
               setCurrentPage(1);
             }}
             options={[
-              { key: '', text: 'All Categories' },
-              ...categories.map(cat => ({ key: cat.id, text: `${cat.name} (${cat.article_count})` }))
+              { value: '', label: 'All Categories' },
+              ...categories.map(cat => ({ value: cat.id, label: `${cat.name} (${cat.article_count})` }))
             ]}
-            glassVariant="light"
           />
 
           {/* Status Filter */}
           <PurpleGlassDropdown
             placeholder="All Status"
             value={selectedStatus || ''}
-            onChange={(_, data) => {
-              setSelectedStatus((data.value as KBArticleStatus) || null);
+            onChange={(value) => {
+              setSelectedStatus((value as KBArticleStatus) || null);
               setCurrentPage(1);
             }}
             options={[
-              { key: '', text: 'All Status' },
-              { key: 'PUBLISHED', text: 'Published' },
-              { key: 'DRAFT', text: 'Draft' },
-              { key: 'PENDING_REVIEW', text: 'Pending Review' },
-              { key: 'ARCHIVED', text: 'Archived' },
+              { value: '', label: 'All Status' },
+              { value: 'PUBLISHED', label: 'Published' },
+              { value: 'DRAFT', label: 'Draft' },
+              { value: 'PENDING_REVIEW', label: 'Pending Review' },
+              { value: 'ARCHIVED', label: 'Archived' },
             ]}
-            glassVariant="light"
           />
 
           {/* Sort */}
-          <PurpleGlassDropdown
-            placeholder="Sort by"
-            value={sortBy}
-            onChange={(_, data) => setSortBy(data.value as SortOption)}
-            options={[
-              { key: 'recent', text: 'Most Recent' },
-              { key: 'popular', text: 'Most Popular' },
-              { key: 'title', text: 'Title (A-Z)' },
-              { key: 'updated', text: 'Recently Updated' },
-            ]}
-            glassVariant="light"
-            contentBefore={<ArrowSortRegular />}
-          />
+          <div style={{ display: 'flex', alignItems: 'center', gap: tokens.spacingHorizontalXS }}>
+            <ArrowSortRegular />
+            <PurpleGlassDropdown
+              placeholder="Sort by"
+              value={sortBy}
+              onChange={(value) => setSortBy(value as SortOption)}
+              options={[
+                { value: 'recent', label: 'Most Recent' },
+                { value: 'popular', label: 'Most Popular' },
+                { value: 'title', label: 'Title (A-Z)' },
+                { value: 'updated', label: 'Recently Updated' },
+              ]}
+            />
+          </div>
 
           {/* View Toggle */}
           <div style={{ marginLeft: 'auto', display: 'flex', gap: tokens.spacingHorizontalXS }}>
             <PurpleGlassButton
-              variant={viewMode === 'grid' ? 'primary' : 'outline'}
+              variant={viewMode === 'grid' ? 'primary' : 'ghost'}
               icon={<GridRegular />}
               onClick={() => setViewMode('grid')}
             />
             <PurpleGlassButton
-              variant={viewMode === 'list' ? 'primary' : 'outline'}
+              variant={viewMode === 'list' ? 'primary' : 'ghost'}
               icon={<ListRegular />}
               onClick={() => setViewMode('list')}
             />
@@ -500,7 +498,7 @@ export const KnowledgeBaseView: React.FC = () => {
           gap: tokens.spacingHorizontalL,
         }}>
           {[...Array(6)].map((_, i) => (
-            <PurpleGlassSkeleton key={i} height="200px" />
+            <PurpleGlassSkeleton key={i} variant="card" />
           ))}
         </div>
       ) : articles.length === 0 ? (
@@ -509,15 +507,7 @@ export const KnowledgeBaseView: React.FC = () => {
           title="No articles found"
           description={searchQuery ? `No results for "${searchQuery}"` : "Create your first article to get started"}
           action={
-            !searchQuery && (
-              <PurpleGlassButton
-                variant="primary"
-                icon={<AddRegular />}
-                onClick={handleCreateArticle}
-              >
-                Create Article
-              </PurpleGlassButton>
-            )
+            !searchQuery ? { label: 'Create Article', onClick: handleCreateArticle, icon: <AddRegular /> } : undefined
           }
         />
       ) : (
@@ -544,7 +534,10 @@ export const KnowledgeBaseView: React.FC = () => {
               <PurpleGlassPagination
                 currentPage={currentPage}
                 totalPages={totalPages}
+                itemsPerPage={pageSize}
+                totalItems={articles.length}
                 onPageChange={setCurrentPage}
+                onItemsPerPageChange={() => {}}
               />
             </div>
           )}

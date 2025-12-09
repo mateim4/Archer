@@ -118,9 +118,13 @@ export const KBArticleDetailView: React.FC = () => {
   if (isLoading) {
     return (
       <div style={{ padding: tokens.spacingVerticalXXL }}>
-        <PurpleGlassSkeleton height="40px" style={{ marginBottom: tokens.spacingVerticalL, maxWidth: '200px' }} />
-        <PurpleGlassSkeleton height="60px" style={{ marginBottom: tokens.spacingVerticalM }} />
-        <PurpleGlassSkeleton height="400px" />
+        <div style={{ marginBottom: tokens.spacingVerticalL, maxWidth: '200px' }}>
+          <PurpleGlassSkeleton variant="text" height="40px" />
+        </div>
+        <div style={{ marginBottom: tokens.spacingVerticalM }}>
+          <PurpleGlassSkeleton variant="text" height="60px" />
+        </div>
+        <PurpleGlassSkeleton variant="card" height="400px" />
       </div>
     );
   }
@@ -131,11 +135,10 @@ export const KBArticleDetailView: React.FC = () => {
         <PurpleGlassEmptyState
           title="Article not found"
           description={error || "The article you're looking for doesn't exist or has been deleted."}
-          action={
-            <PurpleGlassButton variant="primary" onClick={handleBack}>
-              Back to Knowledge Base
-            </PurpleGlassButton>
-          }
+          action={{
+            label: "Back to Knowledge Base",
+            onClick: handleBack,
+          }}
         />
       </div>
     );
@@ -146,7 +149,7 @@ export const KBArticleDetailView: React.FC = () => {
       {/* Header Actions */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: tokens.spacingVerticalL }}>
         <PurpleGlassButton
-          variant="subtle"
+          variant="ghost"
           icon={<ArrowLeftRegular />}
           onClick={handleBack}
         >
@@ -155,17 +158,17 @@ export const KBArticleDetailView: React.FC = () => {
 
         <div style={{ display: 'flex', gap: tokens.spacingHorizontalS }}>
           <PurpleGlassButton
-            variant="subtle"
+            variant="ghost"
             icon={<ShareRegular />}
             onClick={handleShare}
           />
           <PurpleGlassButton
-            variant="subtle"
+            variant="ghost"
             icon={<PrintRegular />}
             onClick={handlePrint}
           />
           <PurpleGlassButton
-            variant="subtle"
+            variant="ghost"
             icon={<HistoryRegular />}
             onClick={() => setShowVersionHistory(true)}
           >
@@ -189,7 +192,7 @@ export const KBArticleDetailView: React.FC = () => {
       </div>
 
       {/* Main Content */}
-      <PurpleGlassCard glassVariant="light" style={{ marginBottom: tokens.spacingVerticalXL }}>
+      <PurpleGlassCard style={{ marginBottom: tokens.spacingVerticalXL }}>
         {/* Article Header */}
         <div style={{ marginBottom: tokens.spacingVerticalXL }}>
           {/* Status Badge */}
@@ -329,7 +332,7 @@ export const KBArticleDetailView: React.FC = () => {
 
       {/* Related Articles */}
       {article.related_articles.length > 0 && (
-        <PurpleGlassCard glassVariant="light" style={{ marginBottom: tokens.spacingVerticalXL }}>
+        <PurpleGlassCard style={{ marginBottom: tokens.spacingVerticalXL }}>
           <h2 style={{
             fontSize: tokens.fontSizeBase500,
             fontWeight: tokens.fontWeightSemibold,
@@ -361,7 +364,7 @@ export const KBArticleDetailView: React.FC = () => {
         isOpen={showVersionHistory}
         onClose={() => setShowVersionHistory(false)}
         title="Version History"
-        size="medium"
+        size="lg"
       >
         <div style={{ padding: tokens.spacingVerticalL }}>
           {versions.length === 0 ? (
@@ -369,7 +372,7 @@ export const KBArticleDetailView: React.FC = () => {
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: tokens.spacingVerticalM }}>
               {versions.map((version) => (
-                <PurpleGlassCard key={version.id} glassVariant="light">
+                <PurpleGlassCard key={version.id}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: tokens.spacingVerticalS }}>
                     <div>
                       <div style={{

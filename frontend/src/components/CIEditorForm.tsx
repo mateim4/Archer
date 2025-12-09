@@ -212,42 +212,42 @@ const CIEditorForm: React.FC<CIEditorFormProps> = ({ ciId, onSave, onCancel }) =
 
   // Dropdown options
   const classOptions = [
-    { key: 'HARDWARE', text: 'Hardware' },
-    { key: 'SOFTWARE', text: 'Software' },
-    { key: 'SERVICE', text: 'Service' },
-    { key: 'NETWORK', text: 'Network' },
-    { key: 'DATABASE', text: 'Database' },
-    { key: 'CLOUD', text: 'Cloud' },
-    { key: 'CONTAINER', text: 'Container' },
-    { key: 'VIRTUAL', text: 'Virtual' },
+    { value: 'HARDWARE', label: 'Hardware' },
+    { value: 'SOFTWARE', label: 'Software' },
+    { value: 'SERVICE', label: 'Service' },
+    { value: 'NETWORK', label: 'Network' },
+    { value: 'DATABASE', label: 'Database' },
+    { value: 'CLOUD', label: 'Cloud' },
+    { value: 'CONTAINER', label: 'Container' },
+    { value: 'VIRTUAL', label: 'Virtual' },
   ];
 
   const statusOptions = [
-    { key: 'PLANNED', text: 'Planned' },
-    { key: 'ORDERED', text: 'Ordered' },
-    { key: 'RECEIVED', text: 'Received' },
-    { key: 'IN_STOCK', text: 'In Stock' },
-    { key: 'DEPLOYED', text: 'Deployed' },
-    { key: 'ACTIVE', text: 'Active' },
-    { key: 'MAINTENANCE', text: 'Maintenance' },
-    { key: 'OFFLINE', text: 'Offline' },
-    { key: 'DECOMMISSIONED', text: 'Decommissioned' },
-    { key: 'RETIRED', text: 'Retired' },
+    { value: 'PLANNED', label: 'Planned' },
+    { value: 'ORDERED', label: 'Ordered' },
+    { value: 'RECEIVED', label: 'Received' },
+    { value: 'IN_STOCK', label: 'In Stock' },
+    { value: 'DEPLOYED', label: 'Deployed' },
+    { value: 'ACTIVE', label: 'Active' },
+    { value: 'MAINTENANCE', label: 'Maintenance' },
+    { value: 'OFFLINE', label: 'Offline' },
+    { value: 'DECOMMISSIONED', label: 'Decommissioned' },
+    { value: 'RETIRED', label: 'Retired' },
   ];
 
   const criticalityOptions = [
-    { key: 'CRITICAL', text: 'Critical' },
-    { key: 'HIGH', text: 'High' },
-    { key: 'MEDIUM', text: 'Medium' },
-    { key: 'LOW', text: 'Low' },
-    { key: 'NONE', text: 'None' },
+    { value: 'CRITICAL', label: 'Critical' },
+    { value: 'HIGH', label: 'High' },
+    { value: 'MEDIUM', label: 'Medium' },
+    { value: 'LOW', label: 'Low' },
+    { value: 'NONE', label: 'None' },
   ];
 
   const environmentOptions = [
-    { key: 'Production', text: 'Production' },
-    { key: 'Staging', text: 'Staging' },
-    { key: 'Development', text: 'Development' },
-    { key: 'Test', text: 'Test' },
+    { value: 'Production', label: 'Production' },
+    { value: 'Staging', label: 'Staging' },
+    { value: 'Development', label: 'Development' },
+    { value: 'Test', label: 'Test' },
   ];
 
   if (loading) {
@@ -348,7 +348,7 @@ const CIEditorForm: React.FC<CIEditorFormProps> = ({ ciId, onSave, onCancel }) =
                 </label>
                 <PurpleGlassDropdown
                   value={ciClass}
-                  onOptionSelect={(_, data) => setCiClass(data.optionValue as CIClass)}
+                  onChange={(value) => setCiClass(value as CIClass)}
                   options={classOptions}
                   disabled={isEditMode}
                 />
@@ -381,7 +381,7 @@ const CIEditorForm: React.FC<CIEditorFormProps> = ({ ciId, onSave, onCancel }) =
                 </label>
                 <PurpleGlassDropdown
                   value={status}
-                  onOptionSelect={(_, data) => setStatus(data.optionValue as CIStatus)}
+                  onChange={(value) => setStatus(value as CIStatus)}
                   options={statusOptions}
                 />
               </div>
@@ -397,7 +397,7 @@ const CIEditorForm: React.FC<CIEditorFormProps> = ({ ciId, onSave, onCancel }) =
                 </label>
                 <PurpleGlassDropdown
                   value={criticality}
-                  onOptionSelect={(_, data) => setCriticality(data.optionValue as CICriticality)}
+                  onChange={(value) => setCriticality(value as CICriticality)}
                   options={criticalityOptions}
                 />
               </div>
@@ -413,8 +413,8 @@ const CIEditorForm: React.FC<CIEditorFormProps> = ({ ciId, onSave, onCancel }) =
                 </label>
                 <PurpleGlassDropdown
                   value={environment}
-                  onOptionSelect={(_, data) => setEnvironment(data.optionValue as string)}
-                  options={[{ key: '', text: 'None' }, ...environmentOptions]}
+                  onChange={(value) => setEnvironment(typeof value === 'string' ? value : '')}
+                  options={[{ value: '', label: 'None' }, ...environmentOptions]}
                 />
               </div>
 
@@ -646,7 +646,7 @@ const CIEditorForm: React.FC<CIEditorFormProps> = ({ ciId, onSave, onCancel }) =
             <PurpleGlassButton
               icon={<SaveRegular />}
               onClick={handleSave}
-              appearance="primary"
+              variant="primary"
               disabled={saving}
             >
               {saving ? 'Saving...' : isEditMode ? 'Save Changes' : 'Create CI'}

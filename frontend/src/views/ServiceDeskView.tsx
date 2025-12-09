@@ -44,9 +44,19 @@ import { apiClient, Ticket } from '../utils/apiClient';
 import { useEnhancedUX } from '../hooks/useEnhancedUX';
 import { DesignTokens } from '../styles/designSystem';
 
-// Extended Ticket Interface for UI
-interface ExtendedTicket extends Omit<Ticket, 'ticket_type'> {
-  ticket_type: string;
+// Extended Ticket Interface for UI - adds UI-specific fields
+interface ExtendedTicket {
+  id: string;
+  title: string;
+  description?: string;
+  type: 'INCIDENT' | 'PROBLEM' | 'CHANGE' | 'SERVICE_REQUEST';
+  ticket_type: string; // User-friendly display name
+  priority: 'P1' | 'P2' | 'P3' | 'P4';
+  status: 'NEW' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED';
+  assignee?: string;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
   slaStatus?: 'on_track' | 'at_risk' | 'breached';
   slaTimeRemaining?: string;
   linkedCi?: { id: string; name: string; type?: 'CLUSTER' | 'HOST' | 'VM' | 'SWITCH'; status: 'healthy' | 'warning' | 'critical' };
@@ -77,10 +87,13 @@ const MOCK_TICKETS: ExtendedTicket[] = [
     id: 'INC-001',
     title: 'Production cluster NX-01 experiencing high CPU utilization',
     description: 'Multiple nodes in the NX-01 cluster are showing CPU utilization above 90%. User-facing services may be impacted.',
+    type: 'INCIDENT',
     priority: 'P1',
     status: 'IN_PROGRESS',
     ticket_type: 'Incident',
-    created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
+    created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+    updated_at: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
+    created_by: 'system',
     assignee: 'John Smith',
     slaStatus: 'at_risk',
     slaTimeRemaining: '45m left',
@@ -90,10 +103,13 @@ const MOCK_TICKETS: ExtendedTicket[] = [
     id: 'INC-002',
     title: 'Email service intermittent connectivity issues',
     description: 'Users reporting intermittent failures when sending emails. Exchange server showing connection timeouts.',
+    type: 'INCIDENT',
     priority: 'P2',
     status: 'NEW',
     ticket_type: 'Incident',
-    created_at: new Date(Date.now() - 30 * 60 * 1000).toISOString(), // 30 minutes ago
+    created_at: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
+    updated_at: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
+    created_by: 'jane.doe@company.com',
     assignee: undefined,
     slaStatus: 'on_track',
     slaTimeRemaining: '3h 30m left',
@@ -103,10 +119,13 @@ const MOCK_TICKETS: ExtendedTicket[] = [
     id: 'INC-003',
     title: 'VPN connection drops for remote users',
     description: 'Multiple remote users experiencing VPN disconnections every 15-20 minutes.',
+    type: 'INCIDENT',
     priority: 'P2',
     status: 'IN_PROGRESS',
     ticket_type: 'Incident',
-    created_at: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(), // 4 hours ago
+    created_at: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
+    updated_at: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
+    created_by: 'help.desk@company.com',
     assignee: 'Sarah Johnson',
     slaStatus: 'breached',
     slaTimeRemaining: '2h overdue',
@@ -116,10 +135,13 @@ const MOCK_TICKETS: ExtendedTicket[] = [
     id: 'SR-001',
     title: 'New laptop setup request for Marketing team',
     description: 'Request for 5 new Dell laptops for Marketing department new hires starting next month.',
+    type: 'SERVICE_REQUEST',
     priority: 'P3',
     status: 'NEW',
     ticket_type: 'Service Request',
-    created_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
+    created_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+    updated_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+    created_by: 'marketing.manager@company.com',
     assignee: 'Tech Support',
     slaStatus: 'on_track',
     slaTimeRemaining: '2d 4h left'
@@ -128,10 +150,13 @@ const MOCK_TICKETS: ExtendedTicket[] = [
     id: 'SR-002',
     title: 'Software installation - Adobe Creative Suite',
     description: 'Install Adobe Creative Suite on workstation DESK-MKT-003 for design team member.',
+    type: 'SERVICE_REQUEST',
     priority: 'P4',
     status: 'IN_PROGRESS',
     ticket_type: 'Service Request',
-    created_at: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(), // 3 hours ago
+    created_at: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
+    updated_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+    created_by: 'design.lead@company.com',
     assignee: 'Mike Wilson',
     slaStatus: 'on_track',
     slaTimeRemaining: '5h left'
@@ -140,10 +165,13 @@ const MOCK_TICKETS: ExtendedTicket[] = [
     id: 'PRB-001',
     title: 'Recurring memory leaks in application server',
     description: 'App server APP-PROD-01 requires weekly restarts due to memory consumption. Root cause investigation needed.',
+    type: 'PROBLEM',
     priority: 'P2',
     status: 'IN_PROGRESS',
     ticket_type: 'Problem',
-    created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 1 week ago
+    created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+    updated_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+    created_by: 'devops.team@company.com',
     assignee: 'DevOps Team',
     slaStatus: 'on_track',
     slaTimeRemaining: '5d left',
@@ -153,10 +181,13 @@ const MOCK_TICKETS: ExtendedTicket[] = [
     id: 'PRB-002',
     title: 'Network latency spikes during peak hours',
     description: 'Investigating cause of network latency increases (>200ms) during 9AM-11AM business hours.',
+    type: 'PROBLEM',
     priority: 'P3',
     status: 'NEW',
     ticket_type: 'Problem',
-    created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days ago
+    created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+    updated_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+    created_by: 'network.admin@company.com',
     assignee: undefined,
     slaStatus: 'on_track',
     slaTimeRemaining: '8d left',
@@ -166,10 +197,13 @@ const MOCK_TICKETS: ExtendedTicket[] = [
     id: 'CHG-001',
     title: 'Scheduled maintenance - Database cluster upgrade',
     description: 'Upgrade PostgreSQL cluster from 14.x to 16.x. Planned downtime: 2 hours.',
+    type: 'CHANGE',
     priority: 'P2',
     status: 'NEW',
     ticket_type: 'Change',
-    created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 days ago
+    created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+    updated_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+    created_by: 'dba.team@company.com',
     assignee: 'DBA Team',
     slaStatus: 'on_track',
     slaTimeRemaining: 'Scheduled for Sunday'
@@ -178,10 +212,13 @@ const MOCK_TICKETS: ExtendedTicket[] = [
     id: 'CHG-002',
     title: 'Firewall rule update for new SaaS integration',
     description: 'Add outbound rules for Salesforce API integration on production firewall.',
+    type: 'CHANGE',
     priority: 'P3',
     status: 'RESOLVED',
     ticket_type: 'Change',
-    created_at: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(), // 10 days ago
+    created_at: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+    updated_at: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(),
+    created_by: 'network.team@company.com',
     assignee: 'Network Team',
     slaStatus: 'on_track',
     slaTimeRemaining: 'Completed'
@@ -190,10 +227,13 @@ const MOCK_TICKETS: ExtendedTicket[] = [
     id: 'INC-004',
     title: 'Printer offline in Building B - Floor 3',
     description: 'Network printer HP-PRN-B3-01 showing offline status. Users cannot print documents.',
+    type: 'INCIDENT',
     priority: 'P3',
     status: 'NEW',
     ticket_type: 'Incident',
-    created_at: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(), // 1 hour ago
+    created_at: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
+    updated_at: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
+    created_by: 'office.admin@company.com',
     assignee: undefined,
     slaStatus: 'on_track',
     slaTimeRemaining: '7h left'
@@ -202,10 +242,13 @@ const MOCK_TICKETS: ExtendedTicket[] = [
     id: 'SR-003',
     title: 'Password reset for executive account',
     description: 'CFO forgot password and needs immediate reset for board meeting presentation access.',
+    type: 'SERVICE_REQUEST',
     priority: 'P1',
     status: 'RESOLVED',
     ticket_type: 'Service Request',
-    created_at: new Date(Date.now() - 45 * 60 * 1000).toISOString(), // 45 minutes ago
+    created_at: new Date(Date.now() - 45 * 60 * 1000).toISOString(),
+    updated_at: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
+    created_by: 'executive.assistant@company.com',
     assignee: 'Help Desk',
     slaStatus: 'on_track',
     slaTimeRemaining: 'Completed in 15m'
@@ -214,10 +257,13 @@ const MOCK_TICKETS: ExtendedTicket[] = [
     id: 'INC-005',
     title: 'Storage array warning - low disk space',
     description: 'SAN array SAN-PROD-01 showing 85% capacity. Threshold alert triggered.',
+    type: 'INCIDENT',
     priority: 'P2',
     status: 'IN_PROGRESS',
     ticket_type: 'Incident',
-    created_at: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(), // 6 hours ago
+    created_at: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
+    updated_at: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
+    created_by: 'monitoring.system@company.com',
     assignee: 'Storage Admin',
     slaStatus: 'at_risk',
     slaTimeRemaining: '1h 15m left',

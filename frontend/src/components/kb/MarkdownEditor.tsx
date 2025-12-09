@@ -48,13 +48,7 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          glassVariant="light"
-          style={{
-            height: '100%',
-            fontFamily: tokens.fontFamilyMonospace,
-            fontSize: tokens.fontSizeBase300,
-            resize: 'vertical',
-          }}
+          rows={20}
         />
       </div>
 
@@ -70,7 +64,6 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
             Preview
           </div>
           <PurpleGlassCard
-            glassVariant="light"
             style={{
               height: '100%',
               overflow: 'auto',

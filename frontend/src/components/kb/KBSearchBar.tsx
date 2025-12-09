@@ -149,26 +149,26 @@ export const KBSearchBar: React.FC<KBSearchBarProps> = ({
 
   return (
     <div ref={searchRef} style={{ position: 'relative', width: '100%' }}>
-      <PurpleGlassInput
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        onKeyDown={handleKeyDown}
-        placeholder={placeholder}
-        contentBefore={<SearchRegular style={{ fontSize: '16px', color: tokens.colorNeutralForeground3 }} />}
-        contentAfter={
-          query && (
-            <DismissRegular
-              onClick={handleClear}
-              style={{
-                fontSize: '16px',
-                color: tokens.colorNeutralForeground3,
-                cursor: 'pointer',
-              }}
-            />
-          )
-        }
-        glassVariant="light"
-      />
+      <div style={{ position: 'relative' }}>
+        <div style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', zIndex: 1 }}>
+          <SearchRegular style={{ fontSize: '16px', color: tokens.colorNeutralForeground3 }} />
+        </div>
+        <PurpleGlassInput
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder={placeholder}
+          style={{ paddingLeft: '36px', paddingRight: query ? '36px' : '12px' }}
+        />
+        {query && (
+          <div 
+            style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', cursor: 'pointer', zIndex: 1 }}
+            onClick={handleClear}
+          >
+            <DismissRegular style={{ fontSize: '16px', color: tokens.colorNeutralForeground3 }} />
+          </div>
+        )}
+      </div>
 
       {/* Search Results Dropdown */}
       {showDropdown && (

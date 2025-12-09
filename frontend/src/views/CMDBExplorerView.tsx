@@ -149,43 +149,43 @@ const CMDBExplorerView: React.FC = () => {
 
   // Dropdown options
   const classOptions = [
-    { key: '', text: 'All Classes' },
-    { key: 'HARDWARE', text: 'Hardware' },
-    { key: 'SOFTWARE', text: 'Software' },
-    { key: 'SERVICE', text: 'Service' },
-    { key: 'NETWORK', text: 'Network' },
-    { key: 'DATABASE', text: 'Database' },
-    { key: 'CLOUD', text: 'Cloud' },
-    { key: 'CONTAINER', text: 'Container' },
-    { key: 'VIRTUAL', text: 'Virtual' },
+    { value: '', label: 'All Classes' },
+    { value: 'HARDWARE', label: 'Hardware' },
+    { value: 'SOFTWARE', label: 'Software' },
+    { value: 'SERVICE', label: 'Service' },
+    { value: 'NETWORK', label: 'Network' },
+    { value: 'DATABASE', label: 'Database' },
+    { value: 'CLOUD', label: 'Cloud' },
+    { value: 'CONTAINER', label: 'Container' },
+    { value: 'VIRTUAL', label: 'Virtual' },
   ];
 
   const statusOptions = [
-    { key: '', text: 'All Statuses' },
-    { key: 'PLANNED', text: 'Planned' },
-    { key: 'ORDERED', text: 'Ordered' },
-    { key: 'DEPLOYED', text: 'Deployed' },
-    { key: 'ACTIVE', text: 'Active' },
-    { key: 'MAINTENANCE', text: 'Maintenance' },
-    { key: 'OFFLINE', text: 'Offline' },
-    { key: 'RETIRED', text: 'Retired' },
+    { value: '', label: 'All Statuses' },
+    { value: 'PLANNED', label: 'Planned' },
+    { value: 'ORDERED', label: 'Ordered' },
+    { value: 'DEPLOYED', label: 'Deployed' },
+    { value: 'ACTIVE', label: 'Active' },
+    { value: 'MAINTENANCE', label: 'Maintenance' },
+    { value: 'OFFLINE', label: 'Offline' },
+    { value: 'RETIRED', label: 'Retired' },
   ];
 
   const criticalityOptions = [
-    { key: '', text: 'All Criticalities' },
-    { key: 'CRITICAL', text: 'Critical' },
-    { key: 'HIGH', text: 'High' },
-    { key: 'MEDIUM', text: 'Medium' },
-    { key: 'LOW', text: 'Low' },
-    { key: 'NONE', text: 'None' },
+    { value: '', label: 'All Criticalities' },
+    { value: 'CRITICAL', label: 'Critical' },
+    { value: 'HIGH', label: 'High' },
+    { value: 'MEDIUM', label: 'Medium' },
+    { value: 'LOW', label: 'Low' },
+    { value: 'NONE', label: 'None' },
   ];
 
   const environmentOptions = [
-    { key: '', text: 'All Environments' },
-    { key: 'Production', text: 'Production' },
-    { key: 'Staging', text: 'Staging' },
-    { key: 'Development', text: 'Development' },
-    { key: 'Test', text: 'Test' },
+    { value: '', label: 'All Environments' },
+    { value: 'Production', label: 'Production' },
+    { value: 'Staging', label: 'Staging' },
+    { value: 'Development', label: 'Development' },
+    { value: 'Test', label: 'Test' },
   ];
 
   const totalPages = Math.ceil(totalCount / pageSize);
@@ -217,12 +217,15 @@ const CMDBExplorerView: React.FC = () => {
       <PurpleGlassCard style={{ marginBottom: '24px', padding: '20px' }}>
         <div style={{ display: 'flex', gap: '12px', marginBottom: '16px', flexWrap: 'wrap' }}>
           {/* Search */}
-          <div style={{ flex: '1 1 300px' }}>
+          <div style={{ flex: '1 1 300px', position: 'relative' }}>
+            <div style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', zIndex: 1 }}>
+              <SearchRegular />
+            </div>
             <PurpleGlassInput
               placeholder="Search by name, CI ID, IP, serial number..."
               value={searchQuery}
               onChange={(e) => handleSearch(e.target.value)}
-              contentBefore={<SearchRegular />}
+              style={{ paddingLeft: '36px' }}
             />
           </div>
 
@@ -230,7 +233,7 @@ const CMDBExplorerView: React.FC = () => {
           <PurpleGlassButton
             onClick={handleCreateNew}
             icon={<AddRegular />}
-            appearance="primary"
+            variant="primary"
           >
             Create CI
           </PurpleGlassButton>
@@ -251,49 +254,45 @@ const CMDBExplorerView: React.FC = () => {
           <PurpleGlassDropdown
             placeholder="Class"
             value={selectedClass}
-            onOptionSelect={(_, data) => {
-              setSelectedClass(data.optionValue as CIClass | '');
+            onChange={(value) => {
+              setSelectedClass(value as CIClass | '');
               handleFilterChange();
             }}
             options={classOptions}
-            style={{ minWidth: '150px' }}
           />
 
           <PurpleGlassDropdown
             placeholder="Status"
             value={selectedStatus}
-            onOptionSelect={(_, data) => {
-              setSelectedStatus(data.optionValue as CIStatus | '');
+            onChange={(value) => {
+              setSelectedStatus(value as CIStatus | '');
               handleFilterChange();
             }}
             options={statusOptions}
-            style={{ minWidth: '150px' }}
           />
 
           <PurpleGlassDropdown
             placeholder="Criticality"
             value={selectedCriticality}
-            onOptionSelect={(_, data) => {
-              setSelectedCriticality(data.optionValue as CICriticality | '');
+            onChange={(value) => {
+              setSelectedCriticality(value as CICriticality | '');
               handleFilterChange();
             }}
             options={criticalityOptions}
-            style={{ minWidth: '150px' }}
           />
 
           <PurpleGlassDropdown
             placeholder="Environment"
             value={selectedEnvironment}
-            onOptionSelect={(_, data) => {
-              setSelectedEnvironment(data.optionValue as string);
+            onChange={(value) => {
+              setSelectedEnvironment(typeof value === 'string' ? value : '');
               handleFilterChange();
             }}
             options={environmentOptions}
-            style={{ minWidth: '150px' }}
           />
 
           {hasFilters && (
-            <PurpleGlassButton onClick={clearFilters} appearance="subtle">
+            <PurpleGlassButton onClick={clearFilters} variant="ghost">
               Clear Filters
             </PurpleGlassButton>
           )}
@@ -322,7 +321,7 @@ const CMDBExplorerView: React.FC = () => {
       {/* CI List */}
       {loading ? (
         <div style={{ display: 'flex', justifyContent: 'center', padding: '60px' }}>
-          <PurpleGlassSpinner size="large" label="Loading configuration items..." />
+          <PurpleGlassSpinner size="large" />
         </div>
       ) : error ? (
         <PurpleGlassCard style={{ padding: '40px', textAlign: 'center' }}>
@@ -337,13 +336,9 @@ const CMDBExplorerView: React.FC = () => {
           title="No configuration items found"
           description={hasFilters ? "Try adjusting your filters" : "Get started by creating your first CI"}
           action={
-            hasFilters ? (
-              <PurpleGlassButton onClick={clearFilters}>Clear Filters</PurpleGlassButton>
-            ) : (
-              <PurpleGlassButton onClick={handleCreateNew} appearance="primary">
-                Create First CI
-              </PurpleGlassButton>
-            )
+            hasFilters 
+              ? { label: 'Clear Filters', onClick: clearFilters }
+              : { label: 'Create First CI', onClick: handleCreateNew }
           }
         />
       ) : (

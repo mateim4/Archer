@@ -55,16 +55,16 @@ const ImpactAnalysisPanel: React.FC<ImpactAnalysisPanelProps> = ({ ciId }) => {
   };
 
   const depthOptions = [
-    { key: '1', text: '1 Level' },
-    { key: '2', text: '2 Levels' },
-    { key: '3', text: '3 Levels' },
-    { key: '4', text: '4 Levels' },
+    { value: '1', label: '1 Level' },
+    { value: '2', label: '2 Levels' },
+    { value: '3', label: '3 Levels' },
+    { value: '4', label: '4 Levels' },
   ];
 
   if (loading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
-        <PurpleGlassSpinner label="Analyzing impact..." />
+        <PurpleGlassSpinner />
       </div>
     );
   }
@@ -118,11 +118,10 @@ const ImpactAnalysisPanel: React.FC<ImpactAnalysisPanelProps> = ({ ciId }) => {
           </span>
           <PurpleGlassDropdown
             value={depth.toString()}
-            onOptionSelect={(_, data) => {
-              setDepth(parseInt(data.optionValue as string));
+            onChange={(value) => {
+              setDepth(parseInt(typeof value === 'string' ? value : '3'));
             }}
             options={depthOptions}
-            style={{ minWidth: '120px' }}
           />
         </div>
 
