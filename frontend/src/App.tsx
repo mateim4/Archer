@@ -45,6 +45,9 @@ const TicketDetailView = lazyWithRetry(() => import('./views/TicketDetailView'))
 const AssetDetailView = lazyWithRetry(() => import('./views/AssetDetailView'));
 const InventoryView = lazyWithRetry(() => import('./views/InventoryView'));
 const MonitoringView = lazyWithRetry(() => import('./views/MonitoringView'));
+const KnowledgeBaseView = lazyWithRetry(() => import('./views/KnowledgeBaseView').then(m => ({ default: m.KnowledgeBaseView })));
+const KBArticleDetailView = lazyWithRetry(() => import('./views/KBArticleDetailView').then(m => ({ default: m.KBArticleDetailView })));
+const KBArticleEditorView = lazyWithRetry(() => import('./views/KBArticleEditorView').then(m => ({ default: m.KBArticleEditorView })));
 
 // Inner App component that uses the theme context
 function AppContent() {
@@ -228,6 +231,10 @@ function AppContent() {
                     <Route path="tasks" element={<TasksView />} />
                     <Route path="service-desk" element={<ServiceDeskView />} />
                     <Route path="service-desk/ticket/:ticketId" element={<TicketDetailView />} />
+                    <Route path="knowledge-base" element={<KnowledgeBaseView />} />
+                    <Route path="knowledge-base/new" element={<KBArticleEditorView />} />
+                    <Route path="knowledge-base/:id" element={<KBArticleDetailView />} />
+                    <Route path="knowledge-base/:id/edit" element={<KBArticleEditorView />} />
                     <Route path="inventory" element={<InventoryView />} />
                     <Route path="inventory/asset/:assetId" element={<AssetDetailView />} />
                     <Route path="monitoring" element={<MonitoringView />} />

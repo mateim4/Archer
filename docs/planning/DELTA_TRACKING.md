@@ -50,17 +50,17 @@ This document is **mandatory reading and updating** for all AI agents working on
 | AI Engine | Python + FastAPI | 8000 | Optional sidecar |
 
 ### Implementation Progress (Updated 2025-12-09)
-| Module | Status | Notes |
-|--------|--------|-------|
-| Auth/RBAC | 🟢 Implemented | Phase 0 - Foundation complete |
-| Ticket System | 🟢 Implemented | Phase 1 - State machine, SLA, comments, history |
-| SLA Engine | 🟢 Implemented | Phase 1 - Basic SLA calculation, breach detection |
-| Knowledge Base | 🟢 Implemented | Phase 1.5 - Articles, categories, versioning, ratings |
-| CMDB/Assets | 🟢 Implemented | Phase 2 - CIs, relationships, graph traversal, impact analysis |
-| Workflows | 🔴 Not Started | Phase 3 |
-| Monitoring | 🔴 Not Started | Phase 4 |
-| Service Catalog | 🔴 Not Started | Phase 5 |
-| Reporting | 🔴 Not Started | Phase 6 |
+| Module | Backend | Frontend | Notes |
+|--------|---------|----------|-------|
+| Auth/RBAC | 🟢 Complete | 🔴 Not Started | Phase 0 - Foundation complete |
+| Ticket System | 🟢 Complete | 🟡 Partial | Phase 1 - Backend complete, ServiceDeskView uses mock data |
+| SLA Engine | 🟢 Complete | 🔴 Not Started | Phase 1 - Basic SLA calculation, breach detection |
+| Knowledge Base | 🟢 Complete | 🟢 Complete | Phase 1.5 - Full CRUD, search, versions, ratings (Issue #32 ✅) |
+| CMDB/Assets | 🟢 Complete | 🔴 Not Started | Phase 2 - CIs, relationships, graph traversal, impact analysis |
+| Workflows | 🔴 Not Started | 🔴 Not Started | Phase 3 |
+| Monitoring | 🔴 Not Started | 🔴 Not Started | Phase 4 |
+| Service Catalog | 🔴 Not Started | 🔴 Not Started | Phase 5 |
+| Reporting | 🔴 Not Started | 🔴 Not Started | Phase 6 |
 
 ---
 
