@@ -107,6 +107,20 @@ async fn run_all_migrations(db: &Database) -> Result<(), DatabaseError> {
         info!("✅ Ticket system migrations completed");
     }
 
+    // Knowledge Base migrations (Phase 1.5)
+    if let Err(e) = migrations::KnowledgeBaseMigrations::run_all(db).await {
+        warn!("Knowledge Base migrations failed: {}", e);
+    } else {
+        info!("✅ Knowledge Base migrations completed");
+    }
+
+    // CMDB migrations (Phase 2)
+    if let Err(e) = migrations::CMDBMigrations::run_all(db).await {
+        warn!("CMDB migrations failed: {}", e);
+    } else {
+        info!("✅ CMDB migrations completed");
+    }
+
     // Enhanced RVTools migrations
     if let Err(e) = migrations::EnhancedRvToolsMigrations::run_all(db).await {
         warn!("Enhanced RVTools migrations failed: {}", e);

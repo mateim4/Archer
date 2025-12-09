@@ -1,8 +1,10 @@
 pub mod auth; // Authentication API (Phase 0)
 pub mod capacity;
 pub mod cluster_strategy;
+pub mod cmdb; // CMDB API (Phase 2)
 pub mod destination_clusters;
 pub mod hardware_pool;
+pub mod knowledge; // Knowledge Base API (Phase 1.5)
 pub mod migration_wizard; // Migration Planning Wizard API
 pub mod project_lifecycle;
 pub mod project_workflow;
@@ -57,6 +59,8 @@ pub fn api_router(state: AppState) -> Router {
         .nest("/hld", hld::create_hld_router(state.clone()))
         .nest("/migration-wizard", migration_wizard::create_migration_wizard_router(state.clone()))
         .nest("/tickets", tickets::create_tickets_router(state.clone()))
+        .nest("/knowledge", knowledge::knowledge_routes().with_state(state.clone()))
+        .nest("/cmdb", cmdb::cmdb_routes().with_state(state.clone()))
         .nest("/assets", assets::create_assets_router(state.clone()))
         .nest("/monitoring", monitoring::routes(state.clone()))
         .nest("/integration", integration::create_integration_router(state.clone()))

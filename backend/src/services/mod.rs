@@ -5,6 +5,12 @@ pub mod auth_service;
 pub mod sla_service;
 pub mod ticket_service;
 
+// Knowledge Base (Phase 1.5)
+pub mod knowledge_service;
+
+// CMDB/Assets (Phase 2)
+pub mod cmdb_service;
+
 pub mod dependency_validator;
 pub mod document_service;
 pub mod enhanced_rvtools_service; // TODO: Fix compilation errors

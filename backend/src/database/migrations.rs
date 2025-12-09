@@ -1305,3 +1305,321 @@ impl AuthMigrations {
         Ok(())
     }
 }
+
+// ============================================================================
+// PHASE 1.5: KNOWLEDGE BASE MIGRATIONS
+// ============================================================================
+
+/// Database migrations for Knowledge Base (Phase 1.5)
+pub struct KnowledgeBaseMigrations;
+
+impl KnowledgeBaseMigrations {
+    /// Run all Knowledge Base migrations
+    pub async fn run_all(db: &Database) -> Result<()> {
+        Self::create_kb_tables(db).await?;
+        Self::create_kb_indexes(db).await?;
+        Self::seed_default_categories(db).await?;
+        Ok(())
+    }
+
+    /// Create tables for Knowledge Base
+    async fn create_kb_tables(db: &Database) -> Result<()> {
+        // KB Categories table
+        db.query(
+            r#"
+            DEFINE TABLE kb_categories SCHEMAFULL;
+            DEFINE FIELD name ON kb_categories TYPE string;
+            DEFINE FIELD slug ON kb_categories TYPE string;
+            DEFINE FIELD description ON kb_categories TYPE option<string>;
+            DEFINE FIELD parent_id ON kb_categories TYPE option<record(kb_categories)>;
+            DEFINE FIELD icon ON kb_categories TYPE option<string>;
+            DEFINE FIELD display_order ON kb_categories TYPE int DEFAULT 0;
+            DEFINE FIELD is_active ON kb_categories TYPE bool DEFAULT true;
+            DEFINE FIELD article_count ON kb_categories TYPE int DEFAULT 0;
+            DEFINE FIELD tenant_id ON kb_categories TYPE option<record(tenants)>;
+            DEFINE FIELD created_at ON kb_categories TYPE datetime DEFAULT time::now();
+            DEFINE FIELD updated_at ON kb_categories TYPE datetime DEFAULT time::now();
+            "#,
+        )
+        .await?;
+
+        // KB Articles table
+        db.query(
+            r#"
+            DEFINE TABLE kb_articles SCHEMAFULL;
+            DEFINE FIELD title ON kb_articles TYPE string;
+            DEFINE FIELD slug ON kb_articles TYPE string;
+            DEFINE FIELD content ON kb_articles TYPE string;
+            DEFINE FIELD summary ON kb_articles TYPE option<string>;
+            DEFINE FIELD category_id ON kb_articles TYPE option<record(kb_categories)>;
+            DEFINE FIELD tags ON kb_articles TYPE array DEFAULT [];
+            DEFINE FIELD visibility ON kb_articles TYPE string DEFAULT 'INTERNAL';
+            DEFINE FIELD status ON kb_articles TYPE string DEFAULT 'DRAFT';
+            DEFINE FIELD author_id ON kb_articles TYPE string;
+            DEFINE FIELD author_name ON kb_articles TYPE string;
+            DEFINE FIELD reviewers ON kb_articles TYPE array DEFAULT [];
+            DEFINE FIELD approved_by ON kb_articles TYPE option<string>;
+            DEFINE FIELD approved_at ON kb_articles TYPE option<datetime>;
+            DEFINE FIELD view_count ON kb_articles TYPE int DEFAULT 0;
+            DEFINE FIELD helpful_count ON kb_articles TYPE int DEFAULT 0;
+            DEFINE FIELD not_helpful_count ON kb_articles TYPE int DEFAULT 0;
+            DEFINE FIELD version ON kb_articles TYPE int DEFAULT 1;
+            DEFINE FIELD linked_articles ON kb_articles TYPE array DEFAULT [];
+            DEFINE FIELD attachments ON kb_articles TYPE array DEFAULT [];
+            DEFINE FIELD seo_title ON kb_articles TYPE option<string>;
+            DEFINE FIELD seo_description ON kb_articles TYPE option<string>;
+            DEFINE FIELD tenant_id ON kb_articles TYPE option<record(tenants)>;
+            DEFINE FIELD created_at ON kb_articles TYPE datetime DEFAULT time::now();
+            DEFINE FIELD updated_at ON kb_articles TYPE datetime DEFAULT time::now();
+            DEFINE FIELD published_at ON kb_articles TYPE option<datetime>;
+            DEFINE FIELD expires_at ON kb_articles TYPE option<datetime>;
+            "#,
+        )
+        .await?;
+
+        // KB Article Versions table
+        db.query(
+            r#"
+            DEFINE TABLE kb_article_versions SCHEMAFULL;
+            DEFINE FIELD article_id ON kb_article_versions TYPE record(kb_articles);
+            DEFINE FIELD version ON kb_article_versions TYPE int;
+            DEFINE FIELD title ON kb_article_versions TYPE string;
+            DEFINE FIELD content ON kb_article_versions TYPE string;
+            DEFINE FIELD change_summary ON kb_article_versions TYPE option<string>;
+            DEFINE FIELD created_by ON kb_article_versions TYPE string;
+            DEFINE FIELD created_by_name ON kb_article_versions TYPE string;
+            DEFINE FIELD created_at ON kb_article_versions TYPE datetime DEFAULT time::now();
+            "#,
+        )
+        .await?;
+
+        // KB Article Ratings table
+        db.query(
+            r#"
+            DEFINE TABLE kb_article_ratings SCHEMAFULL;
+            DEFINE FIELD article_id ON kb_article_ratings TYPE record(kb_articles);
+            DEFINE FIELD user_id ON kb_article_ratings TYPE string;
+            DEFINE FIELD is_helpful ON kb_article_ratings TYPE bool;
+            DEFINE FIELD feedback ON kb_article_ratings TYPE option<string>;
+            DEFINE FIELD created_at ON kb_article_ratings TYPE datetime DEFAULT time::now();
+            "#,
+        )
+        .await?;
+
+        println!("✅ Knowledge Base tables created successfully");
+        Ok(())
+    }
+
+    /// Create indexes for Knowledge Base tables
+    async fn create_kb_indexes(db: &Database) -> Result<()> {
+        // Category indexes
+        db.query("DEFINE INDEX idx_kb_cat_slug ON kb_categories FIELDS slug UNIQUE;")
+            .await?;
+        db.query("DEFINE INDEX idx_kb_cat_parent ON kb_categories FIELDS parent_id;")
+            .await?;
+        db.query("DEFINE INDEX idx_kb_cat_active ON kb_categories FIELDS is_active;")
+            .await?;
+
+        // Article indexes
+        db.query("DEFINE INDEX idx_kb_art_slug ON kb_articles FIELDS slug UNIQUE;")
+            .await?;
+        db.query("DEFINE INDEX idx_kb_art_status ON kb_articles FIELDS status;")
+            .await?;
+        db.query("DEFINE INDEX idx_kb_art_visibility ON kb_articles FIELDS visibility;")
+            .await?;
+        db.query("DEFINE INDEX idx_kb_art_category ON kb_articles FIELDS category_id;")
+            .await?;
+        db.query("DEFINE INDEX idx_kb_art_author ON kb_articles FIELDS author_id;")
+            .await?;
+        db.query("DEFINE INDEX idx_kb_art_tenant ON kb_articles FIELDS tenant_id;")
+            .await?;
+
+        // Version indexes
+        db.query("DEFINE INDEX idx_kb_ver_article ON kb_article_versions FIELDS article_id;")
+            .await?;
+
+        // Rating indexes
+        db.query("DEFINE INDEX idx_kb_rating_article ON kb_article_ratings FIELDS article_id;")
+            .await?;
+        db.query("DEFINE INDEX idx_kb_rating_user ON kb_article_ratings FIELDS user_id;")
+            .await?;
+
+        println!("✅ Knowledge Base indexes created successfully");
+        Ok(())
+    }
+
+    /// Seed default categories
+    async fn seed_default_categories(db: &Database) -> Result<()> {
+        let categories = vec![
+            ("getting-started", "Getting Started", "Onboarding and initial setup guides", 1),
+            ("how-to", "How-To Guides", "Step-by-step instructions for common tasks", 2),
+            ("troubleshooting", "Troubleshooting", "Solutions to common problems", 3),
+            ("faq", "FAQ", "Frequently Asked Questions", 4),
+            ("release-notes", "Release Notes", "Product updates and changes", 5),
+            ("policies", "Policies & Procedures", "Company policies and SOPs", 6),
+        ];
+
+        for (slug, name, description, order) in categories {
+            let query = format!(
+                r#"
+                CREATE kb_categories:{} SET
+                    name = '{}',
+                    slug = '{}',
+                    description = '{}',
+                    display_order = {},
+                    is_active = true
+                "#,
+                slug, name, slug, description, order
+            );
+            let _ = db.query(&query).await;
+        }
+
+        println!("✅ Default KB categories seeded");
+        Ok(())
+    }
+}
+
+// ============================================================================
+// PHASE 2: CMDB MIGRATIONS
+// ============================================================================
+
+/// Database migrations for CMDB (Phase 2)
+pub struct CMDBMigrations;
+
+impl CMDBMigrations {
+    /// Run all CMDB migrations
+    pub async fn run_all(db: &Database) -> Result<()> {
+        Self::create_cmdb_tables(db).await?;
+        Self::create_cmdb_indexes(db).await?;
+        Ok(())
+    }
+
+    /// Create tables for CMDB
+    async fn create_cmdb_tables(db: &Database) -> Result<()> {
+        // Configuration Items table
+        db.query(
+            r#"
+            DEFINE TABLE configuration_items SCHEMAFULL;
+            DEFINE FIELD ci_id ON configuration_items TYPE string;
+            DEFINE FIELD name ON configuration_items TYPE string;
+            DEFINE FIELD description ON configuration_items TYPE option<string>;
+            DEFINE FIELD ci_class ON configuration_items TYPE string;
+            DEFINE FIELD ci_type ON configuration_items TYPE string;
+            DEFINE FIELD status ON configuration_items TYPE string DEFAULT 'ACTIVE';
+            DEFINE FIELD criticality ON configuration_items TYPE string DEFAULT 'MEDIUM';
+            DEFINE FIELD environment ON configuration_items TYPE option<string>;
+            DEFINE FIELD location ON configuration_items TYPE option<string>;
+            DEFINE FIELD owner_id ON configuration_items TYPE option<string>;
+            DEFINE FIELD owner_name ON configuration_items TYPE option<string>;
+            DEFINE FIELD support_group ON configuration_items TYPE option<string>;
+            DEFINE FIELD vendor ON configuration_items TYPE option<string>;
+            DEFINE FIELD model ON configuration_items TYPE option<string>;
+            DEFINE FIELD serial_number ON configuration_items TYPE option<string>;
+            DEFINE FIELD version ON configuration_items TYPE option<string>;
+            DEFINE FIELD ip_address ON configuration_items TYPE option<string>;
+            DEFINE FIELD fqdn ON configuration_items TYPE option<string>;
+            DEFINE FIELD attributes ON configuration_items TYPE option<object>;
+            DEFINE FIELD discovery_source ON configuration_items TYPE string DEFAULT 'MANUAL';
+            DEFINE FIELD discovery_id ON configuration_items TYPE option<string>;
+            DEFINE FIELD last_discovered ON configuration_items TYPE option<datetime>;
+            DEFINE FIELD install_date ON configuration_items TYPE option<datetime>;
+            DEFINE FIELD warranty_expiry ON configuration_items TYPE option<datetime>;
+            DEFINE FIELD end_of_life ON configuration_items TYPE option<datetime>;
+            DEFINE FIELD decommission_date ON configuration_items TYPE option<datetime>;
+            DEFINE FIELD tags ON configuration_items TYPE array DEFAULT [];
+            DEFINE FIELD tenant_id ON configuration_items TYPE option<record(tenants)>;
+            DEFINE FIELD created_at ON configuration_items TYPE datetime DEFAULT time::now();
+            DEFINE FIELD updated_at ON configuration_items TYPE datetime DEFAULT time::now();
+            DEFINE FIELD created_by ON configuration_items TYPE string;
+            DEFINE FIELD updated_by ON configuration_items TYPE string;
+            "#,
+        )
+        .await?;
+
+        // CI Relationships table (graph edges)
+        db.query(
+            r#"
+            DEFINE TABLE ci_relationships SCHEMAFULL;
+            DEFINE FIELD source_id ON ci_relationships TYPE record(configuration_items);
+            DEFINE FIELD target_id ON ci_relationships TYPE record(configuration_items);
+            DEFINE FIELD relationship_type ON ci_relationships TYPE string;
+            DEFINE FIELD direction ON ci_relationships TYPE string DEFAULT 'OUTBOUND';
+            DEFINE FIELD description ON ci_relationships TYPE option<string>;
+            DEFINE FIELD is_active ON ci_relationships TYPE bool DEFAULT true;
+            DEFINE FIELD discovery_source ON ci_relationships TYPE string DEFAULT 'MANUAL';
+            DEFINE FIELD created_at ON ci_relationships TYPE datetime DEFAULT time::now();
+            DEFINE FIELD updated_at ON ci_relationships TYPE datetime DEFAULT time::now();
+            DEFINE FIELD created_by ON ci_relationships TYPE string;
+            "#,
+        )
+        .await?;
+
+        // CI History table
+        db.query(
+            r#"
+            DEFINE TABLE ci_history SCHEMAFULL;
+            DEFINE FIELD ci_id ON ci_history TYPE record(configuration_items);
+            DEFINE FIELD change_type ON ci_history TYPE string;
+            DEFINE FIELD field_name ON ci_history TYPE option<string>;
+            DEFINE FIELD old_value ON ci_history TYPE option<string>;
+            DEFINE FIELD new_value ON ci_history TYPE option<string>;
+            DEFINE FIELD change_reason ON ci_history TYPE option<string>;
+            DEFINE FIELD changed_by ON ci_history TYPE string;
+            DEFINE FIELD changed_by_name ON ci_history TYPE string;
+            DEFINE FIELD created_at ON ci_history TYPE datetime DEFAULT time::now();
+            "#,
+        )
+        .await?;
+
+        println!("✅ CMDB tables created successfully");
+        Ok(())
+    }
+
+    /// Create indexes for CMDB tables
+    async fn create_cmdb_indexes(db: &Database) -> Result<()> {
+        // CI indexes
+        db.query("DEFINE INDEX idx_ci_id ON configuration_items FIELDS ci_id UNIQUE;")
+            .await?;
+        db.query("DEFINE INDEX idx_ci_name ON configuration_items FIELDS name;")
+            .await?;
+        db.query("DEFINE INDEX idx_ci_class ON configuration_items FIELDS ci_class;")
+            .await?;
+        db.query("DEFINE INDEX idx_ci_type ON configuration_items FIELDS ci_type;")
+            .await?;
+        db.query("DEFINE INDEX idx_ci_status ON configuration_items FIELDS status;")
+            .await?;
+        db.query("DEFINE INDEX idx_ci_criticality ON configuration_items FIELDS criticality;")
+            .await?;
+        db.query("DEFINE INDEX idx_ci_environment ON configuration_items FIELDS environment;")
+            .await?;
+        db.query("DEFINE INDEX idx_ci_owner ON configuration_items FIELDS owner_id;")
+            .await?;
+        db.query("DEFINE INDEX idx_ci_support_group ON configuration_items FIELDS support_group;")
+            .await?;
+        db.query("DEFINE INDEX idx_ci_tenant ON configuration_items FIELDS tenant_id;")
+            .await?;
+        db.query("DEFINE INDEX idx_ci_ip ON configuration_items FIELDS ip_address;")
+            .await?;
+        db.query("DEFINE INDEX idx_ci_serial ON configuration_items FIELDS serial_number;")
+            .await?;
+
+        // Relationship indexes
+        db.query("DEFINE INDEX idx_rel_source ON ci_relationships FIELDS source_id;")
+            .await?;
+        db.query("DEFINE INDEX idx_rel_target ON ci_relationships FIELDS target_id;")
+            .await?;
+        db.query("DEFINE INDEX idx_rel_type ON ci_relationships FIELDS relationship_type;")
+            .await?;
+        db.query("DEFINE INDEX idx_rel_active ON ci_relationships FIELDS is_active;")
+            .await?;
+
+        // History indexes
+        db.query("DEFINE INDEX idx_ci_hist_ci ON ci_history FIELDS ci_id;")
+            .await?;
+        db.query("DEFINE INDEX idx_ci_hist_created ON ci_history FIELDS created_at;")
+            .await?;
+
+        println!("✅ CMDB indexes created successfully");
+        Ok(())
+    }
+}
