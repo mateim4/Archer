@@ -1,0 +1,540 @@
+import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import {
+  PurpleGlassCard,
+  PurpleGlassButton,
+  PurpleGlassInput,
+  PurpleGlassDropdown,
+  PurpleGlassSpinner,
+  PurpleGlassEmptyState,
+} from '../components/ui';
+import {
+  SearchRegular,
+  AddRegular,
+  FilterRegular,
+  ServerRegular,
+  DatabaseRegular,
+  CloudRegular,
+  AppsRegular,
+  DocumentRegular,
+  ArrowSyncRegular,
+  DeleteRegular,
+  EditRegular,
+  EyeRegular,
+} from '@fluentui/react-icons';
+import * as cmdbClient from '../api/cmdbClient';
+import type {
+  ConfigurationItem,
+  CIClass,
+  CIStatus,
+  CICriticality,
+  CIListResponse,
+} from '../api/cmdbClient';
+import { FluentTokens } from '../design-system/tokens';
+
+const CMDBExplorerView: React.FC = () => {
+  const navigate = useNavigate();
+  
+  // State
+  const [cis, setCis] = useState<ConfigurationItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [totalCount, setTotalCount] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(20);
+  
+  // Filters
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedClass, setSelectedClass] = useState<CIClass | ''>('');
+  const [selectedStatus, setSelectedStatus] = useState<CIStatus | ''>('');
+  const [selectedCriticality, setSelectedCriticality] = useState<CICriticality | ''>('');
+  const [selectedEnvironment, setSelectedEnvironment] = useState('');
+  
+  // Selected items for bulk operations
+  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
+
+  // Load CIs
+  const loadCIs = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const params: cmdbClient.CISearchRequest = {
+        page: currentPage,
+        page_size: pageSize,
+      };
+
+      if (searchQuery) params.query = searchQuery;
+      if (selectedClass) params.ci_class = selectedClass;
+      if (selectedStatus) params.status = [selectedStatus];
+      if (selectedCriticality) params.criticality = [selectedCriticality];
+      if (selectedEnvironment) params.environment = selectedEnvironment;
+
+      const response = await cmdbClient.listCIs(params);
+      setCis(response.items);
+      setTotalCount(response.total);
+    } catch (err) {
+      console.error('Failed to load CIs:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load configuration items');
+    } finally {
+      setLoading(false);
+    }
+  }, [searchQuery, selectedClass, selectedStatus, selectedCriticality, selectedEnvironment, currentPage, pageSize]);
+
+  useEffect(() => {
+    loadCIs();
+  }, [loadCIs]);
+
+  // Handlers
+  const handleSearch = (value: string) => {
+    setSearchQuery(value);
+    setCurrentPage(1);
+  };
+
+  const handleFilterChange = () => {
+    setCurrentPage(1);
+    loadCIs();
+  };
+
+  const handleViewCI = (ci: ConfigurationItem) => {
+    navigate(`/app/cmdb/${ci.id}`);
+  };
+
+  const handleEditCI = (ci: ConfigurationItem) => {
+    navigate(`/app/cmdb/${ci.id}/edit`);
+  };
+
+  const handleDeleteCI = async (ci: ConfigurationItem) => {
+    if (!confirm(`Are you sure you want to delete ${ci.name}?`)) return;
+
+    try {
+      await cmdbClient.deleteCI(ci.id!);
+      loadCIs();
+    } catch (err) {
+      console.error('Failed to delete CI:', err);
+      alert('Failed to delete CI');
+    }
+  };
+
+  const handleCreateNew = () => {
+    navigate('/app/cmdb/new');
+  };
+
+  const handleSelectItem = (id: string) => {
+    const newSelected = new Set(selectedItems);
+    if (newSelected.has(id)) {
+      newSelected.delete(id);
+    } else {
+      newSelected.add(id);
+    }
+    setSelectedItems(newSelected);
+  };
+
+  const handleSelectAll = () => {
+    if (selectedItems.size === cis.length) {
+      setSelectedItems(new Set());
+    } else {
+      setSelectedItems(new Set(cis.map(ci => ci.id!)));
+    }
+  };
+
+  const clearFilters = () => {
+    setSearchQuery('');
+    setSelectedClass('');
+    setSelectedStatus('');
+    setSelectedCriticality('');
+    setSelectedEnvironment('');
+    setCurrentPage(1);
+  };
+
+  // Dropdown options
+  const classOptions = [
+    { key: '', text: 'All Classes' },
+    { key: 'HARDWARE', text: 'Hardware' },
+    { key: 'SOFTWARE', text: 'Software' },
+    { key: 'SERVICE', text: 'Service' },
+    { key: 'NETWORK', text: 'Network' },
+    { key: 'DATABASE', text: 'Database' },
+    { key: 'CLOUD', text: 'Cloud' },
+    { key: 'CONTAINER', text: 'Container' },
+    { key: 'VIRTUAL', text: 'Virtual' },
+  ];
+
+  const statusOptions = [
+    { key: '', text: 'All Statuses' },
+    { key: 'PLANNED', text: 'Planned' },
+    { key: 'ORDERED', text: 'Ordered' },
+    { key: 'DEPLOYED', text: 'Deployed' },
+    { key: 'ACTIVE', text: 'Active' },
+    { key: 'MAINTENANCE', text: 'Maintenance' },
+    { key: 'OFFLINE', text: 'Offline' },
+    { key: 'RETIRED', text: 'Retired' },
+  ];
+
+  const criticalityOptions = [
+    { key: '', text: 'All Criticalities' },
+    { key: 'CRITICAL', text: 'Critical' },
+    { key: 'HIGH', text: 'High' },
+    { key: 'MEDIUM', text: 'Medium' },
+    { key: 'LOW', text: 'Low' },
+    { key: 'NONE', text: 'None' },
+  ];
+
+  const environmentOptions = [
+    { key: '', text: 'All Environments' },
+    { key: 'Production', text: 'Production' },
+    { key: 'Staging', text: 'Staging' },
+    { key: 'Development', text: 'Development' },
+    { key: 'Test', text: 'Test' },
+  ];
+
+  const totalPages = Math.ceil(totalCount / pageSize);
+  const hasFilters = searchQuery || selectedClass || selectedStatus || selectedCriticality || selectedEnvironment;
+
+  return (
+    <div style={{ padding: '24px', maxWidth: '1400px', margin: '0 auto' }}>
+      {/* Header */}
+      <div style={{ marginBottom: '24px' }}>
+        <h1 style={{
+          fontSize: FluentTokens.typography.fontSize[900],
+          fontWeight: FluentTokens.typography.fontWeight.semibold,
+          margin: 0,
+          marginBottom: '8px',
+          color: 'var(--colorNeutralForeground1)',
+        }}>
+          Configuration Management Database
+        </h1>
+        <p style={{
+          fontSize: FluentTokens.typography.fontSize[400],
+          color: 'var(--colorNeutralForeground2)',
+          margin: 0,
+        }}>
+          Manage and track all configuration items and their relationships
+        </p>
+      </div>
+
+      {/* Search and Filters */}
+      <PurpleGlassCard style={{ marginBottom: '24px', padding: '20px' }}>
+        <div style={{ display: 'flex', gap: '12px', marginBottom: '16px', flexWrap: 'wrap' }}>
+          {/* Search */}
+          <div style={{ flex: '1 1 300px' }}>
+            <PurpleGlassInput
+              placeholder="Search by name, CI ID, IP, serial number..."
+              value={searchQuery}
+              onChange={(e) => handleSearch(e.target.value)}
+              contentBefore={<SearchRegular />}
+            />
+          </div>
+
+          {/* Create Button */}
+          <PurpleGlassButton
+            onClick={handleCreateNew}
+            icon={<AddRegular />}
+            appearance="primary"
+          >
+            Create CI
+          </PurpleGlassButton>
+
+          {/* Refresh Button */}
+          <PurpleGlassButton
+            onClick={loadCIs}
+            icon={<ArrowSyncRegular />}
+          >
+            Refresh
+          </PurpleGlassButton>
+        </div>
+
+        {/* Filters Row */}
+        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
+          <FilterRegular style={{ color: 'var(--colorNeutralForeground2)' }} />
+          
+          <PurpleGlassDropdown
+            placeholder="Class"
+            value={selectedClass}
+            onOptionSelect={(_, data) => {
+              setSelectedClass(data.optionValue as CIClass | '');
+              handleFilterChange();
+            }}
+            options={classOptions}
+            style={{ minWidth: '150px' }}
+          />
+
+          <PurpleGlassDropdown
+            placeholder="Status"
+            value={selectedStatus}
+            onOptionSelect={(_, data) => {
+              setSelectedStatus(data.optionValue as CIStatus | '');
+              handleFilterChange();
+            }}
+            options={statusOptions}
+            style={{ minWidth: '150px' }}
+          />
+
+          <PurpleGlassDropdown
+            placeholder="Criticality"
+            value={selectedCriticality}
+            onOptionSelect={(_, data) => {
+              setSelectedCriticality(data.optionValue as CICriticality | '');
+              handleFilterChange();
+            }}
+            options={criticalityOptions}
+            style={{ minWidth: '150px' }}
+          />
+
+          <PurpleGlassDropdown
+            placeholder="Environment"
+            value={selectedEnvironment}
+            onOptionSelect={(_, data) => {
+              setSelectedEnvironment(data.optionValue as string);
+              handleFilterChange();
+            }}
+            options={environmentOptions}
+            style={{ minWidth: '150px' }}
+          />
+
+          {hasFilters && (
+            <PurpleGlassButton onClick={clearFilters} appearance="subtle">
+              Clear Filters
+            </PurpleGlassButton>
+          )}
+        </div>
+      </PurpleGlassCard>
+
+      {/* Results Info */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '16px',
+        fontSize: FluentTokens.typography.fontSize[300],
+        color: 'var(--colorNeutralForeground2)',
+      }}>
+        <div>
+          Showing {cis.length} of {totalCount} configuration items
+        </div>
+        {selectedItems.size > 0 && (
+          <div>
+            {selectedItems.size} item{selectedItems.size !== 1 ? 's' : ''} selected
+          </div>
+        )}
+      </div>
+
+      {/* CI List */}
+      {loading ? (
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '60px' }}>
+          <PurpleGlassSpinner size="large" label="Loading configuration items..." />
+        </div>
+      ) : error ? (
+        <PurpleGlassCard style={{ padding: '40px', textAlign: 'center' }}>
+          <p style={{ color: 'var(--colorPaletteRedForeground1)', marginBottom: '16px' }}>
+            {error}
+          </p>
+          <PurpleGlassButton onClick={loadCIs}>Try Again</PurpleGlassButton>
+        </PurpleGlassCard>
+      ) : cis.length === 0 ? (
+        <PurpleGlassEmptyState
+          icon={<ServerRegular style={{ fontSize: '48px' }} />}
+          title="No configuration items found"
+          description={hasFilters ? "Try adjusting your filters" : "Get started by creating your first CI"}
+          action={
+            hasFilters ? (
+              <PurpleGlassButton onClick={clearFilters}>Clear Filters</PurpleGlassButton>
+            ) : (
+              <PurpleGlassButton onClick={handleCreateNew} appearance="primary">
+                Create First CI
+              </PurpleGlassButton>
+            )
+          }
+        />
+      ) : (
+        <>
+          {/* Table Header */}
+          <PurpleGlassCard style={{ marginBottom: '8px', padding: '12px 16px' }}>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '40px 120px 2fr 1fr 1fr 100px 100px 150px',
+              gap: '12px',
+              fontSize: FluentTokens.typography.fontSize[300],
+              fontWeight: FluentTokens.typography.fontWeight.semibold,
+              color: 'var(--colorNeutralForeground2)',
+            }}>
+              <div>
+                <input
+                  type="checkbox"
+                  checked={selectedItems.size === cis.length && cis.length > 0}
+                  onChange={handleSelectAll}
+                  style={{ cursor: 'pointer' }}
+                />
+              </div>
+              <div>CI ID</div>
+              <div>Name</div>
+              <div>Type</div>
+              <div>Environment</div>
+              <div>Status</div>
+              <div>Criticality</div>
+              <div>Actions</div>
+            </div>
+          </PurpleGlassCard>
+
+          {/* Table Rows */}
+          {cis.map((ci) => (
+            <PurpleGlassCard
+              key={ci.id}
+              style={{
+                marginBottom: '8px',
+                padding: '12px 16px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+              }}
+              onClick={() => handleViewCI(ci)}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+            >
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: '40px 120px 2fr 1fr 1fr 100px 100px 150px',
+                gap: '12px',
+                alignItems: 'center',
+              }}>
+                <div onClick={(e) => e.stopPropagation()}>
+                  <input
+                    type="checkbox"
+                    checked={selectedItems.has(ci.id!)}
+                    onChange={() => handleSelectItem(ci.id!)}
+                    style={{ cursor: 'pointer' }}
+                  />
+                </div>
+                
+                <div style={{
+                  fontWeight: FluentTokens.typography.fontWeight.semibold,
+                  color: 'var(--colorBrandForeground1)',
+                }}>
+                  {ci.ci_id}
+                </div>
+                
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontSize: '20px' }}>
+                    {cmdbClient.getCIClassIcon(ci.ci_class)}
+                  </span>
+                  <div>
+                    <div style={{ fontWeight: FluentTokens.typography.fontWeight.medium }}>
+                      {ci.name}
+                    </div>
+                    {ci.description && (
+                      <div style={{
+                        fontSize: FluentTokens.typography.fontSize[200],
+                        color: 'var(--colorNeutralForeground3)',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                      }}>
+                        {ci.description}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
+                <div style={{ fontSize: FluentTokens.typography.fontSize[300] }}>
+                  {ci.ci_type}
+                </div>
+                
+                <div style={{ fontSize: FluentTokens.typography.fontSize[300] }}>
+                  {ci.environment || '-'}
+                </div>
+                
+                <div>
+                  <span style={{
+                    padding: '4px 8px',
+                    borderRadius: FluentTokens.borderRadius.medium,
+                    fontSize: FluentTokens.typography.fontSize[200],
+                    fontWeight: FluentTokens.typography.fontWeight.medium,
+                    backgroundColor: `${cmdbClient.getCIStatusColor(ci.status)}20`,
+                    color: cmdbClient.getCIStatusColor(ci.status),
+                  }}>
+                    {ci.status}
+                  </span>
+                </div>
+                
+                <div>
+                  <span style={{
+                    padding: '4px 8px',
+                    borderRadius: FluentTokens.borderRadius.medium,
+                    fontSize: FluentTokens.typography.fontSize[200],
+                    fontWeight: FluentTokens.typography.fontWeight.medium,
+                    backgroundColor: `${cmdbClient.getCICriticalityColor(ci.criticality)}20`,
+                    color: cmdbClient.getCICriticalityColor(ci.criticality),
+                  }}>
+                    {ci.criticality}
+                  </span>
+                </div>
+                
+                <div
+                  style={{ display: 'flex', gap: '4px' }}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <PurpleGlassButton
+                    size="small"
+                    icon={<EyeRegular />}
+                    onClick={() => handleViewCI(ci)}
+                    title="View"
+                  />
+                  <PurpleGlassButton
+                    size="small"
+                    icon={<EditRegular />}
+                    onClick={() => handleEditCI(ci)}
+                    title="Edit"
+                  />
+                  <PurpleGlassButton
+                    size="small"
+                    icon={<DeleteRegular />}
+                    onClick={() => handleDeleteCI(ci)}
+                    title="Delete"
+                  />
+                </div>
+              </div>
+            </PurpleGlassCard>
+          ))}
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div style={{
+              display: 'flex',
+              justifyContent: 'center',
+              gap: '8px',
+              marginTop: '24px',
+            }}>
+              <PurpleGlassButton
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage(p => p - 1)}
+              >
+                Previous
+              </PurpleGlassButton>
+              
+              <span style={{
+                padding: '8px 16px',
+                display: 'flex',
+                alignItems: 'center',
+                color: 'var(--colorNeutralForeground1)',
+              }}>
+                Page {currentPage} of {totalPages}
+              </span>
+              
+              <PurpleGlassButton
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage(p => p + 1)}
+              >
+                Next
+              </PurpleGlassButton>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+};
+
+export default CMDBExplorerView;

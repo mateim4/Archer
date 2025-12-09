@@ -42,6 +42,8 @@ const TicketDetailView = lazyWithRetry(() => import('./views/TicketDetailView'))
 const AssetDetailView = lazyWithRetry(() => import('./views/AssetDetailView'));
 const InventoryView = lazyWithRetry(() => import('./views/InventoryView'));
 const MonitoringView = lazyWithRetry(() => import('./views/MonitoringView'));
+const CMDBExplorerView = lazyWithRetry(() => import('./views/CMDBExplorerView'));
+const CIDetailView = lazyWithRetry(() => import('./views/CIDetailView'));
 
 // Inner App component that uses the theme context
 function AppContent() {
@@ -203,6 +205,8 @@ function AppContent() {
                     <Route path="inventory" element={<InventoryView />} />
                     <Route path="inventory/asset/:assetId" element={<AssetDetailView />} />
                     <Route path="monitoring" element={<MonitoringView />} />
+                    <Route path="cmdb" element={<CMDBExplorerView />} />
+                    <Route path="cmdb/:id" element={<CIDetailView />} />
                     <Route path="projects/:projectId" element={<ProjectWorkspaceView />} />
                     <Route path="projects/:projectId/activities/:activityId/cluster-strategies" element={<ClusterStrategyManagerView />} />
                     {/* Phase 7: Activity Wizard now modal-only - accessible via "Add Activity" buttons in project views */}
