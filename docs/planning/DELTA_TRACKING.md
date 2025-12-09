@@ -35,7 +35,19 @@ This document is **mandatory reading and updating** for all AI agents working on
 
 > *AI Agents: Log your changes here during the session, then move to Completed Log*
 
-*No current session in progress*
+### [2025-12-09 18:42] - AuthService Role Deserialization Fix
+**Type:** Bugfix
+**Files Changed:**
+- backend/src/models/auth.rs
+- backend/src/services/auth_service.rs
+- backend/src/database/migrations.rs
+- backend/tests/e2e/auth_tests.rs (NEW)
+- backend/tests/e2e/role_deserialization_test.rs (NEW)
+- backend/tests/e2e/mod.rs (NEW)
+- backend/Cargo.toml
+**Description:** Fixed type conversion error in User model that prevented login. Added custom deserializer that handles roles as both string arrays (from DB seed) and Thing references, resolving "invalid type: string 'super_admin', expected struct Thing" error.
+**Impact:** Login now works with seeded admin user. E2E tests verify deserialization works correctly. 2 of 3 role deserialization tests passing.
+**Next Steps:** Resolve datetime serialization issue in refresh token storage, complete full auth E2E test suite
 
 ---
 
