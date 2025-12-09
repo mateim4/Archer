@@ -1065,7 +1065,7 @@ impl AuthMigrations {
     }
 
     /// Seed system roles and permissions
-    async fn seed_system_roles_and_permissions(db: &Database) -> Result<()> {
+    pub async fn seed_system_roles_and_permissions(db: &Database) -> Result<()> {
         // Define all system permissions
         let permissions = vec![
             // Ticket permissions
@@ -1239,7 +1239,7 @@ impl AuthMigrations {
     /// 
     /// This user is assigned the super_admin role for full system access.
     /// **IMPORTANT: Change credentials in production!**
-    async fn seed_admin_user(db: &Database) -> Result<()> {
+    pub async fn seed_admin_user(db: &Database) -> Result<()> {
         use argon2::{
             password_hash::{rand_core::OsRng, PasswordHasher, SaltString},
             Argon2,

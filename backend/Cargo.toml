@@ -57,3 +57,8 @@ test-utils = []
 name = "e2e_auth"
 path = "tests/e2e/auth_tests.rs"
 harness = true
+
+[[test]]
+name = "e2e_role_deserialization"
+path = "tests/e2e/role_deserialization_test.rs"
+harness = true

@@ -1,7 +1,6 @@
 // Archer ITSM - Authentication E2E Tests
 // Tests the complete authentication flow including login, token refresh, and logout
 
-use serde_json::json;
 use std::sync::Arc;
 
 // Test helper to create a test database connection
@@ -45,7 +44,7 @@ async fn test_admin_user_login_success() {
     let result = auth_service.login(login_request, None, None).await;
     
     // Assertions
-    assert!(result.is_ok(), "Login should succeed with correct credentials");
+    assert!(result.is_ok(), "Login should succeed with correct credentials. Error: {:?}", result.as_ref().err());
     let response = result.unwrap();
     assert!(!response.access_token.is_empty(), "Should return access token");
     assert!(!response.refresh_token.is_empty(), "Should return refresh token");
@@ -171,7 +170,7 @@ async fn test_user_registration() {
     let auth_service = AuthService::new(db.clone());
     
     // Seed roles
-    backend::database::migrations::AuthMigrations::seed_system_roles(&db)
+    backend::database::migrations::AuthMigrations::seed_system_roles_and_permissions(&db)
         .await
         .expect("Failed to seed roles");
     
