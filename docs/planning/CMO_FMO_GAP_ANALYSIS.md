@@ -8,13 +8,22 @@
 
 ## Executive Summary
 
-Archer has made significant progress on **infrastructure-focused workflows** (VMware migration, hardware lifecycle, RVTools analysis) and the **AI Engine foundation**. However, the core ITSM capabilities that position Archer as "The Modern ServiceNow Alternative" remain **largely incomplete or mocked**.
+Archer has made significant progress on **infrastructure-focused workflows** (VMware migration, hardware lifecycle, RVTools analysis), the **AI Engine foundation**, and now **core backend APIs**. The foundation for positioning Archer as "The Modern ServiceNow Alternative" is now **substantially complete** on the backend.
 
 This document provides a comprehensive gap analysis comparing:
 - **CMO (Current):** What's actually implemented and functional
 - **FMO (Target):** MoSCoW Phase 1 Must-Haves from strategic planning
 
-**Key Finding:** Approximately 30% of Phase 1 Must-Haves are implemented. The remaining 70% consists of mocked UIs, missing backend APIs, or entirely missing features.
+**Key Finding (Updated December 2025):** Approximately **55% of Phase 1 Must-Haves** are now implemented. The remaining 45% consists primarily of:
+- Frontend integrations (connecting existing UIs to new backend APIs)
+- Advanced automation features (generic workflows, SLA engine)
+- External integrations (email, monitoring adapters)
+
+**Recent Progress (This Week):**
+- ✅ Authentication & RBAC (Phase 0) - Complete
+- ✅ Enhanced Ticket System (Phase 1) - Complete
+- ✅ Knowledge Base Backend (Phase 1.5) - Complete
+- ✅ CMDB Backend (Phase 2) - Complete
 
 ---
 
@@ -56,16 +65,16 @@ This document provides a comprehensive gap analysis comparing:
 
 | Feature | MoSCoW | CMO Status | Gap Description |
 |---------|--------|------------|-----------------|
-| **Article CRUD** | Must | ❌ Missing | No KB model or API |
-| **Category/folder structure** | Must | ❌ Missing | No hierarchical KB |
-| **Full-text search** | Must | ❌ Missing | No search implementation |
-| **Rich text editor** | Must | ❌ Missing | No WYSIWYG for articles |
-| **Version history** | Should | ❌ Missing | No versioning |
+| **Article CRUD** | Must | ✅ Complete | `knowledge_service.rs` has full CRUD API |
+| **Category/folder structure** | Must | ✅ Complete | `KBCategory` model with hierarchical support |
+| **Full-text search** | Must | ✅ Complete | Search API with full-text matching |
+| **Rich text editor** | Must | 🟡 Partial | Backend supports Markdown, frontend editor needed |
+| **Version history** | Should | ✅ Complete | `KBVersion` model with full versioning |
 | **Article templates** | Should | ❌ Missing | No templates |
-| **User ratings/feedback** | Should | ❌ Missing | No rating system |
-| **Integration with tickets** | Must | ❌ Missing | Can't link KB to tickets |
+| **User ratings/feedback** | Should | ✅ Complete | `KBRating` model with rating API |
+| **Integration with tickets** | Must | ❌ Missing | Can't link KB to tickets (API ready, UI needed) |
 
-**Gap Score: 0/8 features complete (0%)**
+**Gap Score: 5/8 features complete (63%)**
 
 ---
 
@@ -89,16 +98,17 @@ This document provides a comprehensive gap analysis comparing:
 | Feature | MoSCoW | CMO Status | Gap Description |
 |---------|--------|------------|-----------------|
 | **Asset CRUD** | Must | ✅ Complete | `assets.rs` API exists |
-| **Asset types/classes** | Must | 🟡 Partial | Basic types defined, not comprehensive |
-| **Relationships (CI links)** | Must | 🟡 Partial | SurrealDB graph relations designed but limited use |
+| **Configuration Items (CI) CRUD** | Must | ✅ Complete | `cmdb_service.rs` with full CI management |
+| **Asset types/classes** | Must | ✅ Complete | `CIType` model with icon/schema support |
+| **Relationships (CI links)** | Must | ✅ Complete | `CIRelationship` with typed relationships (hosts, connects_to, etc.) |
 | **Auto-discovery** | Must | ❌ Missing | No discovery agents |
 | **VMware inventory import** | Must | ✅ Complete | RVTools parser is mature |
 | **Hardware catalog** | Must | ✅ Complete | Hardware pool/basket management works |
 | **Lifecycle tracking** | Must | 🟡 Partial | Lifecycle planner view exists, backend incomplete |
-| **Impact analysis** | Should | ❌ Missing | No dependency impact calculation |
-| **Change tracking/audit** | Must | ❌ Missing | No CI audit log |
+| **Impact analysis** | Should | ✅ Complete | `get_impact_analysis` with upstream/downstream graph traversal |
+| **Change tracking/audit** | Must | ✅ Complete | `CIHistory` model with full audit trail |
 
-**Gap Score: 3/9 features complete (33%)**
+**Gap Score: 8/10 features complete (80%)**
 
 ---
 
@@ -137,14 +147,14 @@ This document provides a comprehensive gap analysis comparing:
 
 | Feature | MoSCoW | CMO Status | Gap Description |
 |---------|--------|------------|-----------------|
-| **User authentication** | Must | ❌ Missing | No auth system |
-| **Role definitions** | Must | ❌ Missing | No RBAC model |
-| **Permission matrix** | Must | ❌ Missing | No permissions |
+| **User authentication** | Must | ✅ Complete | JWT + Argon2 in `auth_service.rs` |
+| **Role definitions** | Must | ✅ Complete | `Role` model with Admin, Manager, Agent, Viewer, SuperAdmin |
+| **Permission matrix** | Must | ✅ Complete | `Permission` model with resource:action patterns |
 | **Team/group management** | Must | ❌ Missing | No teams |
 | **SSO integration** | Should | ❌ Missing | No SSO |
-| **Audit logging** | Must | ❌ Missing | No user audit trail |
+| **Audit logging** | Must | ✅ Complete | `AuditLog` model with full tracking |
 
-**Gap Score: 0/6 features complete (0%)**
+**Gap Score: 4/6 features complete (67%)**
 
 ---
 
@@ -192,10 +202,11 @@ This document provides a comprehensive gap analysis comparing:
 
 | Endpoint | Priority | Purpose |
 |----------|----------|---------|
-| `/auth/*` | Critical | Authentication, sessions |
-| `/users/*` | Critical | User management |
-| `/roles/*` | Critical | RBAC management |
-| `/knowledge-base/*` | Must | KB articles CRUD |
+| `/auth/*` | ✅ Complete | Authentication, sessions |
+| `/users/*` | ✅ Complete | User management |
+| `/roles/*` | ✅ Complete | RBAC management |
+| `/knowledge-base/*` | ✅ Complete | KB articles CRUD |
+| `/cmdb/*` | ✅ Complete | Configuration Management Database |
 | `/service-catalog/*` | Must | Service catalog management |
 | `/workflows/*` (generic) | Must | Workflow engine |
 | `/approvals/*` | Must | Approval workflows |

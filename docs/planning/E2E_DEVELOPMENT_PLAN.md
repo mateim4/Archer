@@ -21,61 +21,70 @@ This document outlines a **16-week development plan** to transform Archer from i
 
 ## Development Phases Overview
 
-| Phase | Duration | Focus | Key Deliverables |
-|-------|----------|-------|------------------|
-| **Phase 0** | Week 1-2 | Foundation | Auth, RBAC, Audit Logging |
-| **Phase 1** | Week 3-6 | Core ITSM | Tickets E2E, SLA Engine, KB |
-| **Phase 2** | Week 7-10 | Automation | Workflows, Notifications, Catalog |
-| **Phase 3** | Week 11-14 | Integration | Monitoring, Reporting, AI Integration |
-| **Phase 4** | Week 15-16 | Polish | Testing, Performance, Documentation |
+| Phase | Duration | Focus | Key Deliverables | Status |
+|-------|----------|-------|------------------|--------|
+| **Phase 0** | Week 1-2 | Foundation | Auth, RBAC, Audit Logging | ✅ **COMPLETE** |
+| **Phase 1** | Week 3-6 | Core ITSM | Tickets E2E, SLA Engine, KB | ✅ **Backend Complete** |
+| **Phase 1.5** | Week 5-6 | Knowledge Base | KB Backend APIs | ✅ **COMPLETE** |
+| **Phase 2** | Week 7-10 | CMDB & Automation | CMDB Backend, Workflows | 🟡 **CMDB Complete** |
+| **Phase 3** | Week 11-14 | Integration | Monitoring, Reporting, AI Integration | Not Started |
+| **Phase 4** | Week 15-16 | Polish | Testing, Performance, Documentation | Not Started |
 
 ---
 
-## Phase 0: Foundation (Week 1-2)
+## Phase 0: Foundation (Week 1-2) ✅ COMPLETE
 
 **Theme:** "You can't build a house on sand"
 
-### 0.1 Authentication System
+**Status:** ✅ All backend APIs implemented and functional
+
+### 0.1 Authentication System ✅ COMPLETE
 
 **Why Critical:** Every other feature depends on knowing who the user is.
 
-| Task | Backend | Frontend | Estimate |
-|------|---------|----------|----------|
-| User model + migration | Create `users` table schema | — | 2h |
-| Password hashing (Argon2) | Implement in Rust | — | 2h |
-| JWT token generation | Session management | — | 3h |
-| Login API | `POST /api/v1/auth/login` | LoginView | 4h |
-| Token refresh | `POST /api/v1/auth/refresh` | AuthContext | 2h |
-| Logout | `POST /api/v1/auth/logout` | Integration | 1h |
-| Protected route middleware | Axum middleware | Route guards | 3h |
+**Implementation:** `backend/src/services/auth_service.rs`
 
-**Deliverable:** Users can login, receive JWT, and access protected routes.
+| Task | Backend | Frontend | Status |
+|------|---------|----------|--------|
+| User model + migration | `users` table schema | — | ✅ |
+| Password hashing (Argon2) | Implemented in Rust | — | ✅ |
+| JWT token generation | Session management | — | ✅ |
+| Login API | `POST /api/v1/auth/login` | LoginView | ✅ Backend |
+| Token refresh | `POST /api/v1/auth/refresh` | AuthContext | ✅ Backend |
+| Logout | `POST /api/v1/auth/logout` | Integration | ✅ Backend |
+| Protected route middleware | Axum middleware | Route guards | ✅ Backend |
 
-### 0.2 Role-Based Access Control (RBAC)
+**Deliverable:** ✅ Users can login, receive JWT, and access protected routes.
 
-| Task | Backend | Frontend | Estimate |
-|------|---------|----------|----------|
-| Role model | `roles` table: Admin, Manager, Agent, Viewer | — | 2h |
-| Permission model | `permissions` table with resource/action pairs | — | 3h |
-| User-Role assignment | Many-to-many relation | — | 2h |
-| Permission check middleware | Check permissions per endpoint | — | 4h |
-| Role management UI | — | RoleManagementView | 4h |
-| User management UI | — | UserManagementView | 4h |
+### 0.2 Role-Based Access Control (RBAC) ✅ COMPLETE
 
-**Deliverable:** Admins can create users, assign roles, and permissions are enforced.
+**Implementation:** `backend/src/services/rbac_service.rs`
 
-### 0.3 Audit Logging
+| Task | Backend | Frontend | Status |
+|------|---------|----------|--------|
+| Role model | `roles` table: Admin, Manager, Agent, Viewer, SuperAdmin | — | ✅ |
+| Permission model | `permissions` table with resource:action pairs | — | ✅ |
+| User-Role assignment | Many-to-many relation | — | ✅ |
+| Permission check middleware | Check permissions per endpoint | — | ✅ |
+| Role management UI | — | RoleManagementView | 🔜 Pending |
+| User management UI | — | UserManagementView | 🔜 Pending |
 
-| Task | Backend | Frontend | Estimate |
-|------|---------|----------|----------|
-| AuditLog model | `audit_log` table with who/what/when | — | 2h |
-| Audit middleware | Auto-log all mutations | — | 3h |
-| Audit API | `GET /api/v1/audit` with filters | — | 2h |
-| Audit viewer UI | — | AuditLogView | 3h |
+**Deliverable:** ✅ Admins can create users, assign roles, and permissions are enforced on all new APIs.
 
-**Deliverable:** All data changes are logged with user attribution.
+### 0.3 Audit Logging ✅ COMPLETE
 
-### Phase 0 Total: ~43 hours (2 weeks at 20h/week)
+**Implementation:** `backend/src/models/audit.rs`, `backend/src/services/audit_service.rs`
+
+| Task | Backend | Frontend | Status |
+|------|---------|----------|--------|
+| AuditLog model | `audit_log` table with who/what/when | — | ✅ |
+| Audit middleware | Auto-log all mutations | — | ✅ |
+| Audit API | `GET /api/v1/audit` with filters | — | ✅ |
+| Audit viewer UI | — | AuditLogView | 🔜 Pending |
+
+**Deliverable:** ✅ All data changes are logged with user attribution.
+
+### Phase 0 Total: ✅ COMPLETE (Backend)
 
 ---
 
@@ -133,34 +142,73 @@ This document outlines a **16-week development plan** to transform Archer from i
 
 **Deliverable:** Tickets have real SLA timers, auto-escalate when breaching.
 
-### 1.3 Knowledge Base
+### 1.3 Knowledge Base ✅ BACKEND COMPLETE
 
-**Current State:** Not implemented  
+**Current State:** ✅ Full backend implementation complete  
 **Target State:** Functional KB with article management
 
-| Task | Backend | Frontend | Estimate |
-|------|---------|----------|----------|
+**Implementation Files:**
+- `backend/src/models/knowledge.rs` - KBArticle, KBCategory, KBVersion, KBRating models
+- `backend/src/services/knowledge_service.rs` - Full CRUD + versioning + ratings + search
+- `backend/src/api/knowledge.rs` - REST endpoints with RBAC
+
+| Task | Backend | Frontend | Status |
+|------|---------|----------|--------|
 | **KB Data Model** | | | |
-| KnowledgeArticle model | `knowledge_articles` table | — | 2h |
-| KnowledgeCategory model | `knowledge_categories` table | — | 2h |
-| Article versioning | `article_versions` table | — | 3h |
+| KnowledgeArticle model | `kb_articles` table | — | ✅ |
+| KnowledgeCategory model | `kb_categories` table | — | ✅ |
+| Article versioning | `kb_versions` table | — | ✅ |
 | **KB APIs** | | | |
-| Article CRUD | Full REST API | — | 4h |
-| Category management | Hierarchical categories | — | 3h |
-| Full-text search | SurrealDB text search | — | 4h |
-| Article ratings | Rating/feedback API | — | 2h |
+| Article CRUD | Full REST API | — | ✅ |
+| Category management | Hierarchical categories | — | ✅ |
+| Full-text search | SurrealDB text search | — | ✅ |
+| Article ratings | Rating/feedback API | — | ✅ |
 | **KB Frontend** | | | |
-| KnowledgeBaseView | — | Article list/grid view | 4h |
-| ArticleDetailView | — | Article reader with rich content | 4h |
-| ArticleEditorView | — | Rich text editor for authoring | 6h |
-| KB search component | — | Search bar with suggestions | 3h |
+| KnowledgeBaseView | — | Article list/grid view | 🔜 Pending |
+| ArticleDetailView | — | Article reader with rich content | 🔜 Pending |
+| ArticleEditorView | — | Rich text editor for authoring | 🔜 Pending |
+| KB search component | — | Search bar with suggestions | 🔜 Pending |
 | **Ticket Integration** | | | |
-| Link KB to tickets | Suggest articles in ticket view | — | 3h |
-| Quick KB lookup | — | KB widget in ServiceDeskView | 3h |
+| Link KB to tickets | Suggest articles in ticket view | — | 🔜 Pending |
+| Quick KB lookup | — | KB widget in ServiceDeskView | 🔜 Pending |
 
-**Deliverable:** Users can create, search, and link KB articles to tickets.
+**Deliverable:** ✅ Backend APIs complete. 🔜 Users can create, search, and link KB articles to tickets (frontend needed).
 
-### Phase 1 Total: ~112 hours (4 weeks at 28h/week)
+### 1.4 CMDB (Configuration Management Database) ✅ BACKEND COMPLETE
+
+**Current State:** ✅ Full backend implementation complete  
+**Target State:** Full CI/asset management with relationship tracking
+
+**Implementation Files:**
+- `backend/src/models/cmdb.rs` - ConfigurationItem, CIRelationship, CIType, CIHistory models
+- `backend/src/services/cmdb_service.rs` - Full CRUD + relationships + impact analysis + graph traversal
+- `backend/src/api/cmdb.rs` - REST endpoints with RBAC
+
+| Task | Backend | Frontend | Status |
+|------|---------|----------|--------|
+| **CMDB Data Model** | | | |
+| ConfigurationItem model | `configuration_items` table | — | ✅ |
+| CIType model | `ci_types` table with icons/schemas | — | ✅ |
+| CIRelationship model | `ci_relationships` graph edges | — | ✅ |
+| CIHistory model | `ci_history` audit trail | — | ✅ |
+| **CMDB APIs** | | | |
+| CI CRUD | Full REST API | — | ✅ |
+| CI Type management | Type definitions with schemas | — | ✅ |
+| Relationship management | Create/delete CI relationships | — | ✅ |
+| Impact analysis | Upstream/downstream graph traversal | — | ✅ |
+| CI search | Full-text search | — | ✅ |
+| **CMDB Frontend** | | | |
+| CMDBExplorerView | — | CI list with filtering | 🔜 Pending |
+| CIDetailView | — | CI details with relationships | 🔜 Pending |
+| RelationshipGraphView | — | Visual relationship graph | 🔜 Pending |
+| ImpactAnalysisView | — | Impact analysis visualization | 🔜 Pending |
+| **Integration** | | | |
+| Link CI to tickets | Associate CIs with incidents | — | 🔜 Pending |
+| CI in change management | Track changes to CIs | — | 🔜 Pending |
+
+**Deliverable:** ✅ Backend APIs complete. 🔜 Frontend for CI management and visualization needed.
+
+### Phase 1 Total: ✅ Backend Complete (~112 hours saved)
 
 ---
 
