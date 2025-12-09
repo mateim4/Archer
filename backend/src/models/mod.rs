@@ -7,4 +7,5 @@ pub mod settings;
 pub mod settings_models;
 pub mod workflow;
 pub mod ticket;
+pub mod knowledge_base;
 

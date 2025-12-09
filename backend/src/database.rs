@@ -93,6 +93,13 @@ pub async fn new_test() -> Result<Database, DatabaseError> {
 async fn run_all_migrations(db: &Database) -> Result<(), DatabaseError> {
     info!("Running database migrations...");
 
+    // Knowledge Base migrations
+    if let Err(e) = migrations::KnowledgeBaseMigrations::run_all(db).await {
+        warn!("Knowledge Base migrations failed: {}", e);
+    } else {
+        info!("✅ Knowledge Base migrations completed");
+    }
+
     // Enhanced RVTools migrations
     if let Err(e) = migrations::EnhancedRvToolsMigrations::run_all(db).await {
         warn!("Enhanced RVTools migrations failed: {}", e);

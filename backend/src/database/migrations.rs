@@ -2,6 +2,184 @@ use crate::database::Database;
 use anyhow::Result;
 use serde_json::json;
 
+/// Knowledge Base migrations
+pub struct KnowledgeBaseMigrations;
+
+impl KnowledgeBaseMigrations {
+    /// Run all Knowledge Base migrations
+    pub async fn run_all(db: &Database) -> Result<()> {
+        Self::create_knowledge_base_tables(db).await?;
+        Self::create_knowledge_base_indexes(db).await?;
+        Self::seed_default_categories(db).await?;
+        Ok(())
+    }
+
+    /// Create Knowledge Base tables
+    async fn create_knowledge_base_tables(db: &Database) -> Result<()> {
+        // Knowledge Article table
+        db.query(
+            r#"
+            DEFINE TABLE knowledge_article SCHEMAFULL;
+            DEFINE FIELD title ON knowledge_article TYPE string;
+            DEFINE FIELD content ON knowledge_article TYPE string;
+            DEFINE FIELD summary ON knowledge_article TYPE option<string>;
+            DEFINE FIELD category_id ON knowledge_article TYPE option<record(knowledge_category)>;
+            DEFINE FIELD status ON knowledge_article TYPE string;
+            DEFINE FIELD author_id ON knowledge_article TYPE string;
+            DEFINE FIELD tags ON knowledge_article TYPE array<string> DEFAULT [];
+            DEFINE FIELD view_count ON knowledge_article TYPE int DEFAULT 0;
+            DEFINE FIELD helpful_count ON knowledge_article TYPE int DEFAULT 0;
+            DEFINE FIELD not_helpful_count ON knowledge_article TYPE int DEFAULT 0;
+            DEFINE FIELD version_number ON knowledge_article TYPE int DEFAULT 1;
+            DEFINE FIELD is_featured ON knowledge_article TYPE bool DEFAULT false;
+            DEFINE FIELD is_archived ON knowledge_article TYPE bool DEFAULT false;
+            DEFINE FIELD created_at ON knowledge_article TYPE datetime DEFAULT time::now();
+            DEFINE FIELD updated_at ON knowledge_article TYPE datetime DEFAULT time::now();
+            DEFINE FIELD published_at ON knowledge_article TYPE option<datetime>;
+        "#,
+        )
+        .await?;
+
+        // Knowledge Category table
+        db.query(
+            r#"
+            DEFINE TABLE knowledge_category SCHEMAFULL;
+            DEFINE FIELD name ON knowledge_category TYPE string;
+            DEFINE FIELD description ON knowledge_category TYPE option<string>;
+            DEFINE FIELD parent_id ON knowledge_category TYPE option<record(knowledge_category)>;
+            DEFINE FIELD icon ON knowledge_category TYPE option<string>;
+            DEFINE FIELD order ON knowledge_category TYPE int DEFAULT 0;
+            DEFINE FIELD article_count ON knowledge_category TYPE int DEFAULT 0;
+            DEFINE FIELD is_visible ON knowledge_category TYPE bool DEFAULT true;
+            DEFINE FIELD created_at ON knowledge_category TYPE datetime DEFAULT time::now();
+            DEFINE FIELD updated_at ON knowledge_category TYPE datetime DEFAULT time::now();
+        "#,
+        )
+        .await?;
+
+        // Article Version table
+        db.query(
+            r#"
+            DEFINE TABLE article_version SCHEMAFULL;
+            DEFINE FIELD article_id ON article_version TYPE record(knowledge_article);
+            DEFINE FIELD version_number ON article_version TYPE int;
+            DEFINE FIELD title ON article_version TYPE string;
+            DEFINE FIELD content ON article_version TYPE string;
+            DEFINE FIELD summary ON article_version TYPE option<string>;
+            DEFINE FIELD changed_by ON article_version TYPE string;
+            DEFINE FIELD change_note ON article_version TYPE option<string>;
+            DEFINE FIELD created_at ON article_version TYPE datetime DEFAULT time::now();
+        "#,
+        )
+        .await?;
+
+        // Article Feedback table
+        db.query(
+            r#"
+            DEFINE TABLE article_feedback SCHEMAFULL;
+            DEFINE FIELD article_id ON article_feedback TYPE record(knowledge_article);
+            DEFINE FIELD user_id ON article_feedback TYPE string;
+            DEFINE FIELD is_helpful ON article_feedback TYPE bool;
+            DEFINE FIELD comment ON article_feedback TYPE option<string>;
+            DEFINE FIELD created_at ON article_feedback TYPE datetime DEFAULT time::now();
+        "#,
+        )
+        .await?;
+
+        // Article Attachment table
+        db.query(
+            r#"
+            DEFINE TABLE article_attachment SCHEMAFULL;
+            DEFINE FIELD article_id ON article_attachment TYPE record(knowledge_article);
+            DEFINE FIELD filename ON article_attachment TYPE string;
+            DEFINE FIELD file_path ON article_attachment TYPE string;
+            DEFINE FIELD file_size ON article_attachment TYPE int;
+            DEFINE FIELD mime_type ON article_attachment TYPE string;
+            DEFINE FIELD uploaded_by ON article_attachment TYPE string;
+            DEFINE FIELD created_at ON article_attachment TYPE datetime DEFAULT time::now();
+        "#,
+        )
+        .await?;
+
+        // Related Article relation table
+        db.query(
+            r#"
+            DEFINE TABLE related_article TYPE RELATION IN knowledge_article OUT knowledge_article;
+            DEFINE FIELD relation_type ON related_article TYPE string;
+            DEFINE FIELD created_at ON related_article TYPE datetime DEFAULT time::now();
+        "#,
+        )
+        .await?;
+
+        println!("✅ Knowledge Base tables created successfully");
+        Ok(())
+    }
+
+    /// Create indexes for Knowledge Base
+    async fn create_knowledge_base_indexes(db: &Database) -> Result<()> {
+        // Article indexes
+        db.query("DEFINE INDEX idx_article_title ON knowledge_article FIELDS title SEARCH ANALYZER ascii BM25;")
+            .await?;
+        db.query("DEFINE INDEX idx_article_content ON knowledge_article FIELDS content SEARCH ANALYZER ascii BM25;")
+            .await?;
+        db.query("DEFINE INDEX idx_article_category ON knowledge_article FIELDS category_id;")
+            .await?;
+        db.query("DEFINE INDEX idx_article_status ON knowledge_article FIELDS status;")
+            .await?;
+        db.query("DEFINE INDEX idx_article_author ON knowledge_article FIELDS author_id;")
+            .await?;
+        db.query("DEFINE INDEX idx_article_tags ON knowledge_article FIELDS tags;")
+            .await?;
+
+        // Category indexes
+        db.query("DEFINE INDEX idx_category_name ON knowledge_category FIELDS name;")
+            .await?;
+        db.query("DEFINE INDEX idx_category_parent ON knowledge_category FIELDS parent_id;")
+            .await?;
+
+        // Version indexes
+        db.query("DEFINE INDEX idx_version_article ON article_version FIELDS article_id;")
+            .await?;
+
+        // Feedback indexes
+        db.query("DEFINE INDEX idx_feedback_article ON article_feedback FIELDS article_id;")
+            .await?;
+
+        println!("✅ Knowledge Base indexes created successfully");
+        Ok(())
+    }
+
+    /// Seed default categories
+    async fn seed_default_categories(db: &Database) -> Result<()> {
+        let categories = vec![
+            ("Getting Started", "Introduction and basic guides", "📚", 1),
+            ("Troubleshooting", "Common issues and solutions", "🔧", 2),
+            ("Best Practices", "Recommended workflows and tips", "⭐", 3),
+            ("System Administration", "Admin guides and configuration", "⚙️", 4),
+            ("API Documentation", "API references and integration guides", "📡", 5),
+            ("Release Notes", "What's new in each release", "📝", 6),
+        ];
+
+        for (name, desc, icon, order) in categories {
+            let _: Vec<serde_json::Value> = db
+                .query(
+                    "CREATE knowledge_category SET name = $name, description = $desc, icon = $icon, order = $order;"
+                )
+                .bind(("name", name))
+                .bind(("desc", desc))
+                .bind(("icon", icon))
+                .bind(("order", order))
+                .await?
+                .take(0)?;
+        }
+
+        println!("✅ Default Knowledge Base categories seeded");
+        Ok(())
+    }
+}
+
+// Original migrations below...
+
 /// Database migrations for enhanced RVTools functionality
 pub struct EnhancedRvToolsMigrations;
 

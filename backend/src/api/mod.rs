@@ -9,6 +9,7 @@ pub mod rvtools;
 pub mod settings; // Global settings API
 pub mod tickets; // Tickets API
 pub mod assets; // CMDB Assets API
+pub mod knowledge_base; // Knowledge Base API
 pub mod monitoring; // Monitoring API
 pub mod integration; // Integration Hub API
 pub mod wizard; // Activity wizard API
@@ -57,7 +58,8 @@ pub fn api_router(state: AppState) -> Router {
         .nest("/assets", assets::create_assets_router(state.clone()))
         .nest("/monitoring", monitoring::routes(state.clone()))
         .nest("/integration", integration::create_integration_router(state.clone()))
-        .nest("/settings", settings::create_settings_router(state.clone()));
+        .nest("/settings", settings::create_settings_router(state.clone()))
+        .nest("/knowledge", knowledge_base::create_knowledge_base_router(state.clone()));
 
     Router::new()
         .route("/health", get(health_check))
