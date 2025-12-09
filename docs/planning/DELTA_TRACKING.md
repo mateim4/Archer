@@ -55,8 +55,8 @@ This document is **mandatory reading and updating** for all AI agents working on
 | Auth/RBAC | 🟢 Implemented | Phase 0 - Foundation complete |
 | Ticket System | 🟢 Implemented | Phase 1 - State machine, SLA, comments, history |
 | SLA Engine | 🟢 Implemented | Phase 1 - Basic SLA calculation, breach detection |
-| Knowledge Base | 🔴 Not Started | Phase 1.5 |
-| CMDB/Assets | 🔴 Not Started | Phase 2 |
+| Knowledge Base | 🟢 Implemented | Phase 1.5 - Articles, categories, versioning, ratings |
+| CMDB/Assets | 🟢 Implemented | Phase 2 - CIs, relationships, graph traversal, impact analysis |
 | Workflows | 🔴 Not Started | Phase 3 |
 | Monitoring | 🔴 Not Started | Phase 4 |
 | Service Catalog | 🔴 Not Started | Phase 5 |
@@ -65,6 +65,55 @@ This document is **mandatory reading and updating** for all AI agents working on
 ---
 
 ## ✅ Completed Changes Log
+
+### [2025-12-09 01:50] - Phase 1.5 & 2: Knowledge Base and CMDB Backend
+**Type:** Feature
+**Files Changed:**
+- backend/src/models/knowledge.rs (NEW) - Knowledge Base data models:
+  - KBArticle struct with title, content, slug, visibility, status, version tracking
+  - KBCategory for article organization
+  - KBArticleVersion for version history
+  - KBRating for article feedback
+  - Request/Response DTOs for API
+- backend/src/services/knowledge_service.rs (NEW) - KB service layer:
+  - Article CRUD with slug generation
+  - Category management
+  - Article versioning system
+  - Rating and feedback system
+  - Search with filters (category, status, visibility)
+- backend/src/api/knowledge.rs (NEW) - REST API endpoints:
+  - POST/GET/PATCH/DELETE /knowledge/articles
+  - GET /knowledge/categories
+  - POST /knowledge/articles/:id/rate
+  - GET /knowledge/articles/:id/versions
+- backend/src/models/cmdb.rs (NEW) - CMDB data models:
+  - ConfigurationItem struct with class, status, criticality, attributes
+  - CIRelationship for dependency/relationship tracking
+  - CIType for custom CI type definitions
+  - CIClass enum (Server, Network, Storage, Application, Service, etc.)
+  - CIHistory for change tracking
+  - Request/Response DTOs for API
+- backend/src/services/cmdb_service.rs (NEW, ~875 lines) - CMDB service layer:
+  - CI CRUD with sequential ID generation (SRV-001, NET-001, etc.)
+  - Relationship management (depends_on, runs_on, connected_to, etc.)
+  - Graph traversal for related CIs
+  - Impact analysis for change management
+  - CI type management
+  - Statistics and reporting
+- backend/src/api/cmdb.rs (NEW) - REST API endpoints:
+  - POST/GET/PATCH/DELETE /cmdb/cis
+  - POST/DELETE /cmdb/relationships
+  - GET /cmdb/cis/:id/relationships
+  - GET /cmdb/cis/:id/impact
+  - GET /cmdb/types, /cmdb/statistics
+- backend/src/database/migrations.rs - Added migrations:
+  - kb_articles, kb_categories, kb_versions, kb_ratings tables
+  - configuration_items, ci_relationships, ci_types tables
+  - Comprehensive indexes for performance
+- backend/src/main.rs - Fixed ConnectInfo for auth middleware
+**Description:** Implemented complete Knowledge Base and CMDB modules with full CRUD, relationships, versioning, and impact analysis capabilities.
+**Impact:** Phase 1.5 and Phase 2 backend complete. Frontend integration pending.
+**Next Steps:** Frontend auth integration, E2E testing, then Phase 3 (Workflows)
 
 ### [2025-12-09 17:30] - Phase 1: Enhanced Ticket System
 **Type:** Feature
