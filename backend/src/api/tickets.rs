@@ -1,6 +1,7 @@
 use axum::{
     extract::{Path, State},
     http::StatusCode,
+    middleware,
     response::{IntoResponse, Response},
     routing::{get, post, patch, delete},
     Json, Router,
@@ -12,23 +13,69 @@ use surrealdb::sql::Thing;
 use crate::{
     database::Database,
     models::ticket::{Ticket, CreateTicketRequest, UpdateTicketRequest, TicketStatus},
+    middleware::{
+        auth::{require_auth, AuthState, AuthenticatedUser},
+        rbac::{check_tickets_create, check_tickets_read, check_tickets_update, check_tickets_delete},
+    },
 };
 
-/// Create Tickets API router
+/// Create Tickets API router with RBAC protection
 pub fn create_tickets_router(db: Arc<Database>) -> Router {
+    let auth_state = AuthState::new();
+
+    // Routes that require read permission
+    let read_routes = Router::new()
+        .route("/", get(list_tickets))
+        .route("/:id", get(get_ticket))
+        .layer(middleware::from_fn(check_tickets_read))
+        .with_state(db.clone());
+
+    // Route for creating tickets
+    let create_routes = Router::new()
+        .route("/", post(create_ticket))
+        .layer(middleware::from_fn(check_tickets_create))
+        .with_state(db.clone());
+
+    // Routes that require update permission
+    let update_routes = Router::new()
+        .route("/:id", patch(update_ticket))
+        .layer(middleware::from_fn(check_tickets_update))
+        .with_state(db.clone());
+
+    // Routes that require delete permission
+    let delete_routes = Router::new()
+        .route("/:id", delete(delete_ticket))
+        .layer(middleware::from_fn(check_tickets_delete))
+        .with_state(db.clone());
+
+    // Merge all routes and apply authentication layer
     Router::new()
-        .route("/", get(list_tickets).post(create_ticket))
-        .route("/:id", get(get_ticket).patch(update_ticket).delete(delete_ticket))
-        .with_state(db)
+        .merge(read_routes)
+        .merge(create_routes)
+        .merge(update_routes)
+        .merge(delete_routes)
+        .layer(middleware::from_fn_with_state(auth_state, require_auth))
 }
+
+// ============================================================================
+// TICKET HANDLERS WITH AUTH CONTEXT
+// ============================================================================
 
 async fn list_tickets(
     State(db): State<Arc<Database>>,
+    axum::Extension(user): axum::Extension<AuthenticatedUser>,
 ) -> impl IntoResponse {
+    // Log the query for audit purposes
+    log_audit(&db, &user, "tickets", "list", None, true).await;
+
     match db.select("ticket").await {
         Ok(tickets) => {
             let tickets: Vec<Ticket> = tickets;
-            (StatusCode::OK, Json(tickets)).into_response()
+            (StatusCode::OK, Json(serde_json::json!({
+                "data": tickets,
+                "count": tickets.len(),
+                "user": user.username
+            }))).into_response()
         },
         Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, Json(serde_json::json!({ "error": e.to_string() }))).into_response(),
     }
@@ -37,6 +84,7 @@ async fn list_tickets(
 async fn get_ticket(
     State(db): State<Arc<Database>>,
     Path(id): Path<String>,
+    axum::Extension(user): axum::Extension<AuthenticatedUser>,
 ) -> impl IntoResponse {
     let id_thing = match thing(&id) {
         Ok(t) => t,
@@ -47,7 +95,10 @@ async fn get_ticket(
         Ok(ticket) => {
             let ticket: Option<Ticket> = ticket;
             match ticket {
-                Some(t) => (StatusCode::OK, Json(t)).into_response(),
+                Some(t) => {
+                    log_audit(&db, &user, "tickets", "read", Some(&id), true).await;
+                    (StatusCode::OK, Json(t)).into_response()
+                },
                 None => (StatusCode::NOT_FOUND, Json(serde_json::json!({ "error": "Ticket not found" }))).into_response(),
             }
         },
@@ -57,8 +108,17 @@ async fn get_ticket(
 
 async fn create_ticket(
     State(db): State<Arc<Database>>,
+    axum::Extension(user): axum::Extension<AuthenticatedUser>,
     Json(payload): Json<CreateTicketRequest>,
 ) -> impl IntoResponse {
+    // Use authenticated user as creator (override payload if provided)
+    let created_by = if payload.created_by.is_empty() {
+        user.user_id.clone()
+    } else {
+        payload.created_by
+    };
+
+    let now = Utc::now();
     let ticket = Ticket {
         id: None,
         title: payload.title,
@@ -69,16 +129,41 @@ async fn create_ticket(
         related_asset: payload.related_asset.and_then(|id| thing(&id).ok()),
         related_project: payload.related_project.and_then(|id| thing(&id).ok()),
         assignee: payload.assignee,
-        created_by: payload.created_by,
-        created_at: Utc::now(),
-        updated_at: Utc::now(),
+        created_by,
+        created_at: now,
+        updated_at: now,
+        // Phase 1 SLA fields (will be populated by SLA service in full implementation)
+        sla_policy_id: None,
+        sla_breach_at: None,
+        response_due: None,
+        resolution_due: None,
+        response_sla_met: None,
+        resolution_sla_met: None,
+        first_response_at: None,
+        resolved_at: None,
+        closed_at: None,
+        // Phase 1 enhanced fields
+        watchers: payload.watchers,
+        tags: payload.tags,
+        custom_fields: payload.custom_fields,
+        impact: payload.impact,
+        urgency: payload.urgency,
+        source: payload.source,
+        category: payload.category,
+        subcategory: payload.subcategory,
+        assigned_group: payload.assigned_group,
+        tenant_id: user.tenant_id.as_ref().and_then(|t| thing(t).ok()),
     };
 
     match db.create("ticket").content(ticket).await {
         Ok(created) => {
             let created: Vec<Ticket> = created;
             match created.into_iter().next() {
-                Some(t) => (StatusCode::CREATED, Json(t)).into_response(),
+                Some(t) => {
+                    let ticket_id = t.id.as_ref().map(|id| id.to_string());
+                    log_audit(&db, &user, "tickets", "create", ticket_id.as_deref(), true).await;
+                    (StatusCode::CREATED, Json(t)).into_response()
+                },
                 None => (StatusCode::INTERNAL_SERVER_ERROR, Json(serde_json::json!({ "error": "Failed to create ticket" }))).into_response(),
             }
         },
@@ -89,6 +174,7 @@ async fn create_ticket(
 async fn update_ticket(
     State(db): State<Arc<Database>>,
     Path(id): Path<String>,
+    axum::Extension(user): axum::Extension<AuthenticatedUser>,
     Json(payload): Json<UpdateTicketRequest>,
 ) -> impl IntoResponse {
     let id_thing = match thing(&id) {
@@ -113,6 +199,7 @@ async fn update_ticket(
         match db.update(id_thing).content(ticket).await {
             Ok(updated) => {
                 let updated: Option<Ticket> = updated;
+                log_audit(&db, &user, "tickets", "update", Some(&id), true).await;
                 (StatusCode::OK, Json(updated)).into_response()
             },
             Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, Json(serde_json::json!({ "error": e.to_string() }))).into_response(),
@@ -125,6 +212,7 @@ async fn update_ticket(
 async fn delete_ticket(
     State(db): State<Arc<Database>>,
     Path(id): Path<String>,
+    axum::Extension(user): axum::Extension<AuthenticatedUser>,
 ) -> impl IntoResponse {
     let id_thing = match thing(&id) {
         Ok(t) => t,
@@ -132,10 +220,17 @@ async fn delete_ticket(
     };
 
     match db.delete::<Option<Ticket>>(id_thing).await {
-        Ok(_) => (StatusCode::NO_CONTENT, ()).into_response(),
+        Ok(_) => {
+            log_audit(&db, &user, "tickets", "delete", Some(&id), true).await;
+            (StatusCode::NO_CONTENT, ()).into_response()
+        },
         Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, Json(serde_json::json!({ "error": e.to_string() }))).into_response(),
     }
 }
+
+// ============================================================================
+// HELPER FUNCTIONS
+// ============================================================================
 
 fn thing(id: &str) -> Result<Thing, surrealdb::Error> {
     let parts: Vec<&str> = id.split(':').collect();
@@ -144,4 +239,38 @@ fn thing(id: &str) -> Result<Thing, surrealdb::Error> {
     } else {
         Ok(Thing::from(("ticket", id)))
     }
+}
+
+/// Log an audit entry for ticket operations
+async fn log_audit(
+    db: &Database,
+    user: &AuthenticatedUser,
+    resource_type: &str,
+    action: &str,
+    resource_id: Option<&str>,
+    success: bool,
+) {
+    let query = format!(
+        r#"
+        CREATE audit_logs SET
+            event_type = 'TICKET_OPERATION',
+            user_id = users:{},
+            username = '{}',
+            resource_type = '{}',
+            resource_id = {},
+            action = '{}',
+            success = {},
+            tenant_id = {}
+        "#,
+        user.user_id.split(':').last().unwrap_or(&user.user_id),
+        user.username,
+        resource_type,
+        resource_id.map(|id| format!("'{}'", id)).unwrap_or_else(|| "NONE".to_string()),
+        action,
+        success,
+        user.tenant_id.as_ref().map(|t| format!("tenants:{}", t)).unwrap_or_else(|| "NONE".to_string()),
+    );
+
+    // Fire and forget - don't fail the request if audit logging fails
+    let _ = db.query(&query).await;
 }

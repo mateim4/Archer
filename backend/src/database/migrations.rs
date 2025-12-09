@@ -2,6 +2,187 @@ use crate::database::Database;
 use anyhow::Result;
 use serde_json::json;
 
+// ============================================================================
+// PHASE 1: TICKET SYSTEM MIGRATIONS
+// ============================================================================
+
+/// Database migrations for enhanced ticket system (Phase 1)
+pub struct TicketMigrations;
+
+impl TicketMigrations {
+    /// Run all ticket system migrations
+    pub async fn run_all(db: &Database) -> Result<()> {
+        Self::create_ticket_tables(db).await?;
+        Self::create_ticket_indexes(db).await?;
+        Ok(())
+    }
+
+    /// Create tables for enhanced ticket functionality
+    async fn create_ticket_tables(db: &Database) -> Result<()> {
+        // Enhanced Ticket table
+        db.query(
+            r#"
+            DEFINE TABLE ticket SCHEMAFULL;
+            DEFINE FIELD title ON ticket TYPE string;
+            DEFINE FIELD description ON ticket TYPE option<string>;
+            DEFINE FIELD type ON ticket TYPE string;
+            DEFINE FIELD priority ON ticket TYPE string;
+            DEFINE FIELD status ON ticket TYPE string DEFAULT 'NEW';
+            DEFINE FIELD related_asset ON ticket TYPE option<record>;
+            DEFINE FIELD related_project ON ticket TYPE option<record>;
+            DEFINE FIELD assignee ON ticket TYPE option<string>;
+            DEFINE FIELD created_by ON ticket TYPE string;
+            DEFINE FIELD created_at ON ticket TYPE datetime DEFAULT time::now();
+            DEFINE FIELD updated_at ON ticket TYPE datetime DEFAULT time::now();
+            -- Phase 1: SLA fields
+            DEFINE FIELD sla_policy_id ON ticket TYPE option<record(sla_policies)>;
+            DEFINE FIELD sla_breach_at ON ticket TYPE option<datetime>;
+            DEFINE FIELD response_due ON ticket TYPE option<datetime>;
+            DEFINE FIELD resolution_due ON ticket TYPE option<datetime>;
+            DEFINE FIELD response_sla_met ON ticket TYPE option<bool>;
+            DEFINE FIELD resolution_sla_met ON ticket TYPE option<bool>;
+            DEFINE FIELD first_response_at ON ticket TYPE option<datetime>;
+            DEFINE FIELD resolved_at ON ticket TYPE option<datetime>;
+            DEFINE FIELD closed_at ON ticket TYPE option<datetime>;
+            -- Phase 1: Enhanced fields
+            DEFINE FIELD watchers ON ticket TYPE array DEFAULT [];
+            DEFINE FIELD tags ON ticket TYPE array DEFAULT [];
+            DEFINE FIELD custom_fields ON ticket TYPE option<object>;
+            DEFINE FIELD impact ON ticket TYPE option<string>;
+            DEFINE FIELD urgency ON ticket TYPE option<string>;
+            DEFINE FIELD source ON ticket TYPE option<string>;
+            DEFINE FIELD category ON ticket TYPE option<string>;
+            DEFINE FIELD subcategory ON ticket TYPE option<string>;
+            DEFINE FIELD assigned_group ON ticket TYPE option<string>;
+            DEFINE FIELD tenant_id ON ticket TYPE option<record(tenants)>;
+            "#,
+        )
+        .await?;
+
+        // Ticket Comments table
+        db.query(
+            r#"
+            DEFINE TABLE ticket_comments SCHEMAFULL;
+            DEFINE FIELD ticket_id ON ticket_comments TYPE record(ticket);
+            DEFINE FIELD content ON ticket_comments TYPE string;
+            DEFINE FIELD author_id ON ticket_comments TYPE string;
+            DEFINE FIELD author_name ON ticket_comments TYPE string;
+            DEFINE FIELD is_internal ON ticket_comments TYPE bool DEFAULT false;
+            DEFINE FIELD comment_type ON ticket_comments TYPE string DEFAULT 'NOTE';
+            DEFINE FIELD attachments ON ticket_comments TYPE array DEFAULT [];
+            DEFINE FIELD created_at ON ticket_comments TYPE datetime DEFAULT time::now();
+            DEFINE FIELD updated_at ON ticket_comments TYPE datetime DEFAULT time::now();
+            "#,
+        )
+        .await?;
+
+        // Ticket History table
+        db.query(
+            r#"
+            DEFINE TABLE ticket_history SCHEMAFULL;
+            DEFINE FIELD ticket_id ON ticket_history TYPE record(ticket);
+            DEFINE FIELD field_name ON ticket_history TYPE string;
+            DEFINE FIELD old_value ON ticket_history TYPE option<string>;
+            DEFINE FIELD new_value ON ticket_history TYPE option<string>;
+            DEFINE FIELD changed_by ON ticket_history TYPE string;
+            DEFINE FIELD changed_by_name ON ticket_history TYPE string;
+            DEFINE FIELD change_type ON ticket_history TYPE string;
+            DEFINE FIELD created_at ON ticket_history TYPE datetime DEFAULT time::now();
+            "#,
+        )
+        .await?;
+
+        // SLA Policies table
+        db.query(
+            r#"
+            DEFINE TABLE sla_policies SCHEMAFULL;
+            DEFINE FIELD name ON sla_policies TYPE string;
+            DEFINE FIELD description ON sla_policies TYPE option<string>;
+            DEFINE FIELD response_target_minutes ON sla_policies TYPE int;
+            DEFINE FIELD resolution_target_minutes ON sla_policies TYPE int;
+            DEFINE FIELD applies_to_priorities ON sla_policies TYPE array DEFAULT [];
+            DEFINE FIELD applies_to_types ON sla_policies TYPE array DEFAULT [];
+            DEFINE FIELD business_hours_id ON sla_policies TYPE option<record(business_hours)>;
+            DEFINE FIELD is_active ON sla_policies TYPE bool DEFAULT true;
+            DEFINE FIELD escalation_rules ON sla_policies TYPE array DEFAULT [];
+            DEFINE FIELD created_at ON sla_policies TYPE datetime DEFAULT time::now();
+            DEFINE FIELD updated_at ON sla_policies TYPE datetime DEFAULT time::now();
+            DEFINE FIELD tenant_id ON sla_policies TYPE option<record(tenants)>;
+            "#,
+        )
+        .await?;
+
+        // Business Hours table
+        db.query(
+            r#"
+            DEFINE TABLE business_hours SCHEMAFULL;
+            DEFINE FIELD name ON business_hours TYPE string;
+            DEFINE FIELD timezone ON business_hours TYPE string;
+            DEFINE FIELD schedule ON business_hours TYPE array DEFAULT [];
+            DEFINE FIELD holidays ON business_hours TYPE array DEFAULT [];
+            DEFINE FIELD is_default ON business_hours TYPE bool DEFAULT false;
+            DEFINE FIELD tenant_id ON business_hours TYPE option<record(tenants)>;
+            "#,
+        )
+        .await?;
+
+        println!("✅ Enhanced ticket tables created successfully");
+        Ok(())
+    }
+
+    /// Create indexes for ticket tables
+    async fn create_ticket_indexes(db: &Database) -> Result<()> {
+        // Ticket indexes
+        db.query("DEFINE INDEX idx_ticket_status ON ticket FIELDS status;")
+            .await?;
+        db.query("DEFINE INDEX idx_ticket_priority ON ticket FIELDS priority;")
+            .await?;
+        db.query("DEFINE INDEX idx_ticket_type ON ticket FIELDS type;")
+            .await?;
+        db.query("DEFINE INDEX idx_ticket_assignee ON ticket FIELDS assignee;")
+            .await?;
+        db.query("DEFINE INDEX idx_ticket_created_by ON ticket FIELDS created_by;")
+            .await?;
+        db.query("DEFINE INDEX idx_ticket_category ON ticket FIELDS category;")
+            .await?;
+        db.query("DEFINE INDEX idx_ticket_tenant ON ticket FIELDS tenant_id;")
+            .await?;
+        db.query("DEFINE INDEX idx_ticket_sla_breach ON ticket FIELDS sla_breach_at;")
+            .await?;
+        db.query("DEFINE INDEX idx_ticket_response_due ON ticket FIELDS response_due;")
+            .await?;
+        db.query("DEFINE INDEX idx_ticket_resolution_due ON ticket FIELDS resolution_due;")
+            .await?;
+
+        // Comment indexes
+        db.query("DEFINE INDEX idx_comments_ticket ON ticket_comments FIELDS ticket_id;")
+            .await?;
+        db.query("DEFINE INDEX idx_comments_author ON ticket_comments FIELDS author_id;")
+            .await?;
+
+        // History indexes
+        db.query("DEFINE INDEX idx_history_ticket ON ticket_history FIELDS ticket_id;")
+            .await?;
+        db.query("DEFINE INDEX idx_history_created ON ticket_history FIELDS created_at;")
+            .await?;
+
+        // SLA indexes
+        db.query("DEFINE INDEX idx_sla_name ON sla_policies FIELDS name;")
+            .await?;
+        db.query("DEFINE INDEX idx_sla_active ON sla_policies FIELDS is_active;")
+            .await?;
+        db.query("DEFINE INDEX idx_sla_tenant ON sla_policies FIELDS tenant_id;")
+            .await?;
+
+        println!("✅ Ticket indexes created successfully");
+        Ok(())
+    }
+}
+
+// ============================================================================
+// EXISTING MIGRATIONS
+// ============================================================================
+
 /// Database migrations for enhanced RVTools functionality
 pub struct EnhancedRvToolsMigrations;
 
@@ -699,6 +880,428 @@ impl MigrationPlanningMigrations {
         }
 
         println!("✅ Standard network templates seeded");
+        Ok(())
+    }
+}
+
+// ============================================================================
+// AUTHENTICATION & RBAC MIGRATIONS (Phase 0)
+// ============================================================================
+
+/// Authentication and RBAC database migrations
+pub struct AuthMigrations;
+
+impl AuthMigrations {
+    /// Run all authentication migrations
+    pub async fn run_all(db: &Database) -> Result<()> {
+        Self::create_auth_tables(db).await?;
+        Self::create_auth_indexes(db).await?;
+        Self::seed_system_roles_and_permissions(db).await?;
+        Self::seed_admin_user(db).await?;
+        Ok(())
+    }
+
+    /// Create authentication tables (users, roles, permissions, tokens, audit)
+    async fn create_auth_tables(db: &Database) -> Result<()> {
+        // Users table
+        db.query(
+            r#"
+            DEFINE TABLE users SCHEMAFULL;
+            DEFINE FIELD email ON users TYPE string;
+            DEFINE FIELD username ON users TYPE string;
+            DEFINE FIELD password_hash ON users TYPE string;
+            DEFINE FIELD display_name ON users TYPE string;
+            DEFINE FIELD status ON users TYPE string DEFAULT 'ACTIVE';
+            DEFINE FIELD roles ON users TYPE array;
+            DEFINE FIELD tenant_id ON users TYPE option<record(tenants)>;
+            DEFINE FIELD last_login ON users TYPE option<datetime>;
+            DEFINE FIELD failed_login_attempts ON users TYPE int DEFAULT 0;
+            DEFINE FIELD locked_until ON users TYPE option<datetime>;
+            DEFINE FIELD created_at ON users TYPE datetime DEFAULT time::now();
+            DEFINE FIELD updated_at ON users TYPE datetime DEFAULT time::now();
+            DEFINE FIELD created_by ON users TYPE option<string>;
+            "#,
+        )
+        .await?;
+
+        // Roles table
+        db.query(
+            r#"
+            DEFINE TABLE roles SCHEMAFULL;
+            DEFINE FIELD name ON roles TYPE string;
+            DEFINE FIELD display_name ON roles TYPE string;
+            DEFINE FIELD description ON roles TYPE option<string>;
+            DEFINE FIELD permissions ON roles TYPE array;
+            DEFINE FIELD is_system ON roles TYPE bool DEFAULT false;
+            DEFINE FIELD tenant_id ON roles TYPE option<record(tenants)>;
+            DEFINE FIELD created_at ON roles TYPE datetime DEFAULT time::now();
+            DEFINE FIELD updated_at ON roles TYPE datetime DEFAULT time::now();
+            "#,
+        )
+        .await?;
+
+        // Permissions table
+        db.query(
+            r#"
+            DEFINE TABLE permissions SCHEMAFULL;
+            DEFINE FIELD name ON permissions TYPE string;
+            DEFINE FIELD display_name ON permissions TYPE string;
+            DEFINE FIELD description ON permissions TYPE option<string>;
+            DEFINE FIELD resource ON permissions TYPE string;
+            DEFINE FIELD action ON permissions TYPE string;
+            DEFINE FIELD is_system ON permissions TYPE bool DEFAULT true;
+            DEFINE FIELD created_at ON permissions TYPE datetime DEFAULT time::now();
+            "#,
+        )
+        .await?;
+
+        // Refresh tokens table
+        db.query(
+            r#"
+            DEFINE TABLE refresh_tokens SCHEMAFULL;
+            DEFINE FIELD token_hash ON refresh_tokens TYPE string;
+            DEFINE FIELD user_id ON refresh_tokens TYPE record(users);
+            DEFINE FIELD expires_at ON refresh_tokens TYPE datetime;
+            DEFINE FIELD revoked ON refresh_tokens TYPE bool DEFAULT false;
+            DEFINE FIELD revoked_at ON refresh_tokens TYPE option<datetime>;
+            DEFINE FIELD created_at ON refresh_tokens TYPE datetime DEFAULT time::now();
+            DEFINE FIELD user_agent ON refresh_tokens TYPE option<string>;
+            DEFINE FIELD ip_address ON refresh_tokens TYPE option<string>;
+            "#,
+        )
+        .await?;
+
+        // Audit logs table
+        db.query(
+            r#"
+            DEFINE TABLE audit_logs SCHEMAFULL;
+            DEFINE FIELD event_type ON audit_logs TYPE string;
+            DEFINE FIELD user_id ON audit_logs TYPE option<record(users)>;
+            DEFINE FIELD username ON audit_logs TYPE option<string>;
+            DEFINE FIELD resource_type ON audit_logs TYPE option<string>;
+            DEFINE FIELD resource_id ON audit_logs TYPE option<string>;
+            DEFINE FIELD action ON audit_logs TYPE string;
+            DEFINE FIELD details ON audit_logs TYPE option<object>;
+            DEFINE FIELD ip_address ON audit_logs TYPE option<string>;
+            DEFINE FIELD user_agent ON audit_logs TYPE option<string>;
+            DEFINE FIELD success ON audit_logs TYPE bool DEFAULT true;
+            DEFINE FIELD error_message ON audit_logs TYPE option<string>;
+            DEFINE FIELD tenant_id ON audit_logs TYPE option<record(tenants)>;
+            DEFINE FIELD created_at ON audit_logs TYPE datetime DEFAULT time::now();
+            "#,
+        )
+        .await?;
+
+        // Tenants table (for multi-tenant isolation)
+        db.query(
+            r#"
+            DEFINE TABLE tenants SCHEMAFULL;
+            DEFINE FIELD name ON tenants TYPE string;
+            DEFINE FIELD display_name ON tenants TYPE string;
+            DEFINE FIELD status ON tenants TYPE string DEFAULT 'ACTIVE';
+            DEFINE FIELD settings ON tenants TYPE option<object>;
+            DEFINE FIELD created_at ON tenants TYPE datetime DEFAULT time::now();
+            DEFINE FIELD updated_at ON tenants TYPE datetime DEFAULT time::now();
+            "#,
+        )
+        .await?;
+
+        println!("✅ Authentication tables created successfully");
+        Ok(())
+    }
+
+    /// Create indexes for authentication tables
+    async fn create_auth_indexes(db: &Database) -> Result<()> {
+        // User indexes - unique constraints
+        db.query("DEFINE INDEX idx_users_email ON users FIELDS email UNIQUE;")
+            .await?;
+        db.query("DEFINE INDEX idx_users_username ON users FIELDS username UNIQUE;")
+            .await?;
+        db.query("DEFINE INDEX idx_users_status ON users FIELDS status;")
+            .await?;
+        db.query("DEFINE INDEX idx_users_tenant ON users FIELDS tenant_id;")
+            .await?;
+
+        // Role indexes
+        db.query("DEFINE INDEX idx_roles_name ON roles FIELDS name;")
+            .await?;
+        db.query("DEFINE INDEX idx_roles_tenant ON roles FIELDS tenant_id;")
+            .await?;
+        db.query("DEFINE INDEX idx_roles_is_system ON roles FIELDS is_system;")
+            .await?;
+
+        // Permission indexes
+        db.query("DEFINE INDEX idx_permissions_name ON permissions FIELDS name UNIQUE;")
+            .await?;
+        db.query("DEFINE INDEX idx_permissions_resource ON permissions FIELDS resource;")
+            .await?;
+
+        // Refresh token indexes
+        db.query("DEFINE INDEX idx_refresh_tokens_hash ON refresh_tokens FIELDS token_hash UNIQUE;")
+            .await?;
+        db.query("DEFINE INDEX idx_refresh_tokens_user ON refresh_tokens FIELDS user_id;")
+            .await?;
+        db.query("DEFINE INDEX idx_refresh_tokens_expires ON refresh_tokens FIELDS expires_at;")
+            .await?;
+
+        // Audit log indexes
+        db.query("DEFINE INDEX idx_audit_logs_user ON audit_logs FIELDS user_id;")
+            .await?;
+        db.query("DEFINE INDEX idx_audit_logs_event ON audit_logs FIELDS event_type;")
+            .await?;
+        db.query("DEFINE INDEX idx_audit_logs_resource ON audit_logs FIELDS resource_type, resource_id;")
+            .await?;
+        db.query("DEFINE INDEX idx_audit_logs_created ON audit_logs FIELDS created_at;")
+            .await?;
+        db.query("DEFINE INDEX idx_audit_logs_tenant ON audit_logs FIELDS tenant_id;")
+            .await?;
+
+        // Tenant indexes
+        db.query("DEFINE INDEX idx_tenants_name ON tenants FIELDS name UNIQUE;")
+            .await?;
+
+        println!("✅ Authentication indexes created successfully");
+        Ok(())
+    }
+
+    /// Seed system roles and permissions
+    async fn seed_system_roles_and_permissions(db: &Database) -> Result<()> {
+        // Define all system permissions
+        let permissions = vec![
+            // Ticket permissions
+            ("tickets:create", "Create Tickets", "tickets", "create"),
+            ("tickets:read", "Read Tickets", "tickets", "read"),
+            ("tickets:update", "Update Tickets", "tickets", "update"),
+            ("tickets:delete", "Delete Tickets", "tickets", "delete"),
+            ("tickets:manage", "Manage Tickets", "tickets", "manage"),
+            // Asset permissions
+            ("assets:create", "Create Assets", "assets", "create"),
+            ("assets:read", "Read Assets", "assets", "read"),
+            ("assets:update", "Update Assets", "assets", "update"),
+            ("assets:delete", "Delete Assets", "assets", "delete"),
+            ("assets:manage", "Manage Assets", "assets", "manage"),
+            // User permissions
+            ("users:create", "Create Users", "users", "create"),
+            ("users:read", "Read Users", "users", "read"),
+            ("users:update", "Update Users", "users", "update"),
+            ("users:delete", "Delete Users", "users", "delete"),
+            ("users:manage", "Manage Users", "users", "manage"),
+            // Role permissions
+            ("roles:create", "Create Roles", "roles", "create"),
+            ("roles:read", "Read Roles", "roles", "read"),
+            ("roles:update", "Update Roles", "roles", "update"),
+            ("roles:delete", "Delete Roles", "roles", "delete"),
+            ("roles:manage", "Manage Roles", "roles", "manage"),
+            // Knowledge base permissions
+            ("knowledge:create", "Create KB Articles", "knowledge", "create"),
+            ("knowledge:read", "Read KB Articles", "knowledge", "read"),
+            ("knowledge:update", "Update KB Articles", "knowledge", "update"),
+            ("knowledge:delete", "Delete KB Articles", "knowledge", "delete"),
+            // Monitoring permissions
+            ("monitoring:read", "View Monitoring", "monitoring", "read"),
+            ("monitoring:manage", "Manage Monitoring", "monitoring", "manage"),
+            // Reports permissions
+            ("reports:read", "View Reports", "reports", "read"),
+            ("reports:create", "Create Reports", "reports", "create"),
+            ("reports:export", "Export Reports", "reports", "execute"),
+            // Settings permissions
+            ("settings:read", "View Settings", "settings", "read"),
+            ("settings:manage", "Manage Settings", "settings", "manage"),
+            // System permissions
+            ("system:admin", "System Administration", "system", "manage"),
+            ("audit:read", "View Audit Logs", "audit", "read"),
+        ];
+
+        // Create permissions
+        for (name, display_name, resource, action) in &permissions {
+            let query = format!(
+                r#"
+                CREATE permissions:{} SET
+                    name = '{}',
+                    display_name = '{}',
+                    resource = '{}',
+                    action = '{}',
+                    is_system = true
+                "#,
+                name.replace(":", "_"),
+                name,
+                display_name,
+                resource,
+                action
+            );
+            match db.query(&query).await {
+                Ok(_) => {}
+                Err(e) => println!("⚠️ Permission {} creation: {}", name, e),
+            }
+        }
+
+        // Define system roles with their permissions
+        let roles = vec![
+            (
+                "super_admin",
+                "Super Administrator",
+                "Full system access across all tenants",
+                vec!["system:admin"], // Super admin gets all permissions implicitly
+            ),
+            (
+                "admin",
+                "Administrator",
+                "Tenant administrator with full access",
+                vec![
+                    "tickets:manage",
+                    "assets:manage",
+                    "users:manage",
+                    "roles:manage",
+                    "knowledge:manage",
+                    "monitoring:manage",
+                    "reports:create",
+                    "reports:export",
+                    "settings:manage",
+                    "audit:read",
+                ],
+            ),
+            (
+                "service_manager",
+                "Service Manager",
+                "Service desk manager with team oversight",
+                vec![
+                    "tickets:manage",
+                    "assets:read",
+                    "users:read",
+                    "knowledge:manage",
+                    "monitoring:read",
+                    "reports:read",
+                    "reports:create",
+                ],
+            ),
+            (
+                "agent",
+                "Service Desk Agent",
+                "Service desk agent with ticket handling",
+                vec![
+                    "tickets:create",
+                    "tickets:read",
+                    "tickets:update",
+                    "assets:read",
+                    "knowledge:read",
+                    "knowledge:create",
+                ],
+            ),
+            (
+                "viewer",
+                "Viewer",
+                "Read-only access to the system",
+                vec![
+                    "tickets:read",
+                    "assets:read",
+                    "knowledge:read",
+                    "monitoring:read",
+                    "reports:read",
+                ],
+            ),
+        ];
+
+        // Create roles
+        for (name, display_name, description, perms) in roles {
+            let permission_refs: Vec<String> = perms
+                .iter()
+                .map(|p| format!("permissions:{}", p.replace(":", "_")))
+                .collect();
+            let permissions_str = permission_refs.join(", ");
+
+            let query = format!(
+                r#"
+                CREATE roles:{} SET
+                    name = '{}',
+                    display_name = '{}',
+                    description = '{}',
+                    permissions = [{}],
+                    is_system = true
+                "#,
+                name, name, display_name, description, permissions_str
+            );
+            match db.query(&query).await {
+                Ok(_) => println!("✅ Role {} created", name),
+                Err(e) => println!("⚠️ Role {} creation: {}", name, e),
+            }
+        }
+
+        println!("✅ System roles and permissions seeded successfully");
+        Ok(())
+    }
+
+    /// Seed default admin user for testing
+    /// 
+    /// Creates an admin user with predefined credentials:
+    /// - Email: admin@archer.local
+    /// - Username: admin
+    /// - Password: ArcherAdmin123!
+    /// 
+    /// This user is assigned the super_admin role for full system access.
+    /// **IMPORTANT: Change credentials in production!**
+    async fn seed_admin_user(db: &Database) -> Result<()> {
+        use argon2::{
+            password_hash::{rand_core::OsRng, PasswordHasher, SaltString},
+            Argon2,
+        };
+
+        // Check if admin user already exists
+        let existing: Vec<serde_json::Value> = db
+            .query("SELECT * FROM users WHERE email = 'admin@archer.local'")
+            .await?
+            .take(0)?;
+
+        if !existing.is_empty() {
+            println!("ℹ️ Admin user already exists, skipping seed");
+            return Ok(());
+        }
+
+        // Hash the default password
+        let password = "ArcherAdmin123!";
+        let salt = SaltString::generate(&mut OsRng);
+        let argon2 = Argon2::default();
+        let password_hash = argon2
+            .hash_password(password.as_bytes(), &salt)
+            .map_err(|e| anyhow::anyhow!("Password hashing failed: {}", e))?
+            .to_string();
+
+        // Create the admin user with super_admin role
+        let query = format!(
+            r#"
+            CREATE users:admin SET
+                email = 'admin@archer.local',
+                username = 'admin',
+                password_hash = '{}',
+                display_name = 'System Administrator',
+                status = 'ACTIVE',
+                roles = ['super_admin'],
+                tenant_id = NONE,
+                failed_login_attempts = 0
+            "#,
+            password_hash
+        );
+
+        match db.query(&query).await {
+            Ok(_) => {
+                println!("✅ Default admin user created:");
+                println!("   📧 Email: admin@archer.local");
+                println!("   👤 Username: admin");
+                println!("   🔑 Password: ArcherAdmin123!");
+                println!("   ⚠️  CHANGE THESE CREDENTIALS IN PRODUCTION!");
+            }
+            Err(e) => println!("⚠️ Admin user creation: {}", e),
+        }
+
+        // Create audit log entry for admin creation
+        let audit_query = r#"
+            CREATE audit_logs SET
+                event_type = 'SYSTEM_SEED',
+                action = 'CREATE_ADMIN_USER',
+                details = { message: 'Default admin user seeded during initialization' },
+                success = true
+        "#;
+        let _ = db.query(audit_query).await;
+
         Ok(())
     }
 }

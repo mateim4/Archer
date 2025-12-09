@@ -1,3 +1,4 @@
+pub mod auth; // Authentication API (Phase 0)
 pub mod capacity;
 pub mod cluster_strategy;
 pub mod destination_clusters;
@@ -28,6 +29,8 @@ use std::sync::Arc;
 pub fn api_router(state: AppState) -> Router {
     // API v1 routes with proper versioning
     let v1_routes = Router::new()
+        // Authentication routes (public + protected)
+        .nest("/auth", auth::create_auth_router(state.clone()))
         .merge(project_workflow::routes().with_state(state.clone()))
         .merge(cluster_strategy::routes().with_state(state.clone()))
         .merge(wizard::wizard_routes().with_state(state.clone())) // Activity wizard routes

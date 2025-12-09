@@ -1,3 +1,10 @@
+// Authentication & Authorization (Phase 0)
+pub mod auth_service;
+
+// Core ITSM Services (Phase 1)
+pub mod sla_service;
+pub mod ticket_service;
+
 pub mod dependency_validator;
 pub mod document_service;
 pub mod enhanced_rvtools_service; // TODO: Fix compilation errors

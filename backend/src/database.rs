@@ -93,6 +93,20 @@ pub async fn new_test() -> Result<Database, DatabaseError> {
 async fn run_all_migrations(db: &Database) -> Result<(), DatabaseError> {
     info!("Running database migrations...");
 
+    // Authentication & RBAC migrations (Phase 0 - Foundation)
+    if let Err(e) = migrations::AuthMigrations::run_all(db).await {
+        warn!("Auth/RBAC migrations failed: {}", e);
+    } else {
+        info!("✅ Auth/RBAC migrations completed");
+    }
+
+    // Enhanced Ticket System migrations (Phase 1)
+    if let Err(e) = migrations::TicketMigrations::run_all(db).await {
+        warn!("Ticket system migrations failed: {}", e);
+    } else {
+        info!("✅ Ticket system migrations completed");
+    }
+
     // Enhanced RVTools migrations
     if let Err(e) = migrations::EnhancedRvToolsMigrations::run_all(db).await {
         warn!("Enhanced RVTools migrations failed: {}", e);

@@ -2,8 +2,8 @@
 
 **Document Purpose:** Track all significant changes across agentic coding sessions to ensure continuity and accountability.
 
-**Last Updated:** 2025-12-09T15:30:00Z  
-**Document Version:** 1.0
+**Last Updated:** 2025-12-09T17:30:00Z  
+**Document Version:** 1.1
 
 ---
 
@@ -35,7 +35,7 @@ This document is **mandatory reading and updating** for all AI agents working on
 
 > *AI Agents: Log your changes here during the session, then move to Completed Log*
 
-*(No active changes)*
+*(No current changes - all moved to completed log)*
 
 ---
 
@@ -52,15 +52,111 @@ This document is **mandatory reading and updating** for all AI agents working on
 ### Implementation Progress (Updated 2025-12-09)
 | Module | Status | Notes |
 |--------|--------|-------|
-| Auth/RBAC | 🔴 Not Started | Phase 0 - Foundation |
-| Ticket CRUD | 🟡 Basic | Needs state machine, SLA, comments |
-| SLA Engine | 🔴 Not Started | Phase 1 |
+| Auth/RBAC | 🟢 Implemented | Phase 0 - Foundation complete |
+| Ticket System | 🟢 Implemented | Phase 1 - State machine, SLA, comments, history |
+| SLA Engine | 🟢 Implemented | Phase 1 - Basic SLA calculation, breach detection |
 | Knowledge Base | 🔴 Not Started | Phase 1.5 |
 | CMDB/Assets | 🔴 Not Started | Phase 2 |
 | Workflows | 🔴 Not Started | Phase 3 |
 | Monitoring | 🔴 Not Started | Phase 4 |
 | Service Catalog | 🔴 Not Started | Phase 5 |
 | Reporting | 🔴 Not Started | Phase 6 |
+
+---
+
+## ✅ Completed Changes Log
+
+### [2025-12-09 17:30] - Phase 1: Enhanced Ticket System
+**Type:** Feature
+**Files Changed:**
+- backend/src/models/ticket.rs - Complete rewrite with Phase 1 enhancements:
+  - Extended Ticket struct with SLA fields, watchers, tags, custom_fields, impact, urgency, source, category, tenant_id
+  - State machine with TicketStatus.valid_transitions() and .can_transition_to()
+  - Added Assigned, OnHold, PendingCustomer, PendingVendor, Cancelled statuses
+  - TicketComment and CommentAttachment models
+  - TicketHistory for audit trail
+  - SlaPolicy and BusinessHours models
+  - EscalationRule for SLA breach handling
+  - Request/Response models for API
+- backend/src/services/sla_service.rs (NEW) - SLA calculation engine:
+  - Policy creation and lookup
+  - SLA time calculation (response + resolution)
+  - Breach detection and notification types
+  - Escalation processing
+  - Business hours configuration
+  - Default SLA policy seeding (P1-P4)
+- backend/src/services/ticket_service.rs (NEW) - Enhanced ticket operations:
+  - Full CRUD with SLA assignment
+  - State machine transition with validation
+  - Comment management
+  - Watcher management
+  - History tracking for all changes
+- backend/src/database/migrations.rs - Added TicketMigrations:
+  - Enhanced ticket table with all Phase 1 fields
+  - ticket_comments table
+  - ticket_history table
+  - sla_policies table
+  - business_hours table
+  - Comprehensive indexes for performance
+- backend/src/database.rs - Added TicketMigrations to run_all_migrations
+- backend/src/services/mod.rs - Added sla_service and ticket_service exports
+**Description:** Complete Phase 1 implementation of Enhanced Ticket System including:
+  - State machine with valid transitions (New→Assigned→InProgress→Resolved→Closed)
+  - SLA management (response/resolution targets, breach detection, escalation rules)
+  - Comments with internal/external visibility
+  - Watchers for notifications
+  - Full history/audit trail
+  - Impact/Urgency matrix for priority calculation
+  - Multi-tenant isolation
+**Impact:** Ticket endpoints now support full ITSM workflow. SLA calculation available for all new tickets.
+**Next Steps:** Implement Knowledge Base (Phase 1.5), test SLA breach notifications
+
+### [2025-12-09 17:00] - RBAC Middleware on Ticket Routes + Admin Seed User
+**Type:** Feature
+**Files Changed:**
+- backend/src/api/tickets.rs - Complete rewrite with RBAC:
+  - Added auth middleware layer (require_auth)
+  - Permission checks per operation (tickets:read, tickets:create, etc.)
+  - AuthenticatedUser extraction in all handlers
+  - Audit logging for all ticket operations
+  - Full Phase 1 field support in create_ticket
+- backend/src/database/migrations.rs - Added seed_admin_user():
+  - Default admin user: admin@archer.local / ArcherAdmin123!
+  - Auto-assigns super_admin role
+  - Skips if admin already exists
+  - Creates audit log entry for seed
+**Description:** Secured ticket routes with RBAC and created default admin for testing:
+  - All ticket endpoints require valid JWT token
+  - Permission-based access control (check_tickets_read, check_tickets_create, etc.)
+  - Audit trail captures user, action, resource, timestamp
+  - Default admin seeded on first startup for development/testing
+**Impact:** Ticket API now requires authentication. Use admin credentials for testing.
+**Next Steps:** Test auth flow with admin user, implement Phase 1 features
+
+### [2025-12-09 16:45] - Phase 0: Authentication & RBAC Implementation
+**Type:** Feature
+**Files Changed:**
+- backend/src/models/auth.rs (NEW) - User, Role, Permission, JWT models
+- backend/src/services/auth_service.rs (NEW) - Login, logout, token refresh, password hashing
+- backend/src/api/auth.rs (NEW) - REST endpoints for /auth/*
+- backend/src/middleware/auth.rs (NEW) - JWT validation middleware
+- backend/src/middleware/rbac.rs (NEW) - Permission checking middleware
+- backend/src/database/migrations.rs - Added AuthMigrations with users, roles, permissions tables
+- backend/src/database.rs - Added auth migrations to run_all_migrations
+- backend/src/models/mod.rs - Added auth module export
+- backend/src/services/mod.rs - Added auth_service module export
+- backend/src/middleware/mod.rs - Added auth and rbac module exports
+- backend/src/api/mod.rs - Registered auth routes
+- backend/Cargo.toml - Added argon2 and jsonwebtoken dependencies
+**Description:** Implemented complete Auth/RBAC system (Phase 0) including:
+  - User model with password hashing (Argon2), account locking, status management
+  - Role-based access control with system roles (super_admin, admin, service_manager, agent, viewer)
+  - 30+ granular permissions across tickets, assets, users, knowledge, monitoring, reports, settings
+  - JWT access tokens (15min) + refresh tokens (7 days) with revocation
+  - Multi-tenant support with tenant isolation middleware
+  - Audit logging for all auth events
+  - Correct SurrealDB syntax (DEFINE TABLE + DEFINE FIELD)
+**Impact:** Foundation for all protected routes. Core ITSM still works without auth for dev.
 
 ---
 
