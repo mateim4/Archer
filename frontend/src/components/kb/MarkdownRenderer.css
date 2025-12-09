@@ -1,0 +1,29 @@
+.markdown-renderer {
+  line-height: 1.6;
+  word-wrap: break-word;
+}
+
+.markdown-renderer img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--borderRadiusMedium);
+  margin-top: var(--spacingVerticalM);
+  margin-bottom: var(--spacingVerticalM);
+}
+
+.markdown-renderer hr {
+  border: none;
+  border-top: 1px solid var(--colorNeutralStroke2);
+  margin-top: var(--spacingVerticalXXL);
+  margin-bottom: var(--spacingVerticalXXL);
+}
+
+/* Task lists (GFM) */
+.markdown-renderer input[type="checkbox"] {
+  margin-right: var(--spacingHorizontalS);
+}
+
+/* Strikethrough support */
+.markdown-renderer del {
+  color: var(--colorNeutralForeground3);
+}
