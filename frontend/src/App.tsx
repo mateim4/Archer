@@ -5,6 +5,7 @@ import './styles/fluent2-design-system.css';
 import { ThemeProvider, useTheme } from './hooks/useTheme';
 import { KeyboardShortcutsProvider } from './hooks/useKeyboardShortcuts';
 import { NotificationsProvider, useNotificationState } from './hooks/useNotifications';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { AnimatedBackground } from './components/background/AnimatedBackground';
 import { useStyles } from './styles/useStyles';
 import NavigationSidebar from './components/NavigationSidebar';
@@ -16,6 +17,8 @@ import { lazyWithRetry } from './utils/lazyLoad';
 
 // Eager-loaded views (critical path)
 import LandingView from './views/LandingView';
+import LoginView from './views/LoginView';
+import UnauthorizedView from './views/UnauthorizedView';
 import DashboardView from './views/DashboardView';
 import ProjectsView from './views/ProjectsView';
 import ProjectWorkspaceView from './views/ProjectWorkspaceView';
@@ -72,6 +75,27 @@ function AppContent() {
   // Get notification state for TopNavigationBar
   const { unreadCount } = useNotificationState();
 
+  // Connect auth to API client
+  const { accessToken, logout } = useAuth();
+  useEffect(() => {
+    // Import apiClient dynamically to avoid circular dependencies
+    import('./utils/apiClient').then(({ apiClient }) => {
+      // Set token provider
+      apiClient.setTokenProvider(() => accessToken);
+    });
+
+    // Listen for unauthorized events from API client
+    const handleUnauthorized = () => {
+      console.warn('Unauthorized request detected, logging out');
+      logout();
+    };
+
+    window.addEventListener('auth:unauthorized', handleUnauthorized);
+    return () => {
+      window.removeEventListener('auth:unauthorized', handleUnauthorized);
+    };
+  }, [accessToken, logout]);
+
   // Responsive sidebar effect - collapse on mobile, expand on desktop
   useEffect(() => {
     const handleResize = () => {
@@ -115,6 +139,10 @@ function AppContent() {
         <Routes>
           {/* Landing page - full screen without sidebar */}
           <Route path="/" element={<LandingView />} />
+          
+          {/* Auth routes - full screen without sidebar */}
+          <Route path="/login" element={<LoginView />} />
+          <Route path="/unauthorized" element={<UnauthorizedView />} />
           
           {/* Direct zoom test - full screen without sidebar */}
           <Route path="/zoom-test" element={<ZoomTestPage />} />
@@ -248,13 +276,15 @@ function AppContent() {
   );
 }
 
-// Main App wrapper with ThemeProvider and NotificationsProvider
+// Main App wrapper with all providers
 function App() {
   return (
     <ThemeProvider defaultMode="light">
-      <NotificationsProvider>
-        <AppContent />
-      </NotificationsProvider>
+      <AuthProvider>
+        <NotificationsProvider>
+          <AppContent />
+        </NotificationsProvider>
+      </AuthProvider>
     </ThemeProvider>
   );
 }
