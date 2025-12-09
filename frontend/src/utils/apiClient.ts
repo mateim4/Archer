@@ -242,9 +242,18 @@ export interface DashboardSummary {
 export class ApiClient {
   private baseUrl: string;
   private usingMockData: boolean = false;
+  private getAccessToken: (() => string | null) | null = null;
 
   constructor(baseUrl: string = API_BASE_URL) {
     this.baseUrl = baseUrl;
+  }
+
+  /**
+   * Set a function to retrieve the current access token
+   * This should be called by AuthContext to provide token access
+   */
+  public setTokenProvider(provider: () => string | null) {
+    this.getAccessToken = provider;
   }
 
   public isUsingMockData(): boolean {
@@ -257,16 +266,26 @@ export class ApiClient {
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
     
+    // Add Authorization header if token is available
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    };
+
+    if (this.getAccessToken) {
+      const token = this.getAccessToken();
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+    }
+    
     // Create abort controller for timeout
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
     
     try {
       const response = await fetch(url, {
-        headers: {
-          'Content-Type': 'application/json',
-          ...options.headers,
-        },
+        headers,
         signal: controller.signal,
         ...options,
       });
@@ -279,6 +298,13 @@ export class ApiClient {
           data = await response.json();
         } catch (_) {}
         const message = data?.message || data?.error || `${response.status} ${response.statusText}`;
+        
+        // Handle 401 Unauthorized - token expired or invalid
+        if (response.status === 401) {
+          // Trigger logout by dispatching custom event
+          window.dispatchEvent(new CustomEvent('auth:unauthorized'));
+        }
+        
         throw new ApiError(response.status, message, data);
       }
 

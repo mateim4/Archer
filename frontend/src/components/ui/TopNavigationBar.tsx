@@ -29,6 +29,7 @@ import {
 } from '@fluentui/react-icons';
 import { tokens } from '@fluentui/react-components';
 import { useTheme } from '../../hooks/useTheme';
+import { useAuth } from '../../contexts/AuthContext';
 import { CommandPalette } from './CommandPalette';
 
 export interface TopNavigationBarProps {
@@ -75,7 +76,12 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
 }) => {
   const navigate = useNavigate();
   const { mode, toggleMode } = useTheme();
+  const { user, logout, isAuthenticated } = useAuth();
   const isDark = mode === 'dark';
+  
+  // Use actual user data if authenticated, fallback to props
+  const displayName = user?.display_name || userName;
+  const displayAvatar = userAvatar;
   
   // Track mobile viewport for showing hamburger menu
   const [isMobile, setIsMobile] = useState(() => {
@@ -505,8 +511,17 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
             {isProfileMenuOpen && (
               <div style={dropdownStyles} onClick={(e) => e.stopPropagation()}>
                 <div style={{ padding: '16px', borderBottom: '1px solid var(--dropdown-border)' }}>
-                  <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{userName}</div>
-                  <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Administrator</div>
+                  <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{displayName}</div>
+                  {isAuthenticated && user && (
+                    <>
+                      <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px' }}>
+                        {user.email}
+                      </div>
+                      <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px' }}>
+                        {user.roles.map(r => r.display_name).join(', ')}
+                      </div>
+                    </>
+                  )}
                 </div>
                 <button
                   style={menuItemStyles}
@@ -519,7 +534,13 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({
                 </button>
                 <button
                   style={{ ...menuItemStyles, color: 'var(--status-critical)' }}
-                  onClick={() => { /* Sign out logic */ setProfileMenuOpen(false); }}
+                  onClick={async () => { 
+                    setProfileMenuOpen(false);
+                    if (isAuthenticated) {
+                      await logout();
+                      navigate('/login');
+                    }
+                  }}
                   onMouseEnter={(e) => e.currentTarget.style.background = 'var(--btn-ghost-bg-hover)'}
                   onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                 >
