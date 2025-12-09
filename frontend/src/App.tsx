@@ -45,6 +45,10 @@ const TicketDetailView = lazyWithRetry(() => import('./views/TicketDetailView'))
 const AssetDetailView = lazyWithRetry(() => import('./views/AssetDetailView'));
 const InventoryView = lazyWithRetry(() => import('./views/InventoryView'));
 const MonitoringView = lazyWithRetry(() => import('./views/MonitoringView'));
+const CMDBExplorerView = lazyWithRetry(() => import('./views/CMDBExplorerView'));
+const CIDetailView = lazyWithRetry(() => import('./views/CIDetailView'));
+const CreateCIView = lazyWithRetry(() => import('./views/CreateCIView'));
+const EditCIView = lazyWithRetry(() => import('./views/EditCIView'));
 const KnowledgeBaseView = lazyWithRetry(() => import('./views/KnowledgeBaseView').then(m => ({ default: m.KnowledgeBaseView })));
 const KBArticleDetailView = lazyWithRetry(() => import('./views/KBArticleDetailView').then(m => ({ default: m.KBArticleDetailView })));
 const KBArticleEditorView = lazyWithRetry(() => import('./views/KBArticleEditorView').then(m => ({ default: m.KBArticleEditorView })));
@@ -238,6 +242,10 @@ function AppContent() {
                     <Route path="inventory" element={<InventoryView />} />
                     <Route path="inventory/asset/:assetId" element={<AssetDetailView />} />
                     <Route path="monitoring" element={<MonitoringView />} />
+                    <Route path="cmdb" element={<CMDBExplorerView />} />
+                    <Route path="cmdb/new" element={<CreateCIView />} />
+                    <Route path="cmdb/:id" element={<CIDetailView />} />
+                    <Route path="cmdb/:id/edit" element={<EditCIView />} />
                     <Route path="projects/:projectId" element={<ProjectWorkspaceView />} />
                     <Route path="projects/:projectId/activities/:activityId/cluster-strategies" element={<ClusterStrategyManagerView />} />
                     {/* Phase 7: Activity Wizard now modal-only - accessible via "Add Activity" buttons in project views */}
