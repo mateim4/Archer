@@ -239,12 +239,109 @@ export interface DashboardSummary {
   active_incidents: number;
 }
 
+// ===== Knowledge Base Types =====
+export type KBArticleStatus = 'DRAFT' | 'PENDING_REVIEW' | 'PUBLISHED' | 'ARCHIVED';
+export type KBArticleVisibility = 'PUBLIC' | 'INTERNAL' | 'RESTRICTED';
+
+export interface KBArticle {
+  id: string;
+  title: string;
+  slug: string;
+  summary?: string;
+  content: string;
+  category_id?: string;
+  tags: string[];
+  status: KBArticleStatus;
+  visibility: KBArticleVisibility;
+  version: number;
+  view_count: number;
+  helpful_count: number;
+  not_helpful_count: number;
+  related_articles: string[];
+  seo_title?: string;
+  seo_description?: string;
+  author_id: string;
+  author_name: string;
+  approved_by?: string;
+  approved_at?: string;
+  published_at?: string;
+  expires_at?: string;
+  created_at: string;
+  updated_at: string;
+  tenant_id?: string;
+}
+
+export interface CreateKBArticleRequest {
+  title: string;
+  summary?: string;
+  content: string;
+  category_id?: string;
+  tags?: string[];
+  visibility?: KBArticleVisibility;
+  seo_title?: string;
+  seo_description?: string;
+  expires_at?: string;
+}
+
+export interface KBCategory {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  parent_id?: string;
+  icon?: string;
+  display_order: number;
+  is_active: boolean;
+  article_count: number;
+  tenant_id?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateKBCategoryRequest {
+  name: string;
+  description?: string;
+  parent_id?: string;
+  icon?: string;
+  display_order?: number;
+}
+
+export interface KBArticleVersion {
+  id: string;
+  article_id: string;
+  version: number;
+  title: string;
+  content: string;
+  change_summary?: string;
+  created_by: string;
+  created_by_name: string;
+  created_at: string;
+}
+
+export interface KBStatistics {
+  total_articles: number;
+  published_articles: number;
+  draft_articles: number;
+  total_categories: number;
+  total_views: number;
+  avg_rating: number;
+}
+
 export class ApiClient {
   private baseUrl: string;
   private usingMockData: boolean = false;
+  private getAccessToken: (() => string | null) | null = null;
 
   constructor(baseUrl: string = API_BASE_URL) {
     this.baseUrl = baseUrl;
+  }
+
+  /**
+   * Set a function to retrieve the current access token
+   * This should be called by AuthContext to provide token access
+   */
+  public setTokenProvider(provider: () => string | null) {
+    this.getAccessToken = provider;
   }
 
   public isUsingMockData(): boolean {
@@ -257,16 +354,26 @@ export class ApiClient {
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
     
+    // Add Authorization header if token is available
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    };
+
+    if (this.getAccessToken) {
+      const token = this.getAccessToken();
+      if (token) {
+        (headers as Record<string, string>)['Authorization'] = `Bearer ${token}`;
+      }
+    }
+    
     // Create abort controller for timeout
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
     
     try {
       const response = await fetch(url, {
-        headers: {
-          'Content-Type': 'application/json',
-          ...options.headers,
-        },
+        headers,
         signal: controller.signal,
         ...options,
       });
@@ -279,6 +386,13 @@ export class ApiClient {
           data = await response.json();
         } catch (_) {}
         const message = data?.message || data?.error || `${response.status} ${response.statusText}`;
+        
+        // Handle 401 Unauthorized - token expired or invalid
+        if (response.status === 401) {
+          // Trigger logout by dispatching custom event
+          window.dispatchEvent(new CustomEvent('auth:unauthorized'));
+        }
+        
         throw new ApiError(response.status, message, data);
       }
 
@@ -667,6 +781,113 @@ export class ApiClient {
 
   async getAssetMetrics(assetId: string): Promise<AssetMetrics> {
     return this.request(`/api/v1/monitoring/assets/${assetId}`);
+  }
+
+  // ===== Knowledge Base =====
+  async getKBArticles(params?: {
+    query?: string;
+    category_id?: string;
+    tags?: string[];
+    status?: KBArticleStatus;
+    page?: number;
+    page_size?: number;
+  }): Promise<KBArticle[]> {
+    const queryParams = new URLSearchParams();
+    if (params?.query) queryParams.append('query', params.query);
+    if (params?.category_id) queryParams.append('category_id', params.category_id);
+    if (params?.tags) params.tags.forEach(tag => queryParams.append('tags', tag));
+    if (params?.status) queryParams.append('status', params.status);
+    if (params?.page) queryParams.append('page', params.page.toString());
+    if (params?.page_size) queryParams.append('page_size', params.page_size.toString());
+    
+    return this.request(`/api/v1/knowledge-base/articles?${queryParams.toString()}`);
+  }
+
+  async getKBArticle(id: string): Promise<KBArticle> {
+    return this.request(`/api/v1/knowledge-base/articles/${id}`);
+  }
+
+  async getKBArticleBySlug(slug: string): Promise<KBArticle> {
+    return this.request(`/api/v1/knowledge-base/articles/by-slug/${slug}`);
+  }
+
+  async createKBArticle(data: CreateKBArticleRequest): Promise<KBArticle> {
+    return this.request('/api/v1/knowledge-base/articles', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateKBArticle(id: string, data: Partial<CreateKBArticleRequest>): Promise<KBArticle> {
+    return this.request(`/api/v1/knowledge-base/articles/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteKBArticle(id: string): Promise<void> {
+    return this.request(`/api/v1/knowledge-base/articles/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async publishKBArticle(id: string): Promise<KBArticle> {
+    return this.request(`/api/v1/knowledge-base/articles/${id}/publish`, {
+      method: 'POST',
+    });
+  }
+
+  async rateKBArticle(id: string, data: { is_helpful: boolean; feedback?: string }): Promise<void> {
+    return this.request(`/api/v1/knowledge-base/articles/${id}/rate`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async getKBArticleVersions(id: string): Promise<KBArticleVersion[]> {
+    return this.request(`/api/v1/knowledge-base/articles/${id}/versions`);
+  }
+
+  async searchKBArticles(query: string, params?: {
+    category_id?: string;
+    tags?: string[];
+  }): Promise<KBArticle[]> {
+    return this.request('/api/v1/knowledge-base/articles/search', {
+      method: 'POST',
+      body: JSON.stringify({
+        query,
+        category_id: params?.category_id,
+        tags: params?.tags,
+      }),
+    });
+  }
+
+  async getKBCategories(): Promise<KBCategory[]> {
+    return this.request('/api/v1/knowledge-base/categories');
+  }
+
+  async createKBCategory(data: CreateKBCategoryRequest): Promise<KBCategory> {
+    return this.request('/api/v1/knowledge-base/categories', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateKBCategory(id: string, data: Partial<CreateKBCategoryRequest>): Promise<KBCategory> {
+    return this.request(`/api/v1/knowledge-base/categories/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteKBCategory(id: string): Promise<void> {
+    return this.request(`/api/v1/knowledge-base/categories/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async getKBStatistics(): Promise<KBStatistics> {
+    return this.request('/api/v1/knowledge-base/statistics');
   }
 }
 

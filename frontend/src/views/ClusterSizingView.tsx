@@ -308,7 +308,7 @@ const ClusterSizingView: React.FC = () => {
                       </div>
                       <div className="text-right">
                         <div className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>Host {index + 1}</div>
-                        <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>{hardware.specs.cpu} | {hardware.specs.memory}</div></div>
+                        <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>{hardware.specs.cpu} | {hardware.specs.memory}</div>
                       </div>
                     </div>
                   ))}
