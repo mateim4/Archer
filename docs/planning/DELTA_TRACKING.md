@@ -35,7 +35,24 @@ This document is **mandatory reading and updating** for all AI agents working on
 
 > *AI Agents: Log your changes here during the session, then move to Completed Log*
 
-*No current session in progress*
+### [2025-12-10 17:00] - Ticket File Attachments Feature
+**Type:** Feature
+**Files Changed:**
+- backend/src/models/ticket.rs - Added TicketAttachment struct
+- backend/src/api/tickets.rs - Added attachment endpoints (POST/GET/DELETE)
+- backend/src/database/migrations.rs - Added ticket_attachments table and indexes
+- frontend/src/utils/apiClient.ts - Added TicketAttachment interface and API methods
+- frontend/src/views/TicketDetailView.tsx - Added attachments UI with drag-and-drop
+
+**Description:** Implemented complete file attachment system for tickets:
+- Backend: Multipart file upload, file storage in `./uploads/tickets/{id}/`, 10MB size limit, MIME type validation
+- Frontend: Drag-and-drop upload zone, file list with icons, download/delete functionality
+- RBAC protection on all endpoints
+- Purple Glass design system compliance
+
+**Status:** Code complete, backend compiles, frontend compiles. Manual testing blocked by pre-existing auth token issue.
+
+**Next Steps:** Auth token database issue needs to be fixed separately (not part of this PR).
 
 ---
 
