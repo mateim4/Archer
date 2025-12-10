@@ -53,6 +53,11 @@ const KnowledgeBaseView = lazyWithRetry(() => import('./views/KnowledgeBaseView'
 const KBArticleDetailView = lazyWithRetry(() => import('./views/KBArticleDetailView').then(m => ({ default: m.KBArticleDetailView })));
 const KBArticleEditorView = lazyWithRetry(() => import('./views/KBArticleEditorView').then(m => ({ default: m.KBArticleEditorView })));
 
+// Admin views (lazy loaded)
+const UserManagementView = lazyWithRetry(() => import('./views/UserManagementView'));
+const RoleManagementView = lazyWithRetry(() => import('./views/RoleManagementView'));
+const AuditLogView = lazyWithRetry(() => import('./views/AuditLogView'));
+
 // Inner App component that uses the theme context
 function AppContent() {
   const styles = useStyles();
@@ -255,6 +260,10 @@ function AppContent() {
                     <Route path="enhanced-rvtools" element={<EnhancedRVToolsReportView />} />
                     <Route path="enhanced-rvtools/:uploadId" element={<EnhancedRVToolsReportView />} />
                     <Route path="settings" element={<SettingsView />} />
+                    {/* Admin routes */}
+                    <Route path="admin/users" element={<UserManagementView />} />
+                    <Route path="admin/roles" element={<RoleManagementView />} />
+                    <Route path="admin/audit" element={<AuditLogView />} />
                     <Route path="capacity-visualizer" element={
                       <div data-testid="capacity-visualizer" style={{ height: '100%', width: '100%' }}>
                         <CapacityVisualizerView />

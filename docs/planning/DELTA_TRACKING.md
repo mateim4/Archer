@@ -2,8 +2,8 @@
 
 **Document Purpose:** Track all significant changes across agentic coding sessions to ensure continuity and accountability.
 
-**Last Updated:** 2025-12-10T00:15:00Z  
-**Document Version:** 1.3
+**Last Updated:** 2025-12-10T14:30:00Z  
+**Document Version:** 1.4
 
 ---
 
@@ -54,9 +54,11 @@ This document is **mandatory reading and updating** for all AI agents working on
 |--------|---------|----------|-------|
 | Auth/RBAC | 🟢 Complete | 🟢 Complete | Phase 0 - JWT tokens, role deserialization fixed (PR #41 ✅) |
 | Ticket System | 🟢 Complete | 🟢 Complete | Phase 1 - ServiceDeskView connected to API |
+| Ticket Comments | 🟢 Complete | 🟢 Complete | Added GET/POST/DELETE endpoints, TicketDetailView integration |
 | SLA Engine | 🟢 Complete | 🟢 Complete | Phase 1 - Real SLA calculation in ServiceDeskView |
 | Knowledge Base | 🟢 Complete | 🟢 Complete | Phase 1.5 - Full CRUD, search, versions, ratings (PR #36 ✅) |
 | CMDB/Assets | 🟢 Complete | 🟢 Complete | Phase 2 - Full CRUD, relationships, impact analysis (PR #37 ✅) |
+| User Management | 🟢 Complete | 🟢 Complete | Admin CRUD views for users, roles, permissions, audit logs |
 | E2E Tests | 🟢 Complete | N/A | Auth, KB, CMDB test suites added (PR #38 ✅) |
 | Workflows | 🔴 Not Started | 🔴 Not Started | Phase 3 |
 | Monitoring | 🔴 Not Started | 🔴 Not Started | Phase 4 |
@@ -78,6 +80,25 @@ This document is **mandatory reading and updating** for all AI agents working on
 ---
 
 ## ✅ Completed Changes Log
+
+### [2025-12-10 14:30] - User Management Admin UI + Ticket Comments
+**Type:** Feature
+**Files Changed:**
+- `frontend/src/views/UserManagementView.tsx` (NEW - ~983 lines)
+- `frontend/src/views/RoleManagementView.tsx` (NEW - ~700 lines)
+- `frontend/src/views/AuditLogView.tsx` (NEW - ~812 lines)
+- `frontend/src/views/TicketDetailView.tsx` (Updated - API integration)
+- `frontend/src/utils/apiClient.ts` (Updated - admin types + comment methods)
+- `frontend/src/App.tsx` (Added admin routes)
+- `frontend/src/components/NavigationSidebar.tsx` (Added Admin section)
+- `backend/src/api/tickets.rs` (Added comment endpoints)
+**Description:** 
+1. Created full admin UI for user management (CRUD), role management (with permissions), and audit log viewing
+2. Added ticket comments backend API (GET/POST/DELETE at /tickets/:id/comments)
+3. Integrated comments into TicketDetailView with live API calls
+4. Fixed duplicate CreateTicketRequest interface, apiClient class closure issue
+**Impact:** Admins can now manage users/roles/permissions via UI. Ticket comments persist to database.
+**Next Steps:** Consider Workflows or Monitoring module next
 
 ### [2025-12-10 00:12] - PR Cleanup and Merge Session
 **Type:** Documentation

@@ -12,7 +12,10 @@ use surrealdb::sql::Thing;
 
 use crate::{
     database::Database,
-    models::ticket::{Ticket, CreateTicketRequest, UpdateTicketRequest, TicketStatus},
+    models::ticket::{
+        Ticket, CreateTicketRequest, UpdateTicketRequest, TicketStatus,
+        TicketComment, CreateCommentRequest, CommentType,
+    },
     middleware::{
         auth::{require_auth, AuthState, AuthenticatedUser},
         rbac::{check_tickets_create, check_tickets_read, check_tickets_update, check_tickets_delete},
@@ -27,6 +30,7 @@ pub fn create_tickets_router(db: Arc<Database>) -> Router {
     let read_routes = Router::new()
         .route("/", get(list_tickets))
         .route("/:id", get(get_ticket))
+        .route("/:id/comments", get(list_comments))
         .layer(middleware::from_fn(check_tickets_read))
         .with_state(db.clone());
 
@@ -36,15 +40,17 @@ pub fn create_tickets_router(db: Arc<Database>) -> Router {
         .layer(middleware::from_fn(check_tickets_create))
         .with_state(db.clone());
 
-    // Routes that require update permission
+    // Routes that require update permission (includes adding comments)
     let update_routes = Router::new()
         .route("/:id", patch(update_ticket))
+        .route("/:id/comments", post(add_comment))
         .layer(middleware::from_fn(check_tickets_update))
         .with_state(db.clone());
 
     // Routes that require delete permission
     let delete_routes = Router::new()
         .route("/:id", delete(delete_ticket))
+        .route("/:id/comments/:comment_id", delete(delete_comment))
         .layer(middleware::from_fn(check_tickets_delete))
         .with_state(db.clone());
 
@@ -229,6 +235,134 @@ async fn delete_ticket(
 }
 
 // ============================================================================
+// COMMENT HANDLERS
+// ============================================================================
+
+/// List all comments for a ticket
+async fn list_comments(
+    State(db): State<Arc<Database>>,
+    Path(id): Path<String>,
+    axum::Extension(user): axum::Extension<AuthenticatedUser>,
+) -> impl IntoResponse {
+    let ticket_thing = match thing(&id) {
+        Ok(t) => t,
+        Err(_) => return (StatusCode::BAD_REQUEST, Json(serde_json::json!({ "error": "Invalid ticket ID format" }))).into_response(),
+    };
+
+    // Query comments for this ticket
+    let query = format!(
+        "SELECT * FROM ticket_comments WHERE ticket_id = {} ORDER BY created_at ASC",
+        ticket_thing
+    );
+
+    match db.query(&query).await {
+        Ok(mut response) => {
+            let comments: Vec<TicketComment> = response.take(0).unwrap_or_default();
+            log_audit(&db, &user, "ticket_comments", "list", Some(&id), true).await;
+            (StatusCode::OK, Json(serde_json::json!({
+                "data": comments,
+                "count": comments.len(),
+                "ticket_id": id
+            }))).into_response()
+        },
+        Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, Json(serde_json::json!({ "error": e.to_string() }))).into_response(),
+    }
+}
+
+/// Add a comment to a ticket
+async fn add_comment(
+    State(db): State<Arc<Database>>,
+    Path(id): Path<String>,
+    axum::Extension(user): axum::Extension<AuthenticatedUser>,
+    Json(payload): Json<CreateCommentRequest>,
+) -> impl IntoResponse {
+    let ticket_thing = match thing(&id) {
+        Ok(t) => t,
+        Err(_) => return (StatusCode::BAD_REQUEST, Json(serde_json::json!({ "error": "Invalid ticket ID format" }))).into_response(),
+    };
+
+    // Verify ticket exists
+    let ticket_exists: Option<Ticket> = match db.select(ticket_thing.clone()).await {
+        Ok(t) => t,
+        Err(_) => return (StatusCode::NOT_FOUND, Json(serde_json::json!({ "error": "Ticket not found" }))).into_response(),
+    };
+
+    if ticket_exists.is_none() {
+        return (StatusCode::NOT_FOUND, Json(serde_json::json!({ "error": "Ticket not found" }))).into_response();
+    }
+
+    let now = Utc::now();
+    let comment = TicketComment {
+        id: None,
+        ticket_id: ticket_thing,
+        content: payload.content,
+        author_id: user.user_id.clone(),
+        author_name: user.username.clone(),
+        is_internal: payload.is_internal,
+        comment_type: payload.comment_type.unwrap_or(CommentType::Note),
+        attachments: vec![],
+        created_at: now,
+        updated_at: now,
+    };
+
+    match db.create("ticket_comments").content(&comment).await {
+        Ok(created) => {
+            let created: Vec<TicketComment> = created;
+            log_audit(&db, &user, "ticket_comments", "create", Some(&id), true).await;
+            
+            // Update the ticket's updated_at timestamp
+            let _ = db.query(&format!(
+                "UPDATE {} SET updated_at = time::now()",
+                id
+            )).await;
+
+            (StatusCode::CREATED, Json(created.into_iter().next())).into_response()
+        },
+        Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, Json(serde_json::json!({ "error": e.to_string() }))).into_response(),
+    }
+}
+
+/// Delete a comment from a ticket
+async fn delete_comment(
+    State(db): State<Arc<Database>>,
+    Path((ticket_id, comment_id)): Path<(String, String)>,
+    axum::Extension(user): axum::Extension<AuthenticatedUser>,
+) -> impl IntoResponse {
+    let comment_thing = match comment_thing(&comment_id) {
+        Ok(t) => t,
+        Err(_) => return (StatusCode::BAD_REQUEST, Json(serde_json::json!({ "error": "Invalid comment ID format" }))).into_response(),
+    };
+
+    // Get the comment to verify it belongs to this ticket and check ownership
+    let existing: Option<TicketComment> = match db.select(comment_thing.clone()).await {
+        Ok(c) => c,
+        Err(_) => return (StatusCode::NOT_FOUND, Json(serde_json::json!({ "error": "Comment not found" }))).into_response(),
+    };
+
+    match existing {
+        Some(comment) => {
+            // Verify the comment belongs to this ticket
+            let expected_ticket = format!("ticket:{}", ticket_id.split(':').last().unwrap_or(&ticket_id));
+            let actual_ticket = format!("{}:{}", comment.ticket_id.tb, comment.ticket_id.id);
+            
+            if actual_ticket != expected_ticket && !ticket_id.contains(&actual_ticket) {
+                return (StatusCode::FORBIDDEN, Json(serde_json::json!({ "error": "Comment does not belong to this ticket" }))).into_response();
+            }
+
+            // Delete the comment
+            match db.delete::<Option<TicketComment>>(comment_thing).await {
+                Ok(_) => {
+                    log_audit(&db, &user, "ticket_comments", "delete", Some(&comment_id), true).await;
+                    (StatusCode::NO_CONTENT, ()).into_response()
+                },
+                Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, Json(serde_json::json!({ "error": e.to_string() }))).into_response(),
+            }
+        },
+        None => (StatusCode::NOT_FOUND, Json(serde_json::json!({ "error": "Comment not found" }))).into_response(),
+    }
+}
+
+// ============================================================================
 // HELPER FUNCTIONS
 // ============================================================================
 
@@ -238,6 +372,15 @@ fn thing(id: &str) -> Result<Thing, surrealdb::Error> {
         Ok(Thing::from((parts[0], parts[1])))
     } else {
         Ok(Thing::from(("ticket", id)))
+    }
+}
+
+fn comment_thing(id: &str) -> Result<Thing, surrealdb::Error> {
+    let parts: Vec<&str> = id.split(':').collect();
+    if parts.len() == 2 {
+        Ok(Thing::from((parts[0], parts[1])))
+    } else {
+        Ok(Thing::from(("ticket_comments", id)))
     }
 }
 

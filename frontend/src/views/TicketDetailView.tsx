@@ -34,6 +34,7 @@ import {
   DeleteRegular,
   ShareRegular,
   BookmarkRegular,
+  LockClosedRegular,
 } from '@fluentui/react-icons';
 import {
   PurpleGlassCard,
@@ -46,6 +47,7 @@ import {
 } from '../components/ui';
 import type { AssetType, AssetStatus, SLAStatus } from '../components/ui';
 import { DesignTokens } from '../styles/designSystem';
+import { apiClient, type TicketComment, type CommentType } from '../utils/apiClient';
 
 // Extended ticket interface with all detail fields (standalone, not extending base Ticket)
 interface TicketDetail {
@@ -204,23 +206,47 @@ const TicketDetailView: React.FC = () => {
   const navigate = useNavigate();
 
   const [ticket, setTicket] = useState<TicketDetail | null>(null);
+  const [comments, setComments] = useState<TicketComment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingComments, setIsLoadingComments] = useState(false);
+  const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const [activeTab, setActiveTab] = useState<'comments' | 'activity' | 'related'>('comments');
   const [newComment, setNewComment] = useState('');
   const [isInternalComment, setIsInternalComment] = useState(false);
+  const [commentType, setCommentType] = useState<CommentType>('NOTE');
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [editedTitle, setEditedTitle] = useState('');
 
-  // Load ticket data
+  // Load ticket data and comments
   useEffect(() => {
     const loadTicket = async () => {
+      if (!ticketId) return;
+      
       setIsLoading(true);
       try {
-        // In production, this would fetch from API
-        // const data = await apiClient.getTicket(ticketId);
-        await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API call
-        setTicket(mockTicketDetail);
-        setEditedTitle(mockTicketDetail.title);
+        // Try to fetch from API first, fall back to mock data
+        try {
+          const ticketData = await apiClient.getTicket(ticketId);
+          // Map API response to TicketDetail format
+          setTicket({
+            id: ticketData.id,
+            title: ticketData.title,
+            ticket_type: ticketData.ticket_type,
+            description: ticketData.description || '',
+            status: ticketData.status,
+            priority: ticketData.priority,
+            reporter: ticketData.created_by,
+            assignee: ticketData.assignee,
+            created_at: ticketData.created_at,
+            updated_at: ticketData.updated_at,
+          });
+          setEditedTitle(ticketData.title);
+        } catch {
+          // Fall back to mock data for development
+          await new Promise(resolve => setTimeout(resolve, 500));
+          setTicket(mockTicketDetail);
+          setEditedTitle(mockTicketDetail.title);
+        }
       } catch (error) {
         console.error('Failed to load ticket:', error);
       } finally {
@@ -230,23 +256,72 @@ const TicketDetailView: React.FC = () => {
     loadTicket();
   }, [ticketId]);
 
-  const handleAddComment = useCallback(async () => {
-    if (!newComment.trim() || !ticket) return;
-    
-    const comment = {
-      id: `cmt-${Date.now()}`,
-      author: 'Current User', // Would come from auth context
-      content: newComment,
-      createdAt: new Date().toISOString(),
-      isInternal: isInternalComment,
+  // Load comments separately
+  useEffect(() => {
+    const loadComments = async () => {
+      if (!ticketId) return;
+      
+      setIsLoadingComments(true);
+      try {
+        const response = await apiClient.getTicketComments(ticketId);
+        setComments(response.data || []);
+      } catch (error) {
+        console.error('Failed to load comments:', error);
+        // Fall back to mock comments
+        setComments([]);
+      } finally {
+        setIsLoadingComments(false);
+      }
     };
+    loadComments();
+  }, [ticketId]);
 
-    setTicket(prev => prev ? {
-      ...prev,
-      comments: [...(prev.comments || []), comment],
-    } : null);
-    setNewComment('');
-  }, [newComment, isInternalComment, ticket]);
+  const handleAddComment = useCallback(async () => {
+    if (!newComment.trim() || !ticket || !ticketId) return;
+    
+    setIsSubmittingComment(true);
+    try {
+      const newCommentData = await apiClient.addTicketComment(ticketId, {
+        content: newComment,
+        is_internal: isInternalComment,
+        comment_type: commentType,
+      });
+      
+      // Add to local state
+      setComments(prev => [...prev, newCommentData]);
+      setNewComment('');
+    } catch (error) {
+      console.error('Failed to add comment:', error);
+      // Optimistic update for development
+      const localComment: TicketComment = {
+        id: `cmt-${Date.now()}`,
+        ticket_id: ticketId,
+        author_id: 'current_user',
+        author_name: 'Current User',
+        content: newComment,
+        is_internal: isInternalComment,
+        comment_type: commentType,
+        attachments: [],
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+      setComments(prev => [...prev, localComment]);
+      setNewComment('');
+    } finally {
+      setIsSubmittingComment(false);
+    }
+  }, [newComment, isInternalComment, commentType, ticket, ticketId]);
+
+  const handleDeleteComment = useCallback(async (commentId: string) => {
+    if (!ticketId) return;
+    
+    try {
+      await apiClient.deleteTicketComment(ticketId, commentId);
+      setComments(prev => prev.filter(c => c.id !== commentId));
+    } catch (error) {
+      console.error('Failed to delete comment:', error);
+    }
+  }, [ticketId]);
 
   const handleSaveTitle = useCallback(() => {
     if (!ticket || !editedTitle.trim()) return;
@@ -588,7 +663,7 @@ const TicketDetailView: React.FC = () => {
                 onClick={() => setActiveTab('comments')}
               >
                 <CommentRegular style={{ marginRight: '8px' }} />
-                Comments ({ticket.comments?.length || 0})
+                Comments ({comments.length})
               </button>
               <button 
                 style={tabStyle(activeTab === 'activity')}
@@ -644,27 +719,39 @@ const TicketDetailView: React.FC = () => {
                         </PurpleGlassButton>
                         <PurpleGlassButton 
                           onClick={handleAddComment}
-                          disabled={!newComment.trim()}
+                          disabled={!newComment.trim() || isSubmittingComment}
                         >
                           <SendRegular style={{ marginRight: '8px' }} />
-                          Send
+                          {isSubmittingComment ? 'Sending...' : 'Send'}
                         </PurpleGlassButton>
                       </div>
                     </div>
                   </div>
 
                   {/* Comment List */}
-                  {ticket.comments?.map(comment => (
-                    <div key={comment.id} style={commentStyle(comment.isInternal || false)}>
-                      {comment.isInternal && (
+                  {isLoadingComments ? (
+                    <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-muted)' }}>
+                      Loading comments...
+                    </div>
+                  ) : comments.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-muted)' }}>
+                      No comments yet. Be the first to comment!
+                    </div>
+                  ) : (
+                    comments.map(comment => (
+                    <div key={comment.id} style={commentStyle(comment.is_internal || false)}>
+                      {comment.is_internal && (
                         <div style={{ 
                           fontSize: '11px', 
                           color: '#fbbf24', 
                           fontWeight: 600,
                           marginBottom: '8px',
                           textTransform: 'uppercase',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px',
                         }}>
-                          🔒 Internal Note
+                          <LockClosedRegular style={{ fontSize: '12px' }} /> Internal Note
                         </div>
                       )}
                       <div style={{ 
@@ -690,21 +777,44 @@ const TicketDetailView: React.FC = () => {
                             fontSize: '14px',
                             fontWeight: 600,
                           }}>
-                            {comment.author.charAt(0)}
+                            {comment.author_name.charAt(0)}
                           </div>
-                          <span style={{ 
-                            fontWeight: 600, 
-                            color: 'var(--text-primary)',
-                          }}>
-                            {comment.author}
-                          </span>
+                          <div style={{ display: 'flex', flexDirection: 'column' }}>
+                            <span style={{ 
+                              fontWeight: 600, 
+                              color: 'var(--text-primary)',
+                            }}>
+                              {comment.author_name}
+                            </span>
+                            {comment.comment_type !== 'NOTE' && (
+                              <span style={{ 
+                                fontSize: '11px', 
+                                color: comment.comment_type === 'SOLUTION' ? '#10b981' : 
+                                       comment.comment_type === 'WORKAROUND' ? '#f59e0b' : 
+                                       'var(--text-muted)',
+                                textTransform: 'uppercase',
+                              }}>
+                                {comment.comment_type.replace('_', ' ')}
+                              </span>
+                            )}
+                          </div>
                         </div>
-                        <span style={{ 
-                          fontSize: '12px', 
-                          color: 'var(--text-muted)',
-                        }}>
-                          {formatRelativeTime(comment.createdAt)}
-                        </span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                          <span style={{ 
+                            fontSize: '12px', 
+                            color: 'var(--text-muted)',
+                          }}>
+                            {formatRelativeTime(comment.created_at)}
+                          </span>
+                          <PurpleGlassButton
+                            variant="ghost"
+                            size="small"
+                            onClick={() => handleDeleteComment(comment.id)}
+                            style={{ opacity: 0.6 }}
+                          >
+                            <DeleteRegular style={{ fontSize: '14px' }} />
+                          </PurpleGlassButton>
+                        </div>
                       </div>
                       <p style={{ 
                         margin: 0,
@@ -715,7 +825,8 @@ const TicketDetailView: React.FC = () => {
                         {comment.content}
                       </p>
                     </div>
-                  ))}
+                  ))
+                  )}
                 </div>
               )}
 

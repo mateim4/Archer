@@ -33,6 +33,12 @@ import {
   PlugConnectedFilled,
   BookRegular,
   BookFilled,
+  PeopleTeamRegular,
+  PeopleTeamFilled,
+  ShieldPersonRegular,
+  ShieldPersonFilled,
+  HistoryRegular,
+  HistoryFilled,
 } from '@fluentui/react-icons';
 
 interface NavigationSidebarProps {
@@ -152,7 +158,12 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
       title: 'Settings', 
       icon: <SettingsRegular />, 
       iconFilled: <SettingsFilled />, 
-      path: '/app/settings'
+      path: '/app/settings',
+      subItems: [
+        { id: 'users', title: 'User Management', icon: <PeopleTeamRegular />, iconFilled: <PeopleTeamFilled />, path: '/app/admin/users' },
+        { id: 'roles', title: 'Role Management', icon: <ShieldPersonRegular />, iconFilled: <ShieldPersonFilled />, path: '/app/admin/roles' },
+        { id: 'audit', title: 'Audit Log', icon: <HistoryRegular />, iconFilled: <HistoryFilled />, path: '/app/admin/audit' },
+      ]
     }
   ];
 

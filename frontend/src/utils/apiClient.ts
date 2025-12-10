@@ -170,17 +170,6 @@ export interface Ticket {
   updated_at: string;
 }
 
-export interface CreateTicketRequest {
-  title: string;
-  description?: string;
-  type: 'INCIDENT' | 'PROBLEM' | 'CHANGE' | 'SERVICE_REQUEST';
-  priority: 'P1' | 'P2' | 'P3' | 'P4';
-  related_asset?: string;
-  related_project?: string;
-  assignee?: string;
-  created_by: string;
-}
-
 export interface Ticket {
   id: string;
   title: string;
@@ -205,6 +194,36 @@ export interface CreateTicketRequest {
   related_asset?: string;
   related_project?: string;
   created_by: string;
+}
+
+// ===== Ticket Comments =====
+export type CommentType = 'NOTE' | 'WORKAROUND' | 'SOLUTION' | 'CUSTOMER_RESPONSE' | 'STATUS_UPDATE';
+
+export interface TicketComment {
+  id: string;
+  ticket_id: string;
+  content: string;
+  author_id: string;
+  author_name: string;
+  is_internal: boolean;
+  comment_type: CommentType;
+  attachments: CommentAttachment[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CommentAttachment {
+  filename: string;
+  file_path: string;
+  mime_type: string;
+  size_bytes: number;
+  uploaded_at: string;
+}
+
+export interface CreateCommentRequest {
+  content: string;
+  is_internal: boolean;
+  comment_type?: CommentType;
 }
 
 export interface Asset {
@@ -237,6 +256,99 @@ export interface DashboardSummary {
   warning_alerts: number;
   avg_cluster_health: number;
   active_incidents: number;
+}
+
+// ===== Admin User Management Types =====
+export type AdminUserStatus = 'ACTIVE' | 'INACTIVE' | 'LOCKED' | 'PENDING_VERIFICATION';
+
+export interface AdminUser {
+  id: string;
+  email: string;
+  username: string;
+  display_name: string;
+  status: AdminUserStatus;
+  roles: AdminRoleInfo[];
+  permissions: string[];
+  last_login?: string;
+  failed_login_attempts: number;
+  locked_until?: string;
+  created_at: string;
+  updated_at: string;
+  created_by?: string;
+  tenant_id?: string;
+}
+
+export interface AdminRoleInfo {
+  id: string;
+  name: string;
+  display_name: string;
+}
+
+export interface AdminRole {
+  id: string;
+  name: string;
+  display_name: string;
+  description?: string;
+  permissions: string[];
+  is_system: boolean;
+  created_at: string;
+  updated_at: string;
+  tenant_id?: string;
+}
+
+export interface AdminPermission {
+  id: string;
+  name: string;
+  display_name: string;
+  description?: string;
+  resource: string;
+  action: 'create' | 'read' | 'update' | 'delete' | 'manage' | 'execute';
+  is_system: boolean;
+  created_at: string;
+}
+
+export interface CreateAdminUserRequest {
+  email: string;
+  username: string;
+  password: string;
+  display_name: string;
+  roles: string[];  // Role IDs
+}
+
+export interface UpdateAdminUserRequest {
+  display_name?: string;
+  status?: AdminUserStatus;
+  roles?: string[];  // Role IDs
+}
+
+export interface CreateRoleRequest {
+  name: string;
+  display_name: string;
+  description?: string;
+  permissions: string[];  // Permission IDs
+}
+
+export interface UpdateRoleRequest {
+  display_name?: string;
+  description?: string;
+  permissions?: string[];
+}
+
+export interface AuditLogEntry {
+  id: string;
+  event_type: string;
+  user_id?: string;
+  username?: string;
+  resource_type?: string;
+  resource_id?: string;
+  action: string;
+  details?: Record<string, unknown>;
+  ip_address?: string;
+  user_agent?: string;
+  success: boolean;
+  error_message?: string;
+  tenant_id?: string;
+  created_at: string;
 }
 
 // ===== Knowledge Base Types =====
@@ -761,6 +873,28 @@ export class ApiClient {
     return this.request(`/api/v1/tickets/${id}`, { method: 'DELETE' });
   }
 
+  // ===== Ticket Comments =====
+  async getTicketComments(ticketId: string): Promise<{ data: TicketComment[]; count: number }> {
+    const cleanId = ticketId.startsWith('ticket:') ? ticketId.split(':')[1] : ticketId;
+    return this.request(`/api/v1/tickets/${cleanId}/comments`);
+  }
+
+  async addTicketComment(ticketId: string, data: CreateCommentRequest): Promise<TicketComment> {
+    const cleanId = ticketId.startsWith('ticket:') ? ticketId.split(':')[1] : ticketId;
+    return this.request(`/api/v1/tickets/${cleanId}/comments`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteTicketComment(ticketId: string, commentId: string): Promise<void> {
+    const cleanTicketId = ticketId.startsWith('ticket:') ? ticketId.split(':')[1] : ticketId;
+    const cleanCommentId = commentId.startsWith('ticket_comments:') ? commentId.split(':')[1] : commentId;
+    return this.request(`/api/v1/tickets/${cleanTicketId}/comments/${cleanCommentId}`, {
+      method: 'DELETE',
+    });
+  }
+
   // ===== Assets (CMDB) =====
   async getAssets(filter?: { asset_type?: string; status?: string }): Promise<Asset[]> {
     const queryParams = new URLSearchParams();
@@ -888,6 +1022,107 @@ export class ApiClient {
 
   async getKBStatistics(): Promise<KBStatistics> {
     return this.request('/api/v1/knowledge-base/statistics');
+  }
+
+  // ===== User Management (Admin) =====
+  async getAllUsers(): Promise<AdminUser[]> {
+    const response = await this.request<any>('/api/v1/auth/users');
+    return response.data || response || [];
+  }
+
+  async getAdminUser(userId: string): Promise<AdminUser> {
+    const response = await this.request<any>(`/api/v1/auth/users/${userId}`);
+    return response.data || response;
+  }
+
+  async createAdminUser(data: CreateAdminUserRequest): Promise<AdminUser> {
+    const response = await this.request<any>('/api/v1/auth/users', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+    return response.data || response;
+  }
+
+  async updateAdminUser(userId: string, data: UpdateAdminUserRequest): Promise<AdminUser> {
+    const response = await this.request<any>(`/api/v1/auth/users/${userId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+    return response.data || response;
+  }
+
+  async deleteAdminUser(userId: string): Promise<void> {
+    await this.request(`/api/v1/auth/users/${userId}`, { method: 'DELETE' });
+  }
+
+  async resetUserPassword(userId: string, newPassword: string): Promise<void> {
+    await this.request(`/api/v1/auth/users/${userId}/reset-password`, {
+      method: 'POST',
+      body: JSON.stringify({ new_password: newPassword }),
+    });
+  }
+
+  // ===== Roles Management (Admin) =====
+  async getAllRoles(): Promise<AdminRole[]> {
+    const response = await this.request<any>('/api/v1/auth/roles');
+    return response.data || response || [];
+  }
+
+  async getRole(roleId: string): Promise<AdminRole> {
+    const response = await this.request<any>(`/api/v1/auth/roles/${roleId}`);
+    return response.data || response;
+  }
+
+  async createRole(data: CreateRoleRequest): Promise<AdminRole> {
+    const response = await this.request<any>('/api/v1/auth/roles', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+    return response.data || response;
+  }
+
+  async updateRole(roleId: string, data: UpdateRoleRequest): Promise<AdminRole> {
+    const response = await this.request<any>(`/api/v1/auth/roles/${roleId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+    return response.data || response;
+  }
+
+  async deleteRole(roleId: string): Promise<void> {
+    await this.request(`/api/v1/auth/roles/${roleId}`, { method: 'DELETE' });
+  }
+
+  // ===== Permissions (Admin) =====
+  async getAllPermissions(): Promise<AdminPermission[]> {
+    const response = await this.request<any>('/api/v1/auth/permissions');
+    return response.data || response || [];
+  }
+
+  // ===== Audit Logs (Admin) =====
+  async getAuditLogs(params?: {
+    user_id?: string;
+    event_type?: string;
+    resource_type?: string;
+    start_date?: string;
+    end_date?: string;
+    page?: number;
+    page_size?: number;
+  }): Promise<{ data: AuditLogEntry[]; total: number }> {
+    const queryParams = new URLSearchParams();
+    if (params?.user_id) queryParams.append('user_id', params.user_id);
+    if (params?.event_type) queryParams.append('event_type', params.event_type);
+    if (params?.resource_type) queryParams.append('resource_type', params.resource_type);
+    if (params?.start_date) queryParams.append('start_date', params.start_date);
+    if (params?.end_date) queryParams.append('end_date', params.end_date);
+    if (params?.page) queryParams.append('page', params.page.toString());
+    if (params?.page_size) queryParams.append('page_size', params.page_size.toString());
+    
+    const response = await this.request<any>(`/api/v1/audit?${queryParams.toString()}`);
+    return {
+      data: response.data || response || [],
+      total: response.total || (response.data?.length ?? 0),
+    };
   }
 }
 
