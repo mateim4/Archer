@@ -76,6 +76,22 @@ impl TicketMigrations {
         )
         .await?;
 
+        // Ticket Attachments table
+        db.query(
+            r#"
+            DEFINE TABLE ticket_attachments SCHEMAFULL;
+            DEFINE FIELD ticket_id ON ticket_attachments TYPE record(ticket);
+            DEFINE FIELD filename ON ticket_attachments TYPE string;
+            DEFINE FIELD original_filename ON ticket_attachments TYPE string;
+            DEFINE FIELD mime_type ON ticket_attachments TYPE string;
+            DEFINE FIELD size_bytes ON ticket_attachments TYPE int;
+            DEFINE FIELD storage_path ON ticket_attachments TYPE string;
+            DEFINE FIELD uploaded_by ON ticket_attachments TYPE string;
+            DEFINE FIELD uploaded_at ON ticket_attachments TYPE datetime DEFAULT time::now();
+            "#,
+        )
+        .await?;
+
         // Ticket History table
         db.query(
             r#"
@@ -158,6 +174,12 @@ impl TicketMigrations {
         db.query("DEFINE INDEX idx_comments_ticket ON ticket_comments FIELDS ticket_id;")
             .await?;
         db.query("DEFINE INDEX idx_comments_author ON ticket_comments FIELDS author_id;")
+            .await?;
+
+        // Attachment indexes
+        db.query("DEFINE INDEX idx_attachments_ticket ON ticket_attachments FIELDS ticket_id;")
+            .await?;
+        db.query("DEFINE INDEX idx_attachments_uploaded_by ON ticket_attachments FIELDS uploaded_by;")
             .await?;
 
         // History indexes
