@@ -39,6 +39,8 @@ import {
   ShieldPersonFilled,
   HistoryRegular,
   HistoryFilled,
+  ChartMultipleRegular,
+  ChartMultipleFilled,
 } from '@fluentui/react-icons';
 
 interface NavigationSidebarProps {
@@ -138,6 +140,13 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
       icon: <DiagramRegular />, 
       iconFilled: <DiagramFilled />, 
       path: '/app/monitoring'
+    },
+    { 
+      id: 'reporting', 
+      title: 'Reporting', 
+      icon: <ChartMultipleRegular />, 
+      iconFilled: <ChartMultipleFilled />, 
+      path: '/app/reporting'
     },
     { 
       id: 'guides', 
