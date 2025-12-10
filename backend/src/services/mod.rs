@@ -11,6 +11,9 @@ pub mod knowledge_service;
 // CMDB/Assets (Phase 2)
 pub mod cmdb_service;
 
+// Workflow Engine (Phase 3)
+pub mod workflow_engine_service;
+
 // Monitoring & Alerting (Phase 4)
 pub mod monitoring_service;
 
@@ -44,4 +47,3 @@ pub mod rvtools_hld_mapper;
 
 // HLD Generation Services (Week 3)
 pub mod word_generator;
-

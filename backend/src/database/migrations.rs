@@ -1928,3 +1928,109 @@ impl ServiceCatalogMigrations {
         Ok(())
     }
 }
+
+// ============================================================================
+// PHASE 3: WORKFLOW ENGINE MIGRATIONS
+// ============================================================================
+
+/// Database migrations for workflow engine (Phase 3)
+pub struct WorkflowMigrations;
+
+impl WorkflowMigrations {
+    /// Run all workflow system migrations
+    pub async fn run_all(db: &Database) -> Result<()> {
+        Self::create_workflow_tables(db).await?;
+        Self::create_workflow_indexes(db).await?;
+        Ok(())
+    }
+
+    /// Create tables for workflow functionality
+    async fn create_workflow_tables(db: &Database) -> Result<()> {
+        // Workflow Definition table
+        db.query(
+            r#"
+            DEFINE TABLE workflow_definition SCHEMAFULL;
+            DEFINE FIELD name ON workflow_definition TYPE string;
+            DEFINE FIELD description ON workflow_definition TYPE option<string>;
+            DEFINE FIELD trigger_type ON workflow_definition TYPE string;
+            DEFINE FIELD trigger_conditions ON workflow_definition TYPE object;
+            DEFINE FIELD steps ON workflow_definition TYPE array;
+            DEFINE FIELD is_active ON workflow_definition TYPE bool DEFAULT true;
+            DEFINE FIELD created_by ON workflow_definition TYPE string;
+            DEFINE FIELD created_at ON workflow_definition TYPE datetime DEFAULT time::now();
+            DEFINE FIELD updated_at ON workflow_definition TYPE datetime DEFAULT time::now();
+            "#,
+        )
+        .await?;
+
+        // Workflow Instance table
+        db.query(
+            r#"
+            DEFINE TABLE workflow_instance SCHEMAFULL;
+            DEFINE FIELD workflow_id ON workflow_instance TYPE record(workflow_definition);
+            DEFINE FIELD trigger_record_type ON workflow_instance TYPE string;
+            DEFINE FIELD trigger_record_id ON workflow_instance TYPE record;
+            DEFINE FIELD status ON workflow_instance TYPE string DEFAULT 'RUNNING';
+            DEFINE FIELD current_step_id ON workflow_instance TYPE option<string>;
+            DEFINE FIELD step_history ON workflow_instance TYPE array DEFAULT [];
+            DEFINE FIELD started_at ON workflow_instance TYPE datetime DEFAULT time::now();
+            DEFINE FIELD completed_at ON workflow_instance TYPE option<datetime>;
+            DEFINE FIELD context ON workflow_instance TYPE object DEFAULT {};
+            "#,
+        )
+        .await?;
+
+        // Approval table
+        db.query(
+            r#"
+            DEFINE TABLE approval SCHEMAFULL;
+            DEFINE FIELD workflow_instance_id ON approval TYPE record(workflow_instance);
+            DEFINE FIELD step_id ON approval TYPE string;
+            DEFINE FIELD approver_id ON approval TYPE record;
+            DEFINE FIELD approver_type ON approval TYPE string DEFAULT 'USER';
+            DEFINE FIELD status ON approval TYPE string DEFAULT 'PENDING';
+            DEFINE FIELD requested_at ON approval TYPE datetime DEFAULT time::now();
+            DEFINE FIELD responded_at ON approval TYPE option<datetime>;
+            DEFINE FIELD comments ON approval TYPE option<string>;
+            "#,
+        )
+        .await?;
+
+        println!("✅ Workflow tables created successfully");
+        Ok(())
+    }
+
+    /// Create indexes for workflow performance
+    async fn create_workflow_indexes(db: &Database) -> Result<()> {
+        // Workflow definition indexes
+        db.query("DEFINE INDEX idx_workflow_name ON workflow_definition FIELDS name;")
+            .await?;
+        db.query("DEFINE INDEX idx_workflow_active ON workflow_definition FIELDS is_active;")
+            .await?;
+        db.query("DEFINE INDEX idx_workflow_trigger ON workflow_definition FIELDS trigger_type;")
+            .await?;
+
+        // Workflow instance indexes
+        db.query("DEFINE INDEX idx_instance_workflow ON workflow_instance FIELDS workflow_id;")
+            .await?;
+        db.query("DEFINE INDEX idx_instance_status ON workflow_instance FIELDS status;")
+            .await?;
+        db.query("DEFINE INDEX idx_instance_trigger ON workflow_instance FIELDS trigger_record_id;")
+            .await?;
+        db.query("DEFINE INDEX idx_instance_started ON workflow_instance FIELDS started_at;")
+            .await?;
+
+        // Approval indexes
+        db.query("DEFINE INDEX idx_approval_instance ON approval FIELDS workflow_instance_id;")
+            .await?;
+        db.query("DEFINE INDEX idx_approval_approver ON approval FIELDS approver_id;")
+            .await?;
+        db.query("DEFINE INDEX idx_approval_status ON approval FIELDS status;")
+            .await?;
+        db.query("DEFINE INDEX idx_approval_requested ON approval FIELDS requested_at;")
+            .await?;
+
+        println!("✅ Workflow indexes created successfully");
+        Ok(())
+    }
+}

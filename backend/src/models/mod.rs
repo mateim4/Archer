@@ -12,3 +12,4 @@ pub mod settings;
 pub mod settings_models;
 pub mod workflow;
 pub mod ticket;
+pub mod workflow_engine;  // Workflow Engine models (Phase 3)
