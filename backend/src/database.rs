@@ -149,6 +149,13 @@ async fn run_all_migrations(db: &Database) -> Result<(), DatabaseError> {
         info!("✅ Migration planning migrations completed");
     }
 
+    // Workflow Engine migrations (Phase 3)
+    if let Err(e) = migrations::WorkflowMigrations::run_all(db).await {
+        warn!("Workflow Engine migrations failed: {}", e);
+    } else {
+        info!("✅ Workflow Engine migrations completed");
+    }
+
     Ok(())
 }
 
