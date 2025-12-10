@@ -10,3 +10,4 @@ pub mod settings;
 pub mod settings_models;
 pub mod workflow;
 pub mod ticket;
+pub mod team;  // Team Management models (Phase 1+)

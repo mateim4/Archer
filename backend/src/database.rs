@@ -121,6 +121,13 @@ async fn run_all_migrations(db: &Database) -> Result<(), DatabaseError> {
         info!("✅ CMDB migrations completed");
     }
 
+    // Team management migrations
+    if let Err(e) = migrations::TeamMigrations::run_all(db).await {
+        warn!("Team management migrations failed: {}", e);
+    } else {
+        info!("✅ Team management migrations completed");
+    }
+
     // Enhanced RVTools migrations
     if let Err(e) = migrations::EnhancedRvToolsMigrations::run_all(db).await {
         warn!("Enhanced RVTools migrations failed: {}", e);

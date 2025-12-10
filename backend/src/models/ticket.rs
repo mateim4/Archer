@@ -74,9 +74,12 @@ pub struct Ticket {
     /// Subcategory for detailed classification
     #[serde(default)]
     pub subcategory: Option<String>,
-    /// Team/group assignment
+    /// Team/group assignment (legacy string-based)
     #[serde(default)]
     pub assigned_group: Option<String>,
+    /// Team assignment (proper reference to teams table)
+    #[serde(default)]
+    pub assignment_team_id: Option<Thing>,
     /// Tenant ID for multi-tenant isolation
     #[serde(default)]
     pub tenant_id: Option<Thing>,
@@ -400,6 +403,8 @@ pub struct CreateTicketRequest {
     #[serde(default)]
     pub assigned_group: Option<String>,
     #[serde(default)]
+    pub assignment_team_id: Option<String>,  // Team ID as string
+    #[serde(default)]
     pub tags: Vec<String>,
     #[serde(default)]
     pub watchers: Vec<String>,
@@ -420,6 +425,7 @@ pub struct UpdateTicketRequest {
     pub category: Option<String>,
     pub subcategory: Option<String>,
     pub assigned_group: Option<String>,
+    pub assignment_team_id: Option<String>,  // Team ID as string
     pub tags: Option<Vec<String>>,
     pub custom_fields: Option<serde_json::Value>,
 }
