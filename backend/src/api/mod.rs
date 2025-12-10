@@ -9,6 +9,7 @@ pub mod migration_wizard; // Migration Planning Wizard API
 pub mod project_lifecycle;
 pub mod project_workflow;
 pub mod rvtools;
+pub mod service_catalog; // Service Catalog API (Phase 5)
 pub mod settings; // Global settings API
 pub mod teams; // Team Management API (Phase 1+)
 pub mod tickets; // Tickets API
@@ -19,6 +20,7 @@ pub mod wizard; // Activity wizard API
 pub mod vm_placement; // VM placement API
 pub mod network_templates; // Network templates API
 pub mod hld; // HLD generation API
+pub mod workflows; // Workflow Engine API (Phase 3)
                 // pub mod analytics; // TODO: Convert from actix_web to axum
 pub mod enhanced_rvtools; // TODO: Fix compilation errors
                           // pub mod migration; // TODO: Fix migration_models imports
@@ -66,7 +68,9 @@ pub fn api_router(state: AppState) -> Router {
         .nest("/assets", assets::create_assets_router(state.clone()))
         .nest("/monitoring", monitoring::routes(state.clone()))
         .nest("/integration", integration::create_integration_router(state.clone()))
-        .nest("/settings", settings::create_settings_router(state.clone()));
+        .nest("/settings", settings::create_settings_router(state.clone()))
+        .nest("/workflows", workflows::create_workflows_router(state.clone()))
+        .nest("/catalog", service_catalog::create_service_catalog_router(state.clone()));
 
     Router::new()
         .route("/health", get(health_check))

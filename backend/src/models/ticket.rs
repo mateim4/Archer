@@ -313,6 +313,23 @@ pub enum HistoryChangeType {
 }
 
 // ============================================================================
+// TICKET ATTACHMENTS
+// ============================================================================
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TicketAttachment {
+    pub id: Option<Thing>,
+    pub ticket_id: Thing,
+    pub filename: String,
+    pub original_filename: String,
+    pub mime_type: String,
+    pub size_bytes: u64,
+    pub storage_path: String,
+    pub uploaded_by: String,
+    pub uploaded_at: DateTime<Utc>,
+}
+
+// ============================================================================
 // SLA MODELS
 // ============================================================================
 

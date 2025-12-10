@@ -54,7 +54,6 @@ impl TicketMigrations {
             DEFINE FIELD category ON ticket TYPE option<string>;
             DEFINE FIELD subcategory ON ticket TYPE option<string>;
             DEFINE FIELD assigned_group ON ticket TYPE option<string>;
-            DEFINE FIELD assignment_team_id ON ticket TYPE option<record(teams)>;
             DEFINE FIELD tenant_id ON ticket TYPE option<record(tenants)>;
             "#,
         )
@@ -73,6 +72,22 @@ impl TicketMigrations {
             DEFINE FIELD attachments ON ticket_comments TYPE array DEFAULT [];
             DEFINE FIELD created_at ON ticket_comments TYPE datetime DEFAULT time::now();
             DEFINE FIELD updated_at ON ticket_comments TYPE datetime DEFAULT time::now();
+            "#,
+        )
+        .await?;
+
+        // Ticket Attachments table
+        db.query(
+            r#"
+            DEFINE TABLE ticket_attachments SCHEMAFULL;
+            DEFINE FIELD ticket_id ON ticket_attachments TYPE record(ticket);
+            DEFINE FIELD filename ON ticket_attachments TYPE string;
+            DEFINE FIELD original_filename ON ticket_attachments TYPE string;
+            DEFINE FIELD mime_type ON ticket_attachments TYPE string;
+            DEFINE FIELD size_bytes ON ticket_attachments TYPE int;
+            DEFINE FIELD storage_path ON ticket_attachments TYPE string;
+            DEFINE FIELD uploaded_by ON ticket_attachments TYPE string;
+            DEFINE FIELD uploaded_at ON ticket_attachments TYPE datetime DEFAULT time::now();
             "#,
         )
         .await?;
@@ -159,6 +174,12 @@ impl TicketMigrations {
         db.query("DEFINE INDEX idx_comments_ticket ON ticket_comments FIELDS ticket_id;")
             .await?;
         db.query("DEFINE INDEX idx_comments_author ON ticket_comments FIELDS author_id;")
+            .await?;
+
+        // Attachment indexes
+        db.query("DEFINE INDEX idx_attachments_ticket ON ticket_attachments FIELDS ticket_id;")
+            .await?;
+        db.query("DEFINE INDEX idx_attachments_uploaded_by ON ticket_attachments FIELDS uploaded_by;")
             .await?;
 
         // History indexes
@@ -1624,6 +1645,396 @@ impl CMDBMigrations {
         Ok(())
     }
 }
+
+// ============================================================================
+// SERVICE CATALOG MIGRATIONS (Phase 5)
+// ============================================================================
+
+/// Service Catalog database migrations
+pub struct ServiceCatalogMigrations;
+
+impl ServiceCatalogMigrations {
+    /// Run all service catalog migrations
+    pub async fn run_all(db: &Database) -> Result<()> {
+        Self::create_service_catalog_tables(db).await?;
+        Self::create_service_catalog_indexes(db).await?;
+        Self::seed_sample_categories_and_items(db).await?;
+        Ok(())
+    }
+
+    /// Create tables for service catalog
+    async fn create_service_catalog_tables(db: &Database) -> Result<()> {
+        // Catalog Categories table
+        db.query(
+            r#"
+            DEFINE TABLE catalog_category SCHEMAFULL;
+            DEFINE FIELD name ON catalog_category TYPE string;
+            DEFINE FIELD description ON catalog_category TYPE option<string>;
+            DEFINE FIELD icon ON catalog_category TYPE option<string>;
+            DEFINE FIELD parent_id ON catalog_category TYPE option<record(catalog_category)>;
+            DEFINE FIELD sort_order ON catalog_category TYPE int DEFAULT 0;
+            DEFINE FIELD is_active ON catalog_category TYPE bool DEFAULT true;
+            DEFINE FIELD created_at ON catalog_category TYPE datetime DEFAULT time::now();
+            DEFINE FIELD updated_at ON catalog_category TYPE datetime DEFAULT time::now();
+            "#,
+        )
+        .await?;
+
+        // Catalog Items table
+        db.query(
+            r#"
+            DEFINE TABLE catalog_item SCHEMAFULL;
+            DEFINE FIELD name ON catalog_item TYPE string;
+            DEFINE FIELD description ON catalog_item TYPE string;
+            DEFINE FIELD category_id ON catalog_item TYPE record(catalog_category);
+            DEFINE FIELD icon ON catalog_item TYPE option<string>;
+            DEFINE FIELD short_description ON catalog_item TYPE string;
+            DEFINE FIELD delivery_time_days ON catalog_item TYPE option<int>;
+            DEFINE FIELD cost ON catalog_item TYPE option<float>;
+            DEFINE FIELD is_active ON catalog_item TYPE bool DEFAULT true;
+            DEFINE FIELD form_schema ON catalog_item TYPE object;
+            DEFINE FIELD approval_required ON catalog_item TYPE bool DEFAULT false;
+            DEFINE FIELD approval_group ON catalog_item TYPE option<string>;
+            DEFINE FIELD fulfillment_group ON catalog_item TYPE option<string>;
+            DEFINE FIELD created_at ON catalog_item TYPE datetime DEFAULT time::now();
+            DEFINE FIELD updated_at ON catalog_item TYPE datetime DEFAULT time::now();
+            "#,
+        )
+        .await?;
+
+        // Service Requests table
+        db.query(
+            r#"
+            DEFINE TABLE service_request SCHEMAFULL;
+            DEFINE FIELD catalog_item_id ON service_request TYPE record(catalog_item);
+            DEFINE FIELD requester_id ON service_request TYPE string;
+            DEFINE FIELD form_data ON service_request TYPE object;
+            DEFINE FIELD status ON service_request TYPE string DEFAULT 'DRAFT';
+            DEFINE FIELD approval_status ON service_request TYPE option<string>;
+            DEFINE FIELD approved_by ON service_request TYPE option<string>;
+            DEFINE FIELD approved_at ON service_request TYPE option<datetime>;
+            DEFINE FIELD assigned_to ON service_request TYPE option<string>;
+            DEFINE FIELD created_at ON service_request TYPE datetime DEFAULT time::now();
+            DEFINE FIELD updated_at ON service_request TYPE datetime DEFAULT time::now();
+            DEFINE FIELD completed_at ON service_request TYPE option<datetime>;
+            DEFINE FIELD rejection_reason ON service_request TYPE option<string>;
+            "#,
+        )
+        .await?;
+
+        println!("✅ Service catalog tables created successfully");
+        Ok(())
+    }
+
+    /// Create indexes for service catalog
+    async fn create_service_catalog_indexes(db: &Database) -> Result<()> {
+        // Category indexes
+        db.query("DEFINE INDEX idx_category_name ON catalog_category FIELDS name;")
+            .await?;
+        db.query("DEFINE INDEX idx_category_parent ON catalog_category FIELDS parent_id;")
+            .await?;
+        db.query("DEFINE INDEX idx_category_active ON catalog_category FIELDS is_active;")
+            .await?;
+        db.query("DEFINE INDEX idx_category_sort ON catalog_category FIELDS sort_order;")
+            .await?;
+
+        // Catalog item indexes
+        db.query("DEFINE INDEX idx_item_name ON catalog_item FIELDS name;")
+            .await?;
+        db.query("DEFINE INDEX idx_item_category ON catalog_item FIELDS category_id;")
+            .await?;
+        db.query("DEFINE INDEX idx_item_active ON catalog_item FIELDS is_active;")
+            .await?;
+
+        // Service request indexes
+        db.query("DEFINE INDEX idx_request_catalog_item ON service_request FIELDS catalog_item_id;")
+            .await?;
+        db.query("DEFINE INDEX idx_request_requester ON service_request FIELDS requester_id;")
+            .await?;
+        db.query("DEFINE INDEX idx_request_status ON service_request FIELDS status;")
+            .await?;
+        db.query("DEFINE INDEX idx_request_approval ON service_request FIELDS approval_status;")
+            .await?;
+        db.query("DEFINE INDEX idx_request_assigned ON service_request FIELDS assigned_to;")
+            .await?;
+
+        println!("✅ Service catalog indexes created successfully");
+        Ok(())
+    }
+
+    /// Seed sample categories and catalog items
+    async fn seed_sample_categories_and_items(db: &Database) -> Result<()> {
+        // Create sample categories
+        let hardware_category: Vec<serde_json::Value> = db
+            .create("catalog_category")
+            .content(json!({
+                "name": "Hardware",
+                "description": "Hardware equipment requests",
+                "icon": "Laptop",
+                "sort_order": 1,
+                "is_active": true
+            }))
+            .await?;
+
+        let software_category: Vec<serde_json::Value> = db
+            .create("catalog_category")
+            .content(json!({
+                "name": "Software",
+                "description": "Software licenses and applications",
+                "icon": "Apps",
+                "sort_order": 2,
+                "is_active": true
+            }))
+            .await?;
+
+        let access_category: Vec<serde_json::Value> = db
+            .create("catalog_category")
+            .content(json!({
+                "name": "Access & Permissions",
+                "description": "Request access to systems and resources",
+                "icon": "LockClosed",
+                "sort_order": 3,
+                "is_active": true
+            }))
+            .await?;
+
+        // Extract IDs from created categories
+        let hardware_id = hardware_category.first().and_then(|c| c.get("id"));
+        let software_id = software_category.first().and_then(|c| c.get("id"));
+        let access_id = access_category.first().and_then(|c| c.get("id"));
+
+        // Create sample catalog items if categories were created
+        if let Some(hw_id) = hardware_id {
+            let _: Vec<serde_json::Value> = db
+                .create("catalog_item")
+                .content(json!({
+                    "name": "New Laptop",
+                    "short_description": "Request a new laptop for work",
+                    "description": "Standard company laptop with pre-installed software and security configurations",
+                    "category_id": hw_id,
+                    "icon": "Laptop",
+                    "delivery_time_days": 5,
+                    "cost": 1200.00,
+                    "is_active": true,
+                    "approval_required": true,
+                    "approval_group": "IT_MANAGERS",
+                    "fulfillment_group": "IT_SUPPORT",
+                    "form_schema": {
+                        "$schema": "http://json-schema.org/draft-07/schema#",
+                        "type": "object",
+                        "properties": {
+                            "laptop_type": {
+                                "type": "string",
+                                "title": "Laptop Type",
+                                "enum": ["Standard", "Developer", "Designer"],
+                                "default": "Standard"
+                            },
+                            "operating_system": {
+                                "type": "string",
+                                "title": "Operating System",
+                                "enum": ["Windows 11", "macOS", "Ubuntu Linux"]
+                            },
+                            "justification": {
+                                "type": "string",
+                                "title": "Business Justification",
+                                "minLength": 20
+                            }
+                        },
+                        "required": ["laptop_type", "operating_system", "justification"]
+                    }
+                }))
+                .await?;
+        }
+
+        if let Some(sw_id) = software_id {
+            let _: Vec<serde_json::Value> = db
+                .create("catalog_item")
+                .content(json!({
+                    "name": "Software License",
+                    "short_description": "Request a software license",
+                    "description": "Request access to commercial software applications",
+                    "category_id": sw_id,
+                    "icon": "Certificate",
+                    "delivery_time_days": 2,
+                    "cost": 299.00,
+                    "is_active": true,
+                    "approval_required": true,
+                    "approval_group": "IT_MANAGERS",
+                    "fulfillment_group": "IT_SUPPORT",
+                    "form_schema": {
+                        "$schema": "http://json-schema.org/draft-07/schema#",
+                        "type": "object",
+                        "properties": {
+                            "software_name": {
+                                "type": "string",
+                                "title": "Software Name"
+                            },
+                            "license_type": {
+                                "type": "string",
+                                "title": "License Type",
+                                "enum": ["Standard", "Professional", "Enterprise"]
+                            },
+                            "business_need": {
+                                "type": "string",
+                                "title": "Business Need",
+                                "minLength": 20
+                            }
+                        },
+                        "required": ["software_name", "license_type", "business_need"]
+                    }
+                }))
+                .await?;
+        }
+
+        if let Some(acc_id) = access_id {
+            let _: Vec<serde_json::Value> = db
+                .create("catalog_item")
+                .content(json!({
+                    "name": "VPN Access",
+                    "short_description": "Request VPN access for remote work",
+                    "description": "Secure VPN access to company network for remote workers",
+                    "category_id": acc_id,
+                    "icon": "Shield",
+                    "delivery_time_days": 1,
+                    "is_active": true,
+                    "approval_required": true,
+                    "approval_group": "SECURITY_TEAM",
+                    "fulfillment_group": "IT_SUPPORT",
+                    "form_schema": {
+                        "$schema": "http://json-schema.org/draft-07/schema#",
+                        "type": "object",
+                        "properties": {
+                            "access_duration": {
+                                "type": "string",
+                                "title": "Access Duration",
+                                "enum": ["Temporary (30 days)", "Permanent"]
+                            },
+                            "remote_location": {
+                                "type": "string",
+                                "title": "Primary Remote Location"
+                            },
+                            "manager_approval": {
+                                "type": "string",
+                                "title": "Manager's Email"
+                            }
+                        },
+                        "required": ["access_duration", "remote_location", "manager_approval"]
+                    }
+                }))
+                .await?;
+        }
+
+        println!("✅ Sample service catalog data seeded");
+        Ok(())
+    }
+}
+
+// ============================================================================
+// PHASE 3: WORKFLOW ENGINE MIGRATIONS
+// ============================================================================
+
+/// Database migrations for workflow engine (Phase 3)
+pub struct WorkflowMigrations;
+
+impl WorkflowMigrations {
+    /// Run all workflow system migrations
+    pub async fn run_all(db: &Database) -> Result<()> {
+        Self::create_workflow_tables(db).await?;
+        Self::create_workflow_indexes(db).await?;
+        Ok(())
+    }
+
+    /// Create tables for workflow functionality
+    async fn create_workflow_tables(db: &Database) -> Result<()> {
+        // Workflow Definition table
+        db.query(
+            r#"
+            DEFINE TABLE workflow_definition SCHEMAFULL;
+            DEFINE FIELD name ON workflow_definition TYPE string;
+            DEFINE FIELD description ON workflow_definition TYPE option<string>;
+            DEFINE FIELD trigger_type ON workflow_definition TYPE string;
+            DEFINE FIELD trigger_conditions ON workflow_definition TYPE object;
+            DEFINE FIELD steps ON workflow_definition TYPE array;
+            DEFINE FIELD is_active ON workflow_definition TYPE bool DEFAULT true;
+            DEFINE FIELD created_by ON workflow_definition TYPE string;
+            DEFINE FIELD created_at ON workflow_definition TYPE datetime DEFAULT time::now();
+            DEFINE FIELD updated_at ON workflow_definition TYPE datetime DEFAULT time::now();
+            "#,
+        )
+        .await?;
+
+        // Workflow Instance table
+        db.query(
+            r#"
+            DEFINE TABLE workflow_instance SCHEMAFULL;
+            DEFINE FIELD workflow_id ON workflow_instance TYPE record(workflow_definition);
+            DEFINE FIELD trigger_record_type ON workflow_instance TYPE string;
+            DEFINE FIELD trigger_record_id ON workflow_instance TYPE record;
+            DEFINE FIELD status ON workflow_instance TYPE string DEFAULT 'RUNNING';
+            DEFINE FIELD current_step_id ON workflow_instance TYPE option<string>;
+            DEFINE FIELD step_history ON workflow_instance TYPE array DEFAULT [];
+            DEFINE FIELD started_at ON workflow_instance TYPE datetime DEFAULT time::now();
+            DEFINE FIELD completed_at ON workflow_instance TYPE option<datetime>;
+            DEFINE FIELD context ON workflow_instance TYPE object DEFAULT {};
+            "#,
+        )
+        .await?;
+
+        // Approval table
+        db.query(
+            r#"
+            DEFINE TABLE approval SCHEMAFULL;
+            DEFINE FIELD workflow_instance_id ON approval TYPE record(workflow_instance);
+            DEFINE FIELD step_id ON approval TYPE string;
+            DEFINE FIELD approver_id ON approval TYPE record;
+            DEFINE FIELD approver_type ON approval TYPE string DEFAULT 'USER';
+            DEFINE FIELD status ON approval TYPE string DEFAULT 'PENDING';
+            DEFINE FIELD requested_at ON approval TYPE datetime DEFAULT time::now();
+            DEFINE FIELD responded_at ON approval TYPE option<datetime>;
+            DEFINE FIELD comments ON approval TYPE option<string>;
+            "#,
+        )
+        .await?;
+
+        println!("✅ Workflow tables created successfully");
+        Ok(())
+    }
+
+    /// Create indexes for workflow performance
+    async fn create_workflow_indexes(db: &Database) -> Result<()> {
+        // Workflow definition indexes
+        db.query("DEFINE INDEX idx_workflow_name ON workflow_definition FIELDS name;")
+            .await?;
+        db.query("DEFINE INDEX idx_workflow_active ON workflow_definition FIELDS is_active;")
+            .await?;
+        db.query("DEFINE INDEX idx_workflow_trigger ON workflow_definition FIELDS trigger_type;")
+            .await?;
+
+        // Workflow instance indexes
+        db.query("DEFINE INDEX idx_instance_workflow ON workflow_instance FIELDS workflow_id;")
+            .await?;
+        db.query("DEFINE INDEX idx_instance_status ON workflow_instance FIELDS status;")
+            .await?;
+        db.query("DEFINE INDEX idx_instance_trigger ON workflow_instance FIELDS trigger_record_id;")
+            .await?;
+        db.query("DEFINE INDEX idx_instance_started ON workflow_instance FIELDS started_at;")
+            .await?;
+
+        // Approval indexes
+        db.query("DEFINE INDEX idx_approval_instance ON approval FIELDS workflow_instance_id;")
+            .await?;
+        db.query("DEFINE INDEX idx_approval_approver ON approval FIELDS approver_id;")
+            .await?;
+        db.query("DEFINE INDEX idx_approval_status ON approval FIELDS status;")
+            .await?;
+        db.query("DEFINE INDEX idx_approval_requested ON approval FIELDS requested_at;")
+            .await?;
+
+        println!("✅ Workflow indexes created successfully");
+        Ok(())
+    }
+}
+
 // ============================================================================
 // TEAM MANAGEMENT MIGRATIONS
 // ============================================================================
@@ -1641,7 +2052,7 @@ impl TeamMigrations {
 
     /// Create tables for team management
     async fn create_team_tables(db: &Database) -> Result<()> {
-        println!("📋 Creating team management tables...");
+        println!("📁 Creating team management tables...");
 
         // Teams table
         db.query(
@@ -1700,7 +2111,7 @@ impl TeamMigrations {
             .await?;
         db.query("DEFINE INDEX idx_membership_role ON team_memberships FIELDS role;")
             .await?;
-        
+
         // Unique constraint: user can only have one membership per team
         db.query("DEFINE INDEX idx_membership_unique ON team_memberships FIELDS team_id, user_id UNIQUE;")
             .await?;
