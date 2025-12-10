@@ -220,6 +220,18 @@ export interface CommentAttachment {
   uploaded_at: string;
 }
 
+export interface TicketAttachment {
+  id: string;
+  ticket_id: string;
+  filename: string;
+  original_filename: string;
+  mime_type: string;
+  size_bytes: number;
+  storage_path: string;
+  uploaded_by: string;
+  uploaded_at: string;
+}
+
 export interface CreateCommentRequest {
   content: string;
   is_internal: boolean;
@@ -891,6 +903,67 @@ export class ApiClient {
     const cleanTicketId = ticketId.startsWith('ticket:') ? ticketId.split(':')[1] : ticketId;
     const cleanCommentId = commentId.startsWith('ticket_comments:') ? commentId.split(':')[1] : commentId;
     return this.request(`/api/v1/tickets/${cleanTicketId}/comments/${cleanCommentId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // ===== Ticket Attachments =====
+  async getTicketAttachments(ticketId: string): Promise<{ data: TicketAttachment[]; count: number }> {
+    const cleanId = ticketId.startsWith('ticket:') ? ticketId.split(':')[1] : ticketId;
+    return this.request(`/api/v1/tickets/${cleanId}/attachments`);
+  }
+
+  async uploadTicketAttachment(ticketId: string, file: File): Promise<TicketAttachment> {
+    const cleanId = ticketId.startsWith('ticket:') ? ticketId.split(':')[1] : ticketId;
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const token = this.tokenProvider ? this.tokenProvider() : '';
+    const response = await fetch(`${this.baseURL}/api/v1/tickets/${cleanId}/attachments`, {
+      method: 'POST',
+      headers: {
+        ...(token && { 'Authorization': `Bearer ${token}` }),
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ error: 'Upload failed' }));
+      throw new Error(error.error || 'Upload failed');
+    }
+
+    return response.json();
+  }
+
+  async downloadTicketAttachment(ticketId: string, attachmentId: string): Promise<{ blob: Blob; filename: string }> {
+    const cleanTicketId = ticketId.startsWith('ticket:') ? ticketId.split(':')[1] : ticketId;
+    const cleanAttachmentId = attachmentId.startsWith('ticket_attachments:') ? attachmentId.split(':')[1] : attachmentId;
+    
+    const token = this.tokenProvider ? this.tokenProvider() : '';
+    const response = await fetch(`${this.baseURL}/api/v1/tickets/${cleanTicketId}/attachments/${cleanAttachmentId}`, {
+      method: 'GET',
+      headers: {
+        ...(token && { 'Authorization': `Bearer ${token}` }),
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Download failed');
+    }
+
+    const blob = await response.blob();
+    const contentDisposition = response.headers.get('Content-Disposition');
+    const filename = contentDisposition
+      ? contentDisposition.split('filename=')[1]?.replace(/"/g, '') || 'download'
+      : 'download';
+
+    return { blob, filename };
+  }
+
+  async deleteTicketAttachment(ticketId: string, attachmentId: string): Promise<void> {
+    const cleanTicketId = ticketId.startsWith('ticket:') ? ticketId.split(':')[1] : ticketId;
+    const cleanAttachmentId = attachmentId.startsWith('ticket_attachments:') ? attachmentId.split(':')[1] : attachmentId;
+    return this.request(`/api/v1/tickets/${cleanTicketId}/attachments/${cleanAttachmentId}`, {
       method: 'DELETE',
     });
   }
