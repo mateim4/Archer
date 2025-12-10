@@ -58,20 +58,37 @@ npm start            # Starts frontend + Rust backend
 - **Kanban/List Views** - Multiple view modes for ticket management
 - **Priority Levels** - P1-P4 with visual indicators
 - **Status Workflow** - New → In Progress → Resolved → Closed
+- **SLA Engine** - Policies, business hours, breach tracking
+- **Ticket Comments** - Add, view, delete comments with internal note support
 - **Backend API** - Full CRUD operations with SurrealDB
 
-### 📊 Inventory & CMDB
-- **Asset Management** - Hardware inventory with detailed specs
+### 📚 Knowledge Base
+- **Article Management** - Full CRUD with Markdown editor
+- **Category Structure** - Hierarchical organization
+- **Full-Text Search** - Debounced search with autocomplete
+- **Version History** - Track changes to articles
+- **User Ratings** - Thumbs up/down with feedback
+
+### 📊 CMDB / Asset Management
+- **Configuration Items** - Full CI lifecycle management
+- **Relationships** - Graph-based CI relationships (hosts, connects_to, depends_on)
+- **Impact Analysis** - Upstream/downstream dependency visualization
+- **Change Tracking** - Full audit trail for CI changes
 - **Hardware Baskets** - Parse and manage vendor catalogs (Dell, Lenovo)
-- **Hardware Pool** - Track available hardware for migrations
 - **RVTools Import** - Parse VMware exports for migration planning
+
+### 👥 User Management & Admin
+- **User Management UI** - Full CRUD with search, filter, role assignment
+- **Role Management** - Permission checkboxes, system role protection
+- **Audit Log Viewer** - Filterable event history with detail drawer
+- **JWT Authentication** - Secure token-based auth with refresh
 
 ### 📈 Monitoring & Analytics
 - **Dashboard View** - Stats cards, activity timeline, critical alerts
 - **Capacity Visualizer** - Resource utilization and planning
 - **Infrastructure Visualizer** - Hardware pool and migration topology views
 
-### 🤖 AI Engine (Phase 1 - NEW)
+### 🤖 AI Engine (Phase 1 - Foundation)
 - **LLM Gateway** - Pluggable interface for multiple AI providers
 - **Provider Support** - OpenAI (GPT-4o), Anthropic (Claude 3.5), Ollama (local)
 - **Health Checks** - Automatic provider health monitoring and fallback
