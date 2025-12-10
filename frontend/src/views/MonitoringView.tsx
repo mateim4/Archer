@@ -26,7 +26,8 @@ import {
   OrganizationRegular,
   InfoRegular,
   PulseRegular,
-  DataAreaRegular
+  DataAreaRegular,
+  CheckmarkRegular
 } from '@fluentui/react-icons';
 import { 
   LineChart, 
@@ -39,10 +40,9 @@ import {
   AreaChart,
   Area
 } from 'recharts';
-import { apiClient, Asset, AssetMetrics, DashboardSummary } from '../utils/apiClient';
+import { apiClient, Asset, AssetMetrics, DashboardSummary, Alert } from '../utils/apiClient';
 import { useEnhancedUX } from '../hooks/useEnhancedUX';
 import { purplePalette } from '../styles/design-tokens';
-import { MonitoringAlert, getMockAlerts } from '../utils/mockMonitoringData';
 import { InfraVisualizerCanvas } from '@/components/infra-visualizer';
 import { useInfraVisualizerStore } from '@/stores/useInfraVisualizerStore';
 import { DesignTokens } from '../styles/designSystem';
@@ -58,7 +58,7 @@ const MonitoringView: React.FC = () => {
   const [filter, setFilter] = useState('');
   const [isCreateIncidentOpen, setCreateIncidentOpen] = useState(false);
   const [selectedAlertContext, setSelectedAlertContext] = useState<AlertContext | null>(null);
-  const [alerts, setAlerts] = useState<MonitoringAlert[]>([]);
+  const [alerts, setAlerts] = useState<Alert[]>([]);
   const [activeTab, setActiveTab] = useState<MonitoringTab>('metrics');
   const { withLoading } = useEnhancedUX();
   
@@ -67,9 +67,11 @@ const MonitoringView: React.FC = () => {
 
   useEffect(() => {
     loadData();
-    // Load mock alerts from external data source
-    setAlerts(getMockAlerts());
-    const interval = setInterval(loadData, 30000); // Refresh every 30s
+    loadAlerts();
+    const interval = setInterval(() => {
+      loadData();
+      loadAlerts();
+    }, 30000); // Refresh every 30s
     return () => clearInterval(interval);
   }, []);
 
@@ -77,7 +79,7 @@ const MonitoringView: React.FC = () => {
     if (selectedAsset) {
       loadMetrics(selectedAsset.id);
     }
-  }, [selectedAsset]);
+  }, []);
 
   const loadData = async () => {
     try {
@@ -95,6 +97,19 @@ const MonitoringView: React.FC = () => {
     }
   };
 
+  const loadAlerts = async () => {
+    try {
+      const response = await apiClient.getAlerts({ 
+        status: ['Active', 'Acknowledged'],
+        page: 0,
+        page_size: 50
+      });
+      setAlerts(response.alerts);
+    } catch (error) {
+      console.error('Failed to load alerts:', error);
+    }
+  };
+
   const loadMetrics = async (assetId: string) => {
     try {
       const data = await apiClient.getAssetMetrics(assetId);
@@ -104,34 +119,54 @@ const MonitoringView: React.FC = () => {
     }
   };
 
-  const handleCreateIncidentFromAlert = (alert: MonitoringAlert) => {
+  const handleCreateIncidentFromAlert = (alert: Alert) => {
     const alertContext: AlertContext = {
-      alertId: alert.id,
-      alertType: alert.severity,
-      message: alert.message,
-      assetId: alert.assetId,
-      assetName: alert.assetName,
-      assetType: alert.assetType,
-      timestamp: alert.timestamp,
-      metricName: alert.metricName,
-      metricValue: alert.metricValue,
-      threshold: alert.threshold,
+      alertId: alert.id || '',
+      alertType: alert.severity.toLowerCase() as 'critical' | 'warning' | 'info',
+      message: alert.title,
+      assetId: alert.affected_ci_id,
+      assetName: alert.affected_ci_id, // TODO: Look up asset name
+      assetType: 'CLUSTER', // TODO: Look up from affected CI
+      timestamp: alert.created_at,
+      metricName: alert.metric_name,
+      metricValue: alert.metric_value?.toString(),
+      threshold: alert.threshold?.toString(),
     };
     setSelectedAlertContext(alertContext);
     setCreateIncidentOpen(true);
   };
 
+  const handleAcknowledgeAlert = async (alertId: string) => {
+    try {
+      await apiClient.acknowledgeAlert(alertId);
+      await loadAlerts(); // Refresh alerts
+    } catch (error) {
+      console.error('Failed to acknowledge alert:', error);
+    }
+  };
+
+  const handleResolveAlert = async (alertId: string) => {
+    try {
+      await apiClient.resolveAlert(alertId);
+      await loadAlerts(); // Refresh alerts
+    } catch (error) {
+      console.error('Failed to resolve alert:', error);
+    }
+  };
+
   const handleIncidentCreated = async (data: CreateIncidentData) => {
     console.log('Creating incident from alert:', data);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 500));
-    // Mark alert as having incident created
     if (data.triggeredByAlertId) {
-      setAlerts(prev => prev.map(a => 
-        a.id === data.triggeredByAlertId 
-          ? { ...a, incidentCreated: true }
-          : a
-      ));
+      try {
+        await apiClient.createTicketFromAlert(data.triggeredByAlertId, {
+          assignee: data.assignee,
+          assigned_group: data.assignedGroup,
+          additional_notes: data.description
+        });
+        await loadAlerts(); // Refresh to show ticket link
+      } catch (error) {
+        console.error('Failed to create ticket from alert:', error);
+      }
     }
   };
 
@@ -436,6 +471,8 @@ const MonitoringView: React.FC = () => {
                       key={alert.id}
                       alert={alert}
                       onCreateIncident={() => handleCreateIncidentFromAlert(alert)}
+                      onAcknowledge={() => handleAcknowledgeAlert(alert.id!)}
+                      onResolve={() => handleResolveAlert(alert.id!)}
                     />
                   ))
                 )}
@@ -686,22 +723,33 @@ const SummaryCard: React.FC<{ label: string; value: string | number; color: stri
   </PurpleGlassCard>
 );
 
-// Alert Card Component for one-click incident creation
-const AlertCard: React.FC<{ alert: MonitoringAlert; onCreateIncident: () => void }> = ({ alert, onCreateIncident }) => {
+// Alert Card Component with actions
+const AlertCard: React.FC<{ 
+  alert: Alert; 
+  onCreateIncident: () => void;
+  onAcknowledge: () => void;
+  onResolve: () => void;
+}> = ({ alert, onCreateIncident, onAcknowledge, onResolve }) => {
   const getSeverityColor = (severity: string) => {
-    switch (severity) {
+    const severityLower = severity.toLowerCase();
+    switch (severityLower) {
       case 'critical': return purplePalette.error;
-      case 'warning': return purplePalette.warning;
-      case 'info': return purplePalette.info;
+      case 'high': return purplePalette.warning;
+      case 'medium': return purplePalette.info;
+      case 'low': return purplePalette.success;
+      case 'info': return purplePalette.gray400;
       default: return purplePalette.gray400;
     }
   };
 
   const getSeverityIcon = (severity: string) => {
-    switch (severity) {
+    const severityLower = severity.toLowerCase();
+    switch (severityLower) {
       case 'critical': return <ErrorCircleRegular />;
-      case 'warning': return <WarningRegular />;
-      case 'info': return <CheckmarkCircleRegular />;
+      case 'high': return <WarningRegular />;
+      case 'medium': return <InfoRegular />;
+      case 'low': return <CheckmarkCircleRegular />;
+      case 'info': return <InfoRegular />;
       default: return <WarningRegular />;
     }
   };
@@ -715,6 +763,9 @@ const AlertCard: React.FC<{ alert: MonitoringAlert; onCreateIncident: () => void
     if (hours < 24) return `${hours}h ago`;
     return `${Math.floor(hours / 24)}d ago`;
   };
+
+  const isActive = alert.status === 'Active';
+  const isAcknowledged = alert.status === 'Acknowledged';
 
   return (
     <div 
@@ -748,52 +799,93 @@ const AlertCard: React.FC<{ alert: MonitoringAlert; onCreateIncident: () => void
             whiteSpace: 'nowrap',
           }}
         >
-          {alert.message}
+          {alert.title}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
-          <LinkedAssetBadge
-            assetId={alert.assetId}
-            assetName={alert.assetName}
-            assetType={alert.assetType}
-            status={alert.severity === 'critical' ? 'critical' : alert.severity === 'warning' ? 'warning' : 'healthy'}
-            size="small"
-            showChevron={false}
-          />
+          {alert.affected_ci_id && (
+            <LinkedAssetBadge
+              assetId={alert.affected_ci_id}
+              assetName={alert.affected_ci_id}
+              assetType="CLUSTER"
+              status={alert.severity === 'Critical' ? 'critical' : alert.severity === 'High' ? 'warning' : 'healthy'}
+              size="small"
+              showChevron={false}
+            />
+          )}
           <span 
             style={{ 
               fontSize: '11px',
               color: 'var(--colorNeutralForeground3, rgba(255,255,255,0.4))',
             }}
           >
-            {formatTimeAgo(alert.timestamp)}
+            {formatTimeAgo(alert.created_at)}
           </span>
+          {isAcknowledged && (
+            <span 
+              style={{
+                fontSize: '11px',
+                padding: '2px 6px',
+                borderRadius: '4px',
+                background: `${purplePalette.info}20`,
+                color: purplePalette.info,
+                fontWeight: 500,
+              }}
+            >
+              Acknowledged
+            </span>
+          )}
         </div>
       </div>
 
-      {!alert.incidentCreated ? (
-        <PurpleGlassButton
-          variant="secondary"
-          size="small"
-          icon={<TicketDiagonalRegular />}
-          onClick={onCreateIncident}
-          title="Create Incident from Alert"
-        >
-          Create Incident
-        </PurpleGlassButton>
-      ) : (
-        <span 
-          style={{
-            fontSize: '11px',
-            padding: '4px 8px',
-            borderRadius: '4px',
-            background: `${purplePalette.success}20`,
-            color: purplePalette.success,
-            fontWeight: 500,
-          }}
-        >
-          Incident Created
-        </span>
-      )}
+      <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
+        {isActive && (
+          <PurpleGlassButton
+            variant="secondary"
+            size="small"
+            icon={<CheckmarkRegular />}
+            onClick={onAcknowledge}
+            title="Acknowledge Alert"
+          >
+            Ack
+          </PurpleGlassButton>
+        )}
+        {(isActive || isAcknowledged) && !alert.auto_ticket_id && (
+          <PurpleGlassButton
+            variant="secondary"
+            size="small"
+            icon={<TicketDiagonalRegular />}
+            onClick={onCreateIncident}
+            title="Create Incident from Alert"
+          >
+            Ticket
+          </PurpleGlassButton>
+        )}
+        {(isActive || isAcknowledged) && (
+          <PurpleGlassButton
+            variant="secondary"
+            size="small"
+            icon={<CheckmarkCircleRegular />}
+            onClick={onResolve}
+            title="Resolve Alert"
+          >
+            Resolve
+          </PurpleGlassButton>
+        )}
+        {alert.auto_ticket_id && (
+          <span 
+            style={{
+              fontSize: '11px',
+              padding: '4px 8px',
+              borderRadius: '4px',
+              background: `${purplePalette.success}20`,
+              color: purplePalette.success,
+              fontWeight: 500,
+            }}
+          >
+            Ticket Created
+          </span>
+        )}
+      </div>
     </div>
   );
 };

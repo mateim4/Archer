@@ -75,6 +75,7 @@ impl TicketService {
             subcategory: request.subcategory,
             assigned_group: request.assigned_group,
             tenant_id: user.tenant_id.as_ref().and_then(|t| parse_thing(t)),
+            parent_ticket_id: None,
         };
 
         // Calculate SLA times

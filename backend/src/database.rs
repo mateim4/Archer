@@ -121,6 +121,13 @@ async fn run_all_migrations(db: &Database) -> Result<(), DatabaseError> {
         info!("✅ CMDB migrations completed");
     }
 
+    // Service Catalog migrations (Phase 5)
+    if let Err(e) = migrations::ServiceCatalogMigrations::run_all(db).await {
+        warn!("Service Catalog migrations failed: {}", e);
+    } else {
+        info!("✅ Service Catalog migrations completed");
+    }
+
     // Enhanced RVTools migrations
     if let Err(e) = migrations::EnhancedRvToolsMigrations::run_all(db).await {
         warn!("Enhanced RVTools migrations failed: {}", e);
@@ -147,6 +154,13 @@ async fn run_all_migrations(db: &Database) -> Result<(), DatabaseError> {
         warn!("Migration planning migrations failed: {}", e);
     } else {
         info!("✅ Migration planning migrations completed");
+    }
+
+    // Workflow Engine migrations (Phase 3)
+    if let Err(e) = migrations::WorkflowMigrations::run_all(db).await {
+        warn!("Workflow Engine migrations failed: {}", e);
+    } else {
+        info!("✅ Workflow Engine migrations completed");
     }
 
     Ok(())

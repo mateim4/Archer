@@ -1,6 +1,7 @@
 use axum::{
-    extract::{Path, State},
-    http::StatusCode,
+    body::Bytes,
+    extract::{Multipart, Path, State},
+    http::{header, StatusCode},
     middleware,
     response::{IntoResponse, Response},
     routing::{get, post, patch, delete},
@@ -9,12 +10,13 @@ use axum::{
 use chrono::Utc;
 use std::sync::Arc;
 use surrealdb::sql::Thing;
+use uuid::Uuid;
 
 use crate::{
     database::Database,
     models::ticket::{
         Ticket, CreateTicketRequest, UpdateTicketRequest, TicketStatus,
-        TicketComment, CreateCommentRequest, CommentType,
+        TicketComment, CreateCommentRequest, CommentType, TicketAttachment,
     },
     models::knowledge::{LinkArticleToTicketRequest, KBLinkType},
     services::kb_suggestion_service::KBSuggestionService,
@@ -23,6 +25,9 @@ use crate::{
         rbac::{check_tickets_create, check_tickets_read, check_tickets_update, check_tickets_delete},
     },
 };
+use std::path::PathBuf;
+use tokio::fs;
+use tokio::io::AsyncWriteExt;
 
 /// Create Tickets API router with RBAC protection
 pub fn create_tickets_router(db: Arc<Database>) -> Router {
@@ -33,6 +38,8 @@ pub fn create_tickets_router(db: Arc<Database>) -> Router {
         .route("/", get(list_tickets))
         .route("/:id", get(get_ticket))
         .route("/:id/comments", get(list_comments))
+        .route("/:id/attachments", get(list_attachments))
+        .route("/:id/attachments/:attachment_id", get(download_attachment))
         .layer(middleware::from_fn(check_tickets_read))
         .with_state(db.clone());
 
@@ -42,11 +49,11 @@ pub fn create_tickets_router(db: Arc<Database>) -> Router {
         .layer(middleware::from_fn(check_tickets_create))
         .with_state(db.clone());
 
-    // Routes that require update permission (includes adding comments)
+    // Routes that require update permission (includes adding comments and attachments)
     let update_routes = Router::new()
         .route("/:id", patch(update_ticket))
         .route("/:id/comments", post(add_comment))
-        .route("/:id/kb-resolution", post(link_kb_article))
+        .route("/:id/attachments", post(upload_attachment))
         .layer(middleware::from_fn(check_tickets_update))
         .with_state(db.clone());
 
@@ -54,6 +61,7 @@ pub fn create_tickets_router(db: Arc<Database>) -> Router {
     let delete_routes = Router::new()
         .route("/:id", delete(delete_ticket))
         .route("/:id/comments/:comment_id", delete(delete_comment))
+        .route("/:id/attachments/:attachment_id", delete(delete_attachment))
         .layer(middleware::from_fn(check_tickets_delete))
         .with_state(db.clone());
 
@@ -162,6 +170,7 @@ async fn create_ticket(
         subcategory: payload.subcategory,
         assigned_group: payload.assigned_group,
         tenant_id: user.tenant_id.as_ref().and_then(|t| thing(t).ok()),
+        parent_ticket_id: None,
     };
 
     match db.create("ticket").content(ticket).await {
@@ -422,42 +431,294 @@ async fn log_audit(
 }
 
 // ============================================================================
-// KB INTEGRATION HANDLERS (Phase 1.5)
+// ATTACHMENT HANDLERS
 // ============================================================================
 
-/// Link a KB article to a ticket resolution
-async fn link_kb_article(
+// File size limit: 10MB
+const MAX_FILE_SIZE: u64 = 10 * 1024 * 1024;
+
+// Allowed MIME types for attachments
+const ALLOWED_MIME_TYPES: &[&str] = &[
+    "image/jpeg",
+    "image/png",
+    "image/gif",
+    "image/webp",
+    "application/pdf",
+    "text/plain",
+    "text/csv",
+    "application/vnd.ms-excel",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/zip",
+    "application/x-zip-compressed",
+];
+
+/// Upload a file attachment to a ticket
+async fn upload_attachment(
     State(db): State<Arc<Database>>,
-    Path(id): Path<String>,
+    Path(ticket_id): Path<String>,
     axum::Extension(user): axum::Extension<AuthenticatedUser>,
-    Json(payload): Json<LinkArticleToTicketRequest>,
+    mut multipart: Multipart,
 ) -> impl IntoResponse {
-    // Extract ticket ID from path
-    let ticket_id = if id.contains(':') {
-        id.split(':').last().unwrap_or(&id)
-    } else {
-        &id
+    // Verify ticket exists
+    let ticket_thing = match thing(&ticket_id) {
+        Ok(t) => t,
+        Err(_) => return (StatusCode::BAD_REQUEST, Json(serde_json::json!({ "error": "Invalid ticket ID format" }))).into_response(),
     };
 
-    // Link the article to the ticket
-    match KBSuggestionService::link_article_to_ticket(
-        db.clone(),
-        ticket_id,
-        &payload.article_id,
-        KBLinkType::UsedForResolution,
-        Some(payload.was_helpful),
-        &user.user_id,
-    )
-    .await
-    {
-        Ok(link) => {
-            log_audit(&db, &user, "ticket_kb_links", "create", Some(ticket_id), true).await;
-            (StatusCode::CREATED, Json(link)).into_response()
+    let ticket_exists: Option<Ticket> = match db.select(ticket_thing.clone()).await {
+        Ok(t) => t,
+        Err(_) => return (StatusCode::NOT_FOUND, Json(serde_json::json!({ "error": "Ticket not found" }))).into_response(),
+    };
+
+    if ticket_exists.is_none() {
+        return (StatusCode::NOT_FOUND, Json(serde_json::json!({ "error": "Ticket not found" }))).into_response();
+    }
+
+    // Parse multipart form data
+    let mut filename = None;
+    let mut file_data = None;
+    let mut mime_type = None;
+
+    while let Some(field) = multipart.next_field().await.unwrap_or(None) {
+        let name = field.name().unwrap_or("").to_string();
+
+        if name == "file" {
+            filename = field.file_name().map(|s| s.to_string());
+            mime_type = field.content_type().map(|s| s.to_string());
+            
+            match field.bytes().await {
+                Ok(bytes) => {
+                    // Check file size
+                    if bytes.len() as u64 > MAX_FILE_SIZE {
+                        return (StatusCode::PAYLOAD_TOO_LARGE, Json(serde_json::json!({ 
+                            "error": format!("File size exceeds maximum of {} bytes", MAX_FILE_SIZE)
+                        }))).into_response();
+                    }
+                    file_data = Some(bytes);
+                },
+                Err(e) => return (StatusCode::BAD_REQUEST, Json(serde_json::json!({ "error": e.to_string() }))).into_response(),
+            }
         }
-        Err(e) => (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            Json(serde_json::json!({ "error": e })),
-        )
-            .into_response(),
+    }
+
+    let original_filename = match filename {
+        Some(f) => f,
+        None => return (StatusCode::BAD_REQUEST, Json(serde_json::json!({ "error": "No file uploaded" }))).into_response(),
+    };
+
+    let file_bytes = match file_data {
+        Some(d) => d,
+        None => return (StatusCode::BAD_REQUEST, Json(serde_json::json!({ "error": "No file data" }))).into_response(),
+    };
+
+    let detected_mime = mime_type.unwrap_or_else(|| "application/octet-stream".to_string());
+
+    // Validate MIME type
+    if !ALLOWED_MIME_TYPES.contains(&detected_mime.as_str()) {
+        return (StatusCode::BAD_REQUEST, Json(serde_json::json!({ 
+            "error": format!("File type '{}' is not allowed", detected_mime)
+        }))).into_response();
+    }
+
+    // Create uploads directory structure
+    let upload_dir = PathBuf::from("./uploads/tickets").join(&ticket_id);
+    if let Err(e) = fs::create_dir_all(&upload_dir).await {
+        eprintln!("Failed to create upload directory: {}", e);
+        return (StatusCode::INTERNAL_SERVER_ERROR, Json(serde_json::json!({ "error": "Failed to create storage directory" }))).into_response();
+    }
+
+    // Generate unique filename
+    let timestamp = Utc::now().timestamp_millis();
+    let extension = std::path::Path::new(&original_filename)
+        .extension()
+        .and_then(|e| e.to_str())
+        .unwrap_or("bin");
+    let stored_filename = format!("{}_{}.{}", timestamp, uuid::Uuid::new_v4(), extension);
+    let file_path = upload_dir.join(&stored_filename);
+
+    // Write file to disk
+    match fs::File::create(&file_path).await {
+        Ok(mut file) => {
+            if let Err(e) = file.write_all(&file_bytes).await {
+                eprintln!("Failed to write file: {}", e);
+                return (StatusCode::INTERNAL_SERVER_ERROR, Json(serde_json::json!({ "error": "Failed to save file" }))).into_response();
+            }
+        },
+        Err(e) => {
+            eprintln!("Failed to create file: {}", e);
+            return (StatusCode::INTERNAL_SERVER_ERROR, Json(serde_json::json!({ "error": "Failed to create file" }))).into_response();
+        }
+    }
+
+    // Store attachment metadata in database
+    let now = Utc::now();
+    let attachment = TicketAttachment {
+        id: None,
+        ticket_id: ticket_thing,
+        filename: stored_filename.clone(),
+        original_filename: original_filename.clone(),
+        mime_type: detected_mime,
+        size_bytes: file_bytes.len() as u64,
+        storage_path: file_path.to_string_lossy().to_string(),
+        uploaded_by: user.user_id.clone(),
+        uploaded_at: now,
+    };
+
+    match db.create("ticket_attachments").content(&attachment).await {
+        Ok(created) => {
+            let created: Vec<TicketAttachment> = created;
+            match created.into_iter().next() {
+                Some(att) => {
+                    log_audit(&db, &user, "ticket_attachments", "create", Some(&ticket_id), true).await;
+                    (StatusCode::CREATED, Json(att)).into_response()
+                },
+                None => (StatusCode::INTERNAL_SERVER_ERROR, Json(serde_json::json!({ "error": "Failed to create attachment record" }))).into_response(),
+            }
+        },
+        Err(e) => {
+            // Clean up file if database insert fails
+            let _ = fs::remove_file(&file_path).await;
+            (StatusCode::INTERNAL_SERVER_ERROR, Json(serde_json::json!({ "error": e.to_string() }))).into_response()
+        }
+    }
+}
+
+/// List all attachments for a ticket
+async fn list_attachments(
+    State(db): State<Arc<Database>>,
+    Path(ticket_id): Path<String>,
+    axum::Extension(user): axum::Extension<AuthenticatedUser>,
+) -> impl IntoResponse {
+    let ticket_thing = match thing(&ticket_id) {
+        Ok(t) => t,
+        Err(_) => return (StatusCode::BAD_REQUEST, Json(serde_json::json!({ "error": "Invalid ticket ID format" }))).into_response(),
+    };
+
+    // Query attachments for this ticket
+    let query = format!(
+        "SELECT * FROM ticket_attachments WHERE ticket_id = {} ORDER BY uploaded_at DESC",
+        ticket_thing
+    );
+
+    match db.query(&query).await {
+        Ok(mut response) => {
+            let attachments: Vec<TicketAttachment> = response.take(0).unwrap_or_default();
+            log_audit(&db, &user, "ticket_attachments", "list", Some(&ticket_id), true).await;
+            (StatusCode::OK, Json(serde_json::json!({
+                "data": attachments,
+                "count": attachments.len(),
+                "ticket_id": ticket_id
+            }))).into_response()
+        },
+        Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, Json(serde_json::json!({ "error": e.to_string() }))).into_response(),
+    }
+}
+
+/// Download a specific attachment
+async fn download_attachment(
+    State(db): State<Arc<Database>>,
+    Path((ticket_id, attachment_id)): Path<(String, String)>,
+    axum::Extension(user): axum::Extension<AuthenticatedUser>,
+) -> impl IntoResponse {
+    let attachment_thing = match attachment_thing(&attachment_id) {
+        Ok(t) => t,
+        Err(_) => return (StatusCode::BAD_REQUEST, Json(serde_json::json!({ "error": "Invalid attachment ID format" }))).into_response(),
+    };
+
+    // Get attachment metadata
+    let attachment: Option<TicketAttachment> = match db.select(attachment_thing).await {
+        Ok(a) => a,
+        Err(_) => return (StatusCode::NOT_FOUND, Json(serde_json::json!({ "error": "Attachment not found" }))).into_response(),
+    };
+
+    match attachment {
+        Some(att) => {
+            // Verify attachment belongs to this ticket
+            let expected_ticket = format!("ticket:{}", ticket_id.split(':').last().unwrap_or(&ticket_id));
+            let actual_ticket = format!("{}:{}", att.ticket_id.tb, att.ticket_id.id);
+            
+            if actual_ticket != expected_ticket && !ticket_id.contains(&actual_ticket) {
+                return (StatusCode::FORBIDDEN, Json(serde_json::json!({ "error": "Attachment does not belong to this ticket" }))).into_response();
+            }
+
+            // Read file from disk
+            match fs::read(&att.storage_path).await {
+                Ok(file_data) => {
+                    log_audit(&db, &user, "ticket_attachments", "download", Some(&attachment_id), true).await;
+                    
+                    // Return file with appropriate headers
+                    (
+                        StatusCode::OK,
+                        [
+                            (header::CONTENT_TYPE, att.mime_type.as_str()),
+                            (header::CONTENT_DISPOSITION, &format!("attachment; filename=\"{}\"", att.original_filename)),
+                        ],
+                        file_data
+                    ).into_response()
+                },
+                Err(e) => {
+                    eprintln!("Failed to read file: {}", e);
+                    (StatusCode::NOT_FOUND, Json(serde_json::json!({ "error": "File not found on disk" }))).into_response()
+                }
+            }
+        },
+        None => (StatusCode::NOT_FOUND, Json(serde_json::json!({ "error": "Attachment not found" }))).into_response(),
+    }
+}
+
+/// Delete an attachment
+async fn delete_attachment(
+    State(db): State<Arc<Database>>,
+    Path((ticket_id, attachment_id)): Path<(String, String)>,
+    axum::Extension(user): axum::Extension<AuthenticatedUser>,
+) -> impl IntoResponse {
+    let attachment_thing = match attachment_thing(&attachment_id) {
+        Ok(t) => t,
+        Err(_) => return (StatusCode::BAD_REQUEST, Json(serde_json::json!({ "error": "Invalid attachment ID format" }))).into_response(),
+    };
+
+    // Get the attachment to verify it belongs to this ticket and check ownership
+    let existing: Option<TicketAttachment> = match db.select(attachment_thing.clone()).await {
+        Ok(a) => a,
+        Err(_) => return (StatusCode::NOT_FOUND, Json(serde_json::json!({ "error": "Attachment not found" }))).into_response(),
+    };
+
+    match existing {
+        Some(attachment) => {
+            // Verify the attachment belongs to this ticket
+            let expected_ticket = format!("ticket:{}", ticket_id.split(':').last().unwrap_or(&ticket_id));
+            let actual_ticket = format!("{}:{}", attachment.ticket_id.tb, attachment.ticket_id.id);
+            
+            if actual_ticket != expected_ticket && !ticket_id.contains(&actual_ticket) {
+                return (StatusCode::FORBIDDEN, Json(serde_json::json!({ "error": "Attachment does not belong to this ticket" }))).into_response();
+            }
+
+            // Delete file from disk
+            if let Err(e) = fs::remove_file(&attachment.storage_path).await {
+                eprintln!("Warning: Failed to delete file from disk: {}", e);
+                // Continue with database deletion even if file deletion fails
+            }
+
+            // Delete from database
+            match db.delete::<Option<TicketAttachment>>(attachment_thing).await {
+                Ok(_) => {
+                    log_audit(&db, &user, "ticket_attachments", "delete", Some(&attachment_id), true).await;
+                    (StatusCode::NO_CONTENT, ()).into_response()
+                },
+                Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, Json(serde_json::json!({ "error": e.to_string() }))).into_response(),
+            }
+        },
+        None => (StatusCode::NOT_FOUND, Json(serde_json::json!({ "error": "Attachment not found" }))).into_response(),
+    }
+}
+
+fn attachment_thing(id: &str) -> Result<Thing, surrealdb::Error> {
+    let parts: Vec<&str> = id.split(':').collect();
+    if parts.len() == 2 {
+        Ok(Thing::from((parts[0], parts[1])))
+    } else {
+        Ok(Thing::from(("ticket_attachments", id)))
     }
 }
