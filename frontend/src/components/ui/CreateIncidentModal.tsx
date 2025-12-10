@@ -4,6 +4,8 @@
  * Pre-filled modal for creating incidents from alerts or CMDB context.
  * Supports one-click incident creation with asset linking.
  * 
+ * Phase 1.5 Enhancement: KB article suggestions during ticket creation
+ * 
  * Part of Phase 2: Integration Layer (Alert-Incident Correlation)
  */
 
@@ -25,6 +27,9 @@ import { PurpleGlassInput } from './PurpleGlassInput';
 import { PurpleGlassTextarea } from './PurpleGlassTextarea';
 import { PurpleGlassDropdown, DropdownOption } from './PurpleGlassDropdown';
 import { LinkedAssetBadge } from './LinkedAssetBadge';
+import { KBSuggestionPanel } from '../kb/KBSuggestionPanel';
+import { useDebounce } from '../../hooks/useDebounce';
+import { apiClient, ArticleSuggestion } from '../../utils/apiClient';
 
 export interface AlertContext {
   alertId: string;
@@ -125,6 +130,50 @@ export const CreateIncidentModal: React.FC<CreateIncidentModalProps> = ({
   const [priority, setPriority] = useState<CreateIncidentData['priority']>('P3');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  // KB Suggestions (Phase 1.5)
+  const [suggestions, setSuggestions] = useState<ArticleSuggestion[]>([]);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
+  const [showArticleModal, setShowArticleModal] = useState(false);
+  const [selectedArticle, setSelectedArticle] = useState<string | null>(null);
+  
+  // Debounce title and description for KB suggestions
+  const debouncedTitle = useDebounce(title, 300);
+  const debouncedDescription = useDebounce(description, 300);
+
+  // Fetch KB suggestions when title or description changes
+  useEffect(() => {
+    const fetchSuggestions = async () => {
+      // Only fetch if we have meaningful content (at least 10 chars)
+      if (!debouncedTitle && !debouncedDescription) {
+        setSuggestions([]);
+        return;
+      }
+      
+      const totalLength = (debouncedTitle?.length || 0) + (debouncedDescription?.length || 0);
+      if (totalLength < 10) {
+        setSuggestions([]);
+        return;
+      }
+
+      setLoadingSuggestions(true);
+      try {
+        const results = await apiClient.suggestKBArticles({
+          title: debouncedTitle,
+          description: debouncedDescription,
+          limit: 5,
+        });
+        setSuggestions(results);
+      } catch (err) {
+        console.error('Failed to fetch KB suggestions:', err);
+        setSuggestions([]);
+      } finally {
+        setLoadingSuggestions(false);
+      }
+    };
+
+    fetchSuggestions();
+  }, [debouncedTitle, debouncedDescription]);
 
   // Pre-fill from alert context
   useEffect(() => {
@@ -144,6 +193,7 @@ export const CreateIncidentModal: React.FC<CreateIncidentModalProps> = ({
       setTicketType('INCIDENT');
       setPriority('P3');
       setError(null);
+      setSuggestions([]);
     }
   }, [isOpen]);
 
@@ -171,6 +221,19 @@ export const CreateIncidentModal: React.FC<CreateIncidentModalProps> = ({
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleArticleSolvedProblem = (articleId: string) => {
+    // Article solved the problem - close modal without creating ticket
+    console.log('Article solved problem:', articleId);
+    // TODO: Track that this suggestion was helpful
+    onClose();
+  };
+
+  const handleViewArticle = (articleId: string) => {
+    // Open article in new tab or modal
+    setSelectedArticle(articleId);
+    window.open(`/app/knowledge-base/articles/${articleId}`, '_blank');
   };
 
   if (!isOpen) return null;
@@ -362,6 +425,19 @@ export const CreateIncidentModal: React.FC<CreateIncidentModalProps> = ({
             showCharacterCount
             maxLength={2000}
           />
+
+          {/* KB Suggestions Panel (Phase 1.5) */}
+          {(suggestions.length > 0 || loadingSuggestions) && (
+            <div style={{ marginTop: '8px' }}>
+              <KBSuggestionPanel
+                suggestions={suggestions}
+                loading={loadingSuggestions}
+                onArticleClick={handleViewArticle}
+                onSolvedProblem={handleArticleSolvedProblem}
+                showSolvedButton={true}
+              />
+            </div>
+          )}
         </div>
 
         {/* Footer */}
