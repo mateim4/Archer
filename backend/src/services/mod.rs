@@ -11,6 +11,10 @@ pub mod knowledge_service;
 // CMDB/Assets (Phase 2)
 pub mod cmdb_service;
 
+// Reporting & Dashboards (Phase 6)
+pub mod reporting_service;
+pub mod report_export_service;
+
 pub mod dependency_validator;
 pub mod document_service;
 pub mod enhanced_rvtools_service; // TODO: Fix compilation errors
@@ -19,8 +23,7 @@ pub mod integration_hub;
 pub mod migration_wizard_service;
 pub mod project_management_service;
 pub mod rvtools_service;
-// pub mod analytics_service; // TODO: Fix compilation errors
-// pub mod reporting_service; // TODO: Fix compilation errors
+pub mod analytics_service;
 
 // Activity Wizard Services
 pub mod capacity_validation_service;

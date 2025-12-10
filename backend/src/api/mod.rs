@@ -8,6 +8,7 @@ pub mod knowledge; // Knowledge Base API (Phase 1.5)
 pub mod migration_wizard; // Migration Planning Wizard API
 pub mod project_lifecycle;
 pub mod project_workflow;
+pub mod reporting; // Reporting & Dashboard API (Phase 6)
 pub mod rvtools;
 pub mod settings; // Global settings API
 pub mod tickets; // Tickets API
@@ -64,7 +65,8 @@ pub fn api_router(state: AppState) -> Router {
         .nest("/assets", assets::create_assets_router(state.clone()))
         .nest("/monitoring", monitoring::routes(state.clone()))
         .nest("/integration", integration::create_integration_router(state.clone()))
-        .nest("/settings", settings::create_settings_router(state.clone()));
+        .nest("/settings", settings::create_settings_router(state.clone()))
+        .nest("/reporting", reporting::create_reporting_router(state.clone())); // Phase 6: Reporting
 
     Router::new()
         .route("/health", get(health_check))

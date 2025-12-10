@@ -6,6 +6,7 @@ pub mod knowledge;  // Knowledge Base models (Phase 1.5)
 pub mod migration_models;
 pub mod migration_wizard_models;
 pub mod project_models;
+pub mod reporting;  // Reporting & Dashboard models (Phase 6)
 pub mod settings;
 pub mod settings_models;
 pub mod workflow;
