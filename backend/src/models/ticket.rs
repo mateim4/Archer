@@ -80,6 +80,9 @@ pub struct Ticket {
     /// Tenant ID for multi-tenant isolation
     #[serde(default)]
     pub tenant_id: Option<Thing>,
+    /// Parent ticket ID (for parent/child relationships)
+    #[serde(default)]
+    pub parent_ticket_id: Option<Thing>,
 }
 
 // ============================================================================
@@ -491,4 +494,120 @@ pub struct TicketFilterParams {
     pub page_size: Option<u32>,
     pub sort_by: Option<String>,
     pub sort_order: Option<String>,
+}
+
+// ============================================================================
+// TICKET RELATIONSHIPS
+// ============================================================================
+
+/// Represents a relationship between two tickets
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TicketRelationship {
+    pub id: Option<Thing>,
+    /// Source ticket ID (the ticket from which the relationship originates)
+    pub source_ticket_id: Thing,
+    /// Target ticket ID (the ticket being related to)
+    pub target_ticket_id: Thing,
+    /// Type of relationship
+    pub relationship_type: TicketRelationType,
+    /// User who created this relationship
+    pub created_by: String,
+    /// When the relationship was created
+    pub created_at: DateTime<Utc>,
+    /// Optional notes about the relationship
+    pub notes: Option<String>,
+}
+
+/// Types of relationships between tickets
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub enum TicketRelationType {
+    /// Source ticket is parent of target ticket
+    #[serde(rename = "PARENT_OF")]
+    ParentOf,
+    /// Source ticket is child of target ticket
+    #[serde(rename = "CHILD_OF")]
+    ChildOf,
+    /// Source ticket duplicates target (source should be closed)
+    #[serde(rename = "DUPLICATE_OF")]
+    DuplicateOf,
+    /// General relationship between tickets
+    #[serde(rename = "RELATED_TO")]
+    RelatedTo,
+    /// Source ticket is blocked by target ticket
+    #[serde(rename = "BLOCKED_BY")]
+    BlockedBy,
+    /// Source ticket blocks target ticket
+    #[serde(rename = "BLOCKS")]
+    Blocks,
+    /// Source ticket was caused by target (for incident→problem linking)
+    #[serde(rename = "CAUSED_BY")]
+    CausedBy,
+}
+
+impl TicketRelationType {
+    /// Get the inverse relationship type
+    pub fn inverse(&self) -> Option<TicketRelationType> {
+        match self {
+            TicketRelationType::ParentOf => Some(TicketRelationType::ChildOf),
+            TicketRelationType::ChildOf => Some(TicketRelationType::ParentOf),
+            TicketRelationType::BlockedBy => Some(TicketRelationType::Blocks),
+            TicketRelationType::Blocks => Some(TicketRelationType::BlockedBy),
+            TicketRelationType::CausedBy => None, // Asymmetric
+            TicketRelationType::DuplicateOf => None, // One-way
+            TicketRelationType::RelatedTo => Some(TicketRelationType::RelatedTo), // Symmetric
+        }
+    }
+
+    /// Check if this relationship type is symmetric (creates bidirectional link)
+    pub fn is_symmetric(&self) -> bool {
+        matches!(self, TicketRelationType::RelatedTo)
+    }
+}
+
+// ============================================================================
+// RELATIONSHIP REQUEST/RESPONSE MODELS
+// ============================================================================
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CreateRelationshipRequest {
+    pub target_ticket_id: String,
+    pub relationship_type: TicketRelationType,
+    pub notes: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TicketRelationshipResponse {
+    pub id: String,
+    pub source_ticket_id: String,
+    pub target_ticket_id: String,
+    pub relationship_type: TicketRelationType,
+    pub created_by: String,
+    pub created_at: DateTime<Utc>,
+    pub notes: Option<String>,
+    /// Details about the target ticket
+    pub target_ticket: Option<TicketSummary>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TicketSummary {
+    pub id: String,
+    pub title: String,
+    pub status: TicketStatus,
+    pub priority: TicketPriority,
+    #[serde(rename = "type")]
+    pub ticket_type: TicketType,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TicketHierarchyNode {
+    #[serde(flatten)]
+    pub ticket: TicketSummary,
+    pub children: Vec<TicketHierarchyNode>,
+    pub relationship_type: Option<TicketRelationType>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct MarkDuplicateRequest {
+    pub notes: Option<String>,
+    pub transfer_watchers: bool,
 }
