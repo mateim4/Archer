@@ -226,6 +226,52 @@ export interface CreateCommentRequest {
   comment_type?: CommentType;
 }
 
+// ===== Ticket Relationships =====
+export type TicketRelationType = 
+  | 'PARENT_OF' 
+  | 'CHILD_OF' 
+  | 'DUPLICATE_OF' 
+  | 'RELATED_TO' 
+  | 'BLOCKED_BY' 
+  | 'BLOCKS' 
+  | 'CAUSED_BY';
+
+export interface TicketRelationship {
+  id: string;
+  source_ticket_id: string;
+  target_ticket_id: string;
+  relationship_type: TicketRelationType;
+  created_by: string;
+  created_at: string;
+  notes?: string;
+  target_ticket?: TicketSummary;
+}
+
+export interface TicketSummary {
+  id: string;
+  title: string;
+  status: Ticket['status'];
+  priority: Ticket['priority'];
+  type: Ticket['ticket_type'];
+}
+
+export interface CreateRelationshipRequest {
+  target_ticket_id: string;
+  relationship_type: TicketRelationType;
+  notes?: string;
+}
+
+export interface TicketHierarchyNode {
+  ticket: TicketSummary;
+  children: TicketHierarchyNode[];
+  relationship_type?: TicketRelationType;
+}
+
+export interface MarkDuplicateRequest {
+  notes?: string;
+  transfer_watchers: boolean;
+}
+
 export interface Asset {
   id: string;
   name: string;
@@ -892,6 +938,47 @@ export class ApiClient {
     const cleanCommentId = commentId.startsWith('ticket_comments:') ? commentId.split(':')[1] : commentId;
     return this.request(`/api/v1/tickets/${cleanTicketId}/comments/${cleanCommentId}`, {
       method: 'DELETE',
+    });
+  }
+
+  // ===== Ticket Relationships =====
+  async getTicketRelationships(ticketId: string): Promise<{ data: TicketRelationship[]; count: number }> {
+    const cleanId = ticketId.startsWith('ticket:') ? ticketId.split(':')[1] : ticketId;
+    return this.request(`/api/v1/tickets/${cleanId}/relationships`);
+  }
+
+  async createRelationship(ticketId: string, request: CreateRelationshipRequest): Promise<TicketRelationship> {
+    const cleanId = ticketId.startsWith('ticket:') ? ticketId.split(':')[1] : ticketId;
+    return this.request(`/api/v1/tickets/${cleanId}/relationships`, {
+      method: 'POST',
+      body: JSON.stringify(request),
+    });
+  }
+
+  async deleteRelationship(ticketId: string, relationshipId: string): Promise<void> {
+    const cleanTicketId = ticketId.startsWith('ticket:') ? ticketId.split(':')[1] : ticketId;
+    const cleanRelId = relationshipId.startsWith('ticket_relationships:') ? relationshipId.split(':')[1] : relationshipId;
+    return this.request(`/api/v1/tickets/${cleanTicketId}/relationships/${cleanRelId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async getTicketChildren(ticketId: string): Promise<{ data: TicketSummary[]; count: number }> {
+    const cleanId = ticketId.startsWith('ticket:') ? ticketId.split(':')[1] : ticketId;
+    return this.request(`/api/v1/tickets/${cleanId}/children`);
+  }
+
+  async getTicketTree(ticketId: string): Promise<TicketHierarchyNode> {
+    const cleanId = ticketId.startsWith('ticket:') ? ticketId.split(':')[1] : ticketId;
+    return this.request(`/api/v1/tickets/${cleanId}/tree`);
+  }
+
+  async markAsDuplicate(sourceTicketId: string, targetTicketId: string, request: MarkDuplicateRequest): Promise<void> {
+    const cleanSourceId = sourceTicketId.startsWith('ticket:') ? sourceTicketId.split(':')[1] : sourceTicketId;
+    const cleanTargetId = targetTicketId.startsWith('ticket:') ? targetTicketId.split(':')[1] : targetTicketId;
+    return this.request(`/api/v1/tickets/${cleanSourceId}/mark-duplicate/${cleanTargetId}`, {
+      method: 'POST',
+      body: JSON.stringify(request),
     });
   }
 
