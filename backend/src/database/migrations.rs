@@ -2034,3 +2034,89 @@ impl WorkflowMigrations {
         Ok(())
     }
 }
+
+// ============================================================================
+// TEAM MANAGEMENT MIGRATIONS
+// ============================================================================
+
+/// Database migrations for team management
+pub struct TeamMigrations;
+
+impl TeamMigrations {
+    /// Run all team management migrations
+    pub async fn run_all(db: &Database) -> Result<()> {
+        Self::create_team_tables(db).await?;
+        Self::create_team_indexes(db).await?;
+        Ok(())
+    }
+
+    /// Create tables for team management
+    async fn create_team_tables(db: &Database) -> Result<()> {
+        println!("📁 Creating team management tables...");
+
+        // Teams table
+        db.query(
+            r#"
+            DEFINE TABLE teams SCHEMAFULL;
+            DEFINE FIELD name ON teams TYPE string;
+            DEFINE FIELD description ON teams TYPE option<string>;
+            DEFINE FIELD team_lead_id ON teams TYPE option<record(users)>;
+            DEFINE FIELD parent_team_id ON teams TYPE option<record(teams)>;
+            DEFINE FIELD email_alias ON teams TYPE option<string>;
+            DEFINE FIELD is_active ON teams TYPE bool DEFAULT true;
+            DEFINE FIELD created_at ON teams TYPE datetime DEFAULT time::now();
+            DEFINE FIELD updated_at ON teams TYPE datetime DEFAULT time::now();
+            DEFINE FIELD created_by ON teams TYPE option<string>;
+            DEFINE FIELD tenant_id ON teams TYPE option<record(tenants)>;
+            "#,
+        )
+        .await?;
+
+        // Team Memberships table (many-to-many relationship)
+        db.query(
+            r#"
+            DEFINE TABLE team_memberships SCHEMAFULL;
+            DEFINE FIELD team_id ON team_memberships TYPE record(teams);
+            DEFINE FIELD user_id ON team_memberships TYPE record(users);
+            DEFINE FIELD role ON team_memberships TYPE string;
+            DEFINE FIELD joined_at ON team_memberships TYPE datetime DEFAULT time::now();
+            "#,
+        )
+        .await?;
+
+        println!("✅ Team management tables created successfully");
+        Ok(())
+    }
+
+    /// Create indexes for team management
+    async fn create_team_indexes(db: &Database) -> Result<()> {
+        println!("🔍 Creating team management indexes...");
+
+        // Team indexes
+        db.query("DEFINE INDEX idx_teams_name ON teams FIELDS name;")
+            .await?;
+        db.query("DEFINE INDEX idx_teams_lead ON teams FIELDS team_lead_id;")
+            .await?;
+        db.query("DEFINE INDEX idx_teams_parent ON teams FIELDS parent_team_id;")
+            .await?;
+        db.query("DEFINE INDEX idx_teams_active ON teams FIELDS is_active;")
+            .await?;
+        db.query("DEFINE INDEX idx_teams_tenant ON teams FIELDS tenant_id;")
+            .await?;
+
+        // Team membership indexes
+        db.query("DEFINE INDEX idx_membership_team ON team_memberships FIELDS team_id;")
+            .await?;
+        db.query("DEFINE INDEX idx_membership_user ON team_memberships FIELDS user_id;")
+            .await?;
+        db.query("DEFINE INDEX idx_membership_role ON team_memberships FIELDS role;")
+            .await?;
+
+        // Unique constraint: user can only have one membership per team
+        db.query("DEFINE INDEX idx_membership_unique ON team_memberships FIELDS team_id, user_id UNIQUE;")
+            .await?;
+
+        println!("✅ Team management indexes created successfully");
+        Ok(())
+    }
+}

@@ -10,6 +10,7 @@ pub mod project_models;
 pub mod service_catalog;  // Service Catalog models (Phase 5)
 pub mod settings;
 pub mod settings_models;
+pub mod team;  // Team Management models (Phase 1+)
 pub mod workflow;
 pub mod ticket;
 pub mod workflow_engine;  // Workflow Engine models (Phase 3)
