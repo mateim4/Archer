@@ -54,6 +54,15 @@ const KBArticleDetailView = lazyWithRetry(() => import('./views/KBArticleDetailV
 const KBArticleEditorView = lazyWithRetry(() => import('./views/KBArticleEditorView').then(m => ({ default: m.KBArticleEditorView })));
 const ReportingDashboardView = lazyWithRetry(() => import('./views/ReportingDashboardView').then(m => ({ default: m.ReportingDashboardView })));
 
+// Service Catalog views (lazy loaded)
+const ServiceCatalogView = lazyWithRetry(() => import('./views/ServiceCatalogView'));
+const MyRequestsView = lazyWithRetry(() => import('./views/MyRequestsView'));
+
+// Workflow views (lazy loaded)
+const WorkflowListView = lazyWithRetry(() => import('./views/WorkflowListView'));
+const WorkflowInstanceView = lazyWithRetry(() => import('./views/WorkflowInstanceView'));
+const ApprovalInbox = lazyWithRetry(() => import('./views/ApprovalInbox'));
+
 // Admin views (lazy loaded)
 const UserManagementView = lazyWithRetry(() => import('./views/UserManagementView'));
 const RoleManagementView = lazyWithRetry(() => import('./views/RoleManagementView'));
@@ -252,6 +261,14 @@ function AppContent() {
                     <Route path="cmdb/new" element={<CreateCIView />} />
                     <Route path="cmdb/:id" element={<CIDetailView />} />
                     <Route path="cmdb/:id/edit" element={<EditCIView />} />
+                    <Route path="service-catalog" element={<ServiceCatalogView />} />
+                    <Route path="my-requests" element={<MyRequestsView />} />
+                    
+                    {/* Workflow Routes */}
+                    <Route path="workflows" element={<WorkflowListView />} />
+                    <Route path="workflows/instances" element={<WorkflowInstanceView />} />
+                    <Route path="workflows/approvals" element={<ApprovalInbox />} />
+                    
                     <Route path="projects/:projectId" element={<ProjectWorkspaceView />} />
                     <Route path="projects/:projectId/activities/:activityId/cluster-strategies" element={<ClusterStrategyManagerView />} />
                     {/* Phase 7: Activity Wizard now modal-only - accessible via "Add Activity" buttons in project views */}

@@ -33,6 +33,10 @@ import {
   PlugConnectedFilled,
   BookRegular,
   BookFilled,
+  AppsRegular,
+  AppsFilled,
+  ClipboardListRegular,
+  ClipboardListFilled,
   PeopleTeamRegular,
   PeopleTeamFilled,
   ShieldPersonRegular,
@@ -126,6 +130,20 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
       icon: <BookRegular />, 
       iconFilled: <BookFilled />, 
       path: '/app/knowledge-base'
+    },
+    { 
+      id: 'service-catalog', 
+      title: 'Service Catalog', 
+      icon: <AppsRegular />, 
+      iconFilled: <AppsFilled />, 
+      path: '/app/service-catalog'
+    },
+    { 
+      id: 'my-requests', 
+      title: 'My Requests', 
+      icon: <ClipboardListRegular />, 
+      iconFilled: <ClipboardListFilled />, 
+      path: '/app/my-requests'
     },
     { 
       id: 'inventory', 

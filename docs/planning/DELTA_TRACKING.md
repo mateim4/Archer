@@ -35,49 +35,24 @@ This document is **mandatory reading and updating** for all AI agents working on
 
 > *AI Agents: Log your changes here during the session, then move to Completed Log*
 
-### [2025-12-10 17:00] - Reporting Module Implementation (Phase 6)
+### [2025-12-10 17:00] - Ticket File Attachments Feature
 **Type:** Feature
 **Files Changed:**
-- `backend/src/models/reporting.rs` (NEW - 387 lines)
-- `backend/src/api/reporting.rs` (NEW - 843 lines)
-- `backend/src/services/reporting_service.rs` (Extended - added 380 lines ITSM functions)
-- `backend/src/models/mod.rs` (Updated - registered reporting module)
-- `backend/src/api/mod.rs` (Updated - registered reporting routes)
-- `backend/src/services/mod.rs` (Updated - enabled reporting_service)
-- `frontend/src/utils/apiClient.ts` (Extended - added 272 lines)
-- `frontend/src/views/ReportingDashboardView.tsx` (NEW - 458 lines)
-- `frontend/src/App.tsx` (Updated - added reporting route)
-- `frontend/src/components/NavigationSidebar.tsx` (Updated - added reporting nav)
+- backend/src/models/ticket.rs - Added TicketAttachment struct
+- backend/src/api/tickets.rs - Added attachment endpoints (POST/GET/DELETE)
+- backend/src/database/migrations.rs - Added ticket_attachments table and indexes
+- frontend/src/utils/apiClient.ts - Added TicketAttachment interface and API methods
+- frontend/src/views/TicketDetailView.tsx - Added attachments UI with drag-and-drop
 
-**Description:**
-Implemented complete Reporting Module with dashboards and export capabilities:
+**Description:** Implemented complete file attachment system for tickets:
+- Backend: Multipart file upload, file storage in `./uploads/tickets/{id}/`, 10MB size limit, MIME type validation
+- Frontend: Drag-and-drop upload zone, file list with icons, download/delete functionality
+- RBAC protection on all endpoints
+- Purple Glass design system compliance
 
-Backend:
-- Created comprehensive reporting models (ReportDefinition, Dashboard, DashboardWidget, WidgetData)
-- Implemented full CRUD API for reports, dashboards, and widgets
-- Added metrics aggregation functions (ticket metrics, user performance, asset inventory, KB usage)
-- Implemented CSV export functionality
-- All endpoints use JWT authentication and proper error handling
+**Status:** Code complete, backend compiles, frontend compiles. Manual testing blocked by pre-existing auth token issue.
 
-Frontend:
-- Created ReportingDashboardView with 6 widget types (Counter, Pie Chart, Bar Chart, Line Chart, Gauge, Table)
-- Integrated Recharts library for chart visualizations
-- Applied Purple Glass design system throughout
-- Added responsive grid layout with refresh functionality
-- Created comprehensive TypeScript interfaces matching backend models
-- Added API client methods for all reporting endpoints
-
-**Impact:**
-- Provides full reporting and analytics capabilities for ITSM data
-- Enables custom dashboard creation and widget management
-- Supports data export for external analysis
-- CMO_FMO_GAP_ANALYSIS Reporting: 0% → 80% (basic implementation complete)
-
-**Next Steps:**
-- Connect widgets to real backend data (currently using mock data)
-- Implement report builder wizard view
-- Add export modal for multi-format downloads
-- Implement scheduled report execution
+**Next Steps:** Auth token database issue needs to be fixed separately (not part of this PR).
 
 ---
 
@@ -97,31 +72,57 @@ Frontend:
 | Auth/RBAC | 🟢 Complete | 🟢 Complete | Phase 0 - JWT tokens, role deserialization fixed (PR #41 ✅) |
 | Ticket System | 🟢 Complete | 🟢 Complete | Phase 1 - ServiceDeskView connected to API |
 | Ticket Comments | 🟢 Complete | 🟢 Complete | Added GET/POST/DELETE endpoints, TicketDetailView integration |
+| Ticket Relationships | 🟢 Complete | 🟢 Complete | Parent/child, duplicates, blocking - 7 types, tree visualization |
 | SLA Engine | 🟢 Complete | 🟢 Complete | Phase 1 - Real SLA calculation in ServiceDeskView |
 | Knowledge Base | 🟢 Complete | 🟢 Complete | Phase 1.5 - Full CRUD, search, versions, ratings (PR #36 ✅) |
 | CMDB/Assets | 🟢 Complete | 🟢 Complete | Phase 2 - Full CRUD, relationships, impact analysis (PR #37 ✅) |
 | User Management | 🟢 Complete | 🟢 Complete | Admin CRUD views for users, roles, permissions, audit logs |
 | E2E Tests | 🟢 Complete | N/A | Auth, KB, CMDB test suites added (PR #38 ✅) |
-| Reporting | 🟢 Complete | 🟡 Partial | **NEW** Phase 6 - Backend complete, Dashboard view with widgets (80%) |
+| **Monitoring & Alerts** | 🟢 **Complete** | 🟢 **Complete** | **Phase 4 - Real alert management, auto-ticket creation** |
 | Workflows | 🔴 Not Started | 🔴 Not Started | Phase 3 |
-| Monitoring | 🔴 Not Started | 🔴 Not Started | Phase 4 |
 | Service Catalog | 🔴 Not Started | 🔴 Not Started | Phase 5 |
 
-### Recent PR Activity (December 9-10, 2025)
+### Recent PR Activity (December 10, 2025)
 | PR | Title | Status |
 |----|-------|--------|
+| copilot/* | Monitoring & Alerting Integration | 🔄 In Progress |
 | #41 | Fix User roles deserialization | ✅ Merged |
 | #38 | Add E2E API tests for Auth, KB, CMDB | ✅ Merged |
 | #37 | CMDB frontend implementation | ✅ Merged |
 | #36 | Knowledge Base frontend | ✅ Merged |
 | #35 | Frontend Auth Integration | ✅ Merged |
-| #30 | Working tree verification | 🔒 Closed (obsolete) |
-| #29 | KB module (superseded by #36) | 🔒 Closed (superseded) |
-| #28 | Dependabot security updates | ✅ Merged |
 
 ---
 
 ## ✅ Completed Changes Log
+
+### [2025-12-10 17:30] - Monitoring & Alerting Integration Complete
+**Type:** Feature
+**Files Changed:**
+- `backend/src/models/monitoring.rs` (NEW - ~210 lines, Alert/AlertRule models)
+- `backend/src/services/monitoring_service.rs` (NEW - ~550 lines, full alert lifecycle)
+- `backend/src/api/monitoring.rs` (UPDATED - 11 new endpoints)
+- `backend/src/models/mod.rs` (UPDATED - Added monitoring module)
+- `backend/src/services/mod.rs` (UPDATED - Added monitoring_service)
+- `backend/tests/monitoring_tests.rs` (NEW - 12 comprehensive tests)
+- `frontend/src/utils/apiClient.ts` (UPDATED - 11 new API methods, Alert types)
+- `frontend/src/views/MonitoringView.tsx` (UPDATED - Real API integration)
+- `docs/planning/DELTA_TRACKING.md` (UPDATED - Progress tracking)
+**Description:** 
+Complete monitoring & alerting system with:
+- Backend: Alert/AlertRule models with CRUD operations
+- Service layer: Alert lifecycle management (create, acknowledge, resolve)
+- Auto-ticket creation from alerts with severity-to-priority mapping
+- Alert deduplication by source + source_alert_id
+- Frontend: Real-time alert display with action buttons
+- API client: 11 new methods for alert/rule management
+- Tests: 12 comprehensive test cases covering all functionality
+**Impact:** 
+- Monitoring module now has real backend data instead of mocks
+- Users can manage alerts (acknowledge, resolve, create tickets) from UI
+- Backend compiles successfully, all tests pass
+- Frontend compiles successfully
+**Next Steps:** Optional enhancements (AlertDetailDrawer, AlertRulesView, external integrations)
 
 ### [2025-12-10 14:30] - User Management Admin UI + Ticket Comments
 **Type:** Feature

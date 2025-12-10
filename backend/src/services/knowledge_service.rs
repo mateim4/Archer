@@ -59,6 +59,8 @@ impl KnowledgeService {
             view_count: 0,
             helpful_count: 0,
             not_helpful_count: 0,
+            resolution_count: 0,
+            helpfulness_score: 0.0,
             related_articles: vec![],
             seo_title: request.seo_title,
             seo_description: request.seo_description,
