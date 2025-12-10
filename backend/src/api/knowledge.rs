@@ -1,10 +1,11 @@
 // Archer ITSM - Knowledge Base API Endpoints
-// Knowledge Base REST API with article management, search, and ratings
+// Knowledge Base REST API with article management, search, ratings, and ticket integration
 
 use crate::database::Database;
 use crate::middleware::auth::AuthenticatedUser;
 use crate::models::knowledge::*;
 use crate::services::knowledge_service::KnowledgeService;
+use crate::services::kb_suggestion_service::KBSuggestionService;
 use axum::{
     extract::{Path, Query, State},
     http::StatusCode,
@@ -34,6 +35,10 @@ pub fn knowledge_routes() -> Router<Arc<Database>> {
         .route("/categories/:id", get(get_category).put(update_category).delete(delete_category))
         // Statistics
         .route("/statistics", get(get_statistics))
+        // KB-Ticket Integration endpoints (Phase 1.5)
+        .route("/suggest", get(suggest_articles))
+        .route("/related-to-ticket/:ticket_id", get(get_related_articles))
+        .route("/top-resolution-articles", get(get_top_resolution_articles))
 }
 
 // ============================================================================
@@ -522,4 +527,97 @@ pub struct RateArticleRequest {
 #[derive(Debug, Serialize)]
 struct ErrorResponse {
     error: String,
+}
+
+// ============================================================================
+// KB-TICKET INTEGRATION HANDLERS (Phase 1.5)
+// ============================================================================
+
+/// Suggest KB articles based on ticket title and description
+async fn suggest_articles(
+    State(db): State<Arc<Database>>,
+    Extension(user): Extension<AuthenticatedUser>,
+    Query(params): Query<KBSuggestionParams>,
+) -> Result<impl IntoResponse, (StatusCode, Json<ErrorResponse>)> {
+    if !user.has_permission("kb:read") {
+        return Err((StatusCode::FORBIDDEN, Json(ErrorResponse {
+            error: "Permission 'kb:read' required".to_string(),
+        })));
+    }
+
+    let request = KBSuggestionRequest {
+        title: params.title,
+        description: params.description,
+        category: params.category,
+        limit: params.limit,
+    };
+
+    match KBSuggestionService::suggest_articles(db, request).await {
+        Ok(suggestions) => Ok(Json(suggestions)),
+        Err(e) => Err((
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(ErrorResponse { error: e }),
+        )),
+    }
+}
+
+/// Get KB articles related to a specific ticket
+async fn get_related_articles(
+    State(db): State<Arc<Database>>,
+    Extension(user): Extension<AuthenticatedUser>,
+    Path(ticket_id): Path<String>,
+) -> Result<impl IntoResponse, (StatusCode, Json<ErrorResponse>)> {
+    if !user.has_permission("kb:read") {
+        return Err((StatusCode::FORBIDDEN, Json(ErrorResponse {
+            error: "Permission 'kb:read' required".to_string(),
+        })));
+    }
+
+    match KBSuggestionService::get_articles_for_ticket(db, &ticket_id).await {
+        Ok(suggestions) => Ok(Json(suggestions)),
+        Err(e) => Err((
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(ErrorResponse { error: e }),
+        )),
+    }
+}
+
+/// Get top articles used for ticket resolutions
+async fn get_top_resolution_articles(
+    State(db): State<Arc<Database>>,
+    Extension(user): Extension<AuthenticatedUser>,
+    Query(params): Query<TopArticlesParams>,
+) -> Result<impl IntoResponse, (StatusCode, Json<ErrorResponse>)> {
+    if !user.has_permission("kb:read") {
+        return Err((StatusCode::FORBIDDEN, Json(ErrorResponse {
+            error: "Permission 'kb:read' required".to_string(),
+        })));
+    }
+
+    let limit = params.limit.unwrap_or(10);
+
+    match KBSuggestionService::get_top_resolution_articles(db, limit).await {
+        Ok(suggestions) => Ok(Json(suggestions)),
+        Err(e) => Err((
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(ErrorResponse { error: e }),
+        )),
+    }
+}
+
+// ============================================================================
+// QUERY PARAMS FOR KB-TICKET INTEGRATION
+// ============================================================================
+
+#[derive(Debug, Deserialize)]
+pub struct KBSuggestionParams {
+    pub title: Option<String>,
+    pub description: Option<String>,
+    pub category: Option<String>,
+    pub limit: Option<u32>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct TopArticlesParams {
+    pub limit: Option<u32>,
 }

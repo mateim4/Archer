@@ -7,6 +7,7 @@ pub mod ticket_service;
 
 // Knowledge Base (Phase 1.5)
 pub mod knowledge_service;
+pub mod kb_suggestion_service;
 
 // CMDB/Assets (Phase 2)
 pub mod cmdb_service;

@@ -16,6 +16,8 @@ use crate::{
         Ticket, CreateTicketRequest, UpdateTicketRequest, TicketStatus,
         TicketComment, CreateCommentRequest, CommentType,
     },
+    models::knowledge::{LinkArticleToTicketRequest, KBLinkType},
+    services::kb_suggestion_service::KBSuggestionService,
     middleware::{
         auth::{require_auth, AuthState, AuthenticatedUser},
         rbac::{check_tickets_create, check_tickets_read, check_tickets_update, check_tickets_delete},
@@ -44,6 +46,7 @@ pub fn create_tickets_router(db: Arc<Database>) -> Router {
     let update_routes = Router::new()
         .route("/:id", patch(update_ticket))
         .route("/:id/comments", post(add_comment))
+        .route("/:id/kb-resolution", post(link_kb_article))
         .layer(middleware::from_fn(check_tickets_update))
         .with_state(db.clone());
 
@@ -416,4 +419,45 @@ async fn log_audit(
 
     // Fire and forget - don't fail the request if audit logging fails
     let _ = db.query(&query).await;
+}
+
+// ============================================================================
+// KB INTEGRATION HANDLERS (Phase 1.5)
+// ============================================================================
+
+/// Link a KB article to a ticket resolution
+async fn link_kb_article(
+    State(db): State<Arc<Database>>,
+    Path(id): Path<String>,
+    axum::Extension(user): axum::Extension<AuthenticatedUser>,
+    Json(payload): Json<LinkArticleToTicketRequest>,
+) -> impl IntoResponse {
+    // Extract ticket ID from path
+    let ticket_id = if id.contains(':') {
+        id.split(':').last().unwrap_or(&id)
+    } else {
+        &id
+    };
+
+    // Link the article to the ticket
+    match KBSuggestionService::link_article_to_ticket(
+        db.clone(),
+        ticket_id,
+        &payload.article_id,
+        KBLinkType::UsedForResolution,
+        Some(payload.was_helpful),
+        &user.user_id,
+    )
+    .await
+    {
+        Ok(link) => {
+            log_audit(&db, &user, "ticket_kb_links", "create", Some(ticket_id), true).await;
+            (StatusCode::CREATED, Json(link)).into_response()
+        }
+        Err(e) => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(serde_json::json!({ "error": e })),
+        )
+            .into_response(),
+    }
 }

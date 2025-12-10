@@ -27,6 +27,11 @@ pub struct KBArticle {
     /// Helpfulness counts
     pub helpful_count: u32,
     pub not_helpful_count: u32,
+    /// Resolution tracking (Phase 1.5 KB-Ticket Integration)
+    #[serde(default)]
+    pub resolution_count: i32,
+    #[serde(default)]
+    pub helpfulness_score: f32,
     /// Related articles (manual curation)
     pub related_articles: Vec<Thing>,
     /// SEO metadata
@@ -216,4 +221,56 @@ pub struct CategoryStat {
     pub category_id: String,
     pub category_name: String,
     pub article_count: u64,
+}
+
+// ============================================================================
+// KB-TICKET INTEGRATION MODELS (Phase 1.5)
+// ============================================================================
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TicketKBLink {
+    pub id: Option<Thing>,
+    pub ticket_id: Thing,
+    pub article_id: Thing,
+    pub link_type: KBLinkType,
+    pub was_helpful: Option<bool>,
+    pub created_by: String,
+    pub created_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub enum KBLinkType {
+    #[serde(rename = "SUGGESTED_TO_USER")]
+    SuggestedToUser,      // Shown during ticket creation
+    #[serde(rename = "USED_FOR_RESOLUTION")]
+    UsedForResolution,    // Agent used this to resolve
+    #[serde(rename = "ATTACHED_BY_AGENT")]
+    AttachedByAgent,      // Manually attached
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ArticleSuggestion {
+    pub article_id: String,
+    pub title: String,
+    pub summary: Option<String>,
+    pub excerpt: String,
+    pub relevance_score: f32,
+    pub resolution_count: i32,
+    pub helpful_count: u32,
+    pub view_count: u64,
+    pub category: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct KBSuggestionRequest {
+    pub title: Option<String>,
+    pub description: Option<String>,
+    pub category: Option<String>,
+    pub limit: Option<u32>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct LinkArticleToTicketRequest {
+    pub article_id: String,
+    pub was_helpful: bool,
 }
