@@ -226,6 +226,134 @@ export interface CreateCommentRequest {
   comment_type?: CommentType;
 }
 
+// ===== Workflows =====
+
+export type WorkflowTrigger =
+  | 'ON_TICKET_CREATE'
+  | 'ON_TICKET_UPDATE'
+  | 'ON_TICKET_STATUS_CHANGE'
+  | 'ON_APPROVAL_REQUIRED'
+  | 'ON_ALERT_CREATED'
+  | 'ON_CI_CHANGE'
+  | 'SCHEDULED'
+  | 'MANUAL';
+
+export type WorkflowStepType =
+  | 'APPROVAL'
+  | 'NOTIFICATION'
+  | 'FIELD_UPDATE'
+  | 'ASSIGNMENT'
+  | 'CREATE_RECORD'
+  | 'HTTP_CALL'
+  | 'CONDITION'
+  | 'DELAY';
+
+export type WorkflowInstanceStatus =
+  | 'RUNNING'
+  | 'WAITING_APPROVAL'
+  | 'COMPLETED'
+  | 'FAILED'
+  | 'CANCELLED';
+
+export type ApprovalStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'DELEGATED';
+
+export type ApproverType = 'USER' | 'ROLE' | 'GROUP';
+
+export type StepExecutionStatus = 'PENDING' | 'RUNNING' | 'COMPLETED' | 'FAILED' | 'SKIPPED';
+
+export interface WorkflowStep {
+  step_id: string;
+  name: string;
+  step_type: WorkflowStepType;
+  config: Record<string, any>;
+  on_success?: string;
+  on_failure?: string;
+  timeout_minutes?: number;
+}
+
+export interface WorkflowDefinition {
+  id?: string;
+  name: string;
+  description?: string;
+  trigger_type: WorkflowTrigger;
+  trigger_conditions: Record<string, any>;
+  steps: WorkflowStep[];
+  is_active: boolean;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateWorkflowRequest {
+  name: string;
+  description?: string;
+  trigger_type: WorkflowTrigger;
+  trigger_conditions: Record<string, any>;
+  steps: WorkflowStep[];
+  is_active: boolean;
+}
+
+export interface UpdateWorkflowRequest {
+  name?: string;
+  description?: string;
+  trigger_conditions?: Record<string, any>;
+  steps?: WorkflowStep[];
+  is_active?: boolean;
+}
+
+export interface StepExecution {
+  step_id: string;
+  step_name: string;
+  status: StepExecutionStatus;
+  started_at: string;
+  completed_at?: string;
+  result?: Record<string, any>;
+  error_message?: string;
+}
+
+export interface WorkflowInstance {
+  id?: string;
+  workflow_id: string;
+  trigger_record_type: string;
+  trigger_record_id: string;
+  status: WorkflowInstanceStatus;
+  current_step_id?: string;
+  step_history: StepExecution[];
+  started_at: string;
+  completed_at?: string;
+  context: Record<string, any>;
+}
+
+export interface TriggerWorkflowRequest {
+  trigger_record_type: string;
+  trigger_record_id: string;
+  context?: Record<string, any>;
+}
+
+export interface Approval {
+  id?: string;
+  workflow_instance_id: string;
+  step_id: string;
+  approver_id: string;
+  approver_type: ApproverType;
+  status: ApprovalStatus;
+  requested_at: string;
+  responded_at?: string;
+  comments?: string;
+}
+
+export interface ApprovalWithContext {
+  approval: Approval;
+  workflow_name: string;
+  trigger_record_type: string;
+  trigger_record_id: string;
+}
+
+export interface ApprovalResponseRequest {
+  decision: 'approve' | 'reject';
+  comments?: string;
+}
+
 export interface Asset {
   id: string;
   name: string;
@@ -892,6 +1020,76 @@ export class ApiClient {
     const cleanCommentId = commentId.startsWith('ticket_comments:') ? commentId.split(':')[1] : commentId;
     return this.request(`/api/v1/tickets/${cleanTicketId}/comments/${cleanCommentId}`, {
       method: 'DELETE',
+    });
+  }
+
+  // ===== Workflows =====
+  async getWorkflows(): Promise<{ workflows: WorkflowDefinition[]; total: number }> {
+    return this.request('/api/v1/workflows');
+  }
+
+  async getWorkflow(id: string): Promise<WorkflowDefinition> {
+    return this.request(`/api/v1/workflows/${id}`);
+  }
+
+  async createWorkflow(data: CreateWorkflowRequest): Promise<WorkflowDefinition> {
+    return this.request('/api/v1/workflows', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateWorkflow(id: string, data: UpdateWorkflowRequest): Promise<WorkflowDefinition> {
+    return this.request(`/api/v1/workflows/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteWorkflow(id: string): Promise<void> {
+    return this.request(`/api/v1/workflows/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async triggerWorkflow(id: string, data: TriggerWorkflowRequest): Promise<WorkflowInstance> {
+    return this.request(`/api/v1/workflows/${id}/trigger`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  // ===== Workflow Instances =====
+  async getWorkflowInstances(): Promise<{ instances: WorkflowInstance[]; total: number }> {
+    return this.request('/api/v1/workflows/instances');
+  }
+
+  async getWorkflowInstance(id: string): Promise<WorkflowInstance> {
+    return this.request(`/api/v1/workflows/instances/${id}`);
+  }
+
+  async cancelWorkflowInstance(id: string): Promise<WorkflowInstance> {
+    return this.request(`/api/v1/workflows/instances/${id}/cancel`, {
+      method: 'POST',
+    });
+  }
+
+  // ===== Approvals =====
+  async getPendingApprovals(): Promise<{ approvals: ApprovalWithContext[]; total: number }> {
+    return this.request('/api/v1/workflows/approvals/pending');
+  }
+
+  async approveApproval(id: string, data: ApprovalResponseRequest): Promise<Approval> {
+    return this.request(`/api/v1/workflows/approvals/${id}/approve`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async rejectApproval(id: string, data: ApprovalResponseRequest): Promise<Approval> {
+    return this.request(`/api/v1/workflows/approvals/${id}/reject`, {
+      method: 'POST',
+      body: JSON.stringify(data),
     });
   }
 
