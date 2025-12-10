@@ -53,6 +53,10 @@ const KnowledgeBaseView = lazyWithRetry(() => import('./views/KnowledgeBaseView'
 const KBArticleDetailView = lazyWithRetry(() => import('./views/KBArticleDetailView').then(m => ({ default: m.KBArticleDetailView })));
 const KBArticleEditorView = lazyWithRetry(() => import('./views/KBArticleEditorView').then(m => ({ default: m.KBArticleEditorView })));
 
+// Service Catalog views (lazy loaded)
+const ServiceCatalogView = lazyWithRetry(() => import('./views/ServiceCatalogView'));
+const MyRequestsView = lazyWithRetry(() => import('./views/MyRequestsView'));
+
 // Workflow views (lazy loaded)
 const WorkflowListView = lazyWithRetry(() => import('./views/WorkflowListView'));
 const WorkflowInstanceView = lazyWithRetry(() => import('./views/WorkflowInstanceView'));
@@ -256,6 +260,8 @@ function AppContent() {
                     <Route path="cmdb/new" element={<CreateCIView />} />
                     <Route path="cmdb/:id" element={<CIDetailView />} />
                     <Route path="cmdb/:id/edit" element={<EditCIView />} />
+                    <Route path="service-catalog" element={<ServiceCatalogView />} />
+                    <Route path="my-requests" element={<MyRequestsView />} />
                     
                     {/* Workflow Routes */}
                     <Route path="workflows" element={<WorkflowListView />} />

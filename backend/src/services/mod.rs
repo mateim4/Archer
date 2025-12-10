@@ -14,6 +14,9 @@ pub mod cmdb_service;
 // Workflow Engine (Phase 3)
 pub mod workflow_engine_service;
 
+// Monitoring & Alerting (Phase 4)
+pub mod monitoring_service;
+
 pub mod dependency_validator;
 pub mod document_service;
 pub mod enhanced_rvtools_service; // TODO: Fix compilation errors

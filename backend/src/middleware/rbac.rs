@@ -405,6 +405,28 @@ where
     next.run(request).await
 }
 
+// Service Catalog permissions
+pub async fn check_service_catalog_read<B>(request: Request<B>, next: Next<B>) -> Response
+where
+    B: Send,
+{
+    require_permission("service_catalog:read", request, next).await
+}
+
+pub async fn check_catalog_admin<B>(request: Request<B>, next: Next<B>) -> Response
+where
+    B: Send,
+{
+    require_permission("catalog:admin", request, next).await
+}
+
+pub async fn check_admin<B>(request: Request<B>, next: Next<B>) -> Response
+where
+    B: Send,
+{
+    require_any_role(&["super_admin", "admin"], request, next).await
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
