@@ -220,6 +220,18 @@ export interface CommentAttachment {
   uploaded_at: string;
 }
 
+export interface TicketAttachment {
+  id: string;
+  ticket_id: string;
+  filename: string;
+  original_filename: string;
+  mime_type: string;
+  size_bytes: number;
+  storage_path: string;
+  uploaded_by: string;
+  uploaded_at: string;
+}
+
 export interface CreateCommentRequest {
   content: string;
   is_internal: boolean;
@@ -302,6 +314,104 @@ export interface DashboardSummary {
   warning_alerts: number;
   avg_cluster_health: number;
   active_incidents: number;
+}
+
+// ===== Monitoring Alerts =====
+export type AlertSeverity = 'Critical' | 'High' | 'Medium' | 'Low' | 'Info';
+export type AlertStatus = 'Active' | 'Acknowledged' | 'Resolved' | 'Suppressed';
+export type AlertCondition = 'GreaterThan' | 'LessThan' | 'Equals' | 'NotEquals';
+
+export interface Alert {
+  id?: string;
+  title: string;
+  description: string;
+  severity: AlertSeverity;
+  status: AlertStatus;
+  source: string;
+  source_alert_id?: string;
+  affected_ci_id?: string;
+  metric_name?: string;
+  metric_value?: number;
+  threshold?: number;
+  created_at: string;
+  acknowledged_at?: string;
+  acknowledged_by?: string;
+  resolved_at?: string;
+  resolved_by?: string;
+  auto_ticket_id?: string;
+  tags: string[];
+}
+
+export interface AlertRule {
+  id?: string;
+  name: string;
+  description?: string;
+  metric_query: string;
+  condition: AlertCondition;
+  threshold: number;
+  severity: AlertSeverity;
+  auto_create_ticket: boolean;
+  ticket_template?: any;
+  is_active: boolean;
+  cooldown_minutes: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateAlertRequest {
+  title: string;
+  description: string;
+  severity: AlertSeverity;
+  source: string;
+  source_alert_id?: string;
+  affected_ci_id?: string;
+  metric_name?: string;
+  metric_value?: number;
+  threshold?: number;
+  tags?: string[];
+}
+
+export interface CreateAlertRuleRequest {
+  name: string;
+  description?: string;
+  metric_query: string;
+  condition: AlertCondition;
+  threshold: number;
+  severity: AlertSeverity;
+  auto_create_ticket: boolean;
+  ticket_template?: any;
+  cooldown_minutes: number;
+}
+
+export interface UpdateAlertRuleRequest {
+  name?: string;
+  description?: string;
+  metric_query?: string;
+  condition?: AlertCondition;
+  threshold?: number;
+  severity?: AlertSeverity;
+  auto_create_ticket?: boolean;
+  ticket_template?: any;
+  is_active?: boolean;
+  cooldown_minutes?: number;
+}
+
+export interface AlertListResponse {
+  alerts: Alert[];
+  total: number;
+  page: number;
+  page_size: number;
+}
+
+export interface AlertRuleListResponse {
+  rules: AlertRule[];
+  total: number;
+}
+
+export interface CreateTicketFromAlertRequest {
+  assignee?: string;
+  assigned_group?: string;
+  additional_notes?: string;
 }
 
 // ===== Admin User Management Types =====
@@ -483,6 +593,231 @@ export interface KBStatistics {
   total_categories: number;
   total_views: number;
   avg_rating: number;
+}
+
+// ============================================================================
+// SERVICE CATALOG TYPES
+// ============================================================================
+
+export interface CatalogCategory {
+  id?: string;
+  name: string;
+  description?: string;
+  icon?: string;
+  parent_id?: string;
+  sort_order: number;
+  is_active: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface CreateCategoryRequest {
+  name: string;
+  description?: string;
+  icon?: string;
+  parent_id?: string;
+  sort_order: number;
+  is_active: boolean;
+}
+
+export interface UpdateCategoryRequest {
+  name?: string;
+  description?: string;
+  icon?: string;
+  parent_id?: string;
+  sort_order?: number;
+  is_active?: boolean;
+}
+
+export interface CatalogItem {
+  id?: string;
+  name: string;
+  description: string;
+  category_id: string;
+  icon?: string;
+  short_description: string;
+  delivery_time_days?: number;
+  cost?: number;
+  is_active: boolean;
+  form_schema: any; // JSON Schema object
+  approval_required: boolean;
+  approval_group?: string;
+  fulfillment_group?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateCatalogItemRequest {
+  name: string;
+  description: string;
+  category_id: string;
+  icon?: string;
+  short_description: string;
+  delivery_time_days?: number;
+  cost?: number;
+  is_active: boolean;
+  form_schema: any; // JSON Schema object
+  approval_required: boolean;
+  approval_group?: string;
+  fulfillment_group?: string;
+}
+
+export interface UpdateCatalogItemRequest {
+  name?: string;
+  description?: string;
+  category_id?: string;
+  icon?: string;
+  short_description?: string;
+  delivery_time_days?: number;
+  cost?: number;
+  is_active?: boolean;
+  form_schema?: any;
+  approval_required?: boolean;
+  approval_group?: string;
+  fulfillment_group?: string;
+}
+
+export interface ServiceRequest {
+  id?: string;
+  catalog_item_id: string;
+  requester_id: string;
+  form_data: any; // JSON object matching the form_schema
+  status: 'DRAFT' | 'PENDING_APPROVAL' | 'APPROVED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED' | 'REJECTED';
+  approval_status?: 'PENDING' | 'APPROVED' | 'REJECTED';
+  approved_by?: string;
+  approved_at?: string;
+  assigned_to?: string;
+  created_at: string;
+  updated_at: string;
+  completed_at?: string;
+  rejection_reason?: string;
+}
+
+export interface CreateServiceRequestRequest {
+  catalog_item_id: string;
+  form_data: any;
+}
+
+// ===== Workflow Types =====
+export type WorkflowTriggerType = 
+  | 'ON_TICKET_CREATE'
+  | 'ON_TICKET_UPDATE'
+  | 'ON_TICKET_STATUS_CHANGE'
+  | 'ON_APPROVAL_REQUIRED'
+  | 'ON_ALERT_CREATED'
+  | 'ON_CI_CHANGE'
+  | 'SCHEDULED'
+  | 'MANUAL';
+
+export type WorkflowStepType =
+  | 'APPROVAL'
+  | 'NOTIFICATION'
+  | 'FIELD_UPDATE'
+  | 'ASSIGNMENT'
+  | 'CREATE_RECORD'
+  | 'HTTP_CALL'
+  | 'CONDITION'
+  | 'DELAY';
+
+export interface WorkflowStep {
+  step_id: string;
+  name: string;
+  step_type: WorkflowStepType;
+  config: any;
+  on_success?: string;
+  on_failure?: string;
+  timeout_minutes?: number;
+}
+
+export interface WorkflowDefinition {
+  id?: string;
+  name: string;
+  description?: string;
+  trigger_type: WorkflowTriggerType;
+  trigger_conditions: any;
+  steps: WorkflowStep[];
+  is_active: boolean;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateWorkflowRequest {
+  name: string;
+  description?: string;
+  trigger_type: WorkflowTriggerType;
+  trigger_conditions: any;
+  steps: WorkflowStep[];
+  is_active?: boolean;
+}
+
+export interface UpdateWorkflowRequest {
+  name?: string;
+  description?: string;
+  trigger_type?: WorkflowTriggerType;
+  trigger_conditions?: any;
+  steps?: WorkflowStep[];
+  is_active?: boolean;
+}
+
+export interface TriggerWorkflowRequest {
+  trigger_record_type: string;
+  trigger_record_id: string;
+  context?: any;
+}
+
+export type WorkflowInstanceStatus =
+  | 'RUNNING'
+  | 'WAITING_APPROVAL'
+  | 'COMPLETED'
+  | 'FAILED'
+  | 'CANCELLED';
+
+export interface StepExecution {
+  step_id: string;
+  status: string;
+  started_at: string;
+  completed_at?: string;
+  output?: any;
+  error?: string;
+}
+
+export interface WorkflowInstance {
+  id?: string;
+  workflow_id: string;
+  trigger_record_type: string;
+  trigger_record_id: string;
+  status: WorkflowInstanceStatus;
+  current_step_id?: string;
+  step_history: StepExecution[];
+  started_at: string;
+  completed_at?: string;
+  context: any;
+}
+
+export type ApprovalStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'DELEGATED';
+export type ApproverType = 'USER' | 'ROLE' | 'GROUP';
+
+export interface Approval {
+  id?: string;
+  workflow_instance_id: string;
+  step_id: string;
+  approver_id: string;
+  approver_type: ApproverType;
+  status: ApprovalStatus;
+  requested_at: string;
+  responded_at?: string;
+  comments?: string;
+}
+
+export interface ApprovalWithContext extends Approval {
+  workflow_name?: string;
+  record_title?: string;
+  record_type?: string;
+}
+
+export interface ApprovalResponseRequest {
+  comments?: string;
 }
 
 export class ApiClient {
@@ -941,44 +1276,64 @@ export class ApiClient {
     });
   }
 
-  // ===== Ticket Relationships =====
-  async getTicketRelationships(ticketId: string): Promise<{ data: TicketRelationship[]; count: number }> {
+  // ===== Ticket Attachments =====
+  async getTicketAttachments(ticketId: string): Promise<{ data: TicketAttachment[]; count: number }> {
     const cleanId = ticketId.startsWith('ticket:') ? ticketId.split(':')[1] : ticketId;
-    return this.request(`/api/v1/tickets/${cleanId}/relationships`);
+    return this.request(`/api/v1/tickets/${cleanId}/attachments`);
   }
 
-  async createRelationship(ticketId: string, request: CreateRelationshipRequest): Promise<TicketRelationship> {
+  async uploadTicketAttachment(ticketId: string, file: File): Promise<TicketAttachment> {
     const cleanId = ticketId.startsWith('ticket:') ? ticketId.split(':')[1] : ticketId;
-    return this.request(`/api/v1/tickets/${cleanId}/relationships`, {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const token = this.tokenProvider ? this.tokenProvider() : '';
+    const response = await fetch(`${this.baseURL}/api/v1/tickets/${cleanId}/attachments`, {
       method: 'POST',
-      body: JSON.stringify(request),
+      headers: {
+        ...(token && { 'Authorization': `Bearer ${token}` }),
+      },
+      body: formData,
     });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ error: 'Upload failed' }));
+      throw new Error(error.error || 'Upload failed');
+    }
+
+    return response.json();
   }
 
-  async deleteRelationship(ticketId: string, relationshipId: string): Promise<void> {
+  async downloadTicketAttachment(ticketId: string, attachmentId: string): Promise<{ blob: Blob; filename: string }> {
     const cleanTicketId = ticketId.startsWith('ticket:') ? ticketId.split(':')[1] : ticketId;
-    const cleanRelId = relationshipId.startsWith('ticket_relationships:') ? relationshipId.split(':')[1] : relationshipId;
-    return this.request(`/api/v1/tickets/${cleanTicketId}/relationships/${cleanRelId}`, {
-      method: 'DELETE',
+    const cleanAttachmentId = attachmentId.startsWith('ticket_attachments:') ? attachmentId.split(':')[1] : attachmentId;
+    
+    const token = this.tokenProvider ? this.tokenProvider() : '';
+    const response = await fetch(`${this.baseURL}/api/v1/tickets/${cleanTicketId}/attachments/${cleanAttachmentId}`, {
+      method: 'GET',
+      headers: {
+        ...(token && { 'Authorization': `Bearer ${token}` }),
+      },
     });
+
+    if (!response.ok) {
+      throw new Error('Download failed');
+    }
+
+    const blob = await response.blob();
+    const contentDisposition = response.headers.get('Content-Disposition');
+    const filename = contentDisposition
+      ? contentDisposition.split('filename=')[1]?.replace(/"/g, '') || 'download'
+      : 'download';
+
+    return { blob, filename };
   }
 
-  async getTicketChildren(ticketId: string): Promise<{ data: TicketSummary[]; count: number }> {
-    const cleanId = ticketId.startsWith('ticket:') ? ticketId.split(':')[1] : ticketId;
-    return this.request(`/api/v1/tickets/${cleanId}/children`);
-  }
-
-  async getTicketTree(ticketId: string): Promise<TicketHierarchyNode> {
-    const cleanId = ticketId.startsWith('ticket:') ? ticketId.split(':')[1] : ticketId;
-    return this.request(`/api/v1/tickets/${cleanId}/tree`);
-  }
-
-  async markAsDuplicate(sourceTicketId: string, targetTicketId: string, request: MarkDuplicateRequest): Promise<void> {
-    const cleanSourceId = sourceTicketId.startsWith('ticket:') ? sourceTicketId.split(':')[1] : sourceTicketId;
-    const cleanTargetId = targetTicketId.startsWith('ticket:') ? targetTicketId.split(':')[1] : targetTicketId;
-    return this.request(`/api/v1/tickets/${cleanSourceId}/mark-duplicate/${cleanTargetId}`, {
-      method: 'POST',
-      body: JSON.stringify(request),
+  async deleteTicketAttachment(ticketId: string, attachmentId: string): Promise<void> {
+    const cleanTicketId = ticketId.startsWith('ticket:') ? ticketId.split(':')[1] : ticketId;
+    const cleanAttachmentId = attachmentId.startsWith('ticket_attachments:') ? attachmentId.split(':')[1] : attachmentId;
+    return this.request(`/api/v1/tickets/${cleanTicketId}/attachments/${cleanAttachmentId}`, {
+      method: 'DELETE',
     });
   }
 
@@ -1002,6 +1357,90 @@ export class ApiClient {
 
   async getAssetMetrics(assetId: string): Promise<AssetMetrics> {
     return this.request(`/api/v1/monitoring/assets/${assetId}`);
+  }
+
+  // Alert management
+  async getAlerts(params?: {
+    severity?: AlertSeverity[];
+    status?: AlertStatus[];
+    source?: string;
+    affected_ci_id?: string;
+    tags?: string[];
+    search?: string;
+    page?: number;
+    page_size?: number;
+  }): Promise<AlertListResponse> {
+    const queryParams = new URLSearchParams();
+    if (params?.severity) params.severity.forEach(s => queryParams.append('severity', s));
+    if (params?.status) params.status.forEach(s => queryParams.append('status', s));
+    if (params?.source) queryParams.append('source', params.source);
+    if (params?.affected_ci_id) queryParams.append('affected_ci_id', params.affected_ci_id);
+    if (params?.tags) params.tags.forEach(t => queryParams.append('tags', t));
+    if (params?.search) queryParams.append('search', params.search);
+    if (params?.page !== undefined) queryParams.append('page', params.page.toString());
+    if (params?.page_size) queryParams.append('page_size', params.page_size.toString());
+    
+    return this.request(`/api/v1/monitoring/alerts?${queryParams.toString()}`);
+  }
+
+  async getAlert(id: string): Promise<Alert> {
+    return this.request(`/api/v1/monitoring/alerts/${id}`);
+  }
+
+  async createAlert(data: CreateAlertRequest): Promise<Alert> {
+    return this.request('/api/v1/monitoring/alerts', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  }
+
+  async acknowledgeAlert(id: string): Promise<Alert> {
+    return this.request(`/api/v1/monitoring/alerts/${id}/acknowledge`, {
+      method: 'POST'
+    });
+  }
+
+  async resolveAlert(id: string, resolution_note?: string): Promise<Alert> {
+    return this.request(`/api/v1/monitoring/alerts/${id}/resolve`, {
+      method: 'POST',
+      body: JSON.stringify({ resolution_note })
+    });
+  }
+
+  async createTicketFromAlert(alertId: string, data: CreateTicketFromAlertRequest): Promise<{ ticket_id: string; message: string }> {
+    return this.request(`/api/v1/monitoring/alerts/${alertId}/create-ticket`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  }
+
+  // Alert rules
+  async getAlertRules(): Promise<AlertRuleListResponse> {
+    return this.request('/api/v1/monitoring/rules');
+  }
+
+  async getAlertRule(id: string): Promise<AlertRule> {
+    return this.request(`/api/v1/monitoring/rules/${id}`);
+  }
+
+  async createAlertRule(data: CreateAlertRuleRequest): Promise<AlertRule> {
+    return this.request('/api/v1/monitoring/rules', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  }
+
+  async updateAlertRule(id: string, data: UpdateAlertRuleRequest): Promise<AlertRule> {
+    return this.request(`/api/v1/monitoring/rules/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    });
+  }
+
+  async deleteAlertRule(id: string): Promise<{ message: string }> {
+    return this.request(`/api/v1/monitoring/rules/${id}`, {
+      method: 'DELETE'
+    });
   }
 
   // ===== Knowledge Base =====
@@ -1186,6 +1625,127 @@ export class ApiClient {
     return response.data || response || [];
   }
 
+  // ===== Service Catalog =====
+  
+  // Categories
+  async getCatalogCategories(params?: {
+    parent_id?: string;
+    is_active?: boolean;
+  }): Promise<{ data: CatalogCategory[]; count: number }> {
+    const queryParams = new URLSearchParams();
+    if (params?.parent_id) queryParams.append('parent_id', params.parent_id);
+    if (params?.is_active !== undefined) queryParams.append('is_active', params.is_active.toString());
+    
+    return this.request<{ data: CatalogCategory[]; count: number }>(
+      `/api/v1/catalog/categories${queryParams.toString() ? '?' + queryParams.toString() : ''}`
+    );
+  }
+
+  async createCatalogCategory(data: CreateCategoryRequest): Promise<{ data: CatalogCategory; message: string }> {
+    return this.request<{ data: CatalogCategory; message: string }>('/api/v1/catalog/categories', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateCatalogCategory(id: string, data: UpdateCategoryRequest): Promise<{ data: CatalogCategory; message: string }> {
+    return this.request<{ data: CatalogCategory; message: string }>(`/api/v1/catalog/categories/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteCatalogCategory(id: string): Promise<{ message: string }> {
+    return this.request<{ message: string }>(`/api/v1/catalog/categories/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // Catalog Items
+  async getCatalogItems(params?: {
+    category_id?: string;
+    is_active?: boolean;
+    search?: string;
+  }): Promise<{ data: CatalogItem[]; count: number }> {
+    const queryParams = new URLSearchParams();
+    if (params?.category_id) queryParams.append('category_id', params.category_id);
+    if (params?.is_active !== undefined) queryParams.append('is_active', params.is_active.toString());
+    if (params?.search) queryParams.append('search', params.search);
+    
+    return this.request<{ data: CatalogItem[]; count: number }>(
+      `/api/v1/catalog/items${queryParams.toString() ? '?' + queryParams.toString() : ''}`
+    );
+  }
+
+  async getCatalogItem(id: string): Promise<{ data: CatalogItem }> {
+    return this.request<{ data: CatalogItem }>(`/api/v1/catalog/items/${id}`);
+  }
+
+  async createCatalogItem(data: CreateCatalogItemRequest): Promise<{ data: CatalogItem; message: string }> {
+    return this.request<{ data: CatalogItem; message: string }>('/api/v1/catalog/items', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateCatalogItem(id: string, data: UpdateCatalogItemRequest): Promise<{ data: CatalogItem; message: string }> {
+    return this.request<{ data: CatalogItem; message: string }>(`/api/v1/catalog/items/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteCatalogItem(id: string): Promise<{ message: string }> {
+    return this.request<{ message: string }>(`/api/v1/catalog/items/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // Service Requests
+  async createServiceRequest(data: CreateServiceRequestRequest): Promise<{ data: ServiceRequest; message: string }> {
+    return this.request<{ data: ServiceRequest; message: string }>('/api/v1/catalog/requests', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async getServiceRequests(params?: {
+    status?: string;
+    requester_id?: string;
+    catalog_item_id?: string;
+  }): Promise<{ data: ServiceRequest[]; count: number }> {
+    const queryParams = new URLSearchParams();
+    if (params?.status) queryParams.append('status', params.status);
+    if (params?.requester_id) queryParams.append('requester_id', params.requester_id);
+    if (params?.catalog_item_id) queryParams.append('catalog_item_id', params.catalog_item_id);
+    
+    return this.request<{ data: ServiceRequest[]; count: number }>(
+      `/api/v1/catalog/requests${queryParams.toString() ? '?' + queryParams.toString() : ''}`
+    );
+  }
+
+  async getServiceRequest(id: string): Promise<{ data: ServiceRequest }> {
+    return this.request<{ data: ServiceRequest }>(`/api/v1/catalog/requests/${id}`);
+  }
+
+  async getPendingServiceRequests(): Promise<{ data: ServiceRequest[]; count: number }> {
+    return this.request<{ data: ServiceRequest[]; count: number }>('/api/v1/catalog/requests/pending');
+  }
+
+  async approveServiceRequest(id: string, reason?: string): Promise<{ data: ServiceRequest; message: string }> {
+    return this.request<{ data: ServiceRequest; message: string }>(`/api/v1/catalog/requests/${id}/approve`, {
+      method: 'POST',
+      body: JSON.stringify({ approved: true, reason }),
+    });
+  }
+
+  async rejectServiceRequest(id: string, reason?: string): Promise<{ data: ServiceRequest; message: string }> {
+    return this.request<{ data: ServiceRequest; message: string }>(`/api/v1/catalog/requests/${id}/reject`, {
+      method: 'POST',
+      body: JSON.stringify({ approved: false, reason }),
+    });
+  }
+
   // ===== Audit Logs (Admin) =====
   async getAuditLogs(params?: {
     user_id?: string;
@@ -1210,6 +1770,76 @@ export class ApiClient {
       data: response.data || response || [],
       total: response.total || (response.data?.length ?? 0),
     };
+  }
+
+  // ===== Workflows =====
+  async getWorkflows(): Promise<{ workflows: WorkflowDefinition[]; total: number }> {
+    return this.request('/api/v1/workflows');
+  }
+
+  async getWorkflow(id: string): Promise<WorkflowDefinition> {
+    return this.request(`/api/v1/workflows/${id}`);
+  }
+
+  async createWorkflow(data: CreateWorkflowRequest): Promise<WorkflowDefinition> {
+    return this.request('/api/v1/workflows', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateWorkflow(id: string, data: UpdateWorkflowRequest): Promise<WorkflowDefinition> {
+    return this.request(`/api/v1/workflows/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteWorkflow(id: string): Promise<void> {
+    return this.request(`/api/v1/workflows/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async triggerWorkflow(id: string, data: TriggerWorkflowRequest): Promise<WorkflowInstance> {
+    return this.request(`/api/v1/workflows/${id}/trigger`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  // ===== Workflow Instances =====
+  async getWorkflowInstances(): Promise<{ instances: WorkflowInstance[]; total: number }> {
+    return this.request('/api/v1/workflows/instances');
+  }
+
+  async getWorkflowInstance(id: string): Promise<WorkflowInstance> {
+    return this.request(`/api/v1/workflows/instances/${id}`);
+  }
+
+  async cancelWorkflowInstance(id: string): Promise<WorkflowInstance> {
+    return this.request(`/api/v1/workflows/instances/${id}/cancel`, {
+      method: 'POST',
+    });
+  }
+
+  // ===== Approvals =====
+  async getPendingApprovals(): Promise<{ approvals: ApprovalWithContext[]; total: number }> {
+    return this.request('/api/v1/workflows/approvals/pending');
+  }
+
+  async approveApproval(id: string, data: ApprovalResponseRequest): Promise<Approval> {
+    return this.request(`/api/v1/workflows/approvals/${id}/approve`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async rejectApproval(id: string, data: ApprovalResponseRequest): Promise<Approval> {
+    return this.request(`/api/v1/workflows/approvals/${id}/reject`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
   }
 }
 

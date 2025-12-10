@@ -50,7 +50,7 @@ import { RelationshipManager } from '../components/RelationshipManager';
 import { TicketHierarchyView } from '../components/TicketHierarchyView';
 import type { AssetType, AssetStatus, SLAStatus } from '../components/ui';
 import { DesignTokens } from '../styles/designSystem';
-import { apiClient, type TicketComment, type CommentType, type TicketRelationship, type TicketHierarchyNode } from '../utils/apiClient';
+import { apiClient, type TicketComment, type CommentType, type TicketAttachment } from '../utils/apiClient';
 
 // Extended ticket interface with all detail fields (standalone, not extending base Ticket)
 interface TicketDetail {
@@ -210,19 +210,19 @@ const TicketDetailView: React.FC = () => {
 
   const [ticket, setTicket] = useState<TicketDetail | null>(null);
   const [comments, setComments] = useState<TicketComment[]>([]);
-  const [relationships, setRelationships] = useState<TicketRelationship[]>([]);
-  const [hierarchyTree, setHierarchyTree] = useState<TicketHierarchyNode | null>(null);
+  const [attachments, setAttachments] = useState<TicketAttachment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingComments, setIsLoadingComments] = useState(false);
-  const [isLoadingRelationships, setIsLoadingRelationships] = useState(false);
+  const [isLoadingAttachments, setIsLoadingAttachments] = useState(false);
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
-  const [showRelationshipManager, setShowRelationshipManager] = useState(false);
-  const [activeTab, setActiveTab] = useState<'comments' | 'activity' | 'related' | 'hierarchy'>('comments');
+  const [isUploadingFile, setIsUploadingFile] = useState(false);
+  const [activeTab, setActiveTab] = useState<'comments' | 'activity' | 'related'>('comments');
   const [newComment, setNewComment] = useState('');
   const [isInternalComment, setIsInternalComment] = useState(false);
   const [commentType, setCommentType] = useState<CommentType>('NOTE');
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [editedTitle, setEditedTitle] = useState('');
+  const [isDragging, setIsDragging] = useState(false);
 
   // Load ticket data and comments
   useEffect(() => {
@@ -283,52 +283,24 @@ const TicketDetailView: React.FC = () => {
     loadComments();
   }, [ticketId]);
 
-  // Load relationships
-  const loadRelationships = useCallback(async () => {
-    if (!ticketId) return;
-    
-    setIsLoadingRelationships(true);
-    try {
-      const response = await apiClient.getTicketRelationships(ticketId);
-      setRelationships(response.data || []);
-      
-      // Also load hierarchy tree if there are parent/child relationships
-      try {
-        const tree = await apiClient.getTicketTree(ticketId);
-        setHierarchyTree(tree);
-      } catch {
-        // Tree may not exist if no hierarchy
-        setHierarchyTree(null);
-      }
-    } catch (error) {
-      console.error('Failed to load relationships:', error);
-      setRelationships([]);
-    } finally {
-      setIsLoadingRelationships(false);
-    }
-  }, [ticketId]);
-
-  // Load relationships on mount and when tab changes
+  // Load attachments separately
   useEffect(() => {
-    if (activeTab === 'related' || activeTab === 'hierarchy') {
-      loadRelationships();
-    }
-  }, [activeTab, loadRelationships]);
-
-  const handleRelationshipCreated = useCallback(() => {
-    loadRelationships();
-  }, [loadRelationships]);
-
-  const handleDeleteRelationship = useCallback(async (relationshipId: string) => {
-    if (!ticketId) return;
-    
-    try {
-      await apiClient.deleteRelationship(ticketId, relationshipId);
-      loadRelationships();
-    } catch (error) {
-      console.error('Failed to delete relationship:', error);
-    }
-  }, [ticketId, loadRelationships]);
+    const loadAttachments = async () => {
+      if (!ticketId) return;
+      
+      setIsLoadingAttachments(true);
+      try {
+        const response = await apiClient.getTicketAttachments(ticketId);
+        setAttachments(response.data || []);
+      } catch (error) {
+        console.error('Failed to load attachments:', error);
+        setAttachments([]);
+      } finally {
+        setIsLoadingAttachments(false);
+      }
+    };
+    loadAttachments();
+  }, [ticketId]);
 
   const handleAddComment = useCallback(async () => {
     if (!newComment.trim() || !ticket || !ticketId) return;
@@ -382,6 +354,104 @@ const TicketDetailView: React.FC = () => {
     setTicket(prev => prev ? { ...prev, title: editedTitle } : null);
     setIsEditingTitle(false);
   }, [editedTitle, ticket]);
+
+  // Attachment handlers
+  const handleFileUpload = useCallback(async (file: File) => {
+    if (!ticketId) return;
+
+    // Validate file size (10MB max)
+    const maxSize = 10 * 1024 * 1024;
+    if (file.size > maxSize) {
+      alert('File size exceeds 10MB limit');
+      return;
+    }
+
+    setIsUploadingFile(true);
+    try {
+      const newAttachment = await apiClient.uploadTicketAttachment(ticketId, file);
+      setAttachments(prev => [...prev, newAttachment]);
+    } catch (error) {
+      console.error('Failed to upload file:', error);
+      alert(`Failed to upload file: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setIsUploadingFile(false);
+    }
+  }, [ticketId]);
+
+  const handleFileSelect = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      handleFileUpload(files[0]);
+    }
+  }, [handleFileUpload]);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) {
+      handleFileUpload(files[0]);
+    }
+  }, [handleFileUpload]);
+
+  const handleDownloadAttachment = useCallback(async (attachmentId: string) => {
+    if (!ticketId) return;
+
+    try {
+      const { blob, filename } = await apiClient.downloadTicketAttachment(ticketId, attachmentId);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Failed to download attachment:', error);
+      alert('Failed to download file');
+    }
+  }, [ticketId]);
+
+  const handleDeleteAttachment = useCallback(async (attachmentId: string) => {
+    if (!ticketId) return;
+
+    if (!confirm('Are you sure you want to delete this attachment?')) return;
+
+    try {
+      await apiClient.deleteTicketAttachment(ticketId, attachmentId);
+      setAttachments(prev => prev.filter(a => a.id !== attachmentId));
+    } catch (error) {
+      console.error('Failed to delete attachment:', error);
+      alert('Failed to delete attachment');
+    }
+  }, [ticketId]);
+
+  const formatFileSize = (bytes: number): string => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
+
+  const getFileIcon = (mimeType: string) => {
+    if (mimeType.startsWith('image/')) return '🖼️';
+    if (mimeType.includes('pdf')) return '📄';
+    if (mimeType.includes('word') || mimeType.includes('document')) return '📝';
+    if (mimeType.includes('excel') || mimeType.includes('spreadsheet')) return '📊';
+    if (mimeType.includes('zip') || mimeType.includes('compressed')) return '📦';
+    return '📎';
+  };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -887,6 +957,120 @@ const TicketDetailView: React.FC = () => {
                       </p>
                     </div>
                   ))
+                  )}
+                </div>
+              )}
+
+              {/* Attachments Section - Always visible below comments */}
+              {activeTab === 'comments' && (
+                <div style={{ marginTop: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  <h3 style={{ 
+                    margin: 0, 
+                    color: 'var(--text-primary)', 
+                    fontSize: '18px',
+                    fontWeight: 600,
+                  }}>
+                    Attachments ({attachments.length})
+                  </h3>
+
+                  {/* File Upload Zone */}
+                  <div 
+                    className="purple-glass-card static"
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                    style={{ 
+                      padding: '24px',
+                      textAlign: 'center',
+                      border: isDragging ? '2px dashed var(--brand-primary)' : '2px dashed var(--border-light)',
+                      background: isDragging ? 'var(--surface-card-light)' : 'transparent',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                    }}
+                    onClick={() => document.getElementById('file-input')?.click()}
+                  >
+                    <AttachRegular style={{ fontSize: '32px', color: 'var(--brand-primary)', marginBottom: '8px' }} />
+                    <p style={{ margin: 0, color: 'var(--text-primary)', fontSize: '14px' }}>
+                      {isUploadingFile ? 'Uploading...' : 'Drop files here or click to browse'}
+                    </p>
+                    <p style={{ margin: '4px 0 0', color: 'var(--text-muted)', fontSize: '12px' }}>
+                      Maximum file size: 10MB
+                    </p>
+                    <input 
+                      id="file-input"
+                      type="file" 
+                      style={{ display: 'none' }}
+                      onChange={handleFileSelect}
+                      disabled={isUploadingFile}
+                    />
+                  </div>
+
+                  {/* Attachments List */}
+                  {isLoadingAttachments ? (
+                    <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-muted)' }}>
+                      Loading attachments...
+                    </div>
+                  ) : attachments.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-muted)' }}>
+                      No attachments yet
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      {attachments.map(attachment => (
+                        <div 
+                          key={attachment.id}
+                          className="purple-glass-card"
+                          style={{ 
+                            padding: '12px 16px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '12px',
+                          }}
+                        >
+                          <span style={{ fontSize: '24px' }}>
+                            {getFileIcon(attachment.mime_type)}
+                          </span>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ 
+                              color: 'var(--text-primary)',
+                              fontSize: '14px',
+                              fontWeight: 500,
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                            }}>
+                              {attachment.original_filename}
+                            </div>
+                            <div style={{ 
+                              color: 'var(--text-muted)',
+                              fontSize: '12px',
+                              marginTop: '2px',
+                            }}>
+                              {formatFileSize(attachment.size_bytes)} • {formatDate(attachment.uploaded_at)}
+                            </div>
+                          </div>
+                          <div style={{ display: 'flex', gap: '4px' }}>
+                            <PurpleGlassButton
+                              variant="ghost"
+                              size="small"
+                              onClick={() => handleDownloadAttachment(attachment.id)}
+                              title="Download"
+                            >
+                              📥
+                            </PurpleGlassButton>
+                            <PurpleGlassButton
+                              variant="ghost"
+                              size="small"
+                              onClick={() => handleDeleteAttachment(attachment.id)}
+                              title="Delete"
+                              style={{ opacity: 0.6 }}
+                            >
+                              <DeleteRegular style={{ fontSize: '14px' }} />
+                            </PurpleGlassButton>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   )}
                 </div>
               )}

@@ -4,12 +4,19 @@ pub mod auth_service;
 // Core ITSM Services (Phase 1)
 pub mod sla_service;
 pub mod ticket_service;
+pub mod team_service;  // Team Management
 
 // Knowledge Base (Phase 1.5)
 pub mod knowledge_service;
 
 // CMDB/Assets (Phase 2)
 pub mod cmdb_service;
+
+// Workflow Engine (Phase 3)
+pub mod workflow_engine_service;
+
+// Monitoring & Alerting (Phase 4)
+pub mod monitoring_service;
 
 pub mod dependency_validator;
 pub mod document_service;
@@ -41,4 +48,3 @@ pub mod rvtools_hld_mapper;
 
 // HLD Generation Services (Week 3)
 pub mod word_generator;
-
