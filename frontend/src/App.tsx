@@ -251,6 +251,8 @@ function AppContent() {
                     <Route path="cmdb/new" element={<CreateCIView />} />
                     <Route path="cmdb/:id" element={<CIDetailView />} />
                     <Route path="cmdb/:id/edit" element={<EditCIView />} />
+                    <Route path="service-catalog" element={<ServiceCatalogView />} />
+                    <Route path="my-requests" element={<MyRequestsView />} />
                     <Route path="projects/:projectId" element={<ProjectWorkspaceView />} />
                     <Route path="projects/:projectId/activities/:activityId/cluster-strategies" element={<ClusterStrategyManagerView />} />
                     {/* Phase 7: Activity Wizard now modal-only - accessible via "Add Activity" buttons in project views */}
