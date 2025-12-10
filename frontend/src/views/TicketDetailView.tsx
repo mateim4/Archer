@@ -45,9 +45,12 @@ import {
   SLAIndicator,
   LinkedAssetBadge,
 } from '../components/ui';
+import { RelationshipBadge } from '../components/RelationshipBadge';
+import { RelationshipManager } from '../components/RelationshipManager';
+import { TicketHierarchyView } from '../components/TicketHierarchyView';
 import type { AssetType, AssetStatus, SLAStatus } from '../components/ui';
 import { DesignTokens } from '../styles/designSystem';
-import { apiClient, type TicketComment, type CommentType } from '../utils/apiClient';
+import { apiClient, type TicketComment, type CommentType, type TicketRelationship, type TicketHierarchyNode } from '../utils/apiClient';
 
 // Extended ticket interface with all detail fields (standalone, not extending base Ticket)
 interface TicketDetail {
@@ -207,10 +210,14 @@ const TicketDetailView: React.FC = () => {
 
   const [ticket, setTicket] = useState<TicketDetail | null>(null);
   const [comments, setComments] = useState<TicketComment[]>([]);
+  const [relationships, setRelationships] = useState<TicketRelationship[]>([]);
+  const [hierarchyTree, setHierarchyTree] = useState<TicketHierarchyNode | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingComments, setIsLoadingComments] = useState(false);
+  const [isLoadingRelationships, setIsLoadingRelationships] = useState(false);
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
-  const [activeTab, setActiveTab] = useState<'comments' | 'activity' | 'related'>('comments');
+  const [showRelationshipManager, setShowRelationshipManager] = useState(false);
+  const [activeTab, setActiveTab] = useState<'comments' | 'activity' | 'related' | 'hierarchy'>('comments');
   const [newComment, setNewComment] = useState('');
   const [isInternalComment, setIsInternalComment] = useState(false);
   const [commentType, setCommentType] = useState<CommentType>('NOTE');
@@ -275,6 +282,53 @@ const TicketDetailView: React.FC = () => {
     };
     loadComments();
   }, [ticketId]);
+
+  // Load relationships
+  const loadRelationships = useCallback(async () => {
+    if (!ticketId) return;
+    
+    setIsLoadingRelationships(true);
+    try {
+      const response = await apiClient.getTicketRelationships(ticketId);
+      setRelationships(response.data || []);
+      
+      // Also load hierarchy tree if there are parent/child relationships
+      try {
+        const tree = await apiClient.getTicketTree(ticketId);
+        setHierarchyTree(tree);
+      } catch {
+        // Tree may not exist if no hierarchy
+        setHierarchyTree(null);
+      }
+    } catch (error) {
+      console.error('Failed to load relationships:', error);
+      setRelationships([]);
+    } finally {
+      setIsLoadingRelationships(false);
+    }
+  }, [ticketId]);
+
+  // Load relationships on mount and when tab changes
+  useEffect(() => {
+    if (activeTab === 'related' || activeTab === 'hierarchy') {
+      loadRelationships();
+    }
+  }, [activeTab, loadRelationships]);
+
+  const handleRelationshipCreated = useCallback(() => {
+    loadRelationships();
+  }, [loadRelationships]);
+
+  const handleDeleteRelationship = useCallback(async (relationshipId: string) => {
+    if (!ticketId) return;
+    
+    try {
+      await apiClient.deleteRelationship(ticketId, relationshipId);
+      loadRelationships();
+    } catch (error) {
+      console.error('Failed to delete relationship:', error);
+    }
+  }, [ticketId, loadRelationships]);
 
   const handleAddComment = useCallback(async () => {
     if (!newComment.trim() || !ticket || !ticketId) return;
@@ -677,7 +731,14 @@ const TicketDetailView: React.FC = () => {
                 onClick={() => setActiveTab('related')}
               >
                 <LinkRegular style={{ marginRight: '8px' }} />
-                Related ({ticket.relatedTickets?.length || 0})
+                Related ({relationships.length})
+              </button>
+              <button 
+                style={tabStyle(activeTab === 'hierarchy')}
+                onClick={() => setActiveTab('hierarchy')}
+              >
+                <CubeRegular style={{ marginRight: '8px' }} />
+                Hierarchy
               </button>
             </div>
 
@@ -871,64 +932,132 @@ const TicketDetailView: React.FC = () => {
               {/* Related Tab */}
               {activeTab === 'related' && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  {ticket.relatedTickets?.map(related => (
-                    <div 
-                      key={related.id}
-                      className="purple-glass-card"
-                      style={{
-                        padding: '12px 16px',
-                        cursor: 'pointer',
-                      }}
-                      onClick={() => navigate(`/app/service-desk/ticket/${related.id}`)}
-                    >
-                      <div style={{ 
-                        display: 'flex', 
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                      }}>
-                        <div>
-                          <span style={{ 
-                            fontSize: '12px', 
-                            color: 'var(--text-muted)',
-                            marginRight: '8px',
-                          }}>
-                            {related.id}
-                          </span>
-                          <span style={{
-                            fontSize: '10px',
-                            padding: '2px 6px',
-                            background: 'var(--btn-secondary-bg)',
-                            color: 'var(--brand-primary)',
-                            borderRadius: '4px',
-                            textTransform: 'uppercase',
-                          }}>
-                            {related.type}
-                          </span>
-                        </div>
-                        <span style={{
-                          padding: '2px 8px',
-                          background: `${getStatusColor(related.status)}20`,
-                          color: getStatusColor(related.status),
-                          borderRadius: '4px',
-                          fontSize: '11px',
-                          fontWeight: 500,
-                        }}>
-                          {related.status}
-                        </span>
-                      </div>
-                      <div style={{ 
-                        marginTop: '8px',
-                        color: 'var(--text-primary)',
-                        fontSize: '14px',
-                      }}>
-                        {related.title}
-                      </div>
+                  {isLoadingRelationships ? (
+                    <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-muted)' }}>
+                      Loading relationships...
                     </div>
-                  ))}
-                  <PurpleGlassButton variant="ghost" style={{ alignSelf: 'flex-start' }}>
+                  ) : relationships.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text-muted)' }}>
+                      <LinkRegular style={{ fontSize: '48px', marginBottom: '16px', opacity: 0.5 }} />
+                      <p>No relationships yet</p>
+                    </div>
+                  ) : (
+                    relationships.map(rel => (
+                      <div 
+                        key={rel.id}
+                        className="purple-glass-card"
+                        style={{
+                          padding: '12px 16px',
+                          cursor: 'pointer',
+                        }}
+                        onClick={() => navigate(`/app/service-desk/ticket/${rel.target_ticket_id}`)}
+                      >
+                        <div style={{ 
+                          display: 'flex', 
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                        }}>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                              <RelationshipBadge type={rel.relationship_type} size="small" />
+                              {rel.target_ticket && (
+                                <>
+                                  <span style={{ 
+                                    fontSize: '12px', 
+                                    color: 'var(--text-muted)',
+                                  }}>
+                                    {rel.target_ticket.id}
+                                  </span>
+                                  <span style={{
+                                    padding: '2px 6px',
+                                    background: `${getPriorityColor(rel.target_ticket.priority)}20`,
+                                    color: getPriorityColor(rel.target_ticket.priority),
+                                    borderRadius: '4px',
+                                    fontSize: '11px',
+                                    fontWeight: 600,
+                                  }}>
+                                    {rel.target_ticket.priority}
+                                  </span>
+                                  <span style={{
+                                    padding: '2px 6px',
+                                    background: `${getStatusColor(rel.target_ticket.status)}20`,
+                                    color: getStatusColor(rel.target_ticket.status),
+                                    borderRadius: '4px',
+                                    fontSize: '11px',
+                                    fontWeight: 500,
+                                  }}>
+                                    {rel.target_ticket.status}
+                                  </span>
+                                </>
+                              )}
+                            </div>
+                            {rel.target_ticket && (
+                              <div style={{ 
+                                color: 'var(--text-primary)',
+                                fontSize: '14px',
+                                fontWeight: 500,
+                              }}>
+                                {rel.target_ticket.title}
+                              </div>
+                            )}
+                            {rel.notes && (
+                              <div style={{ 
+                                marginTop: '8px',
+                                fontSize: '12px',
+                                color: 'var(--text-muted)',
+                                fontStyle: 'italic',
+                              }}>
+                                {rel.notes}
+                              </div>
+                            )}
+                          </div>
+                          <PurpleGlassButton
+                            variant="ghost"
+                            size="small"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteRelationship(rel.id);
+                            }}
+                            style={{ marginLeft: '12px' }}
+                          >
+                            <DeleteRegular style={{ fontSize: '14px' }} />
+                          </PurpleGlassButton>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                  <PurpleGlassButton 
+                    variant="ghost" 
+                    style={{ alignSelf: 'flex-start' }}
+                    onClick={() => setShowRelationshipManager(true)}
+                  >
                     <LinkRegular style={{ marginRight: '8px' }} />
-                    Link Ticket
+                    Add Relationship
                   </PurpleGlassButton>
+                </div>
+              )}
+
+              {/* Hierarchy Tab */}
+              {activeTab === 'hierarchy' && (
+                <div>
+                  {isLoadingRelationships ? (
+                    <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-muted)' }}>
+                      Loading hierarchy...
+                    </div>
+                  ) : hierarchyTree ? (
+                    <TicketHierarchyView 
+                      tree={hierarchyTree}
+                      onTicketClick={(ticketId) => navigate(`/app/service-desk/ticket/${ticketId}`)}
+                    />
+                  ) : (
+                    <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text-muted)' }}>
+                      <CubeRegular style={{ fontSize: '48px', marginBottom: '16px', opacity: 0.5 }} />
+                      <p>No hierarchy structure</p>
+                      <p style={{ fontSize: '12px', marginTop: '8px' }}>
+                        This ticket has no parent or child tickets
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -1119,6 +1248,16 @@ const TicketDetailView: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Relationship Manager Modal */}
+      {showRelationshipManager && ticket && (
+        <RelationshipManager
+          ticketId={ticketId || ''}
+          ticketTitle={ticket.title}
+          onClose={() => setShowRelationshipManager(false)}
+          onRelationshipCreated={handleRelationshipCreated}
+        />
+      )}
     </div>
   );
 };
