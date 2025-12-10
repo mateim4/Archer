@@ -351,6 +351,112 @@ export interface AuditLogEntry {
   created_at: string;
 }
 
+// ===== Team Management Types =====
+export type TeamRole = 'LEAD' | 'MEMBER' | 'OBSERVER';
+export type WorkloadStatus = 'GREEN' | 'YELLOW' | 'RED';
+
+export interface Team {
+  id: string;
+  name: string;
+  description?: string;
+  team_lead_id?: string;
+  parent_team_id?: string;
+  email_alias?: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+  created_by?: string;
+  tenant_id?: string;
+}
+
+export interface TeamMembership {
+  id: string;
+  team_id: string;
+  user_id: string;
+  role: TeamRole;
+  joined_at: string;
+}
+
+export interface TeamMemberInfo {
+  membership_id: string;
+  user_id: string;
+  username: string;
+  display_name: string;
+  email: string;
+  role: TeamRole;
+  joined_at: string;
+  active_tickets: number;
+}
+
+export interface TeamWithMembers {
+  id: string;
+  name: string;
+  description?: string;
+  team_lead_id?: string;
+  parent_team_id?: string;
+  email_alias?: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+  created_by?: string;
+  tenant_id?: string;
+  members: TeamMemberInfo[];
+  member_count: number;
+  workload?: TeamWorkload;
+}
+
+export interface TeamWorkload {
+  team_id: string;
+  team_name: string;
+  member_count: number;
+  total_tickets: number;
+  open_tickets: number;
+  in_progress_tickets: number;
+  resolved_tickets: number;
+  average_tickets_per_member: number;
+  tickets_by_priority: {
+    p1: number;
+    p2: number;
+    p3: number;
+    p4: number;
+  };
+  sla_breach_count: number;
+  workload_status: WorkloadStatus;
+}
+
+export interface TeamHierarchyNode {
+  team: Team;
+  children: TeamHierarchyNode[];
+  member_count: number;
+}
+
+export interface TeamListResponse {
+  teams: Team[];
+  total: number;
+}
+
+export interface CreateTeamRequest {
+  name: string;
+  description?: string;
+  team_lead_id?: string;
+  parent_team_id?: string;
+  email_alias?: string;
+}
+
+export interface UpdateTeamRequest {
+  name?: string;
+  description?: string;
+  team_lead_id?: string;
+  parent_team_id?: string;
+  email_alias?: string;
+  is_active?: boolean;
+}
+
+export interface AddTeamMemberRequest {
+  user_id: string;
+  role: TeamRole;
+}
+
 // ===== Knowledge Base Types =====
 export type KBArticleStatus = 'DRAFT' | 'PENDING_REVIEW' | 'PUBLISHED' | 'ARCHIVED';
 export type KBArticleVisibility = 'PUBLIC' | 'INTERNAL' | 'RESTRICTED';
@@ -1123,6 +1229,90 @@ export class ApiClient {
       data: response.data || response || [],
       total: response.total || (response.data?.length ?? 0),
     };
+  }
+
+  // ===== Teams Management =====
+  async getTeams(params?: {
+    active_only?: boolean;
+    parent_id?: string;
+  }): Promise<TeamListResponse> {
+    const queryParams = new URLSearchParams();
+    if (params?.active_only !== undefined) queryParams.append('active_only', String(params.active_only));
+    if (params?.parent_id) queryParams.append('parent_id', params.parent_id);
+    
+    const response = await this.request<TeamListResponse>(`/api/v1/teams?${queryParams.toString()}`);
+    return response;
+  }
+
+  async getTeam(teamId: string): Promise<Team> {
+    const response = await this.request<Team>(`/api/v1/teams/${teamId}`);
+    return response;
+  }
+
+  async getTeamWithDetails(teamId: string): Promise<TeamWithMembers> {
+    const response = await this.request<TeamWithMembers>(`/api/v1/teams/${teamId}/details`);
+    return response;
+  }
+
+  async createTeam(data: CreateTeamRequest): Promise<Team> {
+    const response = await this.request<Team>('/api/v1/teams', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+    return response;
+  }
+
+  async updateTeam(teamId: string, data: UpdateTeamRequest): Promise<Team> {
+    const response = await this.request<Team>(`/api/v1/teams/${teamId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+    return response;
+  }
+
+  async deleteTeam(teamId: string): Promise<void> {
+    await this.request(`/api/v1/teams/${teamId}`, { method: 'DELETE' });
+  }
+
+  async getTeamMembers(teamId: string): Promise<{ team_id: string; members: TeamMemberInfo[]; count: number }> {
+    const response = await this.request<any>(`/api/v1/teams/${teamId}/members`);
+    return response;
+  }
+
+  async addTeamMember(teamId: string, data: AddTeamMemberRequest): Promise<TeamMembership> {
+    const response = await this.request<TeamMembership>(`/api/v1/teams/${teamId}/members`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+    return response;
+  }
+
+  async removeTeamMember(teamId: string, userId: string): Promise<void> {
+    await this.request(`/api/v1/teams/${teamId}/members/${userId}`, { method: 'DELETE' });
+  }
+
+  async updateTeamMemberRole(teamId: string, userId: string, role: TeamRole): Promise<TeamMembership> {
+    const response = await this.request<TeamMembership>(`/api/v1/teams/${teamId}/members/${userId}`, {
+      method: 'PUT',
+      body: JSON.stringify({ role }),
+    });
+    return response;
+  }
+
+  async getTeamWorkload(teamId: string): Promise<TeamWorkload> {
+    const response = await this.request<TeamWorkload>(`/api/v1/teams/${teamId}/workload`);
+    return response;
+  }
+
+  async getTeamHierarchy(rootId?: string): Promise<TeamHierarchyNode[]> {
+    const queryParams = rootId ? `?root_id=${rootId}` : '';
+    const response = await this.request<TeamHierarchyNode[]>(`/api/v1/teams/hierarchy${queryParams}`);
+    return response;
+  }
+
+  async getUserTeams(userId: string): Promise<{ user_id: string; teams: Team[]; count: number }> {
+    const response = await this.request<any>(`/api/v1/teams/user/${userId}/teams`);
+    return response;
   }
 }
 
