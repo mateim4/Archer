@@ -10,6 +10,7 @@ pub mod project_lifecycle;
 pub mod project_workflow;
 pub mod rvtools;
 pub mod settings; // Global settings API
+pub mod teams; // Team Management API (Phase 1+)
 pub mod tickets; // Tickets API
 pub mod assets; // CMDB Assets API
 pub mod monitoring; // Monitoring API
@@ -59,6 +60,7 @@ pub fn api_router(state: AppState) -> Router {
         .nest("/hld", hld::create_hld_router(state.clone()))
         .nest("/migration-wizard", migration_wizard::create_migration_wizard_router(state.clone()))
         .nest("/tickets", tickets::create_tickets_router(state.clone()))
+        .nest("/teams", teams::create_teams_router(state.clone()))
         .nest("/knowledge", knowledge::knowledge_routes().with_state(state.clone()))
         .nest("/cmdb", cmdb::cmdb_routes().with_state(state.clone()))
         .nest("/assets", assets::create_assets_router(state.clone()))
