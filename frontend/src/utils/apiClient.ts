@@ -238,6 +238,52 @@ export interface CreateCommentRequest {
   comment_type?: CommentType;
 }
 
+// ===== Ticket Relationships =====
+export type TicketRelationType = 
+  | 'PARENT_OF' 
+  | 'CHILD_OF' 
+  | 'DUPLICATE_OF' 
+  | 'RELATED_TO' 
+  | 'BLOCKED_BY' 
+  | 'BLOCKS' 
+  | 'CAUSED_BY';
+
+export interface TicketRelationship {
+  id: string;
+  source_ticket_id: string;
+  target_ticket_id: string;
+  relationship_type: TicketRelationType;
+  created_by: string;
+  created_at: string;
+  notes?: string;
+  target_ticket?: TicketSummary;
+}
+
+export interface TicketSummary {
+  id: string;
+  title: string;
+  status: Ticket['status'];
+  priority: Ticket['priority'];
+  type: Ticket['ticket_type'];
+}
+
+export interface CreateRelationshipRequest {
+  target_ticket_id: string;
+  relationship_type: TicketRelationType;
+  notes?: string;
+}
+
+export interface TicketHierarchyNode {
+  ticket: TicketSummary;
+  children: TicketHierarchyNode[];
+  relationship_type?: TicketRelationType;
+}
+
+export interface MarkDuplicateRequest {
+  notes?: string;
+  transfer_watchers: boolean;
+}
+
 export interface Asset {
   id: string;
   name: string;

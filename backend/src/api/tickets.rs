@@ -168,6 +168,7 @@ async fn create_ticket(
         subcategory: payload.subcategory,
         assigned_group: payload.assigned_group,
         tenant_id: user.tenant_id.as_ref().and_then(|t| thing(t).ok()),
+        parent_ticket_id: None,
     };
 
     match db.create("ticket").content(ticket).await {

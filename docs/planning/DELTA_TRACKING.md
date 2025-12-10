@@ -72,6 +72,7 @@ This document is **mandatory reading and updating** for all AI agents working on
 | Auth/RBAC | 🟢 Complete | 🟢 Complete | Phase 0 - JWT tokens, role deserialization fixed (PR #41 ✅) |
 | Ticket System | 🟢 Complete | 🟢 Complete | Phase 1 - ServiceDeskView connected to API |
 | Ticket Comments | 🟢 Complete | 🟢 Complete | Added GET/POST/DELETE endpoints, TicketDetailView integration |
+| Ticket Relationships | 🟢 Complete | 🟢 Complete | Parent/child, duplicates, blocking - 7 types, tree visualization |
 | SLA Engine | 🟢 Complete | 🟢 Complete | Phase 1 - Real SLA calculation in ServiceDeskView |
 | Knowledge Base | 🟢 Complete | 🟢 Complete | Phase 1.5 - Full CRUD, search, versions, ratings (PR #36 ✅) |
 | CMDB/Assets | 🟢 Complete | 🟢 Complete | Phase 2 - Full CRUD, relationships, impact analysis (PR #37 ✅) |

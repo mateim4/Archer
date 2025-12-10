@@ -13,6 +13,7 @@ pub mod service_catalog; // Service Catalog API (Phase 5)
 pub mod settings; // Global settings API
 pub mod teams; // Team Management API (Phase 1+)
 pub mod tickets; // Tickets API
+pub mod ticket_relationships; // Ticket Relationships API
 pub mod assets; // CMDB Assets API
 pub mod monitoring; // Monitoring API
 pub mod integration; // Integration Hub API
