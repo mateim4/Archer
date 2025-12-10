@@ -258,6 +258,104 @@ export interface DashboardSummary {
   active_incidents: number;
 }
 
+// ===== Monitoring Alerts =====
+export type AlertSeverity = 'Critical' | 'High' | 'Medium' | 'Low' | 'Info';
+export type AlertStatus = 'Active' | 'Acknowledged' | 'Resolved' | 'Suppressed';
+export type AlertCondition = 'GreaterThan' | 'LessThan' | 'Equals' | 'NotEquals';
+
+export interface Alert {
+  id?: string;
+  title: string;
+  description: string;
+  severity: AlertSeverity;
+  status: AlertStatus;
+  source: string;
+  source_alert_id?: string;
+  affected_ci_id?: string;
+  metric_name?: string;
+  metric_value?: number;
+  threshold?: number;
+  created_at: string;
+  acknowledged_at?: string;
+  acknowledged_by?: string;
+  resolved_at?: string;
+  resolved_by?: string;
+  auto_ticket_id?: string;
+  tags: string[];
+}
+
+export interface AlertRule {
+  id?: string;
+  name: string;
+  description?: string;
+  metric_query: string;
+  condition: AlertCondition;
+  threshold: number;
+  severity: AlertSeverity;
+  auto_create_ticket: boolean;
+  ticket_template?: any;
+  is_active: boolean;
+  cooldown_minutes: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateAlertRequest {
+  title: string;
+  description: string;
+  severity: AlertSeverity;
+  source: string;
+  source_alert_id?: string;
+  affected_ci_id?: string;
+  metric_name?: string;
+  metric_value?: number;
+  threshold?: number;
+  tags?: string[];
+}
+
+export interface CreateAlertRuleRequest {
+  name: string;
+  description?: string;
+  metric_query: string;
+  condition: AlertCondition;
+  threshold: number;
+  severity: AlertSeverity;
+  auto_create_ticket: boolean;
+  ticket_template?: any;
+  cooldown_minutes: number;
+}
+
+export interface UpdateAlertRuleRequest {
+  name?: string;
+  description?: string;
+  metric_query?: string;
+  condition?: AlertCondition;
+  threshold?: number;
+  severity?: AlertSeverity;
+  auto_create_ticket?: boolean;
+  ticket_template?: any;
+  is_active?: boolean;
+  cooldown_minutes?: number;
+}
+
+export interface AlertListResponse {
+  alerts: Alert[];
+  total: number;
+  page: number;
+  page_size: number;
+}
+
+export interface AlertRuleListResponse {
+  rules: AlertRule[];
+  total: number;
+}
+
+export interface CreateTicketFromAlertRequest {
+  assignee?: string;
+  assigned_group?: string;
+  additional_notes?: string;
+}
+
 // ===== Admin User Management Types =====
 export type AdminUserStatus = 'ACTIVE' | 'INACTIVE' | 'LOCKED' | 'PENDING_VERIFICATION';
 
@@ -915,6 +1013,90 @@ export class ApiClient {
 
   async getAssetMetrics(assetId: string): Promise<AssetMetrics> {
     return this.request(`/api/v1/monitoring/assets/${assetId}`);
+  }
+
+  // Alert management
+  async getAlerts(params?: {
+    severity?: AlertSeverity[];
+    status?: AlertStatus[];
+    source?: string;
+    affected_ci_id?: string;
+    tags?: string[];
+    search?: string;
+    page?: number;
+    page_size?: number;
+  }): Promise<AlertListResponse> {
+    const queryParams = new URLSearchParams();
+    if (params?.severity) params.severity.forEach(s => queryParams.append('severity', s));
+    if (params?.status) params.status.forEach(s => queryParams.append('status', s));
+    if (params?.source) queryParams.append('source', params.source);
+    if (params?.affected_ci_id) queryParams.append('affected_ci_id', params.affected_ci_id);
+    if (params?.tags) params.tags.forEach(t => queryParams.append('tags', t));
+    if (params?.search) queryParams.append('search', params.search);
+    if (params?.page !== undefined) queryParams.append('page', params.page.toString());
+    if (params?.page_size) queryParams.append('page_size', params.page_size.toString());
+    
+    return this.request(`/api/v1/monitoring/alerts?${queryParams.toString()}`);
+  }
+
+  async getAlert(id: string): Promise<Alert> {
+    return this.request(`/api/v1/monitoring/alerts/${id}`);
+  }
+
+  async createAlert(data: CreateAlertRequest): Promise<Alert> {
+    return this.request('/api/v1/monitoring/alerts', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  }
+
+  async acknowledgeAlert(id: string): Promise<Alert> {
+    return this.request(`/api/v1/monitoring/alerts/${id}/acknowledge`, {
+      method: 'POST'
+    });
+  }
+
+  async resolveAlert(id: string, resolution_note?: string): Promise<Alert> {
+    return this.request(`/api/v1/monitoring/alerts/${id}/resolve`, {
+      method: 'POST',
+      body: JSON.stringify({ resolution_note })
+    });
+  }
+
+  async createTicketFromAlert(alertId: string, data: CreateTicketFromAlertRequest): Promise<{ ticket_id: string; message: string }> {
+    return this.request(`/api/v1/monitoring/alerts/${alertId}/create-ticket`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  }
+
+  // Alert rules
+  async getAlertRules(): Promise<AlertRuleListResponse> {
+    return this.request('/api/v1/monitoring/rules');
+  }
+
+  async getAlertRule(id: string): Promise<AlertRule> {
+    return this.request(`/api/v1/monitoring/rules/${id}`);
+  }
+
+  async createAlertRule(data: CreateAlertRuleRequest): Promise<AlertRule> {
+    return this.request('/api/v1/monitoring/rules', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  }
+
+  async updateAlertRule(id: string, data: UpdateAlertRuleRequest): Promise<AlertRule> {
+    return this.request(`/api/v1/monitoring/rules/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    });
+  }
+
+  async deleteAlertRule(id: string): Promise<{ message: string }> {
+    return this.request(`/api/v1/monitoring/rules/${id}`, {
+      method: 'DELETE'
+    });
   }
 
   // ===== Knowledge Base =====
