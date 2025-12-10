@@ -1124,6 +1124,278 @@ export class ApiClient {
       total: response.total || (response.data?.length ?? 0),
     };
   }
+
+  // ===== Reporting Module (Phase 6) =====
+  
+  // Report Management
+  async getReports(): Promise<{ reports: ReportDefinition[]; total: number }> {
+    const response = await this.request<any>('/api/v1/reporting/reports');
+    return response;
+  }
+
+  async getReport(id: string): Promise<ReportDefinition> {
+    return this.request<ReportDefinition>(`/api/v1/reporting/reports/${id}`);
+  }
+
+  async createReport(data: CreateReportRequest): Promise<ReportDefinition> {
+    return this.request<ReportDefinition>('/api/v1/reporting/reports', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateReport(id: string, data: UpdateReportRequest): Promise<ReportDefinition> {
+    return this.request<ReportDefinition>(`/api/v1/reporting/reports/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteReport(id: string): Promise<void> {
+    await this.request<void>(`/api/v1/reporting/reports/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async runReport(id: string, params?: { start_date?: string; end_date?: string }): Promise<any> {
+    const queryParams = new URLSearchParams();
+    if (params?.start_date) queryParams.append('start_date', params.start_date);
+    if (params?.end_date) queryParams.append('end_date', params.end_date);
+    
+    return this.request<any>(`/api/v1/reporting/reports/${id}/run?${queryParams.toString()}`);
+  }
+
+  async exportReport(id: string, format: 'csv' | 'json', params?: { start_date?: string; end_date?: string }): Promise<Blob | any> {
+    const queryParams = new URLSearchParams();
+    queryParams.append('format', format);
+    if (params?.start_date) queryParams.append('start_date', params.start_date);
+    if (params?.end_date) queryParams.append('end_date', params.end_date);
+    
+    if (format === 'csv') {
+      // For CSV, we want a Blob response
+      const response = await fetch(`${API_BASE_URL}/api/v1/reporting/reports/${id}/export?${queryParams.toString()}`, {
+        method: 'GET',
+        headers: this.getHeaders(),
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Export failed: ${response.statusText}`);
+      }
+      
+      return response.blob();
+    } else {
+      return this.request<any>(`/api/v1/reporting/reports/${id}/export?${queryParams.toString()}`);
+    }
+  }
+
+  // Dashboard Management
+  async getDashboards(): Promise<{ dashboards: Dashboard[]; total: number }> {
+    const response = await this.request<any>('/api/v1/reporting/dashboards');
+    return response;
+  }
+
+  async getDashboard(id: string): Promise<DashboardDetailResponse> {
+    return this.request<DashboardDetailResponse>(`/api/v1/reporting/dashboards/${id}`);
+  }
+
+  async createDashboard(data: CreateDashboardRequest): Promise<Dashboard> {
+    return this.request<Dashboard>('/api/v1/reporting/dashboards', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateDashboard(id: string, data: UpdateDashboardRequest): Promise<Dashboard> {
+    return this.request<Dashboard>(`/api/v1/reporting/dashboards/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteDashboard(id: string): Promise<void> {
+    await this.request<void>(`/api/v1/reporting/dashboards/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // Widget Management
+  async createWidget(data: CreateWidgetRequest): Promise<DashboardWidget> {
+    return this.request<DashboardWidget>('/api/v1/reporting/widgets', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async getWidget(id: string): Promise<DashboardWidget> {
+    return this.request<DashboardWidget>(`/api/v1/reporting/widgets/${id}`);
+  }
+
+  async updateWidget(id: string, data: UpdateWidgetRequest): Promise<DashboardWidget> {
+    return this.request<DashboardWidget>(`/api/v1/reporting/widgets/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteWidget(id: string): Promise<void> {
+    await this.request<void>(`/api/v1/reporting/widgets/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async getWidgetData(id: string): Promise<WidgetData> {
+    return this.request<WidgetData>(`/api/v1/reporting/widgets/${id}/data`);
+  }
+}
+
+// ===== Reporting Module Types =====
+export type ReportType = 
+  | 'TICKET_METRICS'
+  | 'USER_PERFORMANCE'
+  | 'ASSET_INVENTORY'
+  | 'SLA_COMPLIANCE'
+  | 'KB_USAGE'
+  | 'AUDIT_TRAIL'
+  | 'CUSTOM';
+
+export type ScheduleFrequency = 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'QUARTERLY';
+export type ExportFormat = 'PDF' | 'CSV' | 'EXCEL' | 'JSON';
+
+export interface ReportDefinition {
+  id?: string;
+  name: string;
+  description?: string;
+  report_type: ReportType;
+  config: any; // JSON configuration
+  is_public: boolean;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+  schedule?: ReportSchedule;
+}
+
+export interface ReportSchedule {
+  frequency: ScheduleFrequency;
+  recipients: string[];
+  format: ExportFormat;
+  last_run?: string;
+  next_run?: string;
+}
+
+export interface CreateReportRequest {
+  name: string;
+  description?: string;
+  report_type: ReportType;
+  config: any;
+  is_public?: boolean;
+  schedule?: ReportSchedule;
+}
+
+export interface UpdateReportRequest {
+  name?: string;
+  description?: string;
+  config?: any;
+  is_public?: boolean;
+  schedule?: ReportSchedule;
+}
+
+export type WidgetType = 
+  | 'COUNTER'
+  | 'PIE_CHART'
+  | 'BAR_CHART'
+  | 'LINE_CHART'
+  | 'TABLE'
+  | 'GAUGE'
+  | 'HEATMAP';
+
+export interface Dashboard {
+  id?: string;
+  name: string;
+  description?: string;
+  widgets: string[]; // Widget IDs
+  layout: any;
+  is_default: boolean;
+  is_public: boolean;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DashboardWidget {
+  id?: string;
+  dashboard_id?: string;
+  name: string;
+  widget_type: WidgetType;
+  config: any;
+  position: WidgetPosition;
+  size: WidgetSize;
+  refresh_interval_seconds?: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface WidgetPosition {
+  x: number;
+  y: number;
+}
+
+export interface WidgetSize {
+  width: number;
+  height: number;
+}
+
+export interface WidgetData {
+  widget_id: string;
+  widget_type: WidgetType;
+  data: any;
+  generated_at: string;
+}
+
+export interface CreateDashboardRequest {
+  name: string;
+  description?: string;
+  is_default?: boolean;
+  is_public?: boolean;
+}
+
+export interface UpdateDashboardRequest {
+  name?: string;
+  description?: string;
+  layout?: any;
+  is_default?: boolean;
+  is_public?: boolean;
+}
+
+export interface DashboardDetailResponse {
+  id?: string;
+  name: string;
+  description?: string;
+  widgets: string[];
+  layout: any;
+  is_default: boolean;
+  is_public: boolean;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+  widget_details: DashboardWidget[];
+}
+
+export interface CreateWidgetRequest {
+  dashboard_id: string;
+  name: string;
+  widget_type: WidgetType;
+  config: any;
+  position: WidgetPosition;
+  size: WidgetSize;
+  refresh_interval_seconds?: number;
+}
+
+export interface UpdateWidgetRequest {
+  name?: string;
+  config?: any;
+  position?: WidgetPosition;
+  size?: WidgetSize;
+  refresh_interval_seconds?: number;
 }
 
 export const apiClient = new ApiClient();
