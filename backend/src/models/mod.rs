@@ -5,6 +5,7 @@ pub mod hld;
 pub mod knowledge;  // Knowledge Base models (Phase 1.5)
 pub mod migration_models;
 pub mod migration_wizard_models;
+pub mod monitoring;  // Monitoring & Alerting models (Phase 4)
 pub mod project_models;
 pub mod settings;
 pub mod settings_models;
