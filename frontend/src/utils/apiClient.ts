@@ -451,6 +451,109 @@ export interface KBStatistics {
   avg_rating: number;
 }
 
+// ============================================================================
+// SERVICE CATALOG TYPES
+// ============================================================================
+
+export interface CatalogCategory {
+  id?: string;
+  name: string;
+  description?: string;
+  icon?: string;
+  parent_id?: string;
+  sort_order: number;
+  is_active: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface CreateCategoryRequest {
+  name: string;
+  description?: string;
+  icon?: string;
+  parent_id?: string;
+  sort_order: number;
+  is_active: boolean;
+}
+
+export interface UpdateCategoryRequest {
+  name?: string;
+  description?: string;
+  icon?: string;
+  parent_id?: string;
+  sort_order?: number;
+  is_active?: boolean;
+}
+
+export interface CatalogItem {
+  id?: string;
+  name: string;
+  description: string;
+  category_id: string;
+  icon?: string;
+  short_description: string;
+  delivery_time_days?: number;
+  cost?: number;
+  is_active: boolean;
+  form_schema: any; // JSON Schema object
+  approval_required: boolean;
+  approval_group?: string;
+  fulfillment_group?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateCatalogItemRequest {
+  name: string;
+  description: string;
+  category_id: string;
+  icon?: string;
+  short_description: string;
+  delivery_time_days?: number;
+  cost?: number;
+  is_active: boolean;
+  form_schema: any; // JSON Schema object
+  approval_required: boolean;
+  approval_group?: string;
+  fulfillment_group?: string;
+}
+
+export interface UpdateCatalogItemRequest {
+  name?: string;
+  description?: string;
+  category_id?: string;
+  icon?: string;
+  short_description?: string;
+  delivery_time_days?: number;
+  cost?: number;
+  is_active?: boolean;
+  form_schema?: any;
+  approval_required?: boolean;
+  approval_group?: string;
+  fulfillment_group?: string;
+}
+
+export interface ServiceRequest {
+  id?: string;
+  catalog_item_id: string;
+  requester_id: string;
+  form_data: any; // JSON object matching the form_schema
+  status: 'DRAFT' | 'PENDING_APPROVAL' | 'APPROVED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED' | 'REJECTED';
+  approval_status?: 'PENDING' | 'APPROVED' | 'REJECTED';
+  approved_by?: string;
+  approved_at?: string;
+  assigned_to?: string;
+  created_at: string;
+  updated_at: string;
+  completed_at?: string;
+  rejection_reason?: string;
+}
+
+export interface CreateServiceRequestRequest {
+  catalog_item_id: string;
+  form_data: any;
+}
+
 export class ApiClient {
   private baseUrl: string;
   private usingMockData: boolean = false;
@@ -1170,6 +1273,127 @@ export class ApiClient {
   async getAllPermissions(): Promise<AdminPermission[]> {
     const response = await this.request<any>('/api/v1/auth/permissions');
     return response.data || response || [];
+  }
+
+  // ===== Service Catalog =====
+  
+  // Categories
+  async getCatalogCategories(params?: {
+    parent_id?: string;
+    is_active?: boolean;
+  }): Promise<{ data: CatalogCategory[]; count: number }> {
+    const queryParams = new URLSearchParams();
+    if (params?.parent_id) queryParams.append('parent_id', params.parent_id);
+    if (params?.is_active !== undefined) queryParams.append('is_active', params.is_active.toString());
+    
+    return this.request<{ data: CatalogCategory[]; count: number }>(
+      `/api/v1/catalog/categories${queryParams.toString() ? '?' + queryParams.toString() : ''}`
+    );
+  }
+
+  async createCatalogCategory(data: CreateCategoryRequest): Promise<{ data: CatalogCategory; message: string }> {
+    return this.request<{ data: CatalogCategory; message: string }>('/api/v1/catalog/categories', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateCatalogCategory(id: string, data: UpdateCategoryRequest): Promise<{ data: CatalogCategory; message: string }> {
+    return this.request<{ data: CatalogCategory; message: string }>(`/api/v1/catalog/categories/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteCatalogCategory(id: string): Promise<{ message: string }> {
+    return this.request<{ message: string }>(`/api/v1/catalog/categories/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // Catalog Items
+  async getCatalogItems(params?: {
+    category_id?: string;
+    is_active?: boolean;
+    search?: string;
+  }): Promise<{ data: CatalogItem[]; count: number }> {
+    const queryParams = new URLSearchParams();
+    if (params?.category_id) queryParams.append('category_id', params.category_id);
+    if (params?.is_active !== undefined) queryParams.append('is_active', params.is_active.toString());
+    if (params?.search) queryParams.append('search', params.search);
+    
+    return this.request<{ data: CatalogItem[]; count: number }>(
+      `/api/v1/catalog/items${queryParams.toString() ? '?' + queryParams.toString() : ''}`
+    );
+  }
+
+  async getCatalogItem(id: string): Promise<{ data: CatalogItem }> {
+    return this.request<{ data: CatalogItem }>(`/api/v1/catalog/items/${id}`);
+  }
+
+  async createCatalogItem(data: CreateCatalogItemRequest): Promise<{ data: CatalogItem; message: string }> {
+    return this.request<{ data: CatalogItem; message: string }>('/api/v1/catalog/items', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateCatalogItem(id: string, data: UpdateCatalogItemRequest): Promise<{ data: CatalogItem; message: string }> {
+    return this.request<{ data: CatalogItem; message: string }>(`/api/v1/catalog/items/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteCatalogItem(id: string): Promise<{ message: string }> {
+    return this.request<{ message: string }>(`/api/v1/catalog/items/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // Service Requests
+  async createServiceRequest(data: CreateServiceRequestRequest): Promise<{ data: ServiceRequest; message: string }> {
+    return this.request<{ data: ServiceRequest; message: string }>('/api/v1/catalog/requests', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async getServiceRequests(params?: {
+    status?: string;
+    requester_id?: string;
+    catalog_item_id?: string;
+  }): Promise<{ data: ServiceRequest[]; count: number }> {
+    const queryParams = new URLSearchParams();
+    if (params?.status) queryParams.append('status', params.status);
+    if (params?.requester_id) queryParams.append('requester_id', params.requester_id);
+    if (params?.catalog_item_id) queryParams.append('catalog_item_id', params.catalog_item_id);
+    
+    return this.request<{ data: ServiceRequest[]; count: number }>(
+      `/api/v1/catalog/requests${queryParams.toString() ? '?' + queryParams.toString() : ''}`
+    );
+  }
+
+  async getServiceRequest(id: string): Promise<{ data: ServiceRequest }> {
+    return this.request<{ data: ServiceRequest }>(`/api/v1/catalog/requests/${id}`);
+  }
+
+  async getPendingServiceRequests(): Promise<{ data: ServiceRequest[]; count: number }> {
+    return this.request<{ data: ServiceRequest[]; count: number }>('/api/v1/catalog/requests/pending');
+  }
+
+  async approveServiceRequest(id: string, reason?: string): Promise<{ data: ServiceRequest; message: string }> {
+    return this.request<{ data: ServiceRequest; message: string }>(`/api/v1/catalog/requests/${id}/approve`, {
+      method: 'POST',
+      body: JSON.stringify({ approved: true, reason }),
+    });
+  }
+
+  async rejectServiceRequest(id: string, reason?: string): Promise<{ data: ServiceRequest; message: string }> {
+    return this.request<{ data: ServiceRequest; message: string }>(`/api/v1/catalog/requests/${id}/reject`, {
+      method: 'POST',
+      body: JSON.stringify({ approved: false, reason }),
+    });
   }
 
   // ===== Audit Logs (Admin) =====
