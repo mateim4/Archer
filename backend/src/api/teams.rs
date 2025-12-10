@@ -9,20 +9,17 @@ use axum::{
     routing::{delete, get, post, put},
     Json, Router,
 };
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use std::sync::Arc;
 
 use crate::{
     database::Database,
     middleware::{
         auth::{require_auth, AuthState, AuthenticatedUser},
-        rbac::{
-            check_permissions, // Generic permission checker
-        },
     },
     models::team::{
-        AddTeamMemberRequest, CreateTeamRequest, Team, TeamHierarchyNode, TeamListResponse,
-        TeamRole, TeamWithMembers, TeamWorkload, UpdateTeamMemberRequest, UpdateTeamRequest,
+        AddTeamMemberRequest, CreateTeamRequest, TeamListResponse,
+        UpdateTeamMemberRequest, UpdateTeamRequest,
     },
     services::team_service::{TeamError, TeamService},
 };

@@ -10,8 +10,6 @@ use crate::models::team::{
 use crate::models::ticket::{Ticket, TicketStatus};
 use crate::models::auth::User;
 use chrono::Utc;
-use serde_json::json;
-use std::collections::HashMap;
 use surrealdb::sql::Thing;
 use thiserror::Error;
 
@@ -269,8 +267,8 @@ impl TeamService {
         team.is_active = false;
         team.updated_at = Utc::now();
 
-        self.db.update(thing).content(&team).await?;
-        Ok(())
+        let updated: Option<Team> = self.db.update(thing).content(&team).await?;
+        updated.ok_or(TeamError::TeamNotFound)
     }
 
     // ========================================================================
