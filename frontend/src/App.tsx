@@ -52,6 +52,7 @@ const EditCIView = lazyWithRetry(() => import('./views/EditCIView'));
 const KnowledgeBaseView = lazyWithRetry(() => import('./views/KnowledgeBaseView').then(m => ({ default: m.KnowledgeBaseView })));
 const KBArticleDetailView = lazyWithRetry(() => import('./views/KBArticleDetailView').then(m => ({ default: m.KBArticleDetailView })));
 const KBArticleEditorView = lazyWithRetry(() => import('./views/KBArticleEditorView').then(m => ({ default: m.KBArticleEditorView })));
+const ReportingDashboardView = lazyWithRetry(() => import('./views/ReportingDashboardView').then(m => ({ default: m.ReportingDashboardView })));
 
 // Service Catalog views (lazy loaded)
 const ServiceCatalogView = lazyWithRetry(() => import('./views/ServiceCatalogView'));
@@ -277,6 +278,8 @@ function AppContent() {
                     <Route path="enhanced-rvtools" element={<EnhancedRVToolsReportView />} />
                     <Route path="enhanced-rvtools/:uploadId" element={<EnhancedRVToolsReportView />} />
                     <Route path="settings" element={<SettingsView />} />
+                    {/* Reporting routes (Phase 6) */}
+                    <Route path="reporting" element={<ReportingDashboardView />} />
                     {/* Admin routes */}
                     <Route path="admin/users" element={<UserManagementView />} />
                     <Route path="admin/roles" element={<RoleManagementView />} />

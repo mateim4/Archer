@@ -8,6 +8,7 @@ pub mod knowledge; // Knowledge Base API (Phase 1.5)
 pub mod migration_wizard; // Migration Planning Wizard API
 pub mod project_lifecycle;
 pub mod project_workflow;
+pub mod reporting; // Reporting & Dashboard API (Phase 6)
 pub mod rvtools;
 pub mod service_catalog; // Service Catalog API (Phase 5)
 pub mod settings; // Global settings API
