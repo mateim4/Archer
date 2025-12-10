@@ -4,6 +4,7 @@ pub mod auth_service;
 // Core ITSM Services (Phase 1)
 pub mod sla_service;
 pub mod ticket_service;
+pub mod team_service;  // Team Management
 
 // Knowledge Base (Phase 1.5)
 pub mod knowledge_service;
