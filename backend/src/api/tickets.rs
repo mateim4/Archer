@@ -18,6 +18,8 @@ use crate::{
         Ticket, CreateTicketRequest, UpdateTicketRequest, TicketStatus,
         TicketComment, CreateCommentRequest, CommentType, TicketAttachment,
     },
+    models::knowledge::{LinkArticleToTicketRequest, KBLinkType},
+    services::kb_suggestion_service::KBSuggestionService,
     middleware::{
         auth::{require_auth, AuthState, AuthenticatedUser},
         rbac::{check_tickets_create, check_tickets_read, check_tickets_update, check_tickets_delete},

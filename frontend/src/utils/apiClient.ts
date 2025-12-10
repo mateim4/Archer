@@ -525,6 +525,8 @@ export interface KBArticle {
   view_count: number;
   helpful_count: number;
   not_helpful_count: number;
+  resolution_count: number;
+  helpfulness_score: number;
   related_articles: string[];
   seo_title?: string;
   seo_description?: string;
@@ -583,6 +585,43 @@ export interface KBArticleVersion {
   change_summary?: string;
   created_by: string;
   created_by_name: string;
+  created_at: string;
+}
+
+// KB-Ticket Integration Types (Phase 1.5)
+export type KBLinkType = 'SUGGESTED_TO_USER' | 'USED_FOR_RESOLUTION' | 'ATTACHED_BY_AGENT';
+
+export interface ArticleSuggestion {
+  article_id: string;
+  title: string;
+  summary?: string;
+  excerpt: string;
+  relevance_score: number;
+  resolution_count: number;
+  helpful_count: number;
+  view_count: number;
+  category?: string;
+}
+
+export interface KBSuggestionRequest {
+  title?: string;
+  description?: string;
+  category?: string;
+  limit?: number;
+}
+
+export interface LinkArticleToTicketRequest {
+  article_id: string;
+  was_helpful: boolean;
+}
+
+export interface TicketKBLink {
+  id: string;
+  ticket_id: string;
+  article_id: string;
+  link_type: KBLinkType;
+  was_helpful?: boolean;
+  created_by: string;
   created_at: string;
 }
 
@@ -1506,6 +1545,48 @@ export class ApiClient {
 
   async getKBArticleVersions(id: string): Promise<KBArticleVersion[]> {
     return this.request(`/api/v1/knowledge-base/articles/${id}/versions`);
+  }
+
+  // KB-Ticket Integration Methods (Phase 1.5)
+  
+  /**
+   * Get article suggestions based on ticket context (debounced for use in forms)
+   */
+  async suggestKBArticles(params: KBSuggestionRequest): Promise<ArticleSuggestion[]> {
+    const queryParams = new URLSearchParams();
+    if (params.title) queryParams.append('title', params.title);
+    if (params.description) queryParams.append('description', params.description);
+    if (params.category) queryParams.append('category', params.category);
+    if (params.limit) queryParams.append('limit', params.limit.toString());
+    
+    return this.request(`/api/v1/knowledge-base/suggest?${queryParams.toString()}`);
+  }
+
+  /**
+   * Get KB articles related to a specific ticket
+   */
+  async getRelatedKBArticles(ticketId: string): Promise<ArticleSuggestion[]> {
+    return this.request(`/api/v1/knowledge-base/related-to-ticket/${ticketId}`);
+  }
+
+  /**
+   * Get top KB articles used for ticket resolutions
+   */
+  async getTopResolutionArticles(limit?: number): Promise<ArticleSuggestion[]> {
+    const queryParams = new URLSearchParams();
+    if (limit) queryParams.append('limit', limit.toString());
+    
+    return this.request(`/api/v1/knowledge-base/top-resolution-articles?${queryParams.toString()}`);
+  }
+
+  /**
+   * Link a KB article to a ticket resolution
+   */
+  async linkArticleToTicket(ticketId: string, data: LinkArticleToTicketRequest): Promise<TicketKBLink> {
+    return this.request(`/api/v1/tickets/${ticketId}/kb-resolution`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
   }
 
   async searchKBArticles(query: string, params?: {
