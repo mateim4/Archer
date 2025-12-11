@@ -60,7 +60,7 @@ const DashboardWidget: React.FC<DashboardWidgetProps> = ({ widgetId, name, type,
       glass
       style={{
         padding: tokens.spacingVerticalL,
-        height: '100%',
+        height: '350px',
         display: 'flex',
         flexDirection: 'column',
       }}
@@ -70,6 +70,7 @@ const DashboardWidget: React.FC<DashboardWidgetProps> = ({ widgetId, name, type,
         justifyContent: 'space-between',
         alignItems: 'center',
         marginBottom: tokens.spacingVerticalM,
+        flexShrink: 0,
       }}>
         <h3 style={{
           margin: 0,
@@ -86,7 +87,7 @@ const DashboardWidget: React.FC<DashboardWidgetProps> = ({ widgetId, name, type,
         />
       </div>
 
-      <div style={{ flex: 1, minHeight: 0 }}>
+      <div style={{ flex: 1, minHeight: 0, overflow: 'hidden' }}>
         {loading && <div style={{ textAlign: 'center', padding: tokens.spacingVerticalXXL }}>Loading...</div>}
         {error && <div style={{ textAlign: 'center', padding: tokens.spacingVerticalXXL, color: tokens.colorPaletteRedForeground1 }}>{error}</div>}
         {data && renderWidget(type, data)}
@@ -136,53 +137,59 @@ const renderWidget = (type: string, data: any) => {
 
     case 'PIE_CHART':
       return (
-        <ParentSize>
-          {({ width, height }) => (
-            <VisxPieChart
-              data={data}
-              width={width}
-              height={Math.max(height, 200)}
-              donut
-              donutThickness={40}
-              showLegend
-              showPercentages
-            />
-          )}
-        </ParentSize>
+        <div style={{ width: '100%', height: '100%', position: 'relative' }}>
+          <ParentSize debounceTime={10}>
+            {({ width, height }) => (
+              <VisxPieChart
+                data={data}
+                width={width}
+                height={height || 250}
+                donut
+                donutThickness={40}
+                showLegend
+                showPercentages
+              />
+            )}
+          </ParentSize>
+        </div>
       );
 
     case 'BAR_CHART':
       return (
-        <ParentSize>
-          {({ width, height }) => (
-            <VisxBarChart
-              data={data}
-              width={width}
-              height={Math.max(height, 200)}
-              showGrid
-              showTooltip
-            />
-          )}
-        </ParentSize>
+        <div style={{ width: '100%', height: '100%', position: 'relative' }}>
+          <ParentSize debounceTime={10}>
+            {({ width, height }) => (
+              <VisxBarChart
+                data={data}
+                width={width}
+                height={height || 250}
+                showGrid
+                showTooltip
+              />
+            )}
+          </ParentSize>
+        </div>
       );
 
     case 'LINE_CHART':
       return (
-        <ParentSize>
-          {({ width, height }) => (
-            <VisxLineChart
-              data={data.map((d: any) => ({
-                ...d,
-                timestamp: new Date(Date.now() - (30 - parseInt(d.timestamp.replace('Day ', ''))) * 24 * 60 * 60 * 1000)
-              }))}
-              width={width}
-              height={Math.max(height, 200)}
-              showGrid
-              showArea
-              showDots={false}
-            />
-          )}
-        </ParentSize>
+        <div style={{ width: '100%', height: '100%', position: 'relative' }}>
+          <ParentSize debounceTime={10}>
+            {({ width, height }) => (
+              <VisxLineChart
+                data={data.map((d: any) => ({
+                  ...d,
+                  timestamp: new Date(Date.now() - (30 - parseInt(d.timestamp.replace('Day ', ''))) * 24 * 60 * 60 * 1000)
+                }))}
+                width={width}
+                height={height || 250}
+                showGrid
+                showArea
+                showDots={false}
+              />
+            )}
+          </ParentSize>
+        </div>
       );
 
     case 'GAUGE':
@@ -393,7 +400,6 @@ export const ReportingDashboardView: React.FC = () => {
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
         gap: tokens.spacingVerticalXL,
-        gridAutoRows: 'minmax(300px, auto)',
       }}>
         {defaultWidgets.map((widget) => (
           <DashboardWidget

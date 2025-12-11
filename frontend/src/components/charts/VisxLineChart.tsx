@@ -43,13 +43,14 @@ export interface VisxLineChartProps {
 
 const defaultMargin = { top: 20, right: 20, bottom: 40, left: 50 };
 
+// Purple Glass themed color palette for charts
 const defaultColors = [
-  'var(--primary, #8b5cf6)',
-  '#10b981',
-  '#f59e0b',
-  '#ef4444',
-  '#06b6d4',
-  '#6366f1',
+  '#8b5cf6',  // Purple 500 - Primary
+  '#a78bfa',  // Purple 400
+  '#6366f1',  // Indigo 500
+  '#06b6d4',  // Cyan 500 - Accent
+  '#14b8a6',  // Teal 500
+  '#818cf8',  // Indigo 400
 ];
 
 const tooltipStyles = {

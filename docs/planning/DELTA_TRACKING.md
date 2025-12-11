@@ -2,8 +2,8 @@
 
 **Document Purpose:** Track all significant changes across agentic coding sessions to ensure continuity and accountability.
 
-**Last Updated:** 2025-12-11T18:30:00Z  
-**Document Version:** 1.9
+**Last Updated:** 2025-12-12T10:30:00Z  
+**Document Version:** 2.0
 
 ---
 
@@ -35,49 +35,70 @@ This document is **mandatory reading and updating** for all AI agents working on
 
 > *AI Agents: Log your changes here during the session, then move to Completed Log*
 
+### [2025-12-12 10:30] - Comprehensive UI Audit & Fixes (9 Issues)
+**Type:** Bugfix | Refactor
+**Files Changed:**
+
+**Issue 1 & 2: Header Standardization (Dashboard pattern)**
+- frontend/src/views/InventoryView.tsx - Complete rewrite to Dashboard-style header
+  - Removed GlassmorphicLayout wrapper
+  - Added PageHeader component with DatabaseRegular icon
+  - Converted Tailwind classes to inline CSS styles with CSS variables
+  - Proper 350px sidebar + flex layout
+
+**Issue 3: ReportingDashboard Perpetual Expansion Bug**
+- frontend/src/views/ReportingDashboardView.tsx
+  - Fixed DashboardWidget card height from `height: '100%'` to `height: '350px'`
+  - Added `flexShrink: 0` to header
+  - Added `overflow: 'hidden'` to chart container
+  - Wrapped ParentSize with `position: 'relative'` div
+  - Removed problematic `gridAutoRows: 'minmax(300px, auto)'`
+
+**Issue 4: Chart Color Palette**
+- frontend/src/components/charts/VisxBarChart.tsx - Purple Glass themed colors
+- frontend/src/components/charts/VisxPieChart.tsx - Purple Glass themed colors
+- frontend/src/components/charts/VisxLineChart.tsx - Purple Glass themed colors
+- frontend/src/components/charts/VisxAreaChart.tsx - Purple Glass themed colors
+  - New palette: #8b5cf6, #a78bfa, #c4b5fd, #6366f1, #818cf8, #06b6d4, #14b8a6, #10b981
+
+**Issue 6 & 7: ProjectWorkspaceView Header & Dark Mode**
+- frontend/src/views/ProjectWorkspaceView.tsx
+  - Replaced custom header with `purple-glass-card static` pattern
+  - Added stats grid inside header card (matching Dashboard)
+  - Fixed `DesignTokens.colors.gray600` hardcoded colors to `var(--text-muted)`
+
+**Issue 9: ServiceCatalogView Layout**
+- frontend/src/views/ServiceCatalogView.tsx - Complete layout restructure
+  - Removed left sidebar (280px categories panel)
+  - Added PageHeader with CartRegular icon
+  - Category filters now inline as pill buttons in header
+  - Search, view toggle, and categories all in one row
+  - Cleaner card grid layout
+
+**Description:**
+Addressed 9 user-reported UI issues including broken layouts, inconsistent headers, perpetual chart expansion, dark mode color issues, and layout problems. All views now follow the Dashboard reference pattern.
+
+**Impact:**
+- ReportingDashboard no longer has infinite expansion bug
+- InventoryView uses proper PageHeader component
+- ServiceCatalogView has cleaner single-column layout
+- Charts use cohesive purple/indigo palette
+- ProjectWorkspaceView has proper header card with stats
+- Dark mode text colors fixed in ProjectWorkspaceView
+
+**Build Status:** ✓ Successful
+
+**Remaining Items (Not Addressed This Session):**
+- Issue 5: All views title/subtitle consistency - mostly done via PageHeader
+- Issue 8: Lazy loading animations - requires skeleton component updates
+
+---
+
+## 📚 Completed Changes Log
+
 ### [2025-12-11 18:30] - UI Header Consistency Audit & Fix
 **Type:** Refactor
 **Files Changed:**
-
-**Views Updated with PageHeader Component:**
-- frontend/src/views/KnowledgeBaseView.tsx - Added PageHeader with LibraryRegular icon
-- frontend/src/views/ServiceDeskView.tsx - Replaced custom header with PageHeader (badge support)
-- frontend/src/views/CMDBExplorerView.tsx - Added PageHeader with DatabaseRegular icon
-- frontend/src/views/ReportingDashboardView.tsx - Added PageHeader with ChartMultipleRegular icon
-- frontend/src/views/MonitoringView.tsx - Added PageHeader (withCard=false for borderless style)
-- frontend/src/views/SettingsView.tsx - Replaced custom card header with PageHeader
-- frontend/src/views/UserManagementView.tsx - Replaced Text-based header with PageHeader
-- frontend/src/views/WorkflowsView.tsx - Replaced lcm-card header with PageHeader
-- frontend/src/views/AuditLogView.tsx - Replaced Text-based header with PageHeader
-- frontend/src/views/RoleManagementView.tsx - Replaced Text-based header with PageHeader
-
-**Description:**
-Full UI audit to identify views with inconsistent header patterns. The Dashboard view's header card pattern (`purple-glass-card static` with icon, title, subtitle, and actions) was used as the reference. Created and deployed the `PageHeader` component across 10 key ITSM views to standardize:
-- Icon + Title (32px) + optional badge
-- Subtitle description
-- Right-aligned action buttons
-- Optional children slot for embedded content (search bars, filters, tabs)
-
-**Design Pattern Established:**
-```tsx
-<PageHeader
-  icon={<IconRegular />}
-  title="Page Title"
-  subtitle="Page description text"
-  badge="Optional Badge"  // e.g., "ITIL v4 Aligned"
-  actions={<PurpleGlassButton>Action</PurpleGlassButton>}
->
-  {/* Optional embedded content: search, filters, tabs */}
-</PageHeader>
-```
-
-**Impact:**
-- All major ITSM views now have consistent header styling
-- PageHeader component is reusable for future views
-- Build successful ✓
-- Remaining views (HardwareLifecycleView, ServiceCatalogView, etc.) have unique layouts that may need custom treatment
-
-**Status:** COMPLETE - Major views standardized
 
 ---
 

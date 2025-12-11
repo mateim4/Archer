@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import GlassmorphicLayout from '../components/GlassmorphicLayout';
 import { 
   PurpleGlassCard, 
   PurpleGlassButton, 
-  PurpleGlassInput
+  PurpleGlassInput,
+  PageHeader
 } from '../components/ui';
 import { 
   SearchRegular,
@@ -17,7 +17,8 @@ import {
   TagRegular,
   ArrowTrendingLinesRegular,
   AddRegular,
-  OpenRegular
+  OpenRegular,
+  DatabaseRegular
 } from '@fluentui/react-icons';
 import { apiClient, Asset } from '../utils/apiClient';
 import { useEnhancedUX } from '../hooks/useEnhancedUX';
@@ -71,133 +72,161 @@ const InventoryView: React.FC = () => {
   );
 
   return (
-    <GlassmorphicLayout>
-      <div className="h-full flex flex-col p-6 space-y-6 overflow-hidden">
-        {/* Header */}
-        <div className="flex justify-between items-end shrink-0">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight mb-1" style={{ color: 'var(--text-primary)' }}>Inventory (CMDB)</h1>
-            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Single Source of Truth for Infrastructure Assets</p>
-          </div>
-          <PurpleGlassButton variant="primary" icon={<AddRegular />} glass>Add Asset</PurpleGlassButton>
-        </div>
+    <div style={{ maxWidth: '1600px', margin: '0 auto', padding: '24px' }}>
+      {/* Header - Dashboard Style */}
+      <PageHeader
+        icon={<DatabaseRegular style={{ fontSize: '32px' }} />}
+        title="Inventory (CMDB)"
+        subtitle="Single Source of Truth for Infrastructure Assets"
+        actions={
+          <PurpleGlassButton variant="primary" icon={<AddRegular />} glass>
+            Add Asset
+          </PurpleGlassButton>
+        }
+      />
 
-        {/* Main Split View */}
-        <div className="flex-1 flex gap-6 min-h-0">
-          
-          {/* Left Pane: Asset Tree / List */}
-          <div className="w-1/3 flex flex-col gap-4">
-            <PurpleGlassCard glass className="p-3 shrink-0">
-              <PurpleGlassInput 
-                value={filter}
-                onChange={(e) => setFilter(e.target.value)}
-                placeholder="Search assets..."
-                prefixIcon={<SearchRegular />}
-                glass="none"
-              />
-            </PurpleGlassCard>
+      {/* Main Split View */}
+      <div style={{ display: 'flex', gap: '24px', minHeight: '600px' }}>
+        
+        {/* Left Pane: Asset Tree / List */}
+        <div style={{ width: '350px', display: 'flex', flexDirection: 'column', gap: '16px', flexShrink: 0 }}>
+          <PurpleGlassCard glass style={{ padding: '12px' }}>
+            <PurpleGlassInput 
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+              placeholder="Search assets..."
+              prefixIcon={<SearchRegular />}
+              glass="none"
+            />
+          </PurpleGlassCard>
 
-            <div className="flex-1 overflow-y-auto space-y-2 pr-2">
-              {filteredAssets.map(asset => (
-                <PurpleGlassCard 
-                  key={asset.id}
-                  glass
-                  variant={selectedAsset?.id === asset.id ? 'elevated' : 'interactive'}
-                  onClick={() => setSelectedAsset(asset)}
-                  className="p-3 cursor-pointer"
-                  style={{
-                    borderColor: selectedAsset?.id === asset.id ? `${purplePalette.purple500}80` : undefined,
-                    background: selectedAsset?.id === asset.id ? `${purplePalette.purple500}20` : undefined
-                  }}
-                >
-                  <div className="flex items-center gap-3">
-                    <div 
-                      className="p-2 rounded-md"
+          <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px', paddingRight: '8px' }}>
+            {filteredAssets.map(asset => (
+              <PurpleGlassCard 
+                key={asset.id}
+                glass
+                variant={selectedAsset?.id === asset.id ? 'elevated' : 'interactive'}
+                onClick={() => setSelectedAsset(asset)}
+                style={{
+                  padding: '12px',
+                  cursor: 'pointer',
+                  borderColor: selectedAsset?.id === asset.id ? `${purplePalette.purple500}80` : undefined,
+                  background: selectedAsset?.id === asset.id ? `${purplePalette.purple500}20` : undefined
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div 
+                    style={{ 
+                      padding: '8px',
+                      borderRadius: '6px',
+                      background: 'var(--btn-secondary-bg)', 
+                      color: getStatusColor(asset.status || 'HEALTHY') 
+                    }}
+                  >
+                    {getAssetIcon(asset.asset_type)}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <h3 
                       style={{ 
-                        background: 'var(--btn-secondary-bg)', 
-                        color: getStatusColor(asset.status || 'HEALTHY') 
+                        fontWeight: 500,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                        color: 'var(--text-primary)',
+                        margin: 0
                       }}
                     >
-                      {getAssetIcon(asset.asset_type)}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 
-                        className="font-medium truncate"
-                        style={{ color: 'var(--text-primary)' }}
-                      >
-                        {asset.name}
-                      </h3>
-                      <p 
-                        className="text-xs"
-                        style={{ color: 'var(--text-muted)' }}
-                      >
-                        {asset.asset_type} • {asset.external_id || 'No ID'}
-                      </p>
-                    </div>
-                    <ChevronRightRegular style={{ color: 'var(--text-muted)' }} />
+                      {asset.name}
+                    </h3>
+                    <p 
+                      style={{ 
+                        fontSize: '12px',
+                        color: 'var(--text-muted)',
+                        margin: '4px 0 0 0'
+                      }}
+                    >
+                      {asset.asset_type} • {asset.external_id || 'No ID'}
+                    </p>
                   </div>
-                </PurpleGlassCard>
-              ))}
-            </div>
+                  <ChevronRightRegular style={{ color: 'var(--text-muted)' }} />
+                </div>
+              </PurpleGlassCard>
+            ))}
           </div>
+        </div>
 
-          {/* Right Pane: Asset 360 Dashboard */}
-          <div className="flex-1 flex flex-col gap-6 overflow-y-auto pr-2">
-            {selectedAsset ? (
-              <>
-                {/* Top Stats Card */}
-                <PurpleGlassCard glass className="p-6">
-                  <div className="flex justify-between items-start mb-6">
-                    <div className="flex items-center gap-4">
-                      <div 
-                        className="p-3 rounded-xl text-2xl"
+        {/* Right Pane: Asset 360 Dashboard */}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '24px', overflowY: 'auto', paddingRight: '8px' }}>
+          {selectedAsset ? (
+            <>
+              {/* Top Stats Card */}
+              <PurpleGlassCard glass style={{ padding: '24px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <div 
+                      style={{ 
+                        padding: '12px',
+                        borderRadius: '12px',
+                        fontSize: '24px',
+                        background: 'var(--btn-secondary-bg)', 
+                        color: getStatusColor(selectedAsset.status || 'HEALTHY') 
+                      }}
+                    >
+                      {getAssetIcon(selectedAsset.asset_type)}
+                    </div>
+                    <div>
+                      <h2 
                         style={{ 
-                          background: 'var(--btn-secondary-bg)', 
-                          color: getStatusColor(selectedAsset.status || 'HEALTHY') 
+                          fontSize: '24px',
+                          fontWeight: 700,
+                          color: 'var(--text-primary)',
+                          margin: 0
                         }}
                       >
-                        {getAssetIcon(selectedAsset.asset_type)}
-                      </div>
-                      <div>
-                        <h2 
-                          className="text-2xl font-bold"
-                          style={{ color: 'var(--text-primary)' }}
-                        >
-                          {selectedAsset.name}
-                        </h2>
-                        <div 
-                          className="flex items-center gap-2 text-sm mt-1"
-                          style={{ color: 'var(--text-secondary)' }}
-                        >
-                          <span 
-                            className="px-2 py-0.5 rounded-full text-xs font-medium"
-                            style={{ 
-                              background: 'var(--btn-secondary-bg)', 
-                              color: getStatusColor(selectedAsset.status || 'HEALTHY') 
-                            }}
-                          >
-                            {selectedAsset.status || 'UNKNOWN'}
-                          </span>
-                          <span>•</span>
-                          <span>{selectedAsset.asset_type}</span>
-                          <span>•</span>
-                          <span className="font-mono">{selectedAsset.id}</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <PurpleGlassButton 
-                        variant="primary" 
-                        size="small"
-                        onClick={() => navigate(`/app/inventory/asset/${selectedAsset.id}`)}
+                        {selectedAsset.name}
+                      </h2>
+                      <div 
+                        style={{ 
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          fontSize: '14px',
+                          marginTop: '4px',
+                          color: 'var(--text-secondary)'
+                        }}
                       >
-                        <OpenRegular className="mr-1" /> View Details
-                      </PurpleGlassButton>
-                      <PurpleGlassButton variant="secondary" size="small">Edit Asset</PurpleGlassButton>
+                        <span 
+                          style={{ 
+                            padding: '2px 8px',
+                            borderRadius: '9999px',
+                            fontSize: '12px',
+                            fontWeight: 500,
+                            background: 'var(--btn-secondary-bg)', 
+                            color: getStatusColor(selectedAsset.status || 'HEALTHY') 
+                          }}
+                        >
+                          {selectedAsset.status || 'UNKNOWN'}
+                        </span>
+                        <span>•</span>
+                        <span>{selectedAsset.asset_type}</span>
+                        <span>•</span>
+                        <span style={{ fontFamily: 'monospace' }}>{selectedAsset.id}</span>
+                      </div>
                     </div>
                   </div>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <PurpleGlassButton 
+                      variant="primary" 
+                      size="small"
+                      onClick={() => navigate(`/app/inventory/asset/${selectedAsset.id}`)}
+                    >
+                      <OpenRegular style={{ marginRight: '4px' }} /> View Details
+                    </PurpleGlassButton>
+                    <PurpleGlassButton variant="secondary" size="small">Edit Asset</PurpleGlassButton>
+                  </div>
+                </div>
 
-                  <div className="grid grid-cols-3 gap-4">
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
                     <StatBox label="Uptime" value="99.9%" icon={<ArrowTrendingLinesRegular />} />
                     <StatBox label="Open Tickets" value="0" icon={<TagRegular />} />
                     <StatBox label="Last Scan" value="2m ago" icon={<InfoRegular />} />
@@ -205,26 +234,26 @@ const InventoryView: React.FC = () => {
                 </PurpleGlassCard>
 
                 {/* Details & Relationships Grid */}
-                <div className="grid grid-cols-2 gap-6">
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '24px' }}>
                   {/* Raw Data / Specs */}
-                  <PurpleGlassCard glass header="Specifications" className="h-full">
-                    <div className="p-4 space-y-3">
+                  <PurpleGlassCard glass header="Specifications" style={{ height: '100%' }}>
+                    <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                       {selectedAsset.raw_data ? (
                         Object.entries(selectedAsset.raw_data).map(([key, value]) => (
-                          <div key={key} className="flex justify-between py-2 border-b border-white/5 last:border-0">
-                            <span className="capitalize" style={{ color: 'var(--text-secondary)' }}>{key.replace(/_/g, ' ')}</span>
-                            <span className="font-mono text-sm" style={{ color: 'var(--text-primary)' }}>{String(value)}</span>
+                          <div key={key} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                            <span style={{ textTransform: 'capitalize', color: 'var(--text-secondary)' }}>{key.replace(/_/g, ' ')}</span>
+                            <span style={{ fontFamily: 'monospace', fontSize: '14px', color: 'var(--text-primary)' }}>{String(value)}</span>
                           </div>
                         ))
                       ) : (
-                        <div className="italic" style={{ color: 'var(--text-muted)' }}>No specification data available.</div>
+                        <div style={{ fontStyle: 'italic', color: 'var(--text-muted)' }}>No specification data available.</div>
                       )}
                     </div>
                   </PurpleGlassCard>
 
                   {/* Relationships (Mocked for now) */}
-                  <PurpleGlassCard glass header="Relationships" className="h-full">
-                    <div className="p-4 space-y-4">
+                  <PurpleGlassCard glass header="Relationships" style={{ height: '100%' }}>
+                    <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
                       <RelationshipItem type="Parent" name="Datacenter-01" icon={<CubeRegular />} />
                       <RelationshipItem type="Connected To" name="Switch-Core-A" icon={<RouterRegular />} />
                       <RelationshipItem type="Hosting" name="12 VMs" icon={<DesktopRegular />} />
@@ -233,7 +262,7 @@ const InventoryView: React.FC = () => {
                 </div>
               </>
             ) : (
-              <div className="flex-1 flex items-center justify-center" style={{ color: 'var(--text-muted)' }}>
+              <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
                 Select an asset to view details
               </div>
             )}
@@ -241,24 +270,30 @@ const InventoryView: React.FC = () => {
 
         </div>
       </div>
-    </GlassmorphicLayout>
   );
 };
 
 const StatBox: React.FC<{ label: string; value: string; icon: React.ReactNode }> = ({ label, value, icon }) => (
-  <PurpleGlassCard glass variant="subtle" className="p-3">
-    <div className="flex items-center gap-3">
+  <PurpleGlassCard glass variant="subtle" style={{ padding: '12px' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
       <div style={{ color: 'var(--text-muted)' }}>{icon}</div>
       <div>
         <div 
-          className="text-xs uppercase tracking-wider"
-          style={{ color: 'var(--text-muted)' }}
+          style={{ 
+            fontSize: '12px',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            color: 'var(--text-muted)'
+          }}
         >
           {label}
         </div>
         <div 
-          className="font-bold text-lg"
-          style={{ color: 'var(--text-primary)' }}
+          style={{ 
+            fontWeight: 700,
+            fontSize: '18px',
+            color: 'var(--text-primary)'
+          }}
         >
           {value}
         </div>
@@ -269,22 +304,34 @@ const StatBox: React.FC<{ label: string; value: string; icon: React.ReactNode }>
 
 const RelationshipItem: React.FC<{ type: string; name: string; icon: React.ReactNode }> = ({ type, name, icon }) => (
   <div 
-    className="flex items-center gap-3 p-2 rounded transition-colors cursor-pointer"
-    style={{ background: 'transparent' }}
+    style={{ 
+      display: 'flex',
+      alignItems: 'center',
+      gap: '12px',
+      padding: '8px',
+      borderRadius: '6px',
+      cursor: 'pointer',
+      background: 'transparent',
+      transition: 'background 0.15s ease'
+    }}
     onMouseEnter={(e) => e.currentTarget.style.background = 'var(--card-bg-hover)'}
     onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
   >
     <div style={{ color: 'var(--text-secondary)' }}>{icon}</div>
-    <div className="flex-1">
+    <div style={{ flex: 1 }}>
       <div 
-        className="font-medium"
-        style={{ color: 'var(--text-primary)' }}
+        style={{ 
+          fontWeight: 500,
+          color: 'var(--text-primary)'
+        }}
       >
         {name}
       </div>
       <div 
-        className="text-xs"
-        style={{ color: 'var(--text-muted)' }}
+        style={{ 
+          fontSize: '12px',
+          color: 'var(--text-muted)'
+        }}
       >
         {type}
       </div>

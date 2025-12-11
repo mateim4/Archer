@@ -601,39 +601,126 @@ const ProjectWorkspaceView: React.FC = () => {
           ]}
         />
 
-        {/* Project Header Section */}
-        <div style={{
-          background: 'var(--glass-bg)',
-          backdropFilter: 'blur(20px)',
-          borderBottom: '1px solid var(--glass-border)',
-          borderRadius: '12px',
-          padding: '16px 20px',
-          marginBottom: '24px'
+        {/* Project Header Section - Dashboard Style */}
+        <div className="purple-glass-card static" style={{
+          padding: '24px',
+          marginBottom: '24px',
         }}>
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-            <div className="flex-1">
-              <div className="flex items-center gap-3 mb-3">
-                <div style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  justifyContent: 'center',
-                  color: 'var(--brand-primary)',
-                  fontSize: '32px'
-                }}>
-                  <FolderRegular />
-                </div>
-                <h1 style={{
-                  fontSize: '30px',
-                  fontWeight: '700',
-                  color: 'var(--text-primary)',
-                  fontFamily: tokens.fontFamilyBody,
-                  margin: 0
-                }}>{project.name}</h1>
-              </div>
-              <p className="text-base" style={{ color: 'var(--text-secondary)' }}>{project.description}</p>
+          <div style={{
+            display: 'flex',
+            alignItems: 'flex-start',
+            justifyContent: 'space-between',
+            marginBottom: '24px',
+            paddingBottom: '20px',
+            borderBottom: '1px solid var(--divider-color-subtle)',
+          }}>
+            <div>
+              <h1 style={{
+                margin: 0,
+                fontSize: 'var(--lcm-font-size-xxxl, 32px)',
+                fontWeight: 600,
+                color: 'var(--text-primary)',
+                fontFamily: 'var(--lcm-font-family-heading, Poppins, sans-serif)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px'
+              }}>
+                <FolderRegular style={{ fontSize: '32px', color: 'var(--brand-primary)' }} />
+                {project.name}
+              </h1>
+              <p style={{
+                margin: '8px 0 0 0',
+                fontSize: '16px',
+                color: 'var(--text-secondary)',
+                fontFamily: 'var(--lcm-font-family-body, Poppins, sans-serif)',
+              }}>
+                {project.description}
+              </p>
             </div>
-            
-            {/* Phase 7: Removed Migration Hub button - use activity-driven workflow instead */}
+
+            {/* Project Controls */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <PurpleGlassButton
+                icon={<SettingsRegular />}
+                glass
+                size="small"
+              >
+                Settings
+              </PurpleGlassButton>
+            </div>
+          </div>
+
+          {/* Project Stats */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+            gap: '16px',
+          }}>
+            <div style={{
+              padding: '16px',
+              background: 'var(--card-bg)',
+              borderRadius: '8px',
+              textAlign: 'center',
+            }}>
+              <div style={{ fontSize: '24px', fontWeight: 700, color: 'var(--text-primary)' }}>
+                {stats.totalActivities}
+              </div>
+              <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                Total Activities
+              </div>
+            </div>
+            <div style={{
+              padding: '16px',
+              background: 'var(--card-bg)',
+              borderRadius: '8px',
+              textAlign: 'center',
+            }}>
+              <div style={{ fontSize: '24px', fontWeight: 700, color: '#10b981' }}>
+                {stats.completedActivities}
+              </div>
+              <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                Completed
+              </div>
+            </div>
+            <div style={{
+              padding: '16px',
+              background: 'var(--card-bg)',
+              borderRadius: '8px',
+              textAlign: 'center',
+            }}>
+              <div style={{ fontSize: '24px', fontWeight: 700, color: '#3b82f6' }}>
+                {stats.inProgressActivities}
+              </div>
+              <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                In Progress
+              </div>
+            </div>
+            <div style={{
+              padding: '16px',
+              background: 'var(--card-bg)',
+              borderRadius: '8px',
+              textAlign: 'center',
+            }}>
+              <div style={{ fontSize: '24px', fontWeight: 700, color: 'var(--text-primary)' }}>
+                {stats.daysRemaining}
+              </div>
+              <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                Days Remaining
+              </div>
+            </div>
+            <div style={{
+              padding: '16px',
+              background: 'var(--card-bg)',
+              borderRadius: '8px',
+              textAlign: 'center',
+            }}>
+              <div style={{ fontSize: '24px', fontWeight: 700, color: 'var(--brand-primary)' }}>
+                {stats.overallProgress}%
+              </div>
+              <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                Progress
+              </div>
+            </div>
           </div>
         </div>
 
@@ -779,7 +866,7 @@ const ProjectWorkspaceView: React.FC = () => {
                         <CalendarLtrRegular className="w-4 h-4" style={{ color: DesignTokens.colors.info }} />
                       </div>
                       <div className="text-center">
-                        <div className="text-xs mb-0.5" style={{ color: DesignTokens.colors.gray600, fontSize: '10px' }}>Total</div>
+                        <div className="text-xs mb-0.5" style={{ color: 'var(--text-muted)', fontSize: '10px' }}>Total</div>
                         <div className="text-base font-bold" style={{ color: DesignTokens.colors.info }}>{stats.totalActivities}</div>
                       </div>
                     </div>
@@ -792,7 +879,7 @@ const ProjectWorkspaceView: React.FC = () => {
                         <CheckmarkCircleRegular className="w-4 h-4" style={{ color: DesignTokens.colors.success }} />
                       </div>
                       <div className="text-center">
-                        <div className="text-xs mb-0.5" style={{ color: DesignTokens.colors.gray600, fontSize: '10px' }}>Done</div>
+                        <div className="text-xs mb-0.5" style={{ color: 'var(--text-muted)', fontSize: '10px' }}>Done</div>
                         <div className="text-base font-bold" style={{ color: DesignTokens.colors.success }}>{stats.completedActivities}</div>
                       </div>
                     </div>
@@ -805,7 +892,7 @@ const ProjectWorkspaceView: React.FC = () => {
                         <ClockRegular className="w-4 h-4" style={{ color: DesignTokens.colors.warning }} />
                       </div>
                       <div className="text-center">
-                        <div className="text-xs mb-0.5" style={{ color: DesignTokens.colors.gray600, fontSize: '10px' }}>Active</div>
+                        <div className="text-xs mb-0.5" style={{ color: 'var(--text-muted)', fontSize: '10px' }}>Active</div>
                         <div className="text-base font-bold" style={{ color: DesignTokens.colors.warning }}>{stats.inProgressActivities}</div>
                       </div>
                     </div>
@@ -819,7 +906,7 @@ const ProjectWorkspaceView: React.FC = () => {
                         <CalendarRegular className="w-4 h-4" style={{ color: DesignTokens.colorVariants.amber.base }} />
                       </div>
                       <div className="text-center">
-                        <div className="text-xs mb-0.5" style={{ color: DesignTokens.colors.gray600, fontSize: '10px' }}>Days</div>
+                        <div className="text-xs mb-0.5" style={{ color: 'var(--text-muted)', fontSize: '10px' }}>Days</div>
                         <div className="text-base font-bold" style={{ color: DesignTokens.colorVariants.amber.base }}>{stats.daysRemaining}</div>
                       </div>
                     </div>

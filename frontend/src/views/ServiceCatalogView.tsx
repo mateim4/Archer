@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { 
   PurpleGlassCard, 
   PurpleGlassButton, 
-  PurpleGlassInput 
+  PurpleGlassInput,
+  PageHeader
 } from '../components/ui';
 import { 
   SearchRegular,
@@ -22,7 +23,8 @@ import {
   MoneyRegular,
   CheckmarkCircleRegular,
   ErrorCircleRegular,
-  ClockRegular
+  ClockRegular,
+  CartRegular
 } from '@fluentui/react-icons';
 import { apiClient, CatalogCategory, CatalogItem } from '../utils/apiClient';
 import { useEnhancedUX } from '../hooks/useEnhancedUX';
@@ -152,350 +154,284 @@ const ServiceCatalogView: React.FC = () => {
 
   return (
     <div style={{ 
-      padding: 'var(--spacing-6)', 
-      maxWidth: '1800px', 
+      padding: '24px', 
+      maxWidth: '1600px', 
       margin: '0 auto',
-      display: 'flex',
-      gap: 'var(--spacing-6)',
-      minHeight: 'calc(100vh - 100px)'
     }}>
-      {/* Left Sidebar - Categories */}
-      <div style={{ 
-        width: '280px', 
-        flexShrink: 0,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 'var(--spacing-4)'
-      }}>
-        <PurpleGlassCard>
-          <div style={{ padding: 'var(--spacing-5)' }}>
-            <h2 style={{ 
-              fontSize: 'var(--font-size-600)', 
-              fontWeight: 600,
-              marginBottom: 'var(--spacing-4)',
-              color: 'var(--color-text-primary)'
-            }}>
-              Categories
-            </h2>
-            
-            {loading ? (
-              <div style={{ textAlign: 'center', padding: 'var(--spacing-4)' }}>
-                <div className="spinner" />
-              </div>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-2)' }}>
-                {/* All Items */}
-                <button
-                  onClick={() => setSelectedCategory(null)}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 'var(--spacing-3)',
-                    padding: 'var(--spacing-3)',
-                    border: 'none',
-                    borderRadius: 'var(--border-radius-medium)',
-                    background: selectedCategory === null 
-                      ? 'var(--color-primary-alpha-10)' 
-                      : 'transparent',
-                    color: selectedCategory === null 
-                      ? 'var(--color-primary)' 
-                      : 'var(--color-text-primary)',
-                    cursor: 'pointer',
-                    fontSize: 'var(--font-size-300)',
-                    fontWeight: selectedCategory === null ? 600 : 400,
-                    transition: 'all var(--duration-fast)',
-                    textAlign: 'left'
-                  }}
-                >
-                  <GridRegular style={{ fontSize: '20px' }} />
-                  <span>All Services</span>
-                </button>
-
-                {/* Category List */}
-                {categories.map(category => (
-                  <button
-                    key={category.id}
-                    onClick={() => setSelectedCategory(extractId(category.id!))}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 'var(--spacing-3)',
-                      padding: 'var(--spacing-3)',
-                      border: 'none',
-                      borderRadius: 'var(--border-radius-medium)',
-                      background: selectedCategory === extractId(category.id!) 
-                        ? 'var(--color-primary-alpha-10)' 
-                        : 'transparent',
-                      color: selectedCategory === extractId(category.id!) 
-                        ? 'var(--color-primary)' 
-                        : 'var(--color-text-primary)',
-                      cursor: 'pointer',
-                      fontSize: 'var(--font-size-300)',
-                      fontWeight: selectedCategory === extractId(category.id!) ? 600 : 400,
-                      transition: 'all var(--duration-fast)',
-                      textAlign: 'left'
-                    }}
-                  >
-                    <span style={{ fontSize: '20px' }}>
-                      {getIcon(category.icon)}
-                    </span>
-                    <div style={{ flex: 1 }}>
-                      <div>{category.name}</div>
-                      {category.description && (
-                        <div style={{ 
-                          fontSize: 'var(--font-size-200)', 
-                          color: 'var(--color-text-secondary)',
-                          marginTop: 'var(--spacing-1)'
-                        }}>
-                          {category.description}
-                        </div>
-                      )}
-                    </div>
-                  </button>
-                ))}
-              </div>
-            )}
+      {/* Header - Dashboard Style */}
+      <PageHeader
+        icon={<CartRegular style={{ fontSize: '32px' }} />}
+        title="Service Catalog"
+        subtitle="Browse and request IT services and resources"
+        actions={
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+            <PurpleGlassButton
+              variant="ghost"
+              onClick={() => navigate('/app/my-requests')}
+            >
+              <ListRegular style={{ marginRight: '8px' }} />
+              My Requests
+            </PurpleGlassButton>
           </div>
-        </PurpleGlassCard>
-
-        {/* Quick Actions */}
-        <PurpleGlassCard>
-          <div style={{ padding: 'var(--spacing-5)' }}>
-            <h3 style={{ 
-              fontSize: 'var(--font-size-400)', 
-              fontWeight: 600,
-              marginBottom: 'var(--spacing-3)',
-              color: 'var(--color-text-primary)'
-            }}>
-              Quick Actions
-            </h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-2)' }}>
-              <PurpleGlassButton
-                variant="ghost"
-                onClick={() => navigate('/app/my-requests')}
-                style={{ justifyContent: 'flex-start' }}
-              >
-                <ListRegular style={{ marginRight: 'var(--spacing-2)' }} />
-                My Requests
-              </PurpleGlassButton>
+        }
+      >
+        {/* Search and Category Filter Row */}
+        <div style={{ 
+          display: 'flex', 
+          gap: '16px', 
+          alignItems: 'center',
+          flexWrap: 'wrap'
+        }}>
+          <form onSubmit={handleSearch} style={{ display: 'flex', gap: '12px', alignItems: 'center', flex: 1, minWidth: '300px' }}>
+            <div style={{ flex: 1 }}>
+              <PurpleGlassInput
+                placeholder="Search services..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                prefixIcon={<SearchRegular />}
+              />
             </div>
-          </div>
-        </PurpleGlassCard>
-      </div>
-
-      {/* Main Content */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'var(--spacing-5)' }}>
-        {/* Header */}
-        <div>
-          <h1 style={{ 
-            fontSize: 'var(--font-size-900)', 
-            fontWeight: 700,
-            marginBottom: 'var(--spacing-2)',
-            color: 'var(--color-text-primary)'
+            <PurpleGlassButton type="submit">
+              <SearchRegular style={{ marginRight: '8px' }} />
+              Search
+            </PurpleGlassButton>
+          </form>
+          
+          {/* Category Buttons */}
+          <div style={{ 
+            display: 'flex', 
+            gap: '8px',
+            flexWrap: 'wrap'
           }}>
-            Service Catalog
-          </h1>
-          <p style={{ 
-            fontSize: 'var(--font-size-400)', 
-            color: 'var(--color-text-secondary)'
-          }}>
-            Browse and request IT services and resources
-          </p>
-        </div>
-
-        {/* Search and View Controls */}
-        <PurpleGlassCard>
-          <div style={{ padding: 'var(--spacing-5)' }}>
-            <form onSubmit={handleSearch} style={{ display: 'flex', gap: 'var(--spacing-3)', alignItems: 'center' }}>
-              <div style={{ flex: 1 }}>
-                <PurpleGlassInput
-                  placeholder="Search services..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  prefixIcon={<SearchRegular />}
-                />
-              </div>
-              <PurpleGlassButton type="submit">
-                <SearchRegular style={{ marginRight: 'var(--spacing-2)' }} />
-                Search
-              </PurpleGlassButton>
-              <div style={{ 
-                display: 'flex', 
-                gap: 'var(--spacing-2)',
-                padding: 'var(--spacing-2)',
-                background: 'var(--color-neutral-alpha-5)',
-                borderRadius: 'var(--border-radius-medium)'
-              }}>
-                <button
-                  type="button"
-                  onClick={() => setViewMode('grid')}
-                  style={{
-                    padding: 'var(--spacing-2)',
-                    border: 'none',
-                    borderRadius: 'var(--border-radius-small)',
-                    background: viewMode === 'grid' ? 'var(--color-primary-alpha-10)' : 'transparent',
-                    color: viewMode === 'grid' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}
-                >
-                  <GridRegular />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setViewMode('list')}
-                  style={{
-                    padding: 'var(--spacing-2)',
-                    border: 'none',
-                    borderRadius: 'var(--border-radius-small)',
-                    background: viewMode === 'list' ? 'var(--color-primary-alpha-10)' : 'transparent',
-                    color: viewMode === 'list' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}
-                >
-                  <ListRegular />
-                </button>
-              </div>
-            </form>
-          </div>
-        </PurpleGlassCard>
-
-        {/* Catalog Items */}
-        {itemsLoading ? (
-          <div style={{ textAlign: 'center', padding: 'var(--spacing-10)' }}>
-            <div className="spinner" />
-            <p style={{ marginTop: 'var(--spacing-4)', color: 'var(--color-text-secondary)' }}>
-              Loading services...
-            </p>
-          </div>
-        ) : catalogItems.length === 0 ? (
-          <PurpleGlassCard>
-            <div style={{ padding: 'var(--spacing-10)', textAlign: 'center' }}>
-              <ErrorCircleRegular style={{ fontSize: '48px', color: 'var(--color-text-secondary)' }} />
-              <h3 style={{ 
-                marginTop: 'var(--spacing-4)', 
-                fontSize: 'var(--font-size-600)',
-                color: 'var(--color-text-primary)'
-              }}>
-                No services found
-              </h3>
-              <p style={{ 
-                marginTop: 'var(--spacing-2)', 
-                color: 'var(--color-text-secondary)'
-              }}>
-                {searchQuery 
-                  ? `No services match your search "${searchQuery}"`
-                  : 'There are no services available in this category'}
-              </p>
-            </div>
-          </PurpleGlassCard>
-        ) : (
-          <div style={{
-            display: viewMode === 'grid' ? 'grid' : 'flex',
-            gridTemplateColumns: viewMode === 'grid' ? 'repeat(auto-fill, minmax(350px, 1fr))' : undefined,
-            flexDirection: viewMode === 'list' ? 'column' : undefined,
-            gap: 'var(--spacing-5)'
-          }}>
-            {catalogItems.map(item => (
-              <PurpleGlassCard key={item.id}>
-                <div style={{ 
-                  padding: 'var(--spacing-5)',
+            <button
+              onClick={() => setSelectedCategory(null)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '8px 16px',
+                border: 'none',
+                borderRadius: '8px',
+                background: selectedCategory === null 
+                  ? 'var(--brand-primary)' 
+                  : 'var(--card-bg)',
+                color: selectedCategory === null 
+                  ? 'white' 
+                  : 'var(--text-primary)',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: 500,
+                transition: 'all 0.15s ease',
+              }}
+            >
+              <GridRegular />
+              All
+            </button>
+            {categories.slice(0, 5).map(category => (
+              <button
+                key={category.id}
+                onClick={() => setSelectedCategory(extractId(category.id!))}
+                style={{
                   display: 'flex',
-                  flexDirection: 'column',
-                  height: '100%'
-                }}>
-                  {/* Icon */}
-                  <div style={{ 
-                    marginBottom: 'var(--spacing-4)',
-                    fontSize: '40px',
-                    color: 'var(--color-primary)'
-                  }}>
-                    {getIcon(item.icon)}
-                  </div>
-
-                  {/* Title */}
-                  <h3 style={{ 
-                    fontSize: 'var(--font-size-500)', 
-                    fontWeight: 600,
-                    marginBottom: 'var(--spacing-2)',
-                    color: 'var(--color-text-primary)'
-                  }}>
-                    {item.name}
-                  </h3>
-
-                  {/* Short Description */}
-                  <p style={{ 
-                    fontSize: 'var(--font-size-300)', 
-                    color: 'var(--color-text-secondary)',
-                    marginBottom: 'var(--spacing-4)',
-                    flex: 1
-                  }}>
-                    {item.short_description}
-                  </p>
-
-                  {/* Metadata */}
-                  <div style={{ 
-                    display: 'flex',
-                    gap: 'var(--spacing-4)',
-                    marginBottom: 'var(--spacing-4)',
-                    flexWrap: 'wrap'
-                  }}>
-                    {item.delivery_time_days && (
-                      <div style={{ 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        gap: 'var(--spacing-2)',
-                        fontSize: 'var(--font-size-200)',
-                        color: 'var(--color-text-secondary)'
-                      }}>
-                        <CalendarClockRegular />
-                        <span>{item.delivery_time_days} days</span>
-                      </div>
-                    )}
-                    {item.cost !== undefined && (
-                      <div style={{ 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        gap: 'var(--spacing-2)',
-                        fontSize: 'var(--font-size-200)',
-                        color: 'var(--color-text-secondary)'
-                      }}>
-                        <MoneyRegular />
-                        <span>{formatCurrency(item.cost)}</span>
-                      </div>
-                    )}
-                    {item.approval_required && (
-                      <div style={{ 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        gap: 'var(--spacing-2)',
-                        fontSize: 'var(--font-size-200)',
-                        color: 'var(--color-warning)'
-                      }}>
-                        <ClockRegular />
-                        <span>Approval required</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Action Button */}
-                  <PurpleGlassButton 
-                    onClick={() => handleRequestItem(item)}
-                    style={{ width: '100%' }}
-                  >
-                    Request This Service
-                  </PurpleGlassButton>
-                </div>
-              </PurpleGlassCard>
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '8px 16px',
+                  border: 'none',
+                  borderRadius: '8px',
+                  background: selectedCategory === extractId(category.id!) 
+                    ? 'var(--brand-primary)' 
+                    : 'var(--card-bg)',
+                  color: selectedCategory === extractId(category.id!) 
+                    ? 'white' 
+                    : 'var(--text-primary)',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: 500,
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                {getIcon(category.icon)}
+                {category.name}
+              </button>
             ))}
           </div>
-        )}
-      </div>
+          
+          {/* View Toggle */}
+          <div style={{ 
+            display: 'flex', 
+            gap: '4px',
+            padding: '4px',
+            background: 'var(--card-bg)',
+            borderRadius: '8px'
+          }}>
+            <button
+              type="button"
+              onClick={() => setViewMode('grid')}
+              style={{
+                padding: '8px',
+                border: 'none',
+                borderRadius: '6px',
+                background: viewMode === 'grid' ? 'var(--brand-primary)' : 'transparent',
+                color: viewMode === 'grid' ? 'white' : 'var(--text-secondary)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              <GridRegular />
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode('list')}
+              style={{
+                padding: '8px',
+                border: 'none',
+                borderRadius: '6px',
+                background: viewMode === 'list' ? 'var(--brand-primary)' : 'transparent',
+                color: viewMode === 'list' ? 'white' : 'var(--text-secondary)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              <ListRegular />
+            </button>
+          </div>
+        </div>
+      </PageHeader>
+
+      {/* Catalog Items */}
+      {itemsLoading ? (
+        <div style={{ textAlign: 'center', padding: '80px 0' }}>
+          <div className="spinner" />
+          <p style={{ marginTop: '16px', color: 'var(--text-secondary)' }}>
+            Loading services...
+          </p>
+        </div>
+      ) : catalogItems.length === 0 ? (
+        <PurpleGlassCard>
+          <div style={{ padding: '80px', textAlign: 'center' }}>
+            <ErrorCircleRegular style={{ fontSize: '48px', color: 'var(--text-secondary)' }} />
+            <h3 style={{ 
+              marginTop: '16px', 
+              fontSize: '20px',
+              color: 'var(--text-primary)'
+            }}>
+              No services found
+            </h3>
+            <p style={{ 
+              marginTop: '8px', 
+              color: 'var(--text-secondary)'
+            }}>
+              {searchQuery 
+                ? `No services match your search "${searchQuery}"`
+                : 'There are no services available in this category'}
+            </p>
+          </div>
+        </PurpleGlassCard>
+      ) : (
+        <div style={{
+          display: viewMode === 'grid' ? 'grid' : 'flex',
+          gridTemplateColumns: viewMode === 'grid' ? 'repeat(auto-fill, minmax(350px, 1fr))' : undefined,
+          flexDirection: viewMode === 'list' ? 'column' : undefined,
+          gap: '20px'
+        }}>
+          {catalogItems.map(item => (
+            <PurpleGlassCard key={item.id}>
+              <div style={{ 
+                padding: '20px',
+                display: 'flex',
+                flexDirection: 'column',
+                height: '100%'
+              }}>
+                {/* Icon */}
+                <div style={{ 
+                  marginBottom: '16px',
+                  fontSize: '40px',
+                  color: 'var(--brand-primary)'
+                }}>
+                  {getIcon(item.icon)}
+                </div>
+
+                {/* Title */}
+                <h3 style={{ 
+                  fontSize: '18px', 
+                  fontWeight: 600,
+                  marginBottom: '8px',
+                  color: 'var(--text-primary)'
+                }}>
+                  {item.name}
+                </h3>
+
+                {/* Short Description */}
+                <p style={{ 
+                  fontSize: '14px', 
+                  color: 'var(--text-secondary)',
+                  marginBottom: '16px',
+                  flex: 1
+                }}>
+                  {item.short_description}
+                </p>
+
+                {/* Metadata */}
+                <div style={{ 
+                  display: 'flex',
+                  gap: '16px',
+                  marginBottom: '16px',
+                  flexWrap: 'wrap'
+                }}>
+                  {item.delivery_time_days && (
+                    <div style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: '8px',
+                      fontSize: '12px',
+                      color: 'var(--text-secondary)'
+                    }}>
+                      <CalendarClockRegular />
+                      <span>{item.delivery_time_days} days</span>
+                    </div>
+                  )}
+                  {item.cost !== undefined && (
+                    <div style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: '8px',
+                      fontSize: '12px',
+                      color: 'var(--text-secondary)'
+                    }}>
+                      <MoneyRegular />
+                      <span>{formatCurrency(item.cost)}</span>
+                    </div>
+                  )}
+                  {item.approval_required && (
+                    <div style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: '8px',
+                      fontSize: '12px',
+                      color: 'var(--warning-text, #f59e0b)'
+                    }}>
+                      <ClockRegular />
+                      <span>Approval required</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Action Button */}
+                <PurpleGlassButton 
+                  onClick={() => handleRequestItem(item)}
+                  style={{ width: '100%' }}
+                >
+                  Request This Service
+                </PurpleGlassButton>
+              </div>
+            </PurpleGlassCard>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
