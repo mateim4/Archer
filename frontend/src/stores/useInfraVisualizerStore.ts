@@ -2,7 +2,7 @@
  * Infrastructure Visualizer Store
  * 
  * Zustand store for managing the infrastructure visualization graph state.
- * Adapted from Infra-Visualizer project with LCMDesigner-specific extensions.
+ * Adapted from Infra-Visualizer project with Archer-specific extensions.
  * 
  * Features:
  * - Node and edge state management

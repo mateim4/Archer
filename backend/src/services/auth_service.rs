@@ -553,24 +553,32 @@ impl AuthService {
         user_agent: Option<&str>,
     ) -> Result<(), AuthError> {
         let token_hash = self.hash_token(token);
-        let expires_at = Utc::now() + Duration::seconds(self.config.refresh_token_expiry);
-
-        let refresh_token = RefreshToken {
-            id: None,
+        let expires_seconds = self.config.refresh_token_expiry;
+        let user_id = user.id.clone().ok_or(AuthError::InternalError("User has no ID".to_string()))?;
+        
+        // Use raw query with SurrealDB's time functions to avoid DateTime serialization issues
+        let user_agent_val = user_agent.map(|s| format!("'{}'", s.replace("'", "\\'"))).unwrap_or("NONE".to_string());
+        let ip_val = ip_address.map(|s| format!("'{}'", s)).unwrap_or("NONE".to_string());
+        
+        let query = format!(
+            r#"CREATE refresh_tokens SET
+                token_hash = '{}',
+                user_id = {},
+                expires_at = time::now() + {}s,
+                revoked = false,
+                revoked_at = NONE,
+                created_at = time::now(),
+                user_agent = {},
+                ip_address = {}"#,
             token_hash,
-            user_id: user.id.clone().ok_or(AuthError::InternalError("User has no ID".to_string()))?,
-            expires_at,
-            revoked: false,
-            revoked_at: None,
-            created_at: Utc::now(),
-            user_agent: user_agent.map(|s| s.to_string()),
-            ip_address: ip_address.map(|s| s.to_string()),
-        };
+            user_id,
+            expires_seconds,
+            user_agent_val,
+            ip_val
+        );
 
-        let _: Vec<RefreshToken> = self
-            .db
-            .create("refresh_tokens")
-            .content(refresh_token)
+        self.db
+            .query(&query)
             .await
             .map_err(|e| AuthError::DatabaseError(e.to_string()))?;
 

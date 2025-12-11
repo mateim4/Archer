@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Play, Pause, Square, CheckCircle, AlertCircle, Clock, ChevronRight, Settings, RotateCcw } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
-import { PurpleGlassButton, PurpleGlassDropdown } from '../components/ui';
+import { PurpleGlassButton, PurpleGlassDropdown, PageHeader } from '../components/ui';
+import { FlowRegular } from '@fluentui/react-icons';
 
 interface WorkflowStep {
   id: string;
@@ -257,27 +258,25 @@ const WorkflowsView: React.FC = () => {
 
   return (
     <div className="lcm-page-container">
-      <div className="lcm-card">
-        <div className="lcm-page-header">
-          <div>
-            <h1 className="lcm-page-title">Workflows</h1>
-            <p className="lcm-page-subtitle">Execute guided workflows for assessment, sizing, migration, and validation</p>
-          </div>
-          <div className="flex gap-4">
-            <PurpleGlassDropdown
-              options={[
-                { value: 'all', label: 'All Categories' },
-                { value: 'assessment', label: 'Assessment' },
-                { value: 'sizing', label: 'Sizing' },
-                { value: 'migration', label: 'Migration' },
-                { value: 'validation', label: 'Validation' }
-              ]}
-              value={selectedCategory}
-              onChange={(value) => setSelectedCategory(value as string)}
-              glass="light"
-            />
-          </div>
-        </div>
+      <PageHeader
+        icon={<FlowRegular />}
+        title="Workflows"
+        subtitle="Execute guided workflows for assessment, sizing, migration, and validation"
+        actions={
+          <PurpleGlassDropdown
+            options={[
+              { value: 'all', label: 'All Categories' },
+              { value: 'assessment', label: 'Assessment' },
+              { value: 'sizing', label: 'Sizing' },
+              { value: 'migration', label: 'Migration' },
+              { value: 'validation', label: 'Validation' }
+            ]}
+            value={selectedCategory}
+            onChange={(value) => setSelectedCategory(value as string)}
+            glass="light"
+          />
+        }
+      />
 
         {/* Workflows List */}
         <div className="space-y-4 mb-8">
@@ -459,7 +458,6 @@ const WorkflowsView: React.FC = () => {
             </div>
           </div>
         )}
-      </div>
     </div>
   );
 };

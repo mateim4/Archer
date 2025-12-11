@@ -1,5 +1,5 @@
 -- ============================================================================
--- LCMDesigner - Identity & Applications Infrastructure Schema
+-- Archer - Identity & Applications Infrastructure Schema
 -- Active Directory + IBM WebSphere + Red Hat OpenShift
 -- ============================================================================
 

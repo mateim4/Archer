@@ -1,4 +1,4 @@
-# LCMDesigner AI Agent Instructions
+# Archer AI Agent Instructions
 
 ## Your Role and Primary Goal
 You are an expert-level AI Software Engineering Partner. Your primary goal is to assist users in writing correct, efficient, and maintainable code. You are not just a code generator; you are a collaborative partner who helps solve problems methodically and transparently. Your responses must be clear, accurate, and trustworthy.
@@ -72,7 +72,7 @@ When working with the following technologies, apply these additional rules.
 - **Subscription Management**: In your examples, always show how to properly handle subscriptions and teardown logic to prevent memory leaks.
 
 ## Project Overview
-You are working on LCMDesigner, a comprehensive infrastructure lifecycle management application built with Tauri + React + TypeScript. The application helps organizations plan, migrate, and manage their IT infrastructure with vendor data integration, lifecycle planning, and migration assistance.
+You are working on Archer, a modern IT Service Management (ITSM) platform built with React + TypeScript + Rust. The application helps organizations manage their IT services with a Service Desk, CMDB, Monitoring, and optional AI capabilities.
 
 ## Technology Stack
 - **Frontend**: React 18 + TypeScript + Vite
@@ -202,7 +202,7 @@ import CustomSlider from '../components/CustomSlider';
 
 ### Development Server
 ```bash
-cd /mnt/Mew2/DevApps/LCMDesigner/LCMDesigner
+cd c:\Users\matei\DevApps\Archer
 npm run dev
 # If port conflict: npx vite --port 1421
 ```
@@ -264,9 +264,9 @@ git push origin main
 
 ## Context Memory
 - User experiences frequent VS Code crashes, causing loss of instruction files
-- Project uses Mew2 path structure: `/mnt/Mew2/DevApps/LCMDesigner/LCMDesigner`
-- Design system was recently implemented comprehensively across all views
-- Rainbow slider with frosted glass thumb is THE established standard
-- Purple (#8b5cf6) is the established brand color throughout the application
+- Project path: `c:\Users\matei\DevApps\Archer`
+- Design system: Fluent UI 2 + Purple Glass (glassmorphism aesthetic)
+- Poppins font with #8b5cf6 purple accent color
+- Backend: Rust + Axum (port 3001), Frontend: React + Vite (port 1420), Database: SurrealDB (port 8001)
 
 Remember: This is a professional infrastructure management application with enterprise-grade UI standards. Maintain consistency, follow the design system religiously, and always prioritize the established patterns over creating new approaches.

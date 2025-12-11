@@ -1,4 +1,4 @@
-// LCMDesigner Backend Library
+// Archer Backend Library
 // This file serves as the main library entry point for the backend
 // Provides modular access to all backend services
 

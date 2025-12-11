@@ -108,16 +108,16 @@ const GuidesView: React.FC = () => {
     // Getting Started
     {
       id: 'getting-started',
-      title: 'Getting Started with LCMDesigner',
-      description: 'Learn the basics of project creation, navigation, and understanding the LCMDesigner interface',
+      title: 'Getting Started with Archer',
+      description: 'Learn the basics of project creation, navigation, and understanding the Archer interface',
       category: 'general',
       type: 'documentation',
       duration: '10 min',
       difficulty: 'beginner',
       sections: [
         {
-          title: 'Welcome to LCMDesigner',
-          content: 'LCMDesigner is a comprehensive lifecycle management platform designed to help you plan, execute, and track infrastructure migrations and hardware lifecycle projects. This guide will walk you through the core concepts and help you get productive quickly.'
+          title: 'Welcome to Archer',
+          content: 'Archer is a comprehensive lifecycle management platform designed to help you plan, execute, and track infrastructure migrations and hardware lifecycle projects. This guide will walk you through the core concepts and help you get productive quickly.'
         },
         {
           title: 'Understanding the Interface',
@@ -155,7 +155,7 @@ const GuidesView: React.FC = () => {
       sections: [
         {
           title: 'Project Types',
-          content: 'LCMDesigner supports two main project types: Migration Projects for moving workloads between environments, and Lifecycle Projects for managing hardware refresh cycles and decommissioning.'
+          content: 'Archer supports two main project types: Migration Projects for moving workloads between environments, and Lifecycle Projects for managing hardware refresh cycles and decommissioning.'
         },
         {
           title: 'Creating a New Project',
@@ -195,7 +195,7 @@ const GuidesView: React.FC = () => {
       sections: [
         {
           title: 'Migration Planning Overview',
-          content: 'Successful migrations require careful planning across discovery, assessment, design, execution, and validation phases. LCMDesigner provides tools for each phase to ensure nothing falls through the cracks.'
+          content: 'Successful migrations require careful planning across discovery, assessment, design, execution, and validation phases. Archer provides tools for each phase to ensure nothing falls through the cracks.'
         },
         {
           title: 'Discovery Phase',
@@ -236,7 +236,7 @@ const GuidesView: React.FC = () => {
       sections: [
         {
           title: 'What is RVTools?',
-          content: 'RVTools is a free utility that exports detailed information from VMware vCenter environments. LCMDesigner can import this data to provide a comprehensive view of your source infrastructure.'
+          content: 'RVTools is a free utility that exports detailed information from VMware vCenter environments. Archer can import this data to provide a comprehensive view of your source infrastructure.'
         },
         {
           title: 'Preparing Your Export',
@@ -251,7 +251,7 @@ const GuidesView: React.FC = () => {
           ]
         },
         {
-          title: 'Importing into LCMDesigner',
+          title: 'Importing into Archer',
           type: 'steps',
           content: 'Upload and process your RVTools data:',
           steps: [
@@ -400,7 +400,7 @@ const GuidesView: React.FC = () => {
       sections: [
         {
           title: 'Lifecycle Management Overview',
-          content: 'Hardware lifecycle management ensures your infrastructure remains supportable, secure, and cost-effective. LCMDesigner tracks warranty expirations, end-of-support dates, and helps plan timely hardware refreshes.'
+          content: 'Hardware lifecycle management ensures your infrastructure remains supportable, secure, and cost-effective. Archer tracks warranty expirations, end-of-support dates, and helps plan timely hardware refreshes.'
         },
         {
           title: 'Key Lifecycle Stages',
@@ -684,7 +684,7 @@ const GuidesView: React.FC = () => {
       sections: [
         {
           title: 'Document Generation Overview',
-          content: 'LCMDesigner can automatically generate professional project documentation. This includes HLD/LLD documents, network diagrams, and Bills of Materials based on your project data.'
+          content: 'Archer can automatically generate professional project documentation. This includes HLD/LLD documents, network diagrams, and Bills of Materials based on your project data.'
         },
         {
           title: 'Available Document Types',
@@ -758,7 +758,7 @@ const GuidesView: React.FC = () => {
     {
       id: 'api-integration',
       title: 'API Integration Guide',
-      description: 'Integrate LCMDesigner with external systems using the REST API',
+      description: 'Integrate Archer with external systems using the REST API',
       category: 'general',
       type: 'documentation',
       duration: '40 min',
@@ -766,7 +766,7 @@ const GuidesView: React.FC = () => {
       sections: [
         {
           title: 'API Overview',
-          content: 'LCMDesigner provides a comprehensive REST API for integration with external systems. The API supports all core operations including project management, asset operations, ticket creation, and data import/export.'
+          content: 'Archer provides a comprehensive REST API for integration with external systems. The API supports all core operations including project management, asset operations, ticket creation, and data import/export.'
         },
         {
           title: 'Authentication',
@@ -808,7 +808,7 @@ const GuidesView: React.FC = () => {
       sections: [
         {
           title: 'Data Collection Overview',
-          content: 'Accurate infrastructure data is the foundation of successful migrations. LCMDesigner supports multiple data collection methods to accommodate different environments and security requirements.'
+          content: 'Accurate infrastructure data is the foundation of successful migrations. Archer supports multiple data collection methods to accommodate different environments and security requirements.'
         },
         {
           title: 'Supported Data Sources',
@@ -927,7 +927,7 @@ const GuidesView: React.FC = () => {
             fontFamily: DesignTokens.typography.fontFamily,
             margin: 0
           }}>
-            Comprehensive guides and tutorials to help you get the most out of LCMDesigner
+            Comprehensive guides and tutorials to help you get the most out of Archer
           </p>
         </div>
       </div>

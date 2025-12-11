@@ -28,6 +28,7 @@ import {
   PurpleGlassModal,
   PurpleGlassBreadcrumb,
   PurpleGlassTextarea,
+  PageHeader,
 } from '../components/ui';
 import {
   apiClient,
@@ -615,34 +616,30 @@ export function RoleManagementView() {
       <PurpleGlassBreadcrumb items={breadcrumbItems} />
       
       {/* Header */}
-      <div className={styles.header}>
-        <div className={styles.headerLeft}>
-          <Text className={styles.title}>
-            <ShieldPersonRegular />
-            Role Management
-          </Text>
-          <Text className={styles.subtitle}>
-            Define roles and assign permissions to control access
-          </Text>
-        </div>
-        <div className={styles.headerRight}>
-          <PurpleGlassButton
-            variant="secondary"
-            icon={<ArrowSyncRegular />}
-            onClick={loadData}
-            disabled={isLoading}
-          >
-            Refresh
-          </PurpleGlassButton>
-          <PurpleGlassButton
-            variant="primary"
-            icon={<AddRegular />}
-            onClick={handleCreateRole}
-          >
-            Create Role
-          </PurpleGlassButton>
-        </div>
-      </div>
+      <PageHeader
+        icon={<ShieldPersonRegular />}
+        title="Role Management"
+        subtitle="Define roles and assign permissions to control access"
+        actions={
+          <div className={styles.headerRight}>
+            <PurpleGlassButton
+              variant="secondary"
+              icon={<ArrowSyncRegular />}
+              onClick={loadData}
+              disabled={isLoading}
+            >
+              Refresh
+            </PurpleGlassButton>
+            <PurpleGlassButton
+              variant="primary"
+              icon={<AddRegular />}
+              onClick={handleCreateRole}
+            >
+              Create Role
+            </PurpleGlassButton>
+          </div>
+        }
+      />
       
       {/* Toolbar */}
       <div className={styles.toolbar}>

@@ -99,7 +99,7 @@ pub fn api_router(state: AppState) -> Router {
 async fn health_check() -> ApiResponse<serde_json::Value> {
     helpers::ok(serde_json::json!({
         "status": "OK",
-        "message": "InfraAID backend is running",
+        "message": "Archer backend is running",
         "version": "1.0.0",
         "api_version": "v1"
     }))

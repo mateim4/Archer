@@ -1,5 +1,5 @@
 // ============================================================================
-// LCMDesigner - HLD Preview Component
+// Archer - HLD Preview Component
 // ============================================================================
 // Purpose: Preview HLD document structure and export to Word
 // Features: Section list, variable summary, export button, loading states

@@ -51,11 +51,9 @@ import {
   DocumentText24Regular,
 } from '@fluentui/react-icons';
 import { PurpleGlassDropdown, PurpleGlassInput } from '../components/ui';
-import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer } from 'recharts';
+import { VisxBarChart, VisxLineChart } from '../components/charts';
+import { ParentSize } from '@visx/responsive';
 import { Group } from '@visx/group';
-import { Bar as VisxBar } from '@visx/shape';
-import { scaleLinear, scaleBand } from '@visx/scale';
-import { AxisLeft, AxisBottom } from '@visx/axis';
 
 const useStyles = makeStyles({
   root: {
@@ -465,18 +463,22 @@ export const HardwareLifecycleView: React.FC = () => {
                       <Title3 style={{ marginBottom: tokens.spacingVerticalL }}>
                         Capacity Utilization by Cluster
                       </Title3>
-                      <ResponsiveContainer width="100%" height={300}>
-                        <BarChart data={capacityData}>
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey="name" />
-                          <YAxis />
-                          <RechartsTooltip />
-                          <Legend />
-                          <Bar dataKey="cpu" fill={tokens.colorBrandBackground} name="CPU %" />
-                          <Bar dataKey="memory" fill={tokens.colorBrandBackground2} name="Memory %" />
-                          <Bar dataKey="eolHosts" fill={tokens.colorPaletteRedBackground3} name="EOL Hosts %" />
-                        </BarChart>
-                      </ResponsiveContainer>
+                      <ParentSize>
+                        {({ width }) => (
+                          <VisxBarChart
+                            data={capacityData.flatMap(d => [
+                              { label: `${d.name} CPU`, value: d.cpu, category: 'CPU %' },
+                              { label: `${d.name} Mem`, value: d.memory, category: 'Memory %' },
+                              { label: `${d.name} EOL`, value: d.eolHosts, category: 'EOL Hosts %' }
+                            ])}
+                            width={width}
+                            height={300}
+                            showGrid
+                            showLegend
+                            colorScheme={['var(--primary)', '#6366f1', '#ef4444']}
+                          />
+                        )}
+                      </ParentSize>
                     </div>
                   )}
                 </div>
@@ -532,29 +534,21 @@ export const HardwareLifecycleView: React.FC = () => {
               <Title3 style={{ marginBottom: tokens.spacingVerticalL }}>
                 Cluster Resource Distribution
               </Title3>
-              <ResponsiveContainer width="100%" height={400}>
-                <LineChart data={clusterMetrics}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <RechartsTooltip />
-                  <Legend />
-                  <Line 
-                    type="monotone" 
-                    dataKey="utilizationCPU" 
-                    stroke={tokens.colorBrandBackground}
-                    strokeWidth={2}
-                    name="CPU Utilization %"
+              <ParentSize>
+                {({ width }) => (
+                  <VisxBarChart
+                    data={clusterMetrics.flatMap(d => [
+                      { label: d.name, value: d.utilizationCPU, category: 'CPU Utilization %' },
+                      { label: d.name, value: d.utilizationMemory, category: 'Memory Utilization %' }
+                    ])}
+                    width={width}
+                    height={400}
+                    showGrid
+                    showLegend
+                    colorScheme={['var(--primary)', '#6366f1']}
                   />
-                  <Line 
-                    type="monotone" 
-                    dataKey="utilizationMemory" 
-                    stroke={tokens.colorBrandBackground2}
-                    strokeWidth={2}
-                    name="Memory Utilization %"
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+                )}
+              </ParentSize>
 
               <div style={{ marginTop: tokens.spacingVerticalXL }}>
                 <Title3>Cluster Summary</Title3>

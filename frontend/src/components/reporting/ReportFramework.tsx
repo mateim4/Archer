@@ -568,7 +568,7 @@ export const DEFAULT_RVTOOLS_TEMPLATES: ReportTemplate[] = [
     ],
     brand_config: {
       primary_color: DESIGN_TOKENS.colors.primary,
-      company_name: 'LCMDesigner',
+      company_name: 'Archer',
     }
   }
 ];

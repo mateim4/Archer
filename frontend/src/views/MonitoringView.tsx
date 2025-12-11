@@ -7,7 +7,8 @@ import {
   CreateIncidentModal,
   LinkedAssetBadge,
   AlertContext,
-  CreateIncidentData
+  CreateIncidentData,
+  PageHeader
 } from '../components/ui';
 import { 
   SearchRegular,
@@ -29,17 +30,8 @@ import {
   DataAreaRegular,
   CheckmarkRegular
 } from '@fluentui/react-icons';
-import { 
-  LineChart, 
-  Line, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer,
-  AreaChart,
-  Area
-} from 'recharts';
+import { VisxAreaChart, VisxLineChart } from '../components/charts';
+import { ParentSize } from '@visx/responsive';
 import { apiClient, Asset, AssetMetrics, DashboardSummary, Alert } from '../utils/apiClient';
 import { useEnhancedUX } from '../hooks/useEnhancedUX';
 import { purplePalette } from '../styles/design-tokens';
@@ -201,49 +193,34 @@ const MonitoringView: React.FC = () => {
     <GlassmorphicLayout>
       <div className="h-full flex flex-col p-6 space-y-6 overflow-hidden">
         {/* Header & Summary */}
-        <div className="flex justify-between items-end shrink-0">
-          <div>
-            <h1 style={{ 
-              margin: 0,
-              fontSize: 'var(--lcm-font-size-xxxl, 32px)',
-              fontWeight: 600,
-              color: 'var(--text-primary)',
-              fontFamily: 'var(--lcm-font-family-heading, Poppins, sans-serif)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px'
-            }}>
-              <PulseRegular style={{ fontSize: '32px', color: 'var(--icon-default)' }} />
-              Monitoring Dashboard
-            </h1>
-            <p style={{ 
-              margin: '8px 0 0 0',
-              fontSize: '16px',
-              color: 'var(--text-secondary)',
-              fontFamily: 'var(--lcm-font-family-body, Poppins, sans-serif)'
-            }}>Real-time Infrastructure Health & Performance</p>
-          </div>
-          <div className="flex gap-4">
-            <SummaryCard 
-              label="Critical Alerts" 
-              value={summary?.critical_alerts || 0} 
-              color={purplePalette.error} 
-              icon={<ErrorCircleRegular />} 
-            />
-            <SummaryCard 
-              label="Warnings" 
-              value={summary?.warning_alerts || 0} 
-              color={purplePalette.warning} 
-              icon={<WarningRegular />} 
-            />
-            <SummaryCard 
-              label="Avg Health" 
-              value={`${summary?.avg_cluster_health || 0}%`} 
-              color={purplePalette.success} 
-              icon={<CheckmarkCircleRegular />} 
-            />
-          </div>
-        </div>
+        <PageHeader
+          icon={<PulseRegular />}
+          title="Monitoring Dashboard"
+          subtitle="Real-time Infrastructure Health & Performance"
+          withCard={false}
+          actions={
+            <div className="flex gap-4">
+              <SummaryCard 
+                label="Critical Alerts" 
+                value={summary?.critical_alerts || 0} 
+                color={purplePalette.error} 
+                icon={<ErrorCircleRegular />} 
+              />
+              <SummaryCard 
+                label="Warnings" 
+                value={summary?.warning_alerts || 0} 
+                color={purplePalette.warning} 
+                icon={<WarningRegular />} 
+              />
+              <SummaryCard 
+                label="Avg Health" 
+                value={`${summary?.avg_cluster_health || 0}%`} 
+                color={purplePalette.success} 
+                icon={<CheckmarkCircleRegular />} 
+              />
+            </div>
+          }
+        />
 
         {/* Tab Navigation */}
         <div style={{ 
@@ -363,88 +340,52 @@ const MonitoringView: React.FC = () => {
 
                 <PurpleGlassCard glass header="CPU Usage (%)" className="h-64">
                   <div className="w-full h-full p-4">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart data={metrics.cpu_usage}>
-                        <defs>
-                          <linearGradient id="colorCpu" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8}/>
-                            <stop offset="95%" stopColor="#8884d8" stopOpacity={0}/>
-                          </linearGradient>
-                        </defs>
-                        <CartesianGrid strokeDasharray="3 3" stroke="var(--card-border)" />
-                        <XAxis 
-                          dataKey="timestamp" 
-                          tickFormatter={formatTime} 
-                          stroke="var(--text-muted)" 
-                          tick={{fill: 'var(--text-secondary)', fontSize: 12}}
+                    <ParentSize>
+                      {({ width, height }) => (
+                        <VisxAreaChart
+                          data={metrics.cpu_usage}
+                          width={width}
+                          height={Math.max(height - 20, 150)}
+                          showGrid
+                          showLine
+                          colorScheme={['#8b5cf6']}
                         />
-                        <YAxis 
-                          stroke="var(--text-muted)" 
-                          tick={{fill: 'var(--text-secondary)', fontSize: 12}}
-                        />
-                        <Tooltip 
-                          contentStyle={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--card-border)' }}
-                          labelFormatter={(label) => new Date(label).toLocaleString()}
-                        />
-                        <Area type="monotone" dataKey="value" stroke="#8884d8" fillOpacity={1} fill="url(#colorCpu)" />
-                      </AreaChart>
-                    </ResponsiveContainer>
+                      )}
+                    </ParentSize>
                   </div>
                 </PurpleGlassCard>
 
                 <PurpleGlassCard glass header="Memory Usage (%)" className="h-64">
                   <div className="w-full h-full p-4">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart data={metrics.memory_usage}>
-                        <defs>
-                          <linearGradient id="colorMem" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#82ca9d" stopOpacity={0.8}/>
-                            <stop offset="95%" stopColor="#82ca9d" stopOpacity={0}/>
-                          </linearGradient>
-                        </defs>
-                        <CartesianGrid strokeDasharray="3 3" stroke="var(--card-border)" />
-                        <XAxis 
-                          dataKey="timestamp" 
-                          tickFormatter={formatTime} 
-                          stroke="var(--text-muted)" 
-                          tick={{fill: 'var(--text-secondary)', fontSize: 12}}
+                    <ParentSize>
+                      {({ width, height }) => (
+                        <VisxAreaChart
+                          data={metrics.memory_usage}
+                          width={width}
+                          height={Math.max(height - 20, 150)}
+                          showGrid
+                          showLine
+                          colorScheme={['#10b981']}
                         />
-                        <YAxis 
-                          stroke="var(--text-muted)" 
-                          tick={{fill: 'var(--text-secondary)', fontSize: 12}}
-                        />
-                        <Tooltip 
-                          contentStyle={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--card-border)' }}
-                          labelFormatter={(label) => new Date(label).toLocaleString()}
-                        />
-                        <Area type="monotone" dataKey="value" stroke="#82ca9d" fillOpacity={1} fill="url(#colorMem)" />
-                      </AreaChart>
-                    </ResponsiveContainer>
+                      )}
+                    </ParentSize>
                   </div>
                 </PurpleGlassCard>
 
                 <PurpleGlassCard glass header="Network Throughput (Mbps)" className="h-64">
                   <div className="w-full h-full p-4">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={metrics.network_throughput}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="var(--card-border)" />
-                        <XAxis 
-                          dataKey="timestamp" 
-                          tickFormatter={formatTime} 
-                          stroke="var(--text-muted)" 
-                          tick={{fill: 'var(--text-secondary)', fontSize: 12}}
+                    <ParentSize>
+                      {({ width, height }) => (
+                        <VisxLineChart
+                          data={metrics.network_throughput}
+                          width={width}
+                          height={Math.max(height - 20, 150)}
+                          showGrid
+                          showDots={false}
+                          colorScheme={['#f59e0b']}
                         />
-                        <YAxis 
-                          stroke="var(--text-muted)" 
-                          tick={{fill: 'var(--text-secondary)', fontSize: 12}}
-                        />
-                        <Tooltip 
-                          contentStyle={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--card-border)' }}
-                          labelFormatter={(label) => new Date(label).toLocaleString()}
-                        />
-                        <Line type="monotone" dataKey="value" stroke="#ffc658" strokeWidth={2} dot={false} />
-                      </LineChart>
-                    </ResponsiveContainer>
+                      )}
+                    </ParentSize>
                   </div>
                 </PurpleGlassCard>
               </>

@@ -34,6 +34,7 @@ import {
   PurpleGlassInput,
   PurpleGlassButton,
   PurpleGlassSwitch,
+  PageHeader,
 } from '../components/ui';
 import type { DropdownOption } from '../components/ui';
 
@@ -1064,38 +1065,11 @@ const SettingsView: React.FC = () => {
   return (
     <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
       {/* Page Header */}
-      <div className="purple-glass-card static" style={{
-        padding: '24px',
-        marginBottom: '24px',
-      }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}>
-          <div>
-            <h1 style={{
-              margin: 0,
-              fontSize: 'var(--lcm-font-size-xxxl, 32px)',
-              fontWeight: 600,
-              color: 'var(--text-primary)',
-              fontFamily: 'var(--lcm-font-family-heading, Poppins, sans-serif)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px',
-            }}>
-              <SettingsRegular style={{ fontSize: '32px', color: 'var(--icon-default)' }} />
-              Settings
-            </h1>
-            <p style={{
-              margin: '8px 0 0 0',
-              fontSize: '16px',
-              color: 'var(--text-secondary)',
-              fontFamily: 'var(--lcm-font-family-body, Poppins, sans-serif)',
-            }}>
-              Configure application settings and preferences
-            </p>
-          </div>
+      <PageHeader
+        icon={<SettingsRegular />}
+        title="Settings"
+        subtitle="Configure application settings and preferences"
+        actions={
           <PurpleGlassButton
             variant="primary"
             onClick={handleSave}
@@ -1113,8 +1087,8 @@ const SettingsView: React.FC = () => {
               </>
             )}
           </PurpleGlassButton>
-        </div>
-      </div>
+        }
+      />
 
       {/* Main Layout */}
       <div style={{

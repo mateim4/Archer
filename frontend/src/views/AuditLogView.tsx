@@ -31,6 +31,7 @@ import {
   PurpleGlassDropdown,
   PurpleGlassBreadcrumb,
   PurpleGlassDataTable,
+  PageHeader,
   type TableColumn,
 } from '../components/ui';
 import {
@@ -608,35 +609,31 @@ export function AuditLogView() {
       <PurpleGlassBreadcrumb items={breadcrumbItems} />
       
       {/* Header */}
-      <div className={styles.header}>
-        <div className={styles.headerLeft}>
-          <Text className={styles.title}>
-            <HistoryRegular />
-            Audit Log
-          </Text>
-          <Text className={styles.subtitle}>
-            Track all system activities and security events
-          </Text>
-        </div>
-        <div className={styles.headerRight}>
-          <PurpleGlassButton
-            variant="secondary"
-            icon={<ArrowDownloadRegular />}
-            onClick={handleExport}
-            disabled={filteredLogs.length === 0}
-          >
-            Export CSV
-          </PurpleGlassButton>
-          <PurpleGlassButton
-            variant="secondary"
-            icon={<ArrowSyncRegular />}
-            onClick={loadData}
-            disabled={isLoading}
-          >
-            Refresh
-          </PurpleGlassButton>
-        </div>
-      </div>
+      <PageHeader
+        icon={<HistoryRegular />}
+        title="Audit Log"
+        subtitle="Track all system activities and security events"
+        actions={
+          <div className={styles.headerRight}>
+            <PurpleGlassButton
+              variant="secondary"
+              icon={<ArrowDownloadRegular />}
+              onClick={handleExport}
+              disabled={filteredLogs.length === 0}
+            >
+              Export CSV
+            </PurpleGlassButton>
+            <PurpleGlassButton
+              variant="secondary"
+              icon={<ArrowSyncRegular />}
+              onClick={loadData}
+              disabled={isLoading}
+            >
+              Refresh
+            </PurpleGlassButton>
+          </div>
+        }
+      />
       
       {/* Stats */}
       <div className={styles.stats}>

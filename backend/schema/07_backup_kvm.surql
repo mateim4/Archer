@@ -1,5 +1,5 @@
 -- ============================================================================
--- LCMDesigner - Backup & KVM Infrastructure Schema
+-- Archer - Backup & KVM Infrastructure Schema
 -- Veeam Backup + Avocent KVM
 -- ============================================================================
 

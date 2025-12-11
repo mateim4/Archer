@@ -1,6 +1,6 @@
 /**
- * Network Graph Type Definitions for LCMDesigner Infra-Visualizer
- * Adapted from Infra-Visualizer project with LCMDesigner-specific extensions
+ * Network Graph Type Definitions for Archer Infra-Visualizer
+ * Adapted from Infra-Visualizer project with Archer-specific extensions
  */
 
 import type { HTMLAttributes } from 'react';
@@ -24,11 +24,11 @@ export type NodeType =
   | 'vmkernel-adapter'
   | 'management-vnic'
   | 'controller-vm'
-  | 'virtual-machine'  // LCMDesigner extension
-  | 'cluster'          // LCMDesigner extension
-  | 'datastore'        // LCMDesigner extension
-  | 'resource-pool'    // LCMDesigner extension
-  | 'datacenter';      // LCMDesigner extension
+  | 'virtual-machine'  // Archer extension
+  | 'cluster'          // Archer extension
+  | 'datastore'        // Archer extension
+  | 'resource-pool'    // Archer extension
+  | 'datacenter';      // Archer extension
 
 export type EdgeType =
   | 'contains'
@@ -41,8 +41,8 @@ export type EdgeType =
   | 'cluster-membership'
   | 'internal-link'
   | 'spans-hosts'
-  | 'uses-storage'     // LCMDesigner extension
-  | 'in-resource-pool'; // LCMDesigner extension
+  | 'uses-storage'     // Archer extension
+  | 'in-resource-pool'; // Archer extension
 
 // ============================================================================
 // LAYOUT & DIMENSIONS
@@ -185,7 +185,7 @@ export interface ControllerVmNodeData extends BaseNodeData {
 }
 
 // ============================================================================
-// LCMDESIGNER EXTENSIONS - VIRTUALIZATION LAYER
+// ARCHER EXTENSIONS - VIRTUALIZATION LAYER
 // ============================================================================
 
 export interface VirtualMachineNodeData extends BaseNodeData {
@@ -325,7 +325,7 @@ export interface SpansHostsEdgeData extends BaseEdgeData {
   hosts?: string[];
 }
 
-// LCMDesigner Extensions
+// Archer Extensions
 export interface UsesStorageEdgeData extends BaseEdgeData {
   kind: 'uses-storage';
   datastoreId?: string;

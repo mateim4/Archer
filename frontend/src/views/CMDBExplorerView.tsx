@@ -7,6 +7,7 @@ import {
   PurpleGlassDropdown,
   PurpleGlassSpinner,
   PurpleGlassEmptyState,
+  PageHeader,
 } from '../components/ui';
 import {
   SearchRegular,
@@ -194,24 +195,28 @@ const CMDBExplorerView: React.FC = () => {
   return (
     <div style={{ padding: '24px', maxWidth: '1400px', margin: '0 auto' }}>
       {/* Header */}
-      <div style={{ marginBottom: '24px' }}>
-        <h1 style={{
-          fontSize: FluentTokens.typography.fontSize[900],
-          fontWeight: FluentTokens.typography.fontWeight.semibold,
-          margin: 0,
-          marginBottom: '8px',
-          color: 'var(--colorNeutralForeground1)',
-        }}>
-          Configuration Management Database
-        </h1>
-        <p style={{
-          fontSize: FluentTokens.typography.fontSize[400],
-          color: 'var(--colorNeutralForeground2)',
-          margin: 0,
-        }}>
-          Manage and track all configuration items and their relationships
-        </p>
-      </div>
+      <PageHeader
+        icon={<DatabaseRegular />}
+        title="Configuration Management Database"
+        subtitle="Manage and track all configuration items and their relationships"
+        actions={
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <PurpleGlassButton
+              onClick={loadCIs}
+              icon={<ArrowSyncRegular />}
+            >
+              Refresh
+            </PurpleGlassButton>
+            <PurpleGlassButton
+              onClick={handleCreateNew}
+              icon={<AddRegular />}
+              variant="primary"
+            >
+              Create CI
+            </PurpleGlassButton>
+          </div>
+        }
+      />
 
       {/* Search and Filters */}
       <PurpleGlassCard style={{ marginBottom: '24px', padding: '20px' }}>

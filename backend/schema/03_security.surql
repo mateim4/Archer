@@ -1,5 +1,5 @@
 -- ============================================================================
--- LCMDesigner - Security Infrastructure Schema
+-- Archer - Security Infrastructure Schema
 -- Fortinet (FortiManager, FortiGate, FortiAnalyzer) + Broadcom SWG
 -- ============================================================================
 

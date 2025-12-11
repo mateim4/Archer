@@ -37,6 +37,7 @@ import {
   PurpleGlassModal,
   PurpleGlassBreadcrumb,
   PurpleGlassDataTable,
+  PageHeader,
   type TableColumn,
 } from '../components/ui';
 import { useAuth } from '../contexts/AuthContext';
@@ -792,34 +793,30 @@ export function UserManagementView() {
       <PurpleGlassBreadcrumb items={breadcrumbItems} />
       
       {/* Header */}
-      <div className={styles.header}>
-        <div className={styles.headerLeft}>
-          <Text className={styles.title}>
-            <PeopleTeamRegular />
-            User Management
-          </Text>
-          <Text className={styles.subtitle}>
-            Manage users, roles, and permissions for your organization
-          </Text>
-        </div>
-        <div className={styles.headerRight}>
-          <PurpleGlassButton
-            variant="secondary"
-            icon={<ArrowSyncRegular />}
-            onClick={loadData}
-            disabled={isLoading}
-          >
-            Refresh
-          </PurpleGlassButton>
-          <PurpleGlassButton
-            variant="primary"
-            icon={<PersonAddRegular />}
-            onClick={handleCreateUser}
-          >
-            Add User
-          </PurpleGlassButton>
-        </div>
-      </div>
+      <PageHeader
+        icon={<PeopleTeamRegular />}
+        title="User Management"
+        subtitle="Manage users, roles, and permissions for your organization"
+        actions={
+          <div className={styles.headerRight}>
+            <PurpleGlassButton
+              variant="secondary"
+              icon={<ArrowSyncRegular />}
+              onClick={loadData}
+              disabled={isLoading}
+            >
+              Refresh
+            </PurpleGlassButton>
+            <PurpleGlassButton
+              variant="primary"
+              icon={<PersonAddRegular />}
+              onClick={handleCreateUser}
+            >
+              Add User
+            </PurpleGlassButton>
+          </div>
+        }
+      />
       
       {/* Stats */}
       <div className={styles.stats}>

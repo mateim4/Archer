@@ -1,7 +1,7 @@
 /**
  * ESLint Plugin: local-rules
  * 
- * Custom ESLint rules for LCMDesigner design system enforcement.
+ * Custom ESLint rules for Archer design system enforcement.
  * 
  * Rules:
  * - no-hardcoded-colors: Prevents hardcoded color values (hex, rgb, rgba)

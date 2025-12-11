@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { PurpleGlassCard, PurpleGlassButton } from '../components/ui';
+import { PurpleGlassCard, PurpleGlassButton, PageHeader } from '../components/ui';
 import {
   DataBarHorizontalRegular,
   DataPieRegular,
@@ -7,33 +7,17 @@ import {
   GaugeRegular,
   AddRegular,
   ArrowClockwiseRegular,
-  CalendarMonthRegular
+  CalendarMonthRegular,
+  ChartMultipleRegular
 } from '@fluentui/react-icons';
 import { apiClient } from '../utils/apiClient';
 import { tokens } from '@fluentui/react-components';
-import {
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  Cell,
-} from 'recharts';
-
-const COLORS = [
-  tokens.colorPalettePurpleBorderActive,
-  tokens.colorPaletteBlueBorderActive,
-  tokens.colorPaletteGreenBorderActive,
-  tokens.colorPaletteYellowBorderActive,
-  tokens.colorPaletteMarigoldBorderActive,
-];
+import { 
+  VisxBarChart, 
+  VisxPieChart, 
+  VisxLineChart 
+} from '../components/charts';
+import { ParentSize } from '@visx/responsive';
 
 interface DashboardWidgetProps {
   widgetId: string;
@@ -152,53 +136,53 @@ const renderWidget = (type: string, data: any) => {
 
     case 'PIE_CHART':
       return (
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
-            <Pie
+        <ParentSize>
+          {({ width, height }) => (
+            <VisxPieChart
               data={data}
-              dataKey="value"
-              nameKey="label"
-              cx="50%"
-              cy="50%"
-              outerRadius={80}
-              label
-            >
-              {data.map((_: any, index: number) => (
-                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-              ))}
-            </Pie>
-            <Tooltip />
-            <Legend />
-          </PieChart>
-        </ResponsiveContainer>
+              width={width}
+              height={Math.max(height, 200)}
+              donut
+              donutThickness={40}
+              showLegend
+              showPercentages
+            />
+          )}
+        </ParentSize>
       );
 
     case 'BAR_CHART':
       return (
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="label" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Bar dataKey="value" fill={tokens.colorBrandBackground} />
-          </BarChart>
-        </ResponsiveContainer>
+        <ParentSize>
+          {({ width, height }) => (
+            <VisxBarChart
+              data={data}
+              width={width}
+              height={Math.max(height, 200)}
+              showGrid
+              showTooltip
+            />
+          )}
+        </ParentSize>
       );
 
     case 'LINE_CHART':
       return (
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="timestamp" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Line type="monotone" dataKey="value" stroke={tokens.colorBrandBackground} />
-          </LineChart>
-        </ResponsiveContainer>
+        <ParentSize>
+          {({ width, height }) => (
+            <VisxLineChart
+              data={data.map((d: any) => ({
+                ...d,
+                timestamp: new Date(Date.now() - (30 - parseInt(d.timestamp.replace('Day ', ''))) * 24 * 60 * 60 * 1000)
+              }))}
+              width={width}
+              height={Math.max(height, 200)}
+              showGrid
+              showArea
+              showDots={false}
+            />
+          )}
+        </ParentSize>
       );
 
     case 'GAUGE':
@@ -376,51 +360,33 @@ export const ReportingDashboardView: React.FC = () => {
       margin: '0 auto',
     }}>
       {/* Header */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: tokens.spacingVerticalXL,
-      }}>
-        <div>
-          <h1 style={{
-            margin: 0,
-            fontSize: tokens.fontSizeHero800,
-            fontWeight: tokens.fontWeightBold,
-            color: tokens.colorNeutralForeground1,
-          }}>
-            Reporting Dashboard
-          </h1>
-          <p style={{
-            margin: `${tokens.spacingVerticalS} 0 0 0`,
-            fontSize: tokens.fontSizeBase300,
-            color: tokens.colorNeutralForeground2,
-          }}>
-            Monitor key metrics and performance indicators
-          </p>
-        </div>
-
-        <div style={{ display: 'flex', gap: tokens.spacingHorizontalM }}>
-          <PurpleGlassButton
-            icon={<CalendarMonthRegular />}
-            glass
-          >
-            Date Range
-          </PurpleGlassButton>
-          <PurpleGlassButton
-            icon={<ArrowClockwiseRegular />}
-            glass
-          >
-            Refresh All
-          </PurpleGlassButton>
-          <PurpleGlassButton
-            icon={<AddRegular />}
-            variant="primary"
-          >
-            Add Widget
-          </PurpleGlassButton>
-        </div>
-      </div>
+      <PageHeader
+        icon={<ChartMultipleRegular />}
+        title="Reporting Dashboard"
+        subtitle="Monitor key metrics and performance indicators"
+        actions={
+          <div style={{ display: 'flex', gap: tokens.spacingHorizontalM }}>
+            <PurpleGlassButton
+              icon={<CalendarMonthRegular />}
+              glass
+            >
+              Date Range
+            </PurpleGlassButton>
+            <PurpleGlassButton
+              icon={<ArrowClockwiseRegular />}
+              glass
+            >
+              Refresh All
+            </PurpleGlassButton>
+            <PurpleGlassButton
+              icon={<AddRegular />}
+              variant="primary"
+            >
+              Add Widget
+            </PurpleGlassButton>
+          </div>
+        }
+      />
 
       {/* Dashboard Grid */}
       <div style={{

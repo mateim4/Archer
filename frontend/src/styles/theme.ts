@@ -1,5 +1,5 @@
 /**
- * LCMDesigner Theme Configuration
+ * Archer Theme Configuration
  * 
  * Fluent UI 2 theme with purple glass customization.
  * This file creates a custom Fluent UI theme that incorporates

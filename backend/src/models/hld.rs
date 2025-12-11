@@ -1,5 +1,5 @@
 // ============================================================================
-// LCMDesigner - HLD (High-Level Design) Generation System - Data Models
+// Archer - HLD (High-Level Design) Generation System - Data Models
 // ============================================================================
 // Purpose: Define Rust data structures for HLD templates, sections, projects, and variables
 // Version: 1.0

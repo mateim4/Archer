@@ -2,7 +2,7 @@
  * Infra-Visualizer Types - Public API
  * 
  * This module exports all type definitions for the infrastructure visualization system.
- * Adapted from Infra-Visualizer project with LCMDesigner-specific extensions.
+ * Adapted from Infra-Visualizer project with Archer-specific extensions.
  */
 
 export type {
@@ -32,7 +32,7 @@ export type {
   VmkernelAdapterNodeData,
   ControllerVmNodeData,
   
-  // Virtualization Node Data (LCMDesigner Extensions)
+  // Virtualization Node Data (Archer Extensions)
   VirtualMachineNodeData,
   ClusterNodeData,
   DatastoreNodeData,

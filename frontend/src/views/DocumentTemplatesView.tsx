@@ -145,7 +145,7 @@ const DocumentTemplatesView: React.FC = () => {
           format: 'docx', // Default format
           size: '2.1 MB', // Estimated size
           lastModified: template.updated_at || template.created_at,
-          author: template.created_by || 'LCMDesigner',
+          author: template.created_by || 'Archer',
           downloads: 0, // Not tracked yet
           isOfficial: template.is_standard,
           content: generateTemplateContent(template),
@@ -208,7 +208,7 @@ const DocumentTemplatesView: React.FC = () => {
       format: 'docx',
       size: '2.3 MB',
       lastModified: new Date().toISOString(),
-      author: 'LCMDesigner Team',
+      author: 'Archer Team',
       downloads: 0,
       isOfficial: true,
       content: '# Demo Template\n\nThis is a fallback template shown when the backend is unavailable.',

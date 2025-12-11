@@ -1,5 +1,5 @@
 -- ============================================================================
--- LCMDesigner - Monitoring Infrastructure Schema
+-- Archer - Monitoring Infrastructure Schema
 -- Splunk + Nagios
 -- ============================================================================
 

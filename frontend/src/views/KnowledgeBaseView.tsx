@@ -6,7 +6,8 @@ import {
   PurpleGlassDropdown,
   PurpleGlassPagination,
   PurpleGlassEmptyState,
-  PurpleGlassSkeleton
+  PurpleGlassSkeleton,
+  PageHeader
 } from '../components/ui';
 import { KBSearchBar } from '../components/kb/KBSearchBar';
 import {
@@ -19,7 +20,8 @@ import {
   EyeRegular,
   PersonRegular,
   CalendarRegular,
-  TagRegular
+  TagRegular,
+  LibraryRegular
 } from '@fluentui/react-icons';
 import { tokens } from '@fluentui/react-components';
 import { apiClient, KBArticle, KBCategory, KBArticleStatus } from '../utils/apiClient';
@@ -383,25 +385,12 @@ export const KnowledgeBaseView: React.FC = () => {
 
   return (
     <div style={{ padding: tokens.spacingVerticalXXL }}>
-      {/* Header */}
-      <div style={{ marginBottom: tokens.spacingVerticalXL }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: tokens.spacingVerticalL }}>
-          <div>
-            <h1 style={{
-              fontSize: tokens.fontSizeHero900,
-              fontWeight: tokens.fontWeightSemibold,
-              color: tokens.colorNeutralForeground1,
-              marginBottom: tokens.spacingVerticalXS,
-            }}>
-              Knowledge Base
-            </h1>
-            <p style={{
-              fontSize: tokens.fontSizeBase300,
-              color: tokens.colorNeutralForeground3,
-            }}>
-              Search and browse technical documentation and guides
-            </p>
-          </div>
+      {/* Header Card */}
+      <PageHeader
+        icon={<LibraryRegular />}
+        title="Knowledge Base"
+        subtitle="Search and browse technical documentation and guides"
+        actions={
           <PurpleGlassButton
             variant="primary"
             icon={<AddRegular />}
@@ -409,8 +398,8 @@ export const KnowledgeBaseView: React.FC = () => {
           >
             Create Article
           </PurpleGlassButton>
-        </div>
-
+        }
+      >
         {/* Search Bar */}
         <div style={{ marginBottom: tokens.spacingVerticalL }}>
           <KBSearchBar
@@ -488,7 +477,7 @@ export const KnowledgeBaseView: React.FC = () => {
             />
           </div>
         </div>
-      </div>
+      </PageHeader>
 
       {/* Content */}
       {isLoading ? (

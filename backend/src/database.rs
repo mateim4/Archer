@@ -21,7 +21,7 @@ pub struct DatabaseConfig {
 impl Default for DatabaseConfig {
     fn default() -> Self {
         Self {
-            namespace: "lcm_designer".to_string(),
+            namespace: "archer".to_string(),
             database: "main_db".to_string(),
             enable_migrations: true,
             connection_pool_size: 10,

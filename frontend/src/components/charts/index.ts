@@ -1,5 +1,18 @@
 // Export all chart components for easy importing
 
+// VISX Chart Components (New - Archer Design System)
+export { VisxBarChart } from './VisxBarChart';
+export type { VisxBarChartProps, BarChartDataPoint } from './VisxBarChart';
+
+export { VisxLineChart } from './VisxLineChart';
+export type { VisxLineChartProps, LineChartDataPoint } from './VisxLineChart';
+
+export { VisxPieChart } from './VisxPieChart';
+export type { VisxPieChartProps, PieChartDataPoint } from './VisxPieChart';
+
+export { VisxAreaChart } from './VisxAreaChart';
+export type { VisxAreaChartProps, AreaChartDataPoint } from './VisxAreaChart';
+
 // Lifecycle Analysis Charts
 export {
   InfrastructureOverviewChart,

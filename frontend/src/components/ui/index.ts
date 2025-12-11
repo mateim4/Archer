@@ -96,6 +96,10 @@ export type { BulkOperationPanelProps, BulkOperation, BulkOperationExecution } f
 export { LinkedAssetBadge } from './LinkedAssetBadge';
 export type { LinkedAssetBadgeProps, AssetStatus, AssetType } from './LinkedAssetBadge';
 
+// Page Header - Standardized page header with icon, title, actions
+export { PageHeader } from './PageHeader';
+export type { PageHeaderProps } from './PageHeader';
+
 // SLA Indicator - Visual timer for SLA tracking
 export { SLAIndicator } from './SLAIndicator';
 export type { SLAIndicatorProps, SLAStatus } from './SLAIndicator';

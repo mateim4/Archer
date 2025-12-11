@@ -10,7 +10,8 @@ import {
   SLAIndicator,
   CreateIncidentModal,
   AlertContext,
-  CreateIncidentData
+  CreateIncidentData,
+  PageHeader
 } from '../components/ui';
 import { 
   AddRegular, 
@@ -520,68 +521,45 @@ const ServiceDeskView: React.FC = () => {
     <div data-testid="service-desk-view" style={{...DesignTokens.components.pageContainer, overflow: 'visible'}}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: DesignTokens.spacing.xl }}>
         {/* Header Section */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', borderBottom: `2px solid ${DesignTokens.colors.primary}20`, paddingBottom: DesignTokens.spacing.lg }}>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-              <h1 style={{ 
-                fontSize: DesignTokens.typography.xxxl, 
-                fontWeight: DesignTokens.typography.semibold, 
-                color: 'var(--text-primary)', 
-                margin: 0, 
-                fontFamily: DesignTokens.typography.fontFamily,
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px'
-              }}>
-                <TicketDiagonalRegular style={{ fontSize: '32px', color: 'var(--icon-default)' }} />
-                Service Desk
-              </h1>
-              <span style={{
-                padding: '2px 8px',
-                borderRadius: DesignTokens.borderRadius.full,
-                background: `${DesignTokens.colors.primary}20`,
-                color: 'var(--brand-primary)',
-                fontSize: DesignTokens.typography.xs,
-                fontWeight: DesignTokens.typography.medium,
-                border: `1px solid ${DesignTokens.colors.primary}30`
-              }}>
-                ITIL v4 Aligned
-              </span>
-            </div>
-            <p style={{ color: 'var(--text-secondary)', fontSize: DesignTokens.typography.base, margin: 0, fontFamily: DesignTokens.typography.fontFamily }}>Manage Incidents, Problems, and Change Requests</p>
-          </div>
-          
-          <div style={{ display: 'flex', gap: '12px' }}>
-            {/* View Mode Toggle */}
-            <div style={{ display: 'flex', borderRadius: DesignTokens.borderRadius.md, overflow: 'hidden', border: `1px solid ${DesignTokens.colors.gray200}` }}>
+        <PageHeader
+          icon={<TicketDiagonalRegular />}
+          title="Service Desk"
+          subtitle="Manage Incidents, Problems, and Change Requests"
+          badge="ITIL v4 Aligned"
+          badgeVariant="primary"
+          actions={
+            <div style={{ display: 'flex', gap: '12px' }}>
+              {/* View Mode Toggle */}
+              <div style={{ display: 'flex', borderRadius: DesignTokens.borderRadius.md, overflow: 'hidden', border: `1px solid ${DesignTokens.colors.gray200}` }}>
+                <PurpleGlassButton 
+                  variant={viewMode === 'list' ? 'primary' : 'ghost'}
+                  size="small"
+                  onClick={() => setViewMode('list')}
+                  icon={<ListRegular />}
+                  glass={viewMode === 'list'}
+                  style={{ borderRadius: '8px 0 0 8px' }}
+                />
+                <PurpleGlassButton 
+                  variant={viewMode === 'kanban' ? 'primary' : 'ghost'}
+                  size="small"
+                  onClick={() => setViewMode('kanban')}
+                  icon={<BoardRegular />}
+                  glass={viewMode === 'kanban'}
+                  style={{ borderRadius: '0 8px 8px 0' }}
+                />
+              </div>
+              
               <PurpleGlassButton 
-                variant={viewMode === 'list' ? 'primary' : 'ghost'}
-                size="small"
-                onClick={() => setViewMode('list')}
-                icon={<ListRegular />}
-                glass={viewMode === 'list'}
-                style={{ borderRadius: '8px 0 0 8px' }}
-              />
-              <PurpleGlassButton 
-                variant={viewMode === 'kanban' ? 'primary' : 'ghost'}
-                size="small"
-                onClick={() => setViewMode('kanban')}
-                icon={<BoardRegular />}
-                glass={viewMode === 'kanban'}
-                style={{ borderRadius: '0 8px 8px 0' }}
-              />
+                variant="primary" 
+                icon={<AddRegular />}
+                glass
+                onClick={() => setCreateModalOpen(true)}
+              >
+                Create Ticket
+              </PurpleGlassButton>
             </div>
-            
-            <PurpleGlassButton 
-              variant="primary" 
-              icon={<AddRegular />}
-              glass
-              onClick={() => setCreateModalOpen(true)}
-            >
-              Create Ticket
-            </PurpleGlassButton>
-          </div>
-        </div>
+          }
+        />
 
         {/* KPI Cards (ServiceNow Killer Feature) */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>

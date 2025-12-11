@@ -1,6 +1,6 @@
 //! Settings Models
 //!
-//! Application-wide settings and defaults for LCMDesigner
+//! Application-wide settings and defaults for Archer
 
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};

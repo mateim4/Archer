@@ -92,7 +92,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     })?;
 
     let addr = SocketAddr::new(host, chosen_port);
-    println!("🚀 LCMDesigner Rust Backend listening on {}", addr);
+    println!("🚀 Archer Rust Backend listening on {}", addr);
     println!("📊 Database initialized and ready");
     println!("🔧 API endpoints:");
     println!("   • Health check: http://{}:{}/health", host, chosen_port);

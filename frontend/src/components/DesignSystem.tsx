@@ -1,4 +1,4 @@
-// LCMDesigner Design System Standards
+// Archer Design System Standards
 // This file defines the standard UI components used throughout the application
 
 import React from 'react';

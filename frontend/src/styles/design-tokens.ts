@@ -1,5 +1,5 @@
 /**
- * LCMDesigner Design Token System
+ * Archer Design Token System
  * 
  * Centralized design tokens following Fluent UI 2 principles
  * while maintaining our purple glass aesthetic.

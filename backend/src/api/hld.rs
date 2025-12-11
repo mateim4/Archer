@@ -1,5 +1,5 @@
 // ============================================================================
-// LCMDesigner - HLD (High-Level Design) Generation System - REST API
+// Archer - HLD (High-Level Design) Generation System - REST API
 // ============================================================================
 // Purpose: REST API endpoints for HLD templates, sections, projects, and variables
 // Version: 1.0

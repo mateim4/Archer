@@ -162,9 +162,9 @@ async function exportToPDF(
         pdf.setProperties({
           title: fileName,
           subject: 'Infrastructure Diagram',
-          author: 'LCMDesigner',
+          author: 'Archer',
           keywords: 'infrastructure, network, visualization',
-          creator: 'LCMDesigner Infrastructure Visualizer',
+          creator: 'Archer Infrastructure Visualizer',
         });
 
         // Download

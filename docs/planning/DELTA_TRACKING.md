@@ -2,8 +2,8 @@
 
 **Document Purpose:** Track all significant changes across agentic coding sessions to ensure continuity and accountability.
 
-**Last Updated:** 2025-12-10T14:30:00Z  
-**Document Version:** 1.4
+**Last Updated:** 2025-12-11T18:30:00Z  
+**Document Version:** 1.9
 
 ---
 
@@ -34,6 +34,199 @@ This document is **mandatory reading and updating** for all AI agents working on
 ## 🔄 Current Session Changes
 
 > *AI Agents: Log your changes here during the session, then move to Completed Log*
+
+### [2025-12-11 18:30] - UI Header Consistency Audit & Fix
+**Type:** Refactor
+**Files Changed:**
+
+**Views Updated with PageHeader Component:**
+- frontend/src/views/KnowledgeBaseView.tsx - Added PageHeader with LibraryRegular icon
+- frontend/src/views/ServiceDeskView.tsx - Replaced custom header with PageHeader (badge support)
+- frontend/src/views/CMDBExplorerView.tsx - Added PageHeader with DatabaseRegular icon
+- frontend/src/views/ReportingDashboardView.tsx - Added PageHeader with ChartMultipleRegular icon
+- frontend/src/views/MonitoringView.tsx - Added PageHeader (withCard=false for borderless style)
+- frontend/src/views/SettingsView.tsx - Replaced custom card header with PageHeader
+- frontend/src/views/UserManagementView.tsx - Replaced Text-based header with PageHeader
+- frontend/src/views/WorkflowsView.tsx - Replaced lcm-card header with PageHeader
+- frontend/src/views/AuditLogView.tsx - Replaced Text-based header with PageHeader
+- frontend/src/views/RoleManagementView.tsx - Replaced Text-based header with PageHeader
+
+**Description:**
+Full UI audit to identify views with inconsistent header patterns. The Dashboard view's header card pattern (`purple-glass-card static` with icon, title, subtitle, and actions) was used as the reference. Created and deployed the `PageHeader` component across 10 key ITSM views to standardize:
+- Icon + Title (32px) + optional badge
+- Subtitle description
+- Right-aligned action buttons
+- Optional children slot for embedded content (search bars, filters, tabs)
+
+**Design Pattern Established:**
+```tsx
+<PageHeader
+  icon={<IconRegular />}
+  title="Page Title"
+  subtitle="Page description text"
+  badge="Optional Badge"  // e.g., "ITIL v4 Aligned"
+  actions={<PurpleGlassButton>Action</PurpleGlassButton>}
+>
+  {/* Optional embedded content: search, filters, tabs */}
+</PageHeader>
+```
+
+**Impact:**
+- All major ITSM views now have consistent header styling
+- PageHeader component is reusable for future views
+- Build successful ✓
+- Remaining views (HardwareLifecycleView, ServiceCatalogView, etc.) have unique layouts that may need custom treatment
+
+**Status:** COMPLETE - Major views standardized
+
+---
+
+### [2025-12-11 15:00] - Project Rename: LCMDesigner/InfraAID → Archer
+**Type:** Refactor
+**Files Changed:**
+
+**Backend (14 files):**
+- backend/src/main.rs - "Archer Rust Backend listening"
+- backend/src/lib.rs - "Archer Backend Library"
+- backend/src/database.rs - namespace: "archer" (was "lcm_designer")
+- backend/src/api/mod.rs - "Archer backend is running"
+- backend/src/services/report_export_service.rs - Company name "Archer"
+- backend/src/models/hld.rs - "Archer - HLD..."
+- backend/src/models/settings_models.rs - "settings for Archer"
+- backend/src/api/hld.rs - "Archer - HLD..."
+- backend/src/models/infrastructure/mod.rs - "Archer - Infrastructure..."
+- backend/schema/*.surql - Updated comments (6 files)
+
+**Frontend (12 files):**
+- frontend/.env.development - VITE_APP_TITLE=Archer
+- frontend/.eslint/index.cjs - "Archer design system enforcement"
+- frontend/src/stores/useInfraVisualizerStore.ts - "Archer-specific extensions"
+- frontend/src/types/infra-visualizer/index.ts - "Archer Extensions"
+- frontend/src/types/infra-visualizer/network-graph.types.ts - "Archer extensions" throughout
+- frontend/src/styles/theme.ts - "Archer Theme Configuration"
+- frontend/src/styles/fonts.css - "Self-hosted fonts for Archer"
+- frontend/src/styles/design-tokens.ts - "Archer Design Token System"
+- frontend/src/styles/tokens.css - "Archer CSS Design Tokens"
+- frontend/src/utils/infra-visualizer/exportUtils.ts - PDF author: "Archer"
+- frontend/src/components/DesignSystem.tsx - "Archer Design System Standards"
+- frontend/src/views/DocumentTemplatesView.tsx - author: "Archer Team"
+- frontend/src/components/hld/HLDPreview.tsx - "Archer - HLD Preview"
+- frontend/src/components/reporting/ReportFramework.tsx - company_name: "Archer"
+- frontend/src/views/GuidesView.tsx - All ~15 LCMDesigner references replaced
+
+**Config (2 files):**
+- .cursorrules - "Archer AI Agent Instructions", updated project context
+- .github/JULES_AGENT_INSTRUCTIONS.md - "Archer" throughout
+
+**Deleted:**
+- frontend/design-token-violations.json - Removed (outdated generated artifact with old paths)
+
+**Description:** 
+Complete project rename from "LCMDesigner" and "InfraAID" to "Archer" throughout the codebase. This includes:
+1. All user-visible strings (app title, PDF author, guide content)
+2. Code comments and documentation headers
+3. Database namespace (lcm_designer → archer)
+4. Configuration files and agent instructions
+
+**Impact:** 
+- **BREAKING:** Database namespace changed from "lcm_designer" to "archer" - requires database re-initialization or namespace migration
+- User-facing strings now consistently say "Archer"
+- Backend builds successfully with new namespace
+
+**Next Steps:**
+1. ~~Standardize page header card styling across views~~ (PageHeader component created)
+2. ~~Replace Recharts with VISX for data visualization~~ (DONE)
+3. Manual UI testing of all features
+
+---
+
+### [2025-12-11 16:30] - VISX Chart Library Integration
+**Type:** Feature
+**Files Changed:**
+
+**New Files Created:**
+- frontend/src/components/charts/VisxBarChart.tsx - Bar chart with tooltips, gradients, grid
+- frontend/src/components/charts/VisxLineChart.tsx - Line chart with area fill, multiple series
+- frontend/src/components/charts/VisxPieChart.tsx - Pie/donut chart with legends, percentages
+- frontend/src/components/charts/VisxAreaChart.tsx - Area chart with gradient fills
+- frontend/src/components/ui/PageHeader.tsx - Standardized page header component
+
+**Modified Files:**
+- frontend/src/components/charts/index.ts - Added VISX component exports
+- frontend/src/components/ui/index.ts - Added PageHeader export
+- frontend/src/views/ReportingDashboardView.tsx - Migrated from Recharts to VISX
+- frontend/package.json - Added VISX dependencies
+
+**Dependencies Added:**
+- @visx/group, @visx/shape, @visx/scale, @visx/axis, @visx/grid
+- @visx/tooltip, @visx/responsive, @visx/gradient, @visx/legend
+- @visx/text, @visx/curve, d3-array
+
+**Description:**
+Replaced Recharts with VISX (AirBnB's visualization library) for better performance and Archer design system integration. Created 4 reusable chart components:
+1. **VisxBarChart** - Vertical bars with gradient fills, tooltips, grid lines
+2. **VisxLineChart** - Time series with optional area fill, multi-series support
+3. **VisxPieChart** - Donut charts with center labels, interactive legends
+4. **VisxAreaChart** - Gradient-filled area charts for trends
+
+Also created **PageHeader** component for consistent page headers across views.
+
+**Impact:**
+- ReportingDashboardView now uses VISX charts
+- Charts match Archer purple glass design system
+- Better tooltip styling with glassmorphic effects
+- Responsive charts via ParentSize wrapper
+
+**Next Steps:**
+1. ~~Migrate MonitoringView charts to VISX~~ ✅ DONE
+2. ~~Migrate HardwareLifecycleView charts to VISX~~ ✅ DONE
+3. Manual UI testing
+
+---
+
+### [2025-12-11 17:00] - Complete VISX Migration for All Views
+**Type:** Refactor
+**Files Changed:**
+- frontend/src/views/MonitoringView.tsx - Replaced Recharts with VisxAreaChart and VisxLineChart
+- frontend/src/views/HardwareLifecycleView.tsx - Replaced Recharts with VisxBarChart
+
+**Description:**
+Completed the migration of all Recharts usage to VISX:
+- **MonitoringView:** CPU Usage, Memory Usage, and Network Throughput charts now use VisxAreaChart/VisxLineChart
+- **HardwareLifecycleView:** Capacity Utilization and Cluster Resource Distribution charts now use VisxBarChart
+
+**Impact:**
+- All 3 views with charts (Reporting, Monitoring, HardwareLifecycle) now use VISX
+- Consistent chart styling across the application
+- Recharts dependency can potentially be removed (check for other usages first)
+- Frontend build successful ✓
+
+**Status:** COMPLETE - All Recharts migrations done
+
+---
+
+### [2025-12-11 12:20] - Authentication Fix + Infrastructure Verification
+**Type:** Bugfix + Infrastructure
+**Files Changed:**
+- backend/src/services/auth_service.rs - Fixed DateTime serialization for refresh_tokens
+
+**Description:** 
+1. **Auth DateTime Fix:** The `store_refresh_token` function was using chrono DateTime serialization which produced ISO 8601 strings that SurrealDB's SCHEMAFULL table rejected. Fixed by using raw SurrealDB query with `time::now()` function instead.
+2. **Infrastructure Verification:** 
+   - SurrealDB 2.4.0 installed and running on port 8001 with surrealkv storage
+   - Backend compiles and runs successfully on port 3001
+   - Frontend running on port 1420
+   - Login API now returns 200 OK (was 500 due to DateTime issue)
+3. **API Verification:** All protected routes return 401 (correct), public routes return 200
+
+**Impact:** Authentication is now fully functional. Users can log in via API.
+
+**Next Steps:**
+1. Rename InfraAid/LCMDesigner → Archer throughout codebase
+2. Standardize page header card styling
+3. Replace Recharts with VISX for data visualization
+
+---
 
 ### [2025-12-11 14:30] - Stabilization Sprint - Post-Merge Compilation Fixes
 **Type:** Bugfix

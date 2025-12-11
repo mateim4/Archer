@@ -1,4 +1,4 @@
-# Jules Agent Instructions - LCMDesigner
+# Jules Agent Instructions - Archer
 
 ## Your Tasks
 
@@ -14,7 +14,7 @@ Implement UX improvements by completing these GitHub issues **in order**:
 
 ## Essential Context
 
-**LCMDesigner** = React 18 + TypeScript infrastructure management platform with custom "Purple Glass" glassmorphic design system.
+**Archer** = React 18 + TypeScript ITSM platform with custom "Purple Glass" glassmorphic design system.
 
 **Tech:** React 18.3, TypeScript 5.6, Vite 5.4, Zustand, Rust backend
 
@@ -65,7 +65,7 @@ tokens.spacingVerticalL → DesignTokens.spacing.lg
 - **Component APIs:** `COMPONENT_LIBRARY_GUIDE.md` (1,083 lines)
 - **Migration patterns:** `FORM_COMPONENTS_MIGRATION.md` (846 lines)  
 - **Code templates:** In GitHub issues #86, #87, #88
-- **Project rules:** `.github/instructions/LCMDesigner_Code_Instructions_Generic.instructions.md`
+- **Project rules:** `.github/instructions/Archer_AI_Agent_Instructions.instructions.md`
 
 ---
 

@@ -1,4 +1,4 @@
-//! LCMDesigner - Infrastructure Data Models
+//! Archer - Infrastructure Data Models
 //! 
 //! This module contains type-safe Rust struct definitions for all infrastructure objects
 //! tracked in the SurrealDB schema. These models map directly to the database tables
