@@ -814,11 +814,14 @@ export type WorkflowInstanceStatus =
 
 export interface StepExecution {
   step_id: string;
+  step_name?: string;
   status: string;
   started_at: string;
   completed_at?: string;
   output?: any;
+  result?: any;
   error?: string;
+  error_message?: string;
 }
 
 export interface WorkflowInstance {
@@ -849,10 +852,13 @@ export interface Approval {
   comments?: string;
 }
 
-export interface ApprovalWithContext extends Approval {
+export interface ApprovalWithContext {
+  approval: Approval;
   workflow_name?: string;
   record_title?: string;
   record_type?: string;
+  trigger_record_type?: string;
+  trigger_record_id?: string;
 }
 
 export interface ApprovalResponseRequest {
@@ -1326,8 +1332,8 @@ export class ApiClient {
     const formData = new FormData();
     formData.append('file', file);
 
-    const token = this.tokenProvider ? this.tokenProvider() : '';
-    const response = await fetch(`${this.baseURL}/api/v1/tickets/${cleanId}/attachments`, {
+    const token = this.getAccessToken ? this.getAccessToken() : '';
+    const response = await fetch(`${this.baseUrl}/api/v1/tickets/${cleanId}/attachments`, {
       method: 'POST',
       headers: {
         ...(token && { 'Authorization': `Bearer ${token}` }),
@@ -1347,8 +1353,8 @@ export class ApiClient {
     const cleanTicketId = ticketId.startsWith('ticket:') ? ticketId.split(':')[1] : ticketId;
     const cleanAttachmentId = attachmentId.startsWith('ticket_attachments:') ? attachmentId.split(':')[1] : attachmentId;
     
-    const token = this.tokenProvider ? this.tokenProvider() : '';
-    const response = await fetch(`${this.baseURL}/api/v1/tickets/${cleanTicketId}/attachments/${cleanAttachmentId}`, {
+    const token = this.getAccessToken ? this.getAccessToken() : '';
+    const response = await fetch(`${this.baseUrl}/api/v1/tickets/${cleanTicketId}/attachments/${cleanAttachmentId}`, {
       method: 'GET',
       headers: {
         ...(token && { 'Authorization': `Bearer ${token}` }),
@@ -1374,6 +1380,32 @@ export class ApiClient {
     return this.request(`/api/v1/tickets/${cleanTicketId}/attachments/${cleanAttachmentId}`, {
       method: 'DELETE',
     });
+  }
+
+  // ===== Ticket Relationships =====
+  async getTicketRelationships(ticketId: string): Promise<TicketRelationship[]> {
+    const cleanId = ticketId.startsWith('ticket:') ? ticketId.split(':')[1] : ticketId;
+    return this.request(`/api/v1/tickets/${cleanId}/relationships`);
+  }
+
+  async createRelationship(ticketId: string, data: CreateRelationshipRequest): Promise<TicketRelationship> {
+    const cleanId = ticketId.startsWith('ticket:') ? ticketId.split(':')[1] : ticketId;
+    return this.request(`/api/v1/tickets/${cleanId}/relationships`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteTicketRelationship(ticketId: string, relationshipId: string): Promise<void> {
+    const cleanTicketId = ticketId.startsWith('ticket:') ? ticketId.split(':')[1] : ticketId;
+    return this.request(`/api/v1/tickets/${cleanTicketId}/relationships/${relationshipId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async getTicketHierarchy(ticketId: string): Promise<TicketHierarchyNode> {
+    const cleanId = ticketId.startsWith('ticket:') ? ticketId.split(':')[1] : ticketId;
+    return this.request(`/api/v1/tickets/${cleanId}/hierarchy`);
   }
 
   // ===== Assets (CMDB) =====

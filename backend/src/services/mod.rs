@@ -19,6 +19,9 @@ pub mod workflow_engine_service;
 // Monitoring & Alerting (Phase 4)
 pub mod monitoring_service;
 
+// Reporting (Phase 6)
+pub mod reporting_service;
+
 pub mod dependency_validator;
 pub mod document_service;
 pub mod enhanced_rvtools_service; // TODO: Fix compilation errors

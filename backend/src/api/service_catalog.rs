@@ -185,9 +185,9 @@ async fn update_category(
 
     // Update fields
     if let Some(name) = payload.name { category.name = name; }
-    if let Some(description) = payload.description { category.description = description; }
-    if let Some(icon) = payload.icon { category.icon = icon; }
-    if let Some(parent_id) = payload.parent_id { category.parent_id = parent_id; }
+    if let Some(description) = payload.description { category.description = Some(description); }
+    if let Some(icon) = payload.icon { category.icon = Some(icon); }
+    if let Some(parent_id) = payload.parent_id { category.parent_id = Some(parent_id); }
     if let Some(sort_order) = payload.sort_order { category.sort_order = sort_order; }
     if let Some(is_active) = payload.is_active { category.is_active = is_active; }
     category.updated_at = Some(Utc::now());
@@ -353,15 +353,15 @@ async fn update_catalog_item(
     if let Some(name) = payload.name { item.name = name; }
     if let Some(description) = payload.description { item.description = description; }
     if let Some(category_id) = payload.category_id { item.category_id = category_id; }
-    if let Some(icon) = payload.icon { item.icon = icon; }
+    if let Some(icon) = payload.icon { item.icon = Some(icon); }
     if let Some(short_description) = payload.short_description { item.short_description = short_description; }
-    if let Some(delivery_time_days) = payload.delivery_time_days { item.delivery_time_days = delivery_time_days; }
-    if let Some(cost) = payload.cost { item.cost = cost; }
+    if let Some(delivery_time_days) = payload.delivery_time_days { item.delivery_time_days = Some(delivery_time_days); }
+    if let Some(cost) = payload.cost { item.cost = Some(cost); }
     if let Some(is_active) = payload.is_active { item.is_active = is_active; }
     if let Some(form_schema) = payload.form_schema { item.form_schema = form_schema; }
     if let Some(approval_required) = payload.approval_required { item.approval_required = approval_required; }
-    if let Some(approval_group) = payload.approval_group { item.approval_group = approval_group; }
-    if let Some(fulfillment_group) = payload.fulfillment_group { item.fulfillment_group = fulfillment_group; }
+    if let Some(approval_group) = payload.approval_group { item.approval_group = Some(approval_group); }
+    if let Some(fulfillment_group) = payload.fulfillment_group { item.fulfillment_group = Some(fulfillment_group); }
     item.updated_at = Utc::now();
 
     match db.update(id_thing).content(item).await {
@@ -447,10 +447,11 @@ async fn list_my_requests(
     log_audit(&db, &user, "service_request", "list", None, true).await;
 
     // Only show user's own requests unless they're an admin
+    let status_filter = filter.status.clone();
     let query = if user.has_permission("catalog:admin") {
-        if let Some(requester_id) = filter.requester_id {
+        if let Some(ref _requester_id) = filter.requester_id {
             format!("SELECT * FROM service_request WHERE requester_id = $requester_id ORDER BY created_at DESC")
-        } else if let Some(status) = filter.status {
+        } else if let Some(ref _status) = filter.status {
             format!("SELECT * FROM service_request WHERE status = $status ORDER BY created_at DESC")
         } else {
             "SELECT * FROM service_request ORDER BY created_at DESC".to_string()
@@ -461,7 +462,7 @@ async fn list_my_requests(
 
     match db.query(query)
         .bind(("requester_id", &user.username))
-        .bind(("status", filter.status.unwrap_or_default()))
+        .bind(("status", status_filter.unwrap_or_default()))
         .await
     {
         Ok(mut response) => {

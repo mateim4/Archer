@@ -400,7 +400,7 @@ pub struct QualityMetrics {
     pub overall_quality: f64,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FileInfo {
     pub filename: String,
     pub file_size: u64,
@@ -592,7 +592,7 @@ impl ReportingService {
 
     /// Schedule a report for automatic generation
     pub async fn schedule_report(&self, request: ReportRequest, created_by: String) -> Result<Thing> {
-        let schedule_id = Thing::from(("report_schedule", uuid::Uuid::new_v4().to_string()));
+        let schedule_id = Thing::from(("report_schedule", uuid::Uuid::new_v4().to_string().as_str()));
 
         let _: Option<Value> = self.db
             .create(&schedule_id)
@@ -647,7 +647,7 @@ impl ReportingService {
 
     // Helper methods for report generation
     async fn create_report_record(&self, request: &ReportRequest, generated_by: &str) -> Result<Thing> {
-        let report_id = Thing::from(("report_instance", uuid::Uuid::new_v4().to_string()));
+        let report_id = Thing::from(("report_instance", uuid::Uuid::new_v4().to_string().as_str()));
         
         let _: Option<Value> = self.db
             .create(&report_id)
@@ -859,7 +859,7 @@ pub struct ReportListFilters {
     pub offset: Option<usize>,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ReportSummary {
     pub id: Thing,
     pub report_type: ReportType,
@@ -1269,7 +1269,7 @@ pub async fn export_to_csv(report_name: &str, data: serde_json::Value) -> Result
             // Extract headers from first object
             if let Some(first) = array.first() {
                 if let Some(obj) = first.as_object() {
-                    let headers: Vec<&String> = obj.keys().collect();
+                    let headers: Vec<String> = obj.keys().cloned().collect();
                     csv.push_str(&headers.join(","));
                     csv.push('\n');
                     
@@ -1278,7 +1278,7 @@ pub async fn export_to_csv(report_name: &str, data: serde_json::Value) -> Result
                         if let Some(obj) = item.as_object() {
                             let row: Vec<String> = headers.iter()
                                 .map(|h| {
-                                    obj.get(*h)
+                                    obj.get(h)
                                         .and_then(|v| v.as_str())
                                         .unwrap_or("")
                                         .to_string()

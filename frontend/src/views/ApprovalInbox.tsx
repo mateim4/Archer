@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { CheckCircle, XCircle, Clock, MessageSquare, ExternalLink } from 'lucide-react';
-import { PurpleGlassButton, PurpleGlassCard, PurpleGlassInput } from '../components/ui';
+import { PurpleGlassButton, PurpleGlassCard, PurpleGlassTextarea } from '../components/ui';
 import { apiClient, ApprovalWithContext, ApprovalStatus } from '../utils/apiClient';
 
 const ApprovalInbox: React.FC = () => {
@@ -29,7 +29,6 @@ const ApprovalInbox: React.FC = () => {
     setProcessing(true);
     try {
       await apiClient.approveApproval(approvalId, {
-        decision: 'approve',
         comments: approvalComments,
       });
       await loadApprovals();
@@ -47,7 +46,6 @@ const ApprovalInbox: React.FC = () => {
     setProcessing(true);
     try {
       await apiClient.rejectApproval(approvalId, {
-        decision: 'reject',
         comments: approvalComments,
       });
       await loadApprovals();
@@ -244,11 +242,10 @@ const ApprovalInbox: React.FC = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Comments (optional)
                   </label>
-                  <PurpleGlassInput
+                  <PurpleGlassTextarea
                     value={comments}
-                    onChange={(e) => setComments(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setComments(e.target.value)}
                     placeholder="Add your comments here..."
-                    multiline
                     rows={4}
                   />
                 </div>

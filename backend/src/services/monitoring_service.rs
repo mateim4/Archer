@@ -296,6 +296,7 @@ impl MonitoringService {
                 "alert_source": alert.source,
                 "source_alert_id": alert.source_alert_id,
             })),
+            assignment_team_id: None,
         };
 
         // Create the ticket

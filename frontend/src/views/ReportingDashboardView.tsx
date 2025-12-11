@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { PurpleGlassCard, PurpleGlassButton } from '../components/ui';
 import {
-  ChartBarRegular,
+  DataBarHorizontalRegular,
   DataPieRegular,
   TableRegular,
   GaugeRegular,
   AddRegular,
-  RefreshRegular,
+  ArrowClockwiseRegular,
   CalendarMonthRegular
 } from '@fluentui/react-icons';
-import { apiClient, WidgetData } from '../utils/apiClient';
+import { apiClient } from '../utils/apiClient';
 import { tokens } from '@fluentui/react-components';
 import {
   BarChart,
@@ -28,11 +28,11 @@ import {
 } from 'recharts';
 
 const COLORS = [
-  tokens.colorPalettePurpleBorder1,
-  tokens.colorPaletteBlueBorder1,
-  tokens.colorPaletteMintBorder1,
-  tokens.colorPalettePeachBorder1,
-  tokens.colorPaletteMarigoldBorder1,
+  tokens.colorPalettePurpleBorderActive,
+  tokens.colorPaletteBlueBorderActive,
+  tokens.colorPaletteGreenBorderActive,
+  tokens.colorPaletteYellowBorderActive,
+  tokens.colorPaletteMarigoldBorderActive,
 ];
 
 interface DashboardWidgetProps {
@@ -73,7 +73,7 @@ const DashboardWidget: React.FC<DashboardWidgetProps> = ({ widgetId, name, type,
 
   return (
     <PurpleGlassCard
-      glassVariant="medium"
+      glass
       style={{
         padding: tokens.spacingVerticalL,
         height: '100%',
@@ -96,7 +96,7 @@ const DashboardWidget: React.FC<DashboardWidgetProps> = ({ widgetId, name, type,
           {name}
         </h3>
         <PurpleGlassButton
-          icon={<RefreshRegular />}
+          icon={<ArrowClockwiseRegular />}
           onClick={handleRefresh}
           size="small"
         />
@@ -403,13 +403,13 @@ export const ReportingDashboardView: React.FC = () => {
         <div style={{ display: 'flex', gap: tokens.spacingHorizontalM }}>
           <PurpleGlassButton
             icon={<CalendarMonthRegular />}
-            glassVariant="medium"
+            glass
           >
             Date Range
           </PurpleGlassButton>
           <PurpleGlassButton
-            icon={<RefreshRegular />}
-            glassVariant="medium"
+            icon={<ArrowClockwiseRegular />}
+            glass
           >
             Refresh All
           </PurpleGlassButton>

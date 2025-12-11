@@ -35,8 +35,8 @@ import {
   BookFilled,
   AppsRegular,
   AppsFilled,
-  ClipboardListRegular,
-  ClipboardListFilled,
+  ClipboardRegular,
+  ClipboardFilled,
   PeopleTeamRegular,
   PeopleTeamFilled,
   ShieldPersonRegular,
@@ -141,8 +141,8 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
     { 
       id: 'my-requests', 
       title: 'My Requests', 
-      icon: <ClipboardListRegular />, 
-      iconFilled: <ClipboardListFilled />, 
+      icon: <ClipboardRegular />, 
+      iconFilled: <ClipboardFilled />, 
       path: '/app/my-requests'
     },
     { 

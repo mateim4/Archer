@@ -211,7 +211,7 @@ impl AnalyticsService {
 
     /// Hardware utilization analytics with predictive capacity planning
     pub async fn get_hardware_utilization_analytics(&self, time_range: AnalyticsTimeRange) -> Result<AnalyticsResult> {
-        let query = self.db.query("
+        let mut db_query = self.db.query("
             SELECT 
                 time::group(created_at, $granularity) AS time_bucket,
                 count() AS server_count,
@@ -231,23 +231,23 @@ impl AnalyticsService {
         .bind(("granularity", self.granularity_to_string(&time_range.granularity)))
         .await?;
 
-        let utilization_data: Vec<HardwareUtilizationData> = query.take(0)?;
+        let utilization_data: Vec<HardwareUtilizationData> = db_query.take(0)?;
         
         let mut data_points = Vec::new();
         for data in utilization_data {
             data_points.push(AnalyticsDataPoint {
                 timestamp: data.time_bucket,
                 value: data.avg_cpu_utilization,
-                dimensions: json!({
-                    "datacenter": data.datacenter,
-                    "vendor": data.vendor,
-                    "availability_status": data.availability_status
-                }).as_object().unwrap().clone(),
-                metadata: json!({
-                    "server_count": data.server_count,
-                    "memory_utilization": data.avg_memory_utilization,
-                    "storage_utilization": data.avg_storage_utilization
-                }).as_object().unwrap().clone(),
+                dimensions: [
+                    ("datacenter".to_string(), json!(data.datacenter)),
+                    ("vendor".to_string(), json!(data.vendor)),
+                    ("availability_status".to_string(), json!(data.availability_status)),
+                ].into_iter().collect(),
+                metadata: [
+                    ("server_count".to_string(), json!(data.server_count)),
+                    ("memory_utilization".to_string(), json!(data.avg_memory_utilization)),
+                    ("storage_utilization".to_string(), json!(data.avg_storage_utilization)),
+                ].into_iter().collect(),
             });
         }
 
@@ -298,18 +298,18 @@ impl AnalyticsService {
             data_points.push(AnalyticsDataPoint {
                 timestamp: project.updated_at,
                 value: project.progress_percentage as f64,
-                dimensions: json!({
-                    "project_type": project.project_type,
-                    "status": project.status,
-                    "priority": project.priority,
-                    "risk_level": project.risk_level
-                }).as_object().unwrap().clone(),
-                metadata: json!({
-                    "project_name": project.name,
-                    "budget_utilization": if project.budget_allocated.is_some() { 
+                dimensions: [
+                    ("project_type".to_string(), json!(project.project_type)),
+                    ("status".to_string(), json!(project.status)),
+                    ("priority".to_string(), json!(project.priority)),
+                    ("risk_level".to_string(), json!(project.risk_level)),
+                ].into_iter().collect(),
+                metadata: [
+                    ("project_name".to_string(), json!(project.name)),
+                    ("budget_utilization".to_string(), json!(if project.budget_allocated.is_some() { 
                         project.budget_spent / project.budget_allocated.unwrap() * 100.0 
-                    } else { 0.0 }
-                }).as_object().unwrap().clone(),
+                    } else { 0.0 })),
+                ].into_iter().collect(),
             });
         }
 
@@ -346,14 +346,17 @@ impl AnalyticsService {
         // Error rate analysis
         let error_metrics = self.get_error_rate_metrics().await?;
 
+        let overall_health_score = self.calculate_overall_health_score(&db_metrics, &api_metrics, &resource_metrics, &error_metrics).await?;
+        let alerts = self.generate_health_alerts(&db_metrics, &api_metrics, &resource_metrics, &error_metrics).await?;
+
         Ok(SystemHealthMetrics {
             timestamp: Utc::now(),
-            overall_health_score: self.calculate_overall_health_score(&db_metrics, &api_metrics, &resource_metrics, &error_metrics).await?,
+            overall_health_score,
             database_performance: db_metrics,
             api_performance: api_metrics,
             resource_utilization: resource_metrics,
             error_rates: error_metrics,
-            alerts: self.generate_health_alerts(&db_metrics, &api_metrics, &resource_metrics, &error_metrics).await?,
+            alerts,
         })
     }
 
@@ -370,14 +373,17 @@ impl AnalyticsService {
         // Calculate procurement recommendations
         let procurement_recommendations = self.calculate_procurement_recommendations(&forecast_points, &constraints).await?;
 
+        let current_capacity = self.get_current_capacity(resource_type.clone()).await?;
+        let confidence_level = self.calculate_forecast_confidence(&historical_data).await?;
+
         Ok(CapacityForecast {
             resource_type,
             forecast_horizon,
-            current_capacity: self.get_current_capacity(resource_type.clone()).await?,
+            current_capacity,
             forecasted_demand: forecast_points,
             capacity_constraints: constraints,
             procurement_recommendations,
-            confidence_level: self.calculate_forecast_confidence(&historical_data).await?,
+            confidence_level,
             generated_at: Utc::now(),
         })
     }
@@ -615,7 +621,7 @@ impl AnalyticsService {
 }
 
 // Additional supporting structures
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Deserialize)]
 pub struct HardwareUtilizationData {
     pub time_bucket: DateTime<Utc>,
     pub server_count: i64,
@@ -776,30 +782,21 @@ pub enum AnomalySensitivity {
 
 impl AnalyticsService {
     /// Get system trends over a specified time range
-    pub async fn get_system_trends(&self, time_range: AnalyticsTimeRange) -> Result<AnalyticsResult> {
-        // Implementation would analyze trends over time
-        let mut result = AnalyticsResult::default();
-        result.query_metadata.execution_time = chrono::Duration::seconds(1);
-        result.query_metadata.data_points_analyzed = 1000;
-        Ok(result)
+    pub async fn get_system_trends(&self, _time_range: AnalyticsTimeRange) -> Result<AnalyticsResult> {
+        // TODO: Implementation would analyze trends over time
+        Ok(AnalyticsResult::default())
     }
 
     /// Get hardware capacity analytics
-    pub async fn get_hardware_capacity_analytics(&self, time_range: AnalyticsTimeRange) -> Result<AnalyticsResult> {
-        // Implementation would analyze capacity metrics
-        let mut result = AnalyticsResult::default();
-        result.query_metadata.execution_time = chrono::Duration::seconds(1);
-        result.query_metadata.data_points_analyzed = 500;
-        Ok(result)
+    pub async fn get_hardware_capacity_analytics(&self, _time_range: AnalyticsTimeRange) -> Result<AnalyticsResult> {
+        // TODO: Implementation would analyze capacity metrics
+        Ok(AnalyticsResult::default())
     }
 
     /// Get project performance analytics
-    pub async fn get_project_performance_analytics(&self, project_ids: Option<Vec<String>>, time_range: AnalyticsTimeRange) -> Result<AnalyticsResult> {
-        // Implementation would analyze project performance over time
-        let mut result = AnalyticsResult::default();
-        result.query_metadata.execution_time = chrono::Duration::seconds(1);
-        result.query_metadata.data_points_analyzed = 300;
-        Ok(result)
+    pub async fn get_project_performance_analytics(&self, _project_ids: Option<Vec<String>>, _time_range: AnalyticsTimeRange) -> Result<AnalyticsResult> {
+        // TODO: Implementation would analyze project performance over time
+        Ok(AnalyticsResult::default())
     }
 
     /// Export analytics data in various formats

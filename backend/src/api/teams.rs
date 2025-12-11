@@ -5,7 +5,7 @@ use axum::{
     extract::{Path, Query, State},
     http::StatusCode,
     middleware,
-    response::IntoResponse,
+    response::{IntoResponse, Response},
     routing::{delete, get, post, put},
     Json, Router,
 };
@@ -297,7 +297,7 @@ async fn get_user_teams(
 // ============================================================================
 
 /// Convert TeamError to HTTP response
-fn team_error_response(error: TeamError) -> impl IntoResponse {
+fn team_error_response(error: TeamError) -> Response {
     let (status, message) = match &error {
         TeamError::TeamNotFound => (StatusCode::NOT_FOUND, "Team not found"),
         TeamError::UserNotFound => (StatusCode::NOT_FOUND, "User not found"),
@@ -320,5 +320,5 @@ fn team_error_response(error: TeamError) -> impl IntoResponse {
         "details": error.to_string()
     });
 
-    (status, Json(body))
+    (status, Json(body)).into_response()
 }

@@ -9,7 +9,7 @@ import React, { useState, useCallback } from 'react';
 import {
   ChevronRightRegular,
   ChevronDownRegular,
-  TicketRegular,
+  ReceiptRegular,
 } from '@fluentui/react-icons';
 import { RelationshipBadge } from './RelationshipBadge';
 import type { TicketHierarchyNode } from '../utils/apiClient';
@@ -118,7 +118,7 @@ const TreeNode: React.FC<TreeNodeProps> = ({ node, level, onTicketClick }) => {
           )}
 
           {/* Ticket Icon */}
-          <TicketRegular style={{ 
+          <ReceiptRegular style={{ 
             fontSize: '20px', 
             color: 'var(--brand-primary)',
             flexShrink: 0,

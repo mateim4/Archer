@@ -50,7 +50,7 @@ import { RelationshipManager } from '../components/RelationshipManager';
 import { TicketHierarchyView } from '../components/TicketHierarchyView';
 import type { AssetType, AssetStatus, SLAStatus } from '../components/ui';
 import { DesignTokens } from '../styles/designSystem';
-import { apiClient, type TicketComment, type CommentType, type TicketAttachment } from '../utils/apiClient';
+import { apiClient, type TicketComment, type CommentType, type TicketAttachment, type TicketRelationship, type TicketHierarchyNode } from '../utils/apiClient';
 
 // Extended ticket interface with all detail fields (standalone, not extending base Ticket)
 interface TicketDetail {
@@ -211,18 +211,53 @@ const TicketDetailView: React.FC = () => {
   const [ticket, setTicket] = useState<TicketDetail | null>(null);
   const [comments, setComments] = useState<TicketComment[]>([]);
   const [attachments, setAttachments] = useState<TicketAttachment[]>([]);
+  const [relationships, setRelationships] = useState<TicketRelationship[]>([]);
+  const [hierarchyTree, setHierarchyTree] = useState<TicketHierarchyNode | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingComments, setIsLoadingComments] = useState(false);
   const [isLoadingAttachments, setIsLoadingAttachments] = useState(false);
+  const [isLoadingRelationships, setIsLoadingRelationships] = useState(false);
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const [isUploadingFile, setIsUploadingFile] = useState(false);
-  const [activeTab, setActiveTab] = useState<'comments' | 'activity' | 'related'>('comments');
+  const [activeTab, setActiveTab] = useState<'comments' | 'activity' | 'related' | 'hierarchy'>('comments');
   const [newComment, setNewComment] = useState('');
   const [isInternalComment, setIsInternalComment] = useState(false);
   const [commentType, setCommentType] = useState<CommentType>('NOTE');
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [editedTitle, setEditedTitle] = useState('');
   const [isDragging, setIsDragging] = useState(false);
+  const [showRelationshipManager, setShowRelationshipManager] = useState(false);
+
+  // Relationship handlers
+  const handleDeleteRelationship = async (relationshipId: string) => {
+    if (!ticketId) return;
+    try {
+      await apiClient.deleteTicketRelationship(ticketId, relationshipId);
+      setRelationships(prev => prev.filter(r => r.id !== relationshipId));
+    } catch (error) {
+      console.error('Failed to delete relationship:', error);
+    }
+  };
+
+  const handleRelationshipCreated = () => {
+    // Reload relationships after creation
+    if (ticketId) {
+      loadRelationships(ticketId);
+    }
+  };
+
+  const loadRelationships = async (id: string) => {
+    setIsLoadingRelationships(true);
+    try {
+      const data = await apiClient.getTicketRelationships(id);
+      setRelationships(data || []);
+    } catch (error) {
+      console.error('Failed to load relationships:', error);
+      setRelationships([]);
+    } finally {
+      setIsLoadingRelationships(false);
+    }
+  };
 
   // Load ticket data and comments
   useEffect(() => {

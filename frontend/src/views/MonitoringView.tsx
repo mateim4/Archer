@@ -160,7 +160,6 @@ const MonitoringView: React.FC = () => {
       try {
         await apiClient.createTicketFromAlert(data.triggeredByAlertId, {
           assignee: data.assignee,
-          assigned_group: data.assignedGroup,
           additional_notes: data.description
         });
         await loadAlerts(); // Refresh to show ticket link

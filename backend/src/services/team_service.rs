@@ -268,7 +268,8 @@ impl TeamService {
         team.updated_at = Utc::now();
 
         let updated: Option<Team> = self.db.update(thing).content(&team).await?;
-        updated.ok_or(TeamError::TeamNotFound)
+        updated.ok_or(TeamError::TeamNotFound)?;
+        Ok(())
     }
 
     // ========================================================================
@@ -478,22 +479,24 @@ impl TeamService {
     }
 
     /// Recursively build hierarchy node
-    async fn build_hierarchy_node(&self, team: Team) -> Result<TeamHierarchyNode, TeamError> {
-        let team_id_str = team.id.as_ref().map(|t| t.to_string()).unwrap_or_default();
-        let children_teams = self.list_teams(true, Some(&team_id_str)).await?;
+    fn build_hierarchy_node(&self, team: Team) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<TeamHierarchyNode, TeamError>> + Send + '_>> {
+        Box::pin(async move {
+            let team_id_str = team.id.as_ref().map(|t| t.to_string()).unwrap_or_default();
+            let children_teams = self.list_teams(true, Some(&team_id_str)).await?;
 
-        let mut children = Vec::new();
-        for child in children_teams {
-            let child_node = self.build_hierarchy_node(child).await?;
-            children.push(child_node);
-        }
+            let mut children = Vec::new();
+            for child in children_teams {
+                let child_node = self.build_hierarchy_node(child).await?;
+                children.push(child_node);
+            }
 
-        let members = self.get_team_members(&team_id_str).await?;
+            let members = self.get_team_members(&team_id_str).await?;
 
-        Ok(TeamHierarchyNode {
-            team,
-            children,
-            member_count: members.len(),
+            Ok(TeamHierarchyNode {
+                team,
+                children,
+                member_count: members.len(),
+            })
         })
     }
 

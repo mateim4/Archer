@@ -14,3 +14,4 @@ pub mod team;  // Team Management models (Phase 1+)
 pub mod workflow;
 pub mod ticket;
 pub mod workflow_engine;  // Workflow Engine models (Phase 3)
+pub mod reporting;  // Reporting models (Phase 6)

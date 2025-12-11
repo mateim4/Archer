@@ -72,7 +72,7 @@ export const KBSuggestionPanel: React.FC<KBSuggestionPanelProps> = ({
       {/* Header */}
       <div style={{
         padding: '16px',
-        borderBottom: `1px solid ${DesignTokens.colors.border}`,
+        borderBottom: `1px solid ${DesignTokens.colors.surfaceBorder}`,
         display: 'flex',
         alignItems: 'center',
         gap: '8px',
@@ -137,13 +137,13 @@ const SuggestionCard: React.FC<SuggestionCardProps> = ({
   return (
     <div
       style={{
-        borderBottom: `1px solid ${DesignTokens.colors.border}`,
+        borderBottom: `1px solid ${DesignTokens.colors.surfaceBorder}`,
         padding: '16px',
         transition: 'background-color 0.2s',
         cursor: 'pointer',
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.backgroundColor = DesignTokens.colors.surfaceSecondary;
+        e.currentTarget.style.backgroundColor = DesignTokens.colors.surfaceHover;
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.backgroundColor = 'transparent';
@@ -234,7 +234,7 @@ const SuggestionCard: React.FC<SuggestionCardProps> = ({
           {/* Excerpt */}
           <div style={{
             padding: '12px',
-            backgroundColor: DesignTokens.colors.surfaceSecondary,
+            backgroundColor: DesignTokens.colors.surface,
             borderRadius: '6px',
             marginBottom: '12px',
           }}>

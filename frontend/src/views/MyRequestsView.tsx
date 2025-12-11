@@ -42,7 +42,11 @@ const STATUS_ICONS: Record<string, React.ReactElement> = {
 
 const MyRequestsView: React.FC = () => {
   const navigate = useNavigate();
-  const { showToast, showError, showSuccess } = useEnhancedUX();
+  const { showToast } = useEnhancedUX();
+
+  // Helper functions for toast notifications
+  const showError = (message: string) => showToast(message, 'error');
+  const showSuccess = (message: string) => showToast(message, 'success');
 
   // State
   const [requests, setRequests] = useState<ServiceRequest[]>([]);
@@ -155,7 +159,7 @@ const MyRequestsView: React.FC = () => {
                 placeholder="Search requests..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                icon={<SearchRegular />}
+                prefixIcon={<SearchRegular />}
               />
             </div>
             
@@ -374,7 +378,7 @@ const MyRequestsView: React.FC = () => {
                 {/* Actions */}
                 <div>
                   <PurpleGlassButton 
-                    appearance="subtle"
+                    variant="ghost"
                     onClick={() => handleViewDetails(request)}
                   >
                     View Details
@@ -493,7 +497,7 @@ const MyRequestsView: React.FC = () => {
                   gap: 'var(--spacing-3)',
                   justifyContent: 'flex-end'
                 }}>
-                  <PurpleGlassButton appearance="subtle" onClick={closeDetailDrawer}>
+                  <PurpleGlassButton variant="ghost" onClick={closeDetailDrawer}>
                     Close
                   </PurpleGlassButton>
                 </div>

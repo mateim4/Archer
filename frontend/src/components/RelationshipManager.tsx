@@ -285,15 +285,13 @@ export const RelationshipManager: React.FC<RelationshipManagerProps> = ({
                 Relationship type
               </label>
               <PurpleGlassDropdown
+                options={relationshipOptions.map(opt => ({
+                  value: opt.value,
+                  label: `${opt.label} - ${opt.description}`,
+                }))}
                 value={relationshipType}
-                onChange={(e) => setRelationshipType(e.target.value as TicketRelationType)}
-              >
-                {relationshipOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label} - {option.description}
-                  </option>
-                ))}
-              </PurpleGlassDropdown>
+                onChange={(val) => setRelationshipType((val as TicketRelationType) || 'RELATED_TO')}
+              />
               <div style={{ marginTop: '8px', padding: '8px' }}>
                 <RelationshipBadge type={relationshipType} />
               </div>

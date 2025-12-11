@@ -41,7 +41,11 @@ const ICON_MAP: Record<string, React.ReactElement> = {
 
 const ServiceCatalogView: React.FC = () => {
   const navigate = useNavigate();
-  const { showToast, showError, showSuccess } = useEnhancedUX();
+  const { showToast } = useEnhancedUX();
+
+  // Helper functions for toast notifications
+  const showError = (message: string) => showToast(message, 'error');
+  const showSuccess = (message: string) => showToast(message, 'success');
 
   // State
   const [categories, setCategories] = useState<CatalogCategory[]>([]);
@@ -267,7 +271,7 @@ const ServiceCatalogView: React.FC = () => {
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-2)' }}>
               <PurpleGlassButton
-                appearance="subtle"
+                variant="ghost"
                 onClick={() => navigate('/app/my-requests')}
                 style={{ justifyContent: 'flex-start' }}
               >
@@ -308,7 +312,7 @@ const ServiceCatalogView: React.FC = () => {
                   placeholder="Search services..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  icon={<SearchRegular />}
+                  prefixIcon={<SearchRegular />}
                 />
               </div>
               <PurpleGlassButton type="submit">
