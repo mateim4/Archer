@@ -848,6 +848,82 @@ impl TieringService {
 }
 
 // ============================================================================
+// TIERING SCHEDULER
+// ============================================================================
+
+use tokio_cron_scheduler::{Job, JobScheduler};
+
+/// Background scheduler for automatic ticket archival
+pub struct TieringScheduler {
+    db: Arc<Database>,
+    config: TierConfig,
+}
+
+impl TieringScheduler {
+    pub fn new(db: Arc<Database>) -> Self {
+        Self {
+            db,
+            config: TierConfig::default(),
+        }
+    }
+
+    pub fn with_config(db: Arc<Database>, config: TierConfig) -> Self {
+        Self { db, config }
+    }
+
+    /// Start the scheduler with daily archival job
+    pub async fn start(&self) -> Result<()> {
+        let scheduler = JobScheduler::new().await
+            .map_err(|e| anyhow!("Failed to create scheduler: {}", e))?;
+
+        let db = Arc::clone(&self.db);
+        let config = self.config.clone();
+        let archive_hour = config.archive_hour;
+
+        // Schedule daily archival at configured hour (default 3 AM)
+        // Cron format: sec min hour day month weekday
+        let cron_expr = format!("0 0 {} * * *", archive_hour);
+        
+        let job = Job::new_async(cron_expr.as_str(), move |_uuid, _lock| {
+            let db = Arc::clone(&db);
+            let config = config.clone();
+            Box::pin(async move {
+                info!("🗄️ Starting scheduled archival job");
+                let service = TieringService::with_config(db, config);
+                match service.run_archival_job().await {
+                    Ok(report) => {
+                        info!(
+                            "✅ Archival job completed: {} processed, {} transitioned to warm, {} archived, {} errors",
+                            report.processed,
+                            report.transitioned_to_warm,
+                            report.archived,
+                            report.errors.len()
+                        );
+                    }
+                    Err(e) => {
+                        error!("❌ Archival job failed: {}", e);
+                    }
+                }
+            })
+        }).map_err(|e| anyhow!("Failed to create archival job: {}", e))?;
+
+        scheduler.add(job).await
+            .map_err(|e| anyhow!("Failed to add archival job: {}", e))?;
+
+        scheduler.start().await
+            .map_err(|e| anyhow!("Failed to start scheduler: {}", e))?;
+
+        info!("⏰ Tiering scheduler started - archival runs daily at {}:00", archive_hour);
+        
+        // Keep scheduler running (it's dropped when this struct is dropped)
+        // In production, you'd store this in app state
+        std::mem::forget(scheduler);
+        
+        Ok(())
+    }
+}
+
+// ============================================================================
 // TESTS
 // ============================================================================
 

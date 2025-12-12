@@ -1,5 +1,6 @@
 use axum::{http::Method, middleware::from_fn};
 use std::net::{IpAddr, Ipv4Addr, SocketAddr, TcpListener as StdTcpListener};
+use std::sync::Arc;
 use tower_http::{cors::CorsLayer, trace::TraceLayer};
 
 mod api;
@@ -10,6 +11,8 @@ mod services;
 mod utils;
 // mod hardware_basket_api; // Disabled - using new api/hardware_baskets.rs
 // mod parser; // Disabled - using new parser in core-engine
+
+use services::tiering_service::TieringScheduler;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -37,6 +40,21 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             return Err(e.into());
         }
     };
+
+    // Initialize tiering scheduler for automatic ticket archival
+    let tiering_scheduler = TieringScheduler::new(Arc::clone(&db_state));
+    let scheduler_enabled = std::env::var("TIERING_SCHEDULER_ENABLED")
+        .map(|v| v == "true" || v == "1")
+        .unwrap_or(false); // Disabled by default, enable in production
+    
+    if scheduler_enabled {
+        match tiering_scheduler.start().await {
+            Ok(_) => tracing::info!("⏰ Tiering scheduler started (archival runs at 2 AM daily)"),
+            Err(e) => tracing::warn!("Failed to start tiering scheduler: {}", e),
+        }
+    } else {
+        tracing::info!("⏰ Tiering scheduler disabled (set TIERING_SCHEDULER_ENABLED=true to enable)");
+    }
 
     // build our application with the API router and middleware
     let app = api::api_router(db_state)
