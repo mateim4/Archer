@@ -55,6 +55,14 @@ impl TicketMigrations {
             DEFINE FIELD subcategory ON ticket TYPE option<string>;
             DEFINE FIELD assigned_group ON ticket TYPE option<string>;
             DEFINE FIELD tenant_id ON ticket TYPE option<record(tenants)>;
+            -- Hot/Cold Tiering fields
+            DEFINE FIELD tier ON ticket TYPE string DEFAULT 'hot';
+            DEFINE FIELD last_accessed_at ON ticket TYPE datetime DEFAULT time::now();
+            DEFINE FIELD access_count ON ticket TYPE int DEFAULT 0;
+            DEFINE FIELD archived_at ON ticket TYPE option<datetime>;
+            DEFINE FIELD archive_reason ON ticket TYPE option<string>;
+            DEFINE FIELD reheated_count ON ticket TYPE int DEFAULT 0;
+            DEFINE FIELD last_reheated_at ON ticket TYPE option<datetime>;
             "#,
         )
         .await?;
@@ -169,6 +177,16 @@ impl TicketMigrations {
             .await?;
         db.query("DEFINE INDEX idx_ticket_resolution_due ON ticket FIELDS resolution_due;")
             .await?;
+        
+        // Tiering indexes (critical for hot/cold performance)
+        db.query("DEFINE INDEX idx_ticket_tier ON ticket FIELDS tier;")
+            .await?;
+        db.query("DEFINE INDEX idx_ticket_tier_status ON ticket FIELDS tier, status;")
+            .await?;
+        db.query("DEFINE INDEX idx_ticket_last_accessed ON ticket FIELDS tier, last_accessed_at;")
+            .await?;
+        db.query("DEFINE INDEX idx_ticket_archival_candidates ON ticket FIELDS tier, status, updated_at;")
+            .await?;
 
         // Comment indexes
         db.query("DEFINE INDEX idx_comments_ticket ON ticket_comments FIELDS ticket_id;")
@@ -197,6 +215,208 @@ impl TicketMigrations {
             .await?;
 
         println!("✅ Ticket indexes created successfully");
+        Ok(())
+    }
+}
+
+// ============================================================================
+// HOT/COLD TIERING MIGRATIONS
+// ============================================================================
+
+/// Database migrations for hot/cold data tiering
+pub struct TieringMigrations;
+
+impl TieringMigrations {
+    /// Run all tiering migrations
+    pub async fn run_all(db: &Database) -> Result<()> {
+        Self::create_archive_tables(db).await?;
+        Self::create_operations_table(db).await?;
+        Self::create_archive_indexes(db).await?;
+        Ok(())
+    }
+
+    /// Create archive tables for cold storage
+    async fn create_archive_tables(db: &Database) -> Result<()> {
+        // Ticket Archive table (cold storage)
+        db.query(
+            r#"
+            DEFINE TABLE ticket_archive SCHEMAFULL;
+            -- Original ticket data
+            DEFINE FIELD original_id ON ticket_archive TYPE string;
+            DEFINE FIELD namespace ON ticket_archive TYPE option<string>;
+            DEFINE FIELD number ON ticket_archive TYPE option<int>;
+            DEFINE FIELD title ON ticket_archive TYPE string;
+            DEFINE FIELD description ON ticket_archive TYPE option<string>;
+            DEFINE FIELD type ON ticket_archive TYPE string;
+            DEFINE FIELD status ON ticket_archive TYPE string;
+            DEFINE FIELD priority ON ticket_archive TYPE string;
+            DEFINE FIELD urgency ON ticket_archive TYPE option<string>;
+            DEFINE FIELD impact ON ticket_archive TYPE option<string>;
+            DEFINE FIELD assignee ON ticket_archive TYPE option<string>;
+            DEFINE FIELD assigned_group ON ticket_archive TYPE option<string>;
+            DEFINE FIELD created_by ON ticket_archive TYPE string;
+            DEFINE FIELD category ON ticket_archive TYPE option<string>;
+            DEFINE FIELD subcategory ON ticket_archive TYPE option<string>;
+            DEFINE FIELD source ON ticket_archive TYPE option<string>;
+            DEFINE FIELD tags ON ticket_archive TYPE array DEFAULT [];
+            DEFINE FIELD custom_fields ON ticket_archive TYPE option<object>;
+            -- Original timestamps
+            DEFINE FIELD created_at ON ticket_archive TYPE datetime;
+            DEFINE FIELD updated_at ON ticket_archive TYPE datetime;
+            DEFINE FIELD resolved_at ON ticket_archive TYPE option<datetime>;
+            DEFINE FIELD closed_at ON ticket_archive TYPE option<datetime>;
+            -- Archive metadata
+            DEFINE FIELD archived_at ON ticket_archive TYPE datetime DEFAULT time::now();
+            DEFINE FIELD archive_reason ON ticket_archive TYPE string;
+            DEFINE FIELD original_tier ON ticket_archive TYPE string DEFAULT 'warm';
+            DEFINE FIELD total_access_count ON ticket_archive TYPE int DEFAULT 0;
+            DEFINE FIELD last_accessed_before_archive ON ticket_archive TYPE datetime;
+            -- Denormalized summary
+            DEFINE FIELD comment_count ON ticket_archive TYPE int DEFAULT 0;
+            DEFINE FIELD attachment_count ON ticket_archive TYPE int DEFAULT 0;
+            DEFINE FIELD history_snapshot ON ticket_archive TYPE array DEFAULT [];
+            -- Reheat tracking
+            DEFINE FIELD reheated_count ON ticket_archive TYPE int DEFAULT 0;
+            DEFINE FIELD last_reheated_at ON ticket_archive TYPE option<datetime>;
+            "#,
+        )
+        .await?;
+
+        // Ticket Comments Archive table
+        db.query(
+            r#"
+            DEFINE TABLE ticket_comments_archive SCHEMAFULL;
+            DEFINE FIELD original_id ON ticket_comments_archive TYPE option<string>;
+            DEFINE FIELD original_ticket_id ON ticket_comments_archive TYPE string;
+            DEFINE FIELD content ON ticket_comments_archive TYPE string;
+            DEFINE FIELD author_id ON ticket_comments_archive TYPE string;
+            DEFINE FIELD author_name ON ticket_comments_archive TYPE string;
+            DEFINE FIELD is_internal ON ticket_comments_archive TYPE bool DEFAULT false;
+            DEFINE FIELD comment_type ON ticket_comments_archive TYPE string DEFAULT 'NOTE';
+            DEFINE FIELD created_at ON ticket_comments_archive TYPE datetime;
+            DEFINE FIELD archived_at ON ticket_comments_archive TYPE datetime DEFAULT time::now();
+            "#,
+        )
+        .await?;
+
+        // Tier Configuration table (for runtime config)
+        db.query(
+            r#"
+            DEFINE TABLE tier_config SCHEMAFULL;
+            DEFINE FIELD name ON tier_config TYPE string;
+            DEFINE FIELD hot_to_warm_days ON tier_config TYPE int DEFAULT 7;
+            DEFINE FIELD warm_to_cold_days ON tier_config TYPE int DEFAULT 90;
+            DEFINE FIELD cold_retention_years ON tier_config TYPE int DEFAULT 7;
+            DEFINE FIELD auto_reheat_on_access ON tier_config TYPE bool DEFAULT true;
+            DEFINE FIELD reheat_cooldown_hours ON tier_config TYPE int DEFAULT 24;
+            DEFINE FIELD batch_size ON tier_config TYPE int DEFAULT 500;
+            DEFINE FIELD archive_hour ON tier_config TYPE int DEFAULT 3;
+            DEFINE FIELD created_at ON tier_config TYPE datetime DEFAULT time::now();
+            DEFINE FIELD updated_at ON tier_config TYPE datetime DEFAULT time::now();
+            "#,
+        )
+        .await?;
+
+        println!("✅ Archive tables created successfully");
+        Ok(())
+    }
+
+    /// Create tiering operations log table
+    async fn create_operations_table(db: &Database) -> Result<()> {
+        db.query(
+            r#"
+            DEFINE TABLE tiering_operations SCHEMAFULL;
+            DEFINE FIELD operation_type ON tiering_operations TYPE string;
+            DEFINE FIELD ticket_id ON tiering_operations TYPE string;
+            DEFINE FIELD ticket_number ON tiering_operations TYPE option<int>;
+            DEFINE FIELD from_tier ON tiering_operations TYPE string;
+            DEFINE FIELD to_tier ON tiering_operations TYPE string;
+            DEFINE FIELD reason ON tiering_operations TYPE string;
+            DEFINE FIELD triggered_by ON tiering_operations TYPE string;
+            DEFINE FIELD metadata ON tiering_operations TYPE option<object>;
+            DEFINE FIELD created_at ON tiering_operations TYPE datetime DEFAULT time::now();
+            "#,
+        )
+        .await?;
+
+        println!("✅ Tiering operations table created successfully");
+        Ok(())
+    }
+
+    /// Create indexes for archive tables
+    async fn create_archive_indexes(db: &Database) -> Result<()> {
+        // Archive indexes
+        db.query("DEFINE INDEX idx_archive_original ON ticket_archive FIELDS original_id;")
+            .await?;
+        db.query("DEFINE INDEX idx_archive_number ON ticket_archive FIELDS namespace, number;")
+            .await?;
+        db.query("DEFINE INDEX idx_archive_date ON ticket_archive FIELDS archived_at;")
+            .await?;
+        db.query("DEFINE INDEX idx_archive_status ON ticket_archive FIELDS status;")
+            .await?;
+
+        // Comments archive indexes
+        db.query("DEFINE INDEX idx_comments_archive_ticket ON ticket_comments_archive FIELDS original_ticket_id;")
+            .await?;
+
+        // Operations log indexes
+        db.query("DEFINE INDEX idx_tiering_ops_date ON tiering_operations FIELDS created_at;")
+            .await?;
+        db.query("DEFINE INDEX idx_tiering_ops_ticket ON tiering_operations FIELDS ticket_id;")
+            .await?;
+        db.query("DEFINE INDEX idx_tiering_ops_type ON tiering_operations FIELDS operation_type;")
+            .await?;
+
+        println!("✅ Archive indexes created successfully");
+        Ok(())
+    }
+
+    /// Seed default tier configuration
+    pub async fn seed_default_config(db: &Database) -> Result<()> {
+        // Check if config exists
+        let existing: Vec<serde_json::Value> = db
+            .query("SELECT * FROM tier_config WHERE name = 'default' LIMIT 1")
+            .await?
+            .take(0)?;
+
+        if existing.is_empty() {
+            db.query(
+                r#"
+                CREATE tier_config SET
+                    name = 'default',
+                    hot_to_warm_days = 7,
+                    warm_to_cold_days = 90,
+                    cold_retention_years = 7,
+                    auto_reheat_on_access = true,
+                    reheat_cooldown_hours = 24,
+                    batch_size = 500,
+                    archive_hour = 3
+                "#,
+            )
+            .await?;
+
+            println!("✅ Default tier configuration created");
+        }
+
+        Ok(())
+    }
+
+    /// Backfill tiering fields on existing tickets
+    pub async fn backfill_existing_tickets(db: &Database) -> Result<()> {
+        // Update tickets that don't have tier set
+        db.query(
+            r#"
+            UPDATE ticket SET 
+                tier = IF(status IN ['CLOSED', 'CANCELLED', 'RESOLVED'], 'warm', 'hot'),
+                last_accessed_at = updated_at,
+                access_count = 0,
+                reheated_count = 0
+            WHERE tier IS NONE OR tier = ''
+            "#,
+        )
+        .await?;
+
+        println!("✅ Existing tickets backfilled with tiering fields");
         Ok(())
     }
 }

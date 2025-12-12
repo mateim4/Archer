@@ -77,6 +77,14 @@ impl TicketService {
             tenant_id: user.tenant_id.as_ref().and_then(|t| parse_thing(t)),
             parent_ticket_id: None,
             assignment_team_id: request.assignment_team_id.and_then(|id| parse_thing(&id)),
+            // Hot/Cold Tiering fields - new tickets start in hot tier
+            tier: "hot".to_string(),
+            last_accessed_at: Some(now),
+            access_count: 1,
+            archived_at: None,
+            archive_reason: None,
+            reheated_count: 0,
+            last_reheated_at: None,
         };
 
         // Calculate SLA times
@@ -115,12 +123,30 @@ impl TicketService {
     pub async fn get_ticket(&self, id: &str) -> Result<Option<TicketResponse>> {
         let ticket_thing = parse_thing_or_ticket(id)?;
 
-        let ticket: Option<Ticket> = self.db.select(ticket_thing).await?;
+        let ticket: Option<Ticket> = self.db.select(ticket_thing.clone()).await?;
 
         match ticket {
-            Some(t) => Ok(Some(self.get_ticket_response(&t).await?)),
+            Some(t) => {
+                // Record access for tiering decisions
+                let _ = self.record_ticket_access(&ticket_thing.to_string()).await;
+                Ok(Some(self.get_ticket_response(&t).await?))
+            },
             None => Ok(None),
         }
+    }
+    
+    /// Record ticket access for hot/cold tiering decisions
+    async fn record_ticket_access(&self, ticket_id: &str) -> Result<()> {
+        self.db
+            .query(r#"
+                UPDATE ticket SET 
+                    last_accessed_at = time::now(),
+                    access_count = access_count + 1
+                WHERE id = $id
+            "#)
+            .bind(("id", ticket_id))
+            .await?;
+        Ok(())
     }
 
     /// Update a ticket with field tracking

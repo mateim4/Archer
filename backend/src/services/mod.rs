@@ -5,6 +5,7 @@ pub mod auth_service;
 pub mod sla_service;
 pub mod ticket_service;
 pub mod team_service;  // Team Management
+pub mod tiering_service;  // Hot/Cold Data Tiering
 
 // Knowledge Base (Phase 1.5)
 pub mod knowledge_service;

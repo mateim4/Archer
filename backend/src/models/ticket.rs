@@ -86,6 +86,35 @@ pub struct Ticket {
     /// Parent ticket ID (for parent/child relationships)
     #[serde(default)]
     pub parent_ticket_id: Option<Thing>,
+    
+    // ========================================================================
+    // Hot/Cold Tiering Fields
+    // ========================================================================
+    /// Current tier: "hot", "warm", or "cold"
+    #[serde(default = "default_tier")]
+    pub tier: String,
+    /// Last time this ticket was accessed (for tiering decisions)
+    #[serde(default)]
+    pub last_accessed_at: Option<DateTime<Utc>>,
+    /// Number of times this ticket has been accessed
+    #[serde(default)]
+    pub access_count: i32,
+    /// When this ticket was archived (if applicable)
+    #[serde(default)]
+    pub archived_at: Option<DateTime<Utc>>,
+    /// Reason for archival
+    #[serde(default)]
+    pub archive_reason: Option<String>,
+    /// Number of times this ticket has been reheated from cold storage
+    #[serde(default)]
+    pub reheated_count: i32,
+    /// Last time this ticket was reheated
+    #[serde(default)]
+    pub last_reheated_at: Option<DateTime<Utc>>,
+}
+
+fn default_tier() -> String {
+    "hot".to_string()
 }
 
 // ============================================================================

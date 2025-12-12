@@ -15,6 +15,7 @@ pub mod settings; // Global settings API
 pub mod teams; // Team Management API (Phase 1+)
 pub mod tickets; // Tickets API
 pub mod ticket_relationships; // Ticket Relationships API
+pub mod tiering; // Hot/Cold Data Tiering API
 pub mod assets; // CMDB Assets API
 pub mod monitoring; // Monitoring API
 pub mod integration; // Integration Hub API
@@ -72,7 +73,8 @@ pub fn api_router(state: AppState) -> Router {
         .nest("/integration", integration::create_integration_router(state.clone()))
         .nest("/settings", settings::create_settings_router(state.clone()))
         .nest("/workflows", workflows::create_workflows_router(state.clone()))
-        .nest("/catalog", service_catalog::create_service_catalog_router(state.clone()));
+        .nest("/catalog", service_catalog::create_service_catalog_router(state.clone()))
+        .nest("/tiering", tiering::create_tiering_router(state.clone()));
 
     Router::new()
         .route("/health", get(health_check))

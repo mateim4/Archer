@@ -172,6 +172,14 @@ async fn create_ticket(
         tenant_id: user.tenant_id.as_ref().and_then(|t| thing(t).ok()),
         parent_ticket_id: None,
         assignment_team_id: None,
+        // Hot/Cold Tiering fields - new tickets start in hot tier
+        tier: "hot".to_string(),
+        last_accessed_at: Some(now),
+        access_count: 1,
+        archived_at: None,
+        archive_reason: None,
+        reheated_count: 0,
+        last_reheated_at: None,
     };
 
     match db.create("ticket").content(ticket).await {
