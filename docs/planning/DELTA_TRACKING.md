@@ -2,8 +2,8 @@
 
 **Document Purpose:** Track all significant changes across agentic coding sessions to ensure continuity and accountability.
 
-**Last Updated:** 2025-12-12T10:30:00Z  
-**Document Version:** 2.0
+**Last Updated:** 2025-12-12T14:00:00Z  
+**Document Version:** 2.1
 
 ---
 
@@ -34,6 +34,46 @@ This document is **mandatory reading and updating** for all AI agents working on
 ## 🔄 Current Session Changes
 
 > *AI Agents: Log your changes here during the session, then move to Completed Log*
+
+### [2025-12-12 14:00] - Hot/Cold Data Tiering Architecture Specification
+**Type:** Architecture | Documentation
+**Files Created:**
+- docs/architecture/HOT_COLD_TIERING_SPECIFICATION.md (New - 1000+ lines)
+
+**Description:**
+Designed and documented a comprehensive hot/cold data tiering system for the Archer ticket system to achieve high-performance ticketing. The specification includes:
+
+1. **Industry Research**: Documented common patterns (ServiceNow, Jira, Elasticsearch, Prometheus, Snowflake)
+2. **Three-Tier Model**: Hot (active tickets), Warm (recently closed), Cold (archived)
+3. **SurrealDB Schema**: Complete schema with tiering fields, archive tables, indexes
+4. **Transition Rules**: Status-based + time-based + access-based triggers
+5. **Reheat Mechanism**: Auto-restore cold tickets to hot tier on access
+6. **Rust Implementation**: TieringService, TicketRepository, background scheduler code
+7. **API Integration**: Tier-aware endpoints, response formats
+8. **Operational Concerns**: Monitoring metrics, backup strategy, disaster recovery
+9. **Migration Path**: 4-phase rollout from current schema
+
+**Key Design Decisions:**
+- Separate tables approach (ticket + ticket_archive) vs partitioning
+- Auto-reheat on direct access with 24-hour cooldown
+- Hot tier: active tickets or accessed within 7 days
+- Warm tier: closed tickets for 7-90 days
+- Cold tier: 90+ days since last access
+- Denormalized archive records (self-contained, no joins)
+
+**Impact:**
+- Foundation for high-performance ticket queries (10-100x faster for active tickets)
+- Reduced memory footprint - only working set in RAM
+- Unlimited historical storage capacity
+- Future compliance with long-term retention requirements
+
+**Next Steps:**
+1. Implement tiering fields in current migrations
+2. Create TieringService in Rust backend
+3. Add background archival job
+4. Frontend integration (tier badges, archive toggle)
+
+---
 
 ### [2025-12-12 10:30] - Comprehensive UI Audit & Fixes (9 Issues)
 **Type:** Bugfix | Refactor
