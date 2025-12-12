@@ -25,7 +25,7 @@ import {
 } from 'lucide-react';
 import ReactECharts from 'echarts-for-react';
 import LoadingSpinner from '../components/LoadingSpinner';
-import { PurpleGlassButton, PurpleGlassDropdown } from '@/components/ui';
+import { PurpleGlassButton, PurpleGlassDropdown, PageHeader } from '@/components/ui';
 
 // Types for analytics data
 interface AnalyticsMetric {
@@ -460,31 +460,32 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
     <div>
       <div className="p-6 space-y-6">
         {/* Header */}
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold mb-2">Advanced Analytics Dashboard</h1>
-            <p style={{ color: 'var(--text-secondary)' }}>Real-time insights and system analytics</p>
-          </div>
-          <div className="flex items-center gap-4">
-            <PurpleGlassDropdown
-              options={timeRangeOptions}
-              value={selectedTimeRange}
-              onChange={(value) => setSelectedTimeRange(value as string)}
-              placeholder="Select time range..."
-              glass="light"
-            />
-            <PurpleGlassButton
-              variant="secondary"
-              size="medium"
-              onClick={handleRefresh}
-              disabled={refreshing}
-              icon={<RefreshCw size={16} className={refreshing ? 'animate-spin' : ''} />}
-              glass
-            >
-              Refresh
-            </PurpleGlassButton>
-          </div>
-        </div>
+        <PageHeader
+          icon={<BarChart3 />}
+          title="Advanced Analytics Dashboard"
+          subtitle="Real-time insights and system analytics"
+          actions={
+            <div className="flex items-center gap-4">
+              <PurpleGlassDropdown
+                options={timeRangeOptions}
+                value={selectedTimeRange}
+                onChange={(value) => setSelectedTimeRange(value as string)}
+                placeholder="Select time range..."
+                glass="light"
+              />
+              <PurpleGlassButton
+                variant="secondary"
+                size="medium"
+                onClick={handleRefresh}
+                disabled={refreshing}
+                icon={<RefreshCw size={16} className={refreshing ? 'animate-spin' : ''} />}
+                glass
+              >
+                Refresh
+              </PurpleGlassButton>
+            </div>
+          }
+        />
 
         {/* Key Metrics Overview */}
         {dashboardData && (

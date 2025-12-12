@@ -101,35 +101,41 @@ const InventoryView: React.FC = () => {
 
   return (
     <div style={{ maxWidth: '1600px', margin: '0 auto', padding: '24px' }}>
-      {/* Header - Dashboard Style */}
+      {/* Header - Dashboard Style with Search embedded */}
       <PageHeader
         icon={<DatabaseRegular style={{ fontSize: '32px' }} />}
         title="Inventory (CMDB)"
         subtitle="Single Source of Truth for Infrastructure Assets"
         actions={
-          <PurpleGlassButton variant="primary" icon={<AddRegular />} glass>
-            Add Asset
-          </PurpleGlassButton>
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+            <div style={{ width: '300px' }}>
+              <PurpleGlassInput
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+                placeholder="Search assets..."
+                prefixIcon={<SearchRegular />}
+                glass="light"
+              />
+            </div>
+            <PurpleGlassButton variant="primary" icon={<AddRegular />} glass>
+              Add Asset
+            </PurpleGlassButton>
+          </div>
         }
       />
 
       {/* Main Split View */}
-      <div style={{ display: 'flex', gap: '24px', minHeight: '600px' }}>
+      <div style={{ display: 'flex', gap: '24px', minHeight: '600px', alignItems: 'flex-start' }}>
         
         {/* Left Pane: Asset Tree / List */}
-        <div style={{ width: '350px', display: 'flex', flexDirection: 'column', gap: '16px', flexShrink: 0 }}>
-          <PurpleGlassCard glass style={{ padding: '12px' }}>
-            <PurpleGlassInput 
-              value={filter}
-              onChange={(e) => setFilter(e.target.value)}
-              placeholder="Search assets..."
-              prefixIcon={<SearchRegular />}
-              glass="none"
-            />
-          </PurpleGlassCard>
-
-          <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px', paddingRight: '8px' }}>
-            {filteredAssets.map(asset => (
+        <div style={{ width: '350px', display: 'flex', flexDirection: 'column', gap: '8px', flexShrink: 0 }}>
+          {/* List of assets */}
+          {filteredAssets.length === 0 ? (
+            <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)' }}>
+              No assets found
+            </div>
+          ) : (
+            filteredAssets.map(asset => (
               <PurpleGlassCard 
                 key={asset.id}
                 glass
@@ -139,7 +145,9 @@ const InventoryView: React.FC = () => {
                   padding: '12px',
                   cursor: 'pointer',
                   borderColor: selectedAsset?.id === asset.id ? `${purplePalette.purple500}80` : undefined,
-                  background: selectedAsset?.id === asset.id ? `${purplePalette.purple500}20` : undefined
+                  background: selectedAsset?.id === asset.id ? `${purplePalette.purple500}20` : undefined,
+                  transform: selectedAsset?.id === asset.id ? 'translateX(4px)' : 'none',
+                  transition: 'all 0.2s ease'
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -161,7 +169,8 @@ const InventoryView: React.FC = () => {
                         textOverflow: 'ellipsis',
                         whiteSpace: 'nowrap',
                         color: 'var(--text-primary)',
-                        margin: 0
+                        margin: 0,
+                        fontSize: '14px'
                       }}
                     >
                       {asset.name}
@@ -170,17 +179,19 @@ const InventoryView: React.FC = () => {
                       style={{ 
                         fontSize: '12px',
                         color: 'var(--text-muted)',
-                        margin: '4px 0 0 0'
+                        margin: '2px 0 0 0'
                       }}
                     >
                       {asset.asset_type} • {asset.external_id || 'No ID'}
                     </p>
                   </div>
-                  <ChevronRightRegular style={{ color: 'var(--text-muted)' }} />
+                  {selectedAsset?.id === asset.id && (
+                    <ChevronRightRegular style={{ color: 'var(--brand-primary)' }} />
+                  )}
                 </div>
               </PurpleGlassCard>
-            ))}
-          </div>
+            ))
+          )}
         </div>
 
         {/* Right Pane: Asset 360 Dashboard */}

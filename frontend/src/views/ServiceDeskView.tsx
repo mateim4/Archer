@@ -559,82 +559,89 @@ const ServiceDeskView: React.FC = () => {
               </PurpleGlassButton>
             </div>
           }
-        />
-
-        {/* KPI Cards (ServiceNow Killer Feature) */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
-          <KPICard 
-            title="Open Incidents" 
-            value={tickets.filter(t => t.status !== 'RESOLVED').length} 
-            trend="+2 vs last period" 
-            trendType="negative" 
-            icon={<TicketDiagonalRegular />}
-            color="#6B4CE6"
-          />
-          <KPICard 
-            title="SLA Breaches" 
-            value={tickets.filter(t => t.slaStatus === 'breached').length} 
-            trend="-1 vs last period" 
-            trendType="positive" 
-            icon={<AlertRegular />}
-            color="#ef4444"
-          />
-          <KPICard 
-            title="Critical Assets" 
-            value={3} 
-            trend="0 unchanged" 
-            trendType="neutral" 
-            icon={<DesktopRegular />}
-            color="#f59e0b"
-          />
-          <KPICard 
-            title="Avg Resolution" 
-            value="4.2h" 
-            trend="-15m improved" 
-            trendType="positive" 
-            icon={<ClockRegular />}
-            color="#10b981"
-          />
-        </div>
-
-        {/* Ticket Type Tabs */}
-        <div 
-          className="purple-glass-card static"
-          style={{ 
-            display: 'flex', 
-            gap: '4px',
-            padding: '8px',
-            marginBottom: '-8px'
-          }}
         >
-          {TICKET_TYPE_TABS.map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`btn-tab ${activeTab === tab.id ? 'btn-tab-active' : ''}`}
-            >
-              {tab.icon}
-              <span>{tab.label}</span>
-              <span style={{
-                padding: '2px 8px',
-                borderRadius: '9999px',
-                background: activeTab === tab.id 
-                  ? 'rgba(139, 92, 246, 0.15)'
-                  : 'var(--tab-bg)',
-                fontSize: '12px',
-                color: activeTab === tab.id 
-                  ? 'var(--primary)' 
-                  : 'var(--text-primary)',
-                fontWeight: 500,
-              }}>
-                {ticketCounts[tab.id as keyof typeof ticketCounts]}
-              </span>
-            </button>
-          ))}
-        </div>
+          {/* Children: Stats, Tabs, Filters */}
 
-        {/* Filters Toolbar with Saved Views */}
-        <PurpleGlassCard glass style={{ padding: DesignTokens.spacing.md }}>
+          {/* KPI Cards (ServiceNow Killer Feature) */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+            gap: '16px',
+            marginBottom: '24px',
+            marginTop: '24px' // Add top margin to separate from header row
+          }}>
+            <KPICard
+              title="Open Incidents"
+              value={tickets.filter(t => t.status !== 'RESOLVED').length}
+              trend="+2 vs last period"
+              trendType="negative"
+              icon={<TicketDiagonalRegular />}
+              color="#6B4CE6"
+            />
+            <KPICard
+              title="SLA Breaches"
+              value={tickets.filter(t => t.slaStatus === 'breached').length}
+              trend="-1 vs last period"
+              trendType="positive"
+              icon={<AlertRegular />}
+              color="#ef4444"
+            />
+            <KPICard
+              title="Critical Assets"
+              value={3}
+              trend="0 unchanged"
+              trendType="neutral"
+              icon={<DesktopRegular />}
+              color="#f59e0b"
+            />
+            <KPICard
+              title="Avg Resolution"
+              value="4.2h"
+              trend="-15m improved"
+              trendType="positive"
+              icon={<ClockRegular />}
+              color="#10b981"
+            />
+          </div>
+
+          {/* Ticket Type Tabs */}
+          <div
+            style={{
+              display: 'flex',
+              gap: '4px',
+              padding: '8px 0',
+              marginBottom: '16px',
+              borderBottom: '1px solid var(--divider-color-subtle)'
+            }}
+          >
+            {TICKET_TYPE_TABS.map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`btn-tab ${activeTab === tab.id ? 'btn-tab-active' : ''}`}
+                style={{ background: 'transparent' }} // Override class style for embedded
+              >
+                {tab.icon}
+                <span>{tab.label}</span>
+                <span style={{
+                  padding: '2px 8px',
+                  borderRadius: '9999px',
+                  background: activeTab === tab.id
+                    ? 'rgba(139, 92, 246, 0.15)'
+                    : 'var(--tab-bg)',
+                  fontSize: '12px',
+                  color: activeTab === tab.id
+                    ? 'var(--primary)'
+                    : 'var(--text-primary)',
+                  fontWeight: 500,
+                }}>
+                  {ticketCounts[tab.id as keyof typeof ticketCounts]}
+                </span>
+              </button>
+            ))}
+          </div>
+
+          {/* Filters Toolbar with Saved Views */}
           <div style={{ display: 'flex', gap: DesignTokens.spacing.lg, alignItems: 'center', flexWrap: 'wrap' }}>
             {/* Saved Views Dropdown */}
             <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -655,7 +662,7 @@ const ServiceDeskView: React.FC = () => {
                 onChange={(e) => setFilter(e.target.value)}
                 placeholder="Search tickets, assets, or people..."
                 prefixIcon={<SearchRegular />}
-                glass="none"
+                glass="light" // Use light glass inside the header
               />
             </div>
             <div style={{ width: '180px', flexShrink: 0 }}>
@@ -668,7 +675,7 @@ const ServiceDeskView: React.FC = () => {
                 ]}
                 value={statusFilter}
                 onChange={(val) => setStatusFilter(val as string)}
-                glass="none"
+                glass="light" // Use light glass inside the header
               />
             </div>
             
@@ -827,7 +834,7 @@ const ServiceDeskView: React.FC = () => {
               </div>
             </div>
           )}
-        </PurpleGlassCard>
+        </PageHeader>
 
         {/* Results Count */}
         <div style={{ 
@@ -936,6 +943,8 @@ const KPICard: React.FC<{
       padding: '24px',
       position: 'relative',
       overflow: 'hidden',
+      border: '1px solid var(--card-border-subtle)', // Slight subtle border for inner cards
+      background: 'var(--card-bg-subtle)', // Use subtle background inside header
     }}
   >
     {/* Icon */}
