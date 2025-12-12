@@ -163,6 +163,19 @@ async fn run_all_migrations(db: &Database) -> Result<(), DatabaseError> {
         info!("✅ Workflow Engine migrations completed");
     }
 
+    // Seed demo data (only if database is empty)
+    let seed_enabled = std::env::var("SEED_DEMO_DATA")
+        .map(|v| v == "true" || v == "1")
+        .unwrap_or(true); // Enabled by default for dev
+    
+    if seed_enabled {
+        if let Err(e) = migrations::SeedData::seed_demo_tickets(db).await {
+            warn!("Demo ticket seeding failed: {}", e);
+        } else {
+            info!("✅ Demo data seeding completed");
+        }
+    }
+
     Ok(())
 }
 

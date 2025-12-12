@@ -1,5 +1,6 @@
 use crate::database::Database;
 use anyhow::Result;
+use chrono::Utc;
 use serde_json::json;
 
 // ============================================================================
@@ -2337,6 +2338,403 @@ impl TeamMigrations {
             .await?;
 
         println!("✅ Team management indexes created successfully");
+        Ok(())
+    }
+}
+
+// ============================================================================
+// SEED DATA: Demo/Mock Tickets
+// ============================================================================
+
+/// Seed data for demonstration and development
+pub struct SeedData;
+
+impl SeedData {
+    /// Seed demo tickets for the Service Desk (only if no tickets exist)
+    pub async fn seed_demo_tickets(db: &Database) -> Result<()> {
+        use chrono::Duration;
+        
+        // Check if tickets already exist
+        let result: Vec<serde_json::Value> = db
+            .query("SELECT count() FROM ticket GROUP ALL")
+            .await?
+            .take(0)?;
+        
+        if let Some(count_obj) = result.first() {
+            if let Some(count) = count_obj.get("count").and_then(|c| c.as_i64()) {
+                if count > 0 {
+                    println!("📋 Skipping ticket seed - {} tickets already exist", count);
+                    return Ok(());
+                }
+            }
+        }
+        
+        println!("🌱 Seeding demo tickets...");
+        let now = Utc::now();
+        
+        // Demo tickets matching frontend mock data
+        let demo_tickets = vec![
+            // P1 Incident - High CPU
+            serde_json::json!({
+                "id": "ticket:INC-001",
+                "title": "Production cluster NX-01 experiencing high CPU utilization",
+                "description": "Multiple nodes in the NX-01 cluster are showing CPU utilization above 90%. User-facing services may be impacted.",
+                "type": "INCIDENT",
+                "priority": "P1",
+                "status": "IN_PROGRESS",
+                "created_by": "monitoring.system@company.com",
+                "assignee": "John Smith",
+                "created_at": (now - Duration::hours(2)).to_rfc3339(),
+                "updated_at": (now - Duration::minutes(30)).to_rfc3339(),
+                "sla_breach_at": (now + Duration::minutes(45)).to_rfc3339(),
+                "category": "Infrastructure",
+                "subcategory": "Compute",
+                "impact": "HIGH",
+                "urgency": "HIGH",
+                "source": "MONITORING",
+                "tier": "hot",
+                "access_count": 15,
+                "last_accessed_at": (now - Duration::minutes(5)).to_rfc3339()
+            }),
+            // P2 Incident - Email issues
+            serde_json::json!({
+                "id": "ticket:INC-002",
+                "title": "Email service intermittent connectivity issues",
+                "description": "Users reporting intermittent failures when sending emails. Exchange server showing connection timeouts.",
+                "type": "INCIDENT",
+                "priority": "P2",
+                "status": "NEW",
+                "created_by": "jane.doe@company.com",
+                "assignee": null,
+                "created_at": (now - Duration::minutes(30)).to_rfc3339(),
+                "updated_at": (now - Duration::minutes(30)).to_rfc3339(),
+                "sla_breach_at": (now + Duration::hours(3) + Duration::minutes(30)).to_rfc3339(),
+                "category": "Applications",
+                "subcategory": "Email",
+                "impact": "MEDIUM",
+                "urgency": "HIGH",
+                "source": "PORTAL",
+                "tier": "hot",
+                "access_count": 3,
+                "last_accessed_at": (now - Duration::minutes(25)).to_rfc3339()
+            }),
+            // P2 Incident - VPN drops
+            serde_json::json!({
+                "id": "ticket:INC-003",
+                "title": "VPN connection drops for remote users",
+                "description": "Multiple remote users experiencing VPN disconnections every 15-20 minutes.",
+                "type": "INCIDENT",
+                "priority": "P2",
+                "status": "IN_PROGRESS",
+                "created_by": "help.desk@company.com",
+                "assignee": "Sarah Johnson",
+                "created_at": (now - Duration::hours(4)).to_rfc3339(),
+                "updated_at": (now - Duration::hours(1)).to_rfc3339(),
+                "sla_breach_at": (now - Duration::hours(2)).to_rfc3339(), // Already breached
+                "category": "Network",
+                "subcategory": "VPN",
+                "impact": "HIGH",
+                "urgency": "MEDIUM",
+                "source": "PHONE",
+                "tier": "hot",
+                "access_count": 22,
+                "last_accessed_at": (now - Duration::minutes(10)).to_rfc3339()
+            }),
+            // Service Request - New laptops
+            serde_json::json!({
+                "id": "ticket:SR-001",
+                "title": "New laptop setup request for Marketing team",
+                "description": "Request for 5 new Dell laptops for Marketing department new hires starting next month.",
+                "type": "SERVICE_REQUEST",
+                "priority": "P3",
+                "status": "NEW",
+                "created_by": "marketing.manager@company.com",
+                "assignee": "Tech Support",
+                "created_at": (now - Duration::days(1)).to_rfc3339(),
+                "updated_at": (now - Duration::days(1)).to_rfc3339(),
+                "sla_breach_at": (now + Duration::days(2) + Duration::hours(4)).to_rfc3339(),
+                "category": "Hardware",
+                "subcategory": "Laptop",
+                "source": "PORTAL",
+                "tier": "hot",
+                "access_count": 2,
+                "last_accessed_at": (now - Duration::hours(8)).to_rfc3339()
+            }),
+            // Service Request - Software installation
+            serde_json::json!({
+                "id": "ticket:SR-002",
+                "title": "Software installation - Adobe Creative Suite",
+                "description": "Install Adobe Creative Suite on workstation DESK-MKT-003 for design team member.",
+                "type": "SERVICE_REQUEST",
+                "priority": "P4",
+                "status": "IN_PROGRESS",
+                "created_by": "design.lead@company.com",
+                "assignee": "Mike Wilson",
+                "created_at": (now - Duration::hours(3)).to_rfc3339(),
+                "updated_at": (now - Duration::hours(2)).to_rfc3339(),
+                "sla_breach_at": (now + Duration::hours(5)).to_rfc3339(),
+                "category": "Software",
+                "subcategory": "Installation",
+                "source": "PORTAL",
+                "tier": "hot",
+                "access_count": 4,
+                "last_accessed_at": (now - Duration::hours(1)).to_rfc3339()
+            }),
+            // Problem - Memory leaks
+            serde_json::json!({
+                "id": "ticket:PRB-001",
+                "title": "Recurring memory leaks in application server",
+                "description": "App server APP-PROD-01 requires weekly restarts due to memory consumption. Root cause investigation needed.",
+                "type": "PROBLEM",
+                "priority": "P2",
+                "status": "IN_PROGRESS",
+                "created_by": "devops.team@company.com",
+                "assignee": "DevOps Team",
+                "created_at": (now - Duration::days(7)).to_rfc3339(),
+                "updated_at": (now - Duration::days(2)).to_rfc3339(),
+                "sla_breach_at": (now + Duration::days(5)).to_rfc3339(),
+                "category": "Infrastructure",
+                "subcategory": "Application Server",
+                "impact": "MEDIUM",
+                "urgency": "LOW",
+                "source": "MONITORING",
+                "tier": "hot",
+                "access_count": 35,
+                "last_accessed_at": (now - Duration::days(1)).to_rfc3339()
+            }),
+            // Problem - Network latency
+            serde_json::json!({
+                "id": "ticket:PRB-002",
+                "title": "Network latency spikes during peak hours",
+                "description": "Investigating cause of network latency increases (>200ms) during 9AM-11AM business hours.",
+                "type": "PROBLEM",
+                "priority": "P3",
+                "status": "NEW",
+                "created_by": "network.admin@company.com",
+                "assignee": null,
+                "created_at": (now - Duration::days(2)).to_rfc3339(),
+                "updated_at": (now - Duration::days(2)).to_rfc3339(),
+                "sla_breach_at": (now + Duration::days(8)).to_rfc3339(),
+                "category": "Network",
+                "subcategory": "Performance",
+                "impact": "MEDIUM",
+                "urgency": "LOW",
+                "source": "MONITORING",
+                "tier": "hot",
+                "access_count": 8,
+                "last_accessed_at": (now - Duration::hours(12)).to_rfc3339()
+            }),
+            // Change - Database upgrade
+            serde_json::json!({
+                "id": "ticket:CHG-001",
+                "title": "Scheduled maintenance - Database cluster upgrade",
+                "description": "Upgrade PostgreSQL cluster from 14.x to 16.x. Planned downtime: 2 hours.",
+                "type": "CHANGE",
+                "priority": "P2",
+                "status": "NEW",
+                "created_by": "dba.team@company.com",
+                "assignee": "DBA Team",
+                "created_at": (now - Duration::days(5)).to_rfc3339(),
+                "updated_at": (now - Duration::days(3)).to_rfc3339(),
+                "category": "Database",
+                "subcategory": "Upgrade",
+                "impact": "HIGH",
+                "source": "PORTAL",
+                "tier": "hot",
+                "access_count": 12,
+                "last_accessed_at": (now - Duration::days(1)).to_rfc3339()
+            }),
+            // Change - Firewall rule (Resolved - will go to warm tier demo)
+            serde_json::json!({
+                "id": "ticket:CHG-002",
+                "title": "Firewall rule update for new SaaS integration",
+                "description": "Add outbound rules for Salesforce API integration on production firewall.",
+                "type": "CHANGE",
+                "priority": "P3",
+                "status": "RESOLVED",
+                "created_by": "network.team@company.com",
+                "assignee": "Network Team",
+                "created_at": (now - Duration::days(10)).to_rfc3339(),
+                "updated_at": (now - Duration::days(8)).to_rfc3339(),
+                "resolved_at": (now - Duration::days(8)).to_rfc3339(),
+                "category": "Security",
+                "subcategory": "Firewall",
+                "source": "PORTAL",
+                "tier": "warm", // Recently closed, in warm tier
+                "access_count": 18,
+                "last_accessed_at": (now - Duration::days(5)).to_rfc3339()
+            }),
+            // P3 Incident - Printer
+            serde_json::json!({
+                "id": "ticket:INC-004",
+                "title": "Printer offline in Building B - Floor 3",
+                "description": "Network printer HP-PRN-B3-01 showing offline status. Users cannot print documents.",
+                "type": "INCIDENT",
+                "priority": "P3",
+                "status": "NEW",
+                "created_by": "office.admin@company.com",
+                "assignee": null,
+                "created_at": (now - Duration::hours(1)).to_rfc3339(),
+                "updated_at": (now - Duration::hours(1)).to_rfc3339(),
+                "sla_breach_at": (now + Duration::hours(7)).to_rfc3339(),
+                "category": "Hardware",
+                "subcategory": "Printer",
+                "impact": "LOW",
+                "urgency": "MEDIUM",
+                "source": "PORTAL",
+                "tier": "hot",
+                "access_count": 1,
+                "last_accessed_at": (now - Duration::minutes(55)).to_rfc3339()
+            }),
+            // Service Request - Password reset (Resolved)
+            serde_json::json!({
+                "id": "ticket:SR-003",
+                "title": "Password reset for executive account",
+                "description": "CFO forgot password and needs immediate reset for board meeting presentation access.",
+                "type": "SERVICE_REQUEST",
+                "priority": "P1",
+                "status": "RESOLVED",
+                "created_by": "executive.assistant@company.com",
+                "assignee": "Help Desk",
+                "created_at": (now - Duration::minutes(45)).to_rfc3339(),
+                "updated_at": (now - Duration::minutes(30)).to_rfc3339(),
+                "resolved_at": (now - Duration::minutes(30)).to_rfc3339(),
+                "category": "Access",
+                "subcategory": "Password",
+                "impact": "HIGH",
+                "urgency": "HIGH",
+                "source": "PHONE",
+                "tier": "hot", // Just resolved, still hot
+                "access_count": 6,
+                "last_accessed_at": (now - Duration::minutes(30)).to_rfc3339()
+            }),
+            // P2 Incident - Storage warning
+            serde_json::json!({
+                "id": "ticket:INC-005",
+                "title": "Storage array warning - low disk space",
+                "description": "SAN array SAN-PROD-01 showing 85% capacity. Threshold alert triggered.",
+                "type": "INCIDENT",
+                "priority": "P2",
+                "status": "IN_PROGRESS",
+                "created_by": "monitoring.system@company.com",
+                "assignee": "Storage Admin",
+                "created_at": (now - Duration::hours(6)).to_rfc3339(),
+                "updated_at": (now - Duration::hours(4)).to_rfc3339(),
+                "sla_breach_at": (now + Duration::hours(1) + Duration::minutes(15)).to_rfc3339(),
+                "category": "Infrastructure",
+                "subcategory": "Storage",
+                "impact": "HIGH",
+                "urgency": "MEDIUM",
+                "source": "MONITORING",
+                "tier": "hot",
+                "access_count": 9,
+                "last_accessed_at": (now - Duration::minutes(20)).to_rfc3339()
+            }),
+            // Additional historical tickets for demo
+            serde_json::json!({
+                "id": "ticket:INC-006",
+                "title": "Backup job failure - nightly backup incomplete",
+                "description": "Nightly backup job for file server FS-PROD-01 failed at 03:15 AM. Retry initiated.",
+                "type": "INCIDENT",
+                "priority": "P2",
+                "status": "RESOLVED",
+                "created_by": "backup.system@company.com",
+                "assignee": "Backup Admin",
+                "created_at": (now - Duration::days(30)).to_rfc3339(),
+                "updated_at": (now - Duration::days(29)).to_rfc3339(),
+                "resolved_at": (now - Duration::days(29)).to_rfc3339(),
+                "closed_at": (now - Duration::days(28)).to_rfc3339(),
+                "category": "Infrastructure",
+                "subcategory": "Backup",
+                "tier": "warm", // Old resolved ticket
+                "access_count": 5,
+                "last_accessed_at": (now - Duration::days(20)).to_rfc3339()
+            }),
+            serde_json::json!({
+                "id": "ticket:SR-004",
+                "title": "Office 365 license allocation for new hire",
+                "description": "Allocate E3 license for new employee starting in Finance department.",
+                "type": "SERVICE_REQUEST",
+                "priority": "P4",
+                "status": "CLOSED",
+                "created_by": "hr.system@company.com",
+                "assignee": "IT Admin",
+                "created_at": (now - Duration::days(45)).to_rfc3339(),
+                "updated_at": (now - Duration::days(44)).to_rfc3339(),
+                "resolved_at": (now - Duration::days(44)).to_rfc3339(),
+                "closed_at": (now - Duration::days(43)).to_rfc3339(),
+                "category": "Software",
+                "subcategory": "Licensing",
+                "tier": "warm",
+                "access_count": 3,
+                "last_accessed_at": (now - Duration::days(40)).to_rfc3339()
+            }),
+        ];
+        
+        // Insert each ticket
+        for ticket in &demo_tickets {
+            let id = ticket.get("id").and_then(|v| v.as_str()).unwrap_or("ticket:unknown");
+            // Extract just the ID part (after the colon)
+            let id_part = id.split(':').last().unwrap_or(id);
+            
+            db.query(format!(
+                r#"
+                CREATE ticket:{} CONTENT {{
+                    title: $title,
+                    description: $description,
+                    type: $type,
+                    priority: $priority,
+                    status: $status,
+                    created_by: $created_by,
+                    assignee: $assignee,
+                    created_at: $created_at,
+                    updated_at: $updated_at,
+                    sla_breach_at: $sla_breach_at,
+                    response_due: $response_due,
+                    resolution_due: $resolution_due,
+                    resolved_at: $resolved_at,
+                    closed_at: $closed_at,
+                    category: $category,
+                    subcategory: $subcategory,
+                    impact: $impact,
+                    urgency: $urgency,
+                    source: $source,
+                    tier: $tier,
+                    access_count: $access_count,
+                    last_accessed_at: $last_accessed_at,
+                    tags: [],
+                    watchers: [],
+                    reheated_count: 0
+                }};
+                "#,
+                id_part
+            ))
+            .bind(("title", ticket.get("title")))
+            .bind(("description", ticket.get("description")))
+            .bind(("type", ticket.get("type")))
+            .bind(("priority", ticket.get("priority")))
+            .bind(("status", ticket.get("status")))
+            .bind(("created_by", ticket.get("created_by")))
+            .bind(("assignee", ticket.get("assignee")))
+            .bind(("created_at", ticket.get("created_at")))
+            .bind(("updated_at", ticket.get("updated_at")))
+            .bind(("sla_breach_at", ticket.get("sla_breach_at")))
+            .bind(("response_due", ticket.get("response_due")))
+            .bind(("resolution_due", ticket.get("resolution_due")))
+            .bind(("resolved_at", ticket.get("resolved_at")))
+            .bind(("closed_at", ticket.get("closed_at")))
+            .bind(("category", ticket.get("category")))
+            .bind(("subcategory", ticket.get("subcategory")))
+            .bind(("impact", ticket.get("impact")))
+            .bind(("urgency", ticket.get("urgency")))
+            .bind(("source", ticket.get("source")))
+            .bind(("tier", ticket.get("tier")))
+            .bind(("access_count", ticket.get("access_count").and_then(|v| v.as_i64()).unwrap_or(0)))
+            .bind(("last_accessed_at", ticket.get("last_accessed_at")))
+            .await?;
+        }
+        
+        println!("✅ Seeded {} demo tickets", demo_tickets.len());
         Ok(())
     }
 }
