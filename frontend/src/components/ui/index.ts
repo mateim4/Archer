@@ -52,8 +52,20 @@ export { PurpleGlassSpinner } from './PurpleGlassSpinner';
 export type { PurpleGlassSpinnerProps } from './PurpleGlassSpinner';
 
 // Skeleton Components
-export { PurpleGlassSkeleton } from './PurpleGlassSkeleton';
-export type { PurpleGlassSkeletonProps } from './PurpleGlassSkeleton';
+export { 
+  PurpleGlassSkeleton, 
+  PageHeaderSkeleton, 
+  ContentGridSkeleton, 
+  TableSkeleton, 
+  FullPageSkeleton 
+} from './PurpleGlassSkeleton';
+export type { 
+  PurpleGlassSkeletonProps, 
+  PageHeaderSkeletonProps, 
+  ContentGridSkeletonProps, 
+  TableSkeletonProps, 
+  FullPageSkeletonProps 
+} from './PurpleGlassSkeleton';
 
 // Pagination Components
 export { PurpleGlassPagination } from './PurpleGlassPagination';

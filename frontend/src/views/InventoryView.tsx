@@ -4,7 +4,9 @@ import {
   PurpleGlassCard, 
   PurpleGlassButton, 
   PurpleGlassInput,
-  PageHeader
+  PageHeader,
+  PageHeaderSkeleton,
+  PurpleGlassSkeleton
 } from '../components/ui';
 import { 
   SearchRegular,
@@ -29,6 +31,7 @@ const InventoryView: React.FC = () => {
   const [assets, setAssets] = useState<Asset[]>([]);
   const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
   const [filter, setFilter] = useState('');
+  const [loading, setLoading] = useState(true);
   const { withLoading } = useEnhancedUX();
 
   useEffect(() => {
@@ -36,15 +39,16 @@ const InventoryView: React.FC = () => {
   }, []);
 
   const loadAssets = async () => {
-    await withLoading(async () => {
-      try {
-        const data = await apiClient.getAssets();
-        setAssets(data);
-        if (data.length > 0) setSelectedAsset(data[0]);
-      } catch (error) {
-        console.error('Failed to load assets:', error);
-      }
-    });
+    setLoading(true);
+    try {
+      const data = await apiClient.getAssets();
+      setAssets(data);
+      if (data.length > 0) setSelectedAsset(data[0]);
+    } catch (error) {
+      console.error('Failed to load assets:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const getAssetIcon = (type: string) => {
@@ -70,6 +74,30 @@ const InventoryView: React.FC = () => {
     a.name.toLowerCase().includes(filter.toLowerCase()) || 
     a.asset_type.toLowerCase().includes(filter.toLowerCase())
   );
+
+  // Loading skeleton
+  if (loading) {
+    return (
+      <div style={{ maxWidth: '1600px', margin: '0 auto', padding: '24px' }}>
+        <PageHeaderSkeleton showActions={true} actionCount={1} />
+        <div style={{ display: 'flex', gap: '24px', minHeight: '600px' }}>
+          {/* Left sidebar skeleton */}
+          <div style={{ width: '350px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <PurpleGlassSkeleton variant="card" height="52px" />
+            <PurpleGlassSkeleton variant="card" height="80px" count={5} />
+          </div>
+          {/* Right content skeleton */}
+          <div style={{ flex: 1 }}>
+            <PurpleGlassSkeleton variant="card" height="200px" />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginTop: '24px' }}>
+              <PurpleGlassSkeleton variant="card" height="250px" />
+              <PurpleGlassSkeleton variant="card" height="250px" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ maxWidth: '1600px', margin: '0 auto', padding: '24px' }}>
