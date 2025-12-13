@@ -907,7 +907,7 @@ export class ApiClient {
     
     // Create abort controller for timeout
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+    const timeoutId = setTimeout(() => controller.abort(), 1500); // 1.5 second timeout - fail fast to mock data
     
     try {
       const response = await fetch(url, {

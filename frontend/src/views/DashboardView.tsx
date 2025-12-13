@@ -28,7 +28,8 @@ import {
 } from '@fluentui/react-icons';
 import { useTheme } from '../hooks/useTheme';
 import { useNotificationState } from '../hooks/useNotifications';
-import { PageHeader, PurpleGlassCard, PurpleGlassButton, PurpleGlassDropdown, SLAIndicator, AIInsightsPanel, AIInsight, DemoModeBanner, SkeletonDashboard } from '../components/ui';
+import { useAsyncData } from '../hooks/useAsyncData';
+import { PageHeader, PurpleGlassCard, PurpleGlassButton, PurpleGlassDropdown, SLAIndicator, AIInsightsPanel, AIInsight, DemoModeBanner } from '../components/ui';
 import { apiClient, Ticket } from '../utils/apiClient';
 
 /**
@@ -751,126 +752,145 @@ export const DashboardView: React.FC = () => {
   const { criticalUnread } = useNotificationState();
   
   const [timeRange, setTimeRange] = useState<TimeRange>('7d');
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isDemoMode, setIsDemoMode] = useState(false);
-  
-  // Dashboard data state
-  const [stats, setStats] = useState<StatCardData[]>(MOCK_STATS);
-  const [myTickets, setMyTickets] = useState<DashboardTicket[]>(MOCK_MY_TICKETS);
-  const [activity, setActivity] = useState<ActivityItem[]>(MOCK_ACTIVITY);
-  const [alerts, setAlerts] = useState<CriticalAlert[]>(MOCK_ALERTS);
   const [aiInsights] = useState<AIInsight[]>(MOCK_AI_INSIGHTS);
 
-  // Load dashboard data from API
-  const loadDashboardData = useCallback(async () => {
-    setIsRefreshing(true);
-    let usingMock = false;
+  // ============================================================================
+  // BLAZING FAST DATA LOADING - Instant render + background sync
+  // ============================================================================
+  // Data shows IMMEDIATELY from cache/mock, then updates silently when API responds
+  
+  // Fetch tickets with instant fallback to mock data
+  const { 
+    data: ticketsData, 
+    isRefreshing: isRefreshingTickets,
+    isFallback: ticketsFallback,
+    refresh: refreshTickets 
+  } = useAsyncData({
+    key: `dashboard-tickets-${timeRange}`,
+    fetcher: async () => {
+      const response = await apiClient.getTickets();
+      return Array.isArray(response) ? response : [];
+    },
+    initialData: [] as Ticket[],
+    staleTime: 30000, // 30 seconds cache
+    timeout: 3000,    // 3 second timeout (fail fast!)
+  });
+
+  // Fetch alerts with instant fallback
+  const { 
+    data: alertsData, 
+    isFallback: alertsFallback,
+    refresh: refreshAlerts 
+  } = useAsyncData({
+    key: 'dashboard-alerts',
+    fetcher: async () => {
+      const response = await apiClient.getAlerts({ status: ['Active'], page_size: 5 });
+      return response?.alerts || [];
+    },
+    initialData: [],
+    staleTime: 30000,
+    timeout: 3000,
+  });
+
+  // ============================================================================
+  // DERIVED STATE - Compute stats from tickets (memoized for performance)
+  // ============================================================================
+  
+  const stats = useMemo((): StatCardData[] => {
+    const tickets = ticketsData;
     
-    try {
-      // Fetch tickets to derive stats and "my tickets"
-      const ticketsResponse = await apiClient.getTickets();
-      const tickets = Array.isArray(ticketsResponse) ? ticketsResponse : [];
+    // If we have real tickets, compute real stats
+    if (tickets.length > 0) {
+      const openCount = tickets.filter(t => t.status === 'NEW').length;
+      const inProgressCount = tickets.filter(t => t.status === 'IN_PROGRESS').length;
+      const resolvedCount = tickets.filter(t => t.status === 'RESOLVED' || t.status === 'CLOSED').length;
       
-      if (tickets.length > 0) {
-        // Calculate stats from real tickets using correct enum values
-        const openCount = tickets.filter(t => t.status === 'NEW').length;
-        const inProgressCount = tickets.filter(t => t.status === 'IN_PROGRESS').length;
-        const resolvedCount = tickets.filter(t => t.status === 'RESOLVED' || t.status === 'CLOSED').length;
-        
-        const realStats: StatCardData[] = [
-          {
-            id: 'open',
-            title: 'Open Tickets',
-            value: openCount,
-            change: 0,
-            changeLabel: 'current',
-            icon: <TicketDiagonalRegular />,
-            color: '#6B4CE6',
-            link: '/app/service-desk?status=open',
-          },
-          {
-            id: 'in-progress',
-            title: 'In Progress',
-            value: inProgressCount,
-            change: 0,
-            changeLabel: 'current',
-            icon: <ClockRegular />,
-            color: '#f59e0b',
-            link: '/app/service-desk?status=in-progress',
-          },
-          {
-            id: 'resolved',
-            title: 'Resolved',
-            value: resolvedCount,
-            icon: <CheckmarkCircleRegular />,
-            color: '#10b981',
-            link: '/app/service-desk?status=resolved',
-          },
-          {
-            id: 'total',
-            title: 'Total Tickets',
-            value: tickets.length,
-            icon: <TimerRegular />,
-            color: 'var(--brand-primary)',
-          },
-        ];
-        setStats(realStats);
-        
-        // Map tickets to dashboard format (take first 5 as "my tickets")
-        const dashboardTickets: DashboardTicket[] = tickets.slice(0, 5).map(t => ({
-          id: t.id?.replace('ticket:', '') || t.id || '',
-          title: t.title || 'Untitled',
-          status: mapTicketStatus(t.status),
-          priority: mapTicketPriority(t.priority),
-          assignee: t.assignee || 'Unassigned',
-          createdAt: t.created_at || new Date().toISOString(),
-          slaStatus: 'on_track',
-        }));
-        setMyTickets(dashboardTickets.length > 0 ? dashboardTickets : MOCK_MY_TICKETS);
-      } else {
-        usingMock = true;
-      }
-      
-      // Try to fetch alerts
-      try {
-        const alertsResponse = await apiClient.getAlerts({ status: ['Active'], page_size: 5 });
-        const alertsData = alertsResponse?.alerts || [];
-        if (alertsData.length > 0) {
-          const dashboardAlerts: CriticalAlert[] = alertsData.map(a => ({
-            id: a.id || '',
-            title: a.title || '',
-            severity: (a.severity?.toLowerCase() || 'medium') as CriticalAlert['severity'],
-            source: a.source || 'Monitoring',
-            timestamp: a.created_at || new Date().toISOString(),
-            acknowledged: a.status === 'Acknowledged',
-          }));
-          setAlerts(dashboardAlerts);
-        }
-      } catch {
-        // Keep mock alerts
-      }
-      
-    } catch (error) {
-      console.warn('Dashboard API unavailable, using demo data:', error);
-      usingMock = true;
-      // Keep using mock data that's already set
+      return [
+        {
+          id: 'open',
+          title: 'Open Tickets',
+          value: openCount,
+          change: 0,
+          changeLabel: 'current',
+          icon: <TicketDiagonalRegular />,
+          color: '#6B4CE6',
+          link: '/app/service-desk?status=open',
+        },
+        {
+          id: 'in-progress',
+          title: 'In Progress',
+          value: inProgressCount,
+          change: 0,
+          changeLabel: 'current',
+          icon: <ClockRegular />,
+          color: '#f59e0b',
+          link: '/app/service-desk?status=in-progress',
+        },
+        {
+          id: 'resolved',
+          title: 'Resolved',
+          value: resolvedCount,
+          icon: <CheckmarkCircleRegular />,
+          color: '#10b981',
+          link: '/app/service-desk?status=resolved',
+        },
+        {
+          id: 'total',
+          title: 'Total Tickets',
+          value: tickets.length,
+          icon: <TimerRegular />,
+          color: 'var(--brand-primary)',
+        },
+      ];
     }
     
-    setIsDemoMode(usingMock);
-    setIsRefreshing(false);
-    setIsLoading(false);
-  }, []);
+    // Fall back to mock stats
+    return MOCK_STATS;
+  }, [ticketsData]);
 
-  // Load data on mount and when time range changes
-  useEffect(() => {
-    loadDashboardData();
-  }, [loadDashboardData, timeRange]);
+  const myTickets = useMemo((): DashboardTicket[] => {
+    const tickets = ticketsData;
+    
+    if (tickets.length > 0) {
+      return tickets.slice(0, 5).map(t => ({
+        id: t.id?.replace('ticket:', '') || t.id || '',
+        title: t.title || 'Untitled',
+        status: mapTicketStatus(t.status),
+        priority: mapTicketPriority(t.priority),
+        assignee: t.assignee || 'Unassigned',
+        createdAt: t.created_at || new Date().toISOString(),
+        slaStatus: 'on_track' as const,
+      }));
+    }
+    
+    return MOCK_MY_TICKETS;
+  }, [ticketsData]);
+
+  const alerts = useMemo((): CriticalAlert[] => {
+    if (alertsData.length > 0) {
+      return alertsData.map((a: any) => ({
+        id: a.id || '',
+        title: a.title || '',
+        severity: (a.severity?.toLowerCase() || 'medium') as CriticalAlert['severity'],
+        source: a.source || 'Monitoring',
+        timestamp: a.created_at || new Date().toISOString(),
+        acknowledged: a.status === 'Acknowledged',
+      }));
+    }
+    return MOCK_ALERTS;
+  }, [alertsData]);
+
+  // Activity is always mock for now (no API endpoint)
+  const activity = MOCK_ACTIVITY;
+  
+  // Demo mode when both data sources are using fallback
+  const isDemoMode = ticketsFallback && alertsFallback && ticketsData.length === 0;
+  const isRefreshing = isRefreshingTickets;
 
   // Refresh handler
-  const handleRefresh = useCallback(() => {
-    loadDashboardData();
-  }, [loadDashboardData]);
+  const handleRefresh = useCallback(async () => {
+    await Promise.all([refreshTickets(), refreshAlerts()]);
+  }, [refreshTickets, refreshAlerts]);
 
   // Navigate to ticket detail
   const handleTicketClick = useCallback((ticketId: string) => {
@@ -882,14 +902,7 @@ export const DashboardView: React.FC = () => {
     if (link) navigate(link);
   }, [navigate]);
 
-  // Show skeleton while loading
-  if (isLoading) {
-    return (
-      <div data-testid="dashboard-view" style={{ maxWidth: '1400px', margin: '0 auto' }}>
-        <SkeletonDashboard />
-      </div>
-    );
-  }
+  // NO LOADING STATE - we render immediately with cached/mock data!
 
   return (
     <div data-testid="dashboard-view" style={{ maxWidth: '1400px', margin: '0 auto' }}>
