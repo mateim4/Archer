@@ -238,7 +238,7 @@ export const EnhancedRVToolsReportView: React.FC = () => {
   const selectedUploadData = uploads.find(u => u.id === selectedUpload);
 
   return (
-    <div style={{...DesignTokens.components.pageContainer, overflow: 'visible'}}>
+    <div style={{ maxWidth: '1400px', margin: '0 auto', overflow: 'visible' }}>
       {/* Header */}
       <div style={{
         display: 'flex',

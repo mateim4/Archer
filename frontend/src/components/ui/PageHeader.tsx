@@ -8,6 +8,7 @@
  */
 
 import React from 'react';
+import { PurpleGlassCard } from './PurpleGlassCard';
 
 export interface PageHeaderProps {
   /** Main title text */
@@ -172,16 +173,15 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
 
   if (withCard) {
     return (
-      <div 
-        className={`purple-glass-card static ${className}`}
-        style={{
-          padding: '24px',
-          marginBottom: '24px',
-        }}
+      <PurpleGlassCard
+        glass
+        padding="large"
+        className={className}
+        style={{ marginBottom: '24px' }}
         data-testid={testId}
       >
         {headerContent}
-      </div>
+      </PurpleGlassCard>
     );
   }
 

@@ -15,7 +15,7 @@ import { useAppStore } from '../store/useAppStore';
 import NetworkComponentGuide from '../components/NetworkComponentGuide';
 import VisualNetworkDiagram from '../components/VisualNetworkDiagram';
 // Design system components – replace native buttons per instructions
-import { PurpleGlassButton } from '@/components/ui';
+import { PurpleGlassButton, PageHeader, PurpleGlassCard } from '@/components/ui';
 
 // Define consistent color palette for diagrams
 const DIAGRAM_THEME = {

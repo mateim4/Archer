@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Clock, CheckCircle, XCircle, AlertCircle, Pause, X, ChevronRight } from 'lucide-react';
-import { PurpleGlassButton, PurpleGlassCard, PurpleGlassDropdown } from '../components/ui';
+import { PurpleGlassButton, PurpleGlassCard, PurpleGlassDropdown, PageHeader } from '../components/ui';
 import { apiClient, WorkflowInstance, WorkflowInstanceStatus, StepExecution } from '../utils/apiClient';
 
 const WorkflowInstanceView: React.FC = () => {
@@ -106,31 +106,41 @@ const WorkflowInstanceView: React.FC = () => {
   }
 
   return (
-    <div className="lcm-page-container">
-      <PurpleGlassCard>
-        <div className="lcm-page-header">
-          <div>
-            <h1 className="lcm-page-title">Workflow Instances</h1>
-            <p className="lcm-page-subtitle">
-              Monitor running and completed workflow executions
-            </p>
-          </div>
-          <div className="flex gap-4">
-            <PurpleGlassDropdown
-              options={[
-                { value: 'all', label: 'All Statuses' },
-                { value: 'RUNNING', label: 'Running' },
-                { value: 'WAITING_APPROVAL', label: 'Waiting Approval' },
-                { value: 'COMPLETED', label: 'Completed' },
-                { value: 'FAILED', label: 'Failed' },
-                { value: 'CANCELLED', label: 'Cancelled' },
-              ]}
-              value={statusFilter}
-              onChange={(value) => setStatusFilter(value as string)}
-              glass="light"
-            />
-          </div>
+    <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+      <PageHeader
+        icon={<Clock />}
+        title="Workflow Instances"
+        subtitle="Monitor running and completed workflow executions"
+        actions={
+          <PurpleGlassDropdown
+            options={[
+              { value: 'all', label: 'All Statuses' },
+              { value: 'RUNNING', label: 'Running' },
+              { value: 'WAITING_APPROVAL', label: 'Waiting Approval' },
+              { value: 'COMPLETED', label: 'Completed' },
+              { value: 'FAILED', label: 'Failed' },
+              { value: 'CANCELLED', label: 'Cancelled' },
+            ]}
+            value={statusFilter}
+            onChange={(value) => setStatusFilter(value as string)}
+          />
+        }
+      >
+        {/* Instance stats */}
+        <div style={{ display: 'flex', gap: '16px', marginTop: '12px' }}>
+          <span style={{ fontSize: '13px', color: 'var(--color-text-secondary)' }}>
+            Total: <strong>{instances.length}</strong>
+          </span>
+          <span style={{ fontSize: '13px', color: 'var(--color-text-secondary)' }}>
+            Running: <strong>{instances.filter(i => i.status === 'RUNNING').length}</strong>
+          </span>
+          <span style={{ fontSize: '13px', color: 'var(--color-text-secondary)' }}>
+            Completed: <strong>{instances.filter(i => i.status === 'COMPLETED').length}</strong>
+          </span>
         </div>
+      </PageHeader>
+
+      <PurpleGlassCard glass>
 
         {/* Instances List */}
         <div className="space-y-4">

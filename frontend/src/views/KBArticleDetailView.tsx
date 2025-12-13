@@ -5,7 +5,8 @@ import {
   PurpleGlassButton,
   PurpleGlassDrawer,
   PurpleGlassSkeleton,
-  PurpleGlassEmptyState
+  PurpleGlassEmptyState,
+  PageHeader
 } from '../components/ui';
 import { MarkdownRenderer } from '../components/kb/MarkdownRenderer';
 import { RatingWidget } from '../components/kb/RatingWidget';
@@ -20,7 +21,9 @@ import {
   TagRegular,
   BookmarkRegular,
   ShareRegular,
-  PrintRegular
+  PrintRegular,
+  BookRegular,
+  ErrorCircleRegular
 } from '@fluentui/react-icons';
 import { tokens } from '@fluentui/react-components';
 import { apiClient, KBArticle, KBArticleVersion } from '../utils/apiClient';

@@ -10,7 +10,7 @@ import {
   makeStyles
 } from '@fluentui/react-components';
 import GlassmorphicSearchBar from '../components/GlassmorphicSearchBar';
-import { PurpleGlassDropdown } from '../components/ui';
+import { PurpleGlassDropdown, PageHeader, PurpleGlassCard } from '../components/ui';
 import type { DropdownOption } from '../components/ui';
 import {
   BookRegular,
@@ -897,40 +897,13 @@ const GuidesView: React.FC = () => {
   };
 
   return (
-    <div style={{...DesignTokens.components.pageContainer, overflow: 'visible'}}>
+    <div style={{ maxWidth: '1400px', margin: '0 auto', overflow: 'visible' }}>
       {/* Header */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: DesignTokens.spacing.xl,
-        borderBottom: `2px solid ${DesignTokens.colors.primary}20`,
-        paddingBottom: DesignTokens.spacing.lg
-      }}>
-        <div>
-          <h1 style={{
-            fontSize: DesignTokens.typography.xxxl,
-            fontWeight: DesignTokens.typography.semibold,
-            color: 'var(--text-primary)',
-            margin: '0',
-            fontFamily: DesignTokens.typography.fontFamily,
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px'
-          }}>
-            <NavigationRegular style={{ fontSize: '32px', color: 'var(--icon-default)' }} />
-            Guides & Documentation
-          </h1>
-          <p style={{
-            fontSize: DesignTokens.typography.lg,
-            color: 'var(--text-secondary)',
-            fontFamily: DesignTokens.typography.fontFamily,
-            margin: 0
-          }}>
-            Comprehensive guides and tutorials to help you get the most out of Archer
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        icon={<NavigationRegular />}
+        title="Guides & Documentation"
+        subtitle="Comprehensive guides and tutorials to help you get the most out of Archer"
+      />
 
       {/* Statistics Cards */}
       <div className="purple-glass-card static" style={{

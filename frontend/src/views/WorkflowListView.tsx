@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Play, Pause, CheckCircle, AlertCircle, Clock, X } from 'lucide-react';
-import { PurpleGlassButton, PurpleGlassDropdown, PurpleGlassCard } from '../components/ui';
+import { PurpleGlassButton, PurpleGlassDropdown, PurpleGlassCard, PageHeader } from '../components/ui';
 import { apiClient, WorkflowDefinition, WorkflowInstance, WorkflowInstanceStatus } from '../utils/apiClient';
 
 const WorkflowListView: React.FC = () => {
@@ -130,16 +130,13 @@ const WorkflowListView: React.FC = () => {
   }
 
   return (
-    <div className="lcm-page-container">
-      <PurpleGlassCard>
-        <div className="lcm-page-header">
-          <div>
-            <h1 className="lcm-page-title">Workflow Automation</h1>
-            <p className="lcm-page-subtitle">
-              Define and manage automated workflows with approvals, notifications, and actions
-            </p>
-          </div>
-          <div className="flex gap-4">
+    <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+      <PageHeader
+        icon={<Play />}
+        title="Workflow Automation"
+        subtitle="Define and manage automated workflows with approvals, notifications, and actions"
+        actions={
+          <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
             <PurpleGlassDropdown
               options={[
                 { value: 'all', label: 'All Triggers' },
@@ -150,18 +147,32 @@ const WorkflowListView: React.FC = () => {
               ]}
               value={filterTrigger}
               onChange={(value) => setFilterTrigger(value as string)}
-              glass="light"
             />
             <PurpleGlassButton
               variant="primary"
               onClick={() => setShowCreateModal(true)}
               icon={<Plus size={16} />}
-              glass
             >
               Create Workflow
             </PurpleGlassButton>
           </div>
+        }
+      >
+        {/* Workflow stats */}
+        <div style={{ display: 'flex', gap: '16px', marginTop: '12px' }}>
+          <span style={{ fontSize: '13px', color: 'var(--color-text-secondary)' }}>
+            Total: <strong>{workflows.length}</strong>
+          </span>
+          <span style={{ fontSize: '13px', color: 'var(--color-text-secondary)' }}>
+            Active: <strong>{workflows.filter(w => w.is_active).length}</strong>
+          </span>
+          <span style={{ fontSize: '13px', color: 'var(--color-text-secondary)' }}>
+            Instances: <strong>{instances.length}</strong>
+          </span>
         </div>
+      </PageHeader>
+
+      <PurpleGlassCard glass>
 
         {/* Workflows List */}
         <div className="space-y-4">

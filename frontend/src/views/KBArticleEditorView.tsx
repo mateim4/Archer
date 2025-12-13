@@ -7,6 +7,7 @@ import {
   PurpleGlassTextarea,
   PurpleGlassDropdown,
   PurpleGlassSkeleton,
+  PageHeader,
 } from '../components/ui';
 import { MarkdownEditor } from '../components/kb/MarkdownEditor';
 import {
@@ -242,37 +243,20 @@ export const KBArticleEditorView: React.FC = () => {
   }
 
   return (
-    <div style={{ padding: tokens.spacingVerticalXXL, maxWidth: '1400px', margin: '0 auto' }}>
-      {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: tokens.spacingVerticalXL }}>
-        <div>
-          <h1 style={{
-            fontSize: tokens.fontSizeHero900,
-            fontWeight: tokens.fontWeightSemibold,
-            color: tokens.colorNeutralForeground1,
-            marginBottom: tokens.spacingVerticalXS,
-          }}>
-            {isEditMode ? 'Edit Article' : 'Create New Article'}
-          </h1>
-          {lastSaved && (
-            <p style={{
-              fontSize: tokens.fontSizeBase200,
-              color: tokens.colorNeutralForeground3,
-            }}>
-              Last saved: {lastSaved.toLocaleTimeString()}
-              {isDirty && ' (unsaved changes)'}
-            </p>
-          )}
-        </div>
-
-        <div style={{ display: 'flex', gap: tokens.spacingHorizontalS }}>
-          <PurpleGlassButton
-            variant="ghost"
-            icon={<DismissCircleRegular />}
-            onClick={handleCancel}
-            disabled={isSaving}
-          >
-            Cancel
+    <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+      <PageHeader
+        icon={<SaveRegular />}
+        title={isEditMode ? 'Edit Article' : 'Create New Article'}
+        subtitle={lastSaved ? `Last saved: ${lastSaved.toLocaleTimeString()}${isDirty ? ' (unsaved changes)' : ''}` : ''}
+        actions={
+          <div style={{ display: 'flex', gap: tokens.spacingHorizontalS }}>
+            <PurpleGlassButton
+              variant="ghost"
+              icon={<DismissCircleRegular />}
+              onClick={handleCancel}
+              disabled={isSaving}
+            >
+              Cancel
           </PurpleGlassButton>
           <PurpleGlassButton
             variant="secondary"
@@ -291,7 +275,8 @@ export const KBArticleEditorView: React.FC = () => {
             Publish
           </PurpleGlassButton>
         </div>
-      </div>
+      }
+    />
 
       {/* Form */}
       <PurpleGlassCard style={{ marginBottom: tokens.spacingVerticalXL }}>

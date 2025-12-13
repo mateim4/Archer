@@ -168,8 +168,14 @@ export const PurpleGlassCard = forwardRef<HTMLDivElement, PurpleGlassCardProps>(
       // This ensures we use the same styling as Dashboard's purple-glass-card
       const classes: string[] = glass ? ['purple-glass-card'] : [styles.card];
 
-      // Only add Fluent variant styles for non-glass mode
-      if (!glass) {
+      // Variant styles
+      if (glass) {
+        // Map variants to CSS utility classes so glass mode can still express variants
+        if (effectiveVariant === 'interactive') classes.push('card-interactive');
+        if (effectiveVariant === 'elevated') classes.push('card-elevated');
+        if (effectiveVariant === 'outlined') classes.push('card-outlined');
+        if (effectiveVariant === 'subtle') classes.push('card-subtle');
+      } else {
         if (effectiveVariant === 'default') {
           classes.push(styles.default);
         } else if (effectiveVariant === 'interactive') {

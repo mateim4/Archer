@@ -4,6 +4,8 @@ import {
   PurpleGlassCard,
   PurpleGlassButton,
   PurpleGlassSpinner,
+  PageHeader,
+  PurpleGlassEmptyState,
 } from '../components/ui';
 import {
   ArrowLeftRegular,
@@ -12,6 +14,9 @@ import {
   HistoryRegular,
   LinkRegular,
   AlertRegular,
+  DatabaseRegular,
+  InfoRegular,
+  ErrorCircleRegular,
 } from '@fluentui/react-icons';
 import * as cmdbClient from '../api/cmdbClient';
 import type {
@@ -87,12 +92,19 @@ const CIDetailView: React.FC = () => {
 
   if (error || !ciDetail) {
     return (
-      <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
-        <PurpleGlassCard style={{ padding: '40px', textAlign: 'center' }}>
-          <p style={{ color: 'var(--colorPaletteRedForeground1)', marginBottom: '16px' }}>
-            {error || 'CI not found'}
-          </p>
-          <PurpleGlassButton onClick={handleBack}>Back to CMDB</PurpleGlassButton>
+      <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+        <PurpleGlassCard glass>
+          <PurpleGlassEmptyState
+            icon={<ErrorCircleRegular />}
+            title="CI Not Found"
+            description={error || 'The configuration item you are looking for does not exist or has been removed.'}
+            action={
+              <PurpleGlassButton onClick={handleBack}>
+                <ArrowLeftRegular style={{ marginRight: '8px' }} />
+                Back to CMDB
+              </PurpleGlassButton>
+            }
+          />
         </PurpleGlassCard>
       </div>
     );
@@ -101,94 +113,54 @@ const CIDetailView: React.FC = () => {
   const { ci, relationships, history } = ciDetail;
 
   return (
-    <div style={{ padding: '24px', maxWidth: '1400px', margin: '0 auto' }}>
-      {/* Header */}
-      <div style={{ marginBottom: '24px' }}>
-        <PurpleGlassButton
-          icon={<ArrowLeftRegular />}
-          onClick={handleBack}
-          variant="ghost"
-          style={{ marginBottom: '16px' }}
-        >
-          Back to CMDB
-        </PurpleGlassButton>
-
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-              <span style={{ fontSize: '32px' }}>
-                {cmdbClient.getCIClassIcon(ci.ci_class)}
-              </span>
-              <h1 style={{
-                fontSize: FluentTokens.typography.fontSize[900],
-                fontWeight: FluentTokens.typography.fontWeight.semibold,
-                margin: 0,
-              }}>
-                {ci.name}
-              </h1>
-            </div>
-            <p style={{
-              fontSize: FluentTokens.typography.fontSize[400],
-              color: 'var(--colorNeutralForeground2)',
-              margin: 0,
-            }}>
-              CI ID: {ci.ci_id} • {ci.ci_type}
-            </p>
-          </div>
-
+    <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+      <PageHeader
+        icon={cmdbClient.getCIClassIcon(ci.ci_class)}
+        title={ci.name}
+        subtitle={`CI ID: ${ci.ci_id} • Type: ${ci.ci_type} • Class: ${ci.ci_class}`}
+        badge={ci.status}
+        badgeVariant={ci.status === 'ACTIVE' ? 'success' : ci.status === 'INACTIVE' ? 'warning' : 'critical'}
+        actions={
           <div style={{ display: 'flex', gap: '8px' }}>
-            <PurpleGlassButton
-              icon={<EditRegular />}
-              onClick={handleEdit}
-            >
+            <PurpleGlassButton variant="secondary" onClick={handleBack}>
+              <ArrowLeftRegular style={{ marginRight: '8px' }} />
+              Back
+            </PurpleGlassButton>
+            <PurpleGlassButton icon={<EditRegular />} onClick={handleEdit}>
               Edit
             </PurpleGlassButton>
-            <PurpleGlassButton
-              icon={<DeleteRegular />}
-              onClick={handleDelete}
-              variant="secondary"
-            >
+            <PurpleGlassButton icon={<DeleteRegular />} onClick={handleDelete} variant="ghost">
               Delete
             </PurpleGlassButton>
           </div>
-        </div>
-      </div>
-
-      {/* Status Badges */}
-      <div style={{ display: 'flex', gap: '12px', marginBottom: '24px' }}>
-        <span style={{
-          padding: '8px 16px',
-          borderRadius: FluentTokens.borderRadius.medium,
-          fontSize: FluentTokens.typography.fontSize[300],
-          fontWeight: FluentTokens.typography.fontWeight.medium,
-          backgroundColor: `${cmdbClient.getCIStatusColor(ci.status)}20`,
-          color: cmdbClient.getCIStatusColor(ci.status),
-        }}>
-          {ci.status}
-        </span>
-        <span style={{
-          padding: '8px 16px',
-          borderRadius: FluentTokens.borderRadius.medium,
-          fontSize: FluentTokens.typography.fontSize[300],
-          fontWeight: FluentTokens.typography.fontWeight.medium,
-          backgroundColor: `${cmdbClient.getCICriticalityColor(ci.criticality)}20`,
-          color: cmdbClient.getCICriticalityColor(ci.criticality),
-        }}>
-          {ci.criticality}
-        </span>
-        {ci.environment && (
+        }
+      >
+        {/* CI metadata badges */}
+        <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
           <span style={{
             padding: '8px 16px',
             borderRadius: FluentTokens.borderRadius.medium,
             fontSize: FluentTokens.typography.fontSize[300],
             fontWeight: FluentTokens.typography.fontWeight.medium,
-            backgroundColor: 'var(--colorNeutralBackground3)',
-            color: 'var(--colorNeutralForeground1)',
+            backgroundColor: `${cmdbClient.getCICriticalityColor(ci.criticality)}20`,
+            color: cmdbClient.getCICriticalityColor(ci.criticality),
           }}>
-            {ci.environment}
+            {ci.criticality}
           </span>
-        )}
-      </div>
+          {ci.environment && (
+            <span style={{
+              padding: '8px 16px',
+              borderRadius: FluentTokens.borderRadius.medium,
+              fontSize: FluentTokens.typography.fontSize[300],
+              fontWeight: FluentTokens.typography.fontWeight.medium,
+              backgroundColor: 'var(--colorNeutralBackground3)',
+              color: 'var(--colorNeutralForeground1)',
+            }}>
+              {ci.environment}
+            </span>
+          )}
+        </div>
+      </PageHeader>
 
       {/* Tabs */}
       <PurpleGlassCard style={{ marginBottom: '24px' }}>

@@ -35,6 +35,7 @@ import {
   ShareRegular,
   BookmarkRegular,
   LockClosedRegular,
+  TicketDiagonalRegular,
 } from '@fluentui/react-icons';
 import {
   PurpleGlassCard,
@@ -44,6 +45,8 @@ import {
   PurpleGlassDropdown,
   SLAIndicator,
   LinkedAssetBadge,
+  PageHeader,
+  PurpleGlassEmptyState,
 } from '../components/ui';
 import { RelationshipBadge } from '../components/RelationshipBadge';
 import { RelationshipManager } from '../components/RelationshipManager';
@@ -545,7 +548,8 @@ const TicketDetailView: React.FC = () => {
   if (isLoading) {
     return (
       <div style={{ 
-        ...DesignTokens.components.pageContainer,
+        maxWidth: '1400px',
+        margin: '0 auto',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -561,23 +565,19 @@ const TicketDetailView: React.FC = () => {
 
   if (!ticket) {
     return (
-      <div style={{ 
-        ...DesignTokens.components.pageContainer,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '60vh',
-      }}>
-        <PurpleGlassCard style={{ padding: '48px', textAlign: 'center' }}>
-          <ErrorCircleRegular style={{ fontSize: '48px', color: 'var(--status-critical)', marginBottom: '16px' }} />
-          <h2 style={{ color: 'var(--text-primary)', marginBottom: '8px' }}>Ticket Not Found</h2>
-          <p style={{ color: 'var(--text-muted)', marginBottom: '24px' }}>
-            The ticket you're looking for doesn't exist or has been deleted.
-          </p>
-          <PurpleGlassButton onClick={() => navigate('/app/service-desk')}>
-            <ArrowLeftRegular style={{ marginRight: '8px' }} />
-            Back to Service Desk
-          </PurpleGlassButton>
+      <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+        <PurpleGlassCard glass>
+          <PurpleGlassEmptyState
+            icon={<ErrorCircleRegular />}
+            title="Ticket Not Found"
+            description="The ticket you're looking for doesn't exist or has been deleted."
+            action={
+              <PurpleGlassButton onClick={() => navigate('/app/service-desk')}>
+                <ArrowLeftRegular style={{ marginRight: '8px' }} />
+                Back to Service Desk
+              </PurpleGlassButton>
+            }
+          />
         </PurpleGlassCard>
       </div>
     );
@@ -585,7 +585,8 @@ const TicketDetailView: React.FC = () => {
 
   // Styles
   const containerStyle: React.CSSProperties = {
-    ...DesignTokens.components.pageContainer,
+    maxWidth: '1400px',
+    margin: '0 auto',
     display: 'flex',
     flexDirection: 'column',
     gap: '24px',
@@ -682,64 +683,55 @@ const TicketDetailView: React.FC = () => {
 
   return (
     <div data-testid="ticket-detail-view" style={containerStyle}>
-      {/* Header with back button and actions */}
-      <div style={headerStyle}>
-        <PurpleGlassButton 
-          variant="ghost" 
-          onClick={() => navigate('/app/service-desk')}
-          style={{ padding: '8px' }}
-        >
-          <ArrowLeftRegular style={{ fontSize: '20px' }} />
-        </PurpleGlassButton>
-
-        <div style={{ flex: 1 }}>
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '12px',
-            marginBottom: '4px',
-          }}>
-            <span style={{
-              padding: '4px 10px',
-              background: `${getPriorityColor(ticket.priority)}20`,
-              color: getPriorityColor(ticket.priority),
-              borderRadius: '6px',
-              fontSize: '12px',
-              fontWeight: 600,
-            }}>
-              {ticket.priority}
-            </span>
-            <span style={{
-              padding: '4px 10px',
-              background: `${getStatusColor(ticket.status)}20`,
-              color: getStatusColor(ticket.status),
-              borderRadius: '6px',
-              fontSize: '12px',
-              fontWeight: 600,
-            }}>
-              {ticket.status.replace('_', ' ')}
-            </span>
-            <span style={{
-              color: 'var(--text-muted)',
-              fontSize: '14px',
-            }}>
-              {ticket.id}
-            </span>
+      <PageHeader
+        icon={<TicketDiagonalRegular />}
+        title={ticket.title}
+        subtitle={`${ticket.id} • Created ${new Date(ticket.created_at).toLocaleDateString()} • ${ticket.ticket_type}`}
+        badge={ticket.status.replace('_', ' ')}
+        badgeVariant={ticket.status === 'RESOLVED' || ticket.status === 'CLOSED' ? 'success' : ticket.status === 'IN_PROGRESS' ? 'warning' : 'info'}
+        actions={
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <PurpleGlassButton variant="secondary" onClick={() => navigate('/app/service-desk')}>
+              <ArrowLeftRegular style={{ marginRight: '8px' }} />
+              Back
+            </PurpleGlassButton>
+            <PurpleGlassButton variant="ghost" title="Bookmark">
+              <BookmarkRegular />
+            </PurpleGlassButton>
+            <PurpleGlassButton variant="ghost" title="Share">
+              <ShareRegular />
+            </PurpleGlassButton>
+            <PurpleGlassButton variant="ghost" title="More actions">
+              <MoreHorizontalRegular />
+            </PurpleGlassButton>
           </div>
+        }
+      >
+        {/* Priority badge */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '12px' }}>
+          <span style={{
+            padding: '4px 10px',
+            background: `${getPriorityColor(ticket.priority)}20`,
+            color: getPriorityColor(ticket.priority),
+            borderRadius: '6px',
+            fontSize: '12px',
+            fontWeight: 600,
+          }}>
+            {ticket.priority}
+          </span>
+          {ticket.assignee && (
+            <span style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              fontSize: '14px',
+              color: 'var(--text-muted)',
+            }}>
+              <PersonRegular /> {ticket.assignee}
+            </span>
+          )}
         </div>
-
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <PurpleGlassButton variant="ghost" title="Bookmark">
-            <BookmarkRegular />
-          </PurpleGlassButton>
-          <PurpleGlassButton variant="ghost" title="Share">
-            <ShareRegular />
-          </PurpleGlassButton>
-          <PurpleGlassButton variant="ghost" title="More actions">
-            <MoreHorizontalRegular />
-          </PurpleGlassButton>
-        </div>
-      </div>
+      </PageHeader>
 
       {/* Split Layout */}
       <div style={splitLayoutStyle}>
@@ -998,18 +990,9 @@ const TicketDetailView: React.FC = () => {
 
               {/* Attachments Section - Always visible below comments */}
               {activeTab === 'comments' && (
-                <div style={{ marginTop: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                  <h3 style={{ 
-                    margin: 0, 
-                    color: 'var(--text-primary)', 
-                    fontSize: '18px',
-                    fontWeight: 600,
-                  }}>
-                    Attachments ({attachments.length})
-                  </h3>
-
+                <PurpleGlassCard header={`Attachments (${attachments.length})`} icon={<AttachRegular />} style={{ marginTop: '24px' }} glass>
                   {/* File Upload Zone */}
-                  <div 
+                  <div
                     className="purple-glass-card static"
                     onDragOver={handleDragOver}
                     onDragLeave={handleDragLeave}
@@ -1107,7 +1090,7 @@ const TicketDetailView: React.FC = () => {
                       ))}
                     </div>
                   )}
-                </div>
+                </PurpleGlassCard>
               )}
 
               {/* Activity Tab */}

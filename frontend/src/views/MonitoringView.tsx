@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import GlassmorphicLayout from '../components/GlassmorphicLayout';
 import { 
   PurpleGlassCard, 
   PurpleGlassButton, 
@@ -190,14 +189,13 @@ const MonitoringView: React.FC = () => {
   };
 
   return (
-    <GlassmorphicLayout>
+    <div style={{ maxWidth: '1400px', margin: '0 auto', overflow: 'visible' }}>
       <div className="h-full flex flex-col p-6 space-y-6 overflow-hidden">
         {/* Header & Summary */}
         <PageHeader
           icon={<PulseRegular />}
           title="Monitoring Dashboard"
           subtitle="Real-time Infrastructure Health & Performance"
-          withCard={false}
           actions={
             <div className="flex gap-4">
               <SummaryCard 
@@ -491,7 +489,7 @@ const MonitoringView: React.FC = () => {
         onSubmit={handleIncidentCreated}
         alertContext={selectedAlertContext || undefined}
       />
-    </GlassmorphicLayout>
+    </div>
   );
 };
 
@@ -545,8 +543,8 @@ const TopologyStatCard: React.FC<{ label: string; value: number; icon: React.Rea
     gap: '12px'
   }}>
     <div style={{ color, fontSize: '24px' }}>{icon}</div>
-    <div>
-      <div style={{ fontWeight: 600, fontSize: '20px', color: 'var(--text-primary)' }}>{value}</div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+      <div style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)' }}>{value}</div>
       <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{label}</div>
     </div>
   </div>

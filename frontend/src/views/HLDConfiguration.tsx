@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Tab, TabList, TabValue } from '@fluentui/react-components';
-import { PurpleGlassCard, PurpleGlassButton } from '@/components/ui';
+import { PurpleGlassCard, PurpleGlassButton, PageHeader, PurpleGlassEmptyState } from '@/components/ui';
 import { VariableEditor } from '@/components/hld/VariableEditor';
 import { RVToolsAutoFill } from '@/components/hld/RVToolsAutoFill';
 import { SectionManager } from '@/components/hld/SectionManager';
 import { HLDPreview } from '@/components/hld/HLDPreview';
 import { useHLDVariables } from '@/hooks/useHLDVariables';
 import { useHLDSections } from '@/hooks/useHLDSections';
-import { SaveRegular, ArrowSyncRegular } from '@fluentui/react-icons';
+import { SaveRegular, ArrowSyncRegular, DocumentRegular, ErrorCircleRegular } from '@fluentui/react-icons';
 
 // ============================================================================
 // HLD Configuration View
@@ -55,32 +55,26 @@ export function HLDConfiguration() {
 
   if (!projectId) {
     return (
-      <div style={{ padding: '24px' }}>
-        <PurpleGlassCard glass variant="elevated">
-          <div style={{ textAlign: 'center', padding: '48px 24px' }}>
-            <h2>No Project Selected</h2>
-            <p style={{ color: 'var(--colorNeutralForeground3)', marginTop: '8px' }}>
-              Please select a project to configure HLD variables.
-            </p>
-          </div>
+      <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+        <PurpleGlassCard glass>
+          <PurpleGlassEmptyState
+            icon={<ErrorCircleRegular />}
+            title="No Project Selected"
+            description="Please select a project to configure HLD variables."
+          />
         </PurpleGlassCard>
       </div>
     );
   }
 
   return (
-    <div style={{ padding: '24px', maxWidth: '1400px', margin: '0 auto' }}>
-      {/* Header */}
-      <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div>
-          <h1 style={{ margin: 0, marginBottom: '8px', fontFamily: 'Poppins, sans-serif' }}>
-            HLD Configuration
-          </h1>
-          <p style={{ margin: 0, color: 'var(--colorNeutralForeground3)' }}>
-            Configure High-Level Design variables for project
-          </p>
-        </div>
-        <div style={{ display: 'flex', gap: '12px' }}>
+    <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+      <PageHeader
+        icon={<DocumentRegular />}
+        title="HLD Configuration"
+        subtitle="Configure High-Level Design variables for project"
+        actions={
+          <div style={{ display: 'flex', gap: '12px' }}>
           <PurpleGlassButton
             variant="secondary"
             icon={<ArrowSyncRegular />}

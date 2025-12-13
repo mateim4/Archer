@@ -3,8 +3,7 @@ import { apiClient } from '../utils/apiClient';
 import GlassmorphicSearchBar from '../components/GlassmorphicSearchBar';
 import { DESIGN_TOKENS } from '../components/DesignSystem';
 import { DesignTokens } from '../styles/designSystem';
-import { PurpleGlassButton, PrimaryButton } from '@/components/ui';
-import GlassmorphicLayout from '../components/GlassmorphicLayout';
+import { PurpleGlassButton, PrimaryButton, PageHeader, PurpleGlassCard } from '@/components/ui';
 import {
   ErrorCircleRegular,
   SearchRegular,
@@ -58,6 +57,12 @@ interface UploadProgress {
   progress: number; 
   message: string; 
 }
+
+const pageLayoutStyle: React.CSSProperties = {
+  maxWidth: '1400px',
+  margin: '0 auto',
+  overflow: 'visible',
+};
 
 const HardwareBasketView: React.FC = () => {
   const [hardwareBaskets, setHardwareBaskets] = useState<HardwareBasket[]>([]);
@@ -265,7 +270,7 @@ const HardwareBasketView: React.FC = () => {
 
   if (loading && hardwareBaskets.length === 0) {
     return (
-      <div style={DesignTokens.components.pageContainer}>
+      <div style={pageLayoutStyle}>
         <div style={{ 
           fontSize: DesignTokens.typography.lg,
           color: DesignTokens.colors.primary,
@@ -280,7 +285,7 @@ const HardwareBasketView: React.FC = () => {
 
   if (error) {
     return (
-      <div style={DesignTokens.components.pageContainer}>
+      <div style={pageLayoutStyle}>
         <div style={{ 
           color: DesignTokens.colors.error,
           fontSize: DesignTokens.typography.base,
@@ -293,44 +298,28 @@ const HardwareBasketView: React.FC = () => {
   }
 
   return (
-    <GlassmorphicLayout style={{
-      ...DesignTokens.components.pageContainer,
-      background: 'transparent',
-      border: 'none',
-      boxShadow: 'none',
-      backdropFilter: 'none'
-    }}>
+    <div style={pageLayoutStyle}>
       {/* Header */}
-      <div style={{ 
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: DesignTokens.spacing.xl,
-        borderBottom: `2px solid ${DesignTokens.colors.primary}20`,
-        paddingBottom: DesignTokens.spacing.lg
-      }}>
-        <h1 style={{ 
-          fontSize: DesignTokens.typography.xxxl,
-          fontWeight: DesignTokens.typography.semibold,
-          color: DesignTokens.colors.primary,
-          margin: '0',
-          fontFamily: DesignTokens.typography.fontFamily,
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px'
-        }}>
-          <DatabaseRegular style={{ fontSize: '32px', color: 'var(--text-primary)' }} />
-          Hardware Basket Management
-        </h1>
-        
-        <PrimaryButton
-          onClick={() => setShowCreateDialog(true)}
-        >
-          <span style={{ color: 'white' }}>+</span> Create Hardware Basket
-        </PrimaryButton>
-      </div>
+      <PageHeader
+        icon={<DatabaseRegular />}
+        title="Hardware Basket Management"
+        subtitle="Manage uploaded hardware configuration baskets"
+        actions={
+          <PrimaryButton onClick={() => setShowCreateDialog(true)}>
+            <span style={{ color: 'white' }}>+</span> Create Hardware Basket
+          </PrimaryButton>
+        }
+      >
+        {/* Basket stats */}
+        <div style={{ display: 'flex', gap: '16px', marginTop: '12px' }}>
+          <span style={{ fontSize: '13px', color: 'var(--color-text-secondary)' }}>
+            Total: <strong>{filteredBaskets.length}</strong>
+          </span>
+        </div>
+      </PageHeader>
 
       {/* Search and Filter Controls */}
+      <PurpleGlassCard header="Search & Filter" glass style={{ marginBottom: '24px' }}>
       <div style={{
         display: 'flex',
         gap: '16px',
@@ -1093,7 +1082,7 @@ const HardwareBasketView: React.FC = () => {
           </div>
         </div>
       </div>
-    </GlassmorphicLayout>
+    </div>
   );
 };
 

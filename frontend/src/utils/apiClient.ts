@@ -1272,6 +1272,48 @@ export class ApiClient {
     return this.request(`/api/users/${userId}`, { method: 'DELETE' });
   }
 
+  // ===== Dashboard Data =====
+  
+  /**
+   * Get dashboard statistics for the current user
+   */
+  async getDashboardStats(): Promise<{
+    open_tickets: number;
+    resolved_today: number;
+    pending_approval: number;
+    avg_resolution_time: string;
+    open_change: number;
+    resolved_change: number;
+    pending_change: number;
+    time_change: number;
+  }> {
+    return this.request('/api/v1/tickets/stats');
+  }
+
+  /**
+   * Get tickets assigned to the current user
+   */
+  async getMyTickets(limit?: number): Promise<Ticket[]> {
+    const params = limit ? `?limit=${limit}&assigned_to=me` : '?assigned_to=me';
+    return this.request(`/api/v1/tickets${params}`);
+  }
+
+  /**
+   * Get recent activity feed
+   */
+  async getActivityFeed(limit?: number): Promise<{
+    id: string;
+    type: string;
+    title: string;
+    description: string;
+    timestamp: string;
+    user?: string;
+    related_id?: string;
+  }[]> {
+    const params = limit ? `?limit=${limit}` : '';
+    return this.request(`/api/v1/activity${params}`);
+  }
+
   // ===== Tickets (ITIL) =====
   async getTickets(): Promise<Ticket[]> {
     return this.request('/api/v1/tickets');

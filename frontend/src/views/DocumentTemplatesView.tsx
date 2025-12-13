@@ -40,7 +40,7 @@ import {
   ErrorCircleRegular,
   ArrowUploadRegular
 } from '@fluentui/react-icons';
-import { PurpleGlassInput, PurpleGlassTextarea } from '@/components/ui';
+import { PurpleGlassInput, PurpleGlassTextarea, PageHeader, PurpleGlassCard } from '@/components/ui';
 
 interface DocumentTemplate {
   id: string;
@@ -372,7 +372,7 @@ const DocumentTemplatesView: React.FC = () => {
 
   if (loading) {
     return (
-      <div style={DesignTokens.components.pageContainer}>
+      <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
         <div style={{
           display: 'flex',
           justifyContent: 'center',
@@ -395,38 +395,12 @@ const DocumentTemplatesView: React.FC = () => {
   }
 
   return (
-    <div style={DesignTokens.components.pageContainer}>
-      {/* Header */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: DesignTokens.spacing.xl,
-        borderBottom: `2px solid ${DesignTokens.colors.primary}20`,
-        paddingBottom: DesignTokens.spacing.lg
-      }}>
-        <h1 style={{
-          fontSize: DesignTokens.typography.xxxl,
-          fontWeight: DesignTokens.typography.semibold,
-          color: 'var(--text-primary)',
-          margin: '0',
-          fontFamily: DesignTokens.typography.fontFamily,
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px'
-        }}>
-          <DocumentRegular style={{ fontSize: '32px', color: 'var(--text-primary)' }} />
-          Document Templates
-        </h1>
-        <p style={{
-          fontSize: DesignTokens.typography.lg,
-          color: 'var(--text-secondary)',
-          margin: 0,
-          fontFamily: DesignTokens.typography.fontFamily
-        }}>
-          Pre-built templates for HLD, LLD, BoM, and other project documents
-        </p>
-      </div>
+    <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+      <PageHeader
+        icon={<DocumentRegular />}
+        title="Document Templates"
+        subtitle="Pre-built templates for HLD, LLD, BoM, and other project documents"
+      />
 
       {/* Controls */}
       <div style={{

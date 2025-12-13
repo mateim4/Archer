@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, FileText, Edit3, Trash2, Save, X, Download, Upload } from 'lucide-react';
 import { apiClient, DesignDocument, CreateDesignDocRequest } from '../utils/apiClient';
 import { useAppStore } from '../store/useAppStore';
-import { PurpleGlassDropdown } from '../components/ui';
+import { PurpleGlassDropdown, PageHeader, PurpleGlassCard } from '../components/ui';
 import type { DropdownOption } from '../components/ui';
 
 interface DocFormData {
@@ -184,10 +184,7 @@ const DesignDocsView: React.FC = () => {
 
       {/* Create/Edit Form */}
       {(showCreateForm || editingDoc) && (
-        <div className="lcm-card mb-6">
-          <h2 className="lcm-card-title mb-4">
-            {editingDoc ? 'Edit Document' : 'Create New Document'}
-          </h2>
+        <PurpleGlassCard header={editingDoc ? 'Edit Document' : 'Create New Document'} glass style={{ marginBottom: '24px' }}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div className="lcm-form-group">
               <label className="lcm-label">

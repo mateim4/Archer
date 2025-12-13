@@ -18,9 +18,14 @@ import {
   ArrowUploadRegular,
   DiagramRegular
 } from '@fluentui/react-icons';
-import { PurpleGlassButton, PurpleGlassCard, PrimaryButton } from '../components/ui';
-import GlassmorphicLayout from '../components/GlassmorphicLayout';
+import { PurpleGlassButton, PurpleGlassCard, PrimaryButton, PageHeader } from '../components/ui';
 import { useNavigate } from 'react-router-dom';
+
+const pageLayoutStyle: React.CSSProperties = {
+  maxWidth: '1400px',
+  margin: '0 auto',
+  overflow: 'visible',
+};
 
 const HardwarePoolView: React.FC = () => {
   const navigate = useNavigate();
@@ -138,7 +143,7 @@ const HardwarePoolView: React.FC = () => {
 
   if (loading && hardwarePoolAssets.length === 0) {
     return (
-      <div style={DesignTokens.components.pageContainer}>
+      <div style={pageLayoutStyle}>
         <div style={{ 
           fontSize: DesignTokens.typography.lg,
           color: DesignTokens.colors.primary,
@@ -153,7 +158,7 @@ const HardwarePoolView: React.FC = () => {
 
   if (error) {
     return (
-      <div style={DesignTokens.components.pageContainer}>
+      <div style={pageLayoutStyle}>
         <div style={{ 
           color: DesignTokens.colors.error,
           fontSize: DesignTokens.typography.base,
@@ -166,84 +171,44 @@ const HardwarePoolView: React.FC = () => {
   }
 
   return (
-    <GlassmorphicLayout style={{
-      ...DesignTokens.components.pageContainer,
-      background: 'transparent',
-      border: 'none',
-      boxShadow: 'none',
-      backdropFilter: 'none'
-    }}>
-      {/* Header */}
-      <div style={{ 
-        marginBottom: '24px',
-        borderBottom: '2px solid rgba(99, 102, 241, 0.1)',
-        paddingBottom: '16px'
-      }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px',
-          marginBottom: '8px'
-        }}>
-          <ServerRegular style={{ fontSize: '32px', color: 'var(--icon-default)' }} />
-          <h1 style={{ 
-            fontSize: DesignTokens.typography.xxxl,
-            fontWeight: DesignTokens.typography.semibold,
-            color: 'var(--text-primary)',
-            margin: '0',
-            fontFamily: DesignTokens.typography.fontFamily
-          }}>
-            Inventory
-          </h1>
+    <div style={pageLayoutStyle}>
+      <PageHeader
+        icon={<ServerRegular />}
+        title="Inventory"
+        subtitle="Track and allocate hardware assets"
+        actions={
+          <div style={{ display: 'flex', gap: DesignTokens.spacing.sm }}>
+            <PurpleGlassButton
+              variant="primary"
+              icon={<AddRegular />}
+              onClick={handleCreate}
+            >
+              Add Hardware Asset
+            </PurpleGlassButton>
+            <PurpleGlassButton
+              variant="secondary"
+              icon={<ArrowUploadRegular />}
+              loading={rvToolsLoading}
+              onClick={handleRvToolsImportClick}
+            >
+              Import from RVTools
+            </PurpleGlassButton>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".csv,.xlsx"
+              onChange={handleRvToolsFileChange}
+              style={{ display: 'none' }}
+            />
+          </div>
+        }
+      >
+        <div style={{ marginTop: '12px' }}>
+          <span style={{ color: 'var(--text-secondary)', fontSize: '13px' }}>
+            {rvToolsUploads.length > 0 ? `${rvToolsUploads.length} RVTools uploads processed` : 'Upload RVTools CSV or XLSX exports to populate the inventory.'}
+          </span>
         </div>
-        <p style={{
-          fontSize: '16px',
-          color: 'var(--text-secondary)',
-          margin: 0,
-          fontFamily: DesignTokens.typography.fontFamily,
-          paddingLeft: '44px'
-        }}>
-          Track and allocate hardware assets
-        </p>
-      </div>
-      
-      <div style={{ 
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: DesignTokens.spacing.xl,
-        gap: DesignTokens.spacing.md
-      }}>
-        <div style={{ display: 'flex', gap: DesignTokens.spacing.sm }}>
-          <PurpleGlassButton
-            variant="primary"
-            glass
-            icon={<AddRegular />}
-            onClick={handleCreate}
-          >
-            Add Hardware Asset
-          </PurpleGlassButton>
-          <PurpleGlassButton
-            variant="secondary"
-            glass
-            icon={<ArrowUploadRegular />}
-            loading={rvToolsLoading}
-            onClick={handleRvToolsImportClick}
-          >
-            Import from RVTools
-          </PurpleGlassButton>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".csv,.xlsx"
-            onChange={handleRvToolsFileChange}
-            style={{ display: 'none' }}
-          />
-        </div>
-        <div style={{ color: 'var(--text-secondary)', fontSize: '14px', fontFamily: DesignTokens.typography.fontFamily }}>
-          {rvToolsUploads.length > 0 ? `${rvToolsUploads.length} RVTools uploads processed` : 'Upload RVTools CSV or XLSX exports to populate the inventory.'}
-        </div>
-      </div>
+      </PageHeader>
 
       {latestRvToolsUpload && (
         <PurpleGlassCard
@@ -654,7 +619,7 @@ const HardwarePoolView: React.FC = () => {
           }
         }}
       />
-    </GlassmorphicLayout>
+    </div>
   );
 };
 

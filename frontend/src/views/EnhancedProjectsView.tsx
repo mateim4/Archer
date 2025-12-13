@@ -12,6 +12,7 @@ import {
   EnhancedProgressBar
 } from '../components/EnhancedUXComponents';
 import { useEnhancedUX, useFormValidation, useResponsive } from '../hooks/useEnhancedUX';
+import { PageHeader } from '../components/ui';
 import '../ux-enhancements.css';
 
 const EnhancedProjectsView: React.FC = () => {
@@ -217,16 +218,12 @@ const EnhancedProjectsView: React.FC = () => {
     <div className="lcm-page-container">
       <ToastContainer />
       
-      <div className="lcm-card">
-        {/* Enhanced Page Header */}
-        <div className="lcm-page-header">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Projects</h1>
-              <p className="mt-1" style={{ color: 'var(--text-secondary)' }}>
-                Manage and organize your infrastructure projects
-              </p>
-            </div>
+      <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+        <PageHeader
+          icon={<FolderOpen />}
+          title="Projects"
+          subtitle="Manage and organize your infrastructure projects"
+          actions={
             <EnhancedButton
               onClick={() => setShowCreateForm(true)}
               variant="primary"
@@ -235,8 +232,8 @@ const EnhancedProjectsView: React.FC = () => {
               <Plus className="w-4 h-4" />
               <span>New Project</span>
             </EnhancedButton>
-          </div>
-        </div>
+          }
+        />
 
         {/* Enhanced Search and Controls */}
         <div className="mb-6">
