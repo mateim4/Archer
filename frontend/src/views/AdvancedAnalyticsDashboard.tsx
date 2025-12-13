@@ -457,8 +457,8 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
   };
 
   return (
-    <div>
-      <div className="p-6 space-y-6">
+    <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+      <div className="space-y-6">
         {/* Header */}
         <PageHeader
           icon={<BarChart3 />}
