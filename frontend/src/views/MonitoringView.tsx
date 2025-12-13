@@ -190,7 +190,7 @@ const MonitoringView: React.FC = () => {
 
   return (
     <div style={{ maxWidth: '1400px', margin: '0 auto', overflow: 'visible' }}>
-      <div className="h-full flex flex-col p-6 space-y-6 overflow-hidden">
+      <div className="h-full flex flex-col space-y-6 overflow-hidden">
         {/* Header & Summary */}
         <PageHeader
           icon={<PulseRegular />}
