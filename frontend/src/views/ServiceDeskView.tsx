@@ -518,7 +518,7 @@ const ServiceDeskView: React.FC = () => {
   ];
 
   return (
-    <div data-testid="service-desk-view" style={{...DesignTokens.components.pageContainer, overflow: 'visible'}}>
+    <div data-testid="service-desk-view" style={{ maxWidth: '1400px', margin: '0 auto', overflow: 'visible' }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: DesignTokens.spacing.xl }}>
         {/* Header Section */}
         <PageHeader
@@ -851,7 +851,53 @@ const ServiceDeskView: React.FC = () => {
 
         {/* Main Content Area */}
         <div style={{ flex: 1, minHeight: 0, overflow: 'hidden' }}>
-          {viewMode === 'list' ? (
+          {filteredTickets.length === 0 ? (
+            <PurpleGlassCard
+              glass
+              variant="subtle"
+              padding="large"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                minHeight: '240px',
+              }}
+            >
+              <div style={{ textAlign: 'center', maxWidth: '520px' }}>
+                <div style={{
+                  width: '56px',
+                  height: '56px',
+                  borderRadius: 'var(--radius-lg)',
+                  background: 'var(--card-bg-hover)',
+                  border: '1px solid var(--card-border-subtle)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  margin: '0 auto 16px auto',
+                  color: 'var(--brand-primary)',
+                  fontSize: '22px',
+                }}>
+                  <TicketDiagonalRegular />
+                </div>
+                <h3 style={{ margin: 0, color: 'var(--text-primary)', fontSize: '18px', fontWeight: 600 }}>
+                  No tickets found
+                </h3>
+                <p style={{ margin: '8px 0 0 0', color: 'var(--text-secondary)', fontSize: '14px' }}>
+                  Try adjusting filters, or create a new ticket to get started.
+                </p>
+                <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'center' }}>
+                  <PurpleGlassButton
+                    variant="primary"
+                    icon={<AddRegular />}
+                    glass
+                    onClick={() => setCreateModalOpen(true)}
+                  >
+                    Create Ticket
+                  </PurpleGlassButton>
+                </div>
+              </div>
+            </PurpleGlassCard>
+          ) : viewMode === 'list' ? (
             <div style={{ height: '100%', overflowY: 'auto', paddingRight: '8px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {filteredTickets.map(ticket => (
                 <TicketListItem 
@@ -937,15 +983,11 @@ const KPICard: React.FC<{
   icon?: React.ReactNode;
   color?: string;
 }> = ({ title, value, trend, trendType, icon, color = 'var(--brand-primary)' }) => (
-  <div 
-    className="purple-glass-card"
-    style={{ 
-      padding: '24px',
-      position: 'relative',
-      overflow: 'hidden',
-      border: '1px solid var(--card-border-subtle)', // Slight subtle border for inner cards
-      background: 'var(--card-bg-subtle)', // Use subtle background inside header
-    }}
+  <PurpleGlassCard
+    glass
+    variant="subtle"
+    padding="large"
+    style={{ position: 'relative', overflow: 'hidden' }}
   >
     {/* Icon */}
     {icon && (
@@ -1007,7 +1049,7 @@ const KPICard: React.FC<{
         {trend}
       </span>
     </div>
-  </div>
+  </PurpleGlassCard>
 );
 
 const TicketListItem: React.FC<{ ticket: ExtendedTicket; getPriorityIcon: (p: string) => React.ReactNode; onClick?: () => void }> = ({ ticket, getPriorityIcon, onClick }) => (

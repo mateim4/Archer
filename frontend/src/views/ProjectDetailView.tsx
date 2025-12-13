@@ -238,7 +238,7 @@ const ProjectDetailView: React.FC = () => {
 
   return (
     <ErrorBoundary>
-      <div style={{...DesignTokens.components.pageContainer, overflow: 'visible'}}>
+      <div style={{ maxWidth: '1400px', margin: '0 auto', overflow: 'visible' }}>
         {/* Back Button */}
         <PurpleGlassButton
           variant="secondary"

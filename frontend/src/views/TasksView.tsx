@@ -24,6 +24,7 @@ import {
   PurpleGlassCard,
   PurpleGlassSkeleton,
   PurpleGlassDropdown,
+  PageHeader,
   PrimaryButton
 } from '@/components/ui';
 import { useFormValidation } from '../hooks/useFormValidation';
@@ -379,29 +380,11 @@ export default function TasksView() {
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
       <h1 style={{position:'absolute',width:'1px',height:'1px',overflow:'hidden',clipPath:'inset(50%)',whiteSpace:'nowrap'}}>Tasks</h1>
       
-      {/* Header Card */}
-      <div className="purple-glass-card static" style={{ padding: DesignTokens.spacing.xl, marginBottom: DesignTokens.spacing.xl }}>
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center', 
-          marginBottom: DesignTokens.spacing.lg, 
-          borderBottom: `2px solid ${DesignTokens.colors.primary}20`, 
-          paddingBottom: DesignTokens.spacing.lg 
-        }}>
-          <h2 style={{ 
-            fontSize: DesignTokens.typography.xxxl, 
-            fontWeight: DesignTokens.typography.semibold, 
-            color: 'var(--text-primary)', 
-            margin: '0', 
-            fontFamily: DesignTokens.typography.fontFamily, 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '12px' 
-          }}>
-            <TaskListSquareLtrRegular style={{ fontSize: '32px', color: 'var(--icon-default)' }} />
-            Tasks
-          </h2>
+      <PageHeader
+        icon={<TaskListSquareLtrRegular />}
+        title="Tasks"
+        subtitle="Track and manage work items"
+        actions={
           <PrimaryButton
             data-testid="create-task-button"
             size="large"
@@ -410,7 +393,8 @@ export default function TasksView() {
           >
             New Task
           </PrimaryButton>
-        </div>
+        }
+      >
 
         {/* Statistics Cards Row */}
         <div style={{ 
@@ -419,7 +403,7 @@ export default function TasksView() {
           gap: DesignTokens.spacing.md,
           marginBottom: DesignTokens.spacing.lg
         }}>
-          <div className="purple-glass-card static" style={{ padding: DesignTokens.spacing.md }}>
+          <div className="purple-glass-card static card-subtle" style={{ padding: DesignTokens.spacing.md }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <span style={{ color: 'var(--text-secondary)', fontSize: DesignTokens.typography.sm, fontWeight: DesignTokens.typography.medium }}>In Progress</span>
               <ArrowSyncRegular style={{ color: TASK_STATUS_COLORS.in_progress, fontSize: '18px' }} />
@@ -434,7 +418,7 @@ export default function TasksView() {
             </div>
           </div>
           
-          <div className="purple-glass-card static" style={{ padding: DesignTokens.spacing.md }}>
+          <div className="purple-glass-card static card-subtle" style={{ padding: DesignTokens.spacing.md }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <span style={{ color: 'var(--text-secondary)', fontSize: DesignTokens.typography.sm, fontWeight: DesignTokens.typography.medium }}>Pending</span>
               <WarningRegular style={{ color: TASK_STATUS_COLORS.pending, fontSize: '18px' }} />
@@ -450,7 +434,7 @@ export default function TasksView() {
           </div>
           
           {stats.overdue > 0 && (
-            <div className="purple-glass-card static" style={{ padding: DesignTokens.spacing.md }}>
+            <div className="purple-glass-card static card-subtle" style={{ padding: DesignTokens.spacing.md }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <span style={{ color: DesignTokens.colors.error, fontSize: DesignTokens.typography.sm, fontWeight: DesignTokens.typography.medium }}>Overdue</span>
                 <ErrorCircleRegular style={{ color: DesignTokens.colors.error, fontSize: '18px' }} />
@@ -466,7 +450,7 @@ export default function TasksView() {
             </div>
           )}
           
-          <div className="purple-glass-card static" style={{ padding: DesignTokens.spacing.md }}>
+          <div className="purple-glass-card static card-subtle" style={{ padding: DesignTokens.spacing.md }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <span style={{ color: 'var(--text-secondary)', fontSize: DesignTokens.typography.sm, fontWeight: DesignTokens.typography.medium }}>Completed</span>
               <CheckmarkCircleRegular style={{ color: TASK_STATUS_COLORS.completed, fontSize: '18px' }} />
@@ -538,7 +522,7 @@ export default function TasksView() {
             </div>
           </div>
         </div>
-      </div>
+      </PageHeader>
 
       {/* Tasks List */}
       <div style={{ marginBottom: '80px', overflow: 'visible' }}>

@@ -46,7 +46,6 @@ import { DesignTokens } from '../styles/designSystem';
 import { ActivityWizardModal } from '../components/Activity/ActivityWizardModal';
 import { tokens, colors } from '@/styles/design-tokens';
 import { PurpleGlassButton, PurpleGlassBreadcrumb, PrimaryButton } from '@/components/ui';
-import GlassmorphicLayout from '../components/GlassmorphicLayout';
 
 interface Activity {
   id: string;
@@ -582,16 +581,7 @@ const ProjectWorkspaceView: React.FC = () => {
       </div>
 
       {/* Main Unified Card - Same positioning as Projects view */}
-      <GlassmorphicLayout
-        style={{
-          ...DesignTokens.components.pageContainer,
-          overflow: 'visible',
-          background: 'transparent',
-          border: 'none',
-          boxShadow: 'none',
-          backdropFilter: 'none'
-        }}
-      >
+      <div style={{ maxWidth: '1400px', margin: '0 auto', overflow: 'visible' }}>
         {/* Breadcrumb Navigation */}
         <PurpleGlassBreadcrumb
           items={[
@@ -1527,7 +1517,7 @@ const ProjectWorkspaceView: React.FC = () => {
             </div>
           )}
         </div>
-      </GlassmorphicLayout>
+      </div>
 
       {/* Activity Wizard Modal */}
       <ActivityWizardModal

@@ -4,7 +4,6 @@ import GlassmorphicSearchBar from '../components/GlassmorphicSearchBar';
 import { DESIGN_TOKENS } from '../components/DesignSystem';
 import { DesignTokens } from '../styles/designSystem';
 import { PurpleGlassButton, PrimaryButton } from '@/components/ui';
-import GlassmorphicLayout from '../components/GlassmorphicLayout';
 import {
   ErrorCircleRegular,
   SearchRegular,
@@ -58,6 +57,12 @@ interface UploadProgress {
   progress: number; 
   message: string; 
 }
+
+const pageLayoutStyle: React.CSSProperties = {
+  maxWidth: '1400px',
+  margin: '0 auto',
+  overflow: 'visible',
+};
 
 const HardwareBasketView: React.FC = () => {
   const [hardwareBaskets, setHardwareBaskets] = useState<HardwareBasket[]>([]);
@@ -265,7 +270,7 @@ const HardwareBasketView: React.FC = () => {
 
   if (loading && hardwareBaskets.length === 0) {
     return (
-      <div style={DesignTokens.components.pageContainer}>
+      <div style={pageLayoutStyle}>
         <div style={{ 
           fontSize: DesignTokens.typography.lg,
           color: DesignTokens.colors.primary,
@@ -280,7 +285,7 @@ const HardwareBasketView: React.FC = () => {
 
   if (error) {
     return (
-      <div style={DesignTokens.components.pageContainer}>
+      <div style={pageLayoutStyle}>
         <div style={{ 
           color: DesignTokens.colors.error,
           fontSize: DesignTokens.typography.base,
@@ -293,13 +298,7 @@ const HardwareBasketView: React.FC = () => {
   }
 
   return (
-    <GlassmorphicLayout style={{
-      ...DesignTokens.components.pageContainer,
-      background: 'transparent',
-      border: 'none',
-      boxShadow: 'none',
-      backdropFilter: 'none'
-    }}>
+    <div style={pageLayoutStyle}>
       {/* Header */}
       <div style={{ 
         display: 'flex',
@@ -1093,7 +1092,7 @@ const HardwareBasketView: React.FC = () => {
           </div>
         </div>
       </div>
-    </GlassmorphicLayout>
+    </div>
   );
 };
 

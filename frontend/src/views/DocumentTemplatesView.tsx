@@ -372,7 +372,7 @@ const DocumentTemplatesView: React.FC = () => {
 
   if (loading) {
     return (
-      <div style={DesignTokens.components.pageContainer}>
+      <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
         <div style={{
           display: 'flex',
           justifyContent: 'center',
@@ -395,7 +395,7 @@ const DocumentTemplatesView: React.FC = () => {
   }
 
   return (
-    <div style={DesignTokens.components.pageContainer}>
+    <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
       {/* Header */}
       <div style={{
         display: 'flex',

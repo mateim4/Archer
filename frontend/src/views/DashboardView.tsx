@@ -8,7 +8,7 @@
  * Spec Reference: UI UX Specification Sheet - Section 7.1 Dashboard
  */
 
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   TicketDiagonalRegular,
@@ -28,7 +28,8 @@ import {
 } from '@fluentui/react-icons';
 import { useTheme } from '../hooks/useTheme';
 import { useNotificationState } from '../hooks/useNotifications';
-import { PurpleGlassCard, PurpleGlassButton, SLAIndicator, AIInsightsPanel, AIInsight } from '../components/ui';
+import { PageHeader, PurpleGlassCard, PurpleGlassButton, PurpleGlassDropdown, SLAIndicator, AIInsightsPanel, AIInsight, DemoModeBanner, SkeletonDashboard } from '../components/ui';
+import { apiClient, Ticket } from '../utils/apiClient';
 
 /**
  * Dashboard time range options
@@ -101,7 +102,7 @@ interface CriticalAlert {
 }
 
 // =============================================================================
-// MOCK DATA - Replace with actual API calls
+// FALLBACK MOCK DATA - Used when API is unavailable
 // =============================================================================
 
 const MOCK_STATS: StatCardData[] = [
@@ -257,6 +258,27 @@ const MOCK_ALERTS: CriticalAlert[] = [
     acknowledged: false,
   },
 ];
+
+// Helper functions to map backend ticket types to dashboard types
+const mapTicketStatus = (status: string): DashboardTicket['status'] => {
+  switch (status) {
+    case 'NEW': return 'open';
+    case 'IN_PROGRESS': return 'in-progress';
+    case 'RESOLVED': return 'resolved';
+    case 'CLOSED': return 'resolved';
+    default: return 'open';
+  }
+};
+
+const mapTicketPriority = (priority: string): DashboardTicket['priority'] => {
+  switch (priority) {
+    case 'P1': return 'critical';
+    case 'P2': return 'high';
+    case 'P3': return 'medium';
+    case 'P4': return 'low';
+    default: return 'medium';
+  }
+};
 
 // AI-powered insights (would come from ML backend in production)
 const MOCK_AI_INSIGHTS: AIInsight[] = [
@@ -730,12 +752,125 @@ export const DashboardView: React.FC = () => {
   
   const [timeRange, setTimeRange] = useState<TimeRange>('7d');
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isDemoMode, setIsDemoMode] = useState(false);
+  
+  // Dashboard data state
+  const [stats, setStats] = useState<StatCardData[]>(MOCK_STATS);
+  const [myTickets, setMyTickets] = useState<DashboardTicket[]>(MOCK_MY_TICKETS);
+  const [activity, setActivity] = useState<ActivityItem[]>(MOCK_ACTIVITY);
+  const [alerts, setAlerts] = useState<CriticalAlert[]>(MOCK_ALERTS);
+  const [aiInsights] = useState<AIInsight[]>(MOCK_AI_INSIGHTS);
 
-  // Simulated refresh
-  const handleRefresh = useCallback(() => {
+  // Load dashboard data from API
+  const loadDashboardData = useCallback(async () => {
     setIsRefreshing(true);
-    setTimeout(() => setIsRefreshing(false), 1000);
+    let usingMock = false;
+    
+    try {
+      // Fetch tickets to derive stats and "my tickets"
+      const ticketsResponse = await apiClient.getTickets();
+      const tickets = Array.isArray(ticketsResponse) ? ticketsResponse : [];
+      
+      if (tickets.length > 0) {
+        // Calculate stats from real tickets using correct enum values
+        const openCount = tickets.filter(t => t.status === 'NEW').length;
+        const inProgressCount = tickets.filter(t => t.status === 'IN_PROGRESS').length;
+        const resolvedCount = tickets.filter(t => t.status === 'RESOLVED' || t.status === 'CLOSED').length;
+        
+        const realStats: StatCardData[] = [
+          {
+            id: 'open',
+            title: 'Open Tickets',
+            value: openCount,
+            change: 0,
+            changeLabel: 'current',
+            icon: <TicketDiagonalRegular />,
+            color: '#6B4CE6',
+            link: '/app/service-desk?status=open',
+          },
+          {
+            id: 'in-progress',
+            title: 'In Progress',
+            value: inProgressCount,
+            change: 0,
+            changeLabel: 'current',
+            icon: <ClockRegular />,
+            color: '#f59e0b',
+            link: '/app/service-desk?status=in-progress',
+          },
+          {
+            id: 'resolved',
+            title: 'Resolved',
+            value: resolvedCount,
+            icon: <CheckmarkCircleRegular />,
+            color: '#10b981',
+            link: '/app/service-desk?status=resolved',
+          },
+          {
+            id: 'total',
+            title: 'Total Tickets',
+            value: tickets.length,
+            icon: <TimerRegular />,
+            color: 'var(--brand-primary)',
+          },
+        ];
+        setStats(realStats);
+        
+        // Map tickets to dashboard format (take first 5 as "my tickets")
+        const dashboardTickets: DashboardTicket[] = tickets.slice(0, 5).map(t => ({
+          id: t.id?.replace('ticket:', '') || t.id || '',
+          title: t.title || 'Untitled',
+          status: mapTicketStatus(t.status),
+          priority: mapTicketPriority(t.priority),
+          assignee: t.assignee || 'Unassigned',
+          createdAt: t.created_at || new Date().toISOString(),
+          slaStatus: 'on_track',
+        }));
+        setMyTickets(dashboardTickets.length > 0 ? dashboardTickets : MOCK_MY_TICKETS);
+      } else {
+        usingMock = true;
+      }
+      
+      // Try to fetch alerts
+      try {
+        const alertsResponse = await apiClient.getAlerts({ status: ['Active'], page_size: 5 });
+        const alertsData = alertsResponse?.alerts || [];
+        if (alertsData.length > 0) {
+          const dashboardAlerts: CriticalAlert[] = alertsData.map(a => ({
+            id: a.id || '',
+            title: a.title || '',
+            severity: (a.severity?.toLowerCase() || 'medium') as CriticalAlert['severity'],
+            source: a.source || 'Monitoring',
+            timestamp: a.created_at || new Date().toISOString(),
+            acknowledged: a.status === 'Acknowledged',
+          }));
+          setAlerts(dashboardAlerts);
+        }
+      } catch {
+        // Keep mock alerts
+      }
+      
+    } catch (error) {
+      console.warn('Dashboard API unavailable, using demo data:', error);
+      usingMock = true;
+      // Keep using mock data that's already set
+    }
+    
+    setIsDemoMode(usingMock);
+    setIsRefreshing(false);
+    setIsLoading(false);
   }, []);
+
+  // Load data on mount and when time range changes
+  useEffect(() => {
+    loadDashboardData();
+  }, [loadDashboardData, timeRange]);
+
+  // Refresh handler
+  const handleRefresh = useCallback(() => {
+    loadDashboardData();
+  }, [loadDashboardData]);
 
   // Navigate to ticket detail
   const handleTicketClick = useCallback((ticketId: string) => {
@@ -747,96 +882,55 @@ export const DashboardView: React.FC = () => {
     if (link) navigate(link);
   }, [navigate]);
 
+  // Show skeleton while loading
+  if (isLoading) {
+    return (
+      <div data-testid="dashboard-view" style={{ maxWidth: '1400px', margin: '0 auto' }}>
+        <SkeletonDashboard />
+      </div>
+    );
+  }
+
   return (
     <div data-testid="dashboard-view" style={{ maxWidth: '1400px', margin: '0 auto' }}>
-      {/* Page Header + Stats - Merged into single card */}
-      <div className="purple-glass-card static" style={{
-        padding: '24px',
-        marginBottom: '24px',
-      }}>
-        {/* Header Section */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: '24px',
-          paddingBottom: '20px',
-          borderBottom: '1px solid var(--divider-color-subtle)',
-        }}>
-          <div>
-          <h1 style={{
-            margin: 0,
-            fontSize: 'var(--lcm-font-size-xxxl, 32px)',
-            fontWeight: 600,
-            color: 'var(--text-primary)',
-            fontFamily: 'var(--lcm-font-family-heading, Poppins, sans-serif)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px'
-          }}>
-            <ArrowTrendingRegular style={{ fontSize: '32px', color: 'var(--icon-default)' }} />
-            Dashboard
-          </h1>
-          <p style={{
-            margin: '8px 0 0 0',
-            fontSize: '16px',
-            color: 'var(--text-secondary)',
-            fontFamily: 'var(--lcm-font-family-body, Poppins, sans-serif)',
-          }}>
-            Welcome back! Here's your ITSM overview.
-          </p>
-        </div>
+      {/* Demo Mode Banner */}
+      <DemoModeBanner 
+        isActive={isDemoMode} 
+        message="Dashboard is showing sample data. Connect to backend to see real metrics."
+      />
 
-        {/* Controls */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px',
-        }}>
-          {/* Time Range Selector */}
-          <select
-            value={timeRange}
-            onChange={(e) => setTimeRange(e.target.value as TimeRange)}
-            style={{
-              padding: '8px 12px',
-              fontSize: '13px',
-              borderRadius: '8px',
-              border: '1px solid var(--card-border)',
-              background: 'var(--card-bg)',
-              color: 'var(--text-primary)',
-              cursor: 'pointer',
-            }}
-          >
-            {TIME_RANGES.map((range) => (
-              <option key={range.value} value={range.value}>
-                {range.label}
-              </option>
-            ))}
-          </select>
-
-          {/* Refresh Button */}
-          <button
-            onClick={handleRefresh}
-            disabled={isRefreshing}
-            className={`btn btn-primary ${isRefreshing ? 'btn-loading' : ''}`}
-            style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
-          >
-            <ArrowSyncRegular style={{
-              fontSize: '16px',
-              animation: isRefreshing ? 'spin 1s linear infinite' : 'none',
-            }} />
-            Refresh
-          </button>
-        </div>
-        </div>
-
-        {/* Stat Cards Grid */}
+      <PageHeader
+        icon={<ArrowTrendingRegular />}
+        title="Dashboard"
+        subtitle="Welcome back! Here's your ITSM overview."
+        actions={
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ width: '220px' }}>
+              <PurpleGlassDropdown
+                options={TIME_RANGES.map(r => ({ value: r.value, label: r.label }))}
+                value={timeRange}
+                onChange={(val) => setTimeRange(val as TimeRange)}
+                glass="light"
+              />
+            </div>
+            <PurpleGlassButton
+              variant="primary"
+              icon={<ArrowSyncRegular />}
+              glass
+              loading={isRefreshing}
+              onClick={handleRefresh}
+            >
+              Refresh
+            </PurpleGlassButton>
+          </div>
+        }
+      >
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))',
           gap: '20px',
         }}>
-          {MOCK_STATS.map((stat) => (
+          {stats.map((stat) => (
             <StatCard
               key={stat.id}
               data={stat}
@@ -845,20 +939,17 @@ export const DashboardView: React.FC = () => {
             />
           ))}
         </div>
-      </div>
+      </PageHeader>
 
       {/* AI Insights Section */}
-      <div className="purple-glass-card static" style={{
-        marginBottom: '32px',
-        padding: '24px',
-      }}>
+      <PurpleGlassCard glass padding="large" style={{ marginBottom: '32px' }}>
         <AIInsightsPanel
-          insights={MOCK_AI_INSIGHTS}
+          insights={aiInsights}
           maxVisible={3}
           onDismiss={(id) => console.log('Dismissed insight:', id)}
           onFeedback={(id, helpful) => console.log('Feedback:', id, helpful)}
         />
-      </div>
+      </PurpleGlassCard>
 
       {/* Widgets Row */}
       <div style={{
@@ -867,7 +958,7 @@ export const DashboardView: React.FC = () => {
         gap: '20px',
       }}>
         {/* My Open Tickets Widget */}
-        <div className="purple-glass-card static" style={{ overflow: 'hidden' }}>
+        <PurpleGlassCard glass padding="none" style={{ overflow: 'hidden' }}>
           {/* Widget Header */}
           <div style={{
             padding: '16px 20px',
@@ -898,7 +989,7 @@ export const DashboardView: React.FC = () => {
                 background: 'rgba(107, 76, 230, 0.15)',
                 color: '#6B4CE6',
               }}>
-                {MOCK_MY_TICKETS.length}
+                {myTickets.length}
               </span>
             </div>
             <button
@@ -912,7 +1003,7 @@ export const DashboardView: React.FC = () => {
 
           {/* Ticket List */}
           <div style={{ padding: '8px 12px' }}>
-            {MOCK_MY_TICKETS.map((ticket) => (
+            {myTickets.map((ticket) => (
               <TicketRow
                 key={ticket.id}
                 ticket={ticket}
@@ -921,10 +1012,10 @@ export const DashboardView: React.FC = () => {
               />
             ))}
           </div>
-        </div>
+        </PurpleGlassCard>
 
         {/* Recent Activity Widget */}
-        <div className="purple-glass-card static" style={{ overflow: 'hidden' }}>
+        <PurpleGlassCard glass padding="none" style={{ overflow: 'hidden' }}>
           {/* Widget Header */}
           <div style={{
             padding: '16px 20px',
@@ -952,7 +1043,7 @@ export const DashboardView: React.FC = () => {
 
           {/* Activity List */}
           <div style={{ padding: '8px 20px', maxHeight: '400px', overflowY: 'auto' }}>
-            {MOCK_ACTIVITY.map((item) => (
+            {activity.map((item) => (
               <ActivityItemRow
                 key={item.id}
                 item={item}
@@ -960,7 +1051,7 @@ export const DashboardView: React.FC = () => {
               />
             ))}
           </div>
-        </div>
+        </PurpleGlassCard>
 
         {/* Critical Alerts Widget */}
         <div 
@@ -991,7 +1082,7 @@ export const DashboardView: React.FC = () => {
               }}>
                 Critical Alerts
               </h3>
-              {MOCK_ALERTS.filter(a => !a.acknowledged).length > 0 && (
+              {alerts.filter(a => !a.acknowledged).length > 0 && (
                 <span style={{
                   fontSize: '12px',
                   fontWeight: 600,
@@ -1000,7 +1091,7 @@ export const DashboardView: React.FC = () => {
                   background: '#ef4444',
                   color: 'white',
                 }}>
-                  {MOCK_ALERTS.filter(a => !a.acknowledged).length} active
+                  {alerts.filter(a => !a.acknowledged).length} active
                 </span>
               )}
             </div>
@@ -1021,7 +1112,7 @@ export const DashboardView: React.FC = () => {
             gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
             gap: '12px',
           }}>
-            {MOCK_ALERTS.map((alert) => (
+            {alerts.map((alert) => (
               <AlertCard
                 key={alert.id}
                 alert={alert}

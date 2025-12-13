@@ -2679,7 +2679,7 @@ impl SeedData {
             
             db.query(format!(
                 r#"
-                CREATE ticket:{} CONTENT {{
+                CREATE ticket:`{}` CONTENT {{
                     title: $title,
                     description: $description,
                     type: $type,

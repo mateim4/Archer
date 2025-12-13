@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Calendar, Download, Share2, Settings } from 'lucide-react';
 import GanttChart from '../components/GanttChart';
@@ -10,7 +10,7 @@ import {
   ToastContainer
 } from '../components/EnhancedUXComponents';
 import { useEnhancedUX } from '../hooks/useEnhancedUX';
-import { PurpleGlassDropdown } from '../components/ui';
+import { PurpleGlassDropdown, DemoModeBanner } from '../components/ui';
 
 interface Activity {
   id: string;
@@ -24,6 +24,17 @@ interface Activity {
   progress: number;
 }
 
+// =============================================================================
+// FALLBACK MOCK DATA - Used when API is unavailable
+// =============================================================================
+const MOCK_ACTIVITIES: Activity[] = [
+  { id: 'act-001', name: 'Infrastructure Assessment', type: 'migration', status: 'completed', start_date: new Date('2024-01-15'), end_date: new Date('2024-02-01'), assignee: 'john.doe@company.com', dependencies: [], progress: 100 },
+  { id: 'act-002', name: 'VMware Environment Analysis', type: 'migration', status: 'completed', start_date: new Date('2024-01-25'), end_date: new Date('2024-02-10'), assignee: 'sarah.smith@company.com', dependencies: ['act-001'], progress: 100 },
+  { id: 'act-003', name: 'Hardware Requirements Planning', type: 'hardware_customization', status: 'in_progress', start_date: new Date('2024-02-05'), end_date: new Date('2024-02-20'), assignee: 'mike.johnson@company.com', dependencies: ['act-001'], progress: 75 },
+  { id: 'act-004', name: 'Server Procurement', type: 'hardware_customization', status: 'in_progress', start_date: new Date('2024-02-15'), end_date: new Date('2024-03-30'), assignee: 'lisa.brown@company.com', dependencies: ['act-003'], progress: 40 },
+  { id: 'act-005', name: 'Network Infrastructure Setup', type: 'commissioning', status: 'pending', start_date: new Date('2024-03-01'), end_date: new Date('2024-03-25'), assignee: 'david.wilson@company.com', dependencies: ['act-003'], progress: 0 },
+];
+
 const ProjectTimelineView: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
@@ -31,6 +42,7 @@ const ProjectTimelineView: React.FC = () => {
   
   const [project, setProject] = useState<Project | null>(null);
   const [activities, setActivities] = useState<Activity[]>([]);
+  const [isDemoMode, setIsDemoMode] = useState(false);
   const [viewOptions, setViewOptions] = useState({
     showDependencies: true,
     showProgress: true,
@@ -38,149 +50,74 @@ const ProjectTimelineView: React.FC = () => {
     timeScale: 'months' as 'days' | 'weeks' | 'months'
   });
 
+  const loadProject = useCallback(async () => {
+    if (!projectId) return;
+    
+    await withLoading(async () => {
+      try {
+        const projectData = await apiClient.getProject(projectId);
+        if (projectData) {
+          setProject(projectData);
+          return;
+        }
+      } catch (err) {
+        console.warn('Project API unavailable, using mock project');
+      }
+      
+      // Fallback to mock project
+      const mockProject: Project = {
+        id: projectId || '',
+        name: 'Infrastructure Modernization Timeline',
+        description: 'Comprehensive timeline view for infrastructure modernization project',
+        owner_id: 'user:architect',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      setProject(mockProject);
+    });
+  }, [projectId, withLoading]);
+
+  const loadActivities = useCallback(async () => {
+    if (!projectId) return;
+    
+    let usingMock = false;
+    
+    try {
+      const activitiesData = await apiClient.getActivities(projectId);
+      
+      if (Array.isArray(activitiesData) && activitiesData.length > 0) {
+        // Map API activities to local format
+        const mappedActivities: Activity[] = activitiesData.map(a => ({
+          id: a.id || '',
+          name: a.name || a.title || 'Untitled',
+          type: a.activity_type || a.type || 'custom',
+          status: a.status?.toLowerCase().replace(' ', '_') || 'pending',
+          start_date: new Date(a.start_date || a.created_at || Date.now()),
+          end_date: new Date(a.end_date || a.due_date || Date.now()),
+          assignee: a.assignee || a.assigned_to || 'Unassigned',
+          dependencies: a.dependencies || [],
+          progress: a.progress || 0,
+        }));
+        setActivities(mappedActivities);
+      } else {
+        usingMock = true;
+        setActivities(MOCK_ACTIVITIES);
+      }
+    } catch (error) {
+      console.warn('Activities API unavailable, using demo data:', error);
+      usingMock = true;
+      setActivities(MOCK_ACTIVITIES);
+    }
+    
+    setIsDemoMode(usingMock);
+  }, [projectId]);
+
   useEffect(() => {
     if (projectId) {
       loadProject();
       loadActivities();
     }
-  }, [projectId]);
-
-  const loadProject = async () => {
-    await withLoading(async () => {
-      try {
-        // Mock project data for now
-        const mockProject: Project = {
-          id: projectId || '',
-          name: 'Infrastructure Modernization Timeline',
-          description: 'Comprehensive timeline view for infrastructure modernization project',
-          owner_id: 'user:architect',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        };
-        setProject(mockProject);
-      } catch (err) {
-        showToast('Failed to load project', 'error');
-        navigate('/projects');
-      }
-    });
-  };
-
-  const loadActivities = async () => {
-    // Expanded mock activities for better timeline demonstration
-    const mockActivities: Activity[] = [
-      {
-        id: 'act-001',
-        name: 'Infrastructure Assessment',
-        type: 'migration',
-        status: 'completed',
-        start_date: new Date('2024-01-15'),
-        end_date: new Date('2024-02-01'),
-        assignee: 'john.doe@company.com',
-        dependencies: [],
-        progress: 100
-      },
-      {
-        id: 'act-002',
-        name: 'VMware Environment Analysis',
-        type: 'migration',
-        status: 'completed',
-        start_date: new Date('2024-01-25'),
-        end_date: new Date('2024-02-10'),
-        assignee: 'sarah.smith@company.com',
-        dependencies: ['act-001'],
-        progress: 100
-      },
-      {
-        id: 'act-003',
-        name: 'Hardware Requirements Planning',
-        type: 'hardware_customization',
-        status: 'in_progress',
-        start_date: new Date('2024-02-05'),
-        end_date: new Date('2024-02-20'),
-        assignee: 'mike.johnson@company.com',
-        dependencies: ['act-001'],
-        progress: 75
-      },
-      {
-        id: 'act-004',
-        name: 'Server Procurement',
-        type: 'hardware_customization',
-        status: 'in_progress',
-        start_date: new Date('2024-02-15'),
-        end_date: new Date('2024-03-30'),
-        assignee: 'lisa.brown@company.com',
-        dependencies: ['act-003'],
-        progress: 40
-      },
-      {
-        id: 'act-005',
-        name: 'Network Infrastructure Setup',
-        type: 'commissioning',
-        status: 'pending',
-        start_date: new Date('2024-03-01'),
-        end_date: new Date('2024-03-25'),
-        assignee: 'david.wilson@company.com',
-        dependencies: ['act-003'],
-        progress: 0
-      },
-      {
-        id: 'act-006',
-        name: 'Hyper-V Environment Deployment',
-        type: 'commissioning',
-        status: 'pending',
-        start_date: new Date('2024-03-20'),
-        end_date: new Date('2024-04-15'),
-        assignee: 'emma.davis@company.com',
-        dependencies: ['act-004', 'act-005'],
-        progress: 0
-      },
-      {
-        id: 'act-007',
-        name: 'Pilot Migration Testing',
-        type: 'migration',
-        status: 'pending',
-        start_date: new Date('2024-04-10'),
-        end_date: new Date('2024-04-30'),
-        assignee: 'alex.garcia@company.com',
-        dependencies: ['act-006'],
-        progress: 0
-      },
-      {
-        id: 'act-008',
-        name: 'Production Workload Migration',
-        type: 'migration',
-        status: 'pending',
-        start_date: new Date('2024-05-01'),
-        end_date: new Date('2024-06-15'),
-        assignee: 'sofia.martinez@company.com',
-        dependencies: ['act-007'],
-        progress: 0
-      },
-      {
-        id: 'act-009',
-        name: 'Performance Optimization',
-        type: 'lifecycle',
-        status: 'pending',
-        start_date: new Date('2024-06-01'),
-        end_date: new Date('2024-06-30'),
-        assignee: 'ryan.anderson@company.com',
-        dependencies: ['act-008'],
-        progress: 0
-      },
-      {
-        id: 'act-010',
-        name: 'Legacy System Decommission',
-        type: 'decommission',
-        status: 'pending',
-        start_date: new Date('2024-06-15'),
-        end_date: new Date('2024-07-30'),
-        assignee: 'olivia.thomas@company.com',
-        dependencies: ['act-008'],
-        progress: 0
-      }
-    ];
-    setActivities(mockActivities);
-  };
+  }, [projectId, loadProject, loadActivities]);
 
   const handleActivityUpdate = (activityId: string, updates: Partial<Activity>) => {
     setActivities(prev => prev.map(activity => 
@@ -264,6 +201,12 @@ const ProjectTimelineView: React.FC = () => {
   return (
     <div className="lcm-page-container min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
       <ToastContainer />
+      
+      {/* Demo Mode Banner */}
+      <DemoModeBanner 
+        isActive={isDemoMode} 
+        message="Timeline is showing sample data. Connect to backend to see real activities."
+      />
       
       {/* Header */}
       <div className="mb-8">

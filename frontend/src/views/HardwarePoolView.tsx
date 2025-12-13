@@ -19,8 +19,13 @@ import {
   DiagramRegular
 } from '@fluentui/react-icons';
 import { PurpleGlassButton, PurpleGlassCard, PrimaryButton } from '../components/ui';
-import GlassmorphicLayout from '../components/GlassmorphicLayout';
 import { useNavigate } from 'react-router-dom';
+
+const pageLayoutStyle: React.CSSProperties = {
+  maxWidth: '1400px',
+  margin: '0 auto',
+  overflow: 'visible',
+};
 
 const HardwarePoolView: React.FC = () => {
   const navigate = useNavigate();
@@ -138,7 +143,7 @@ const HardwarePoolView: React.FC = () => {
 
   if (loading && hardwarePoolAssets.length === 0) {
     return (
-      <div style={DesignTokens.components.pageContainer}>
+      <div style={pageLayoutStyle}>
         <div style={{ 
           fontSize: DesignTokens.typography.lg,
           color: DesignTokens.colors.primary,
@@ -153,7 +158,7 @@ const HardwarePoolView: React.FC = () => {
 
   if (error) {
     return (
-      <div style={DesignTokens.components.pageContainer}>
+      <div style={pageLayoutStyle}>
         <div style={{ 
           color: DesignTokens.colors.error,
           fontSize: DesignTokens.typography.base,
@@ -166,13 +171,7 @@ const HardwarePoolView: React.FC = () => {
   }
 
   return (
-    <GlassmorphicLayout style={{
-      ...DesignTokens.components.pageContainer,
-      background: 'transparent',
-      border: 'none',
-      boxShadow: 'none',
-      backdropFilter: 'none'
-    }}>
+    <div style={pageLayoutStyle}>
       {/* Header */}
       <div style={{ 
         marginBottom: '24px',
@@ -654,7 +653,7 @@ const HardwarePoolView: React.FC = () => {
           }
         }}
       />
-    </GlassmorphicLayout>
+    </div>
   );
 };
 

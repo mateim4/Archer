@@ -298,7 +298,8 @@ const AssetDetailView: React.FC = () => {
   if (isLoading) {
     return (
       <div style={{ 
-        ...DesignTokens.components.pageContainer,
+        maxWidth: '1400px',
+        margin: '0 auto',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -314,23 +315,19 @@ const AssetDetailView: React.FC = () => {
 
   if (!asset) {
     return (
-      <div style={{ 
-        ...DesignTokens.components.pageContainer,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '60vh',
-      }}>
-        <PurpleGlassCard style={{ padding: '48px', textAlign: 'center' }}>
-          <ErrorCircleRegular style={{ fontSize: '48px', color: '#ef4444', marginBottom: '16px' }} />
-          <h2 style={{ color: 'var(--text-primary)', marginBottom: '8px' }}>Asset Not Found</h2>
-          <p style={{ color: 'var(--text-muted)', marginBottom: '24px' }}>
-            The asset you're looking for doesn't exist or has been removed.
-          </p>
-          <PurpleGlassButton onClick={() => navigate('/app/inventory')}>
-            <ArrowLeftRegular style={{ marginRight: '8px' }} />
-            Back to Inventory
-          </PurpleGlassButton>
+      <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+        <PurpleGlassCard glass>
+          <PurpleGlassEmptyState
+            icon={<ErrorCircleRegular />}
+            title="Asset Not Found"
+            description="The asset you're looking for doesn't exist or has been removed."
+            action={
+              <PurpleGlassButton onClick={() => navigate('/app/inventory')}>
+                <ArrowLeftRegular style={{ marginRight: '8px' }} />
+                Back to Inventory
+              </PurpleGlassButton>
+            }
+          />
         </PurpleGlassCard>
       </div>
     );
@@ -338,7 +335,8 @@ const AssetDetailView: React.FC = () => {
 
   // Styles
   const containerStyle: React.CSSProperties = {
-    ...DesignTokens.components.pageContainer,
+    maxWidth: '1400px',
+    margin: '0 auto',
     display: 'flex',
     flexDirection: 'column',
     gap: '24px',
@@ -405,46 +403,37 @@ const AssetDetailView: React.FC = () => {
 
   return (
     <div data-testid="asset-detail-view" style={containerStyle}>
-      {/* Header */}
-      <div style={headerStyle}>
-        <PurpleGlassButton 
-          variant="ghost" 
-          onClick={() => navigate('/app/inventory')}
-          style={{ padding: '8px', marginTop: '4px' }}
-        >
-          <ArrowLeftRegular style={{ fontSize: '20px' }} />
-        </PurpleGlassButton>
-
-        <div style={{ flex: 1 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-            <div style={{
-              width: '48px',
-              height: '48px',
-              borderRadius: '12px',
-              background: `${getStatusColor(asset.status)}20`,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: getStatusColor(asset.status),
-            }}>
-              {getAssetIcon(asset.type)}
-            </div>
-            <div>
-              <h1 style={{ 
-                fontSize: '24px', 
-                fontWeight: 600, 
-                color: 'var(--text-primary)',
-                margin: 0,
-              }}>
-                {asset.name}
-              </h1>
-              <div style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: '8px',
-                marginTop: '4px',
-              }}>
-                <span style={{
+      <PageHeader
+        icon={getAssetIcon(asset.type)}
+        title={asset.name}
+        subtitle={`${asset.type} • ${asset.external_id || 'No external ID'}`}
+        badge={asset.status}
+        badgeVariant={asset.status === 'ACTIVE' ? 'success' : asset.status === 'MAINTENANCE' ? 'warning' : 'critical'}
+        actions={
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <PurpleGlassButton variant="secondary" onClick={() => navigate('/app/inventory')}>
+              <ArrowLeftRegular style={{ marginRight: '8px' }} />
+              Back
+            </PurpleGlassButton>
+            <PurpleGlassButton variant="ghost">
+              <EditRegular style={{ marginRight: '8px' }} />
+              Edit
+            </PurpleGlassButton>
+            <PurpleGlassButton variant="ghost">
+              <DeleteRegular style={{ marginRight: '8px' }} />
+              Delete
+            </PurpleGlassButton>
+          </div>
+        }
+      >
+        {/* Asset metadata row - moved from old header */}
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: '8px',
+          marginTop: '4px',
+        }}>
+          <span style={{
                   padding: '2px 8px',
                   background: 'var(--btn-secondary-bg)',
                   color: '#6B4CE6',

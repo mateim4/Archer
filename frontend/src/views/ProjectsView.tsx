@@ -30,6 +30,7 @@ import {
   PurpleGlassTextarea,
   PurpleGlassCard,
   PurpleGlassSkeleton,
+  PageHeader,
   PrimaryButton,
   MigrationNotice
 } from '@/components/ui';
@@ -289,32 +290,11 @@ export default function ProjectsView() {
       <h1 style={{position:'absolute',width:0,height:0,overflow:'hidden',clip:'rect(0 0 0 0)'}}>Projects</h1>
       
       {/* Unified Header Card - Title, Search, and Stats */}
-      <div className="purple-glass-card static" style={{ padding: '24px', marginBottom: '24px' }}>
-        {/* Title Row */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', paddingBottom: '20px', borderBottom: '1px solid var(--divider-color)' }}>
-          <div>
-            <h2 style={{ 
-              margin: 0,
-              fontSize: 'var(--lcm-font-size-xxxl, 32px)', 
-              fontWeight: 600, 
-              color: 'var(--text-primary)', 
-              fontFamily: 'var(--lcm-font-family-heading, Poppins, sans-serif)', 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '12px' 
-            }}>
-              <FolderRegular style={{ fontSize: '32px', color: 'var(--icon-default)' }} />
-              Projects
-            </h2>
-            <p style={{
-              margin: '8px 0 0 0',
-              fontSize: '16px',
-              color: 'var(--text-secondary)',
-              fontFamily: 'var(--lcm-font-family-body, Poppins, sans-serif)',
-            }}>
-              Manage your infrastructure projects and workflows.
-            </p>
-          </div>
+      <PageHeader
+        icon={<FolderRegular />}
+        title="Projects"
+        subtitle="Manage your infrastructure projects and workflows."
+        actions={
           <PrimaryButton
             data-testid="create-project-button"
             size="large"
@@ -323,9 +303,8 @@ export default function ProjectsView() {
           >
             Add New Project
           </PrimaryButton>
-        </div>
-
-        {/* Search and Statistics Row */}
+        }
+      >
         <div style={{ 
           display: 'flex', 
           alignItems: 'center', 
@@ -350,7 +329,6 @@ export default function ProjectsView() {
             </div>
           </div>
 
-          {/* Summary Statistics - Inline */}
           {projects.length > 0 && (
             <div style={{
               display: 'flex',
@@ -407,7 +385,7 @@ export default function ProjectsView() {
             </div>
           )}
         </div>
-      </div>
+      </PageHeader>
 
       {/* Migration Notice - After the title header */}
       <MigrationNotice storageKey="migration-notice-projects-dismissed" />

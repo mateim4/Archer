@@ -423,6 +423,19 @@
   * {
     box-sizing: border-box;
   }
+
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+  }
+
+  #root {
+    height: 100vh;
+    overflow: hidden;
+  }
+
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
@@ -977,8 +990,21 @@
 
 /* Subtle card variant (minimal) */
 .card-subtle {
-  background: var(--card-bg);
-  border: none;
+  background: var(--card-bg-subtle);
+  border: 1px solid var(--card-border-subtle);
+  box-shadow: none;
+}
+
+/* When subtle is combined with the glass base class, keep it flat */
+.purple-glass-card.card-subtle {
+  background: var(--card-bg-subtle);
+  border-color: var(--card-border-subtle);
+  box-shadow: none;
+}
+
+.purple-glass-card.card-subtle:hover {
+  transform: none;
+  border-color: var(--card-border-subtle);
   box-shadow: none;
 }
 

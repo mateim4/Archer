@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Play, Pause, Square, CheckCircle, AlertCircle, Clock, ChevronRight, Settings, RotateCcw } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
-import { PurpleGlassButton, PurpleGlassDropdown, PageHeader } from '../components/ui';
+import { PurpleGlassButton, PurpleGlassDropdown, PageHeader, DemoModeBanner, PurpleGlassSpinner } from '../components/ui';
 import { FlowRegular } from '@fluentui/react-icons';
+import { apiClient, WorkflowDefinition } from '../utils/apiClient';
 
 interface WorkflowStep {
   id: string;
@@ -25,173 +26,127 @@ interface Workflow {
   totalEstimatedTime: string;
 }
 
+// =============================================================================
+// FALLBACK MOCK DATA - Used when API is unavailable
+// =============================================================================
+const MOCK_WORKFLOWS: Workflow[] = [
+  {
+    id: 'assessment-1',
+    name: 'Infrastructure Assessment',
+    description: 'Comprehensive analysis of current infrastructure state',
+    category: 'assessment',
+    status: 'not_started',
+    progress: 0,
+    totalEstimatedTime: '45 minutes',
+    steps: [
+      { id: 'step-1', name: 'Environment Discovery', description: 'Scan and catalog existing infrastructure components', status: 'pending', estimatedTime: '15 min' },
+      { id: 'step-2', name: 'Performance Analysis', description: 'Analyze current performance metrics and bottlenecks', status: 'pending', estimatedTime: '20 min', dependencies: ['step-1'] },
+      { id: 'step-3', name: 'Capacity Planning', description: 'Evaluate current capacity and future requirements', status: 'pending', estimatedTime: '10 min', dependencies: ['step-1', 'step-2'] }
+    ]
+  },
+  {
+    id: 'sizing-1',
+    name: 'Hardware Sizing Workflow',
+    description: 'Calculate optimal hardware configuration for workloads',
+    category: 'sizing',
+    status: 'completed',
+    progress: 100,
+    totalEstimatedTime: '30 minutes',
+    steps: [
+      { id: 'step-1', name: 'Workload Analysis', description: 'Analyze workload requirements', status: 'completed', estimatedTime: '10 min', actualTime: '8 min' },
+      { id: 'step-2', name: 'Resource Calculation', description: 'Calculate CPU, memory, storage requirements', status: 'completed', estimatedTime: '15 min', actualTime: '12 min', dependencies: ['step-1'] },
+      { id: 'step-3', name: 'Hardware Recommendation', description: 'Generate optimized hardware recommendations', status: 'completed', estimatedTime: '5 min', actualTime: '4 min', dependencies: ['step-2'] }
+    ]
+  },
+  {
+    id: 'migration-1',
+    name: 'VM Migration Planning',
+    description: 'Plan and execute virtual machine migration strategy',
+    category: 'migration',
+    status: 'running',
+    progress: 60,
+    totalEstimatedTime: '2 hours',
+    steps: [
+      { id: 'step-1', name: 'Migration Assessment', description: 'Assess VMs for migration compatibility', status: 'completed', estimatedTime: '30 min', actualTime: '25 min' },
+      { id: 'step-2', name: 'Migration Planning', description: 'Create detailed migration execution plan', status: 'completed', estimatedTime: '45 min', actualTime: '40 min', dependencies: ['step-1'] },
+      { id: 'step-3', name: 'Pre-migration Validation', description: 'Validate target environment and prerequisites', status: 'running', estimatedTime: '30 min', dependencies: ['step-2'] },
+      { id: 'step-4', name: 'Migration Execution', description: 'Execute the migration process', status: 'pending', estimatedTime: '15 min', dependencies: ['step-3'] }
+    ]
+  },
+  {
+    id: 'validation-1',
+    name: 'Post-Migration Validation',
+    description: 'Validate migrated infrastructure and applications',
+    category: 'validation',
+    status: 'not_started',
+    progress: 0,
+    totalEstimatedTime: '1 hour',
+    steps: [
+      { id: 'step-1', name: 'Infrastructure Validation', description: 'Verify infrastructure components are functioning', status: 'pending', estimatedTime: '20 min' },
+      { id: 'step-2', name: 'Application Validation', description: 'Test application functionality and performance', status: 'pending', estimatedTime: '30 min', dependencies: ['step-1'] },
+      { id: 'step-3', name: 'Performance Baseline', description: 'Establish new performance baseline metrics', status: 'pending', estimatedTime: '10 min', dependencies: ['step-2'] }
+    ]
+  }
+];
+
 const WorkflowsView: React.FC = () => {
   const [workflows, setWorkflows] = useState<Workflow[]>([]);
   const [activeWorkflow, setActiveWorkflow] = useState<Workflow | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [isLoading, setIsLoading] = useState(true);
+  const [isDemoMode, setIsDemoMode] = useState(false);
 
   const { currentProject } = useAppStore();
 
+  // Convert API workflow to local format
+  const mapApiWorkflowToLocal = (apiWorkflow: WorkflowDefinition): Workflow => {
+    return {
+      id: apiWorkflow.id || '',
+      name: apiWorkflow.name,
+      description: apiWorkflow.description || '',
+      category: 'migration', // Default category
+      status: apiWorkflow.is_active ? 'not_started' : 'paused',
+      progress: 0,
+      totalEstimatedTime: '30 minutes',
+      steps: apiWorkflow.steps?.map((step, idx) => ({
+        id: step.step_id || `step-${idx}`,
+        name: step.name,
+        description: typeof step.config === 'object' ? (step.config?.description || step.name) : step.name,
+        status: 'pending' as const,
+        estimatedTime: step.timeout_minutes ? `${step.timeout_minutes} min` : undefined,
+      })) || []
+    };
+  };
+
+  const loadWorkflows = useCallback(async () => {
+    setIsLoading(true);
+    let usingMock = false;
+
+    try {
+      const response = await apiClient.getWorkflows();
+      const apiWorkflows = response?.workflows || [];
+      
+      if (apiWorkflows.length > 0) {
+        const mappedWorkflows = apiWorkflows.map(mapApiWorkflowToLocal);
+        setWorkflows(mappedWorkflows);
+      } else {
+        // API returned empty, use mock data
+        usingMock = true;
+        setWorkflows(MOCK_WORKFLOWS);
+      }
+    } catch (error) {
+      console.warn('Workflows API unavailable, using demo data:', error);
+      usingMock = true;
+      setWorkflows(MOCK_WORKFLOWS);
+    }
+
+    setIsDemoMode(usingMock);
+    setIsLoading(false);
+  }, []);
+
   useEffect(() => {
     loadWorkflows();
-  }, [currentProject]);
-
-  const loadWorkflows = () => {
-    // Mock workflow data - in real app, this would come from backend
-    const mockWorkflows: Workflow[] = [
-      {
-        id: 'assessment-1',
-        name: 'Infrastructure Assessment',
-        description: 'Comprehensive analysis of current infrastructure state',
-        category: 'assessment',
-        status: 'not_started',
-        progress: 0,
-        totalEstimatedTime: '45 minutes',
-        steps: [
-          {
-            id: 'step-1',
-            name: 'Environment Discovery',
-            description: 'Scan and catalog existing infrastructure components',
-            status: 'pending',
-            estimatedTime: '15 min'
-          },
-          {
-            id: 'step-2',
-            name: 'Performance Analysis',
-            description: 'Analyze current performance metrics and bottlenecks',
-            status: 'pending',
-            estimatedTime: '20 min',
-            dependencies: ['step-1']
-          },
-          {
-            id: 'step-3',
-            name: 'Capacity Planning',
-            description: 'Evaluate current capacity and future requirements',
-            status: 'pending',
-            estimatedTime: '10 min',
-            dependencies: ['step-1', 'step-2']
-          }
-        ]
-      },
-      {
-        id: 'sizing-1',
-        name: 'Hardware Sizing Workflow',
-        description: 'Calculate optimal hardware configuration for workloads',
-        category: 'sizing',
-        status: 'completed',
-        progress: 100,
-        totalEstimatedTime: '30 minutes',
-        steps: [
-          {
-            id: 'step-1',
-            name: 'Workload Analysis',
-            description: 'Analyze workload requirements and patterns',
-            status: 'completed',
-            estimatedTime: '10 min',
-            actualTime: '8 min'
-          },
-          {
-            id: 'step-2',
-            name: 'Resource Calculation',
-            description: 'Calculate CPU, memory, and storage requirements',
-            status: 'completed',
-            estimatedTime: '15 min',
-            actualTime: '12 min',
-            dependencies: ['step-1']
-          },
-          {
-            id: 'step-3',
-            name: 'Hardware Recommendation',
-            description: 'Generate optimized hardware recommendations',
-            status: 'completed',
-            estimatedTime: '5 min',
-            actualTime: '4 min',
-            dependencies: ['step-2']
-          }
-        ]
-      },
-      {
-        id: 'migration-1',
-        name: 'VM Migration Planning',
-        description: 'Plan and execute virtual machine migration strategy',
-        category: 'migration',
-        status: 'running',
-        progress: 60,
-        totalEstimatedTime: '2 hours',
-        steps: [
-          {
-            id: 'step-1',
-            name: 'Migration Assessment',
-            description: 'Assess VMs for migration compatibility',
-            status: 'completed',
-            estimatedTime: '30 min',
-            actualTime: '25 min'
-          },
-          {
-            id: 'step-2',
-            name: 'Migration Planning',
-            description: 'Create detailed migration execution plan',
-            status: 'completed',
-            estimatedTime: '45 min',
-            actualTime: '40 min',
-            dependencies: ['step-1']
-          },
-          {
-            id: 'step-3',
-            name: 'Pre-migration Validation',
-            description: 'Validate target environment and prerequisites',
-            status: 'running',
-            estimatedTime: '30 min',
-            dependencies: ['step-2']
-          },
-          {
-            id: 'step-4',
-            name: 'Migration Execution',
-            description: 'Execute the migration process',
-            status: 'pending',
-            estimatedTime: '15 min',
-            dependencies: ['step-3']
-          }
-        ]
-      },
-      {
-        id: 'validation-1',
-        name: 'Post-Migration Validation',
-        description: 'Validate migrated infrastructure and applications',
-        category: 'validation',
-        status: 'not_started',
-        progress: 0,
-        totalEstimatedTime: '1 hour',
-        steps: [
-          {
-            id: 'step-1',
-            name: 'Infrastructure Validation',
-            description: 'Verify infrastructure components are functioning',
-            status: 'pending',
-            estimatedTime: '20 min'
-          },
-          {
-            id: 'step-2',
-            name: 'Application Validation',
-            description: 'Test application functionality and performance',
-            status: 'pending',
-            estimatedTime: '30 min',
-            dependencies: ['step-1']
-          },
-          {
-            id: 'step-3',
-            name: 'Performance Baseline',
-            description: 'Establish new performance baseline metrics',
-            status: 'pending',
-            estimatedTime: '10 min',
-            dependencies: ['step-2']
-          }
-        ]
-      }
-    ];
-
-    setWorkflows(mockWorkflows);
-  };
+  }, [loadWorkflows, currentProject]);
 
   const filteredWorkflows = workflows.filter(workflow => 
     selectedCategory === 'all' || workflow.category === selectedCategory
@@ -256,8 +211,30 @@ const WorkflowsView: React.FC = () => {
     ));
   };
 
+  // Show loading spinner
+  if (isLoading) {
+    return (
+      <div className="lcm-page-container">
+        <PageHeader
+          icon={<FlowRegular />}
+          title="Workflows"
+          subtitle="Execute guided workflows for assessment, sizing, migration, and validation"
+        />
+        <div className="flex items-center justify-center py-16">
+          <PurpleGlassSpinner size="large" />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="lcm-page-container">
+      {/* Demo Mode Banner */}
+      <DemoModeBanner 
+        isActive={isDemoMode} 
+        message="Workflows are showing sample data. Connect to backend to see real workflows."
+      />
+
       <PageHeader
         icon={<FlowRegular />}
         title="Workflows"

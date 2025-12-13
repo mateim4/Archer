@@ -2,7 +2,7 @@
 
 **Document Purpose:** Track all significant changes across agentic coding sessions to ensure continuity and accountability.
 
-**Last Updated:** 2025-12-12T14:00:00Z  
+**Last Updated:** 2025-12-13T16:55:00Z  
 **Document Version:** 2.1
 
 ---
@@ -34,6 +34,70 @@ This document is **mandatory reading and updating** for all AI agents working on
 ## 🔄 Current Session Changes
 
 > *AI Agents: Log your changes here during the session, then move to Completed Log*
+
+### [2025-12-13 15:15] - Tokenized Base Surface + All-Routes Screenshot Audit
+**Type:** Refactor | UI | Testing
+**Files Changed:**
+- frontend/src/components/ui/PurpleGlassCard.tsx
+- frontend/src/components/ui/PageHeader.tsx
+- frontend/src/index.css
+- frontend/index.html
+- frontend/src/views/DashboardView.tsx
+- frontend/src/views/TasksView.tsx
+- frontend/src/views/ProjectsView.tsx
+- frontend/src/views/MonitoringView.tsx
+- frontend/src/views/ServiceDeskView.tsx
+- frontend/src/views/AssetDetailView.tsx
+- frontend/src/views/TicketDetailView.tsx
+- frontend/src/views/ProjectDetailView.tsx
+- frontend/src/views/GuidesView.tsx
+- frontend/src/views/EnhancedRVToolsReportView.tsx
+- frontend/src/views/DocumentTemplatesView.tsx
+- frontend/tests/e2e/ui-screenshot-audit-all-routes.spec.ts
+
+**Description:**
+Standardized the "base acrylic surface" so views can consistently use one token-driven card surface without ad-hoc `.purple-glass-card` wrappers.
+
+- `PageHeader` now renders via `PurpleGlassCard` (glass, static), centralizing the base surface.
+- `PurpleGlassCard` now supports `variant` classes in glass mode (e.g., `subtle`, `outlined`, `elevated`) to avoid card-in-card styling hacks.
+- `card-subtle` now actually uses `--card-bg-subtle` / `--card-border-subtle` and remains flat on hover.
+- Refactored key views (Dashboard/Tasks/Projects) to use `PageHeader` for their top surface and converted nested KPI tiles to subtle surfaces.
+- Removed the extra outer `pageContainer` surface in several routes (Service Desk, Guides, Enhanced RVTools, Document Templates, Project/Ticket/Asset detail) by switching to a simple `maxWidth: 1400px; margin: 0 auto` layout wrapper.
+- Added an explicit Service Desk empty state so "0 tickets" doesn't render as a huge blank panel.
+- Added a Playwright spec that visits all primary sidebar routes (including admin and workflows) and captures full-page screenshots.
+- Hardened the Playwright stabilizer to wait for the app-shell main element (`main[role=main][aria-label="Main content"]`) to avoid strict-mode collisions in views that also use `role="main"`.
+- Fixed a Vite production build failure by removing inline CSS from `frontend/index.html` (workaround for Vite HTML inline proxy edge case) and moving minimal resets into `frontend/src/index.css`.
+
+**Impact:**
+- More consistent surface hierarchy across major views (base surface + subtle inner tiles).
+- Repeatable UI audit output: screenshots land under `frontend/test-results/**/ui-audit/*.png`.
+
+### [2025-12-13 16:20] - Remove Remaining `pageContainer` Surface Wrappers
+**Type:** Refactor | UI
+**Files Changed:**
+- frontend/src/views/HardwareBasketView.tsx
+- frontend/src/views/HardwarePoolView.tsx
+
+**Description:**
+Removed the last remaining uses of `DesignTokens.components.pageContainer` as a visible surface wrapper in loading/error states for Hardware views. These screens now use the standard `maxWidth: 1400px; margin: 0 auto` layout wrapper to avoid accidental nested acrylic panels.
+
+**Impact:**
+- Hardware Basket/Pool loading and error states no longer render as an extra base acrylic surface behind content.
+
+### [2025-12-13 16:40] - Remove Remaining GlassmorphicLayout View Surfaces
+**Type:** Refactor | UI
+**Files Changed:**
+- frontend/src/views/HardwareBasketView.tsx
+- frontend/src/views/HardwarePoolView.tsx
+- frontend/src/views/MonitoringView.tsx
+- frontend/src/views/ProjectWorkspaceView.tsx
+
+**Description:**
+Removed the remaining `GlassmorphicLayout` wrappers from app views and replaced them with the standard `maxWidth: 1400px; margin: 0 auto` layout wrapper. This avoids hidden nested-surface behavior (min-height, inner scrolling, and panel-like padding) that can reintroduce “card-in-card” layout issues now that `PageHeader` is the single base surface.
+
+**Impact:**
+- Monitoring and Project Workspace no longer render an implicit page-level surface behind their header cards.
+- Hardware Basket/Pool main content no longer inherits `GlassmorphicLayout` min-height/overflow behavior.
 
 ### [2025-12-12 14:00] - Hot/Cold Data Tiering Architecture Specification
 **Type:** Architecture | Documentation

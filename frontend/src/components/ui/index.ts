@@ -173,3 +173,7 @@ export type {
   SkeletonTableProps, 
   SkeletonDashboardProps 
 } from './SkeletonLoader';
+
+// Demo Mode Indicator - Shows when using mock/sample data
+export { DemoModeIndicator, DemoModeBanner } from './DemoModeIndicator';
+export type { DemoModeIndicatorProps, DemoModeBannerProps } from './DemoModeIndicator';

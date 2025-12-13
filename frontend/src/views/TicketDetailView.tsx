@@ -545,7 +545,8 @@ const TicketDetailView: React.FC = () => {
   if (isLoading) {
     return (
       <div style={{ 
-        ...DesignTokens.components.pageContainer,
+        maxWidth: '1400px',
+        margin: '0 auto',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -562,7 +563,8 @@ const TicketDetailView: React.FC = () => {
   if (!ticket) {
     return (
       <div style={{ 
-        ...DesignTokens.components.pageContainer,
+        maxWidth: '1400px',
+        margin: '0 auto',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -585,7 +587,8 @@ const TicketDetailView: React.FC = () => {
 
   // Styles
   const containerStyle: React.CSSProperties = {
-    ...DesignTokens.components.pageContainer,
+    maxWidth: '1400px',
+    margin: '0 auto',
     display: 'flex',
     flexDirection: 'column',
     gap: '24px',
