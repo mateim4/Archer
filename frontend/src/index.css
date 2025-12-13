@@ -161,8 +161,10 @@
        ======================================================================== */
     --card-bg: rgba(255, 255, 255, 0.7);
     --card-bg-hover: rgba(255, 255, 255, 0.85);
+    --card-bg-subtle: rgba(255, 255, 255, 0.4);
     --card-border: rgba(255, 255, 255, 0.6);
     --card-border-hover: rgba(255, 255, 255, 0.8);
+    --card-border-subtle: rgba(255, 255, 255, 0.3);
     --card-shadow: 0 4px 16px rgba(0, 0, 0, 0.06), inset 0 0.5px 0 rgba(255, 255, 255, 0.8);
     --card-shadow-hover: 0 8px 25px rgba(0, 0, 0, 0.1), inset 0 0.5px 0 rgba(255, 255, 255, 0.9);
 
@@ -364,8 +366,10 @@
        ======================================================================== */
     --card-bg: rgba(30, 30, 30, 0.6);
     --card-bg-hover: rgba(40, 40, 40, 0.7);
+    --card-bg-subtle: rgba(30, 30, 30, 0.3);
     --card-border: rgba(255, 255, 255, 0.1);
     --card-border-hover: rgba(255, 255, 255, 0.18);
+    --card-border-subtle: rgba(255, 255, 255, 0.06);
     --card-shadow: 0 4px 16px rgba(0, 0, 0, 0.2), inset 0 0.5px 0 rgba(255, 255, 255, 0.1);
     --card-shadow-hover: 0 8px 25px rgba(0, 0, 0, 0.3), inset 0 0.5px 0 rgba(255, 255, 255, 0.15);
 
