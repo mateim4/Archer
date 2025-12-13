@@ -10,7 +10,7 @@ import {
   ToastContainer
 } from '../components/EnhancedUXComponents';
 import { useEnhancedUX } from '../hooks/useEnhancedUX';
-import { PurpleGlassDropdown, DemoModeBanner } from '../components/ui';
+import { PurpleGlassDropdown, DemoModeBanner, PageHeader, PurpleGlassEmptyState, PurpleGlassCard } from '../components/ui';
 
 interface Activity {
   id: string;

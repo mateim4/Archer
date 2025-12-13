@@ -3,7 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
   ArrowLeftRegular,
   CalendarRegular,
-  PersonRegular,
   PeopleRegular,
   ServerRegular,
   AddRegular,
@@ -476,63 +475,58 @@ const ClusterStrategyManagerView: React.FC = () => {
             </div>
           )}
         </PageHeader>
-        <PurpleGlassCard glass style={{ marginBottom: tokens.xl }}>
-          <div style={{ padding: tokens.l }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: tokens.l, flexWrap: 'wrap' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: tokens.l, flexWrap: 'wrap' }}>
-                {activity.assignees && activity.assignees.length > 0 && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: tokens.s }}>
                     <PeopleRegular style={{ width: tokens.l, height: tokens.l }} />
                     <span>{activity.assignees.join(', ')}</span>
                   </div>
                 )}
-
+                
                 <div style={{ display: 'flex', alignItems: 'center', gap: tokens.s }}>
                   <ServerRegular style={{ width: tokens.l, height: tokens.l }} />
                   <span>{strategies.length} cluster{strategies.length !== 1 ? 's' : ''}</span>
                 </div>
               </div>
-
-              <PurpleGlassButton
-                variant="primary"
-                size="medium"
-                icon={<AddRegular />}
-                onClick={handleCreateStrategy}
-              >
-                Add Cluster Strategy
-              </PurpleGlassButton>
             </div>
 
-            <div style={{ marginTop: tokens.xl }}>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                marginBottom: tokens.s
-              }}>
-                <span style={{
-                  fontSize: tokens.fontSizeBase200,
-                  fontWeight: 600,
-                  color: tokens.colorNeutralForeground2,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px',
-                  fontFamily: tokens.fontFamilyPrimary
-                }}>
-                  Activity Progress
-                </span>
-                <span style={{
-                  fontSize: tokens.fontSizeBase400,
-                  fontWeight: 700,
-                  color: tokens.colorBrandForeground,
-                  fontFamily: tokens.fontFamilyHeading
-                }}>
-                  {activity.progress}%
-                </span>
-              </div>
-              <ProgressBar value={activity.progress} />
-            </div>
+            <PurpleGlassButton
+              variant="primary"
+              size="medium"
+              icon={<AddRegular />}
+              onClick={handleCreateStrategy}
+            >
+              Add Cluster Strategy
+            </PurpleGlassButton>
           </div>
-        </PurpleGlassCard>
+
+          {/* Progress Bar */}
+          <div style={{ marginTop: tokens.xl }}>
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'space-between', 
+              marginBottom: tokens.s 
+            }}>
+              <span style={{ 
+                fontSize: tokens.fontSizeBase200, 
+                fontWeight: 600, 
+                color: tokens.colorNeutralForeground2,
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+                fontFamily: tokens.fontFamilyPrimary
+              }}>
+                Activity Progress
+              </span>
+              <span style={{ 
+                fontSize: tokens.fontSizeBase400, 
+                fontWeight: 700, 
+                color: tokens.colorBrandForeground,
+                fontFamily: tokens.fontFamilyHeading
+              }}>
+                {activity.progress}%
+              </span>
+            </div>
+            <ProgressBar value={activity.progress} />
+          </div>
+        </div>
 
         {/* Content Section */}
         {strategies.length === 0 ? (

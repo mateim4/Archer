@@ -75,27 +75,26 @@ export function HLDConfiguration() {
         subtitle="Configure High-Level Design variables for project"
         actions={
           <div style={{ display: 'flex', gap: '12px' }}>
+          <PurpleGlassButton
+            variant="secondary"
+            icon={<ArrowSyncRegular />}
+            onClick={handleRefresh}
+            disabled={loading}
+          >
+            Refresh
+          </PurpleGlassButton>
+          {hasChanges && (
             <PurpleGlassButton
-              variant="secondary"
-              icon={<ArrowSyncRegular />}
-              onClick={handleRefresh}
-              disabled={loading}
+              variant="primary"
+              icon={<SaveRegular />}
+              onClick={handleSave}
+              loading={saving}
             >
-              Refresh
+              Save All
             </PurpleGlassButton>
-            {hasChanges && (
-              <PurpleGlassButton
-                variant="primary"
-                icon={<SaveRegular />}
-                onClick={handleSave}
-                loading={saving}
-              >
-                Save All
-              </PurpleGlassButton>
-            )}
-          </div>
-        }
-      />
+          )}
+        </div>
+      </div>
 
       {/* Error Display */}
       {error && (

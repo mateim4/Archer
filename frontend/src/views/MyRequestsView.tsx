@@ -155,16 +155,7 @@ const MyRequestsView: React.FC = () => {
       </PageHeader>
 
       {/* Filters */}
-      <PurpleGlassCard
-        header={(
-          <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-2)' }}>
-            <FilterRegular />
-            Filter Requests
-          </span>
-        )}
-        glass
-        style={{ marginBottom: 'var(--spacing-5)' }}
-      >
+      <PurpleGlassCard header="Filter Requests" icon={<FilterRegular />} glass style={{ marginBottom: 'var(--spacing-5)' }}>
         <div style={{ padding: 'var(--spacing-5)' }}>
           <div style={{ display: 'flex', gap: 'var(--spacing-3)', alignItems: 'center', flexWrap: 'wrap' }}>
             <div style={{ flex: 1, minWidth: '300px' }}>

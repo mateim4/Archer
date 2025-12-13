@@ -163,12 +163,10 @@ const DesignDocsView: React.FC = () => {
   }
 
   return (
-    <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
-      <PageHeader
-        icon={<FileText />}
-        title="Design Docs"
-        subtitle="Create and manage project design documentation"
-        actions={
+    <div>
+      <div className="lcm-page-container">
+        <div className="lcm-card">
+          <div className="lcm-page-header">
           <button
             onClick={() => setShowCreateForm(true)}
             className="lcm-button fluent-button-primary lcm-button-with-icon"
@@ -176,24 +174,22 @@ const DesignDocsView: React.FC = () => {
             <Plus className="w-4 h-4" />
             New Document
           </button>
-        }
-      />
-
-      {error && (
-        <div className="lcm-alert fluent-alert-error mb-6">
-          <p>{error}</p>
         </div>
+
+        {error && (
+          <div className="lcm-alert fluent-alert-error mb-6">
+            <p>{error}</p>
+          </div>
       )}
 
+      {/* Create/Edit Form */}
       {(showCreateForm || editingDoc) && (
-        <PurpleGlassCard
-          header={editingDoc ? 'Edit Document' : 'Create New Document'}
-          glass
-          style={{ marginBottom: '24px' }}
-        >
+        <PurpleGlassCard header={editingDoc ? 'Edit Document' : 'Create New Document'} glass style={{ marginBottom: '24px' }}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div className="lcm-form-group">
-              <label className="lcm-label">Document Name</label>
+              <label className="lcm-label">
+                Document Name
+              </label>
               <input
                 type="text"
                 value={formData.name}
@@ -214,7 +210,9 @@ const DesignDocsView: React.FC = () => {
             </div>
           </div>
           <div className="lcm-form-group mb-4">
-            <label className="lcm-label">Content (Markdown)</label>
+            <label className="lcm-label">
+              Content (Markdown)
+            </label>
             <textarea
               value={formData.content}
               onChange={(e) => setFormData({ ...formData, content: e.target.value })}
@@ -239,7 +237,7 @@ const DesignDocsView: React.FC = () => {
               Cancel
             </button>
           </div>
-        </PurpleGlassCard>
+        </div>
       )}
 
       {/* Documents Grid */}
@@ -298,23 +296,25 @@ const DesignDocsView: React.FC = () => {
       </div>
 
       {docs.length === 0 && !loading && (
-        <div className="lcm-empty-state">
-          <div className="lcm-empty-state-icon">
-            <FileText className="w-16 h-16" />
+          <div className="lcm-empty-state">
+            <div className="lcm-empty-state-icon">
+              <FileText className="w-16 h-16" />
+            </div>
+            <h3 className="lcm-empty-state-title">No design documents yet</h3>
+            <p className="lcm-empty-state-description">
+              Create your first design document to start documenting your system architecture.
+            </p>
+            <button
+              onClick={() => setShowCreateForm(true)}
+              className="lcm-button fluent-button-primary lcm-button-with-icon mt-4"
+            >
+              <Plus className="w-4 h-4" />
+              Create First Document
+            </button>
           </div>
-          <h3 className="lcm-empty-state-title">No design documents yet</h3>
-          <p className="lcm-empty-state-description">
-            Create your first design document to start documenting your system architecture.
-          </p>
-          <button
-            onClick={() => setShowCreateForm(true)}
-            className="lcm-button fluent-button-primary lcm-button-with-icon mt-4"
-          >
-            <Plus className="w-4 h-4" />
-            Create First Document
-          </button>
-        </div>
-      )}
+        )}
+      </div>
+      </div>
     </div>
   );
 };

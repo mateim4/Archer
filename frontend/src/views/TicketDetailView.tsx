@@ -571,11 +571,12 @@ const TicketDetailView: React.FC = () => {
             icon={<ErrorCircleRegular />}
             title="Ticket Not Found"
             description="The ticket you're looking for doesn't exist or has been deleted."
-            action={{
-              label: 'Back to Service Desk',
-              onClick: () => navigate('/app/service-desk'),
-              icon: <ArrowLeftRegular />,
-            }}
+            action={
+              <PurpleGlassButton onClick={() => navigate('/app/service-desk')}>
+                <ArrowLeftRegular style={{ marginRight: '8px' }} />
+                Back to Service Desk
+              </PurpleGlassButton>
+            }
           />
         </PurpleGlassCard>
       </div>
@@ -989,16 +990,7 @@ const TicketDetailView: React.FC = () => {
 
               {/* Attachments Section - Always visible below comments */}
               {activeTab === 'comments' && (
-                <PurpleGlassCard
-                  header={(
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <AttachRegular />
-                      Attachments ({attachments.length})
-                    </span>
-                  )}
-                  style={{ marginTop: '24px' }}
-                  glass
-                >
+                <PurpleGlassCard header={`Attachments (${attachments.length})`} icon={<AttachRegular />} style={{ marginTop: '24px' }} glass>
                   {/* File Upload Zone */}
                   <div
                     className="purple-glass-card static"

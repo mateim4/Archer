@@ -218,11 +218,15 @@ const ProjectDetailView: React.FC = () => {
               icon={<ErrorCircleRegular />}
               title="Project Not Found"
               description="The requested project could not be found or failed to load."
-              action={{
-                label: 'Back to Projects',
-                onClick: () => navigate('/app/projects'),
-                icon: <ArrowLeftFilled />,
-              }}
+              action={
+                <PurpleGlassButton
+                  variant="primary"
+                  icon={<ArrowLeftFilled />}
+                  onClick={() => navigate('/app/projects')}
+                >
+                  Back to Projects
+                </PurpleGlassButton>
+              }
             />
           </PurpleGlassCard>
         </div>
@@ -238,7 +242,7 @@ const ProjectDetailView: React.FC = () => {
             icon={<FolderRegular />}
             title={project.name}
             subtitle={project.description || 'No description provided'}
-            badge="Active"
+            badge={project.status || 'Active'}
             badgeVariant="success"
             actions={
               <div style={{ display: 'flex', gap: DesignTokens.spacing.md }}>
@@ -311,8 +315,8 @@ const ProjectDetailView: React.FC = () => {
             </div>
           </PageHeader>
 
-          {/* Content */}
-          <div style={{ marginBottom: '80px', overflow: 'visible' }}>
+        {/* Content */}
+        <div style={{ marginBottom: '80px', overflow: 'visible' }}>
 
         {/* Stats grid with glassmorphic cards */}
         <div
@@ -894,8 +898,8 @@ const ProjectDetailView: React.FC = () => {
           projectId={projectId || ''}
           activityId={selectedActivity?.id}
         />
-          </div>
         </main>
+        </div>
       </div>
     </ErrorBoundary>
   );

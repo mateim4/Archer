@@ -323,11 +323,12 @@ const AssetDetailView: React.FC = () => {
             icon={<ErrorCircleRegular />}
             title="Asset Not Found"
             description="The asset you're looking for doesn't exist or has been removed."
-            action={{
-              label: 'Back to Inventory',
-              onClick: () => navigate('/app/inventory'),
-              icon: <ArrowLeftRegular />,
-            }}
+            action={
+              <PurpleGlassButton onClick={() => navigate('/app/inventory')}>
+                <ArrowLeftRegular style={{ marginRight: '8px' }} />
+                Back to Inventory
+              </PurpleGlassButton>
+            }
           />
         </PurpleGlassCard>
       </div>
@@ -407,9 +408,9 @@ const AssetDetailView: React.FC = () => {
       <PageHeader
         icon={getAssetIcon(asset.type)}
         title={asset.name}
-        subtitle={`${asset.type} • ${asset.id}`}
+        subtitle={`${asset.type} • ${asset.external_id || 'No external ID'}`}
         badge={asset.status}
-        badgeVariant={asset.status === 'healthy' ? 'success' : asset.status === 'warning' ? 'warning' : asset.status === 'critical' ? 'danger' : 'info'}
+        badgeVariant={asset.status === 'ACTIVE' ? 'success' : asset.status === 'MAINTENANCE' ? 'warning' : 'critical'}
         actions={
           <div style={{ display: 'flex', gap: '8px' }}>
             <PurpleGlassButton variant="secondary" onClick={() => navigate('/app/inventory')}>

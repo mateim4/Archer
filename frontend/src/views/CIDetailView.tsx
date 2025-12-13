@@ -98,11 +98,12 @@ const CIDetailView: React.FC = () => {
             icon={<ErrorCircleRegular />}
             title="CI Not Found"
             description={error || 'The configuration item you are looking for does not exist or has been removed.'}
-            action={{
-              label: 'Back to CMDB',
-              onClick: handleBack,
-              icon: <ArrowLeftRegular />,
-            }}
+            action={
+              <PurpleGlassButton onClick={handleBack}>
+                <ArrowLeftRegular style={{ marginRight: '8px' }} />
+                Back to CMDB
+              </PurpleGlassButton>
+            }
           />
         </PurpleGlassCard>
       </div>
@@ -118,15 +119,7 @@ const CIDetailView: React.FC = () => {
         title={ci.name}
         subtitle={`CI ID: ${ci.ci_id} • Type: ${ci.ci_type} • Class: ${ci.ci_class}`}
         badge={ci.status}
-        badgeVariant={
-          ci.status === 'ACTIVE' || ci.status === 'DEPLOYED'
-            ? 'success'
-            : ci.status === 'MAINTENANCE' || ci.status === 'OFFLINE'
-              ? 'warning'
-              : ci.status === 'FAILED'
-                ? 'danger'
-                : 'info'
-        }
+        badgeVariant={ci.status === 'ACTIVE' ? 'success' : ci.status === 'INACTIVE' ? 'warning' : 'critical'}
         actions={
           <div style={{ display: 'flex', gap: '8px' }}>
             <PurpleGlassButton variant="secondary" onClick={handleBack}>

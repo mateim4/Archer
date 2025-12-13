@@ -551,10 +551,11 @@ const ProjectWorkspaceView: React.FC = () => {
             icon={<ErrorCircleRegular />}
             title="Project Not Found"
             description="The requested project could not be found."
-            action={{
-              label: 'Back to Projects',
-              onClick: () => navigate('/app/projects'),
-            }}
+            action={
+              <PurpleGlassButton onClick={() => navigate('/app/projects')}>
+                Back to Projects
+              </PurpleGlassButton>
+            }
           />
         </PurpleGlassCard>
         <ToastContainer />
@@ -594,6 +595,11 @@ const ProjectWorkspaceView: React.FC = () => {
           ]}
         />
 
+        {/* Project Header Section - Dashboard Style */}
+        <div className="purple-glass-card static" style={{
+          padding: '24px',
+          marginBottom: '24px',
+        }}>
         <PageHeader
           icon={<FolderRegular />}
           title={project.name}
@@ -603,13 +609,14 @@ const ProjectWorkspaceView: React.FC = () => {
               Settings
             </PurpleGlassButton>
           }
-        >
+        />
+          </div>
+
           {/* Project Stats */}
           <div style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
             gap: '16px',
-            marginTop: '12px',
           }}>
             <div style={{
               padding: '16px',
@@ -677,7 +684,7 @@ const ProjectWorkspaceView: React.FC = () => {
               </div>
             </div>
           </div>
-        </PageHeader>
+        </div>
 
         {/* Tab Navigation - Document Templates pill styling */}
         <div className="lcm-pill-tabs" role="tablist" aria-label="Project workspace sections">

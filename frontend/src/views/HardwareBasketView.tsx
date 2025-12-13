@@ -320,13 +320,13 @@ const HardwareBasketView: React.FC = () => {
 
       {/* Search and Filter Controls */}
       <PurpleGlassCard header="Search & Filter" glass style={{ marginBottom: '24px' }}>
-        <div style={{
-          display: 'flex',
-          gap: '16px',
-          marginBottom: '24px',
-          flexWrap: 'wrap',
-          alignItems: 'center'
-        }}>
+      <div style={{
+        display: 'flex',
+        gap: '16px',
+        marginBottom: '24px',
+        flexWrap: 'wrap',
+        alignItems: 'center'
+      }}>
         {/* Glassmorphic Search Input */}
         <div style={{ flex: '1', minWidth: '320px' }}>
           <GlassmorphicSearchBar
@@ -398,8 +398,7 @@ const HardwareBasketView: React.FC = () => {
             🧹 Clear Filters
           </PurpleGlassButton>
         )}
-        </div>
-      </PurpleGlassCard>
+      </div>
 
       {/* Results Summary */}
       <div style={{
