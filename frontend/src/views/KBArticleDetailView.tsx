@@ -148,7 +148,7 @@ export const KBArticleDetailView: React.FC = () => {
   }
 
   return (
-    <div style={{ padding: tokens.spacingVerticalXXL, maxWidth: '1200px', margin: '0 auto' }}>
+    <div style={{ padding: tokens.spacingVerticalXXL, maxWidth: '1400px', margin: '0 auto' }}>
       {/* Header Actions */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: tokens.spacingVerticalL }}>
         <PurpleGlassButton

@@ -39,6 +39,8 @@ const useStyles = makeStyles({
     padding: tokens.spacingVerticalL,
     height: '100vh',
     overflowY: 'auto',
+    maxWidth: '1400px',
+    margin: '0 auto',
   },
   header: {
     display: 'flex',

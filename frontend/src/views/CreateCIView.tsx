@@ -18,7 +18,7 @@ const CreateCIView: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
+    <div style={{ padding: '24px', maxWidth: '1400px', margin: '0 auto' }}>
       <PurpleGlassButton
         icon={<ArrowLeftRegular />}
         onClick={handleCancel}

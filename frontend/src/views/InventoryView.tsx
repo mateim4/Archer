@@ -78,7 +78,7 @@ const InventoryView: React.FC = () => {
   // Loading skeleton
   if (loading) {
     return (
-      <div style={{ maxWidth: '1600px', margin: '0 auto', padding: '24px' }}>
+      <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '24px' }}>
         <PageHeaderSkeleton showActions={true} actionCount={1} />
         <div style={{ display: 'flex', gap: '24px', minHeight: '600px' }}>
           {/* Left sidebar skeleton */}
@@ -100,7 +100,7 @@ const InventoryView: React.FC = () => {
   }
 
   return (
-    <div style={{ maxWidth: '1600px', margin: '0 auto', padding: '24px' }}>
+    <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '24px' }}>
       {/* Header - Dashboard Style with Search embedded */}
       <PageHeader
         icon={<DatabaseRegular style={{ fontSize: '32px' }} />}

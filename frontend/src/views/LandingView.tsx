@@ -86,7 +86,7 @@ const LandingView: React.FC = () => {
     }}>
       <h1 style={{position:'absolute', width:0, height:0, overflow:'hidden', clip:'rect(0 0 0 0)'}}>Archer</h1>
       <div style={{
-        maxWidth: '1200px',
+        maxWidth: '1400px',
         width: '100%',
         textAlign: 'center'
       }}>

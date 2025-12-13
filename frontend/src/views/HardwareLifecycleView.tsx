@@ -63,6 +63,8 @@ const useStyles = makeStyles({
     padding: tokens.spacingHorizontalXL,
     background: `linear-gradient(135deg, ${tokens.colorBrandBackground2} 0%, ${tokens.colorBrandBackground} 100%)`,
     minHeight: '100vh',
+    maxWidth: '1400px',
+    margin: '0 auto',
   },
   header: {
     background: tokens.colorNeutralBackground1,
