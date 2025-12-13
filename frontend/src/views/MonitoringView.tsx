@@ -220,34 +220,34 @@ const MonitoringView: React.FC = () => {
               />
             </div>
           }
-        />
-
-        {/* Tab Navigation */}
-        <div style={{ 
-          display: 'flex', 
-          gap: '4px',
-          borderBottom: '1px solid var(--card-border)',
-          marginBottom: '-8px'
-        }}>
-          <TabButton 
-            isActive={activeTab === 'metrics'} 
-            onClick={() => setActiveTab('metrics')}
-            icon={<DataPieRegular />}
-            label="Metrics & Alerts"
-          />
-          <TabButton 
-            isActive={activeTab === 'topology'} 
-            onClick={() => setActiveTab('topology')}
-            icon={<OrganizationRegular />}
-            label="Infrastructure Topology"
-          />
-          <TabButton 
-            isActive={activeTab === 'capacity'} 
-            onClick={() => setActiveTab('capacity')}
-            icon={<DataAreaRegular />}
-            label="Capacity Visualizer"
-          />
-        </div>
+        >
+          {/* Tab Navigation */}
+          <div style={{
+            display: 'flex',
+            gap: '4px',
+            borderBottom: '1px solid var(--card-border)',
+            marginTop: '24px'
+          }}>
+            <TabButton
+              isActive={activeTab === 'metrics'}
+              onClick={() => setActiveTab('metrics')}
+              icon={<DataPieRegular />}
+              label="Metrics & Alerts"
+            />
+            <TabButton
+              isActive={activeTab === 'topology'}
+              onClick={() => setActiveTab('topology')}
+              icon={<OrganizationRegular />}
+              label="Infrastructure Topology"
+            />
+            <TabButton
+              isActive={activeTab === 'capacity'}
+              onClick={() => setActiveTab('capacity')}
+              icon={<DataAreaRegular />}
+              label="Capacity Visualizer"
+            />
+          </div>
+        </PageHeader>
 
         {/* Tab Content */}
         {activeTab === 'metrics' ? (

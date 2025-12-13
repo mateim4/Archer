@@ -24,8 +24,10 @@ import {
   DismissRegular,
   EyeRegular,
   EyeOffRegular,
-  AddRegular
+  AddRegular,
+  DataAreaRegular
 } from '@fluentui/react-icons';
+import { PageHeader } from '../components/ui';
 import { DesignTokens } from '../styles/designSystem';
 import { CapacityCanvas } from '../components/CapacityVisualizer/CapacityCanvas';
 // import { CapacityControlPanel } from '../components/CapacityVisualizer/CapacityControlPanel'; // Removed - OC ratios now in search bar
@@ -726,14 +728,11 @@ export const CapacityVisualizerView: React.FC<CapacityVisualizerViewProps> = ({ 
       <h1 style={{position:'absolute', width:0, height:0, overflow:'hidden', clip:'rect(0 0 0 0)'}}>Capacity Visualizer</h1>
       {/* Header - hide when embedded since MonitoringView has its own header */}
       {!embedded && (
-        <div className={styles.header}>
-          <Title2 style={DesignTokens.components.standardTitle}>
-            Interactive Capacity Visualizer
-          </Title2>
-          <Text style={DesignTokens.components.standardSubtitle}>
-            Simulate VM workload migrations and visualize capacity utilization in real-time
-          </Text>
-        </div>
+        <PageHeader
+          icon={<DataAreaRegular />}
+          title="Interactive Capacity Visualizer"
+          subtitle="Simulate VM workload migrations and visualize capacity utilization in real-time"
+        />
       )}
 
       {/* Canvas Section - takes full width below controls */}

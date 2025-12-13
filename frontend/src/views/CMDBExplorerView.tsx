@@ -216,13 +216,10 @@ const CMDBExplorerView: React.FC = () => {
             </PurpleGlassButton>
           </div>
         }
-      />
-
-      {/* Search and Filters */}
-      <PurpleGlassCard style={{ marginBottom: '24px', padding: '20px' }}>
-        <div style={{ display: 'flex', gap: '12px', marginBottom: '16px', flexWrap: 'wrap' }}>
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '24px' }}>
           {/* Search */}
-          <div style={{ flex: '1 1 300px', position: 'relative' }}>
+          <div style={{ position: 'relative', maxWidth: '600px' }}>
             <div style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', zIndex: 1 }}>
               <SearchRegular />
             </div>
@@ -231,78 +228,66 @@ const CMDBExplorerView: React.FC = () => {
               value={searchQuery}
               onChange={(e) => handleSearch(e.target.value)}
               style={{ paddingLeft: '36px' }}
+              glass="light"
             />
           </div>
 
-          {/* Create Button */}
-          <PurpleGlassButton
-            onClick={handleCreateNew}
-            icon={<AddRegular />}
-            variant="primary"
-          >
-            Create CI
-          </PurpleGlassButton>
+          {/* Filters Row */}
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
+            <FilterRegular style={{ color: 'var(--colorNeutralForeground2)' }} />
 
-          {/* Refresh Button */}
-          <PurpleGlassButton
-            onClick={loadCIs}
-            icon={<ArrowSyncRegular />}
-          >
-            Refresh
-          </PurpleGlassButton>
+            <PurpleGlassDropdown
+              placeholder="Class"
+              value={selectedClass}
+              onChange={(value) => {
+                setSelectedClass(value as CIClass | '');
+                handleFilterChange();
+              }}
+              options={classOptions}
+              glass="light"
+            />
+
+            <PurpleGlassDropdown
+              placeholder="Status"
+              value={selectedStatus}
+              onChange={(value) => {
+                setSelectedStatus(value as CIStatus | '');
+                handleFilterChange();
+              }}
+              options={statusOptions}
+              glass="light"
+            />
+
+            <PurpleGlassDropdown
+              placeholder="Criticality"
+              value={selectedCriticality}
+              onChange={(value) => {
+                setSelectedCriticality(value as CICriticality | '');
+                handleFilterChange();
+              }}
+              options={criticalityOptions}
+              glass="light"
+            />
+
+            <PurpleGlassDropdown
+              placeholder="Environment"
+              value={selectedEnvironment}
+              onChange={(value) => {
+                setSelectedEnvironment(typeof value === 'string' ? value : '');
+                handleFilterChange();
+              }}
+              options={environmentOptions}
+              glass="light"
+            />
+
+            {hasFilters && (
+              <PurpleGlassButton onClick={clearFilters} variant="ghost">
+                Clear Filters
+              </PurpleGlassButton>
+            )}
+          </div>
         </div>
-
-        {/* Filters Row */}
-        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
-          <FilterRegular style={{ color: 'var(--colorNeutralForeground2)' }} />
-          
-          <PurpleGlassDropdown
-            placeholder="Class"
-            value={selectedClass}
-            onChange={(value) => {
-              setSelectedClass(value as CIClass | '');
-              handleFilterChange();
-            }}
-            options={classOptions}
-          />
-
-          <PurpleGlassDropdown
-            placeholder="Status"
-            value={selectedStatus}
-            onChange={(value) => {
-              setSelectedStatus(value as CIStatus | '');
-              handleFilterChange();
-            }}
-            options={statusOptions}
-          />
-
-          <PurpleGlassDropdown
-            placeholder="Criticality"
-            value={selectedCriticality}
-            onChange={(value) => {
-              setSelectedCriticality(value as CICriticality | '');
-              handleFilterChange();
-            }}
-            options={criticalityOptions}
-          />
-
-          <PurpleGlassDropdown
-            placeholder="Environment"
-            value={selectedEnvironment}
-            onChange={(value) => {
-              setSelectedEnvironment(typeof value === 'string' ? value : '');
-              handleFilterChange();
-            }}
-            options={environmentOptions}
-          />
-
-          {hasFilters && (
-            <PurpleGlassButton onClick={clearFilters} variant="ghost">
-              Clear Filters
-            </PurpleGlassButton>
-          )}
-        </div>
-      </PurpleGlassCard>
+      </PageHeader>
 
       {/* Results Info */}
       <div style={{

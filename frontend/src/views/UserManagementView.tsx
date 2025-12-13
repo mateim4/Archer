@@ -56,6 +56,9 @@ const useStyles = makeStyles({
     display: 'flex',
     flexDirection: 'column',
     gap: tokens.spacingVerticalXL,
+    maxWidth: '1600px',
+    margin: '0 auto',
+    padding: tokens.spacingHorizontalL,
   },
   header: {
     display: 'flex',
@@ -69,18 +72,6 @@ const useStyles = makeStyles({
     flexDirection: 'column',
     gap: tokens.spacingVerticalS,
   },
-  title: {
-    fontSize: tokens.fontSizeHero800,
-    fontWeight: tokens.fontWeightSemibold,
-    color: tokens.colorNeutralForeground1,
-    display: 'flex',
-    alignItems: 'center',
-    gap: tokens.spacingHorizontalM,
-  },
-  subtitle: {
-    fontSize: tokens.fontSizeBase300,
-    color: tokens.colorNeutralForeground3,
-  },
   headerRight: {
     display: 'flex',
     gap: tokens.spacingHorizontalM,
@@ -91,6 +82,9 @@ const useStyles = makeStyles({
     alignItems: 'center',
     flexWrap: 'wrap',
     gap: tokens.spacingVerticalM,
+    marginTop: tokens.spacingVerticalL,
+    paddingTop: tokens.spacingVerticalM,
+    borderTop: `1px solid ${tokens.colorNeutralStroke2}`,
   },
   searchBar: {
     display: 'flex',
@@ -108,13 +102,16 @@ const useStyles = makeStyles({
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
     gap: tokens.spacingHorizontalL,
-    marginBottom: tokens.spacingVerticalM,
+    marginTop: tokens.spacingVerticalL,
   },
   statCard: {
     display: 'flex',
     alignItems: 'center',
     gap: tokens.spacingHorizontalM,
     ...shorthands.padding(tokens.spacingVerticalM, tokens.spacingHorizontalL),
+    backgroundColor: 'var(--card-bg-subtle)',
+    border: '1px solid var(--card-border-subtle)',
+    boxShadow: 'none',
   },
   statIcon: {
     display: 'flex',
@@ -197,21 +194,6 @@ const useStyles = makeStyles({
     fontSize: tokens.fontSizeBase200,
     color: tokens.colorNeutralForeground3,
   },
-  permissionList: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: tokens.spacingVerticalS,
-    maxHeight: '200px',
-    overflowY: 'auto',
-    ...shorthands.padding(tokens.spacingVerticalS),
-    backgroundColor: tokens.colorNeutralBackground3,
-    ...shorthands.borderRadius(tokens.borderRadiusMedium),
-  },
-  permissionItem: {
-    fontSize: tokens.fontSizeBase200,
-    color: tokens.colorNeutralForeground2,
-    fontFamily: tokens.fontFamilyMonospace,
-  },
   errorMessage: {
     color: tokens.colorPaletteRedForeground1,
     fontSize: tokens.fontSizeBase200,
@@ -235,6 +217,10 @@ const useStyles = makeStyles({
     color: tokens.colorNeutralForeground3,
     textAlign: 'center',
   },
+  tabList: {
+    marginTop: tokens.spacingVerticalL,
+    borderBottom: `1px solid ${tokens.colorNeutralStroke2}`,
+  }
 });
 
 // Status badge component
@@ -790,9 +776,10 @@ export function UserManagementView() {
   
   return (
     <div className={styles.container}>
+      {/* Breadcrumb - kept separate as per request/standard */}
       <PurpleGlassBreadcrumb items={breadcrumbItems} />
       
-      {/* Header */}
+      {/* Unified Page Header Card */}
       <PageHeader
         icon={<PeopleTeamRegular />}
         title="User Management"
@@ -816,91 +803,96 @@ export function UserManagementView() {
             </PurpleGlassButton>
           </div>
         }
-      />
-      
-      {/* Stats */}
-      <div className={styles.stats}>
-        <PurpleGlassCard className={styles.statCard}>
-          <div className={styles.statIcon}>
-            <PersonRegular style={{ fontSize: '24px' }} />
-          </div>
-          <div className={styles.statContent}>
-            <Text className={styles.statValue}>{stats.total}</Text>
-            <Text className={styles.statLabel}>Total Users</Text>
-          </div>
-        </PurpleGlassCard>
-        
-        <PurpleGlassCard className={styles.statCard}>
-          <div className={styles.statIcon} style={{ backgroundColor: 'rgba(34, 197, 94, 0.1)', color: tokens.colorPaletteGreenForeground1 }}>
-            <CheckmarkCircleRegular style={{ fontSize: '24px' }} />
-          </div>
-          <div className={styles.statContent}>
-            <Text className={styles.statValue}>{stats.active}</Text>
-            <Text className={styles.statLabel}>Active</Text>
-          </div>
-        </PurpleGlassCard>
-        
-        <PurpleGlassCard className={styles.statCard}>
-          <div className={styles.statIcon} style={{ backgroundColor: 'rgba(234, 179, 8, 0.1)', color: tokens.colorPaletteYellowForeground1 }}>
-            <DismissCircleRegular style={{ fontSize: '24px' }} />
-          </div>
-          <div className={styles.statContent}>
-            <Text className={styles.statValue}>{stats.inactive}</Text>
-            <Text className={styles.statLabel}>Inactive</Text>
-          </div>
-        </PurpleGlassCard>
-        
-        <PurpleGlassCard className={styles.statCard}>
-          <div className={styles.statIcon} style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', color: tokens.colorPaletteRedForeground1 }}>
-            <LockClosedRegular style={{ fontSize: '24px' }} />
-          </div>
-          <div className={styles.statContent}>
-            <Text className={styles.statValue}>{stats.locked}</Text>
-            <Text className={styles.statLabel}>Locked</Text>
-          </div>
-        </PurpleGlassCard>
-      </div>
-      
-      {/* Tabs */}
-      <TabList
-        selectedValue={selectedTab}
-        onTabSelect={(_, data) => setSelectedTab(data.value as string)}
       >
-        <Tab value="users" icon={<PersonRegular />}>Users</Tab>
-        <Tab value="roles" icon={<ShieldPersonRegular />}>Roles</Tab>
-      </TabList>
-      
-      {/* Toolbar */}
-      <div className={styles.toolbar}>
-        <div className={styles.searchBar}>
-          <PurpleGlassInput
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search users..."
-            prefixIcon={<SearchRegular />}
-            glass="light"
-          />
-        </div>
+        {/* Content Children of the Page Header */}
         
-        <div className={styles.filters}>
-          <PurpleGlassDropdown
-            value={statusFilter}
-            onChange={(value) => setStatusFilter(typeof value === 'string' ? value : '')}
-            options={statusOptions}
-            placeholder="Filter by status"
-            glass="light"
-          />
-          <PurpleGlassDropdown
-            value={roleFilter}
-            onChange={(value) => setRoleFilter(typeof value === 'string' ? value : '')}
-            options={roleOptions}
-            placeholder="Filter by role"
-            glass="light"
-          />
+        {/* 1. Stats Grid */}
+        <div className={styles.stats}>
+          <PurpleGlassCard className={styles.statCard} variant="subtle" glass={true}>
+            <div className={styles.statIcon}>
+              <PersonRegular style={{ fontSize: '24px' }} />
+            </div>
+            <div className={styles.statContent}>
+              <Text className={styles.statValue}>{stats.total}</Text>
+              <Text className={styles.statLabel}>Total Users</Text>
+            </div>
+          </PurpleGlassCard>
+
+          <PurpleGlassCard className={styles.statCard} variant="subtle" glass={true}>
+            <div className={styles.statIcon} style={{ backgroundColor: 'rgba(34, 197, 94, 0.1)', color: tokens.colorPaletteGreenForeground1 }}>
+              <CheckmarkCircleRegular style={{ fontSize: '24px' }} />
+            </div>
+            <div className={styles.statContent}>
+              <Text className={styles.statValue}>{stats.active}</Text>
+              <Text className={styles.statLabel}>Active</Text>
+            </div>
+          </PurpleGlassCard>
+
+          <PurpleGlassCard className={styles.statCard} variant="subtle" glass={true}>
+            <div className={styles.statIcon} style={{ backgroundColor: 'rgba(234, 179, 8, 0.1)', color: tokens.colorPaletteYellowForeground1 }}>
+              <DismissCircleRegular style={{ fontSize: '24px' }} />
+            </div>
+            <div className={styles.statContent}>
+              <Text className={styles.statValue}>{stats.inactive}</Text>
+              <Text className={styles.statLabel}>Inactive</Text>
+            </div>
+          </PurpleGlassCard>
+
+          <PurpleGlassCard className={styles.statCard} variant="subtle" glass={true}>
+            <div className={styles.statIcon} style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', color: tokens.colorPaletteRedForeground1 }}>
+              <LockClosedRegular style={{ fontSize: '24px' }} />
+            </div>
+            <div className={styles.statContent}>
+              <Text className={styles.statValue}>{stats.locked}</Text>
+              <Text className={styles.statLabel}>Locked</Text>
+            </div>
+          </PurpleGlassCard>
         </div>
-      </div>
+
+        {/* 2. Tabs */}
+        <div className={styles.tabList}>
+          <TabList
+            selectedValue={selectedTab}
+            onTabSelect={(_, data) => setSelectedTab(data.value as string)}
+            appearance="subtle"
+          >
+            <Tab value="users" icon={<PersonRegular />}>Users</Tab>
+            <Tab value="roles" icon={<ShieldPersonRegular />}>Roles</Tab>
+          </TabList>
+        </div>
+
+        {/* 3. Toolbar (Search & Filters) */}
+        <div className={styles.toolbar}>
+          <div className={styles.searchBar}>
+            <PurpleGlassInput
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search users..."
+              prefixIcon={<SearchRegular />}
+              glass="light"
+            />
+          </div>
+
+          <div className={styles.filters}>
+            <PurpleGlassDropdown
+              value={statusFilter}
+              onChange={(value) => setStatusFilter(typeof value === 'string' ? value : '')}
+              options={statusOptions}
+              placeholder="Filter by status"
+              glass="light"
+            />
+            <PurpleGlassDropdown
+              value={roleFilter}
+              onChange={(value) => setRoleFilter(typeof value === 'string' ? value : '')}
+              options={roleOptions}
+              placeholder="Filter by role"
+              glass="light"
+            />
+          </div>
+        </div>
+      </PageHeader>
       
-      {/* Table */}
+      {/* Table - Kept in its own card as the main content area */}
       <PurpleGlassCard className={styles.tableContainer}>
         {isLoading ? (
           <div style={{ display: 'flex', justifyContent: 'center', padding: tokens.spacingVerticalXXL }}>
