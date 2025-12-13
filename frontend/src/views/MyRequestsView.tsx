@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { 
   PurpleGlassCard, 
   PurpleGlassButton, 
-  PurpleGlassInput 
+  PurpleGlassInput,
+  PageHeader
 } from '../components/ui';
 import { 
   SearchRegular,
@@ -127,31 +128,43 @@ const MyRequestsView: React.FC = () => {
   };
 
   return (
-    <div style={{ 
-      padding: 'var(--spacing-6)', 
-      maxWidth: '1400px', 
-      margin: '0 auto'
-    }}>
-      {/* Header */}
-      <div style={{ marginBottom: 'var(--spacing-6)' }}>
-        <h1 style={{ 
-          fontSize: 'var(--font-size-900)', 
-          fontWeight: 700,
-          marginBottom: 'var(--spacing-2)',
-          color: 'var(--color-text-primary)'
-        }}>
-          My Service Requests
-        </h1>
-        <p style={{ 
-          fontSize: 'var(--font-size-400)', 
-          color: 'var(--color-text-secondary)'
-        }}>
-          Track the status of your service requests
-        </p>
-      </div>
+    <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+      <PageHeader
+        icon={<AppsRegular />}
+        title="My Service Requests"
+        subtitle="Track the status of your service requests"
+        actions={
+          <PurpleGlassButton onClick={() => navigate('/app/service-catalog')}>
+            <AppsRegular style={{ marginRight: 'var(--spacing-2)' }} />
+            Browse Catalog
+          </PurpleGlassButton>
+        }
+      >
+        {/* Request stats */}
+        <div style={{ display: 'flex', gap: 'var(--spacing-4)', marginTop: '12px', flexWrap: 'wrap' }}>
+          <span style={{ fontSize: 'var(--font-size-300)', color: 'var(--color-text-secondary)' }}>
+            Total: <strong>{requests.length}</strong>
+          </span>
+          <span style={{ fontSize: 'var(--font-size-300)', color: 'var(--color-text-secondary)' }}>
+            In Progress: <strong>{filteredRequests.filter(r => r.status === 'IN_PROGRESS').length}</strong>
+          </span>
+          <span style={{ fontSize: 'var(--font-size-300)', color: 'var(--color-text-secondary)' }}>
+            Completed: <strong>{filteredRequests.filter(r => r.status === 'COMPLETED').length}</strong>
+          </span>
+        </div>
+      </PageHeader>
 
       {/* Filters */}
-      <PurpleGlassCard style={{ marginBottom: 'var(--spacing-5)' }}>
+      <PurpleGlassCard
+        header={(
+          <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-2)' }}>
+            <FilterRegular />
+            Filter Requests
+          </span>
+        )}
+        glass
+        style={{ marginBottom: 'var(--spacing-5)' }}
+      >
         <div style={{ padding: 'var(--spacing-5)' }}>
           <div style={{ display: 'flex', gap: 'var(--spacing-3)', alignItems: 'center', flexWrap: 'wrap' }}>
             <div style={{ flex: 1, minWidth: '300px' }}>

@@ -3,7 +3,7 @@ import { apiClient } from '../utils/apiClient';
 import GlassmorphicSearchBar from '../components/GlassmorphicSearchBar';
 import { DESIGN_TOKENS } from '../components/DesignSystem';
 import { DesignTokens } from '../styles/designSystem';
-import { PurpleGlassButton, PrimaryButton } from '@/components/ui';
+import { PurpleGlassButton, PrimaryButton, PageHeader, PurpleGlassCard } from '@/components/ui';
 import {
   ErrorCircleRegular,
   SearchRegular,
@@ -300,43 +300,33 @@ const HardwareBasketView: React.FC = () => {
   return (
     <div style={pageLayoutStyle}>
       {/* Header */}
-      <div style={{ 
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: DesignTokens.spacing.xl,
-        borderBottom: `2px solid ${DesignTokens.colors.primary}20`,
-        paddingBottom: DesignTokens.spacing.lg
-      }}>
-        <h1 style={{ 
-          fontSize: DesignTokens.typography.xxxl,
-          fontWeight: DesignTokens.typography.semibold,
-          color: DesignTokens.colors.primary,
-          margin: '0',
-          fontFamily: DesignTokens.typography.fontFamily,
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px'
-        }}>
-          <DatabaseRegular style={{ fontSize: '32px', color: 'var(--text-primary)' }} />
-          Hardware Basket Management
-        </h1>
-        
-        <PrimaryButton
-          onClick={() => setShowCreateDialog(true)}
-        >
-          <span style={{ color: 'white' }}>+</span> Create Hardware Basket
-        </PrimaryButton>
-      </div>
+      <PageHeader
+        icon={<DatabaseRegular />}
+        title="Hardware Basket Management"
+        subtitle="Manage uploaded hardware configuration baskets"
+        actions={
+          <PrimaryButton onClick={() => setShowCreateDialog(true)}>
+            <span style={{ color: 'white' }}>+</span> Create Hardware Basket
+          </PrimaryButton>
+        }
+      >
+        {/* Basket stats */}
+        <div style={{ display: 'flex', gap: '16px', marginTop: '12px' }}>
+          <span style={{ fontSize: '13px', color: 'var(--color-text-secondary)' }}>
+            Total: <strong>{filteredBaskets.length}</strong>
+          </span>
+        </div>
+      </PageHeader>
 
       {/* Search and Filter Controls */}
-      <div style={{
-        display: 'flex',
-        gap: '16px',
-        marginBottom: '24px',
-        flexWrap: 'wrap',
-        alignItems: 'center'
-      }}>
+      <PurpleGlassCard header="Search & Filter" glass style={{ marginBottom: '24px' }}>
+        <div style={{
+          display: 'flex',
+          gap: '16px',
+          marginBottom: '24px',
+          flexWrap: 'wrap',
+          alignItems: 'center'
+        }}>
         {/* Glassmorphic Search Input */}
         <div style={{ flex: '1', minWidth: '320px' }}>
           <GlassmorphicSearchBar
@@ -408,7 +398,8 @@ const HardwareBasketView: React.FC = () => {
             🧹 Clear Filters
           </PurpleGlassButton>
         )}
-      </div>
+        </div>
+      </PurpleGlassCard>
 
       {/* Results Summary */}
       <div style={{

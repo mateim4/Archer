@@ -21,6 +21,7 @@ import {
 import {
   Search24Regular,
   Add24Regular,
+  ArrowTrending24Regular,
   Calendar24Regular,
   People24Regular,
   Warning24Regular,
@@ -32,7 +33,7 @@ import {
   Edit24Regular,
   Delete24Regular,
 } from '@fluentui/react-icons';
-import { PurpleGlassInput, PurpleGlassDropdown } from '../components/ui';
+import { PurpleGlassInput, PurpleGlassDropdown, PageHeader, PurpleGlassCard } from '../components/ui';
 import { MigrationProject, ProjectTemplate, PROJECT_TEMPLATES, MIGRATION_TASK_TYPES } from '../types/migrationTypes';
 
 interface MigrationProjectsProps {
@@ -199,21 +200,21 @@ export const MigrationProjects: React.FC<MigrationProjectsProps> = ({ className 
   };
 
   return (
-    <div className={`migration-projects p-6 ${className}`}>
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-3xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Migration Projects</h1>
-          <p style={{ color: 'var(--text-secondary)' }}>Manage your VMware to Hyper-V/Azure Local migration projects</p>
-        </div>
-        
-        <Button 
-          appearance="primary" 
-          icon={<Add24Regular />}
-          onClick={() => setIsNewProjectDialogOpen(true)}
-        >
-          New Project
-        </Button>
-      </div>
+    <div className={`migration-projects ${className}`} style={{ maxWidth: '1400px', margin: '0 auto' }}>
+      <PageHeader
+        icon={<ArrowTrending24Regular />}
+        title="Migration Projects"
+        subtitle="Manage your VMware to Hyper-V/Azure Local migration projects"
+        actions={
+          <Button 
+            appearance="primary" 
+            icon={<Add24Regular />}
+            onClick={() => setIsNewProjectDialogOpen(true)}
+          >
+            New Project
+          </Button>
+        }
+      />
 
       {/* Filters */}
       <div className="flex flex-wrap gap-4 mb-6 p-4 rounded-lg" style={{ backgroundColor: 'var(--glass-bg)' }}>

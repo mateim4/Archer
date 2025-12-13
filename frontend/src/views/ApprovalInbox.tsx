@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { CheckCircle, XCircle, Clock, MessageSquare, ExternalLink } from 'lucide-react';
-import { PurpleGlassButton, PurpleGlassCard, PurpleGlassTextarea } from '../components/ui';
+import { PurpleGlassButton, PurpleGlassCard, PurpleGlassTextarea, PageHeader } from '../components/ui';
 import { apiClient, ApprovalWithContext, ApprovalStatus } from '../utils/apiClient';
 
 const ApprovalInbox: React.FC = () => {
@@ -86,21 +86,16 @@ const ApprovalInbox: React.FC = () => {
   }
 
   return (
-    <div className="lcm-page-container">
-      <PurpleGlassCard>
-        <div className="lcm-page-header">
-          <div>
-            <h1 className="lcm-page-title">Approval Inbox</h1>
-            <p className="lcm-page-subtitle">
-              Review and respond to pending workflow approvals
-            </p>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="px-4 py-2 bg-purple-100 text-purple-800 rounded-lg border border-purple-300">
-              <span className="font-semibold">{approvals.length}</span> pending
-            </div>
-          </div>
-        </div>
+    <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+      <PageHeader
+        icon={<CheckCircle />}
+        title="Approval Inbox"
+        subtitle="Review and respond to pending workflow approvals"
+        badge={`${approvals.length} pending`}
+        badgeVariant={approvals.length > 0 ? 'warning' : 'success'}
+      />
+
+      <PurpleGlassCard glass>
 
         {/* Approvals List */}
         <div className="space-y-4">

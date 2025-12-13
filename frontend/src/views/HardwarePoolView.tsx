@@ -18,7 +18,7 @@ import {
   ArrowUploadRegular,
   DiagramRegular
 } from '@fluentui/react-icons';
-import { PurpleGlassButton, PurpleGlassCard, PrimaryButton } from '../components/ui';
+import { PurpleGlassButton, PurpleGlassCard, PrimaryButton, PageHeader } from '../components/ui';
 import { useNavigate } from 'react-router-dom';
 
 const pageLayoutStyle: React.CSSProperties = {
@@ -172,77 +172,43 @@ const HardwarePoolView: React.FC = () => {
 
   return (
     <div style={pageLayoutStyle}>
-      {/* Header */}
-      <div style={{ 
-        marginBottom: '24px',
-        borderBottom: '2px solid rgba(99, 102, 241, 0.1)',
-        paddingBottom: '16px'
-      }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px',
-          marginBottom: '8px'
-        }}>
-          <ServerRegular style={{ fontSize: '32px', color: 'var(--icon-default)' }} />
-          <h1 style={{ 
-            fontSize: DesignTokens.typography.xxxl,
-            fontWeight: DesignTokens.typography.semibold,
-            color: 'var(--text-primary)',
-            margin: '0',
-            fontFamily: DesignTokens.typography.fontFamily
-          }}>
-            Inventory
-          </h1>
+      <PageHeader
+        icon={<ServerRegular />}
+        title="Inventory"
+        subtitle="Track and allocate hardware assets"
+        actions={
+          <div style={{ display: 'flex', gap: DesignTokens.spacing.sm }}>
+            <PurpleGlassButton
+              variant="primary"
+              icon={<AddRegular />}
+              onClick={handleCreate}
+            >
+              Add Hardware Asset
+            </PurpleGlassButton>
+            <PurpleGlassButton
+              variant="secondary"
+              icon={<ArrowUploadRegular />}
+              loading={rvToolsLoading}
+              onClick={handleRvToolsImportClick}
+            >
+              Import from RVTools
+            </PurpleGlassButton>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".csv,.xlsx"
+              onChange={handleRvToolsFileChange}
+              style={{ display: 'none' }}
+            />
+          </div>
+        }
+      >
+        <div style={{ marginTop: '12px' }}>
+          <span style={{ color: 'var(--text-secondary)', fontSize: '13px' }}>
+            {rvToolsUploads.length > 0 ? `${rvToolsUploads.length} RVTools uploads processed` : 'Upload RVTools CSV or XLSX exports to populate the inventory.'}
+          </span>
         </div>
-        <p style={{
-          fontSize: '16px',
-          color: 'var(--text-secondary)',
-          margin: 0,
-          fontFamily: DesignTokens.typography.fontFamily,
-          paddingLeft: '44px'
-        }}>
-          Track and allocate hardware assets
-        </p>
-      </div>
-      
-      <div style={{ 
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: DesignTokens.spacing.xl,
-        gap: DesignTokens.spacing.md
-      }}>
-        <div style={{ display: 'flex', gap: DesignTokens.spacing.sm }}>
-          <PurpleGlassButton
-            variant="primary"
-            glass
-            icon={<AddRegular />}
-            onClick={handleCreate}
-          >
-            Add Hardware Asset
-          </PurpleGlassButton>
-          <PurpleGlassButton
-            variant="secondary"
-            glass
-            icon={<ArrowUploadRegular />}
-            loading={rvToolsLoading}
-            onClick={handleRvToolsImportClick}
-          >
-            Import from RVTools
-          </PurpleGlassButton>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".csv,.xlsx"
-            onChange={handleRvToolsFileChange}
-            style={{ display: 'none' }}
-          />
-        </div>
-        <div style={{ color: 'var(--text-secondary)', fontSize: '14px', fontFamily: DesignTokens.typography.fontFamily }}>
-          {rvToolsUploads.length > 0 ? `${rvToolsUploads.length} RVTools uploads processed` : 'Upload RVTools CSV or XLSX exports to populate the inventory.'}
-        </div>
-      </div>
+      </PageHeader>
 
       {latestRvToolsUpload && (
         <PurpleGlassCard

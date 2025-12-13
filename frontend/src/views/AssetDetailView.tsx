@@ -48,6 +48,8 @@ import {
   PurpleGlassInput,
   LinkedAssetBadge,
   SLAIndicator,
+  PageHeader,
+  PurpleGlassEmptyState,
 } from '../components/ui';
 import type { AssetType, AssetStatus } from '../components/ui';
 import { DesignTokens } from '../styles/designSystem';
@@ -321,12 +323,11 @@ const AssetDetailView: React.FC = () => {
             icon={<ErrorCircleRegular />}
             title="Asset Not Found"
             description="The asset you're looking for doesn't exist or has been removed."
-            action={
-              <PurpleGlassButton onClick={() => navigate('/app/inventory')}>
-                <ArrowLeftRegular style={{ marginRight: '8px' }} />
-                Back to Inventory
-              </PurpleGlassButton>
-            }
+            action={{
+              label: 'Back to Inventory',
+              onClick: () => navigate('/app/inventory'),
+              icon: <ArrowLeftRegular />,
+            }}
           />
         </PurpleGlassCard>
       </div>
@@ -406,9 +407,9 @@ const AssetDetailView: React.FC = () => {
       <PageHeader
         icon={getAssetIcon(asset.type)}
         title={asset.name}
-        subtitle={`${asset.type} • ${asset.external_id || 'No external ID'}`}
+        subtitle={`${asset.type} • ${asset.id}`}
         badge={asset.status}
-        badgeVariant={asset.status === 'ACTIVE' ? 'success' : asset.status === 'MAINTENANCE' ? 'warning' : 'critical'}
+        badgeVariant={asset.status === 'healthy' ? 'success' : asset.status === 'warning' ? 'warning' : asset.status === 'critical' ? 'danger' : 'info'}
         actions={
           <div style={{ display: 'flex', gap: '8px' }}>
             <PurpleGlassButton variant="secondary" onClick={() => navigate('/app/inventory')}>
@@ -482,25 +483,7 @@ const AssetDetailView: React.FC = () => {
                   </span>
                 )}
               </div>
-            </div>
-          </div>
-        </div>
-
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <PurpleGlassButton variant="ghost" title="Remote Console">
-            <OpenRegular />
-          </PurpleGlassButton>
-          <PurpleGlassButton variant="ghost" title="Copy ID">
-            <CopyRegular />
-          </PurpleGlassButton>
-          <PurpleGlassButton variant="ghost" title="Settings">
-            <SettingsRegular />
-          </PurpleGlassButton>
-          <PurpleGlassButton variant="ghost" title="More actions">
-            <MoreHorizontalRegular />
-          </PurpleGlassButton>
-        </div>
-      </div>
+      </PageHeader>
 
       {/* Tabs */}
       <PurpleGlassCard style={{ padding: 0, overflow: 'hidden' }}>

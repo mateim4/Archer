@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, FileText, Edit3, Trash2, Save, X, Download, Upload } from 'lucide-react';
 import { apiClient, DesignDocument, CreateDesignDocRequest } from '../utils/apiClient';
 import { useAppStore } from '../store/useAppStore';
-import { PurpleGlassDropdown } from '../components/ui';
+import { PurpleGlassDropdown, PageHeader, PurpleGlassCard } from '../components/ui';
 import type { DropdownOption } from '../components/ui';
 
 interface DocFormData {
@@ -163,10 +163,12 @@ const DesignDocsView: React.FC = () => {
   }
 
   return (
-    <div>
-      <div className="lcm-page-container">
-        <div className="lcm-card">
-          <div className="lcm-page-header">
+    <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+      <PageHeader
+        icon={<FileText />}
+        title="Design Docs"
+        subtitle="Create and manage project design documentation"
+        actions={
           <button
             onClick={() => setShowCreateForm(true)}
             className="lcm-button fluent-button-primary lcm-button-with-icon"
@@ -174,25 +176,24 @@ const DesignDocsView: React.FC = () => {
             <Plus className="w-4 h-4" />
             New Document
           </button>
-        </div>
+        }
+      />
 
-        {error && (
-          <div className="lcm-alert fluent-alert-error mb-6">
-            <p>{error}</p>
-          </div>
+      {error && (
+        <div className="lcm-alert fluent-alert-error mb-6">
+          <p>{error}</p>
+        </div>
       )}
 
-      {/* Create/Edit Form */}
       {(showCreateForm || editingDoc) && (
-        <div className="lcm-card mb-6">
-          <h2 className="lcm-card-title mb-4">
-            {editingDoc ? 'Edit Document' : 'Create New Document'}
-          </h2>
+        <PurpleGlassCard
+          header={editingDoc ? 'Edit Document' : 'Create New Document'}
+          glass
+          style={{ marginBottom: '24px' }}
+        >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div className="lcm-form-group">
-              <label className="lcm-label">
-                Document Name
-              </label>
+              <label className="lcm-label">Document Name</label>
               <input
                 type="text"
                 value={formData.name}
@@ -213,9 +214,7 @@ const DesignDocsView: React.FC = () => {
             </div>
           </div>
           <div className="lcm-form-group mb-4">
-            <label className="lcm-label">
-              Content (Markdown)
-            </label>
+            <label className="lcm-label">Content (Markdown)</label>
             <textarea
               value={formData.content}
               onChange={(e) => setFormData({ ...formData, content: e.target.value })}
@@ -240,7 +239,7 @@ const DesignDocsView: React.FC = () => {
               Cancel
             </button>
           </div>
-        </div>
+        </PurpleGlassCard>
       )}
 
       {/* Documents Grid */}
@@ -299,25 +298,23 @@ const DesignDocsView: React.FC = () => {
       </div>
 
       {docs.length === 0 && !loading && (
-          <div className="lcm-empty-state">
-            <div className="lcm-empty-state-icon">
-              <FileText className="w-16 h-16" />
-            </div>
-            <h3 className="lcm-empty-state-title">No design documents yet</h3>
-            <p className="lcm-empty-state-description">
-              Create your first design document to start documenting your system architecture.
-            </p>
-            <button
-              onClick={() => setShowCreateForm(true)}
-              className="lcm-button fluent-button-primary lcm-button-with-icon mt-4"
-            >
-              <Plus className="w-4 h-4" />
-              Create First Document
-            </button>
+        <div className="lcm-empty-state">
+          <div className="lcm-empty-state-icon">
+            <FileText className="w-16 h-16" />
           </div>
-        )}
-      </div>
-      </div>
+          <h3 className="lcm-empty-state-title">No design documents yet</h3>
+          <p className="lcm-empty-state-description">
+            Create your first design document to start documenting your system architecture.
+          </p>
+          <button
+            onClick={() => setShowCreateForm(true)}
+            className="lcm-button fluent-button-primary lcm-button-with-icon mt-4"
+          >
+            <Plus className="w-4 h-4" />
+            Create First Document
+          </button>
+        </div>
+      )}
     </div>
   );
 };

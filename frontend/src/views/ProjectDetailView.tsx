@@ -28,7 +28,7 @@ import {
 } from '@fluentui/react-icons';
 import { CheckmarkCircleRegular } from '@fluentui/react-icons';
 
-import { PurpleGlassDropdown, PurpleGlassButton, PurpleGlassInput, PurpleGlassCard } from '@/components/ui';
+import { PurpleGlassDropdown, PurpleGlassButton, PurpleGlassInput, PurpleGlassCard, PageHeader, PurpleGlassEmptyState } from '@/components/ui';
 import { ACTIVITY_STATUS_OPTIONS } from '@/constants/projectFilters';
 
 import GanttChart from '../components/EnhancedGanttChart';
@@ -212,25 +212,19 @@ const ProjectDetailView: React.FC = () => {
   if (error || !project) {
     return (
       <ErrorBoundary>
-        <div>
-          <div style={{ padding: DesignTokens.spacing.lg }}>
-            <div style={{ padding: 0, backgroundColor: 'transparent', border: 'none' }}>
-              <ErrorCircleRegular style={{ fontSize: '48px', color: DesignTokens.colors.error }} />
-            </div>
-            <div>
-              <h2 style={DesignTokens.components.standardTitle}>Project Not Found</h2>
-              <p style={DesignTokens.components.standardSubtitle}>The requested project could not be found or failed to load.</p>
-              <PurpleGlassButton
-                variant="primary"
-                icon={<ArrowLeftFilled />}
-                onClick={() => navigate('/app/projects')}
-                glass
-                style={{ marginTop: DesignTokens.spacing.md }}
-              >
-                Back to Projects
-              </PurpleGlassButton>
-            </div>
-          </div>
+        <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+          <PurpleGlassCard glass>
+            <PurpleGlassEmptyState
+              icon={<ErrorCircleRegular />}
+              title="Project Not Found"
+              description="The requested project could not be found or failed to load."
+              action={{
+                label: 'Back to Projects',
+                onClick: () => navigate('/app/projects'),
+                icon: <ArrowLeftFilled />,
+              }}
+            />
+          </PurpleGlassCard>
         </div>
       </ErrorBoundary>
     );
@@ -239,114 +233,86 @@ const ProjectDetailView: React.FC = () => {
   return (
     <ErrorBoundary>
       <div style={{ maxWidth: '1400px', margin: '0 auto', overflow: 'visible' }}>
-        {/* Back Button */}
-        <PurpleGlassButton
-          variant="secondary"
-          size="medium"
-          icon={<ArrowLeftFilled />}
-          onClick={() => navigate('/app/projects')}
-          glass
-          style={{ marginBottom: DesignTokens.spacing.xl }}
-        >
-          Back to Projects
-        </PurpleGlassButton>
-
-        {/* Content */}
-        <div style={{ marginBottom: '80px', overflow: 'visible' }}>
         <main role="main" aria-label={`Project Details: ${project.name}`}>
-        {/* Header section with padding */}
-        <PurpleGlassCard style={{ marginBottom: DesignTokens.spacing.xl }}>
-          <div style={{ padding: DesignTokens.spacing.lg }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', width: '100%' }}>
-              <div style={{ flex: 1 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: DesignTokens.spacing.sm }}>
-                  <FolderRegular style={{ color: 'var(--icon-default)', fontSize: '32px' }} />
-                  <h1 style={{ ...DesignTokens.components.sectionTitle, color: 'var(--text-primary)' }}>{project.name}</h1>
-                </div>
-                <div style={{ marginTop: '8px' }}>
-                  <p style={DesignTokens.components.cardDescription}>
-                    {project.description || 'No description provided'}
-                  </p>
-                </div>
-                <div
-                  style={{
-                    display: 'flex',
-                    gap: DesignTokens.spacing.xl,
-                    marginTop: DesignTokens.spacing.lg,
-                    flexWrap: 'wrap',
-                  }}
-                >
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: DesignTokens.spacing.xs,
-                      padding: DesignTokens.spacing.sm,
-                      background: 'rgba(139, 92, 246, 0.05)',
-                      borderRadius: DesignTokens.borderRadius.lg,
-                      border: `1px solid rgba(139, 92, 246, 0.2)`,
-                    }}
-                  >
-                    <PeopleRegular style={{ color: DesignTokens.colorVariants.indigo.base, fontSize: '16px' }} />
-                    <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-                      Owner: {project.owner_id ? project.owner_id.replace('user:', '') : 'Unknown'}
-                    </span>
-                  </div>
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: DesignTokens.spacing.xs,
-                      padding: '8px 16px',
-                      background: 'rgba(139, 92, 246, 0.05)',
-                      borderRadius: '12px',
-                      border: `1px solid rgba(139, 92, 246, 0.2)`,
-                    }}
-                  >
-                    <CalendarRegular style={{ color: DesignTokens.colorVariants.indigo.base, fontSize: '16px' }} />
-                    <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-                      Created: {new Date(project.created_at).toLocaleDateString()}
-                    </span>
-                  </div>
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: DesignTokens.spacing.xs,
-                      padding: DesignTokens.spacing.sm,
-                      background: 'rgba(139, 92, 246, 0.05)',
-                      borderRadius: DesignTokens.borderRadius.lg,
-                      border: `1px solid rgba(139, 92, 246, 0.2)`,
-                    }}
-                  >
-                    <ClockRegular style={{ color: DesignTokens.colorVariants.indigo.base, fontSize: '16px' }} />
-                    <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-                      Updated: {new Date(project.updated_at).toLocaleDateString()}
-                    </span>
-                  </div>
-                </div>
-              </div>
+          <PageHeader
+            icon={<FolderRegular />}
+            title={project.name}
+            subtitle={project.description || 'No description provided'}
+            badge="Active"
+            badgeVariant="success"
+            actions={
               <div style={{ display: 'flex', gap: DesignTokens.spacing.md }}>
-                <PurpleGlassButton 
-                  variant="primary"
+                <PurpleGlassButton
+                  variant="secondary"
+                  size="medium"
+                  icon={<ArrowLeftFilled />}
+                  onClick={() => navigate('/app/projects')}
+                >
+                  Back
+                </PurpleGlassButton>
+                <PurpleGlassButton
+                  variant="ghost"
                   size="medium"
                   icon={<ShareRegular />}
-                  glass
                 >
                   Share
                 </PurpleGlassButton>
-                <PurpleGlassButton 
-                  variant="secondary"
+                <PurpleGlassButton
+                  variant="ghost"
                   size="medium"
                   icon={<ArrowDownloadRegular />}
-                  glass
                 >
                   Export
                 </PurpleGlassButton>
               </div>
+            }
+          >
+            {/* Project metadata */}
+            <div style={{ display: 'flex', gap: DesignTokens.spacing.xl, marginTop: '12px', flexWrap: 'wrap' }}>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: DesignTokens.spacing.xs,
+                padding: '6px 12px',
+                background: 'rgba(139, 92, 246, 0.1)',
+                borderRadius: '9999px',
+                fontSize: '13px',
+                color: 'var(--text-secondary)',
+              }}>
+                <PeopleRegular style={{ fontSize: '14px' }} />
+                Owner: {project.owner_id ? project.owner_id.replace('user:', '') : 'Unknown'}
+              </div>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: DesignTokens.spacing.xs,
+                padding: '6px 12px',
+                background: 'rgba(139, 92, 246, 0.1)',
+                borderRadius: '9999px',
+                fontSize: '13px',
+                color: 'var(--text-secondary)',
+              }}>
+                <CalendarRegular style={{ fontSize: '14px' }} />
+                Created: {new Date(project.created_at).toLocaleDateString()}
+              </div>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: DesignTokens.spacing.xs,
+                padding: '6px 12px',
+                background: 'rgba(139, 92, 246, 0.1)',
+                borderRadius: '9999px',
+                fontSize: '13px',
+                color: 'var(--text-secondary)',
+              }}>
+                <ClockRegular style={{ fontSize: '14px' }} />
+                Updated: {new Date(project.updated_at).toLocaleDateString()}
+              </div>
             </div>
-          </div>
-        </PurpleGlassCard>
+          </PageHeader>
+
+          {/* Content */}
+          <div style={{ marginBottom: '80px', overflow: 'visible' }}>
 
         {/* Stats grid with glassmorphic cards */}
         <div
@@ -928,8 +894,8 @@ const ProjectDetailView: React.FC = () => {
           projectId={projectId || ''}
           activityId={selectedActivity?.id}
         />
+          </div>
         </main>
-        </div>
       </div>
     </ErrorBoundary>
   );

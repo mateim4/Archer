@@ -45,7 +45,7 @@ import { useEnhancedUX } from '../hooks/useEnhancedUX';
 import { DesignTokens } from '../styles/designSystem';
 import { ActivityWizardModal } from '../components/Activity/ActivityWizardModal';
 import { tokens, colors } from '@/styles/design-tokens';
-import { PurpleGlassButton, PurpleGlassBreadcrumb, PrimaryButton } from '@/components/ui';
+import { PurpleGlassButton, PurpleGlassBreadcrumb, PrimaryButton, PageHeader, PurpleGlassEmptyState, PurpleGlassCard } from '@/components/ui';
 
 interface Activity {
   id: string;
@@ -545,15 +545,18 @@ const ProjectWorkspaceView: React.FC = () => {
 
   if (!project) {
     return (
-      <div className="lcm-page-container">
-        <EnhancedCard className="text-center py-12">
-          <ErrorCircleRegular className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Project Not Found</h2>
-          <p className="mb-6" style={{ color: 'var(--text-secondary)' }}>The requested project could not be found.</p>
-          <EnhancedButton onClick={() => navigate('/app/projects')} variant="primary">
-            Back to Projects
-          </EnhancedButton>
-        </EnhancedCard>
+      <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+        <PurpleGlassCard glass>
+          <PurpleGlassEmptyState
+            icon={<ErrorCircleRegular />}
+            title="Project Not Found"
+            description="The requested project could not be found."
+            action={{
+              label: 'Back to Projects',
+              onClick: () => navigate('/app/projects'),
+            }}
+          />
+        </PurpleGlassCard>
         <ToastContainer />
       </div>
     );
@@ -591,60 +594,22 @@ const ProjectWorkspaceView: React.FC = () => {
           ]}
         />
 
-        {/* Project Header Section - Dashboard Style */}
-        <div className="purple-glass-card static" style={{
-          padding: '24px',
-          marginBottom: '24px',
-        }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'flex-start',
-            justifyContent: 'space-between',
-            marginBottom: '24px',
-            paddingBottom: '20px',
-            borderBottom: '1px solid var(--divider-color-subtle)',
-          }}>
-            <div>
-              <h1 style={{
-                margin: 0,
-                fontSize: 'var(--lcm-font-size-xxxl, 32px)',
-                fontWeight: 600,
-                color: 'var(--text-primary)',
-                fontFamily: 'var(--lcm-font-family-heading, Poppins, sans-serif)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px'
-              }}>
-                <FolderRegular style={{ fontSize: '32px', color: 'var(--brand-primary)' }} />
-                {project.name}
-              </h1>
-              <p style={{
-                margin: '8px 0 0 0',
-                fontSize: '16px',
-                color: 'var(--text-secondary)',
-                fontFamily: 'var(--lcm-font-family-body, Poppins, sans-serif)',
-              }}>
-                {project.description}
-              </p>
-            </div>
-
-            {/* Project Controls */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <PurpleGlassButton
-                icon={<SettingsRegular />}
-                glass
-                size="small"
-              >
-                Settings
-              </PurpleGlassButton>
-            </div>
-          </div>
-
+        <PageHeader
+          icon={<FolderRegular />}
+          title={project.name}
+          subtitle={project.description}
+          actions={
+            <PurpleGlassButton icon={<SettingsRegular />} size="small">
+              Settings
+            </PurpleGlassButton>
+          }
+        >
           {/* Project Stats */}
           <div style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
             gap: '16px',
+            marginTop: '12px',
           }}>
             <div style={{
               padding: '16px',
@@ -712,7 +677,7 @@ const ProjectWorkspaceView: React.FC = () => {
               </div>
             </div>
           </div>
-        </div>
+        </PageHeader>
 
         {/* Tab Navigation - Document Templates pill styling */}
         <div className="lcm-pill-tabs" role="tablist" aria-label="Project workspace sections">

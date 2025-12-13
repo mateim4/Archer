@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
   ArrowLeftRegular,
   CalendarRegular,
+  PersonRegular,
   PeopleRegular,
   ServerRegular,
   AddRegular,
@@ -20,7 +21,7 @@ import { tokens } from '@/styles/design-tokens';
 import { DesignTokens } from '@/styles/designSystem';
 import { ClusterStrategyModal } from '../components/ClusterStrategy/ClusterStrategyModal';
 import { ClusterStrategyList } from '../components/ClusterStrategy/ClusterStrategyList';
-import { PurpleGlassButton, PurpleGlassCard, PurpleGlassBreadcrumb } from '@/components/ui';
+import { PurpleGlassButton, PurpleGlassCard, PurpleGlassBreadcrumb, PageHeader } from '@/components/ui';
 
 interface Activity {
   id: string;
@@ -452,99 +453,86 @@ const ClusterStrategyManagerView: React.FC = () => {
         />
 
         {/* Activity Header Section */}
-        <div style={{ marginBottom: tokens.xxl }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'flex-start',
-            justifyContent: 'space-between',
-            marginBottom: tokens.xl
-          }}>
-            <div>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: tokens.m,
-                marginBottom: tokens.s
-              }}>
-                <h1 style={{ 
-                  fontSize: tokens.fontSizeHero700, 
-                  fontWeight: 700,
-                  fontFamily: tokens.fontFamilyHeading,
-                  color: tokens.colorNeutralForeground1,
-                  margin: 0
-                }}>
-                  {activity.name}
-                </h1>
-                {getStatusBadge(activity.status)}
-              </div>
-              
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: tokens.xl,
-                fontSize: tokens.fontSizeBase300,
-                color: tokens.colorNeutralForeground2,
-                fontFamily: tokens.fontFamilyBody
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: tokens.s }}>
-                  <CalendarRegular style={{ width: tokens.l, height: tokens.l }} />
-                  <span>{formatDate(activity.start_date)} - {formatDate(activity.end_date)}</span>
-                </div>
-                
+        <PageHeader
+          icon={<DiagramRegular />}
+          title={activity.name}
+          subtitle={`${formatDate(activity.start_date)} - ${formatDate(activity.end_date)}`}
+          badge={activity.status}
+          badgeVariant={activity.status === 'completed' ? 'success' : activity.status === 'in_progress' ? 'info' : 'warning'}
+          actions={
+            <div style={{ display: 'flex', gap: tokens.m }}>
+              <PurpleGlassButton variant="secondary" onClick={() => navigate('/app/projects')}>
+                Back to Projects
+              </PurpleGlassButton>
+            </div>
+          }
+        >
+          {activity.assignees && activity.assignees.length > 0 && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: tokens.s, marginTop: '12px' }}>
+              <PersonRegular style={{ width: tokens.l, height: tokens.l }} />
+              <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
+                {activity.assignees.join(', ')}
+              </span>
+            </div>
+          )}
+        </PageHeader>
+        <PurpleGlassCard glass style={{ marginBottom: tokens.xl }}>
+          <div style={{ padding: tokens.l }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: tokens.l, flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: tokens.l, flexWrap: 'wrap' }}>
                 {activity.assignees && activity.assignees.length > 0 && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: tokens.s }}>
                     <PeopleRegular style={{ width: tokens.l, height: tokens.l }} />
                     <span>{activity.assignees.join(', ')}</span>
                   </div>
                 )}
-                
+
                 <div style={{ display: 'flex', alignItems: 'center', gap: tokens.s }}>
                   <ServerRegular style={{ width: tokens.l, height: tokens.l }} />
                   <span>{strategies.length} cluster{strategies.length !== 1 ? 's' : ''}</span>
                 </div>
               </div>
+
+              <PurpleGlassButton
+                variant="primary"
+                size="medium"
+                icon={<AddRegular />}
+                onClick={handleCreateStrategy}
+              >
+                Add Cluster Strategy
+              </PurpleGlassButton>
             </div>
 
-            <PurpleGlassButton
-              variant="primary"
-              size="medium"
-              icon={<AddRegular />}
-              onClick={handleCreateStrategy}
-            >
-              Add Cluster Strategy
-            </PurpleGlassButton>
-          </div>
-
-          {/* Progress Bar */}
-          <div style={{ marginTop: tokens.xl }}>
-            <div style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'space-between', 
-              marginBottom: tokens.s 
-            }}>
-              <span style={{ 
-                fontSize: tokens.fontSizeBase200, 
-                fontWeight: 600, 
-                color: tokens.colorNeutralForeground2,
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px',
-                fontFamily: tokens.fontFamilyPrimary
+            <div style={{ marginTop: tokens.xl }}>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                marginBottom: tokens.s
               }}>
-                Activity Progress
-              </span>
-              <span style={{ 
-                fontSize: tokens.fontSizeBase400, 
-                fontWeight: 700, 
-                color: tokens.colorBrandForeground,
-                fontFamily: tokens.fontFamilyHeading
-              }}>
-                {activity.progress}%
-              </span>
+                <span style={{
+                  fontSize: tokens.fontSizeBase200,
+                  fontWeight: 600,
+                  color: tokens.colorNeutralForeground2,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                  fontFamily: tokens.fontFamilyPrimary
+                }}>
+                  Activity Progress
+                </span>
+                <span style={{
+                  fontSize: tokens.fontSizeBase400,
+                  fontWeight: 700,
+                  color: tokens.colorBrandForeground,
+                  fontFamily: tokens.fontFamilyHeading
+                }}>
+                  {activity.progress}%
+                </span>
+              </div>
+              <ProgressBar value={activity.progress} />
             </div>
-            <ProgressBar value={activity.progress} />
           </div>
-        </div>
+        </PurpleGlassCard>
 
         {/* Content Section */}
         {strategies.length === 0 ? (
