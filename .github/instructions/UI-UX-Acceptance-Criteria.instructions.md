@@ -370,6 +370,42 @@ The following section consolidates the research into a structured, actionable ch
 
     [ ] Code Splitting: JavaScript bundles are split; only necessary code is loaded for the current route.
 
+9.7 File Integrity & Build Compatibility
+
+Source file integrity is critical for successful builds and consistent behavior across development environments. These criteria prevent subtle corruption issues that can arise from tooling, encoding conflicts, or automated processes.
+
+    [ ] UTF-8 Encoding: All source files (`.tsx`, `.ts`, `.js`, `.css`, `.json`, `.md`) MUST be saved with UTF-8 encoding WITHOUT BOM (Byte Order Mark). UTF-16 or other encodings will cause build failures with cryptic errors like `Unexpected character '�'`.
+
+    [ ] No BOM Characters: Files must not contain BOM bytes (`0xFF 0xFE` or `0xFE 0xFF` at file start). These are invisible in editors but break parsers like Vite/esbuild. Use PowerShell to detect: `[System.IO.File]::ReadAllBytes($file)[0..1]`.
+
+    [ ] Line Endings: Prefer LF (Unix-style) line endings. CRLF is acceptable but must be consistent within a file. Mixed line endings can cause diff noise and merge conflicts.
+
+    [ ] No Null Bytes: Source files must not contain null bytes (`0x00`), which can occur from file corruption or improper encoding conversion.
+
+    [ ] EditorConfig Compliance: If `.editorconfig` exists, all files must conform to its encoding and line-ending rules.
+
+**Validation Commands (PowerShell):**
+```powershell
+# Detect UTF-16 BOM files
+Get-ChildItem -Recurse -Filter "*.tsx" | ForEach-Object {
+    $bytes = [System.IO.File]::ReadAllBytes($_.FullName);
+    if (($bytes[0] -eq 0xFF -and $bytes[1] -eq 0xFE) -or ($bytes[0] -eq 0xFE -and $bytes[1] -eq 0xFF)) {
+        Write-Output $_.FullName
+    }
+}
+
+# Fix encoding (restore from clean source or re-save as UTF-8 without BOM)
+# In VS Code: File > Save with Encoding > UTF-8
+```
+
+**Common Causes of Encoding Corruption:**
+- Git worktree operations with encoding mismatches
+- Automated tools/agents that don't preserve encoding
+- Copy-paste from external sources (web, PDFs)
+- Windows Notepad saving as UTF-16 by default
+
+**AC Requirement:** Before any PR merge, run encoding validation on changed files. Build failures with "Unexpected character" errors are an immediate fail condition requiring file restoration from a known-good source.
+
 10. Conclusion and Strategic Insights
 
 Defining comprehensive Acceptance Criteria is a strategic investment in product quality. The research demonstrates that "Done" is not a singular point in time but a composite state of visual accuracy, functional robustness, and inclusive accessibility.

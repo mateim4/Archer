@@ -35,6 +35,48 @@ This document is **mandatory reading and updating** for all AI agents working on
 
 > *AI Agents: Log your changes here during the session, then move to Completed Log*
 
+### [2025-12-14 11:30] - Layout Standardization Verification & UTF-16 BOM Fix
+**Type:** Bugfix | Refactor | Documentation
+**Files Changed:**
+- frontend/src/views/KBArticleDetailView.tsx (maxWidth: 1200px → 1400px)
+- frontend/src/views/EditCIView.tsx (maxWidth: 1200px → 1400px)
+- frontend/src/views/CreateCIView.tsx (maxWidth: 1200px → 1400px)
+- frontend/src/views/LandingView.tsx (maxWidth: 1200px → 1400px)
+- frontend/src/views/InventoryView.tsx (maxWidth: 1600px → 1400px)
+- frontend/src/views/HardwareLifecycleView.tsx (added maxWidth: 1400px)
+- frontend/src/views/MigrationDashboard.tsx (added maxWidth: 1400px)
+- frontend/src/views/MonitoringView.tsx (removed `p-6` padding causing narrower content)
+- frontend/src/views/AdvancedAnalyticsDashboard.tsx (added maxWidth: 1400px, removed p-6)
+- frontend/src/views/ClusterStrategyManagerView.tsx (restored from backup - UTF-16 BOM)
+- frontend/src/views/DesignDocsView.tsx (restored from backup - UTF-16 BOM)
+- frontend/src/views/HardwareBasketView.tsx (restored from backup - UTF-16 BOM)
+- frontend/src/views/HLDConfiguration.tsx (restored from backup - UTF-16 BOM)
+- frontend/src/views/ProjectDetailView.tsx (restored from backup - UTF-16 BOM)
+- frontend/src/views/ProjectWorkspaceView.tsx (restored from backup - UTF-16 BOM)
+- .github/instructions/UI-UX-Acceptance-Criteria.instructions.md (added Section 9.7)
+
+**Description:**
+Audited and fixed layout standardization issues left over from coding agent merge:
+1. **Width Inconsistencies:** 7 views had incorrect maxWidth values (1200px or 1600px instead of standard 1400px)
+2. **Padding Inconsistency:** MonitoringView and AdvancedAnalyticsDashboard had extra `p-6` padding causing narrower content than Dashboard
+3. **UTF-16 BOM Encoding Corruption:** 6 files from the coding agent worktree had UTF-16 BOM encoding causing Vite `Unexpected character '�'` errors. Restored all from `backup/2025-12-13-merge-snapshot` branch.
+4. **Documentation Update:** Added new Section 9.7 "File Integrity & Build Compatibility" to UI-UX acceptance criteria with encoding validation requirements and detection commands.
+
+**Impact:**
+- All views now have consistent 1400px max-width
+- Dashboard, Monitoring, and AdvancedAnalytics views have identical content widths
+- Build no longer fails due to encoding issues
+- Future encoding corruption will be caught by acceptance criteria
+
+**Root Cause Analysis:**
+The UTF-16 BOM corruption occurred during the coding agent's worktree operations. Files were likely re-encoded during some automated process. The backup branch was essential for recovery.
+
+**Next Steps:**
+1. Clean up the orphaned worktree at `C:/Users/matei/DevApps/Archer.worktrees/worktree-2025-12-13T17-18-24`
+2. Consider adding a pre-commit hook to detect encoding issues
+
+---
+
 ### [2025-12-13 21:30] - View Layout Standardization Project (Phase 1)
 **Type:** Refactor | Documentation | Feature
 **Files Changed:**
