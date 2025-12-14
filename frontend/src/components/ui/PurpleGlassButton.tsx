@@ -1,4 +1,26 @@
 /**
+ * @deprecated Use EnhancedPurpleGlassButton instead.
+ * 
+ * PurpleGlassButton Component (LEGACY)
+ * 
+ * This component is deprecated as of December 2025.
+ * Use `EnhancedPurpleGlassButton` for all new development.
+ * 
+ * Migration notes:
+ * - Remove `glass` prop (EnhancedPurpleGlassButton is always glass-styled)
+ * - Replace `iconPosition="start"` with `icon={<Icon />}`
+ * - Replace `iconPosition="end"` with `iconEnd={<Icon />}`
+ * - New variants available: `success` and `info`
+ * 
+ * @example
+ * // Old (deprecated):
+ * <PurpleGlassButton variant="primary" glass icon={<SaveRegular />}>Save</PurpleGlassButton>
+ * 
+ * // New (preferred):
+ * <EnhancedPurpleGlassButton variant="primary" icon={<SaveRegular />}>Save</EnhancedPurpleGlassButton>
+ */
+
+/**
  * PurpleGlassButton Component
  * 
  * A standardized button component with Fluent UI 2 design tokens, multiple variants,

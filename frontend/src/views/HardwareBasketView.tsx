@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { apiClient } from '../utils/apiClient';
-import GlassmorphicSearchBar from '../components/GlassmorphicSearchBar';
+import { EnhancedPurpleGlassSearchBar } from '../components/ui';
 import { DESIGN_TOKENS } from '../components/DesignSystem';
 import { DesignTokens } from '../styles/designSystem';
 import { PurpleGlassButton, PrimaryButton, PageHeader, PurpleGlassCard, PurpleGlassDropdown, PurpleGlassInput } from '@/components/ui';
@@ -327,13 +327,13 @@ const HardwareBasketView: React.FC = () => {
           flexWrap: 'wrap',
           alignItems: 'center'
         }}>
-        {/* Glassmorphic Search Input */}
+        {/* Enhanced Search Input */}
         <div style={{ flex: '1', minWidth: '320px' }}>
-          <GlassmorphicSearchBar
+          <EnhancedPurpleGlassSearchBar
             value={searchTerm}
             onChange={(value) => setSearchTerm(value)}
             placeholder="Search baskets by name, vendor, or filename..."
-            width="100%"
+            showClearButton
           />
         </div>
 

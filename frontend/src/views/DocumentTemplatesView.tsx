@@ -21,7 +21,7 @@ import {
   Spinner
 } from '@fluentui/react-components';
 import { DESIGN_TOKENS } from '../components/DesignSystem';
-import GlassmorphicSearchBar from '../components/GlassmorphicSearchBar';
+import { EnhancedPurpleGlassSearchBar } from '../components/ui';
 import { DesignTokens } from '../styles/designSystem';
 import {
   DocumentRegular,
@@ -433,11 +433,11 @@ const DocumentTemplatesView: React.FC = () => {
           
           <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
             <div style={{ width: '300px' }}>
-              <GlassmorphicSearchBar
+              <EnhancedPurpleGlassSearchBar
                 value={searchQuery}
                 onChange={(value) => setSearchQuery(value)}
                 placeholder="Search templates..."
-                width="100%"
+                showClearButton
               />
             </div>
             <button className="btn btn-primary">

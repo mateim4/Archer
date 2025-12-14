@@ -92,43 +92,199 @@ export const ButtonSearchBarDemoView: React.FC = () => {
       {/* Button Variants Section */}
       <section className="purple-glass-card static" style={{ padding: '32px', marginBottom: '32px' }}>
         <h2 style={{ fontSize: '24px', fontWeight: '600', marginBottom: '24px' }}>
-          Button Variants
+          Button Variants - Frosted Glass Aesthetic
         </h2>
+        <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '24px' }}>
+          All buttons feature frosted glass transparency, subtle glow effects, and smooth hover animations.
+        </p>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '24px' }}>
           <div>
-            <p style={{ fontSize: '14px', fontWeight: '600', marginBottom: '8px' }}>Primary</p>
+            <p style={{ fontSize: '14px', fontWeight: '600', marginBottom: '12px' }}>Primary (Purple)</p>
             <EnhancedPurpleGlassButton variant="primary">
               Primary Button
             </EnhancedPurpleGlassButton>
           </div>
 
           <div>
-            <p style={{ fontSize: '14px', fontWeight: '600', marginBottom: '8px' }}>Secondary</p>
+            <p style={{ fontSize: '14px', fontWeight: '600', marginBottom: '12px' }}>Secondary (Frosted White)</p>
             <EnhancedPurpleGlassButton variant="secondary">
               Secondary Button
             </EnhancedPurpleGlassButton>
           </div>
 
           <div>
-            <p style={{ fontSize: '14px', fontWeight: '600', marginBottom: '8px' }}>Danger</p>
+            <p style={{ fontSize: '14px', fontWeight: '600', marginBottom: '12px' }}>Danger (Red)</p>
             <EnhancedPurpleGlassButton variant="danger">
               Danger Button
             </EnhancedPurpleGlassButton>
           </div>
 
           <div>
-            <p style={{ fontSize: '14px', fontWeight: '600', marginBottom: '8px' }}>Ghost</p>
+            <p style={{ fontSize: '14px', fontWeight: '600', marginBottom: '12px' }}>Success (Green)</p>
+            <EnhancedPurpleGlassButton variant="success">
+              Success Button
+            </EnhancedPurpleGlassButton>
+          </div>
+
+          <div>
+            <p style={{ fontSize: '14px', fontWeight: '600', marginBottom: '12px' }}>Info (Blue)</p>
+            <EnhancedPurpleGlassButton variant="info">
+              Info Button
+            </EnhancedPurpleGlassButton>
+          </div>
+
+          <div>
+            <p style={{ fontSize: '14px', fontWeight: '600', marginBottom: '12px' }}>Ghost (Subtle)</p>
             <EnhancedPurpleGlassButton variant="ghost">
               Ghost Button
             </EnhancedPurpleGlassButton>
           </div>
 
           <div>
-            <p style={{ fontSize: '14px', fontWeight: '600', marginBottom: '8px' }}>Link</p>
+            <p style={{ fontSize: '14px', fontWeight: '600', marginBottom: '12px' }}>Link (Text Only)</p>
             <EnhancedPurpleGlassButton variant="link">
               Link Button
             </EnhancedPurpleGlassButton>
+          </div>
+        </div>
+      </section>
+
+      {/* Frosted Glass Showcase - Different Backgrounds */}
+      <section style={{ marginBottom: '32px' }}>
+        <h2 style={{ fontSize: '24px', fontWeight: '600', marginBottom: '24px' }}>
+          Frosted Glass on Different Backgrounds
+        </h2>
+        <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '24px' }}>
+          The transparent frosted effect really shines when placed over colorful or patterned backgrounds.
+        </p>
+
+        {/* Gradient Background */}
+        <div style={{
+          padding: '40px',
+          marginBottom: '16px',
+          borderRadius: '16px',
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)',
+        }}>
+          <p style={{ fontSize: '14px', fontWeight: '600', marginBottom: '16px', color: 'white' }}>
+            Purple/Pink Gradient Background
+          </p>
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+            <EnhancedPurpleGlassButton variant="primary">Primary</EnhancedPurpleGlassButton>
+            <EnhancedPurpleGlassButton variant="secondary">Secondary</EnhancedPurpleGlassButton>
+            <EnhancedPurpleGlassButton variant="danger">Danger</EnhancedPurpleGlassButton>
+            <EnhancedPurpleGlassButton variant="success">Success</EnhancedPurpleGlassButton>
+            <EnhancedPurpleGlassButton variant="info">Info</EnhancedPurpleGlassButton>
+            <EnhancedPurpleGlassButton variant="ghost">Ghost</EnhancedPurpleGlassButton>
+            <EnhancedPurpleGlassButton variant="link">Link</EnhancedPurpleGlassButton>
+          </div>
+        </div>
+
+        {/* Dark Background */}
+        <div style={{
+          padding: '40px',
+          marginBottom: '16px',
+          borderRadius: '16px',
+          background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
+        }}>
+          <p style={{ fontSize: '14px', fontWeight: '600', marginBottom: '16px', color: 'white' }}>
+            Dark Blue Background
+          </p>
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+            <EnhancedPurpleGlassButton variant="primary">Primary</EnhancedPurpleGlassButton>
+            <EnhancedPurpleGlassButton variant="secondary">Secondary</EnhancedPurpleGlassButton>
+            <EnhancedPurpleGlassButton variant="danger">Danger</EnhancedPurpleGlassButton>
+            <EnhancedPurpleGlassButton variant="success">Success</EnhancedPurpleGlassButton>
+            <EnhancedPurpleGlassButton variant="info">Info</EnhancedPurpleGlassButton>
+            <EnhancedPurpleGlassButton variant="ghost">Ghost</EnhancedPurpleGlassButton>
+            <EnhancedPurpleGlassButton variant="link">Link</EnhancedPurpleGlassButton>
+          </div>
+        </div>
+
+        {/* Image/Pattern Background */}
+        <div style={{
+          padding: '40px',
+          marginBottom: '16px',
+          borderRadius: '16px',
+          backgroundImage: `
+            radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.1) 1%, transparent 50%),
+            radial-gradient(circle at 75% 75%, rgba(139, 92, 246, 0.2) 1%, transparent 50%),
+            linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)
+          `,
+        }}>
+          <p style={{ fontSize: '14px', fontWeight: '600', marginBottom: '16px', color: 'white' }}>
+            Patterned Dark Background
+          </p>
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+            <EnhancedPurpleGlassButton variant="primary">Primary</EnhancedPurpleGlassButton>
+            <EnhancedPurpleGlassButton variant="secondary">Secondary</EnhancedPurpleGlassButton>
+            <EnhancedPurpleGlassButton variant="danger">Danger</EnhancedPurpleGlassButton>
+            <EnhancedPurpleGlassButton variant="success">Success</EnhancedPurpleGlassButton>
+            <EnhancedPurpleGlassButton variant="info">Info</EnhancedPurpleGlassButton>
+            <EnhancedPurpleGlassButton variant="ghost">Ghost</EnhancedPurpleGlassButton>
+            <EnhancedPurpleGlassButton variant="link">Link</EnhancedPurpleGlassButton>
+          </div>
+        </div>
+
+        {/* Light/Warm Background */}
+        <div style={{
+          padding: '40px',
+          marginBottom: '16px',
+          borderRadius: '16px',
+          background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 50%, #fcd34d 100%)',
+        }}>
+          <p style={{ fontSize: '14px', fontWeight: '600', marginBottom: '16px', color: '#78350f' }}>
+            Light/Warm Background (Amber)
+          </p>
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+            <EnhancedPurpleGlassButton variant="primary">Primary</EnhancedPurpleGlassButton>
+            <EnhancedPurpleGlassButton variant="secondary">Secondary</EnhancedPurpleGlassButton>
+            <EnhancedPurpleGlassButton variant="danger">Danger</EnhancedPurpleGlassButton>
+            <EnhancedPurpleGlassButton variant="success">Success</EnhancedPurpleGlassButton>
+            <EnhancedPurpleGlassButton variant="info">Info</EnhancedPurpleGlassButton>
+            <EnhancedPurpleGlassButton variant="ghost">Ghost</EnhancedPurpleGlassButton>
+            <EnhancedPurpleGlassButton variant="link">Link</EnhancedPurpleGlassButton>
+          </div>
+        </div>
+
+        {/* Neutral Gray Background */}
+        <div style={{
+          padding: '40px',
+          marginBottom: '16px',
+          borderRadius: '16px',
+          background: 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 50%, #d1d5db 100%)',
+        }}>
+          <p style={{ fontSize: '14px', fontWeight: '600', marginBottom: '16px', color: '#374151' }}>
+            Neutral Gray Background
+          </p>
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+            <EnhancedPurpleGlassButton variant="primary">Primary</EnhancedPurpleGlassButton>
+            <EnhancedPurpleGlassButton variant="secondary">Secondary</EnhancedPurpleGlassButton>
+            <EnhancedPurpleGlassButton variant="danger">Danger</EnhancedPurpleGlassButton>
+            <EnhancedPurpleGlassButton variant="success">Success</EnhancedPurpleGlassButton>
+            <EnhancedPurpleGlassButton variant="info">Info</EnhancedPurpleGlassButton>
+            <EnhancedPurpleGlassButton variant="ghost">Ghost</EnhancedPurpleGlassButton>
+            <EnhancedPurpleGlassButton variant="link">Link</EnhancedPurpleGlassButton>
+          </div>
+        </div>
+
+        {/* Cool Teal/Cyan Background */}
+        <div style={{
+          padding: '40px',
+          borderRadius: '16px',
+          background: 'linear-gradient(135deg, #0d9488 0%, #14b8a6 50%, #2dd4bf 100%)',
+        }}>
+          <p style={{ fontSize: '14px', fontWeight: '600', marginBottom: '16px', color: 'white' }}>
+            Teal/Cyan Background
+          </p>
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+            <EnhancedPurpleGlassButton variant="primary">Primary</EnhancedPurpleGlassButton>
+            <EnhancedPurpleGlassButton variant="secondary">Secondary</EnhancedPurpleGlassButton>
+            <EnhancedPurpleGlassButton variant="danger">Danger</EnhancedPurpleGlassButton>
+            <EnhancedPurpleGlassButton variant="success">Success</EnhancedPurpleGlassButton>
+            <EnhancedPurpleGlassButton variant="info">Info</EnhancedPurpleGlassButton>
+            <EnhancedPurpleGlassButton variant="ghost">Ghost</EnhancedPurpleGlassButton>
+            <EnhancedPurpleGlassButton variant="link">Link</EnhancedPurpleGlassButton>
           </div>
         </div>
       </section>

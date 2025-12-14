@@ -29,7 +29,7 @@ import {
   ArrowDownRegular
 } from '@fluentui/react-icons';
 import GanttChart from '../components/GanttChart';
-import GlassmorphicSearchBar from '../components/GlassmorphicSearchBar';
+import { EnhancedPurpleGlassSearchBar } from '../components/ui';
 import { CapacityVisualizerView } from './CapacityVisualizerView';
 import { apiClient, Project } from '../utils/apiClient';
 import {
@@ -716,10 +716,11 @@ const ProjectWorkspaceView: React.FC = () => {
                   <div className="flex-1 space-y-3">
                     {/* Search Bar */}
                     <div>
-                      <GlassmorphicSearchBar
+                      <EnhancedPurpleGlassSearchBar
                         value={searchQuery}
                         onChange={setSearchQuery}
                         placeholder="Search activities"
+                        showClearButton
                       />
                     </div>
 

@@ -1,7 +1,7 @@
 # Purple Glass Component Library Guide
 
-**Version:** 1.0.0  
-**Date:** October 18, 2025  
+**Version:** 2.0.0  
+**Date:** December 15, 2025  
 **Status:** Production Ready ✅
 
 ---
@@ -11,8 +11,11 @@
 1. [Overview](#overview)
 2. [Installation & Setup](#installation--setup)
 3. [Design Principles](#design-principles)
-4. [Components](#components)
-   - [PurpleGlassButton](#purpleglassbutton)
+4. [**NEW: Enhanced Components (Standard)**](#enhanced-components-standard)
+   - [EnhancedPurpleGlassButton](#enhancedpurpleglassbutton) ⭐
+   - [EnhancedPurpleGlassSearchBar](#enhancedpurpleglasssearchbar) ⭐
+5. [Legacy Components](#legacy-components)
+   - [PurpleGlassButton](#purpleglassbutton-legacy)
    - [PurpleGlassInput](#purpleglassinput)
    - [PurpleGlassTextarea](#purpleglasstext area)
    - [PurpleGlassDropdown](#purpleglassdropdown)
@@ -20,17 +23,10 @@
    - [PurpleGlassRadio](#purpleglassradio)
    - [PurpleGlassSwitch](#purpleglassswitch)
    - [PurpleGlassCard](#purpleglasscard)
-5. [Common Patterns](#common-patterns)
-6. [Accessibility](#accessibility)
-7. [TypeScript Support](#typescript-support)
-8. [Migration Guide: PurpleGlassDropdown](#migration-guide-purpleglassdropdown)
-   - [Migration Patterns](#migration-patterns)
-   - [Common Pitfalls & Solutions](#common-pitfalls--solutions)
-   - [Accessibility Best Practices](#accessibility-best-practices)
-   - [Testing Recommendations](#testing-recommendations)
-   - [Troubleshooting](#troubleshooting)
-   - [Performance Considerations](#performance-considerations)
-   - [Migration Checklist](#migration-checklist)
+6. [Common Patterns](#common-patterns)
+7. [Accessibility](#accessibility)
+8. [TypeScript Support](#typescript-support)
+9. [Migration Guide](#migration-guide)
 
 ---
 
@@ -40,16 +36,28 @@ The Purple Glass Component Library is a comprehensive collection of reusable UI 
 
 - **Fluent UI 2 Design Tokens** - 100% token-based styling, zero hardcoded values
 - **Glassmorphism Aesthetic** - Translucent backgrounds with blur effects
+- **Yoga Perdana Design** - Hue-shift gradients with constant brightness for accessibility
 - **TypeScript Strict Mode** - Full type safety with exported interfaces
 - **Accessibility First** - ARIA labels, keyboard navigation, screen reader support
 - **Consistent API** - All components follow the same prop patterns
 
+### ⚠️ IMPORTANT: New Standard Components
+
+**As of December 2025, all new development MUST use:**
+
+| Component | Purpose | Replaces |
+|-----------|---------|----------|
+| `EnhancedPurpleGlassButton` | All interactive buttons | `PurpleGlassButton`, native `<button>` |
+| `EnhancedPurpleGlassSearchBar` | All search inputs | `GlassmorphicSearchBar`, custom inputs |
+
+Legacy components remain available for backward compatibility but should be migrated.
+
 ### Component Statistics
 
-- **8 Core Components**: Button, Input, Textarea, Dropdown, Checkbox, Radio, Switch, Card
-- **4,540 Lines of Code**: Production-ready, tested components + styles
+- **10 Core Components**: Enhanced Button, Enhanced Search, Input, Textarea, Dropdown, Checkbox, Radio, Switch, Card, + legacy
+- **7 Button Variants**: Primary, Secondary, Danger, Success, Info, Ghost, Link
 - **Zero TypeScript Errors**: Strict mode compliance
-- **86+ Visual Variants**: Comprehensive styling options
+- **100+ Visual Variants**: Comprehensive styling options
 
 ### Design Token Integration
 
@@ -89,8 +97,14 @@ tokens.borderRadiusMedium
 All components are exported from a central barrel file:
 
 ```typescript
+// ✅ PREFERRED: Enhanced Components (use these for all new code)
 import { 
-  PurpleGlassButton,
+  EnhancedPurpleGlassButton,
+  EnhancedPurpleGlassSearchBar,
+} from '@/components/ui';
+
+// Other Components
+import { 
   PurpleGlassInput,
   PurpleGlassTextarea,
   PurpleGlassDropdown,
@@ -100,13 +114,19 @@ import {
   PurpleGlassSwitch,
   PurpleGlassCard
 } from '@/components/ui';
+
+// ⚠️ DEPRECATED: Legacy components (migrate away from these)
+import { 
+  PurpleGlassButton,  // Use EnhancedPurpleGlassButton instead
+} from '@/components/ui';
 ```
 
 ### Type Imports
 
 ```typescript
 import type {
-  PurpleGlassButtonProps,
+  EnhancedPurpleGlassButtonProps,
+  EnhancedPurpleGlassSearchBarProps,
   ButtonVariant,
   ButtonSize,
   GlassVariant,
@@ -118,7 +138,17 @@ import type {
 
 ## Design Principles
 
-### 1. Glass Variants
+### 1. Yoga Perdana Hue-Shift Gradients (NEW)
+
+The Enhanced components use Yoga Perdana's design philosophy:
+
+- **Constant Brightness**: Gradients shift HUE, not brightness (accessibility-compliant)
+- **Subtle Movement**: 12-second idle animation, 6-second on hover
+- **Frosted Glass**: `backdrop-filter: blur(20px) saturate(180%)`
+- **Apple-style Edges**: No border artifacts, clean transitions
+- **Respects Motion Preferences**: Disables animation when `prefers-reduced-motion` is set
+
+### 2. Glass Variants
 
 All form components support 4 glassmorphism levels:
 
@@ -131,7 +161,7 @@ type GlassVariant = 'none' | 'light' | 'medium' | 'heavy';
 - **medium**: Moderate glassmorphism, recommended for most use cases
 - **heavy**: Strong glass effect with heavy blur
 
-### 2. Validation States
+### 3. Validation States
 
 All form components support 4 validation states:
 
@@ -144,7 +174,7 @@ type ValidationState = 'default' | 'error' | 'warning' | 'success';
 - **warning**: Yellow/orange border, warning color scheme
 - **success**: Green border, success color scheme
 
-### 3. Consistent Props
+### 4. Consistent Props
 
 All components follow these patterns:
 
@@ -157,9 +187,173 @@ All components follow these patterns:
 
 ---
 
-## Components
+## Enhanced Components (Standard) ⭐
 
-### PurpleGlassButton
+These are the **required** components for all new development.
+
+### EnhancedPurpleGlassButton
+
+Premium button with animated hue-shift gradients, 7 variants, and full accessibility.
+
+#### Import
+
+```typescript
+import { EnhancedPurpleGlassButton } from '@/components/ui';
+```
+
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `variant` | `'primary' \| 'secondary' \| 'danger' \| 'success' \| 'info' \| 'ghost' \| 'link'` | `'primary'` | Visual style |
+| `size` | `'small' \| 'medium' \| 'large'` | `'medium'` | Button size (6/8/10px radius) |
+| `animated` | `boolean` | `true` | Enable gradient shimmer animation |
+| `loading` | `boolean` | `false` | Show spinner, disable interaction |
+| `disabled` | `boolean` | `false` | Disable button |
+| `icon` | `ReactNode` | - | Icon before text |
+| `iconEnd` | `ReactNode` | - | Icon after text |
+| `fullWidth` | `boolean` | `false` | Stretch to container width |
+| `elevated` | `boolean` | `false` | Add shadow elevation |
+| `type` | `'button' \| 'submit' \| 'reset'` | `'button'` | HTML button type |
+
+#### Variants
+
+| Variant | Color | Use Case |
+|---------|-------|----------|
+| `primary` | Purple → Indigo gradient | Primary CTAs (Save, Submit, Confirm) |
+| `secondary` | White frosted glass | Secondary actions (Cancel, Back) |
+| `danger` | Red → Coral gradient | Destructive actions (Delete, Remove) |
+| `success` | Sea Green → Cyan gradient | Positive confirmations (Complete, Approve) |
+| `info` | Blue → Indigo gradient | Informational actions (Learn More, Help) |
+| `ghost` | Transparent + `mix-blend-mode: difference` | Subtle/tertiary actions |
+| `link` | Text-only underline | Navigation, inline links |
+
+#### Examples
+
+```tsx
+// Primary action with icon
+<EnhancedPurpleGlassButton 
+  variant="primary" 
+  icon={<SaveRegular />}
+  onClick={handleSave}
+>
+  Save Changes
+</EnhancedPurpleGlassButton>
+
+// Danger button for delete
+<EnhancedPurpleGlassButton 
+  variant="danger" 
+  icon={<DeleteRegular />}
+  onClick={handleDelete}
+>
+  Delete Project
+</EnhancedPurpleGlassButton>
+
+// Loading state
+<EnhancedPurpleGlassButton loading disabled>
+  Saving...
+</EnhancedPurpleGlassButton>
+
+// Ghost button (auto-inverts text based on background)
+<EnhancedPurpleGlassButton variant="ghost">
+  Learn More
+</EnhancedPurpleGlassButton>
+
+// Success confirmation
+<EnhancedPurpleGlassButton variant="success" icon={<CheckmarkRegular />}>
+  Approve Request
+</EnhancedPurpleGlassButton>
+
+// Full-width submit
+<EnhancedPurpleGlassButton 
+  variant="primary" 
+  fullWidth 
+  type="submit"
+>
+  Create Account
+</EnhancedPurpleGlassButton>
+```
+
+#### Interaction States
+
+All buttons have 5 states with smooth 0.4s transitions:
+
+1. **Default**: Base appearance with 12s subtle shimmer animation
+2. **Hover**: Slight lift (`translateY(-1px)`), increased opacity, 6s shimmer
+3. **Active**: Press down (`scale(0.98)`), slightly darker
+4. **Focus**: 2px purple outline with 2px offset (keyboard navigation)
+5. **Disabled**: 50% opacity, no pointer events
+
+#### Accessibility
+
+- Full keyboard navigation (Tab, Enter, Space)
+- Focus visible outline (WCAG 2.2 compliant)
+- Respects `prefers-reduced-motion`
+- Screen reader friendly
+
+---
+
+### EnhancedPurpleGlassSearchBar
+
+Premium search input with frosted glass and purple focus glow.
+
+#### Import
+
+```typescript
+import { EnhancedPurpleGlassSearchBar } from '@/components/ui';
+```
+
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `value` | `string` | `''` | Controlled input value |
+| `onChange` | `(value: string) => void` | - | Value change handler |
+| `onSubmit` | `() => void` | - | Enter key handler |
+| `placeholder` | `string` | `'Search...'` | Placeholder text |
+| `showClearButton` | `boolean` | `true` | Show X button to clear |
+| `ariaLabel` | `string` | - | Accessibility label |
+
+#### States
+
+| State | Visual | Description |
+|-------|--------|-------------|
+| **Idle** | Subtle white border (12% opacity) | Neutral frosted glass |
+| **Hover** | Brighter border (20% opacity) | Slight glow on approach |
+| **Focus** | Purple border + glow | `border-color: rgba(111, 91, 235, 0.6)` with outer glow |
+
+#### Example
+
+```tsx
+const [searchTerm, setSearchTerm] = useState('');
+
+<EnhancedPurpleGlassSearchBar
+  value={searchTerm}
+  onChange={setSearchTerm}
+  onSubmit={() => performSearch(searchTerm)}
+  placeholder="Search tickets, assets, or users..."
+  showClearButton
+  ariaLabel="Search the knowledge base"
+/>
+```
+
+#### Design Details
+
+- **Frosted Glass**: `backdrop-filter: blur(20px) saturate(150%)`
+- **Idle Border**: `rgba(255, 255, 255, 0.12)` (nearly invisible)
+- **Focus Border**: `rgba(111, 91, 235, 0.6)` with outer glow
+- **Text**: Pure white `#ffffff` 
+- **Placeholder**: 70% white opacity
+- **Clear Button**: Subtle white, brightens on hover
+
+---
+
+## Legacy Components
+
+> ⚠️ **Deprecation Notice**: These components are maintained for backward compatibility.
+> New development should use `EnhancedPurpleGlassButton` and `EnhancedPurpleGlassSearchBar`.
+
+### PurpleGlassButton (Legacy)
 
 Standardized button component with 5 variants, 3 sizes, and glassmorphism support.
 

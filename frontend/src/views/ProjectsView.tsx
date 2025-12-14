@@ -23,7 +23,7 @@ import {
 } from '@fluentui/react-icons';
 import { apiClient, Project, CreateProjectRequest } from '../utils/apiClient';
 import { DesignTokens, getStatusColor, getPriorityColor } from '../styles/designSystem';
-import GlassmorphicSearchBar from '../components/GlassmorphicSearchBar';
+import { EnhancedPurpleGlassSearchBar } from '../components/ui';
 import {
   PurpleGlassButton,
   PurpleGlassInput,
@@ -320,11 +320,11 @@ export default function ProjectsView() {
             minWidth: '300px'
           }}>
             <div style={{ flex: 1, maxWidth: '440px' }}>
-              <GlassmorphicSearchBar
+              <EnhancedPurpleGlassSearchBar
                 value={searchTerm}
                 onChange={(value) => setSearchTerm(value)}
                 placeholder="Search projects..."
-                width="100%"
+                showClearButton
               />
             </div>
           </div>

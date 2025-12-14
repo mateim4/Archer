@@ -26,7 +26,7 @@ import {
 } from '@fluentui/react-components';
 import { PurpleGlassDropdown, type DropdownOption } from '@/components/ui';
 import { DOCUMENT_TYPE_OPTIONS } from '@/constants/projectFilters';
-import GlassmorphicSearchBar from './GlassmorphicSearchBar';
+import { EnhancedPurpleGlassSearchBar } from './ui';
 import {
   DocumentText24Regular,
   ArrowDownload24Regular,
@@ -715,11 +715,11 @@ export const ProjectDocumentsView: React.FC<ProjectDocumentsViewProps> = ({
       )}
 
       <div className={styles.filters}>
-        <GlassmorphicSearchBar
+        <EnhancedPurpleGlassSearchBar
           placeholder="Search documents..."
           value={searchQuery}
           onChange={(value) => setSearchQuery(value)}
-          width="300px"
+          showClearButton
         />
         
         <div style={{ minWidth: '200px' }}>

@@ -16,7 +16,7 @@ import {
   ErrorCircleRegular
 } from '@fluentui/react-icons';
 import { DesignTokens } from '../styles/designSystem';
-import GlassmorphicSearchBar from '../components/GlassmorphicSearchBar';
+import { EnhancedPurpleGlassSearchBar } from '../components/ui';
 import {
   PurpleGlassButton,
   PurpleGlassInput,
@@ -475,11 +475,11 @@ export default function TasksView() {
         }}>
           {/* Search on the left */}
           <div style={{ flex: 1, minWidth: '250px', maxWidth: '400px' }}>
-            <GlassmorphicSearchBar
+            <EnhancedPurpleGlassSearchBar
               value={searchTerm}
               onChange={(value) => setSearchTerm(value)}
               placeholder="Search tasks..."
-              width="100%"
+              showClearButton
             />
           </div>
           

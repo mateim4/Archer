@@ -40,6 +40,7 @@ const ClusterStrategyManagerView = lazyWithRetry(() => import('./views/ClusterSt
 const EmbeddedMigrationWizard = lazyWithRetry(() => import('./views/EmbeddedMigrationWizard'));
 const EmbeddedLifecycleWizard = lazyWithRetry(() => import('./views/EmbeddedLifecycleWizard'));
 const GuidesView = lazyWithRetry(() => import('./views/GuidesView'));
+const ButtonSearchBarDemoView = lazyWithRetry(() => import('./views/ButtonSearchBarDemoView'));
 const DocumentTemplatesView = lazyWithRetry(() => import('./views/DocumentTemplatesView'));
 const SettingsView = lazyWithRetry(() => import('./views/SettingsView'));
 const DataCollectionView = lazyWithRetry(() => import('./views/DataCollectionView'));
@@ -277,6 +278,7 @@ function AppContent() {
                     {/* Phase 7: Activity Wizard now modal-only - accessible via "Add Activity" buttons in project views */}
                     <Route path="hardware-pool" element={<HardwarePoolView />} />
                     <Route path="guides" element={<GuidesView />} />
+                    <Route path="demo/buttons" element={<ButtonSearchBarDemoView />} />
                     <Route path="document-templates" element={<DocumentTemplatesView />} />
                     <Route path="enhanced-rvtools" element={<EnhancedRVToolsReportView />} />
                     <Route path="enhanced-rvtools/:uploadId" element={<EnhancedRVToolsReportView />} />

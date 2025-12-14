@@ -31,7 +31,7 @@ import {
   SelectTabData,
   SelectTabEvent,
 } from '@fluentui/react-components';
-import GlassmorphicSearchBar from './GlassmorphicSearchBar';
+import { EnhancedPurpleGlassSearchBar } from './ui';
 import { DESIGN_TOKENS } from './DesignSystem';
 import {
   ShareRegular,

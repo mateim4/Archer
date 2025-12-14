@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { useAppStore } from '../store/useAppStore';
 import type { HardwareAsset, AssetStatus } from '../store/useAppStore';
 import HardwareAssetForm from '../components/HardwareAssetForm';
-import GlassmorphicSearchBar from '../components/GlassmorphicSearchBar';
+import { EnhancedPurpleGlassSearchBar } from '../components/ui';
 import { DESIGN_TOKENS } from '../components/DesignSystem';
 import { DesignTokens } from '../styles/designSystem';
 import {
@@ -334,11 +334,11 @@ const HardwarePoolView: React.FC = () => {
       }}>
         {/* Search Input */}
         <div style={{ flex: '1', minWidth: '280px' }}>
-          <GlassmorphicSearchBar
+          <EnhancedPurpleGlassSearchBar
             value={searchTerm}
             onChange={(value) => setSearchTerm(value)}
             placeholder="Search assets by name, manufacturer, model, or location..."
-            width="100%"
+            showClearButton
           />
         </div>
 

@@ -38,7 +38,7 @@ import { tokens, gradients, purplePalette } from '../../styles/design-tokens';
 // TYPE DEFINITIONS
 // ============================================================================
 
-export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost' | 'link';
+export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'success' | 'info' | 'ghost' | 'link';
 export type ButtonSize = 'small' | 'medium' | 'large';
 
 export interface EnhancedPurpleGlassButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'type'> {
@@ -123,13 +123,14 @@ const useStyles = makeStyles({
     alignItems: 'center',
     justifyContent: 'center',
     fontFamily: '"Poppins", "Montserrat", system-ui, -apple-system, sans-serif',
-    fontWeight: tokens.fontWeightSemibold,
+    fontWeight: tokens.fontWeightMedium, // Lighter than semibold (500 vs 600)
     cursor: 'pointer',
     userSelect: 'none',
     textDecoration: 'none',
     ...shorthands.border('1px', 'solid', 'transparent'),
     ...shorthands.outline('none'),
-    ...shorthands.transition('all', '0.3s', 'cubic-bezier(0.4, 0, 0.2, 1)'),
+    // Slower, more elegant transitions (0.4s instead of 0.3s)
+    ...shorthands.transition('all', '0.4s', 'cubic-bezier(0.25, 0.1, 0.25, 1)'),
     
     '&:focus-visible': {
       ...shorthands.outline('2px', 'solid', purplePalette.purple500),
@@ -148,7 +149,8 @@ const useStyles = makeStyles({
     },
   },
 
-  // Animated gradient overlay
+  // Animated gradient overlay - Yoga Perdana style hue-shift shimmer
+  // Instead of brightness changes, we animate a subtle hue rotation
   animatedGradient: {
     '&::before': {
       content: '""',
@@ -158,162 +160,274 @@ const useStyles = makeStyles({
       right: 0,
       bottom: 0,
       ...shorthands.borderRadius('inherit'),
+      // Subtle hue-shifting gradient that sweeps across
+      // Uses semi-transparent colors that blend with the button's own gradient
       backgroundImage: `linear-gradient(
-        135deg,
-        rgba(255, 255, 255, 0.1) 0%,
-        rgba(255, 255, 255, 0.05) 25%,
-        rgba(255, 255, 255, 0.15) 50%,
-        rgba(255, 255, 255, 0.05) 75%,
-        rgba(255, 255, 255, 0.1) 100%
+        110deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.06) 20%,
+        rgba(200, 220, 255, 0.08) 40%,
+        rgba(220, 200, 255, 0.08) 60%,
+        rgba(255, 255, 255, 0.06) 80%,
+        rgba(255, 255, 255, 0) 100%
       )`,
-      backgroundSize: '400% 400%',
-      opacity: 0.3,
+      backgroundSize: '300% 100%',
+      opacity: 0.8,
       pointerEvents: 'none',
       animationName: {
-        '0%': { backgroundPosition: '0% 50%' },
-        '50%': { backgroundPosition: '100% 50%' },
-        '100%': { backgroundPosition: '0% 50%' },
+        '0%': { backgroundPosition: '150% 0' },
+        '100%': { backgroundPosition: '-150% 0' },
       },
-      animationDuration: '8s',
-      animationTimingFunction: 'ease-in-out',
+      animationDuration: '12s', // Slower, more elegant
+      animationTimingFunction: 'linear',
       animationIterationCount: 'infinite',
       willChange: 'background-position',
     },
     
     '&:hover::before': {
-      opacity: 0.5,
-      animationDuration: '4s',
+      opacity: 1,
+      animationDuration: '6s', // Speed up slightly on hover
     },
   },
 
-  // Size variants
+  // Size variants - subtle rounded corners (not pill-shaped)
   small: {
     fontSize: tokens.fontSizeBase200,
     lineHeight: tokens.lineHeightBase200,
-    ...shorthands.padding(tokens.xs, tokens.m),
+    ...shorthands.padding('6px', '14px'),
     ...shorthands.gap(tokens.xs),
-    ...shorthands.borderRadius(tokens.medium),
+    ...shorthands.borderRadius('6px'),
     minHeight: '28px',
   },
 
   medium: {
     fontSize: tokens.fontSizeBase300,
     lineHeight: tokens.lineHeightBase300,
-    ...shorthands.padding(tokens.s, tokens.l),
+    ...shorthands.padding('8px', '18px'),
     ...shorthands.gap(tokens.s),
-    ...shorthands.borderRadius(tokens.large),
+    ...shorthands.borderRadius('8px'),
     minHeight: '36px',
   },
 
   large: {
     fontSize: tokens.fontSizeBase400,
     lineHeight: tokens.lineHeightBase400,
-    ...shorthands.padding(tokens.m, tokens.xl),
+    ...shorthands.padding('12px', '24px'),
     ...shorthands.gap(tokens.m),
-    ...shorthands.borderRadius(tokens.xLarge),
+    ...shorthands.borderRadius('10px'),
     minHeight: '44px',
   },
 
-  // Variant: Primary
+  // Variant: Primary - Yoga Perdana hue-shift gradient (purple 260° → blue-purple 250°)
+  // Constant brightness ~58%, just shifting hue for visual interest
   primary: {
-    backgroundImage: gradients.buttonPrimary,
+    background: 'linear-gradient(135deg, rgba(111, 91, 235, 0.82) 0%, rgba(99, 102, 241, 0.82) 100%)',
     backgroundColor: 'transparent',
     color: '#ffffff',
-    ...shorthands.border('1px', 'solid', 'rgba(255, 255, 255, 0.28)'),
-    boxShadow: '0 4px 15px rgba(139, 92, 246, 0.35)',
-    backdropFilter: 'blur(20px)',
-    WebkitBackdropFilter: 'blur(20px)',
+    ...shorthands.border('none'),
+    boxShadow: `
+      0 1px 3px rgba(0, 0, 0, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.15)
+    `,
+    backdropFilter: 'blur(20px) saturate(180%)',
+    WebkitBackdropFilter: 'blur(20px) saturate(180%)',
 
     '&:hover:not(:disabled)': {
-      backgroundImage: gradients.buttonPrimaryHover,
-      boxShadow: '0 8px 25px rgba(139, 92, 246, 0.45)',
-      transform: 'translateY(-3px) scale(1.02)',
-      ...shorthands.borderColor('rgba(255, 255, 255, 0.4)'),
+      background: 'linear-gradient(135deg, rgba(111, 91, 235, 0.9) 0%, rgba(99, 102, 241, 0.9) 100%)',
+      boxShadow: `
+        0 2px 8px rgba(111, 91, 235, 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2)
+      `,
+      transform: 'translateY(-1px)',
     },
 
     '&:active:not(:disabled)': {
-      backgroundImage: gradients.buttonPrimaryActive,
-      boxShadow: '0 2px 10px rgba(139, 92, 246, 0.3)',
-      transform: 'translateY(-1px) scale(0.98)',
+      background: 'linear-gradient(135deg, rgba(99, 91, 220, 0.88) 0%, rgba(88, 91, 230, 0.88) 100%)',
+      boxShadow: `
+        0 1px 2px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1)
+      `,
+      transform: 'translateY(0px) scale(0.98)',
     },
   },
 
-  // Variant: Secondary
+  // Variant: Secondary - Clean frosted white glass, minimal edges
   secondary: {
-    backgroundColor: 'rgba(255, 255, 255, 0.85)',
-    backdropFilter: 'blur(10px)',
-    WebkitBackdropFilter: 'blur(10px)',
-    color: purplePalette.purple600,
-    ...shorthands.border('1px', 'solid', 'rgba(139, 92, 246, 0.3)'),
-    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+    background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.75) 0%, rgba(250, 251, 255, 0.75) 100%)',
+    backdropFilter: 'blur(20px) saturate(180%)',
+    WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+    color: '#4338ca', // cool indigo text
+    ...shorthands.border('none'),
+    boxShadow: `
+      0 1px 3px rgba(0, 0, 0, 0.06),
+      inset 0 1px 0 rgba(255, 255, 255, 0.5)
+    `,
 
     '&:hover:not(:disabled)': {
-      backgroundColor: 'rgba(255, 255, 255, 0.95)',
-      ...shorthands.borderColor('rgba(139, 92, 246, 0.5)'),
-      boxShadow: '0 4px 16px rgba(139, 92, 246, 0.15)',
-      transform: 'translateY(-2px) scale(1.01)',
+      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.85) 0%, rgba(250, 251, 255, 0.85) 100%)',
+      boxShadow: `
+        0 2px 8px rgba(0, 0, 0, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.6)
+      `,
+      transform: 'translateY(-1px)',
     },
 
     '&:active:not(:disabled)': {
-      backgroundColor: 'rgba(255, 255, 255, 1)',
-      transform: 'translateY(-1px) scale(0.98)',
+      background: 'linear-gradient(135deg, rgba(248, 250, 255, 0.8) 0%, rgba(245, 248, 255, 0.8) 100%)',
+      boxShadow: `
+        0 1px 2px rgba(0, 0, 0, 0.06),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4)
+      `,
+      transform: 'translateY(0px) scale(0.98)',
     },
   },
 
-  // Variant: Danger
+  // Variant: Danger - Yoga Perdana hue-shift gradient (red 0° → coral 15°)
+  // Constant brightness, shifting hue for depth
   danger: {
-    backgroundImage: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+    background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.82) 0%, rgba(248, 88, 78, 0.82) 100%)',
     backgroundColor: 'transparent',
     color: '#ffffff',
-    ...shorthands.border('1px', 'solid', 'rgba(255, 255, 255, 0.28)'),
-    boxShadow: '0 4px 15px rgba(239, 68, 68, 0.35)',
+    ...shorthands.border('none'),
+    boxShadow: `
+      0 1px 3px rgba(0, 0, 0, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.15)
+    `,
+    backdropFilter: 'blur(20px) saturate(180%)',
+    WebkitBackdropFilter: 'blur(20px) saturate(180%)',
 
     '&:hover:not(:disabled)': {
-      backgroundImage: 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)',
-      boxShadow: '0 8px 25px rgba(239, 68, 68, 0.45)',
-      transform: 'translateY(-2px) scale(1.01)',
+      background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.9) 0%, rgba(248, 88, 78, 0.9) 100%)',
+      boxShadow: `
+        0 2px 8px rgba(239, 68, 68, 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2)
+      `,
+      transform: 'translateY(-1px)',
     },
 
     '&:active:not(:disabled)': {
-      backgroundImage: 'linear-gradient(135deg, #b91c1c 0%, #991b1b 100%)',
-      transform: 'translateY(-1px) scale(0.98)',
+      background: 'linear-gradient(135deg, rgba(230, 65, 65, 0.88) 0%, rgba(240, 80, 72, 0.88) 100%)',
+      boxShadow: `
+        0 1px 2px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1)
+      `,
+      transform: 'translateY(0px) scale(0.98)',
     },
   },
 
-  // Variant: Ghost
+  // Variant: Ghost - Subtle frosted glass with dynamic inverted text
   ghost: {
-    backgroundColor: 'transparent',
-    color: purplePalette.purple600,
-    ...shorthands.borderColor('transparent'),
+    background: 'rgba(128, 128, 128, 0.12)',
+    color: 'white', // Base color for mix-blend-mode
+    ...shorthands.border('none'),
+    ...shorthands.borderRadius('8px'),
+    backdropFilter: 'blur(12px) saturate(120%)',
+    WebkitBackdropFilter: 'blur(12px) saturate(120%)',
+    boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.08)',
+    // Slower transition to match other buttons
+    ...shorthands.transition('all', '0.4s', 'cubic-bezier(0.25, 0.1, 0.25, 1)'),
+    // Mix-blend-mode on the button makes text invert relative to background
+    mixBlendMode: 'difference' as const,
 
     '&:hover:not(:disabled)': {
-      backgroundColor: 'rgba(139, 92, 246, 0.1)',
-      transform: 'translateY(-2px)',
+      background: 'rgba(128, 128, 128, 0.2)',
+      backdropFilter: 'blur(16px) saturate(140%)',
+      WebkitBackdropFilter: 'blur(16px) saturate(140%)',
+      boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.12)',
+      transform: 'translateY(-1px)',
     },
 
     '&:active:not(:disabled)': {
-      backgroundColor: 'rgba(139, 92, 246, 0.15)',
-      transform: 'translateY(-1px) scale(0.98)',
+      background: 'rgba(128, 128, 128, 0.28)',
+      boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.06)',
+      transform: 'translateY(0px) scale(0.98)',
     },
   },
 
-  // Variant: Link
+  // Variant: Link (cool purple)
   link: {
     backgroundColor: 'transparent',
-    color: purplePalette.purple600,
+    color: '#5B4FC7', // cool indigo
     ...shorthands.borderColor('transparent'),
     ...shorthands.padding(0),
     minHeight: 'auto',
     textDecoration: 'underline',
-    textUnderlineOffset: '2px',
+    textUnderlineOffset: '3px',
+    textDecorationColor: 'rgba(91, 79, 199, 0.4)',
 
     '&:hover:not(:disabled)': {
-      color: purplePalette.purple700,
-      textDecorationThickness: '2px',
+      color: '#4338ca',
+      textDecorationColor: 'rgba(67, 56, 202, 0.6)',
     },
 
     '&:active:not(:disabled)': {
-      color: purplePalette.purple800,
+      color: '#3730a3',
+    },
+  },
+
+  // Variant: Success - Yoga Perdana hue-shift gradient (sea green 177° → cyan 185°)
+  // Constant brightness ~60%, shifting hue towards cyan for depth
+  success: {
+    background: 'linear-gradient(135deg, rgba(32, 178, 170, 0.82) 0%, rgba(45, 180, 190, 0.82) 100%)',
+    backgroundColor: 'transparent',
+    color: '#ffffff',
+    ...shorthands.border('none'),
+    boxShadow: `
+      0 1px 3px rgba(0, 0, 0, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.15)
+    `,
+    backdropFilter: 'blur(20px) saturate(180%)',
+    WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+
+    '&:hover:not(:disabled)': {
+      background: 'linear-gradient(135deg, rgba(32, 178, 170, 0.9) 0%, rgba(45, 180, 190, 0.9) 100%)',
+      boxShadow: `
+        0 2px 8px rgba(32, 178, 170, 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2)
+      `,
+      transform: 'translateY(-1px)',
+    },
+
+    '&:active:not(:disabled)': {
+      background: 'linear-gradient(135deg, rgba(30, 170, 165, 0.88) 0%, rgba(40, 172, 182, 0.88) 100%)',
+      boxShadow: `
+        0 1px 2px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1)
+      `,
+      transform: 'translateY(0px) scale(0.98)',
+    },
+  },
+
+  // Variant: Info - Yoga Perdana hue-shift gradient (blue 217° → indigo 230°)
+  // Constant brightness ~58%, shifting towards purple for depth
+  info: {
+    background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.82) 0%, rgba(79, 120, 255, 0.82) 100%)',
+    backgroundColor: 'transparent',
+    color: '#ffffff',
+    ...shorthands.border('none'),
+    boxShadow: `
+      0 1px 3px rgba(0, 0, 0, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.15)
+    `,
+    backdropFilter: 'blur(20px) saturate(180%)',
+    WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+
+    '&:hover:not(:disabled)': {
+      background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.9) 0%, rgba(79, 120, 255, 0.9) 100%)',
+      boxShadow: `
+        0 2px 8px rgba(59, 130, 246, 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2)
+      `,
+      transform: 'translateY(-1px)',
+    },
+
+    '&:active:not(:disabled)': {
+      background: 'linear-gradient(135deg, rgba(55, 122, 240, 0.88) 0%, rgba(72, 112, 248, 0.88) 100%)',
+      boxShadow: `
+        0 1px 2px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1)
+      `,
+      transform: 'translateY(0px) scale(0.98)',
     },
   },
 
@@ -335,6 +449,15 @@ const useStyles = makeStyles({
     opacity: 0,
   },
 
+  // Content wrapper - ensures icon+text stay inline
+  content: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '6px',
+    whiteSpace: 'nowrap',
+  },
+
   spinner: {
     position: 'absolute',
     top: '50%',
@@ -347,20 +470,35 @@ const useStyles = makeStyles({
 
   // Icon support
   iconOnly: {
-    ...shorthands.padding(tokens.s),
+    ...shorthands.padding('8px'),
     aspectRatio: '1',
+    ...shorthands.borderRadius('6px'), // Subtle rounding for square buttons
   },
 
   iconStart: {
-    display: 'flex',
+    display: 'inline-flex',
     alignItems: 'center',
-    marginRight: `-${tokens.xxs}`,
+    justifyContent: 'center',
+    flexShrink: 0,
+    fontSize: '16px',
+    lineHeight: 1,
+    '& > svg': {
+      width: '16px',
+      height: '16px',
+    },
   },
 
   iconEnd: {
-    display: 'flex',
+    display: 'inline-flex',
     alignItems: 'center',
-    marginLeft: `-${tokens.xxs}`,
+    justifyContent: 'center',
+    flexShrink: 0,
+    fontSize: '16px',
+    lineHeight: 1,
+    '& > svg': {
+      width: '16px',
+      height: '16px',
+    },
   },
 
   // Full width
@@ -368,41 +506,49 @@ const useStyles = makeStyles({
     width: '100%',
   },
 
-  // Elevated
+  // Elevated - updated with cool purple
   elevated: {
-    boxShadow: '0 12px 40px rgba(139, 92, 246, 0.25)',
+    boxShadow: '0 8px 32px rgba(111, 91, 235, 0.25)',
 
     '&:hover:not(:disabled)': {
-      boxShadow: '0 16px 50px rgba(139, 92, 246, 0.35)',
+      boxShadow: '0 12px 40px rgba(111, 91, 235, 0.35)',
     },
   },
 
-  // Dark mode overrides
+  // Dark mode overrides - clean minimal edges
   '@media (prefers-color-scheme: dark)': {
     secondary: {
-      backgroundColor: 'rgba(50, 50, 50, 0.8)',
-      color: purplePalette.purple300,
-      ...shorthands.borderColor('rgba(139, 92, 246, 0.4)'),
+      // Hue-shift: dark gray-blue → slightly more purple-gray
+      background: 'linear-gradient(135deg, rgba(45, 48, 58, 0.85) 0%, rgba(50, 48, 62, 0.85) 100%)',
+      color: '#a5b4fc', // cool indigo light
+      ...shorthands.border('none'),
+      boxShadow: `
+        0 1px 3px rgba(0, 0, 0, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06)
+      `,
 
       '&:hover:not(:disabled)': {
-        backgroundColor: 'rgba(60, 60, 60, 0.9)',
-        ...shorthands.borderColor('rgba(139, 92, 246, 0.6)'),
+        background: 'linear-gradient(135deg, rgba(55, 58, 68, 0.9) 0%, rgba(58, 56, 72, 0.9) 100%)',
+        boxShadow: `
+          0 2px 8px rgba(0, 0, 0, 0.25),
+          inset 0 1px 0 rgba(255, 255, 255, 0.08)
+        `,
       },
     },
 
     ghost: {
-      color: purplePalette.purple300,
-
+      // Ghost uses mix-blend-mode: difference, so it auto-inverts
+      // No color override needed - it's dynamic
       '&:hover:not(:disabled)': {
-        backgroundColor: 'rgba(139, 92, 246, 0.15)',
+        background: 'rgba(128, 128, 128, 0.15)',
       },
     },
 
     link: {
-      color: purplePalette.purple300,
+      color: '#a5b4fc', // cool indigo light
 
       '&:hover:not(:disabled)': {
-        color: purplePalette.purple200,
+        color: '#c7d2fe',
       },
     },
   },
@@ -447,6 +593,8 @@ export const EnhancedPurpleGlassButton = forwardRef<HTMLButtonElement, EnhancedP
       variant === 'primary' && styles.primary,
       variant === 'secondary' && styles.secondary,
       variant === 'danger' && styles.danger,
+      variant === 'success' && styles.success,
+      variant === 'info' && styles.info,
       variant === 'ghost' && styles.ghost,
       variant === 'link' && styles.link,
       // States
@@ -462,7 +610,10 @@ export const EnhancedPurpleGlassButton = forwardRef<HTMLButtonElement, EnhancedP
     );
 
     // Content wrapper for loading state
-    const contentClasses = loading ? styles.loadingContent : undefined;
+    const contentClasses = mergeClasses(
+      styles.content,
+      loading && styles.loadingContent
+    );
 
     return (
       <button

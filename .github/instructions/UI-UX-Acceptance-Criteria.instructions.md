@@ -420,7 +420,9 @@ All interactive button elements MUST use the `EnhancedPurpleGlassButton` compone
         - `primary`: Main action per screen section (save, submit, create, confirm)
         - `secondary`: Supporting actions (cancel, back, view details)
         - `danger`: Destructive actions requiring confirmation (delete, remove, archive)
-        - `ghost`: Subtle tertiary actions (show more, collapse, minimize)
+        - `success`: Positive confirmations (approve, complete, accept)
+        - `info`: Informational actions (help, learn more, view details)
+        - `ghost`: Subtle tertiary actions with dynamic text inversion (show more, collapse)
         - `link`: Text-only navigation without button styling
 
     [ ] Single Primary Rule: Each logical screen section MUST have at most one `primary` variant button visible. Multiple primary buttons create visual hierarchy confusion and decision paralysis.
@@ -456,17 +458,19 @@ All interactive button elements MUST use the `EnhancedPurpleGlassButton` compone
 
 **Animation Requirements:**
 
-    [ ] Gradient Animation: The default animated gradient (8s continuous, 4s on hover) MUST be enabled unless explicitly disabled for performance reasons (e.g., rendering 50+ buttons in a table).
+    [ ] Gradient Animation: The default animated gradient (12s continuous, 6s on hover) MUST be enabled unless explicitly disabled for performance reasons (e.g., rendering 50+ buttons in a table). Animation uses hue-shift (Yoga Perdana style), NOT brightness changes.
 
     [ ] Reduced Motion: The component automatically respects `prefers-reduced-motion` media query. No additional implementation required, but MUST test with motion preferences disabled.
 
     [ ] Animation Smoothness: Visual QA MUST verify that gradient animations run at 60fps without jank. Use browser DevTools Performance tab to profile. Degradation below 30fps is a fail condition.
 
+    [ ] Transition Timing: All state transitions (hover, active, focus) use 0.4s cubic-bezier(0.25, 0.1, 0.25, 1) for elegant, smooth movement.
+
 **Design Token Compliance:**
 
     [ ] No Inline Styling: Button styling MUST NOT be overridden with inline `style` prop except for layout properties (`margin`, `width`). Color, padding, typography overrides indicate design system violation.
 
-    [ ] Custom Variants Prohibited: Creating button variants outside the five defined types (primary, secondary, danger, ghost, link) requires design system update and component modification. Ad-hoc variants via className are forbidden.
+    [ ] Custom Variants Prohibited: Creating button variants outside the seven defined types (primary, secondary, danger, success, info, ghost, link) requires design system update and component modification. Ad-hoc variants via className are forbidden.
 
 **Accessibility Requirements:**
 
@@ -510,15 +514,13 @@ All search input fields MUST use the `EnhancedPurpleGlassSearchBar` component. N
 
     [ ] Keyboard Navigation: Test Tab (focus search), Type (input), Enter (submit), Escape (clear via button). All interactions MUST work without mouse.
 
-    [ ] Focus Indicators: The animated glassmorphic icon MUST have sufficient contrast (3:1) in both focus and non-focus states. The search bar border MUST change on focus (verified in design tokens).
+    [ ] Focus Indicators: The search bar border MUST change from neutral white (idle) to purple glow (focus). Focus is managed by the wrapper, not the input element.
 
 **Animation Requirements:**
 
-    [ ] Icon Animation: The 6-second gradient animation on the search icon MUST be verified for smoothness (60fps target). Use browser DevTools to profile.
+    [ ] Reduced Motion: The component respects `prefers-reduced-motion`. Test by enabling OS-level "Reduce motion" settings.
 
-    [ ] Reduced Motion: The component respects `prefers-reduced-motion`. Test by enabling OS-level "Reduce motion" settings and verify gradient animation is disabled.
-
-    [ ] Hover Effects: The backdrop-filter blur intensification (60px → 70px → 80px) on hover/focus MUST be smooth without abrupt transitions. Verify 0.4s cubic-bezier easing.
+    [ ] Hover Effects: The backdrop-filter blur and border brightness changes on hover/focus MUST be smooth without abrupt transitions. Verify 0.25s ease-out easing.
 
 **9.8.3 Component Maintenance and Updates**
 

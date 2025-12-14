@@ -4,8 +4,24 @@
 
 This document defines the standardized approach to buttons and search bars in the Archer ITSM application. All developers must follow these guidelines to ensure consistency, accessibility, and maintainability.
 
-**Last Updated:** 2025-12-14  
-**Status:** Active
+**Last Updated:** 2025-12-15  
+**Status:** Active  
+**Version:** 2.0.0
+
+---
+
+## Quick Reference
+
+| Component | Import | Required For |
+|-----------|--------|--------------|
+| `EnhancedPurpleGlassButton` | `@/components/ui` | All interactive buttons |
+| `EnhancedPurpleGlassSearchBar` | `@/components/ui` | All search inputs |
+
+### Forbidden Patterns
+- ❌ Native `<button>` elements
+- ❌ Fluent UI `<Button>` directly
+- ❌ `PurpleGlassButton` (deprecated)
+- ❌ `GlassmorphicSearchBar` (deprecated)
 
 ---
 
@@ -24,7 +40,7 @@ This document defines the standardized approach to buttons and search bars in th
 
 ### EnhancedPurpleGlassButton
 
-The `EnhancedPurpleGlassButton` is the standard button component for all interactive actions in Archer.
+The `EnhancedPurpleGlassButton` is the **required** button component for all interactive actions in Archer.
 
 #### Import
 
@@ -40,10 +56,10 @@ import { EnhancedPurpleGlassButton } from '@/components/ui';
 </EnhancedPurpleGlassButton>
 ```
 
-#### Variants
+#### Variants (7 Total)
 
 ##### Primary (Default)
-Used for primary actions (save, submit, confirm)
+Used for primary actions (save, submit, confirm). Purple → Indigo gradient.
 
 ```tsx
 <EnhancedPurpleGlassButton variant="primary">
@@ -52,7 +68,7 @@ Used for primary actions (save, submit, confirm)
 ```
 
 ##### Secondary
-Used for secondary actions (cancel, view details)
+Used for secondary actions (cancel, view details). White frosted glass.
 
 ```tsx
 <EnhancedPurpleGlassButton variant="secondary">
@@ -61,7 +77,7 @@ Used for secondary actions (cancel, view details)
 ```
 
 ##### Danger
-Used for destructive actions (delete, remove, archive)
+Used for destructive actions (delete, remove, archive). Red → Coral gradient.
 
 ```tsx
 <EnhancedPurpleGlassButton variant="danger">
@@ -69,8 +85,26 @@ Used for destructive actions (delete, remove, archive)
 </EnhancedPurpleGlassButton>
 ```
 
+##### Success (NEW)
+Used for positive confirmations (approve, complete, accept). Sea Green → Cyan gradient.
+
+```tsx
+<EnhancedPurpleGlassButton variant="success">
+  Approve Request
+</EnhancedPurpleGlassButton>
+```
+
+##### Info (NEW)
+Used for informational actions (help, learn more, view details). Blue → Indigo gradient.
+
+```tsx
+<EnhancedPurpleGlassButton variant="info">
+  Learn More
+</EnhancedPurpleGlassButton>
+```
+
 ##### Ghost
-Used for subtle actions (minimize, collapse)
+Used for subtle actions (minimize, collapse). Transparent with `mix-blend-mode: difference` for dynamic text.
 
 ```tsx
 <EnhancedPurpleGlassButton variant="ghost">
@@ -79,7 +113,7 @@ Used for subtle actions (minimize, collapse)
 ```
 
 ##### Link
-Used for text-only navigation
+Used for text-only navigation.
 
 ```tsx
 <EnhancedPurpleGlassButton variant="link">
@@ -90,12 +124,12 @@ Used for text-only navigation
 #### Sizes
 
 ```tsx
-{/* Small - for compact spaces */}
+{/* Small - for compact spaces (28px height, 6px radius) */}
 <EnhancedPurpleGlassButton size="small">
   Small
 </EnhancedPurpleGlassButton>
 
-{/* Medium (default) - for most use cases */}
+{/* Medium (default) - for most use cases (36px height, 8px radius) */}
 <EnhancedPurpleGlassButton size="medium">
   Medium
 </EnhancedPurpleGlassButton>
