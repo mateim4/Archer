@@ -155,7 +155,7 @@ const ServiceCatalogView: React.FC = () => {
   return (
     <div style={{ 
       padding: '24px', 
-      maxWidth: '1600px', 
+      maxWidth: '1400px', 
       margin: '0 auto',
     }}>
       {/* Header - Dashboard Style */}

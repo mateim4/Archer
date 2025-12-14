@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Spinner } from '@fluentui/react-components';
 import { DesignTokens } from '../styles/designSystem';
+import { PurpleGlassDropdown, PurpleGlassButton } from '../components/ui';
 import {
   DataBarHorizontalRegular,
   FolderRegular,
   ArrowUploadRegular,
+  ArrowSyncRegular,
   HourglassRegular,
   ErrorCircleRegular,
   DesktopRegular,
@@ -313,27 +315,17 @@ export const EnhancedRVToolsReportView: React.FC = () => {
               Select RVTools Upload
             </label>
             
-            <select
+            <PurpleGlassDropdown
               value={selectedUpload}
-              onChange={(e) => setSelectedUpload(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '12px 16px',
-                border: '2px solid rgba(99, 102, 241, 0.2)',
-                borderRadius: '8px',
-                fontSize: '14px',
-                fontFamily: DesignTokens.typography.fontFamily,
-                cursor: 'pointer',
-                marginBottom: '12px'
-              }}
-            >
-              <option value="">Choose an RVTools upload</option>
-              {uploads.map(upload => (
-                <option key={upload.id} value={upload.id}>
-                  {upload.file_name} ({new Date(upload.uploaded_at).toLocaleDateString()})
-                </option>
-              ))}
-            </select>
+              onChange={(value) => setSelectedUpload(value as string)}
+              options={[
+                { value: '', label: 'Choose an RVTools upload' },
+                ...uploads.map(upload => ({
+                  value: upload.id,
+                  label: `${upload.file_name} (${new Date(upload.uploaded_at).toLocaleDateString()})`
+                }))
+              ]}
+            />
 
             {/* File Upload */}
             <div style={{ marginBottom: '12px' }}>
@@ -449,25 +441,16 @@ export const EnhancedRVToolsReportView: React.FC = () => {
               Template Type
             </label>
             
-            <select
+            <PurpleGlassDropdown
               value={selectedTemplate}
-              onChange={(e) => setSelectedTemplate(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '12px 16px',
-                border: '2px solid rgba(99, 102, 241, 0.2)',
-                borderRadius: '8px',
-                fontSize: '14px',
-                fontFamily: DesignTokens.typography.fontFamily,
-                cursor: 'pointer',
-                marginBottom: '12px'
-              }}
-            >
-              <option value="migration-analysis">Migration Analysis Report</option>
-              <option value="capacity-planning">Capacity Planning Report</option>
-              <option value="security-assessment">Security Assessment</option>
-              <option value="performance-analysis">Performance Analysis</option>
-            </select>
+              onChange={(value) => setSelectedTemplate(value as string)}
+              options={[
+                { value: 'migration-analysis', label: 'Migration Analysis Report' },
+                { value: 'capacity-planning', label: 'Capacity Planning Report' },
+                { value: 'security-assessment', label: 'Security Assessment' },
+                { value: 'performance-analysis', label: 'Performance Analysis' }
+              ]}
+            />
 
             <div style={{
               marginTop: '8px',
@@ -492,38 +475,10 @@ export const EnhancedRVToolsReportView: React.FC = () => {
         flexWrap: 'wrap',
         marginBottom: '32px'
       }}>
-        <button
+        <PurpleGlassButton
           onClick={handleGenerateReport}
           disabled={!selectedUpload || !selectedTemplate || isGeneratingReport}
-          style={{
-            background: isGeneratingReport ? '#9ca3af' : 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-            color: 'white',
-            border: 'none',
-            padding: '12px 24px',
-            borderRadius: '8px',
-            fontSize: '14px',
-            fontWeight: '600',
-            fontFamily: DesignTokens.typography.fontFamily,
-            cursor: isGeneratingReport ? 'not-allowed' : 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            transition: 'all 0.2s ease',
-            transform: isGeneratingReport ? 'none' : 'translateY(0)',
-            boxShadow: '0 2px 4px rgba(99, 102, 241, 0.3)'
-          }}
-          onMouseOver={(e) => {
-            if (!isGeneratingReport) {
-              e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.boxShadow = '0 4px 8px rgba(99, 102, 241, 0.4)';
-            }
-          }}
-          onMouseOut={(e) => {
-            if (!isGeneratingReport) {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = '0 2px 4px rgba(99, 102, 241, 0.3)';
-            }
-          }}
+          icon={<DataBarHorizontalRegular />}
         >
           {isGeneratingReport ? (
             <>
@@ -531,37 +486,17 @@ export const EnhancedRVToolsReportView: React.FC = () => {
               Generating Report...
             </>
           ) : (
-            <>
-              <DataBarHorizontalRegular style={{ marginRight: '8px' }} />Generate Report
-            </>
+            'Generate Report'
           )}
-        </button>
+        </PurpleGlassButton>
 
-        <button
+        <PurpleGlassButton
+          variant="secondary"
           onClick={loadRealData}
-          style={{
-            background: 'transparent',
-            color: '#6366f1',
-            border: '2px solid rgba(99, 102, 241, 0.3)',
-            padding: '12px 24px',
-            borderRadius: '8px',
-            fontSize: '14px',
-            fontWeight: '600',
-            fontFamily: DesignTokens.typography.fontFamily,
-            cursor: 'pointer',
-            transition: 'all 0.2s ease'
-          }}
-          onMouseOver={(e) => {
-            e.currentTarget.style.background = 'rgba(99, 102, 241, 0.1)';
-            e.currentTarget.style.transform = 'translateY(-2px)';
-          }}
-          onMouseOut={(e) => {
-            e.currentTarget.style.background = 'transparent';
-            e.currentTarget.style.transform = 'translateY(0)';
-          }}
+          icon={<ArrowSyncRegular />}
         >
-          🔄 Refresh Uploads
-        </button>
+          Refresh Uploads
+        </PurpleGlassButton>
       </div>
 
       {/* Report Results */}
@@ -639,38 +574,19 @@ export const EnhancedRVToolsReportView: React.FC = () => {
             justifyContent: 'center',
             marginTop: '24px'
           }}>
-            <button
+            <PurpleGlassButton
               onClick={() => handleExport('html')}
-              style={{
-                background: '#10b981',
-                color: 'white',
-                border: 'none',
-                padding: '10px 20px',
-                borderRadius: '6px',
-                fontSize: '13px',
-                fontWeight: '500',
-                cursor: 'pointer',
-                fontFamily: DesignTokens.typography.fontFamily
-              }}
+              icon={<DocumentTextRegular />}
             >
-              <DocumentTextRegular style={{ marginRight: '8px' }} />Export HTML
-            </button>
-            <button
+              Export HTML
+            </PurpleGlassButton>
+            <PurpleGlassButton
+              variant="secondary"
               onClick={() => handleExport('pdf')}
-              style={{
-                background: '#ef4444',
-                color: 'white',
-                border: 'none',
-                padding: '10px 20px',
-                borderRadius: '6px',
-                fontSize: '13px',
-                fontWeight: '500',
-                cursor: 'pointer',
-                fontFamily: DesignTokens.typography.fontFamily
-              }}
+              icon={<DocumentPdfRegular />}
             >
-              <DocumentPdfRegular style={{ marginRight: '8px' }} />Export PDF
-            </button>
+              Export PDF
+            </PurpleGlassButton>
           </div>
         </div>
       )}

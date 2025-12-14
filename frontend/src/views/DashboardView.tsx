@@ -8,7 +8,7 @@
  * Spec Reference: UI UX Specification Sheet - Section 7.1 Dashboard
  */
 
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   TicketDiagonalRegular,
@@ -28,9 +28,9 @@ import {
 } from '@fluentui/react-icons';
 import { useTheme } from '../hooks/useTheme';
 import { useNotificationState } from '../hooks/useNotifications';
-import { useAsyncData } from '../hooks/useAsyncData';
+import { useTickets, useAlerts } from '../hooks/queries';
 import { PageHeader, PurpleGlassCard, PurpleGlassButton, PurpleGlassDropdown, SLAIndicator, AIInsightsPanel, AIInsight, DemoModeBanner } from '../components/ui';
-import { apiClient, Ticket } from '../utils/apiClient';
+import { Ticket } from '../utils/apiClient';
 
 /**
  * Dashboard time range options
@@ -755,42 +755,24 @@ export const DashboardView: React.FC = () => {
   const [aiInsights] = useState<AIInsight[]>(MOCK_AI_INSIGHTS);
 
   // ============================================================================
-  // BLAZING FAST DATA LOADING - Instant render + background sync
+  // TANSTACK QUERY - Instant render with background sync
   // ============================================================================
-  // Data shows IMMEDIATELY from cache/mock, then updates silently when API responds
+  // Data shows IMMEDIATELY from cache/placeholder, then updates silently when API responds
   
-  // Fetch tickets with instant fallback to mock data
+  // Fetch tickets with TanStack Query (30s stale time, instant placeholder)
   const { 
-    data: ticketsData, 
-    isRefreshing: isRefreshingTickets,
-    isFallback: ticketsFallback,
-    refresh: refreshTickets 
-  } = useAsyncData({
-    key: `dashboard-tickets-${timeRange}`,
-    fetcher: async () => {
-      const response = await apiClient.getTickets();
-      return Array.isArray(response) ? response : [];
-    },
-    initialData: [] as Ticket[],
-    staleTime: 30000, // 30 seconds cache
-    timeout: 3000,    // 3 second timeout (fail fast!)
-  });
+    data: ticketsData = [], 
+    isFetching: isRefreshingTickets,
+    isPlaceholderData: ticketsFallback,
+    refetch: refreshTickets 
+  } = useTickets();
 
-  // Fetch alerts with instant fallback
+  // Fetch alerts with TanStack Query (5 most recent active alerts)
   const { 
-    data: alertsData, 
-    isFallback: alertsFallback,
-    refresh: refreshAlerts 
-  } = useAsyncData({
-    key: 'dashboard-alerts',
-    fetcher: async () => {
-      const response = await apiClient.getAlerts({ status: ['Active'], page_size: 5 });
-      return response?.alerts || [];
-    },
-    initialData: [],
-    staleTime: 30000,
-    timeout: 3000,
-  });
+    data: alertsData = [], 
+    isPlaceholderData: alertsFallback,
+    refetch: refreshAlerts 
+  } = useAlerts({ status: ['Active'], page_size: 5 });
 
   // ============================================================================
   // DERIVED STATE - Compute stats from tickets (memoized for performance)

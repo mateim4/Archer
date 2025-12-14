@@ -3,7 +3,7 @@ import { apiClient } from '../utils/apiClient';
 import GlassmorphicSearchBar from '../components/GlassmorphicSearchBar';
 import { DESIGN_TOKENS } from '../components/DesignSystem';
 import { DesignTokens } from '../styles/designSystem';
-import { PurpleGlassButton, PrimaryButton, PageHeader, PurpleGlassCard } from '@/components/ui';
+import { PurpleGlassButton, PrimaryButton, PageHeader, PurpleGlassCard, PurpleGlassDropdown, PurpleGlassInput } from '@/components/ui';
 import {
   ErrorCircleRegular,
   SearchRegular,
@@ -339,48 +339,28 @@ const HardwareBasketView: React.FC = () => {
 
         {/* Vendor Filter */}
         <div style={{ minWidth: '140px' }}>
-          <select
+          <PurpleGlassDropdown
             value={vendorFilter}
-            onChange={(e) => setVendorFilter(e.target.value)}
-            style={{
-              ...DesignTokens.components.standardCard,
-              padding: '14px 20px',
-              fontSize: '14px',
-              fontFamily: 'Oxanium, sans-serif',
-              cursor: 'pointer',
-              outline: 'none',
-              color: 'var(--text-primary)',
-              width: '100%'
-            }}
-          >
-            <option value="All">All Vendors</option>
-            {uniqueVendors.map(vendor => (
-              <option key={vendor} value={vendor}>{vendor}</option>
-            ))}
-          </select>
+            onChange={(value) => setVendorFilter(value as string)}
+            options={[
+              { value: 'All', label: 'All Vendors' },
+              ...uniqueVendors.map(vendor => ({ value: vendor, label: vendor }))
+            ]}
+            placeholder="All Vendors"
+          />
         </div>
 
         {/* Year Filter */}
         <div style={{ minWidth: '120px' }}>
-          <select
+          <PurpleGlassDropdown
             value={yearFilter}
-            onChange={(e) => setYearFilter(e.target.value)}
-            style={{
-              ...DesignTokens.components.standardCard,
-              padding: '14px 20px',
-              fontSize: '14px',
-              fontFamily: 'Oxanium, sans-serif',
-              cursor: 'pointer',
-              outline: 'none',
-              color: 'var(--text-primary)',
-              width: '100%'
-            }}
-          >
-            <option value="All">All Years</option>
-            {uniqueYears.map(year => (
-              <option key={year} value={year}>{year}</option>
-            ))}
-          </select>
+            onChange={(value) => setYearFilter(value as string)}
+            options={[
+              { value: 'All', label: 'All Years' },
+              ...uniqueYears.map(year => ({ value: year, label: year }))
+            ]}
+            placeholder="All Years"
+          />
         </div>
 
         {/* Clear Filters Button */}
@@ -726,19 +706,10 @@ const HardwareBasketView: React.FC = () => {
               }}>
                 Basket Name *
               </label>
-              <input
-                type="text"
+              <PurpleGlassInput
                 value={newBasket.name}
                 onChange={(e) => setNewBasket({ ...newBasket, name: e.target.value })}
                 placeholder="e.g., Dell PowerEdge R750 Q2 2024"
-                style={{
-                  width: '100%',
-                  padding: '10px 12px',
-                  border: '2px solid var(--input-border)',
-                  borderRadius: 'var(--radius-md)',
-                  fontSize: '14px',
-                  background: 'var(--input-bg)'
-                }}
               />
             </div>
 
@@ -752,25 +723,19 @@ const HardwareBasketView: React.FC = () => {
               }}>
                 Vendor *
               </label>
-              <select
+              <PurpleGlassDropdown
                 value={newBasket.vendor}
-                onChange={(e) => setNewBasket({ ...newBasket, vendor: e.target.value })}
-                style={{
-                  width: '100%',
-                  padding: '10px 12px',
-                  border: '2px solid var(--input-border)',
-                  borderRadius: 'var(--radius-md)',
-                  fontSize: '14px',
-                  background: 'var(--input-bg)'
-                }}
-              >
-                <option value="">Select Vendor</option>
-                <option value="Dell">Dell</option>
-                <option value="HPE">HPE</option>
-                <option value="Lenovo">Lenovo</option>
-                <option value="Cisco">Cisco</option>
-                <option value="Other">Other</option>
-              </select>
+                onChange={(value) => setNewBasket({ ...newBasket, vendor: value as string })}
+                options={[
+                  { value: '', label: 'Select Vendor' },
+                  { value: 'Dell', label: 'Dell' },
+                  { value: 'HPE', label: 'HPE' },
+                  { value: 'Lenovo', label: 'Lenovo' },
+                  { value: 'Cisco', label: 'Cisco' },
+                  { value: 'Other', label: 'Other' }
+                ]}
+                placeholder="Select Vendor"
+              />
             </div>
 
             <div style={{ display: 'flex', gap: '12px', marginBottom: '20px' }}>
@@ -784,23 +749,16 @@ const HardwareBasketView: React.FC = () => {
                 }}>
                   Quarter
                 </label>
-                <select
+                <PurpleGlassDropdown
                   value={newBasket.quarter}
-                  onChange={(e) => setNewBasket({ ...newBasket, quarter: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: '10px 12px',
-                    border: '2px solid var(--input-border)',
-                    borderRadius: 'var(--radius-md)',
-                    fontSize: '14px',
-                    background: 'var(--input-bg)'
-                  }}
-                >
-                  <option value="Q1">Q1</option>
-                  <option value="Q2">Q2</option>
-                  <option value="Q3">Q3</option>
-                  <option value="Q4">Q4</option>
-                </select>
+                  onChange={(value) => setNewBasket({ ...newBasket, quarter: value as string })}
+                  options={[
+                    { value: 'Q1', label: 'Q1' },
+                    { value: 'Q2', label: 'Q2' },
+                    { value: 'Q3', label: 'Q3' },
+                    { value: 'Q4', label: 'Q4' }
+                  ]}
+                />
               </div>
               <div style={{ flex: 1 }}>
                 <label style={{
@@ -812,20 +770,10 @@ const HardwareBasketView: React.FC = () => {
                 }}>
                   Year
                 </label>
-                <input
+                <PurpleGlassInput
                   type="number"
-                  value={newBasket.year}
-                  onChange={(e) => setNewBasket({ ...newBasket, year: parseInt(e.target.value) })}
-                  min="2020"
-                  max="2030"
-                  style={{
-                    width: '100%',
-                    padding: '10px 12px',
-                    border: '2px solid var(--input-border)',
-                    borderRadius: 'var(--radius-md)',
-                    fontSize: '14px',
-                    background: 'var(--input-bg)'
-                  }}
+                  value={newBasket.year.toString()}
+                  onChange={(e) => setNewBasket({ ...newBasket, year: parseInt(e.target.value) || 2024 })}
                 />
               </div>
             </div>

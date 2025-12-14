@@ -59,7 +59,7 @@ import { apiClient, Project, CreateProjectRequest } from '../utils/apiClient';
 const useStyles = makeStyles({
   container: {
     padding: '40px',
-    maxWidth: '1600px',
+    maxWidth: '1400px',
     margin: '0 auto',
     backgroundColor: tokens.colorNeutralBackground1,
     minHeight: '100vh'

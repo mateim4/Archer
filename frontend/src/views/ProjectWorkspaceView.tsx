@@ -45,7 +45,7 @@ import { useEnhancedUX } from '../hooks/useEnhancedUX';
 import { DesignTokens } from '../styles/designSystem';
 import { ActivityWizardModal } from '../components/Activity/ActivityWizardModal';
 import { tokens, colors } from '@/styles/design-tokens';
-import { PurpleGlassButton, PurpleGlassBreadcrumb, PrimaryButton, PageHeader, PurpleGlassEmptyState, PurpleGlassCard } from '@/components/ui';
+import { PurpleGlassButton, PurpleGlassBreadcrumb, PurpleGlassDropdown, PrimaryButton, PageHeader, PurpleGlassEmptyState, PurpleGlassCard } from '@/components/ui';
 
 interface Activity {
   id: string;
@@ -730,18 +730,17 @@ const ProjectWorkspaceView: React.FC = () => {
                         <label className="text-xs font-semibold whitespace-nowrap" style={{ fontFamily: tokens.fontFamilyBody, color: 'var(--text-secondary)' }}>
                           Status:
                         </label>
-                        <select
+                        <PurpleGlassDropdown
                           value={filterStatus}
-                          onChange={(e) => setFilterStatus(e.target.value)}
-                          className="glassmorphic-filter-select"
-                      style={{ minWidth: '140px' }}
-                    >
-                      <option value="all">All Statuses</option>
-                      <option value="pending">Pending</option>
-                      <option value="in_progress">In Progress</option>
-                      <option value="completed">Completed</option>
-                      <option value="blocked">Blocked</option>
-                    </select>
+                          onChange={(value) => setFilterStatus(value as string)}
+                          options={[
+                            { value: 'all', label: 'All Statuses' },
+                            { value: 'pending', label: 'Pending' },
+                            { value: 'in_progress', label: 'In Progress' },
+                            { value: 'completed', label: 'Completed' },
+                            { value: 'blocked', label: 'Blocked' }
+                          ]}
+                        />
                   </div>
 
                   {/* Assignee Filter */}
@@ -749,19 +748,17 @@ const ProjectWorkspaceView: React.FC = () => {
                     <label className="text-xs font-semibold whitespace-nowrap" style={{ fontFamily: tokens.fontFamilyBody, color: 'var(--text-secondary)' }}>
                       Assignee:
                     </label>
-                    <select
+                    <PurpleGlassDropdown
                       value={filterAssignee}
-                      onChange={(e) => setFilterAssignee(e.target.value)}
-                      className="glassmorphic-filter-select"
-                      style={{ minWidth: '140px' }}
-                    >
-                      <option value="all">All Assignees</option>
-                      {uniqueAssignees.map(assignee => (
-                        <option key={assignee} value={assignee}>
-                          {assignee}
-                        </option>
-                      ))}
-                    </select>
+                      onChange={(value) => setFilterAssignee(value as string)}
+                      options={[
+                        { value: 'all', label: 'All Assignees' },
+                        ...uniqueAssignees.map(assignee => ({
+                          value: assignee,
+                          label: assignee
+                        }))
+                      ]}
+                    />
                   </div>
 
                   {/* Sort By */}
@@ -769,16 +766,15 @@ const ProjectWorkspaceView: React.FC = () => {
                     <label className="text-xs font-semibold whitespace-nowrap" style={{ fontFamily: tokens.fontFamilyBody, color: 'var(--text-secondary)' }}>
                       Sort:
                     </label>
-                    <select
+                    <PurpleGlassDropdown
                       value={sortBy}
-                      onChange={(e) => setSortBy(e.target.value as 'date' | 'name' | 'completion')}
-                      className="glassmorphic-filter-select"
-                      style={{ minWidth: '130px' }}
-                    >
-                      <option value="date">Start Date</option>
-                      <option value="name">Activity Name</option>
-                      <option value="completion">Completion %</option>
-                    </select>
+                      onChange={(value) => setSortBy(value as 'date' | 'name' | 'completion')}
+                      options={[
+                        { value: 'date', label: 'Start Date' },
+                        { value: 'name', label: 'Activity Name' },
+                        { value: 'completion', label: 'Completion %' }
+                      ]}
+                    />
                   </div>
 
                   {/* Sort Order - Toggle Slider Style (like ServiceDesk view toggle) */}

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Calculator, Cpu, HardDrive, Network, Zap, TrendingUp, AlertCircle } from 'lucide-react';
 import { apiClient, HardwareItem } from '../utils/apiClient';
+import { PurpleGlassDropdown } from '../components/ui';
 
 interface ClusterSpec {
   workloadType: string;
@@ -157,16 +158,16 @@ const ClusterSizingView: React.FC = () => {
             <div className="space-y-4">
               <div className="lcm-form-group">
                 <label className="lcm-label">Workload Type</label>
-                <select
+                <PurpleGlassDropdown
                   value={clusterSpec.workloadType}
-                  onChange={(e) => setClusterSpec({ ...clusterSpec, workloadType: e.target.value })}
-                  className="lcm-dropdown"
-                >
-                  <option value="general">General Purpose</option>
-                  <option value="compute">Compute Intensive</option>
-                  <option value="storage">Storage Intensive</option>
-                  <option value="network">Network Intensive</option>
-                </select>
+                  onChange={(value) => setClusterSpec({ ...clusterSpec, workloadType: value as string })}
+                  options={[
+                    { value: 'general', label: 'General Purpose' },
+                    { value: 'compute', label: 'Compute Intensive' },
+                    { value: 'storage', label: 'Storage Intensive' },
+                    { value: 'network', label: 'Network Intensive' }
+                  ]}
+                />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
