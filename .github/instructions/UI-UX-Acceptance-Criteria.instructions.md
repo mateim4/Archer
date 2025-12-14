@@ -406,6 +406,195 @@ Get-ChildItem -Recurse -Filter "*.tsx" | ForEach-Object {
 
 **AC Requirement:** Before any PR merge, run encoding validation on changed files. Build failures with "Unexpected character" errors are an immediate fail condition requiring file restoration from a known-good source.
 
+9.8 Standardized Button and Search Bar Components
+
+The Archer ITSM platform implements a unified component system for buttons and search bars to ensure consistency, accessibility, and maintainability. These components supersede native HTML elements and provide a standardized API that enforces design system compliance.
+
+**9.8.1 EnhancedPurpleGlassButton Component**
+
+All interactive button elements MUST use the `EnhancedPurpleGlassButton` component. Native `<button>` elements are prohibited except in exceptional circumstances requiring explicit design approval.
+
+**Variant Requirements:**
+
+    [ ] Variant Selection: Buttons must use the appropriate semantic variant:
+        - `primary`: Main action per screen section (save, submit, create, confirm)
+        - `secondary`: Supporting actions (cancel, back, view details)
+        - `danger`: Destructive actions requiring confirmation (delete, remove, archive)
+        - `ghost`: Subtle tertiary actions (show more, collapse, minimize)
+        - `link`: Text-only navigation without button styling
+
+    [ ] Single Primary Rule: Each logical screen section MUST have at most one `primary` variant button visible. Multiple primary buttons create visual hierarchy confusion and decision paralysis.
+
+    [ ] Destructive Action Protocol: All `danger` variant buttons MUST be accompanied by a confirmation dialog for irreversible actions. The confirmation must explicitly state what will be deleted/removed.
+
+**Size Requirements:**
+
+    [ ] Size Appropriateness: Button size must match the context:
+        - `small` (28px min-height): Compact spaces, table actions, inline controls
+        - `medium` (36px min-height): Default for most use cases, forms, dialogs
+        - `large` (44px min-height): Prominent CTAs, landing pages, mobile-first views
+
+    [ ] Touch Target Compliance: On mobile viewports (<768px), buttons MUST be at least `medium` size to meet WCAG 2.2 Target Size (Minimum) of 24x24 CSS pixels. Icon-only buttons MUST use `large` size on mobile.
+
+**State Requirements:**
+
+    [ ] Loading State: Async operations (API calls, file uploads) MUST set `loading={true}` immediately upon activation. The button MUST show a spinner and prevent double-submission.
+
+    [ ] Disabled State: Use `disabled={true}` only when interaction is contextually forbidden (e.g., form validation failed). The button text should indicate why it's disabled if not obvious from context.
+
+    [ ] Loading Text: Button text SHOULD update during loading to reflect the action (e.g., "Save" → "Saving..."). This provides additional feedback beyond the spinner.
+
+**Icon Requirements:**
+
+    [ ] Icon Positioning: Icons MUST be positioned semantically:
+        - `icon={<Icon />}`: Actions where icon precedes text (Save, Create, Edit)
+        - `iconEnd={<Icon />}`: Navigation or progression (Next, Continue, External Link)
+
+    [ ] Icon-Only Buttons: Buttons with ONLY an icon (no text) MUST include `aria-label` prop for screen reader accessibility. Example: `<EnhancedPurpleGlassButton icon={<DismissRegular />} aria-label="Close dialog" />`
+
+    [ ] Icon Consistency: Use Fluent UI 2 Regular weight icons (`@fluentui/react-icons`) for consistency. Filled icons are reserved for active/selected states only.
+
+**Animation Requirements:**
+
+    [ ] Gradient Animation: The default animated gradient (8s continuous, 4s on hover) MUST be enabled unless explicitly disabled for performance reasons (e.g., rendering 50+ buttons in a table).
+
+    [ ] Reduced Motion: The component automatically respects `prefers-reduced-motion` media query. No additional implementation required, but MUST test with motion preferences disabled.
+
+    [ ] Animation Smoothness: Visual QA MUST verify that gradient animations run at 60fps without jank. Use browser DevTools Performance tab to profile. Degradation below 30fps is a fail condition.
+
+**Design Token Compliance:**
+
+    [ ] No Inline Styling: Button styling MUST NOT be overridden with inline `style` prop except for layout properties (`margin`, `width`). Color, padding, typography overrides indicate design system violation.
+
+    [ ] Custom Variants Prohibited: Creating button variants outside the five defined types (primary, secondary, danger, ghost, link) requires design system update and component modification. Ad-hoc variants via className are forbidden.
+
+**Accessibility Requirements:**
+
+    [ ] Keyboard Navigation: All buttons MUST be keyboard accessible. Test with Tab (focus), Enter/Space (activate), and verify focus indicators are visible (2px outline, 3:1 contrast).
+
+    [ ] Focus Management: When a button opens a modal/dialog, focus MUST move into the modal. When closed, focus MUST return to the triggering button.
+
+    [ ] ARIA Attributes: Buttons that toggle state (expand/collapse) MUST use `aria-expanded`. Buttons controlling other elements MUST use `aria-controls`. Loading state MUST include `aria-busy="true"`.
+
+**9.8.2 EnhancedPurpleGlassSearchBar Component**
+
+All search input fields MUST use the `EnhancedPurpleGlassSearchBar` component. Native `<input type="search">` or text inputs with search functionality are prohibited.
+
+**Functional Requirements:**
+
+    [ ] Controlled Component: The search bar MUST be used as a controlled component with `value` and `onChange` props. Uncontrolled usage is forbidden to ensure state synchronization.
+
+    [ ] Clear Button: The auto-showing clear button (dismiss icon) MUST be enabled (`showClearButton={true}`) unless the search is part of a form with explicit Reset functionality.
+
+    [ ] Submit Handler: Search bars that trigger immediate search (e.g., API calls) MUST implement `onSubmit` prop to handle Enter key press. This is critical for keyboard-only users.
+
+    [ ] Debouncing: For search-as-you-type functionality, implement 300-500ms debounce in the parent component to prevent excessive API calls. The search bar does not implement debouncing internally to maintain flexibility.
+
+**Placeholder Requirements:**
+
+    [ ] Descriptive Placeholder: Placeholder text MUST describe the search scope: "Search tickets, assets, or people..." NOT generic "Search...". This sets user expectations.
+
+    [ ] Placeholder Internationalization: If the application supports multiple languages, placeholder text MUST be translated and contextually appropriate for each language's search patterns.
+
+**Width Requirements:**
+
+    [ ] Global Search: Top-level navigation search bars SHOULD use 400-600px width on desktop, 100% width on mobile (<768px).
+
+    [ ] Filtered Search: View-specific search bars (above data tables, card grids) MUST use `width="100%"` to fill available container space.
+
+    [ ] Responsive Behavior: The component automatically scales from 440px max-width on desktop to full-width on mobile. Override only if layout constraints require it.
+
+**Accessibility Requirements:**
+
+    [ ] ARIA Label: Always provide `ariaLabel` prop for screen readers, especially if placeholder is generic. Example: `ariaLabel="Search through all support tickets"`
+
+    [ ] Keyboard Navigation: Test Tab (focus search), Type (input), Enter (submit), Escape (clear via button). All interactions MUST work without mouse.
+
+    [ ] Focus Indicators: The animated glassmorphic icon MUST have sufficient contrast (3:1) in both focus and non-focus states. The search bar border MUST change on focus (verified in design tokens).
+
+**Animation Requirements:**
+
+    [ ] Icon Animation: The 6-second gradient animation on the search icon MUST be verified for smoothness (60fps target). Use browser DevTools to profile.
+
+    [ ] Reduced Motion: The component respects `prefers-reduced-motion`. Test by enabling OS-level "Reduce motion" settings and verify gradient animation is disabled.
+
+    [ ] Hover Effects: The backdrop-filter blur intensification (60px → 70px → 80px) on hover/focus MUST be smooth without abrupt transitions. Verify 0.4s cubic-bezier easing.
+
+**9.8.3 Component Maintenance and Updates**
+
+**Deprecation Protocol:**
+
+    [ ] Legacy Component Audit: Periodically audit for native `<button>` elements and legacy components (`PrimaryButton`, `ConsistentButton`, `GlassmorphicSearchBar`). Create migration tickets for remaining usages.
+
+    [ ] ESLint Enforcement: Once migration is complete, ESLint rules MUST prevent new native button usage: `"no-restricted-syntax": ["error", { "selector": "JSXOpeningElement[name.name='button']", "message": "Use EnhancedPurpleGlassButton instead" }]`
+
+**Documentation Requirements:**
+
+    [ ] Component Library Updates: Any changes to `EnhancedPurpleGlassButton` or `EnhancedPurpleGlassSearchBar` MUST be reflected in `docs/BUTTON_USAGE_GUIDE.md` within the same PR.
+
+    [ ] Demo View Maintenance: The `ButtonSearchBarDemoView.tsx` MUST be updated to showcase any new variants, props, or states added to the components.
+
+    [ ] Migration Examples: When migrating views to use the new components, document the before/after in the PR description with code metrics (lines removed, accessibility improvements).
+
+**Testing Requirements:**
+
+    [ ] Visual Regression: Changes to button/search bar styling MUST include Chromatic/Percy visual regression tests or manual screenshot comparisons in light AND dark mode.
+
+    [ ] Accessibility Audit: Run axe DevTools or Lighthouse accessibility audit on any view using the new components. Score MUST be 100% with zero violations.
+
+    [ ] Cross-Browser Testing: Verify button/search bar rendering and animation in Chrome, Firefox, Safari, Edge. Gradient animations may have browser-specific quirks (especially Safari backdrop-filter).
+
+    [ ] Performance Testing: For views with 20+ buttons, profile animation performance. If frame rate drops below 30fps, consider disabling animations on individual buttons via `animated={false}` prop.
+
+**9.8.4 Migration from Legacy Patterns**
+
+**Native Button Migration:**
+
+Legacy Pattern (FORBIDDEN):
+```tsx
+<button 
+  style={{ background: '...', padding: '...', borderRadius: '...' }}
+  onMouseOver={(e) => { /* manual hover handlers */ }}
+  onClick={handleClick}
+>
+  Submit
+</button>
+```
+
+Standard Pattern (REQUIRED):
+```tsx
+<EnhancedPurpleGlassButton 
+  variant="primary" 
+  onClick={handleClick}
+>
+  Submit
+</EnhancedPurpleGlassButton>
+```
+
+**Legacy Search Bar Migration:**
+
+Legacy Pattern (DEPRECATED):
+```tsx
+<GlassmorphicSearchBar
+  value={searchTerm}
+  onChange={setSearchTerm}
+  placeholder="Search..."
+/>
+```
+
+Standard Pattern (REQUIRED):
+```tsx
+<EnhancedPurpleGlassSearchBar
+  value={searchTerm}
+  onChange={setSearchTerm}
+  placeholder="Search guides and documentation..."
+  showClearButton
+  onSubmit={handleSearch}
+/>
+```
+
+**AC Requirement:** All new features MUST use `EnhancedPurpleGlassButton` and `EnhancedPurpleGlassSearchBar`. PRs introducing native `<button>` elements or legacy components will be rejected in code review unless exceptional circumstances are documented and approved by design lead.
+
 10. Conclusion and Strategic Insights
 
 Defining comprehensive Acceptance Criteria is a strategic investment in product quality. The research demonstrates that "Done" is not a singular point in time but a composite state of visual accuracy, functional robustness, and inclusive accessibility.
