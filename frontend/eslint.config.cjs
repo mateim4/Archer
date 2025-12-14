@@ -57,9 +57,6 @@ module.exports = [
   {
     files: [
       '**/design-tokens.ts',
-      '**/fluent2-design-system.css',
-      '**/fonts.css',
-      '**/*.css',
     ],
     rules: {
       'local-rules/no-hardcoded-colors': 'off',

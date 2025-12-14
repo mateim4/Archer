@@ -434,7 +434,7 @@ export const EnhancedPurpleGlassButton = forwardRef<HTMLButtonElement, EnhancedP
     const styles = useStyles();
 
     // Determine if button has only icon (no text)
-    const isIconOnly = (icon || iconEnd) && !children;
+    const isIconOnly = Boolean((icon || iconEnd) && !children);
 
     // Build button class names
     const buttonClasses = mergeClasses(

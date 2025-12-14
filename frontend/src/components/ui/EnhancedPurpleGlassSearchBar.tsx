@@ -230,7 +230,7 @@ const useStyles = makeStyles({
     ...shorthands.border('none'),
     ...shorthands.outline('none'),
     fontSize: '16px',
-    fontFamily: tokens.fontFamilyBase,
+    fontFamily: tokens.fontFamilyBody,
     color: 'var(--text-primary, #0f172a)',
     fontWeight: tokens.fontWeightMedium,
     height: '48px',

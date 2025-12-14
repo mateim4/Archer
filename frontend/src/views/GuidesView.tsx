@@ -4,6 +4,7 @@ import {
   Title3,
   Body1,
   Body2,
+  Button,
   Badge,
   SearchBox,
   makeStyles
@@ -1254,13 +1255,13 @@ const GuidesView: React.FC = () => {
                 justifyContent: 'center',
                 gap: DesignTokens.spacing.sm
               }}
-              onMouseOver={(e) => {
+              onMouseOver={(e: React.MouseEvent<HTMLButtonElement>) => {
                 e.currentTarget.style.background = `${resource.color}10`;
                 e.currentTarget.style.borderColor = resource.color;
                 e.currentTarget.style.transform = 'translateY(-2px)';
                 e.currentTarget.style.boxShadow = `0 4px 16px ${resource.color}20`;
               }}
-              onMouseOut={(e) => {
+              onMouseOut={(e: React.MouseEvent<HTMLButtonElement>) => {
                 e.currentTarget.style.background = 'transparent';
                 e.currentTarget.style.borderColor = `${resource.color}40`;
                 e.currentTarget.style.transform = 'translateY(0)';
