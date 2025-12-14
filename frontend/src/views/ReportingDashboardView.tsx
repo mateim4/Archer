@@ -363,7 +363,7 @@ export const ReportingDashboardView: React.FC = () => {
   return (
     <div style={{
       padding: tokens.spacingVerticalXXL,
-      maxWidth: '1600px',
+      maxWidth: '1400px',
       margin: '0 auto',
     }}>
       {/* Header */}

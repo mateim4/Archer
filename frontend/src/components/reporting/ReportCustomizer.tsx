@@ -205,7 +205,7 @@ export const ReportCustomizer: React.FC<ReportCustomizerProps> = ({
       gridTemplateColumns: '1fr 400px',
       gap: '24px',
       padding: '24px',
-      maxWidth: '1600px',
+      maxWidth: '1400px',
       margin: '0 auto',
     }}>
       {/* Main Editing Area */}

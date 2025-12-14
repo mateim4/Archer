@@ -31,8 +31,15 @@ import {
 } from '@fluentui/react-icons';
 import { VisxAreaChart, VisxLineChart } from '../components/charts';
 import { ParentSize } from '@visx/responsive';
-import { apiClient, Asset, AssetMetrics, DashboardSummary, Alert } from '../utils/apiClient';
-import { useEnhancedUX } from '../hooks/useEnhancedUX';
+import { Asset, Alert } from '../utils/apiClient';
+import { 
+  useAlerts, 
+  useMonitoringDashboard, 
+  useAssetMetrics, 
+  useAcknowledgeAlert, 
+  useResolveAlert,
+  useCreateTicketFromAlert 
+} from '../hooks/queries';
 import { purplePalette } from '../styles/design-tokens';
 import { InfraVisualizerCanvas } from '@/components/infra-visualizer';
 import { useInfraVisualizerStore } from '@/stores/useInfraVisualizerStore';
@@ -42,73 +49,49 @@ import CapacityVisualizerView from './CapacityVisualizerView';
 type MonitoringTab = 'metrics' | 'topology' | 'capacity';
 
 const MonitoringView: React.FC = () => {
-  const [assets, setAssets] = useState<Asset[]>([]);
   const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
-  const [metrics, setMetrics] = useState<AssetMetrics | null>(null);
-  const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [filter, setFilter] = useState('');
   const [isCreateIncidentOpen, setCreateIncidentOpen] = useState(false);
   const [selectedAlertContext, setSelectedAlertContext] = useState<AlertContext | null>(null);
-  const [alerts, setAlerts] = useState<Alert[]>([]);
   const [activeTab, setActiveTab] = useState<MonitoringTab>('metrics');
-  const { withLoading } = useEnhancedUX();
   
   // Infrastructure visualizer store
   const { selectedNodeId, selectNode, clearSelection } = useInfraVisualizerStore();
 
+  // TanStack Query - monitoring data with auto-refresh every 30s
+  const { data: dashboardData } = useMonitoringDashboard();
+  const assets = dashboardData?.assets ?? [];
+  const summary = dashboardData?.summary ?? null;
+  
+  // Alerts with auto-refresh
+  const { data: alerts = [], refetch: refetchAlerts } = useAlerts({ 
+    status: ['Active', 'Acknowledged'],
+    page: 0,
+    page_size: 50
+  });
+  
+  // Metrics for selected asset
+  const { data: metrics, refetch: refetchMetrics } = useAssetMetrics(selectedAsset?.id);
+  
+  // Mutations
+  const acknowledgeAlertMutation = useAcknowledgeAlert();
+  const resolveAlertMutation = useResolveAlert();
+  const createTicketFromAlertMutation = useCreateTicketFromAlert();
+
+  // Auto-select first asset when data loads
   useEffect(() => {
-    loadData();
-    loadAlerts();
+    if (!selectedAsset && assets.length > 0) {
+      setSelectedAsset(assets[0]);
+    }
+  }, [assets, selectedAsset]);
+
+  // Auto-refresh every 30s (TanStack Query handles this with refetchInterval)
+  useEffect(() => {
     const interval = setInterval(() => {
-      loadData();
-      loadAlerts();
-    }, 30000); // Refresh every 30s
+      refetchAlerts();
+    }, 30000);
     return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    if (selectedAsset) {
-      loadMetrics(selectedAsset.id);
-    }
-  }, []);
-
-  const loadData = async () => {
-    try {
-      const [assetsData, summaryData] = await Promise.all([
-        apiClient.getAssets(),
-        apiClient.getDashboardSummary()
-      ]);
-      setAssets(assetsData);
-      setSummary(summaryData);
-      if (!selectedAsset && assetsData.length > 0) {
-        setSelectedAsset(assetsData[0]);
-      }
-    } catch (error) {
-      console.error('Failed to load monitoring data:', error);
-    }
-  };
-
-  const loadAlerts = async () => {
-    try {
-      const response = await apiClient.getAlerts({ 
-        status: ['Active', 'Acknowledged'],
-        page: 0,
-        page_size: 50
-      });
-      setAlerts(response.alerts);
-    } catch (error) {
-      console.error('Failed to load alerts:', error);
-    }
-  };
-
-  const loadMetrics = async (assetId: string) => {
-    try {
-      const data = await apiClient.getAssetMetrics(assetId);
-      setMetrics(data);
-    } catch (error) {
-      console.error('Failed to load metrics:', error);
-    }
-  };
+  }, [refetchAlerts]);
 
   const handleCreateIncidentFromAlert = (alert: Alert) => {
     const alertContext: AlertContext = {
@@ -129,8 +112,7 @@ const MonitoringView: React.FC = () => {
 
   const handleAcknowledgeAlert = async (alertId: string) => {
     try {
-      await apiClient.acknowledgeAlert(alertId);
-      await loadAlerts(); // Refresh alerts
+      await acknowledgeAlertMutation.mutateAsync(alertId);
     } catch (error) {
       console.error('Failed to acknowledge alert:', error);
     }
@@ -138,8 +120,7 @@ const MonitoringView: React.FC = () => {
 
   const handleResolveAlert = async (alertId: string) => {
     try {
-      await apiClient.resolveAlert(alertId);
-      await loadAlerts(); // Refresh alerts
+      await resolveAlertMutation.mutateAsync(alertId);
     } catch (error) {
       console.error('Failed to resolve alert:', error);
     }
@@ -149,11 +130,13 @@ const MonitoringView: React.FC = () => {
     console.log('Creating incident from alert:', data);
     if (data.triggeredByAlertId) {
       try {
-        await apiClient.createTicketFromAlert(data.triggeredByAlertId, {
-          assignee: data.assignee,
-          additional_notes: data.description
+        await createTicketFromAlertMutation.mutateAsync({
+          alertId: data.triggeredByAlertId,
+          data: {
+            assignee: data.assignee,
+            additional_notes: data.description
+          }
         });
-        await loadAlerts(); // Refresh to show ticket link
       } catch (error) {
         console.error('Failed to create ticket from alert:', error);
       }
@@ -330,7 +313,7 @@ const MonitoringView: React.FC = () => {
                     size="small" 
                     variant="secondary" 
                     icon={<ArrowClockwiseRegular />}
-                    onClick={() => loadMetrics(selectedAsset.id)}
+                    onClick={() => refetchMetrics()}
                   >
                     Refresh
                   </PurpleGlassButton>

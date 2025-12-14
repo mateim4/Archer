@@ -18,6 +18,14 @@ export type { PurpleGlassInputProps, GlassVariant, ValidationState } from './Pur
 export { PurpleGlassButton } from './PurpleGlassButton';
 export type { PurpleGlassButtonProps, ButtonVariant, ButtonSize } from './PurpleGlassButton';
 
+// Enhanced Button Components (with animated gradients)
+export { EnhancedPurpleGlassButton } from './EnhancedPurpleGlassButton';
+export type { EnhancedPurpleGlassButtonProps } from './EnhancedPurpleGlassButton';
+
+// Enhanced Search Bar Components
+export { EnhancedPurpleGlassSearchBar } from './EnhancedPurpleGlassSearchBar';
+export type { EnhancedPurpleGlassSearchBarProps } from './EnhancedPurpleGlassSearchBar';
+
 // Card Components
 export { PurpleGlassCard } from './PurpleGlassCard';
 export type { PurpleGlassCardProps, CardVariant, CardPadding } from './PurpleGlassCard';

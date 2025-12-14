@@ -4,13 +4,17 @@ import {
   Title3,
   Body1,
   Body2,
-  Button,
   Badge,
   SearchBox,
   makeStyles
 } from '@fluentui/react-components';
-import GlassmorphicSearchBar from '../components/GlassmorphicSearchBar';
-import { PurpleGlassDropdown, PageHeader, PurpleGlassCard } from '../components/ui';
+import { 
+  EnhancedPurpleGlassSearchBar, 
+  EnhancedPurpleGlassButton,
+  PurpleGlassDropdown, 
+  PageHeader, 
+  PurpleGlassCard 
+} from '../components/ui';
 import type { DropdownOption } from '../components/ui';
 import {
   BookRegular,
@@ -1009,7 +1013,7 @@ const GuidesView: React.FC = () => {
       {/* Search and Filter Toolbar */}
       <div className={styles.toolbar}>
         <div className={styles.searchContainer}>
-          <GlassmorphicSearchBar
+          <EnhancedPurpleGlassSearchBar
             value={searchTerm}
             onChange={(value) => setSearchTerm(value)}
             placeholder="Search guides and documentation..."
@@ -1072,18 +1076,8 @@ const GuidesView: React.FC = () => {
           }}>
             Try adjusting your search terms or filters to find the guides you're looking for.
           </p>
-          <button
-            style={{
-              background: 'transparent',
-              color: 'var(--brand-primary)',
-              border: '2px solid rgba(139, 92, 246, 0.3)',
-              padding: '12px 24px',
-              borderRadius: '8px',
-              fontSize: '14px',
-              fontWeight: '600',
-              fontFamily: tokens.fontFamilyBody,
-              cursor: 'pointer'
-            }}
+          <EnhancedPurpleGlassButton
+            variant="secondary"
             onClick={() => {
               setSearchTerm('');
               setSelectedCategory('all');
@@ -1091,7 +1085,7 @@ const GuidesView: React.FC = () => {
             }}
           >
             Clear all filters
-          </button>
+          </EnhancedPurpleGlassButton>
         </div>
       ) : (
         <div className={styles.guidesGrid}>
@@ -1398,31 +1392,12 @@ const GuidesView: React.FC = () => {
                   )}
                 </div>
               </div>
-              <button
+              <EnhancedPurpleGlassButton
+                variant="ghost"
+                icon={<DismissRegular />}
                 onClick={() => setSelectedGuide(null)}
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  padding: '8px',
-                  cursor: 'pointer',
-                  borderRadius: '8px',
-                  color: 'var(--text-secondary)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  transition: 'all 0.2s ease'
-                }}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.background = 'rgba(139, 92, 246, 0.1)';
-                  e.currentTarget.style.color = 'var(--text-primary)';
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.background = 'transparent';
-                  e.currentTarget.style.color = 'var(--text-secondary)';
-                }}
-              >
-                <DismissRegular style={{ fontSize: '24px' }} />
-              </button>
+                aria-label="Close guide"
+              />
             </div>
 
             {/* Modal Content */}
@@ -1541,35 +1516,13 @@ const GuidesView: React.FC = () => {
               alignItems: 'center',
               background: 'rgba(139, 92, 246, 0.03)'
             }}>
-              <button
+              <EnhancedPurpleGlassButton
+                variant="secondary"
+                icon={<ArrowLeftRegular />}
                 onClick={() => setSelectedGuide(null)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  background: 'transparent',
-                  border: '1px solid rgba(139, 92, 246, 0.3)',
-                  padding: '10px 20px',
-                  borderRadius: '8px',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  fontFamily: tokens.fontFamilyBody,
-                  cursor: 'pointer',
-                  color: 'var(--text-primary)',
-                  transition: 'all 0.2s ease'
-                }}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.background = 'rgba(139, 92, 246, 0.1)';
-                  e.currentTarget.style.borderColor = '#8b5cf6';
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.background = 'transparent';
-                  e.currentTarget.style.borderColor = 'rgba(139, 92, 246, 0.3)';
-                }}
               >
-                <ArrowLeftRegular style={{ fontSize: '16px' }} />
                 Back to Guides
-              </button>
+              </EnhancedPurpleGlassButton>
               <div style={{
                 fontSize: '13px',
                 color: 'var(--text-secondary)',
