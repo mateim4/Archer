@@ -115,9 +115,7 @@ const useStyles = makeStyles({
     WebkitBackdropFilter: 'blur(20px) saturate(150%)',
     
     // Subtle neutral border in idle state
-    borderWidth: '1px',
-    borderStyle: 'solid',
-    borderColor: 'rgba(255, 255, 255, 0.12)',
+    ...shorthands.border('1px', 'solid', 'rgba(255, 255, 255, 0.12)'),
     ...shorthands.borderRadius('8px'),
     ...shorthands.padding('0', '14px'),
     
@@ -129,13 +127,13 @@ const useStyles = makeStyles({
     // HOVER: Slightly brighter glass
     '&:hover': {
       background: 'rgba(255, 255, 255, 0.10)',
-      borderColor: 'rgba(255, 255, 255, 0.20)',
+      ...shorthands.borderColor('rgba(255, 255, 255, 0.20)'),
     },
 
     // FOCUS: Purple glow border
     '&:focus-within': {
       background: 'rgba(255, 255, 255, 0.08)',
-      borderColor: 'rgba(111, 91, 235, 0.6)',
+      ...shorthands.borderColor('rgba(111, 91, 235, 0.6)'),
       boxShadow: '0 0 0 2px rgba(111, 91, 235, 0.25), 0 0 12px rgba(111, 91, 235, 0.15)',
     },
   },
@@ -177,10 +175,8 @@ const useStyles = makeStyles({
     backgroundColor: 'transparent',
     
     // NO borders or outlines whatsoever
-    border: 'none',
-    borderWidth: '0',
-    outline: 'none',
-    outlineWidth: '0',
+    ...shorthands.border('0'),
+    ...shorthands.outline('0'),
     boxShadow: 'none',
     
     // Typography
@@ -197,10 +193,8 @@ const useStyles = makeStyles({
 
     // Kill ALL focus states on the input itself
     '&:focus, &:focus-visible, &:focus-within': {
-      outline: 'none',
-      outlineWidth: '0',
-      border: 'none',
-      borderWidth: '0',
+      ...shorthands.outline('0'),
+      ...shorthands.border('0'),
       boxShadow: 'none',
       background: 'none',
       backgroundColor: 'transparent',

@@ -3,10 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { 
   PurpleGlassCard, 
   PurpleGlassButton, 
-  PurpleGlassInput,
   PageHeader,
   PageHeaderSkeleton,
-  PurpleGlassSkeleton
+  PurpleGlassSkeleton,
+  EnhancedPurpleGlassSearchBar
 } from '../components/ui';
 import { 
   SearchRegular,
@@ -109,12 +109,11 @@ const InventoryView: React.FC = () => {
         actions={
           <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
             <div style={{ width: '300px' }}>
-              <PurpleGlassInput
+              <EnhancedPurpleGlassSearchBar
                 value={filter}
-                onChange={(e) => setFilter(e.target.value)}
+                onChange={(value) => setFilter(value)}
                 placeholder="Search assets..."
-                prefixIcon={<SearchRegular />}
-                glass="light"
+                showClearButton
               />
             </div>
             <PurpleGlassButton variant="primary" icon={<AddRegular />} glass>

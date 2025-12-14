@@ -17,7 +17,7 @@ import {
 import ConsistentCard from '../components/ConsistentCard';
 import ConsistentButton from '../components/ConsistentButton';
 import SimpleFileUpload from '../components/SimpleFileUpload';
-import { PurpleGlassDropdown, PurpleGlassInput, PurpleGlassButton } from '../components/ui';
+import { PurpleGlassDropdown, PurpleGlassInput, PurpleGlassButton, EnhancedPurpleGlassSearchBar } from '../components/ui';
 import { UserPermissions } from '../types/hardwareBasketTypes';
 import type { 
   HardwareBasket, 
@@ -1778,24 +1778,12 @@ const VendorDataCollectionView: React.FC = () => {
                     border: '1px solid rgba(139, 92, 246, 0.3)',
                 borderRadius: '12px'
               }}>
-                <div style={{ flex: 1, position: 'relative' }}>
-                  <SearchRegular style={{
-                    position: 'absolute',
-                    left: '12px',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    color: 'var(--text-secondary)',
-                    fontSize: '16px'
-                  }} />
-                  <input
-                    type="text"
+                <div style={{ flex: 1 }}>
+                  <EnhancedPurpleGlassSearchBar
                     placeholder="Search hardware models..."
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="lcm-search"
-                    style={{
-                      paddingLeft: '40px'
-                    }}
+                    onChange={(value) => setSearchQuery(value)}
+                    showClearButton
                   />
                 </div>
               </div>

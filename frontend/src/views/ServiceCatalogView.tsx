@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { 
   PurpleGlassCard, 
   PurpleGlassButton, 
-  PurpleGlassInput,
-  PageHeader
+  PageHeader,
+  EnhancedPurpleGlassSearchBar
 } from '../components/ui';
 import { 
   SearchRegular,
@@ -184,11 +184,11 @@ const ServiceCatalogView: React.FC = () => {
         }}>
           <form onSubmit={handleSearch} style={{ display: 'flex', gap: '12px', alignItems: 'center', flex: 1, minWidth: '300px' }}>
             <div style={{ flex: 1 }}>
-              <PurpleGlassInput
+              <EnhancedPurpleGlassSearchBar
                 placeholder="Search services..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                prefixIcon={<SearchRegular />}
+                onChange={(value) => setSearchQuery(value)}
+                showClearButton
               />
             </div>
             <PurpleGlassButton type="submit">

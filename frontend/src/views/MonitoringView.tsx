@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { 
   PurpleGlassCard, 
   PurpleGlassButton, 
-  PurpleGlassInput,
   CreateIncidentModal,
   LinkedAssetBadge,
   AlertContext,
   CreateIncidentData,
-  PageHeader
+  PageHeader,
+  EnhancedPurpleGlassSearchBar
 } from '../components/ui';
 import { 
   SearchRegular,
@@ -239,12 +239,11 @@ const MonitoringView: React.FC = () => {
           {/* Left Pane: Asset List */}
           <div className="w-1/3 flex flex-col gap-4">
             <PurpleGlassCard glass className="p-3 shrink-0">
-              <PurpleGlassInput 
+              <EnhancedPurpleGlassSearchBar
                 value={filter}
-                onChange={(e) => setFilter(e.target.value)}
+                onChange={(value) => setFilter(value)}
                 placeholder="Search assets..."
-                prefixIcon={<SearchRegular />}
-                glass="none"
+                showClearButton
               />
             </PurpleGlassCard>
 

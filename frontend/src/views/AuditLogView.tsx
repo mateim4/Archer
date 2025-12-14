@@ -32,6 +32,7 @@ import {
   PurpleGlassBreadcrumb,
   PurpleGlassDataTable,
   PageHeader,
+  EnhancedPurpleGlassSearchBar,
   type TableColumn,
 } from '../components/ui';
 import {
@@ -681,12 +682,11 @@ export function AuditLogView() {
       {/* Toolbar */}
       <div className={styles.toolbar}>
         <div className={styles.searchBar}>
-          <PurpleGlassInput
+          <EnhancedPurpleGlassSearchBar
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(value) => setSearchQuery(value)}
             placeholder="Search logs..."
-            prefixIcon={<SearchRegular />}
-            glass="light"
+            showClearButton
           />
         </div>
         

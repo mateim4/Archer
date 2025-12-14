@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { 
   PurpleGlassCard, 
   PurpleGlassButton, 
-  PurpleGlassInput, 
   PurpleGlassDropdown,
   PurpleGlassCheckbox,
   LinkedAssetBadge,
@@ -11,7 +10,8 @@ import {
   CreateIncidentModal,
   AlertContext,
   CreateIncidentData,
-  PageHeader
+  PageHeader,
+  EnhancedPurpleGlassSearchBar
 } from '../components/ui';
 import { 
   AddRegular, 
@@ -642,12 +642,11 @@ const ServiceDeskView: React.FC = () => {
             <div style={{ width: '1px', height: '24px', background: DesignTokens.colors.gray200 }} />
             
             <div style={{ flex: '1 1 300px', maxWidth: '400px', minWidth: '200px' }}>
-              <PurpleGlassInput 
+              <EnhancedPurpleGlassSearchBar
                 value={filter}
-                onChange={(e) => setFilter(e.target.value)}
+                onChange={(value) => setFilter(value)}
                 placeholder="Search tickets, assets, or people..."
-                prefixIcon={<SearchRegular />}
-                glass="light" // Use light glass inside the header
+                showClearButton
               />
             </div>
             <div style={{ width: '180px', flexShrink: 0 }}>

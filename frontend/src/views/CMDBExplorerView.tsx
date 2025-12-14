@@ -3,12 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import {
   PurpleGlassCard,
   PurpleGlassButton,
-  PurpleGlassInput,
   PurpleGlassDropdown,
   PurpleGlassSpinner,
   PurpleGlassEmptyState,
   PurpleGlassCheckbox,
   PageHeader,
+  EnhancedPurpleGlassSearchBar,
 } from '../components/ui';
 import {
   SearchRegular,
@@ -220,16 +220,12 @@ const CMDBExplorerView: React.FC = () => {
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '24px' }}>
           {/* Search */}
-          <div style={{ position: 'relative', maxWidth: '600px' }}>
-            <div style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', zIndex: 1 }}>
-              <SearchRegular />
-            </div>
-            <PurpleGlassInput
+          <div style={{ maxWidth: '600px' }}>
+            <EnhancedPurpleGlassSearchBar
               placeholder="Search by name, CI ID, IP, serial number..."
               value={searchQuery}
-              onChange={(e) => handleSearch(e.target.value)}
-              style={{ paddingLeft: '36px' }}
-              glass="light"
+              onChange={(value) => handleSearch(value)}
+              showClearButton
             />
           </div>
 

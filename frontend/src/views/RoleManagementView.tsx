@@ -29,6 +29,7 @@ import {
   PurpleGlassBreadcrumb,
   PurpleGlassTextarea,
   PageHeader,
+  EnhancedPurpleGlassSearchBar,
 } from '../components/ui';
 import {
   apiClient,
@@ -644,12 +645,11 @@ export function RoleManagementView() {
       {/* Toolbar */}
       <div className={styles.toolbar}>
         <div className={styles.searchBar}>
-          <PurpleGlassInput
+          <EnhancedPurpleGlassSearchBar
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(value) => setSearchQuery(value)}
             placeholder="Search roles..."
-            prefixIcon={<SearchRegular />}
-            glass="light"
+            showClearButton
           />
         </div>
         

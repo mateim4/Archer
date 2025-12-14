@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { 
   PurpleGlassCard, 
   PurpleGlassButton, 
-  PurpleGlassInput,
-  PageHeader
+  PageHeader,
+  EnhancedPurpleGlassSearchBar
 } from '../components/ui';
 import { 
   SearchRegular,
@@ -168,11 +168,11 @@ const MyRequestsView: React.FC = () => {
         <div style={{ padding: 'var(--spacing-5)' }}>
           <div style={{ display: 'flex', gap: 'var(--spacing-3)', alignItems: 'center', flexWrap: 'wrap' }}>
             <div style={{ flex: 1, minWidth: '300px' }}>
-              <PurpleGlassInput
+              <EnhancedPurpleGlassSearchBar
                 placeholder="Search requests..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                prefixIcon={<SearchRegular />}
+                onChange={(value) => setSearchQuery(value)}
+                showClearButton
               />
             </div>
             

@@ -28,7 +28,7 @@ import {
 } from '@fluentui/react-icons';
 import { CheckmarkCircleRegular } from '@fluentui/react-icons';
 
-import { PurpleGlassDropdown, PurpleGlassButton, PurpleGlassInput, PurpleGlassCard, PageHeader, PurpleGlassEmptyState } from '@/components/ui';
+import { PurpleGlassDropdown, PurpleGlassButton, PurpleGlassInput, PurpleGlassCard, PageHeader, PurpleGlassEmptyState, EnhancedPurpleGlassSearchBar } from '@/components/ui';
 import { ACTIVITY_STATUS_OPTIONS } from '@/constants/projectFilters';
 
 import GanttChart from '../components/EnhancedGanttChart';
@@ -583,12 +583,11 @@ const ProjectDetailView: React.FC = () => {
                 }}
               >
                 <div style={{ flex: 1 }}>
-                  <PurpleGlassInput
+                  <EnhancedPurpleGlassSearchBar
                     placeholder="Search activities..."
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    prefixIcon={<SearchRegular />}
-                    glass="light"
+                    onChange={(value) => setSearchQuery(value)}
+                    showClearButton
                   />
                 </div>
                 <div style={{ minWidth: '200px' }}>

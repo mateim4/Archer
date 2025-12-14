@@ -38,6 +38,7 @@ import {
   PurpleGlassBreadcrumb,
   PurpleGlassDataTable,
   PageHeader,
+  EnhancedPurpleGlassSearchBar,
   type TableColumn,
 } from '../components/ui';
 import { useAuth } from '../contexts/AuthContext';
@@ -864,12 +865,11 @@ export function UserManagementView() {
         {/* 3. Toolbar (Search & Filters) */}
         <div className={styles.toolbar}>
           <div className={styles.searchBar}>
-            <PurpleGlassInput
+            <EnhancedPurpleGlassSearchBar
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(value) => setSearchQuery(value)}
               placeholder="Search users..."
-              prefixIcon={<SearchRegular />}
-              glass="light"
+              showClearButton
             />
           </div>
 

@@ -4,7 +4,7 @@ import {
   Eye, Settings, MoreVertical, Search, Filter, ArrowUpDown, Clock, Building,
   Target, Users, TrendingUp, Activity
 } from 'lucide-react';
-import { PurpleGlassCard } from '../components/ui';
+import { PurpleGlassCard, EnhancedPurpleGlassSearchBar } from '../components/ui';
 import { apiClient, Project, CreateProjectRequest } from '../utils/apiClient';
 
 interface ProjectWithActions extends Project {
@@ -388,16 +388,11 @@ const ProjectManagementView: React.FC = () => {
           <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
             {/* Search */}
             <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5" style={{ color: 'var(--text-muted)' }} />
-              <input
-                type="text"
+              <EnhancedPurpleGlassSearchBar
                 placeholder="Search projects..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="lcm-search"
-                style={{
-                  paddingLeft: '44px'
-                }}
+                onChange={(value) => setSearchTerm(value)}
+                showClearButton
               />
             </div>
 

@@ -33,7 +33,7 @@ import {
   Edit24Regular,
   Delete24Regular,
 } from '@fluentui/react-icons';
-import { PurpleGlassInput, PurpleGlassDropdown, PageHeader, PurpleGlassCard } from '../components/ui';
+import { EnhancedPurpleGlassSearchBar, PurpleGlassDropdown, PageHeader, PurpleGlassCard } from '../components/ui';
 import { MigrationProject, ProjectTemplate, PROJECT_TEMPLATES, MIGRATION_TASK_TYPES } from '../types/migrationTypes';
 
 interface MigrationProjectsProps {
@@ -219,13 +219,11 @@ export const MigrationProjects: React.FC<MigrationProjectsProps> = ({ className 
       {/* Filters */}
       <div className="flex flex-wrap gap-4 mb-6 p-4 rounded-lg" style={{ backgroundColor: 'var(--glass-bg)' }}>
         <div className="flex-1 min-w-64">
-          <PurpleGlassInput
-            label="Search"
+          <EnhancedPurpleGlassSearchBar
             placeholder="Search projects..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            prefixIcon={<Search24Regular />}
-            glass="light"
+            onChange={(value) => setSearchTerm(value)}
+            showClearButton
           />
         </div>
 
