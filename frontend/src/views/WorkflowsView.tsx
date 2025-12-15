@@ -27,68 +27,6 @@ interface Workflow {
 }
 
 // =============================================================================
-// FALLBACK MOCK DATA - Used when API is unavailable
-// =============================================================================
-const MOCK_WORKFLOWS: Workflow[] = [
-  {
-    id: 'assessment-1',
-    name: 'Infrastructure Assessment',
-    description: 'Comprehensive analysis of current infrastructure state',
-    category: 'assessment',
-    status: 'not_started',
-    progress: 0,
-    totalEstimatedTime: '45 minutes',
-    steps: [
-      { id: 'step-1', name: 'Environment Discovery', description: 'Scan and catalog existing infrastructure components', status: 'pending', estimatedTime: '15 min' },
-      { id: 'step-2', name: 'Performance Analysis', description: 'Analyze current performance metrics and bottlenecks', status: 'pending', estimatedTime: '20 min', dependencies: ['step-1'] },
-      { id: 'step-3', name: 'Capacity Planning', description: 'Evaluate current capacity and future requirements', status: 'pending', estimatedTime: '10 min', dependencies: ['step-1', 'step-2'] }
-    ]
-  },
-  {
-    id: 'sizing-1',
-    name: 'Hardware Sizing Workflow',
-    description: 'Calculate optimal hardware configuration for workloads',
-    category: 'sizing',
-    status: 'completed',
-    progress: 100,
-    totalEstimatedTime: '30 minutes',
-    steps: [
-      { id: 'step-1', name: 'Workload Analysis', description: 'Analyze workload requirements', status: 'completed', estimatedTime: '10 min', actualTime: '8 min' },
-      { id: 'step-2', name: 'Resource Calculation', description: 'Calculate CPU, memory, storage requirements', status: 'completed', estimatedTime: '15 min', actualTime: '12 min', dependencies: ['step-1'] },
-      { id: 'step-3', name: 'Hardware Recommendation', description: 'Generate optimized hardware recommendations', status: 'completed', estimatedTime: '5 min', actualTime: '4 min', dependencies: ['step-2'] }
-    ]
-  },
-  {
-    id: 'migration-1',
-    name: 'VM Migration Planning',
-    description: 'Plan and execute virtual machine migration strategy',
-    category: 'migration',
-    status: 'running',
-    progress: 60,
-    totalEstimatedTime: '2 hours',
-    steps: [
-      { id: 'step-1', name: 'Migration Assessment', description: 'Assess VMs for migration compatibility', status: 'completed', estimatedTime: '30 min', actualTime: '25 min' },
-      { id: 'step-2', name: 'Migration Planning', description: 'Create detailed migration execution plan', status: 'completed', estimatedTime: '45 min', actualTime: '40 min', dependencies: ['step-1'] },
-      { id: 'step-3', name: 'Pre-migration Validation', description: 'Validate target environment and prerequisites', status: 'running', estimatedTime: '30 min', dependencies: ['step-2'] },
-      { id: 'step-4', name: 'Migration Execution', description: 'Execute the migration process', status: 'pending', estimatedTime: '15 min', dependencies: ['step-3'] }
-    ]
-  },
-  {
-    id: 'validation-1',
-    name: 'Post-Migration Validation',
-    description: 'Validate migrated infrastructure and applications',
-    category: 'validation',
-    status: 'not_started',
-    progress: 0,
-    totalEstimatedTime: '1 hour',
-    steps: [
-      { id: 'step-1', name: 'Infrastructure Validation', description: 'Verify infrastructure components are functioning', status: 'pending', estimatedTime: '20 min' },
-      { id: 'step-2', name: 'Application Validation', description: 'Test application functionality and performance', status: 'pending', estimatedTime: '30 min', dependencies: ['step-1'] },
-      { id: 'step-3', name: 'Performance Baseline', description: 'Establish new performance baseline metrics', status: 'pending', estimatedTime: '10 min', dependencies: ['step-2'] }
-    ]
-  }
-];
-
 const WorkflowsView: React.FC = () => {
   const [workflows, setWorkflows] = useState<Workflow[]>([]);
   const [activeWorkflow, setActiveWorkflow] = useState<Workflow | null>(null);
@@ -130,14 +68,12 @@ const WorkflowsView: React.FC = () => {
         const mappedWorkflows = apiWorkflows.map(mapApiWorkflowToLocal);
         setWorkflows(mappedWorkflows);
       } else {
-        // API returned empty, use mock data
-        usingMock = true;
-        setWorkflows(MOCK_WORKFLOWS);
+        // API returned empty - no workflows yet
+        setWorkflows([]);
       }
     } catch (error) {
-      console.warn('Workflows API unavailable, using demo data:', error);
-      usingMock = true;
-      setWorkflows(MOCK_WORKFLOWS);
+      console.warn('Workflows API unavailable:', error);
+      setWorkflows([]);
     }
 
     setIsDemoMode(usingMock);
