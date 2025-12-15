@@ -899,24 +899,38 @@ export const DashboardView: React.FC = () => {
         title="Dashboard"
         subtitle="Welcome back! Here's your ITSM overview."
         actions={
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <PurpleGlassDropdown
-              options={TIME_RANGES.map(r => ({ value: r.value, label: r.label }))}
-              value={timeRange}
-              onChange={(val) => setTimeRange(val as TimeRange)}
-              glass="light"
-            />
-            <EnhancedPurpleGlassButton
-              variant="primary"
-              icon={<ArrowSyncRegular />}
-              loading={isRefreshing}
-              onClick={handleRefresh}
-            >
-              Refresh
-            </EnhancedPurpleGlassButton>
-          </div>
+          <EnhancedPurpleGlassButton
+            variant="secondary"
+            icon={<ArrowSyncRegular />}
+            loading={isRefreshing}
+            onClick={handleRefresh}
+          >
+            Refresh
+          </EnhancedPurpleGlassButton>
         }
       >
+        {/* Time Range Filter Row */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          marginBottom: '24px',
+          paddingBottom: '20px',
+          borderBottom: '1px solid var(--divider-color-subtle)',
+        }}>
+          <CalendarRegular style={{ color: 'var(--text-secondary)', fontSize: '18px' }} />
+          <span style={{ color: 'var(--text-secondary)', fontSize: '14px', fontWeight: 500 }}>
+            Showing data for:
+          </span>
+          <PurpleGlassDropdown
+            options={TIME_RANGES.map(r => ({ value: r.value, label: r.label }))}
+            value={timeRange}
+            onChange={(val) => setTimeRange(val as TimeRange)}
+            glass="light"
+          />
+        </div>
+
+        {/* Stats Grid */}
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))',
