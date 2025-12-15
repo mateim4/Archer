@@ -12,6 +12,7 @@ pub mod reporting; // Reporting & Dashboard API (Phase 6)
 pub mod rvtools;
 pub mod service_catalog; // Service Catalog API (Phase 5)
 pub mod settings; // Global settings API
+pub mod sla; // SLA Management API (Phase 1)
 pub mod teams; // Team Management API (Phase 1+)
 pub mod tickets; // Tickets API
 pub mod ticket_relationships; // Ticket Relationships API
@@ -74,7 +75,8 @@ pub fn api_router(state: AppState) -> Router {
         .nest("/settings", settings::create_settings_router(state.clone()))
         .nest("/workflows", workflows::create_workflows_router(state.clone()))
         .nest("/catalog", service_catalog::create_service_catalog_router(state.clone()))
-        .nest("/tiering", tiering::create_tiering_router(state.clone()));
+        .nest("/tiering", tiering::create_tiering_router(state.clone()))
+        .nest("/sla", sla::create_sla_router(state.clone()));
 
     Router::new()
         .route("/health", get(health_check))

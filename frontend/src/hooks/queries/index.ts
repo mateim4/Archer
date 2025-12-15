@@ -86,3 +86,14 @@ export {
   useUpdateRole,
   useDeleteRole,
 } from './useAdmin';
+
+// SLA Hooks
+export {
+  useSlaPolicies,
+  useSlaPolicy,
+  useTicketSlaStatus,
+  useCreateSlaPolicy,
+  useUpdateSlaPolicy,
+  useDeleteSlaPolicy,
+} from './useSLA';
+export type { SlaPolicy, EscalationRule, SlaStatusResponse } from './useSLA';
