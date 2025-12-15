@@ -82,196 +82,6 @@ const SAVED_VIEWS = [
   { id: 'created_today', label: 'Created Today', icon: <CalendarTodayRegular />, filters: { createdDate: 'today' } },
 ];
 
-// Comprehensive mock ticket data for development and demo
-const MOCK_TICKETS: ExtendedTicket[] = [
-  {
-    id: 'INC-001',
-    title: 'Production cluster NX-01 experiencing high CPU utilization',
-    description: 'Multiple nodes in the NX-01 cluster are showing CPU utilization above 90%. User-facing services may be impacted.',
-    type: 'INCIDENT',
-    priority: 'P1',
-    status: 'IN_PROGRESS',
-    ticket_type: 'Incident',
-    created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-    updated_at: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
-    created_by: 'system',
-    assignee: 'John Smith',
-    slaStatus: 'at_risk',
-    slaTimeRemaining: '45m left',
-    linkedCi: { id: 'nx-01', name: 'NX-Cluster-01', type: 'CLUSTER', status: 'critical' }
-  },
-  {
-    id: 'INC-002',
-    title: 'Email service intermittent connectivity issues',
-    description: 'Users reporting intermittent failures when sending emails. Exchange server showing connection timeouts.',
-    type: 'INCIDENT',
-    priority: 'P2',
-    status: 'NEW',
-    ticket_type: 'Incident',
-    created_at: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
-    updated_at: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
-    created_by: 'jane.doe@company.com',
-    assignee: undefined,
-    slaStatus: 'on_track',
-    slaTimeRemaining: '3h 30m left',
-    linkedCi: { id: 'exch-01', name: 'EXCH-SERVER-01', type: 'HOST', status: 'warning' }
-  },
-  {
-    id: 'INC-003',
-    title: 'VPN connection drops for remote users',
-    description: 'Multiple remote users experiencing VPN disconnections every 15-20 minutes.',
-    type: 'INCIDENT',
-    priority: 'P2',
-    status: 'IN_PROGRESS',
-    ticket_type: 'Incident',
-    created_at: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
-    updated_at: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
-    created_by: 'help.desk@company.com',
-    assignee: 'Sarah Johnson',
-    slaStatus: 'breached',
-    slaTimeRemaining: '2h overdue',
-    linkedCi: { id: 'vpn-gw-01', name: 'VPN-GATEWAY-01', type: 'HOST', status: 'critical' }
-  },
-  {
-    id: 'SR-001',
-    title: 'New laptop setup request for Marketing team',
-    description: 'Request for 5 new Dell laptops for Marketing department new hires starting next month.',
-    type: 'SERVICE_REQUEST',
-    priority: 'P3',
-    status: 'NEW',
-    ticket_type: 'Service Request',
-    created_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-    updated_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-    created_by: 'marketing.manager@company.com',
-    assignee: 'Tech Support',
-    slaStatus: 'on_track',
-    slaTimeRemaining: '2d 4h left'
-  },
-  {
-    id: 'SR-002',
-    title: 'Software installation - Adobe Creative Suite',
-    description: 'Install Adobe Creative Suite on workstation DESK-MKT-003 for design team member.',
-    type: 'SERVICE_REQUEST',
-    priority: 'P4',
-    status: 'IN_PROGRESS',
-    ticket_type: 'Service Request',
-    created_at: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
-    updated_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-    created_by: 'design.lead@company.com',
-    assignee: 'Mike Wilson',
-    slaStatus: 'on_track',
-    slaTimeRemaining: '5h left'
-  },
-  {
-    id: 'PRB-001',
-    title: 'Recurring memory leaks in application server',
-    description: 'App server APP-PROD-01 requires weekly restarts due to memory consumption. Root cause investigation needed.',
-    type: 'PROBLEM',
-    priority: 'P2',
-    status: 'IN_PROGRESS',
-    ticket_type: 'Problem',
-    created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-    updated_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-    created_by: 'devops.team@company.com',
-    assignee: 'DevOps Team',
-    slaStatus: 'on_track',
-    slaTimeRemaining: '5d left',
-    linkedCi: { id: 'app-prod-01', name: 'APP-PROD-01', type: 'HOST', status: 'warning' }
-  },
-  {
-    id: 'PRB-002',
-    title: 'Network latency spikes during peak hours',
-    description: 'Investigating cause of network latency increases (>200ms) during 9AM-11AM business hours.',
-    type: 'PROBLEM',
-    priority: 'P3',
-    status: 'NEW',
-    ticket_type: 'Problem',
-    created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-    updated_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-    created_by: 'network.admin@company.com',
-    assignee: undefined,
-    slaStatus: 'on_track',
-    slaTimeRemaining: '8d left',
-    linkedCi: { id: 'core-sw-01', name: 'CORE-SWITCH-01', type: 'SWITCH', status: 'healthy' }
-  },
-  {
-    id: 'CHG-001',
-    title: 'Scheduled maintenance - Database cluster upgrade',
-    description: 'Upgrade PostgreSQL cluster from 14.x to 16.x. Planned downtime: 2 hours.',
-    type: 'CHANGE',
-    priority: 'P2',
-    status: 'NEW',
-    ticket_type: 'Change',
-    created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-    updated_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-    created_by: 'dba.team@company.com',
-    assignee: 'DBA Team',
-    slaStatus: 'on_track',
-    slaTimeRemaining: 'Scheduled for Sunday'
-  },
-  {
-    id: 'CHG-002',
-    title: 'Firewall rule update for new SaaS integration',
-    description: 'Add outbound rules for Salesforce API integration on production firewall.',
-    type: 'CHANGE',
-    priority: 'P3',
-    status: 'RESOLVED',
-    ticket_type: 'Change',
-    created_at: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-    updated_at: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(),
-    created_by: 'network.team@company.com',
-    assignee: 'Network Team',
-    slaStatus: 'on_track',
-    slaTimeRemaining: 'Completed'
-  },
-  {
-    id: 'INC-004',
-    title: 'Printer offline in Building B - Floor 3',
-    description: 'Network printer HP-PRN-B3-01 showing offline status. Users cannot print documents.',
-    type: 'INCIDENT',
-    priority: 'P3',
-    status: 'NEW',
-    ticket_type: 'Incident',
-    created_at: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
-    updated_at: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
-    created_by: 'office.admin@company.com',
-    assignee: undefined,
-    slaStatus: 'on_track',
-    slaTimeRemaining: '7h left'
-  },
-  {
-    id: 'SR-003',
-    title: 'Password reset for executive account',
-    description: 'CFO forgot password and needs immediate reset for board meeting presentation access.',
-    type: 'SERVICE_REQUEST',
-    priority: 'P1',
-    status: 'RESOLVED',
-    ticket_type: 'Service Request',
-    created_at: new Date(Date.now() - 45 * 60 * 1000).toISOString(),
-    updated_at: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
-    created_by: 'executive.assistant@company.com',
-    assignee: 'Help Desk',
-    slaStatus: 'on_track',
-    slaTimeRemaining: 'Completed in 15m'
-  },
-  {
-    id: 'INC-005',
-    title: 'Storage array warning - low disk space',
-    description: 'SAN array SAN-PROD-01 showing 85% capacity. Threshold alert triggered.',
-    type: 'INCIDENT',
-    priority: 'P2',
-    status: 'IN_PROGRESS',
-    ticket_type: 'Incident',
-    created_at: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
-    updated_at: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
-    created_by: 'monitoring.system@company.com',
-    assignee: 'Storage Admin',
-    slaStatus: 'at_risk',
-    slaTimeRemaining: '1h 15m left',
-    linkedCi: { id: 'san-prod-01', name: 'SAN-PROD-01', type: 'HOST', status: 'warning' }
-  },
-];
-
 // Transform API ticket to ExtendedTicket format
 const transformTicket = (t: any): ExtendedTicket => {
   // Calculate SLA status based on ticket data
@@ -361,8 +171,8 @@ const ServiceDeskView: React.FC = () => {
     if (rawTickets.length > 0) {
       return rawTickets.map(transformTicket);
     }
-    // Fallback to mock data when no API data
-    return MOCK_TICKETS;
+    // Return empty array when no API data - components handle empty state
+    return [];
   }, [rawTickets]);
 
   // Create ticket mutation
@@ -600,13 +410,17 @@ const ServiceDeskView: React.FC = () => {
             }}
           >
             {TICKET_TYPE_TABS.map(tab => (
-              <button
+              <EnhancedPurpleGlassButton
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`btn-tab ${activeTab === tab.id ? 'btn-tab-active' : ''}`}
-                style={{ background: 'transparent' }} // Override class style for embedded
+                variant={activeTab === tab.id ? 'primary' : 'ghost'}
+                size="small"
+                iconStart={tab.icon}
+                style={{ 
+                  borderRadius: '8px',
+                  justifyContent: 'flex-start',
+                }}
               >
-                {tab.icon}
                 <span>{tab.label}</span>
                 <span style={{
                   padding: '2px 8px',
@@ -619,10 +433,11 @@ const ServiceDeskView: React.FC = () => {
                     ? 'var(--primary)'
                     : 'var(--text-primary)',
                   fontWeight: 500,
+                  marginLeft: '8px',
                 }}>
                   {ticketCounts[tab.id as keyof typeof ticketCounts]}
                 </span>
-              </button>
+              </EnhancedPurpleGlassButton>
             ))}
           </div>
 
@@ -677,13 +492,15 @@ const ServiceDeskView: React.FC = () => {
                 fontWeight: DesignTokens.typography.medium,
               }}>
                 {advancedFilters.priority.length + advancedFilters.slaStatus.length + (advancedFilters.dateRange !== 'all' ? 1 : 0)} filters active
-                <button
+                <EnhancedPurpleGlassButton
                   onClick={() => setAdvancedFilters({ priority: [], assignee: '', dateRange: 'all', slaStatus: [] })}
-                  className="btn-clear"
-                  style={{ color: 'var(--text-secondary)' }}
+                  variant="ghost"
+                  size="small"
+                  iconOnly
+                  aria-label="Clear filters"
                 >
                   <DismissRegular style={{ fontSize: '12px' }} />
-                </button>
+                </EnhancedPurpleGlassButton>
               </span>
             )}
             

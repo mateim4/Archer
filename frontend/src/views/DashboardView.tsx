@@ -102,164 +102,6 @@ interface CriticalAlert {
   acknowledged: boolean;
 }
 
-// =============================================================================
-// FALLBACK MOCK DATA - Used when API is unavailable
-// =============================================================================
-
-const MOCK_STATS: StatCardData[] = [
-  {
-    id: 'open',
-    title: 'Open Tickets',
-    value: 24,
-    change: 12,
-    changeLabel: 'vs last period',
-    icon: <TicketDiagonalRegular />,
-    color: '#6B4CE6',
-    link: '/app/service-desk?status=open',
-  },
-  {
-    id: 'in-progress',
-    title: 'In Progress',
-    value: 18,
-    change: -5,
-    changeLabel: 'vs last period',
-    icon: <ClockRegular />,
-    color: '#f59e0b',
-    link: '/app/service-desk?status=in-progress',
-  },
-  {
-    id: 'resolved',
-    title: 'Resolved Today',
-    value: 12,
-    change: 25,
-    changeLabel: 'vs yesterday',
-    icon: <CheckmarkCircleRegular />,
-    color: '#10b981',
-    link: '/app/service-desk?status=resolved',
-  },
-  {
-    id: 'avg-time',
-    title: 'Avg Resolution',
-    value: '4.2h',
-    change: -15,
-    changeLabel: 'improved',
-    icon: <TimerRegular />,
-    color: 'var(--brand-primary)',
-  },
-];
-
-const MOCK_MY_TICKETS: DashboardTicket[] = [
-  {
-    id: 'TKT-001',
-    title: 'Server performance degradation in prod cluster',
-    status: 'in-progress',
-    priority: 'critical',
-    assignee: 'You',
-    createdAt: '2025-12-03T10:30:00Z',
-    slaDeadline: '2025-12-03T14:30:00Z',
-    slaStatus: 'at_risk',
-  },
-  {
-    id: 'TKT-002',
-    title: 'User unable to access email after password reset',
-    status: 'open',
-    priority: 'high',
-    assignee: 'You',
-    createdAt: '2025-12-03T09:15:00Z',
-    slaDeadline: '2025-12-03T17:15:00Z',
-    slaStatus: 'on_track',
-  },
-  {
-    id: 'TKT-003',
-    title: 'Request for new software license - Adobe CC',
-    status: 'pending',
-    priority: 'medium',
-    assignee: 'You',
-    createdAt: '2025-12-02T14:00:00Z',
-    slaDeadline: '2025-12-05T14:00:00Z',
-    slaStatus: 'on_track',
-  },
-  {
-    id: 'TKT-004',
-    title: 'VPN connection dropping intermittently',
-    status: 'open',
-    priority: 'high',
-    assignee: 'You',
-    createdAt: '2025-12-03T08:45:00Z',
-    slaDeadline: '2025-12-03T16:45:00Z',
-    slaStatus: 'on_track',
-  },
-];
-
-const MOCK_ACTIVITY: ActivityItem[] = [
-  {
-    id: 'act-1',
-    type: 'ticket_resolved',
-    title: 'Ticket Resolved',
-    description: 'TKT-099 "Printer not working in Building A" marked as resolved',
-    timestamp: '2025-12-03T11:30:00Z',
-    actor: 'Sarah Chen',
-  },
-  {
-    id: 'act-2',
-    type: 'alert_triggered',
-    title: 'Alert Triggered',
-    description: 'High CPU usage detected on prod-web-03',
-    timestamp: '2025-12-03T11:15:00Z',
-  },
-  {
-    id: 'act-3',
-    type: 'ticket_assigned',
-    title: 'Ticket Assigned',
-    description: 'TKT-102 assigned to you by Team Lead',
-    timestamp: '2025-12-03T10:45:00Z',
-    actor: 'Mike Johnson',
-  },
-  {
-    id: 'act-4',
-    type: 'comment_added',
-    title: 'Comment Added',
-    description: 'New comment on TKT-001 from customer',
-    timestamp: '2025-12-03T10:30:00Z',
-    actor: 'Customer',
-  },
-  {
-    id: 'act-5',
-    type: 'status_changed',
-    title: 'Status Changed',
-    description: 'TKT-098 moved to "In Progress"',
-    timestamp: '2025-12-03T10:00:00Z',
-    actor: 'You',
-  },
-];
-
-const MOCK_ALERTS: CriticalAlert[] = [
-  {
-    id: 'alert-1',
-    title: 'High CPU usage on prod-web-03',
-    severity: 'critical',
-    source: 'Monitoring',
-    timestamp: '2025-12-03T11:15:00Z',
-    acknowledged: false,
-  },
-  {
-    id: 'alert-2',
-    title: 'Database connection pool exhausted',
-    severity: 'high',
-    source: 'Monitoring',
-    timestamp: '2025-12-03T10:50:00Z',
-    acknowledged: true,
-  },
-  {
-    id: 'alert-3',
-    title: 'SSL certificate expiring in 7 days',
-    severity: 'medium',
-    source: 'Certificate Monitor',
-    timestamp: '2025-12-03T09:00:00Z',
-    acknowledged: false,
-  },
-];
-
 // Helper functions to map backend ticket types to dashboard types
 const mapTicketStatus = (status: string): DashboardTicket['status'] => {
   switch (status) {
@@ -280,89 +122,6 @@ const mapTicketPriority = (priority: string): DashboardTicket['priority'] => {
     default: return 'medium';
   }
 };
-
-// AI-powered insights (would come from ML backend in production)
-const MOCK_AI_INSIGHTS: AIInsight[] = [
-  {
-    id: 'ai-1',
-    type: 'prediction',
-    severity: 'warning',
-    title: 'Predicted SLA Breach Risk',
-    description: 'Based on current workload patterns, TKT-001 has a 78% chance of breaching SLA in the next 2 hours. Similar tickets have historically required 4+ hours to resolve.',
-    confidence: 85,
-    actionLabel: 'View Ticket',
-    actionPath: '/app/service-desk/ticket/TKT-001',
-    metadata: {
-      source: 'Predictive Analytics',
-      relatedItems: ['TKT-001', 'TKT-045', 'TKT-089'],
-      timeframe: 'Next 2 hours',
-      impact: 'high',
-    },
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'ai-2',
-    type: 'anomaly',
-    severity: 'critical',
-    title: 'Unusual Ticket Volume Detected',
-    description: 'Email-related incidents have increased 340% in the last hour compared to the same time last week. This may indicate a service outage.',
-    confidence: 92,
-    actionLabel: 'Investigate',
-    actionPath: '/app/service-desk?category=email',
-    metadata: {
-      source: 'Anomaly Detection',
-      timeframe: 'Last hour',
-      impact: 'high',
-    },
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'ai-3',
-    type: 'suggestion',
-    severity: 'info',
-    title: 'Knowledge Base Recommendation',
-    description: 'TKT-002 matches 94% with known issue KB-1234 "Password Reset Email Delays". Consider linking this article to speed up resolution.',
-    confidence: 94,
-    actionLabel: 'View KB Article',
-    actionPath: '/app/knowledge/KB-1234',
-    metadata: {
-      source: 'Knowledge Matching',
-      relatedItems: ['KB-1234', 'TKT-002'],
-      impact: 'medium',
-    },
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'ai-4',
-    type: 'optimization',
-    severity: 'success',
-    title: 'Team Performance Improving',
-    description: 'Your team\'s average resolution time has decreased 23% this week. Top contributors: Sarah Chen (15 tickets), Mike Johnson (12 tickets).',
-    confidence: 100,
-    metadata: {
-      source: 'Performance Analytics',
-      timeframe: 'This week vs last week',
-      impact: 'low',
-    },
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'ai-5',
-    type: 'trend',
-    severity: 'warning',
-    title: 'Recurring Issue Pattern',
-    description: 'VPN connectivity issues have occurred 5 times in the past month, always on Monday mornings. Consider proactive maintenance or capacity review.',
-    confidence: 78,
-    actionLabel: 'View Pattern Report',
-    actionPath: '/app/analytics/patterns',
-    metadata: {
-      source: 'Trend Analysis',
-      timeframe: 'Last 30 days',
-      impact: 'medium',
-    },
-    createdAt: new Date().toISOString(),
-  },
-];
 
 // =============================================================================
 // COMPONENTS
@@ -727,12 +486,20 @@ const AlertCard: React.FC<{
               gap: '8px',
               marginTop: '12px',
             }}>
-              <button onClick={onAcknowledge} className="btn btn-sm btn-secondary">
+              <EnhancedPurpleGlassButton 
+                variant="secondary"
+                size="small"
+                onClick={onAcknowledge}
+              >
                 Acknowledge
-              </button>
-              <button onClick={onCreateTicket} className="btn btn-sm btn-primary">
+              </EnhancedPurpleGlassButton>
+              <EnhancedPurpleGlassButton 
+                variant="primary"
+                size="small"
+                onClick={onCreateTicket}
+              >
                 Create Ticket
-              </button>
+              </EnhancedPurpleGlassButton>
             </div>
           )}
         </div>
@@ -752,7 +519,8 @@ export const DashboardView: React.FC = () => {
   const { criticalUnread } = useNotificationState();
   
   const [timeRange, setTimeRange] = useState<TimeRange>('7d');
-  const [aiInsights] = useState<AIInsight[]>(MOCK_AI_INSIGHTS);
+  // AI insights will come from backend in future - for now empty array
+  const [aiInsights] = useState<AIInsight[]>([]);
 
   // ============================================================================
   // TANSTACK QUERY - Instant render with background sync
@@ -826,8 +594,8 @@ export const DashboardView: React.FC = () => {
       ];
     }
     
-    // Fall back to mock stats
-    return MOCK_STATS;
+    // Return empty stats when no data available
+    return [];
   }, [ticketsData]);
 
   const myTickets = useMemo((): DashboardTicket[] => {
@@ -845,7 +613,7 @@ export const DashboardView: React.FC = () => {
       }));
     }
     
-    return MOCK_MY_TICKETS;
+    return [];
   }, [ticketsData]);
 
   const alerts = useMemo((): CriticalAlert[] => {
@@ -859,11 +627,11 @@ export const DashboardView: React.FC = () => {
         acknowledged: a.status === 'Acknowledged',
       }));
     }
-    return MOCK_ALERTS;
+    return [];
   }, [alertsData]);
 
-  // Activity is always mock for now (no API endpoint)
-  const activity = MOCK_ACTIVITY;
+  // Activity would come from activity log API - for now empty
+  const activity: ActivityItem[] = [];
   
   // Demo mode when both data sources are using fallback
   const isDemoMode = ticketsFallback && alertsFallback && ticketsData.length === 0;
@@ -998,13 +766,14 @@ export const DashboardView: React.FC = () => {
                 {myTickets.length}
               </span>
             </div>
-            <button
+            <EnhancedPurpleGlassButton
               onClick={() => navigate('/app/service-desk?assignee=me')}
-              className="btn btn-sm btn-ghost"
+              variant="ghost"
+              size="small"
+              iconEnd={<ChevronRightRegular />}
             >
               View All
-              <ChevronRightRegular style={{ fontSize: '14px' }} />
-            </button>
+            </EnhancedPurpleGlassButton>
           </div>
 
           {/* Ticket List */}
@@ -1101,14 +870,14 @@ export const DashboardView: React.FC = () => {
                 </span>
               )}
             </div>
-            <button
+            <EnhancedPurpleGlassButton
               onClick={() => navigate('/app/monitoring')}
-              className="btn btn-sm btn-ghost"
-              style={{ color: 'var(--primary)' }}
+              variant="ghost"
+              size="small"
+              iconEnd={<ChevronRightRegular />}
             >
               View Monitoring
-              <ChevronRightRegular style={{ fontSize: '14px' }} />
-            </button>
+            </EnhancedPurpleGlassButton>
           </div>
 
           {/* Alerts Grid */}
