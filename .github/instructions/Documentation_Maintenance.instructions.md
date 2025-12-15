@@ -3,6 +3,8 @@ applyTo: '**'
 ---
 # Archer Documentation Maintenance Protocol
 
+**Last Updated:** December 15, 2025
+
 ## Overview
 This document defines how AI agents and developers must maintain Archer's documentation ecosystem. The goal is to ensure **continuity across AI sessions**, **sync between Obsidian and GitHub**, and **accurate representation of project state**.
 
@@ -21,6 +23,63 @@ This document defines how AI agents and developers must maintain Archer's docume
 
 ---
 
+## 📁 Documentation Structure (December 2025)
+
+```
+Archer/
+├── README.md                        # Project landing page
+├── CLAUDE.md                        # AI agent context (critical)
+├── STARTUP.md                       # Quick start guide
+├── COMPONENT_LIBRARY_GUIDE.md       # UI component API
+├── DESIGN_TOKEN_DOCUMENTATION.md    # Design tokens
+├── TESTING_GUIDE.md                 # Testing documentation
+├── DEPENDENCIES.md                  # Project dependencies
+├── DEPLOYMENT_INSTRUCTIONS.md       # Deployment guide
+│
+└── docs/
+    ├── README.md                    # Documentation index
+    ├── planning/                    # Strategic planning
+    │   ├── CMO_FMO_GAP_ANALYSIS.md     # Current vs Future state
+    │   ├── DELTA_TRACKING.md           # Cross-session change log
+    │   ├── E2E_DEVELOPMENT_PLAN.md     # Implementation roadmap
+    │   └── PRODUCT_ROADMAP.pdf         # Visual roadmap
+    ├── specs/                       # Technical specifications
+    │   ├── CORE_ITSM_ARCHITECTURE.md   # Core ITSM (non-AI)
+    │   ├── FULLSTACK_DEVELOPMENT_PLAN.md
+    │   ├── PYTHON_AI_SIDECAR_SPEC.md   # AI sidecar design
+    │   └── SURREALDB_AI_SCHEMA_SPEC.md # AI schema extensions
+    ├── architecture/                # Strategic & AI architecture
+    │   ├── 00_Strategy_and_Planning/   # Business case, vision
+    │   ├── 01_Architecture/            # AI engine specs
+    │   ├── 02_Implementation/          # Coding guides
+    │   ├── 03_UX_and_Design/           # UX specifications
+    │   ├── 04_Competitive_Analysis/    # Market positioning
+    │   └── Archive/                    # Historical reference
+    ├── development/                 # Developer guides
+    │   ├── architecture.md             # System design patterns
+    │   ├── components.md               # React components
+    │   ├── onboarding.md               # Developer setup
+    │   └── troubleshooting.md          # Common issues
+    ├── design/                      # UI/UX documentation
+    │   ├── DESIGN_SYSTEM.md            # Design system guide
+    │   ├── NETWORK_DIAGRAM_COLOR_SYSTEM.md
+    │   └── QUICK_START.md              # Fast setup
+    ├── api/                         # API documentation
+    │   ├── authentication.md           # Auth implementation
+    │   └── openapi.yml                 # API specification
+    ├── research/                    # Research prompts & outputs
+    ├── testing/                     # Testing documentation
+    │   └── PRE_MERGE_CHECKLIST.md      # QA checklist
+    └── archive/                     # Historical docs (reference only)
+        ├── session_summaries/
+        ├── completion_reports/
+        ├── legacy_plans/
+        ├── testing_guides/
+        └── migration_docs/
+```
+
+---
+
 ## 📋 Primary Documents (MUST MAINTAIN)
 
 These documents are the source of truth and must be kept current:
@@ -28,10 +87,10 @@ These documents are the source of truth and must be kept current:
 | Document | Location | Purpose | Update Frequency |
 |----------|----------|---------|------------------|
 | **DELTA_TRACKING.md** | `docs/planning/` | Cross-session change log | **EVERY SESSION** |
-| **PRODUCT_ROADMAP.md** | `docs/planning/` | Strategic phases, milestones, priorities | Phase completions, major decisions |
-| **FULLSTACK_DEVELOPMENT_PLAN.md** | `docs/specs/` | Technical architecture, schemas, APIs | Architecture changes |
 | **CMO_FMO_GAP_ANALYSIS.md** | `docs/planning/` | Current vs target state | Feature completions |
 | **E2E_DEVELOPMENT_PLAN.md** | `docs/planning/` | Sprint-level implementation | Sprint completions |
+| **FULLSTACK_DEVELOPMENT_PLAN.md** | `docs/specs/` | Technical architecture, schemas, APIs | Architecture changes |
+| **docs/README.md** | `docs/` | Documentation index | Structure changes |
 
 ---
 
@@ -73,71 +132,63 @@ These documents are the source of truth and must be kept current:
 ### Primary Source: Obsidian Vault
 **Location:** `C:\Users\matei\Documents\Obsidian Vault\Projects\🏹 Archer\`
 
-This is the **canonical source** for all strategic, architectural, and research documentation. Structure:
+This is the **canonical source** for strategic, architectural, and research documentation. The Obsidian structure mirrors `docs/architecture/`:
 
 ```
 🏹 Archer/
 ├── 00_Strategy_and_Planning/     # Business case, roadmap, prioritization
-│   ├── 00_Executive_Summary.md
-│   ├── 01_AI_Roadmap_and_Business_Case.md
-│   └── 02_Feature_Prioritization_MoSCoW.md
 ├── 01_Architecture/              # Technical architecture specs (AI-focused)
-│   ├── 00_AI_Engine_Specification.md
-│   ├── 01_Comprehensive_Architecture.md
-│   ├── 02_RAG_Architecture.md
-│   ├── 03_Data_Model_SurrealDB.md
-│   └── 04_AI_Agent_Specifications.md
 ├── 02_Implementation/            # Coding guides and dev roadmaps
-│   └── 00_Coding_Implementation_Guide.md
 ├── 03_UX_and_Design/             # UI/UX specifications
-│   └── 00_UX_and_IA_Recommendations.md
 ├── 04_Competitive_Analysis/      # Market research
-│   ├── 00_Competitive_Analysis_Matrix.md
-│   └── 01_Appendix_Sentiment_and_Research.md
 ├── Archive/                      # Deprecated/superseded docs
 └── Research Report - Archer AI Engine (2025).md
 ```
 
-### Secondary Source: Repository Docs
-**Location:** `c:\Users\matei\DevApps\Archer\`
+### Repository Documentation
+**Location:** `c:\Users\matei\DevApps\Archer\docs\`
 
-These are **implementation-focused** docs that live in the repo:
+| Folder | Purpose | Contents |
+|--------|---------|----------|
+| `planning/` | Strategic planning | Gap analysis, dev plans, delta tracking |
+| `specs/` | Technical specs | Core ITSM architecture, AI sidecar specs |
+| `architecture/` | Synced from Obsidian | AI architecture, strategy docs |
+| `development/` | Developer guides | Onboarding, architecture, troubleshooting |
+| `design/` | UI/UX docs | Design system, color schemes |
+| `api/` | API docs | Auth guide, OpenAPI spec |
+| `research/` | Research prompts | Architecture research prompts |
+| `testing/` | QA docs | Pre-merge checklist |
+| `archive/` | Historical reference | Old session docs, legacy plans |
 
-| Location | Purpose | Sync Direction |
-|----------|---------|----------------|
-| `README.md` | GitHub landing page, quick start | ← Derived from Obsidian |
-| `CLAUDE.md` | AI agent context file | ← Auto-generated |
-| `docs/planning/` | Roadmaps, gap analysis, dev plans | Primary location |
-| `docs/specs/` | Technical specs (Core ITSM focused) | Primary location |
-| `docs/research/` | Research prompts and outputs | Primary location |
-| `docs/` | Technical guides, API docs | Stays in repo |
-| `.github/instructions/` | AI agent behavior rules | Stays in repo |
-| `COMPONENT_LIBRARY_GUIDE.md` | UI component API | Stays in repo |
+### Root Directory Files (Keep Minimal)
+
+| File | Purpose |
+|------|---------|
+| `README.md` | Project landing page |
+| `CLAUDE.md` | AI agent context (critical) |
+| `STARTUP.md` | Quick start guide |
+| `COMPONENT_LIBRARY_GUIDE.md` | UI component API |
+| `DESIGN_TOKEN_DOCUMENTATION.md` | Design tokens |
+| `TESTING_GUIDE.md` | Testing documentation |
+| `DEPENDENCIES.md` | Project dependencies |
+| `DEPLOYMENT_INSTRUCTIONS.md` | Deployment guide |
 
 ---
 
 ## 🔄 Sync Strategy
 
 ### Obsidian → Repository
-Strategic/architectural docs from Obsidian should be **referenced** in the repo, not duplicated:
+Strategic/architectural docs from Obsidian are synced to `docs/architecture/`:
 
 1. **README.md** summarizes the vision from `00_Executive_Summary.md`
-2. **Architecture diagrams** can be exported and placed in `docs/architecture/`
-3. **AI agents** should read Obsidian docs via the sync folder when available
+2. **Architecture diagrams** are exported and placed in `docs/architecture/`
+3. **AI agents** should read Obsidian docs via `docs/architecture/` folder
 
-### Manual Sync Process (Until Automated)
+### Manual Sync Process
 ```powershell
 # Copy latest Obsidian docs to repo for AI agent access
-$obsidianPath = "C:\Users\matei\Documents\Obsidian Vault\Projects"
-$archerFolder = (Get-ChildItem $obsidianPath -Directory)[0].FullName
-xcopy "$archerFolder\*" "C:\Users\matei\DevApps\Archer\docs\architecture\" /E /I /Y
-```
-
-### Future: Symlink/Junction (Recommended)
-Create a junction so `docs/architecture/` points directly to Obsidian:
-```powershell
-# Run as Administrator
-New-Item -ItemType Junction -Path "C:\Users\matei\DevApps\Archer\docs\architecture" -Target "C:\Users\matei\Documents\Obsidian Vault\Projects\🏹 Archer"
+$obsidianPath = "C:\Users\matei\Documents\Obsidian Vault\Projects\🏹 Archer"
+xcopy "$obsidianPath\*" "C:\Users\matei\DevApps\Archer\docs\architecture\" /E /I /Y
 ```
 
 ---
@@ -148,41 +199,27 @@ New-Item -ItemType Junction -Path "C:\Users\matei\DevApps\Archer\docs\architectu
 
 | Event | Documents to Update |
 |-------|---------------------|
-| New feature implemented | `README.md`, relevant `product_docs/` |
-| Architecture decision | Obsidian `01_Architecture/` folder |
+| New feature implemented | `docs/README.md`, relevant guide |
+| Architecture decision | `docs/architecture/` or Obsidian |
 | UI component added | `COMPONENT_LIBRARY_GUIDE.md` |
 | API endpoint added | `docs/api/` |
 | Major milestone reached | `README.md` roadmap section |
-| AI capability added | Obsidian `01_Architecture/00_AI_Engine_Specification.md` |
+| AI capability added | `docs/architecture/01_Architecture/` |
 
-### README.md Update Protocol
+### Forbidden Documentation Practices
 
-The README must always reflect:
-1. **Current state** - What's working today
-2. **Architecture overview** - Tech stack summary
-3. **Quick start** - How to run the app
-4. **Roadmap** - Near-term priorities (sync with Obsidian)
+❌ **DO NOT create these in root directory:**
+- `*_COMPLETION_SUMMARY.md`
+- `*_PROGRESS_REPORT.md`
+- `*_SESSION_SUMMARY.md`
+- `*_FIX_SUMMARY.md`
+- Temporary Python analysis scripts
+- Test result JSON files
 
-Template sections:
-```markdown
-# Archer ITSM
-[Vision summary from Obsidian Executive Summary]
-
-## 🚀 Quick Start
-[Dev setup commands]
-
-## ✨ Current Features
-[List of working features - update after each sprint]
-
-## 🏗️ Architecture
-[Summary - link to full docs in Obsidian/docs/]
-
-## 🗺️ Roadmap
-[Next 3 priorities - sync with Obsidian 00_Strategy_and_Planning]
-
-## 📖 Documentation
-[Links to key docs]
-```
+✅ **Instead:**
+- Update existing canonical docs
+- Use `docs/planning/DELTA_TRACKING.md` for session notes
+- Move completed work notes to `docs/archive/` if valuable
 
 ---
 
@@ -192,8 +229,8 @@ Template sections:
 AI agents should:
 1. Read `CLAUDE.md` for project context
 2. Read `.github/instructions/*.instructions.md` for behavior rules
-3. Check `README.md` for current state
-4. If architecture questions arise, access Obsidian docs via `docs/architecture/` or terminal
+3. Check `docs/README.md` for documentation index
+4. If architecture questions arise, access `docs/architecture/`
 
 ### Before Making Changes
 1. **Check current state** - Don't assume from old context
@@ -201,7 +238,7 @@ AI agents should:
 3. **Read relevant docs** - Understand existing patterns
 
 ### After Making Changes
-1. **Update CLAUDE.md** if significant progress was made
+1. **Update DELTA_TRACKING.md** with session changes
 2. **Update README.md** if user-facing features changed
 3. **Commit with descriptive messages** following pattern:
    - `feat:` - New feature
@@ -213,7 +250,7 @@ AI agents should:
 ### Session Handoff
 When ending a session or before a long task:
 1. **Summarize progress** in conversation
-2. **Update relevant docs** so next agent can continue
+2. **Update DELTA_TRACKING.md** so next agent can continue
 3. **List pending items** clearly
 
 ---
@@ -222,8 +259,8 @@ When ending a session or before a long task:
 
 ### What's Built
 - **Frontend:** React + TypeScript + Vite (port 1420)
-  - Purple Glass design system (8 components)
-  - Project management views (workspace, timeline, activities)
+  - Purple Glass design system
+  - Project management views
   - Hardware basket management
   - Dark/light mode with CSS variables
   
@@ -243,40 +280,32 @@ When ending a session or before a long task:
 - **Phase 2:** Ticket Assistant, Monitoring Analyst, LLM gateway
 - **Phase 3:** Operations Agent, autonomous actions with human-in-the-loop
 
-### Architecture Gap
-| Current | Target |
-|---------|--------|
-| Rust backend (Axum) | + Python AI sidecar |
-| SurrealDB (data) | + SurrealDB vectors |
-| Manual workflows | + AI-assisted workflows |
-| No LLM integration | + Pluggable LLM backend |
-| Static knowledge | + RAG with doc ingestion |
-
 ---
 
 ## 🔗 Key Document Links
-
-### Obsidian (Strategic)
-- Vision: `00_Strategy_and_Planning/00_Executive_Summary.md`
-- AI Spec: `01_Architecture/00_AI_Engine_Specification.md`
-- Implementation: `02_Implementation/00_Coding_Implementation_Guide.md`
-- Competitors: `04_Competitive_Analysis/00_Competitive_Analysis_Matrix.md`
 
 ### Repository (Implementation)
 - Quick Start: `README.md`
 - Components: `COMPONENT_LIBRARY_GUIDE.md`
 - Design Tokens: `DESIGN_TOKEN_DOCUMENTATION.md`
 - API Docs: `docs/api/`
+- Dev Guides: `docs/development/`
+
+### Architecture (Strategic)
+- Vision: `docs/architecture/00_Strategy_and_Planning/00_Executive_Summary.md`
+- AI Spec: `docs/architecture/01_Architecture/00_AI_Engine_Specification.md`
+- Implementation: `docs/architecture/02_Implementation/00_Coding_Implementation_Guide.md`
+- Competitors: `docs/architecture/04_Competitive_Analysis/00_Competitive_Analysis_Matrix.md`
 
 ---
 
 ## ⚠️ Common Pitfalls
 
-1. **Don't duplicate strategic docs in repo** - Reference Obsidian instead
+1. **Don't create summary files in root** - Update existing docs or use DELTA_TRACKING
 2. **Don't let README get stale** - Update after each feature
-3. **Don't skip CLAUDE.md updates** - It's the AI agent's memory
-4. **Don't hardcode paths** - Use environment variables or config
-5. **Don't create summary docs for each change** - Update existing docs instead
+3. **Don't skip DELTA_TRACKING updates** - It's the cross-session memory
+4. **Don't create temp Python scripts in root** - Use `scripts/` folder
+5. **Don't duplicate content** - Cross-reference instead
 
 ---
 
@@ -284,8 +313,8 @@ When ending a session or before a long task:
 
 Weekly:
 - [ ] Sync Obsidian → `docs/architecture/` if changes were made
-- [ ] Verify README.md roadmap matches current priorities
-- [ ] Clean up any temp files or deprecated docs
+- [ ] Verify docs/README.md is current
+- [ ] Clean up any temp files that crept into root
 
 After Major Features:
 - [ ] Update README.md current features section
@@ -295,5 +324,5 @@ After Major Features:
 
 Before AI Session:
 - [ ] Pull latest from main
-- [ ] Verify docs/architecture/ has latest Obsidian sync
+- [ ] Read DELTA_TRACKING.md for recent changes
 - [ ] Check for any WIP markers or TODOs in code

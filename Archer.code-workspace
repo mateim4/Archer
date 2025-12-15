@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../../Documents/Obsidian Vault/Projects/🏹 Archer"
+		}
+	],
+	"settings": {
+		"powershell.cwd": "Archer"
+	}
+}
