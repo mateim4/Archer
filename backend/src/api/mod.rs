@@ -24,7 +24,7 @@ pub mod vm_placement; // VM placement API
 pub mod network_templates; // Network templates API
 pub mod hld; // HLD generation API
 pub mod workflows; // Workflow Engine API (Phase 3)
-                // pub mod analytics; // TODO: Convert from actix_web to axum
+pub mod analytics_axum; // Analytics API (converted to axum)
 pub mod enhanced_rvtools; // TODO: Fix compilation errors
                           // pub mod migration; // TODO: Fix migration_models imports
 
@@ -74,7 +74,8 @@ pub fn api_router(state: AppState) -> Router {
         .nest("/settings", settings::create_settings_router(state.clone()))
         .nest("/workflows", workflows::create_workflows_router(state.clone()))
         .nest("/catalog", service_catalog::create_service_catalog_router(state.clone()))
-        .nest("/tiering", tiering::create_tiering_router(state.clone()));
+        .nest("/tiering", tiering::create_tiering_router(state.clone()))
+        .nest("/analytics", analytics_axum::create_analytics_router(state.clone()));
 
     Router::new()
         .route("/health", get(health_check))
