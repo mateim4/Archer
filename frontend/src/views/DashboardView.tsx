@@ -29,7 +29,7 @@ import {
 import { useTheme } from '../hooks/useTheme';
 import { useNotificationState } from '../hooks/useNotifications';
 import { useTickets, useAlerts } from '../hooks/queries';
-import { PageHeader, PurpleGlassCard, PurpleGlassButton, PurpleGlassDropdown, SLAIndicator, AIInsightsPanel, AIInsight, DemoModeBanner } from '../components/ui';
+import { PageHeader, PurpleGlassCard, EnhancedPurpleGlassButton, PurpleGlassDropdown, SLAIndicator, AIInsightsPanel, AIInsight, DemoModeBanner } from '../components/ui';
 import { Ticket } from '../utils/apiClient';
 
 /**
@@ -899,24 +899,21 @@ export const DashboardView: React.FC = () => {
         title="Dashboard"
         subtitle="Welcome back! Here's your ITSM overview."
         actions={
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div style={{ width: '220px' }}>
-              <PurpleGlassDropdown
-                options={TIME_RANGES.map(r => ({ value: r.value, label: r.label }))}
-                value={timeRange}
-                onChange={(val) => setTimeRange(val as TimeRange)}
-                glass="light"
-              />
-            </div>
-            <PurpleGlassButton
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <PurpleGlassDropdown
+              options={TIME_RANGES.map(r => ({ value: r.value, label: r.label }))}
+              value={timeRange}
+              onChange={(val) => setTimeRange(val as TimeRange)}
+              glass="light"
+            />
+            <EnhancedPurpleGlassButton
               variant="primary"
               icon={<ArrowSyncRegular />}
-              glass
               loading={isRefreshing}
               onClick={handleRefresh}
             >
               Refresh
-            </PurpleGlassButton>
+            </EnhancedPurpleGlassButton>
           </div>
         }
       >
