@@ -71,6 +71,7 @@ const ApprovalInbox = lazyWithRetry(() => import('./views/ApprovalInbox'));
 const UserManagementView = lazyWithRetry(() => import('./views/UserManagementView'));
 const RoleManagementView = lazyWithRetry(() => import('./views/RoleManagementView'));
 const AuditLogView = lazyWithRetry(() => import('./views/AuditLogView'));
+const SLAManagementView = lazyWithRetry(() => import('./views/SLAManagementView'));
 
 // Inner App component that uses the theme context
 function AppContent() {
@@ -289,6 +290,7 @@ function AppContent() {
                     <Route path="admin/users" element={<UserManagementView />} />
                     <Route path="admin/roles" element={<RoleManagementView />} />
                     <Route path="admin/audit" element={<AuditLogView />} />
+                    <Route path="admin/sla" element={<SLAManagementView />} />
                     <Route path="capacity-visualizer" element={
                       <div data-testid="capacity-visualizer" style={{ height: '100%', width: '100%' }}>
                         <CapacityVisualizerView />
