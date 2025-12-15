@@ -102,163 +102,9 @@ interface CriticalAlert {
   acknowledged: boolean;
 }
 
-// =============================================================================
-// FALLBACK MOCK DATA - Used when API is unavailable
-// =============================================================================
-
-const MOCK_STATS: StatCardData[] = [
-  {
-    id: 'open',
-    title: 'Open Tickets',
-    value: 24,
-    change: 12,
-    changeLabel: 'vs last period',
-    icon: <TicketDiagonalRegular />,
-    color: '#6B4CE6',
-    link: '/app/service-desk?status=open',
-  },
-  {
-    id: 'in-progress',
-    title: 'In Progress',
-    value: 18,
-    change: -5,
-    changeLabel: 'vs last period',
-    icon: <ClockRegular />,
-    color: '#f59e0b',
-    link: '/app/service-desk?status=in-progress',
-  },
-  {
-    id: 'resolved',
-    title: 'Resolved Today',
-    value: 12,
-    change: 25,
-    changeLabel: 'vs yesterday',
-    icon: <CheckmarkCircleRegular />,
-    color: '#10b981',
-    link: '/app/service-desk?status=resolved',
-  },
-  {
-    id: 'avg-time',
-    title: 'Avg Resolution',
-    value: '4.2h',
-    change: -15,
-    changeLabel: 'improved',
-    icon: <TimerRegular />,
-    color: 'var(--brand-primary)',
-  },
-];
-
-const MOCK_MY_TICKETS: DashboardTicket[] = [
-  {
-    id: 'TKT-001',
-    title: 'Server performance degradation in prod cluster',
-    status: 'in-progress',
-    priority: 'critical',
-    assignee: 'You',
-    createdAt: '2025-12-03T10:30:00Z',
-    slaDeadline: '2025-12-03T14:30:00Z',
-    slaStatus: 'at_risk',
-  },
-  {
-    id: 'TKT-002',
-    title: 'User unable to access email after password reset',
-    status: 'open',
-    priority: 'high',
-    assignee: 'You',
-    createdAt: '2025-12-03T09:15:00Z',
-    slaDeadline: '2025-12-03T17:15:00Z',
-    slaStatus: 'on_track',
-  },
-  {
-    id: 'TKT-003',
-    title: 'Request for new software license - Adobe CC',
-    status: 'pending',
-    priority: 'medium',
-    assignee: 'You',
-    createdAt: '2025-12-02T14:00:00Z',
-    slaDeadline: '2025-12-05T14:00:00Z',
-    slaStatus: 'on_track',
-  },
-  {
-    id: 'TKT-004',
-    title: 'VPN connection dropping intermittently',
-    status: 'open',
-    priority: 'high',
-    assignee: 'You',
-    createdAt: '2025-12-03T08:45:00Z',
-    slaDeadline: '2025-12-03T16:45:00Z',
-    slaStatus: 'on_track',
-  },
-];
-
-const MOCK_ACTIVITY: ActivityItem[] = [
-  {
-    id: 'act-1',
-    type: 'ticket_resolved',
-    title: 'Ticket Resolved',
-    description: 'TKT-099 "Printer not working in Building A" marked as resolved',
-    timestamp: '2025-12-03T11:30:00Z',
-    actor: 'Sarah Chen',
-  },
-  {
-    id: 'act-2',
-    type: 'alert_triggered',
-    title: 'Alert Triggered',
-    description: 'High CPU usage detected on prod-web-03',
-    timestamp: '2025-12-03T11:15:00Z',
-  },
-  {
-    id: 'act-3',
-    type: 'ticket_assigned',
-    title: 'Ticket Assigned',
-    description: 'TKT-102 assigned to you by Team Lead',
-    timestamp: '2025-12-03T10:45:00Z',
-    actor: 'Mike Johnson',
-  },
-  {
-    id: 'act-4',
-    type: 'comment_added',
-    title: 'Comment Added',
-    description: 'New comment on TKT-001 from customer',
-    timestamp: '2025-12-03T10:30:00Z',
-    actor: 'Customer',
-  },
-  {
-    id: 'act-5',
-    type: 'status_changed',
-    title: 'Status Changed',
-    description: 'TKT-098 moved to "In Progress"',
-    timestamp: '2025-12-03T10:00:00Z',
-    actor: 'You',
-  },
-];
-
-const MOCK_ALERTS: CriticalAlert[] = [
-  {
-    id: 'alert-1',
-    title: 'High CPU usage on prod-web-03',
-    severity: 'critical',
-    source: 'Monitoring',
-    timestamp: '2025-12-03T11:15:00Z',
-    acknowledged: false,
-  },
-  {
-    id: 'alert-2',
-    title: 'Database connection pool exhausted',
-    severity: 'high',
-    source: 'Monitoring',
-    timestamp: '2025-12-03T10:50:00Z',
-    acknowledged: true,
-  },
-  {
-    id: 'alert-3',
-    title: 'SSL certificate expiring in 7 days',
-    severity: 'medium',
-    source: 'Certificate Monitor',
-    timestamp: '2025-12-03T09:00:00Z',
-    acknowledged: false,
-  },
-];
+// NOTE: MOCK_STATS removed - using real ticket data for statistics
+// NOTE: MOCK_MY_TICKETS removed - using real API ticket data
+// NOTE: MOCK_ACTIVITY removed - activity feed not yet implemented in backend
 
 // Helper functions to map backend ticket types to dashboard types
 const mapTicketStatus = (status: string): DashboardTicket['status'] => {
@@ -781,92 +627,82 @@ export const DashboardView: React.FC = () => {
   const stats = useMemo((): StatCardData[] => {
     const tickets = ticketsData;
     
-    // If we have real tickets, compute real stats
-    if (tickets.length > 0) {
-      const openCount = tickets.filter(t => t.status === 'NEW').length;
-      const inProgressCount = tickets.filter(t => t.status === 'IN_PROGRESS').length;
-      const resolvedCount = tickets.filter(t => t.status === 'RESOLVED' || t.status === 'CLOSED').length;
-      
-      return [
-        {
-          id: 'open',
-          title: 'Open Tickets',
-          value: openCount,
-          change: 0,
-          changeLabel: 'current',
-          icon: <TicketDiagonalRegular />,
-          color: '#6B4CE6',
-          link: '/app/service-desk?status=open',
-        },
-        {
-          id: 'in-progress',
-          title: 'In Progress',
-          value: inProgressCount,
-          change: 0,
-          changeLabel: 'current',
-          icon: <ClockRegular />,
-          color: '#f59e0b',
-          link: '/app/service-desk?status=in-progress',
-        },
-        {
-          id: 'resolved',
-          title: 'Resolved',
-          value: resolvedCount,
-          icon: <CheckmarkCircleRegular />,
-          color: '#10b981',
-          link: '/app/service-desk?status=resolved',
-        },
-        {
-          id: 'total',
-          title: 'Total Tickets',
-          value: tickets.length,
-          icon: <TimerRegular />,
-          color: 'var(--brand-primary)',
-        },
-      ];
-    }
+    // Always compute stats from real ticket data (even if empty)
+    const openCount = tickets.filter(t => t.status === 'NEW').length;
+    const inProgressCount = tickets.filter(t => t.status === 'IN_PROGRESS').length;
+    const resolvedCount = tickets.filter(t => t.status === 'RESOLVED' || t.status === 'CLOSED').length;
     
-    // Fall back to mock stats
-    return MOCK_STATS;
+    return [
+      {
+        id: 'open',
+        title: 'Open Tickets',
+        value: openCount,
+        change: 0,
+        changeLabel: 'current',
+        icon: <TicketDiagonalRegular />,
+        color: '#6B4CE6',
+        link: '/app/service-desk?status=open',
+      },
+      {
+        id: 'in-progress',
+        title: 'In Progress',
+        value: inProgressCount,
+        change: 0,
+        changeLabel: 'current',
+        icon: <ClockRegular />,
+        color: '#f59e0b',
+        link: '/app/service-desk?status=in-progress',
+      },
+      {
+        id: 'resolved',
+        title: 'Resolved',
+        value: resolvedCount,
+        icon: <CheckmarkCircleRegular />,
+        color: '#10b981',
+        link: '/app/service-desk?status=resolved',
+      },
+      {
+        id: 'total',
+        title: 'Total Tickets',
+        value: tickets.length,
+        icon: <TimerRegular />,
+        color: 'var(--brand-primary)',
+      },
+    ];
   }, [ticketsData]);
 
   const myTickets = useMemo((): DashboardTicket[] => {
     const tickets = ticketsData;
     
-    if (tickets.length > 0) {
-      return tickets.slice(0, 5).map(t => ({
-        id: t.id?.replace('ticket:', '') || t.id || '',
-        title: t.title || 'Untitled',
-        status: mapTicketStatus(t.status),
-        priority: mapTicketPriority(t.priority),
-        assignee: t.assignee || 'Unassigned',
-        createdAt: t.created_at || new Date().toISOString(),
-        slaStatus: 'on_track' as const,
-      }));
-    }
-    
-    return MOCK_MY_TICKETS;
+    // Always use real ticket data (slice to show top 5)
+    return tickets.slice(0, 5).map(t => ({
+      id: t.id?.replace('ticket:', '') || t.id || '',
+      title: t.title || 'Untitled',
+      status: mapTicketStatus(t.status),
+      priority: mapTicketPriority(t.priority),
+      assignee: t.assignee || 'Unassigned',
+      createdAt: t.created_at || new Date().toISOString(),
+      slaStatus: 'on_track' as const,
+    }));
   }, [ticketsData]);
 
   const alerts = useMemo((): CriticalAlert[] => {
-    if (alertsData.length > 0) {
-      return alertsData.map((a: any) => ({
-        id: a.id || '',
-        title: a.title || '',
-        severity: (a.severity?.toLowerCase() || 'medium') as CriticalAlert['severity'],
-        source: a.source || 'Monitoring',
-        timestamp: a.created_at || new Date().toISOString(),
-        acknowledged: a.status === 'Acknowledged',
-      }));
-    }
-    return MOCK_ALERTS;
+    // Always use real alert data
+    return alertsData.map((a: any) => ({
+      id: a.id || '',
+      title: a.title || '',
+      severity: (a.severity?.toLowerCase() || 'medium') as CriticalAlert['severity'],
+      source: a.source || 'Monitoring',
+      timestamp: a.created_at || new Date().toISOString(),
+      acknowledged: a.status === 'Acknowledged',
+    }));
   }, [alertsData]);
 
-  // Activity is always mock for now (no API endpoint)
-  const activity = MOCK_ACTIVITY;
+  // Activity is not yet implemented in backend - return empty array
+  const activity: ActivityItem[] = [];
   
-  // Demo mode when both data sources are using fallback
-  const isDemoMode = ticketsFallback && alertsFallback && ticketsData.length === 0;
+  // Demo mode when both data sources are empty (not when using fallback)
+  const isDemoMode = ticketsData.length === 0 && alertsData.length === 0;
   const isRefreshing = isRefreshingTickets;
 
   // Refresh handler
