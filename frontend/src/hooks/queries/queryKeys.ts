@@ -195,6 +195,16 @@ export const queryKeys = {
     summary: () => [...queryKeys.dashboard.all, 'summary'] as const,
     stats: (timeRange: string) => [...queryKeys.dashboard.all, 'stats', timeRange] as const,
   },
+
+  // ==========================================================================
+  // SLA (Service Level Agreements)
+  // ==========================================================================
+  sla: {
+    all: ['sla'] as const,
+    policies: () => [...queryKeys.sla.all, 'policies'] as const,
+    policy: (id: string) => [...queryKeys.sla.all, 'policy', id] as const,
+    ticketStatus: (ticketId: string) => [...queryKeys.sla.all, 'ticket-status', ticketId] as const,
+  },
 } as const;
 
 // Type helpers for query keys
