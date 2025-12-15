@@ -43,91 +43,6 @@ import {
   TASK_CATEGORY_COLORS
 } from '../types/taskTypes';
 
-// Mock data for development
-const MOCK_TASKS: Task[] = [
-  {
-    id: 'task-1',
-    title: 'Network Switch Maintenance',
-    description: 'Scheduled maintenance for core network switches in DC1. This includes firmware updates and configuration backups.',
-    category: 'maintenance',
-    status: 'pending',
-    priority: 'high',
-    reporter_id: 'user:admin',
-    reporter_name: 'System Administrator',
-    due_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-    estimated_hours: 4,
-    tags: ['network', 'scheduled'],
-    created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-    updated_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString()
-  },
-  {
-    id: 'task-2',
-    title: 'Server Migration - Web Tier',
-    description: 'Migrate web application servers from VMware to Hyper-V cluster. Includes VM conversion, testing, and validation.',
-    category: 'migration',
-    status: 'in_progress',
-    priority: 'critical',
-    reporter_id: 'user:admin',
-    reporter_name: 'System Administrator',
-    assignee_id: 'user:john.doe',
-    assignee_name: 'John Doe',
-    started_at: new Date().toISOString(),
-    due_date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
-    estimated_hours: 40,
-    tags: ['vmware', 'hyperv', 'migration'],
-    created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-    updated_at: new Date().toISOString()
-  },
-  {
-    id: 'task-3',
-    title: 'Firewall Rule Change Request',
-    description: 'Add new firewall rule to allow traffic from partner network. Security review required.',
-    category: 'change',
-    status: 'draft',
-    priority: 'medium',
-    reporter_id: 'user:jane.smith',
-    reporter_name: 'Jane Smith',
-    tags: ['firewall', 'security', 'network'],
-    created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-    updated_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString()
-  },
-  {
-    id: 'task-4',
-    title: 'Deploy New Monitoring Agent',
-    description: 'Install and configure monitoring agent on all production servers.',
-    category: 'deployment',
-    status: 'completed',
-    priority: 'high',
-    reporter_id: 'user:admin',
-    reporter_name: 'System Administrator',
-    assignee_id: 'user:mike.wilson',
-    assignee_name: 'Mike Wilson',
-    completed_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-    actual_hours: 8,
-    estimated_hours: 6,
-    tags: ['monitoring', 'agent'],
-    created_at: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-    updated_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
-  },
-  {
-    id: 'task-5',
-    title: 'Database Server Incident',
-    description: 'Investigate and resolve database connection timeouts reported by application team.',
-    category: 'incident',
-    status: 'blocked',
-    priority: 'critical',
-    reporter_id: 'user:app.team',
-    reporter_name: 'Application Team',
-    assignee_id: 'user:sarah.davis',
-    assignee_name: 'Sarah Davis',
-    due_date: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString(),
-    tags: ['database', 'incident', 'urgent'],
-    notes: 'Waiting for vendor support response',
-    created_at: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
-    updated_at: new Date().toISOString()
-  }
-];
-
 // Category icon mapping
 const getCategoryIcon = (category: TaskCategory) => {
   switch (category) {
@@ -216,13 +131,13 @@ export default function TasksView() {
   const fetchTasks = async () => {
     try {
       setLoading(true);
-      // TODO: Replace with actual API call
+      // TODO: Implement actual API call when tasks endpoint is available
       // const response = await apiClient.getTasks();
       // setTasks(response);
       
-      // Using mock data for now
+      // No mock data - return empty array until API is implemented
       await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API delay
-      setTasks(MOCK_TASKS);
+      setTasks([]);
     } catch (error) {
       handleError(error, 'Fetch Tasks');
     } finally {

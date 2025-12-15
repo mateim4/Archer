@@ -24,17 +24,6 @@ interface Activity {
   progress: number;
 }
 
-// =============================================================================
-// FALLBACK MOCK DATA - Used when API is unavailable
-// =============================================================================
-const MOCK_ACTIVITIES: Activity[] = [
-  { id: 'act-001', name: 'Infrastructure Assessment', type: 'migration', status: 'completed', start_date: new Date('2024-01-15'), end_date: new Date('2024-02-01'), assignee: 'john.doe@company.com', dependencies: [], progress: 100 },
-  { id: 'act-002', name: 'VMware Environment Analysis', type: 'migration', status: 'completed', start_date: new Date('2024-01-25'), end_date: new Date('2024-02-10'), assignee: 'sarah.smith@company.com', dependencies: ['act-001'], progress: 100 },
-  { id: 'act-003', name: 'Hardware Requirements Planning', type: 'hardware_customization', status: 'in_progress', start_date: new Date('2024-02-05'), end_date: new Date('2024-02-20'), assignee: 'mike.johnson@company.com', dependencies: ['act-001'], progress: 75 },
-  { id: 'act-004', name: 'Server Procurement', type: 'hardware_customization', status: 'in_progress', start_date: new Date('2024-02-15'), end_date: new Date('2024-03-30'), assignee: 'lisa.brown@company.com', dependencies: ['act-003'], progress: 40 },
-  { id: 'act-005', name: 'Network Infrastructure Setup', type: 'commissioning', status: 'pending', start_date: new Date('2024-03-01'), end_date: new Date('2024-03-25'), assignee: 'david.wilson@company.com', dependencies: ['act-003'], progress: 0 },
-];
-
 const ProjectTimelineView: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
@@ -100,13 +89,12 @@ const ProjectTimelineView: React.FC = () => {
         }));
         setActivities(mappedActivities);
       } else {
-        usingMock = true;
-        setActivities(MOCK_ACTIVITIES);
+        // API returned empty - no activities yet
+        setActivities([]);
       }
     } catch (error) {
-      console.warn('Activities API unavailable, using demo data:', error);
-      usingMock = true;
-      setActivities(MOCK_ACTIVITIES);
+      console.warn('Activities API unavailable:', error);
+      setActivities([]);
     }
     
     setIsDemoMode(usingMock);
