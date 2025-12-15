@@ -49,6 +49,7 @@ import {
   PageHeader,
   PurpleGlassEmptyState,
 } from '../components/ui';
+import { KBSuggestionsForTicket } from '../components/kb/KBSuggestionsForTicket';
 import { RelationshipBadge } from '../components/RelationshipBadge';
 import { RelationshipManager } from '../components/RelationshipManager';
 import { TicketHierarchyView } from '../components/TicketHierarchyView';
@@ -1276,6 +1277,23 @@ const TicketDetailView: React.FC = () => {
 
         {/* Side Panel - Metadata */}
         <div style={sidePanelStyle}>
+          {/* KB Suggestions Card */}
+          {ticket && (
+            <div style={{ marginBottom: '16px' }}>
+              <KBSuggestionsForTicket
+                ticketId={ticketId || ''}
+                ticketTitle={ticket.title}
+                ticketDescription={ticket.description}
+                category={ticket.category}
+                maxSuggestions={5}
+                onSolvedProblem={(articleId) => {
+                  console.log('Article marked as solution:', articleId);
+                  // Could show a success toast or update ticket status
+                }}
+              />
+            </div>
+          )}
+
           {/* SLA Card */}
           {ticket.slaStatus && (
             <PurpleGlassCard style={{ padding: '20px' }}>
