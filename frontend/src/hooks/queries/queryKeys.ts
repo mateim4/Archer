@@ -195,6 +195,14 @@ export const queryKeys = {
     summary: () => [...queryKeys.dashboard.all, 'summary'] as const,
     stats: (timeRange: string) => [...queryKeys.dashboard.all, 'stats', timeRange] as const,
   },
+
+  // ==========================================================================
+  // ANALYTICS
+  // ==========================================================================
+  analytics: {
+    all: ['analytics'] as const,
+    dashboard: () => [...queryKeys.analytics.all, 'dashboard'] as const,
+  },
 } as const;
 
 // Type helpers for query keys

@@ -865,6 +865,26 @@ export interface ApprovalResponseRequest {
   comments?: string;
 }
 
+// ============================================================================
+// ANALYTICS TYPES
+// ============================================================================
+
+export interface DashboardAnalytics {
+  total_open_tickets: number;
+  open_tickets_prev_period?: number;
+  total_in_progress: number;
+  in_progress_prev_period?: number;
+  total_resolved_today: number;
+  resolved_prev_period?: number;
+  avg_resolution_time_hours: number;
+  avg_resolution_prev_period?: number;
+  sla_compliance: number;
+  sla_trend?: number;
+  critical_alerts: number;
+  ticket_volume_trend: number[];
+  category_breakdown: { category: string; count: number }[];
+}
+
 export class ApiClient {
   private baseUrl: string;
   private usingMockData: boolean = false;
@@ -1925,6 +1945,11 @@ export class ApiClient {
       data: response.data || response || [],
       total: response.total || (response.data?.length ?? 0),
     };
+  }
+
+  // ===== Analytics =====
+  async getDashboardAnalytics(): Promise<DashboardAnalytics> {
+    return this.request('/api/v1/analytics/dashboard');
   }
 
   // ===== Workflows =====

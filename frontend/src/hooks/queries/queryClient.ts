@@ -25,6 +25,9 @@ export const staleTimes = {
   tickets: 30 * 1000,
   alerts: 30 * 1000,
   
+  // Analytics, dashboard stats - 1 minute
+  analytics: 60 * 1000,
+  
   // Projects, activities - 2 minutes  
   projects: 2 * 60 * 1000,
   activities: 2 * 60 * 1000,

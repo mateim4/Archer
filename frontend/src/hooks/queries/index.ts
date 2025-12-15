@@ -86,3 +86,8 @@ export {
   useUpdateRole,
   useDeleteRole,
 } from './useAdmin';
+
+// Analytics Hooks
+export {
+  useDashboardAnalytics,
+} from './useAnalytics';

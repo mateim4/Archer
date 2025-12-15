@@ -28,7 +28,7 @@ import {
 } from '@fluentui/react-icons';
 import { useTheme } from '../hooks/useTheme';
 import { useNotificationState } from '../hooks/useNotifications';
-import { useTickets, useAlerts } from '../hooks/queries';
+import { useTickets, useAlerts, useDashboardAnalytics } from '../hooks/queries';
 import { PageHeader, PurpleGlassCard, EnhancedPurpleGlassButton, PurpleGlassDropdown, SLAIndicator, AIInsightsPanel, AIInsight, DemoModeBanner } from '../components/ui';
 import { Ticket } from '../utils/apiClient';
 
@@ -767,6 +767,14 @@ export const DashboardView: React.FC = () => {
     refetch: refreshTickets 
   } = useTickets();
 
+  // Fetch analytics data
+  const {
+    data: analyticsData,
+    isFetching: isRefreshingAnalytics,
+    isPlaceholderData: analyticsFallback,
+    refetch: refreshAnalytics
+  } = useDashboardAnalytics();
+
   // Fetch alerts with TanStack Query (5 most recent active alerts)
   const { 
     data: alertsData = [], 
@@ -775,13 +783,62 @@ export const DashboardView: React.FC = () => {
   } = useAlerts({ status: ['Active'], page_size: 5 });
 
   // ============================================================================
-  // DERIVED STATE - Compute stats from tickets (memoized for performance)
+  // DERIVED STATE - Compute stats from analytics + tickets (memoized for performance)
   // ============================================================================
   
   const stats = useMemo((): StatCardData[] => {
-    const tickets = ticketsData;
+    // If we have analytics data from the backend, use it
+    if (analyticsData && !analyticsFallback) {
+      const calculateTrend = (current: number, previous?: number): number | undefined => {
+        if (!previous || previous === 0) return undefined;
+        return Math.round(((current - previous) / previous) * 100);
+      };
+
+      return [
+        {
+          id: 'open',
+          title: 'Open Tickets',
+          value: analyticsData.total_open_tickets,
+          change: calculateTrend(analyticsData.total_open_tickets, analyticsData.open_tickets_prev_period),
+          changeLabel: 'vs last period',
+          icon: <TicketDiagonalRegular />,
+          color: '#6B4CE6',
+          link: '/app/service-desk?status=open',
+        },
+        {
+          id: 'in-progress',
+          title: 'In Progress',
+          value: analyticsData.total_in_progress,
+          change: calculateTrend(analyticsData.total_in_progress, analyticsData.in_progress_prev_period),
+          changeLabel: 'vs last period',
+          icon: <ClockRegular />,
+          color: '#f59e0b',
+          link: '/app/service-desk?status=in-progress',
+        },
+        {
+          id: 'resolved',
+          title: 'Resolved Today',
+          value: analyticsData.total_resolved_today,
+          change: calculateTrend(analyticsData.total_resolved_today, analyticsData.resolved_prev_period),
+          changeLabel: 'vs yesterday',
+          icon: <CheckmarkCircleRegular />,
+          color: '#10b981',
+          link: '/app/service-desk?status=resolved',
+        },
+        {
+          id: 'avg-time',
+          title: 'Avg Resolution',
+          value: `${analyticsData.avg_resolution_time_hours.toFixed(1)}h`,
+          change: calculateTrend(analyticsData.avg_resolution_time_hours, analyticsData.avg_resolution_prev_period),
+          changeLabel: analyticsData.avg_resolution_time_hours < (analyticsData.avg_resolution_prev_period || Infinity) ? 'improved' : 'slower',
+          icon: <TimerRegular />,
+          color: 'var(--brand-primary)',
+        },
+      ];
+    }
     
-    // If we have real tickets, compute real stats
+    // Fallback to computing from tickets if analytics unavailable
+    const tickets = ticketsData;
     if (tickets.length > 0) {
       const openCount = tickets.filter(t => t.status === 'NEW').length;
       const inProgressCount = tickets.filter(t => t.status === 'IN_PROGRESS').length;
@@ -828,7 +885,7 @@ export const DashboardView: React.FC = () => {
     
     // Fall back to mock stats
     return MOCK_STATS;
-  }, [ticketsData]);
+  }, [analyticsData, analyticsFallback, ticketsData]);
 
   const myTickets = useMemo((): DashboardTicket[] => {
     const tickets = ticketsData;
@@ -865,14 +922,14 @@ export const DashboardView: React.FC = () => {
   // Activity is always mock for now (no API endpoint)
   const activity = MOCK_ACTIVITY;
   
-  // Demo mode when both data sources are using fallback
-  const isDemoMode = ticketsFallback && alertsFallback && ticketsData.length === 0;
-  const isRefreshing = isRefreshingTickets;
+  // Demo mode when data sources are using fallback
+  const isDemoMode = ticketsFallback && alertsFallback && analyticsFallback && ticketsData.length === 0;
+  const isRefreshing = isRefreshingTickets || isRefreshingAnalytics;
 
   // Refresh handler
   const handleRefresh = useCallback(async () => {
-    await Promise.all([refreshTickets(), refreshAlerts()]);
-  }, [refreshTickets, refreshAlerts]);
+    await Promise.all([refreshTickets(), refreshAlerts(), refreshAnalytics()]);
+  }, [refreshTickets, refreshAlerts, refreshAnalytics]);
 
   // Navigate to ticket detail
   const handleTicketClick = useCallback((ticketId: string) => {
