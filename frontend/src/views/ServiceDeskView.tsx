@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   PurpleGlassCard, 
@@ -41,8 +41,8 @@ import {
   ArrowExportRegular,
   TicketDiagonalRegular
 } from '@fluentui/react-icons';
-import { apiClient, Ticket } from '../utils/apiClient';
-import { useEnhancedUX } from '../hooks/useEnhancedUX';
+import { Ticket } from '../utils/apiClient';
+import { useTickets, useCreateTicket } from '../hooks/queries';
 import { DesignTokens } from '../styles/designSystem';
 
 // Extended Ticket Interface for UI - adds UI-specific fields
@@ -272,14 +272,69 @@ const MOCK_TICKETS: ExtendedTicket[] = [
   },
 ];
 
+// Transform API ticket to ExtendedTicket format
+const transformTicket = (t: any): ExtendedTicket => {
+  // Calculate SLA status based on ticket data
+  let slaStatus: 'on_track' | 'at_risk' | 'breached' = 'on_track';
+  let slaTimeRemaining = 'No SLA';
+  
+  if (t.sla_breach_at) {
+    const breachTime = new Date(t.sla_breach_at);
+    const now = new Date();
+    const timeLeft = breachTime.getTime() - now.getTime();
+    
+    if (timeLeft < 0) {
+      slaStatus = 'breached';
+      const overdue = Math.abs(timeLeft);
+      const hours = Math.floor(overdue / (1000 * 60 * 60));
+      const minutes = Math.floor((overdue % (1000 * 60 * 60)) / (1000 * 60));
+      slaTimeRemaining = hours > 0 ? `${hours}h ${minutes}m overdue` : `${minutes}m overdue`;
+    } else if (timeLeft < 60 * 60 * 1000) { // Less than 1 hour
+      slaStatus = 'at_risk';
+      const minutes = Math.floor(timeLeft / (1000 * 60));
+      slaTimeRemaining = `${minutes}m left`;
+    } else {
+      slaStatus = 'on_track';
+      const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+      const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+      slaTimeRemaining = hours > 0 ? `${hours}h ${minutes}m left` : `${minutes}m left`;
+    }
+  }
+  
+  // Map ticket_type enum to display name
+  const typeDisplayNames: Record<string, string> = {
+    'INCIDENT': 'Incident',
+    'PROBLEM': 'Problem', 
+    'CHANGE': 'Change',
+    'SERVICE_REQUEST': 'Service Request',
+  };
+  
+  return {
+    ...t,
+    // Ensure ID is a string
+    id: typeof t.id === 'object' ? `${t.id.tb}:${t.id.id?.String || t.id.id}` : t.id?.toString() || '',
+    // Map to display-friendly ticket type
+    ticket_type: typeDisplayNames[t.ticket_type] || t.ticket_type,
+    // Preserve original type for filtering
+    type: t.ticket_type,
+    // Add SLA information
+    slaStatus,
+    slaTimeRemaining,
+    // Add linked CI if related_asset exists
+    linkedCi: t.related_asset ? {
+      id: t.related_asset,
+      name: t.related_asset,
+      status: 'healthy' as const
+    } : undefined,
+  };
+};
+
 const ServiceDeskView: React.FC = () => {
   const navigate = useNavigate();
   const [viewMode, setViewMode] = useState<'list' | 'kanban'>('list');
   const [filter, setFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
-  const [tickets, setTickets] = useState<ExtendedTicket[]>([]);
   const [isCreateModalOpen, setCreateModalOpen] = useState(false);
-  const { isLoading, withLoading } = useEnhancedUX();
   
   // New state for tabs and views
   const [activeTab, setActiveTab] = useState('all');
@@ -294,94 +349,27 @@ const ServiceDeskView: React.FC = () => {
     slaStatus: [] as string[],
   });
 
+  // TanStack Query - fetch tickets with background sync
+  const { 
+    data: rawTickets = [], 
+    isFetching: isLoading, 
+    isPlaceholderData 
+  } = useTickets();
+  
+  // Transform tickets with memoization
+  const tickets: ExtendedTicket[] = useMemo(() => {
+    if (rawTickets.length > 0) {
+      return rawTickets.map(transformTicket);
+    }
+    // Fallback to mock data when no API data
+    return MOCK_TICKETS;
+  }, [rawTickets]);
+
+  // Create ticket mutation
+  const createTicketMutation = useCreateTicket();
+
   const handleTicketClick = (ticketId: string) => {
     navigate(`/app/service-desk/ticket/${ticketId}`);
-  };
-
-  useEffect(() => {
-    loadTickets();
-  }, []);
-
-  const loadTickets = async () => {
-    await withLoading(async () => {
-      try {
-        // Attempt to fetch real tickets from API
-        const response = await apiClient.getTickets();
-        
-        // The API returns { data: Ticket[], count: number }
-        const rawTickets = Array.isArray(response) ? response : (response as any)?.data || [];
-        
-        // Transform API data to ExtendedTicket format with UI-specific fields
-        const extendedData = rawTickets.map((t: any) => {
-          // Calculate SLA status based on ticket data
-          let slaStatus: 'on_track' | 'at_risk' | 'breached' = 'on_track';
-          let slaTimeRemaining = 'No SLA';
-          
-          if (t.sla_breach_at) {
-            const breachTime = new Date(t.sla_breach_at);
-            const now = new Date();
-            const timeLeft = breachTime.getTime() - now.getTime();
-            
-            if (timeLeft < 0) {
-              slaStatus = 'breached';
-              const overdue = Math.abs(timeLeft);
-              const hours = Math.floor(overdue / (1000 * 60 * 60));
-              const minutes = Math.floor((overdue % (1000 * 60 * 60)) / (1000 * 60));
-              slaTimeRemaining = hours > 0 ? `${hours}h ${minutes}m overdue` : `${minutes}m overdue`;
-            } else if (timeLeft < 60 * 60 * 1000) { // Less than 1 hour
-              slaStatus = 'at_risk';
-              const minutes = Math.floor(timeLeft / (1000 * 60));
-              slaTimeRemaining = `${minutes}m left`;
-            } else {
-              slaStatus = 'on_track';
-              const hours = Math.floor(timeLeft / (1000 * 60 * 60));
-              const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-              slaTimeRemaining = hours > 0 ? `${hours}h ${minutes}m left` : `${minutes}m left`;
-            }
-          }
-          
-          // Map ticket_type enum to display name
-          const typeDisplayNames: Record<string, string> = {
-            'INCIDENT': 'Incident',
-            'PROBLEM': 'Problem', 
-            'CHANGE': 'Change',
-            'SERVICE_REQUEST': 'Service Request',
-          };
-          
-          return {
-            ...t,
-            // Ensure ID is a string
-            id: typeof t.id === 'object' ? `${t.id.tb}:${t.id.id?.String || t.id.id}` : t.id?.toString() || '',
-            // Map to display-friendly ticket type
-            ticket_type: typeDisplayNames[t.ticket_type] || t.ticket_type,
-            // Preserve original type for filtering
-            type: t.ticket_type,
-            // Add SLA information
-            slaStatus,
-            slaTimeRemaining,
-            // Add linked CI if related_asset exists
-            linkedCi: t.related_asset ? {
-              id: t.related_asset,
-              name: t.related_asset,
-              status: 'healthy' as const
-            } : undefined,
-          };
-        }) as ExtendedTicket[];
-        
-        // If API returns data, use it; otherwise fall back to mock data
-        if (extendedData.length > 0) {
-          console.log(`Loaded ${extendedData.length} tickets from API`);
-          setTickets(extendedData);
-        } else {
-          console.log('No tickets from API, using mock data for demo');
-          setTickets(MOCK_TICKETS);
-        }
-      } catch (error) {
-        console.error('Failed to load tickets from API, using mock data:', error);
-        // Use mock data when API fails - this ensures the UI is always usable
-        setTickets(MOCK_TICKETS);
-      }
-    });
   };
 
   const handleCreateIncident = async (data: CreateIncidentData) => {
@@ -398,14 +386,11 @@ const ServiceDeskView: React.FC = () => {
       };
       
       console.log('Creating ticket:', ticketRequest);
-      await apiClient.createTicket(ticketRequest);
       
-      // Reload tickets after creation to show the new ticket
-      await loadTickets();
+      // Use mutation - TanStack Query will automatically invalidate and refetch
+      await createTicketMutation.mutateAsync(ticketRequest);
     } catch (error) {
       console.error('Failed to create ticket:', error);
-      // Still reload to show mock data fallback if API fails
-      await loadTickets();
       throw error; // Re-throw so the modal can show error state
     }
   };

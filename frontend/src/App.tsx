@@ -1,5 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 // Import ONLY Fluent UI 2 Design System
 import './styles/fluent2-design-system.css';
 import { ThemeProvider, useTheme } from './hooks/useTheme';
@@ -9,6 +11,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { AnimatedBackground } from './components/background/AnimatedBackground';
 import { useStyles } from './styles/useStyles';
 import NavigationSidebar from './components/NavigationSidebar';
+import { queryClient } from './hooks/queries';
 
 // Responsive breakpoint for sidebar collapse
 const MOBILE_BREAKPOINT = 768;
@@ -316,13 +319,17 @@ function AppContent() {
 // Main App wrapper with all providers
 function App() {
   return (
-    <ThemeProvider defaultMode="light">
-      <AuthProvider>
-        <NotificationsProvider>
-          <AppContent />
-        </NotificationsProvider>
-      </AuthProvider>
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider defaultMode="light">
+        <AuthProvider>
+          <NotificationsProvider>
+            <AppContent />
+          </NotificationsProvider>
+        </AuthProvider>
+      </ThemeProvider>
+      {/* DevTools - only shows in development */}
+      <ReactQueryDevtools initialIsOpen={false} position="bottom" />
+    </QueryClientProvider>
   );
 }
 

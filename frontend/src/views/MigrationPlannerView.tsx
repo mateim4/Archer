@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import DOMPurify from 'dompurify';
 import CustomSlider from '../components/CustomSlider';
 import { useAppStore } from '../store/useAppStore';
-import { PurpleGlassButton, PurpleGlassInput } from '@/components/ui';
+import { PurpleGlassButton, PurpleGlassInput, PurpleGlassDropdown } from '@/components/ui';
 import { 
   Database, 
   Settings, 
@@ -1060,20 +1060,20 @@ const MigrationPlannerView: React.FC = () => {
             <div className="grid grid-cols-3 gap-8" style={{ alignItems: 'start' }}>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
                 <label className="block mb-3 font-medium" style={{ fontSize: '14px', color: 'var(--color-neutral-foreground)', minHeight: '20px' }}>CPU Overcommit Ratio</label>
-                <select 
-                  className="lcm-dropdown" 
+                <PurpleGlassDropdown
                   value={cpuOvercommit}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    setCpuOvercommit(value);
-                    setShowCustomCpu(value === 'custom');
+                  onChange={(newValue) => {
+                    const v = newValue as string;
+                    setCpuOvercommit(v);
+                    setShowCustomCpu(v === 'custom');
                   }}
-                >
-                  <option value="2:1">2:1 (Conservative)</option>
-                  <option value="3:1">3:1 (Balanced)</option>
-                  <option value="4:1">4:1 (Aggressive)</option>
-                  <option value="custom">Custom...</option>
-                </select>
+                  options={[
+                    { value: '2:1', label: '2:1 (Conservative)' },
+                    { value: '3:1', label: '3:1 (Balanced)' },
+                    { value: '4:1', label: '4:1 (Aggressive)' },
+                    { value: 'custom', label: 'Custom...' }
+                  ]}
+                />
                 {showCustomCpu && (
                   <PurpleGlassInput
                     type="text"
@@ -1086,23 +1086,24 @@ const MigrationPlannerView: React.FC = () => {
               </div>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
                 <label className="block mb-3 font-medium" style={{ fontSize: '14px', color: 'var(--color-neutral-foreground)', minHeight: '20px' }}>Memory Overcommit</label>
-                <select 
-                  className="lcm-dropdown" 
+                <PurpleGlassDropdown
                   value={memoryOvercommit}
-                  onChange={(e) => {
-                    setMemoryOvercommit(e.target.value);
-                    if (e.target.value === 'custom') {
+                  onChange={(newValue) => {
+                    const v = newValue as string;
+                    setMemoryOvercommit(v);
+                    if (v === 'custom') {
                       setShowCustomMemory(true);
                     } else {
                       setShowCustomMemory(false);
                     }
                   }}
-                >
-                  <option value="1:1">1:1 (No overcommit)</option>
-                  <option value="1.5:1">1.5:1 (Conservative)</option>
-                  <option value="2:1">2:1 (Moderate)</option>
-                  <option value="custom">Custom...</option>
-                </select>
+                  options={[
+                    { value: '1:1', label: '1:1 (No overcommit)' },
+                    { value: '1.5:1', label: '1.5:1 (Conservative)' },
+                    { value: '2:1', label: '2:1 (Moderate)' },
+                    { value: 'custom', label: 'Custom...' }
+                  ]}
+                />
                 {showCustomMemory && (
                   <div style={{ marginTop: '12px' }}>
                     <PurpleGlassInput
@@ -1117,15 +1118,15 @@ const MigrationPlannerView: React.FC = () => {
               </div>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
                 <label className="block mb-3 font-medium" style={{ fontSize: '14px', color: 'var(--color-neutral-foreground)', minHeight: '20px' }}>HA Policy</label>
-                <select 
-                  className="lcm-dropdown" 
+                <PurpleGlassDropdown
                   value={haPolicy}
-                  onChange={(e) => setHaPolicy(e.target.value)}
-                >
-                  <option value="n+1">N+1 (Standard)</option>
-                  <option value="n+2">N+2 (High availability)</option>
-                  <option value="none">None</option>
-                </select>
+                  onChange={(newValue) => setHaPolicy(newValue as string)}
+                  options={[
+                    { value: 'n+1', label: 'N+1 (Standard)' },
+                    { value: 'n+2', label: 'N+2 (High availability)' },
+                    { value: 'none', label: 'None' }
+                  ]}
+                />
               </div>
             </div>
           </div>

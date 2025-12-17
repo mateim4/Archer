@@ -17,6 +17,7 @@ import {
 import ConsistentCard from '../components/ConsistentCard';
 import ConsistentButton from '../components/ConsistentButton';
 import SimpleFileUpload from '../components/SimpleFileUpload';
+import { PurpleGlassDropdown, PurpleGlassInput, PurpleGlassButton } from '../components/ui';
 import { UserPermissions } from '../types/hardwareBasketTypes';
 import type { 
   HardwareBasket, 
@@ -1505,26 +1506,20 @@ const VendorDataCollectionView: React.FC = () => {
                 }}>
                   Workload Type
                 </label>
-                <select
+                <PurpleGlassDropdown
                   value={searchRequirements.workload_type}
-                  onChange={(e) => setSearchRequirements(prev => ({...prev, workload_type: e.target.value}))}
-                  style={{
-                    width: '100%',
-                    padding: '8px 12px',
-                    border: '1px solid rgba(139, 92, 246, 0.3)',
-                    borderRadius: '6px',
-                    fontSize: '14px'
-                  }}
-                >
-                  <option value="General">General Purpose</option>
-                  <option value="WebServer">Web Server</option>
-                  <option value="Database">Database</option>
-                  <option value="Virtualization">Virtualization</option>
-                  <option value="HighPerformanceComputing">HPC</option>
-                  <option value="Storage">Storage</option>
-                  <option value="AIMLTraining">AI/ML Training</option>
-                  <option value="AIMLInference">AI/ML Inference</option>
-                </select>
+                  onChange={(value) => setSearchRequirements(prev => ({...prev, workload_type: value as string}))}
+                  options={[
+                    { value: 'General', label: 'General Purpose' },
+                    { value: 'WebServer', label: 'Web Server' },
+                    { value: 'Database', label: 'Database' },
+                    { value: 'Virtualization', label: 'Virtualization' },
+                    { value: 'HighPerformanceComputing', label: 'HPC' },
+                    { value: 'Storage', label: 'Storage' },
+                    { value: 'AIMLTraining', label: 'AI/ML Training' },
+                    { value: 'AIMLInference', label: 'AI/ML Inference' }
+                  ]}
+                />
               </div>
               <div>
                 <label style={{ 
@@ -1536,21 +1531,14 @@ const VendorDataCollectionView: React.FC = () => {
                 }}>
                   Minimum CPU Cores
                 </label>
-                <input
+                <PurpleGlassInput
                   type="number"
                   placeholder="e.g. 16"
-                  value={searchRequirements.cpu_cores_minimum || ''}
+                  value={searchRequirements.cpu_cores_minimum?.toString() || ''}
                   onChange={(e) => setSearchRequirements(prev => ({
                     ...prev, 
                     cpu_cores_minimum: e.target.value ? parseInt(e.target.value) : undefined
                   }))}
-                  style={{
-                    width: '100%',
-                    padding: '8px 12px',
-                    border: '1px solid rgba(139, 92, 246, 0.3)',
-                    borderRadius: '6px',
-                    fontSize: '14px'
-                  }}
                 />
               </div>
               <div>
@@ -1563,21 +1551,14 @@ const VendorDataCollectionView: React.FC = () => {
                 }}>
                   Minimum Memory (GB)
                 </label>
-                <input
+                <PurpleGlassInput
                   type="number"
                   placeholder="e.g. 128"
-                  value={searchRequirements.memory_gb_minimum || ''}
+                  value={searchRequirements.memory_gb_minimum?.toString() || ''}
                   onChange={(e) => setSearchRequirements(prev => ({
                     ...prev, 
                     memory_gb_minimum: e.target.value ? parseInt(e.target.value) : undefined
                   }))}
-                  style={{
-                    width: '100%',
-                    padding: '8px 12px',
-                    border: '1px solid rgba(139, 92, 246, 0.3)',
-                    borderRadius: '6px',
-                    fontSize: '14px'
-                  }}
                 />
               </div>
             </div>

@@ -43,6 +43,7 @@ import {
   PurpleGlassInput,
   PurpleGlassTextarea,
   PurpleGlassDropdown,
+  PurpleGlassCheckbox,
   SLAIndicator,
   LinkedAssetBadge,
   PageHeader,
@@ -863,12 +864,11 @@ const TicketDetailView: React.FC = () => {
                         fontSize: '13px',
                         cursor: 'pointer',
                       }}>
-                        <input 
-                          type="checkbox" 
+                        <PurpleGlassCheckbox
                           checked={isInternalComment}
                           onChange={(e) => setIsInternalComment(e.target.checked)}
+                          label="Internal note (not visible to requester)"
                         />
-                        Internal note (not visible to requester)
                       </label>
                       <div style={{ display: 'flex', gap: '8px' }}>
                         <PurpleGlassButton variant="ghost" size="small">
