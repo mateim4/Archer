@@ -7,6 +7,7 @@ import {
   PurpleGlassDropdown,
   PurpleGlassSpinner,
   PurpleGlassEmptyState,
+  PurpleGlassCheckbox,
   PageHeader,
 } from '../components/ui';
 import {
@@ -344,11 +345,10 @@ const CMDBExplorerView: React.FC = () => {
               color: 'var(--colorNeutralForeground2)',
             }}>
               <div>
-                <input
-                  type="checkbox"
+                <PurpleGlassCheckbox
                   checked={selectedItems.size === cis.length && cis.length > 0}
                   onChange={handleSelectAll}
-                  style={{ cursor: 'pointer' }}
+                  indeterminate={selectedItems.size > 0 && selectedItems.size < cis.length}
                 />
               </div>
               <div>CI ID</div>
@@ -386,11 +386,9 @@ const CMDBExplorerView: React.FC = () => {
                 alignItems: 'center',
               }}>
                 <div onClick={(e) => e.stopPropagation()}>
-                  <input
-                    type="checkbox"
+                  <PurpleGlassCheckbox
                     checked={selectedItems.has(ci.id!)}
                     onChange={() => handleSelectItem(ci.id!)}
-                    style={{ cursor: 'pointer' }}
                   />
                 </div>
                 

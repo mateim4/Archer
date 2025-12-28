@@ -18,7 +18,7 @@ import {
   ArrowUploadRegular,
   DiagramRegular
 } from '@fluentui/react-icons';
-import { PurpleGlassButton, PurpleGlassCard, PrimaryButton, PageHeader } from '../components/ui';
+import { PurpleGlassButton, PurpleGlassCard, PurpleGlassDropdown, PrimaryButton, PageHeader } from '../components/ui';
 import { useNavigate } from 'react-router-dom';
 
 const pageLayoutStyle: React.CSSProperties = {
@@ -344,50 +344,33 @@ const HardwarePoolView: React.FC = () => {
 
         {/* Status Filter */}
         <div style={{ minWidth: '140px' }}>
-          <select
+          <PurpleGlassDropdown
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as AssetStatus | 'All')}
-            style={{
-              ...DesignTokens.components.standardCard,
-              padding: '14px 20px',
-              fontSize: '14px',
-              fontFamily: 'Oxanium, sans-serif',
-              cursor: 'pointer',
-              outline: 'none',
-              color: 'var(--text-primary)',
-              width: '100%'
-            }}
-          >
-            <option value="All">All Status</option>
-            <option value="Available">Available</option>
-            <option value="InUse">In Use</option>
-            <option value="Locked">Locked</option>
-            <option value="Maintenance">Maintenance</option>
-            <option value="Decommissioned">Decommissioned</option>
-          </select>
+            onChange={(value) => setStatusFilter(value as AssetStatus | 'All')}
+            options={[
+              { value: 'All', label: 'All Status' },
+              { value: 'Available', label: 'Available' },
+              { value: 'InUse', label: 'In Use' },
+              { value: 'Locked', label: 'Locked' },
+              { value: 'Maintenance', label: 'Maintenance' },
+              { value: 'Decommissioned', label: 'Decommissioned' }
+            ]}
+          />
         </div>
 
         {/* Manufacturer Filter */}
         <div style={{ minWidth: '140px' }}>
-          <select
+          <PurpleGlassDropdown
             value={manufacturerFilter}
-            onChange={(e) => setManufacturerFilter(e.target.value)}
-            style={{
-              ...DesignTokens.components.standardCard,
-              padding: '14px 20px',
-              fontSize: '14px',
-              fontFamily: 'Oxanium, sans-serif',
-              cursor: 'pointer',
-              outline: 'none',
-              color: 'var(--text-primary)',
-              width: '100%'
-            }}
-          >
-            <option value="All">All Manufacturers</option>
-            {uniqueManufacturers.map(manufacturer => (
-              <option key={manufacturer} value={manufacturer}>{manufacturer}</option>
-            ))}
-          </select>
+            onChange={(value) => setManufacturerFilter(value as string)}
+            options={[
+              { value: 'All', label: 'All Manufacturers' },
+              ...uniqueManufacturers.map(manufacturer => ({
+                value: manufacturer,
+                label: manufacturer
+              }))
+            ]}
+          />
         </div>
 
         {/* Clear Filters Button */}
